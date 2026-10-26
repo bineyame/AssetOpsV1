@@ -1,0 +1,1770 @@
+[
+ {
+  "screen": "ev",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-interrupted-1440-app.png",
+  "mock_image": "ev-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 272->237",
+   "pSizes {'11px': 5, '10px': 7, '14px': 6}->{'11px': 5, '10px': 3, '14px': 6}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-interrupted-390-app.png",
+  "mock_image": "ev-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 592->427",
+   "pSizes {'11px': 5, '10px': 7, '14px': 6}->{'11px': 5, '10px': 3, '14px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-no-selection-1440-app.png",
+  "mock_image": "ev-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 236->193",
+   "pSizes {'11px': 3, '10px': 9, '14px': 4}->{'11px': 3, '14px': 5, '10px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-no-selection-390-app.png",
+  "mock_image": "ev-no-selection-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 520->257",
+   "pSizes {'11px': 3, '10px': 9, '14px': 4}->{'11px': 3, '14px': 5, '10px': 2}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-refused-1440-app.png",
+  "mock_image": "ev-refused-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 119->136",
+   "[What happened on the service day] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-refused-390-app.png",
+  "mock_image": "ev-refused-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 119->152",
+   "[What happened on the service day] details 0->1",
+   "pageH 1033->1450",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-no-window-1440-app.png",
+  "mock_image": "ev-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 272->237",
+   "pSizes {'11px': 5, '10px': 7, '14px': 6}->{'11px': 5, '10px': 3, '14px': 6}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-no-window-390-app.png",
+  "mock_image": "ev-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened on the service day] height 592->427",
+   "pSizes {'11px': 5, '10px': 7, '14px': 6}->{'11px': 5, '10px': 3, '14px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-interrupted-1440-app.png",
+  "mock_image": "ev-evidence-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "pSizes {'11px': 3, '10px': 1, '14px': 3}->{'11px': 3, '10px': 1, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-interrupted-390-app.png",
+  "mock_image": "ev-evidence-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "[Most useful next evidence] height 267->169",
+   "pSizes {'11px': 3, '10px': 1, '14px': 3}->{'11px': 3, '10px': 1, '14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "What we can conclude now"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Data sources · data quality, not equipment condition"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-no-selection-1440-app.png",
+  "mock_image": "ev-evidence-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "[What we can conclude now] chips ['None', 'None', 'None', 'None']->['None', 'None', 'None', 'No interruption']",
+   "pSizes {'11px': 1, '10px': 1, '14px': 3}->{'11px': 1, '10px': 1, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-no-selection-390-app.png",
+  "mock_image": "ev-evidence-no-selection-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "[What we can conclude now] chips ['None', 'None', 'None', 'None']->['None', 'None', 'None', 'No interruption']",
+   "[Most useful next evidence] height 218->120",
+   "pSizes {'11px': 1, '10px': 1, '14px': 3}->{'11px': 1, '10px': 1, '14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "What we can conclude now"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Data sources · data quality, not equipment condition"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-refused-1440-app.png",
+  "mock_image": "ev-evidence-refused-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] height 119->136",
+   "[What we can conclude now] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-refused-390-app.png",
+  "mock_image": "ev-evidence-refused-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] height 119->152",
+   "[What we can conclude now] details 0->1",
+   "h1.top 211->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 191->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-no-window-1440-app.png",
+  "mock_image": "ev-evidence-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "pSizes {'11px': 3, '10px': 1, '14px': 3}->{'11px': 3, '10px': 1, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-no-window-390-app.png",
+  "mock_image": "ev-evidence-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] links 3->4",
+   "[Most useful next evidence] height 267->169",
+   "pSizes {'11px': 3, '10px': 1, '14px': 3}->{'11px': 3, '10px': 1, '14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "What we can conclude now"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 640,
+    "cw": 318,
+    "panel": "Data sources · data quality, not equipment condition"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-interrupted-1440-app.png",
+  "mock_image": "ev-evidence-analysis-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.5
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (UTC)', 'Sent (UTC)', 'Received (UTC)', 'Record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-interrupted-390-app.png",
+  "mock_image": "ev-evidence-analysis-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (UTC)', 'Sent (UTC)', 'Received (UTC)', 'Record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 900,
+    "cw": 318,
+    "panel": "Accepted records behind the conclusions"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-no-selection-1440-app.png",
+  "mock_image": "ev-evidence-analysis-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-no-selection-390-app.png",
+  "mock_image": "ev-evidence-analysis-no-selection-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 219->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 200->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-refused-1440-app.png",
+  "mock_image": "ev-evidence-analysis-refused-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 119->136",
+   "[Accepted records behind the conclusions] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-refused-390-app.png",
+  "mock_image": "ev-evidence-analysis-refused-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 119->152",
+   "[Accepted records behind the conclusions] details 0->1",
+   "h1.top 277->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 257->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-no-window-1440-app.png",
+  "mock_image": "ev-evidence-analysis-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.5
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (UTC)', 'Sent (UTC)', 'Received (UTC)', 'Record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-evidence-analysis",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-evidence-analysis-no-window-390-app.png",
+  "mock_image": "ev-evidence-analysis-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/evidence/analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (UTC)', 'Sent (UTC)', 'Received (UTC)', 'Record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 900,
+    "cw": 318,
+    "panel": "Accepted records behind the conclusions"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-interrupted-1440-app.png",
+  "mock_image": "ev-financials-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Assumptions in use] chips []->['No record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-interrupted-390-app.png",
+  "mock_image": "ev-financials-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [
+   [
+    "Assumptions in use",
+    1.32
+   ]
+  ],
+  "app_diffs": [
+   "[Assumptions in use] chips []->['No record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 900,
+    "cw": 318,
+    "panel": "What happened → what it means in money"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-no-selection-1440-app.png",
+  "mock_image": "ev-financials-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Assumptions in use] chips ['Not declared', 'Not declared']->['Not declared', 'No record', 'Not declared']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-no-selection-390-app.png",
+  "mock_image": "ev-financials-no-selection-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Assumptions in use] chips ['Not declared', 'Not declared']->['Not declared', 'No record', 'Not declared']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 900,
+    "cw": 318,
+    "panel": "What happened → what it means in money"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-refused-1440-app.png",
+  "mock_image": "ev-financials-refused-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened → what it means in money] height 96->113",
+   "[What happened → what it means in money] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-refused-390-app.png",
+  "mock_image": "ev-financials-refused-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened → what it means in money] height 96->129",
+   "[What happened → what it means in money] details 0->1",
+   "h1.top 233->127",
+   "pageH 900->1060",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 214->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-no-window-1440-app.png",
+  "mock_image": "ev-financials-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Assumptions in use] chips []->['No record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-financials",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-financials-no-window-390-app.png",
+  "mock_image": "ev-financials-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financials",
+  "ratios_over_1.3": [
+   [
+    "Assumptions in use",
+    1.32
+   ]
+  ],
+  "app_diffs": [
+   "[Assumptions in use] chips []->['No record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 900,
+    "cw": 318,
+    "panel": "What happened → what it means in money"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-interrupted-1440-app.png",
+  "mock_image": "ev-assumptions-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips []->['No record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-interrupted-390-app.png",
+  "mock_image": "ev-assumptions-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips []->['No record']",
+   "h1.top 161->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]",
+   "mainTop 142->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 600,
+    "cw": 318,
+    "panel": "Financial assumptions"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-no-selection-1440-app.png",
+  "mock_image": "ev-assumptions-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips ['Not declared', 'Not declared']->['Not declared', 'No record', 'Not declared']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-no-selection-390-app.png",
+  "mock_image": "ev-assumptions-no-selection-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-05T08:00:00.000000Z&to=2026-10-05T09:05:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips ['Not declared', 'Not declared']->['Not declared', 'No record', 'Not declared']",
+   "h1.top 188->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]",
+   "mainTop 169->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 600,
+    "cw": 318,
+    "panel": "Financial assumptions"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-refused-1440-app.png",
+  "mock_image": "ev-assumptions-refused-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] height 119->136",
+   "[Financial assumptions] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-refused-390-app.png",
+  "mock_image": "ev-assumptions-refused-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T09:05:00.000000Z&to=2026-10-06T08:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] height 119->152",
+   "[Financial assumptions] details 0->1",
+   "h1.top 294->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 275->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-no-window-1440-app.png",
+  "mock_image": "ev-assumptions-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips []->['No record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-assumptions",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-assumptions-no-window-390-app.png",
+  "mock_image": "ev-assumptions-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/ev/financial-assumptions",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] chips []->['No record']",
+   "h1.top 161->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 600, 'cw': 318, 'panel': 'Financial assumptions'}]",
+   "mainTop 142->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 600,
+    "cw": 318,
+    "panel": "Financial assumptions"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

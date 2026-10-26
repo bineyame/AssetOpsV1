@@ -1,0 +1,71 @@
+chrome pid 1616
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link00-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link01-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link02-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link03-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/operational-records?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link04-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/maintenance/preventive?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link05-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link06-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link07-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link08-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link09-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-002/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link10-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link11-globalfinancials 1440: app rendered
+PASS  loaded http://localhost:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link12-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link13-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link14-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link15-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link16-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link17-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/temperature: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link18-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-001/performance/sessions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link19-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-002/performance/sessions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link20-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/service: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link21-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/performance/backup: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link22-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/performance/backup: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link23-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link24-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link25-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/EV-LAB-002/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link26-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link27-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link28-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/KOBO-001/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link29-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link30-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/W303-EMPTY-001/ev: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link31-globalevidence 1440: app rendered
+PASS  loaded http://localhost:5181/sites/W303-EMPTY-001/performance/sessions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link32-portfolio 1440: app rendered
+PASS  loaded http://localhost:5181/sites/W303-EMPTY-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link33-portfolio 1440: app rendered
+
+68/68 claims passed; evidence in w303-links

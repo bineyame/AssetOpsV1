@@ -1,0 +1,12 @@
+[
+ {
+  "id": "ev-findings",
+  "case": "check-interrupted",
+  "url": "http://localhost:5189/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z"
+ },
+ {
+  "id": "ev-findings",
+  "case": "check-no-window",
+  "url": "http://localhost:5189/sites/EV-LAB-001/findings"
+ }
+]

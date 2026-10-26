@@ -1,0 +1,3947 @@
+{
+  "revision": "89a11477",
+  "captured_at": "2026-10-26T09:39:25.531Z",
+  "pairs": [
+    {
+      "screen": "link-check",
+      "case": "mini-06",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-06",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-06-1440-app.png",
+      "mock_image": "link-check-mini-06-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 540,
+            "w": 1145,
+            "h": 260,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-06 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-06), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 818,
+            "w": 725,
+            "h": 884,
+            "tables": 1,
+            "rows": 16,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 501,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "storage charge requested power battery-pcs-controller/charge-requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Battery charge battery-pcs-controller/state-of-charge",
+                "1",
+                "1",
+                "09:00",
+                "09:00"
+              ],
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load delivered power clinic-meter/delivered-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load requested power clinic-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Fuel level fuel-level-sensor/fuel-level",
+                "2",
+                "2",
+                "09:00",
+                "09:59"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "feeder requested power mill-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "mini backup bus state mini-backup-bus-meter/state",
+                "1",
+                "1",
+                "09:11",
+                "09:11"
+              ],
+              [
+                "mini backup start event mini-generator-controller/start-event",
+                "2",
+                "2",
+                "09:10",
+                "09:11"
+              ],
+              [
+                "site supply state mini-primary-bus-meter/state",
+                "3",
+                "3",
+                "08:55",
+                "09:40"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-06, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsstorage charge requested powerBattery chargeFeeder demand · Clinic metercritical load delivered powercritical load requested powerFuel levelGenerator outputFeeder demand · Mill meterfeeder requested power · Mill metermini backup bus statemini backup start eventsite supp",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 818,
+            "w": 403,
+            "h": 884,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-06 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1720,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1720,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1998,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-06",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z",
+            "renewable|RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000Z&to=2026-10-06T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-05",
+          "Next day -> /sites/MG-W402-001?date=2026-10-07",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-06",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000Z&to=2026-10-06T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A30.960Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-07T00%3A00%3A00Z",
+          "08:55 site supply state: ENERGIZED state -> /sites/MG-W402-001/evidence?view=analysis&record=4438b0b9-2f8d-4a86-a4f6-4d6a799bcdc2",
+          "09:00 Fuel level: 180 L -> /sites/MG-W402-001/evidence?view=analysis&record=a2d97d4c-bf29-4a9a-acb3-7751c0ba7f80",
+          "09:00 Battery charge: 80 % -> /sites/MG-W402-001/evidence?view=analysis&record=c9a6993c-34be-475e-be78-9a5a28a6ee25",
+          "09:01 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=10ff2017-31b2-46b7-b5e0-bbd77767d4aa",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=171b79f9-af86-4e1e-bafc-9b9f86f3564f",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=17e29b43-00b6-4531-9fb4-4f5a60c65ee1",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=1f95af27-1351-459d-9960-faa296cecd16",
+          "09:01 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=389ed8b2-4026-4bf3-b743-21deba5017fa",
+          "09:01 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=84c436f1-6926-4f62-a4cf-af0bd666ee72",
+          "09:01 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=989ec9e7-c6a3-4b3f-b87f-ad11332a68a5",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=db68a130-df49-4e90-90dc-c3bd27eeac60",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=e9e6cb96-0543-42b8-84a0-36abb43f2abe",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f089d82d-2d9e-4866-b605-150070773129",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f76a0f24-f902-494c-9489-15945d6eb5b9",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0f747928-e9da-4bdc-9b13-563454ca91dd",
+          "09:02 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=13d4afbc-b45a-4c81-8608-154c1a338f60",
+          "09:02 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=1442ce7a-ad25-4735-a1eb-8ce09a8c09e0",
+          "09:02 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=25e601d4-f352-4e13-94e9-661cffc9339a",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3a95bd13-d298-4ebb-b6cd-1cf151cd4e72",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3d62ac33-719e-49b9-94cd-056d020bc9f4",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=57a44802-9592-4c41-b020-9324de9bc0eb",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=66287aed-b323-49bc-a43e-0d26b64d4b05",
+          "09:02 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6f383c44-b03a-4108-9536-b1128f1e8212",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7a129b67-ad99-4958-8733-ac0ea9d5c6a0",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c649d2c4-a5cc-4513-8669-a7549335635a",
+          "09:03 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=240af864-21e3-447f-8363-7ad3135c51a4",
+          "09:03 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=32e175b9-6fb9-4f3d-b55a-5f0c4a0d9c97",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6c6ec7d4-a1c7-432b-95f8-d3bfa7c248ff",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7204081c-0d92-4cea-939d-7f94fec70d39",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7c8b2f87-b13f-442f-a322-e498e87b27d5",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=abf8abc5-8c5e-4c62-8bfb-03180d01be20",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=b9c7230c-b23b-4d44-a07c-34ab51fcdbe1",
+          "09:03 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c0507d99-4a2f-4c93-a174-2ed153c490eb",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c926045e-bcc1-4559-9fef-66212831c793",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cac924f8-1973-434b-acaa-22e1abdb1a8d",
+          "09:03 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cf5951be-6e39-4c63-b668-68d90e463f78",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2ed93e7d-365e-49be-97b4-a06411e1c97a",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2f1f5986-dda7-4ae7-ae80-fcbc55b912f6",
+          "09:04 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=70f6378c-f1da-48a5-b3b9-56c2e61e1c40",
+          "09:04 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=85f9aeac-4878-4bed-b6ed-ec1bb9a5829f",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9791f7e9-c3f5-4d12-9eaf-7a0267028e07",
+          "09:04 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=de4beae1-02b6-4e3c-8e0a-782d13f08c38"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView de",
+            "h": 165
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 165
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 165
+          },
+          {
+            "t": "FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unava",
+            "h": 165
+          },
+          {
+            "t": "RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedV",
+            "h": 165
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1998
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "mini-06",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-06",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-06-390-app.png",
+      "mock_image": "link-check-mini-06-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1229,
+            "w": 358,
+            "h": 377,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-06 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-06), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1625,
+            "w": 358,
+            "h": 1054,
+            "tables": 1,
+            "rows": 16,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 501,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "storage charge requested power battery-pcs-controller/charge-requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Battery charge battery-pcs-controller/state-of-charge",
+                "1",
+                "1",
+                "09:00",
+                "09:00"
+              ],
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load delivered power clinic-meter/delivered-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load requested power clinic-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Fuel level fuel-level-sensor/fuel-level",
+                "2",
+                "2",
+                "09:00",
+                "09:59"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "feeder requested power mill-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "mini backup bus state mini-backup-bus-meter/state",
+                "1",
+                "1",
+                "09:11",
+                "09:11"
+              ],
+              [
+                "mini backup start event mini-generator-controller/start-event",
+                "2",
+                "2",
+                "09:10",
+                "09:11"
+              ],
+              [
+                "site supply state mini-primary-bus-meter/state",
+                "3",
+                "3",
+                "08:55",
+                "09:40"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-06, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsstorage charge requested powerBattery chargeFeeder demand · Clinic metercritical load delivered powercritical load requested powerFuel levelGenerator outputFeeder demand · Mill meterfeeder requested power · Mill metermini backup bus statemini backup start eventsite supp",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2695,
+            "w": 358,
+            "h": 460,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-06 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 3171,
+            "w": 358,
+            "h": 230,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 3418,
+            "w": 358,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3611,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-06, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-06",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z",
+            "renewable|RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000Z&to=2026-10-06T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-05",
+          "Next day -> /sites/MG-W402-001?date=2026-10-07",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-06",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-06T09%3A00%3A00.000Z&to=2026-10-06T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-05T21%3A00%3A00.000Z&to=2026-10-06T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A37.793Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-07T00%3A00%3A00Z",
+          "08:55 site supply state: ENERGIZED state -> /sites/MG-W402-001/evidence?view=analysis&record=4438b0b9-2f8d-4a86-a4f6-4d6a799bcdc2",
+          "09:00 Fuel level: 180 L -> /sites/MG-W402-001/evidence?view=analysis&record=a2d97d4c-bf29-4a9a-acb3-7751c0ba7f80",
+          "09:00 Battery charge: 80 % -> /sites/MG-W402-001/evidence?view=analysis&record=c9a6993c-34be-475e-be78-9a5a28a6ee25",
+          "09:01 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=10ff2017-31b2-46b7-b5e0-bbd77767d4aa",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=171b79f9-af86-4e1e-bafc-9b9f86f3564f",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=17e29b43-00b6-4531-9fb4-4f5a60c65ee1",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=1f95af27-1351-459d-9960-faa296cecd16",
+          "09:01 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=389ed8b2-4026-4bf3-b743-21deba5017fa",
+          "09:01 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=84c436f1-6926-4f62-a4cf-af0bd666ee72",
+          "09:01 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=989ec9e7-c6a3-4b3f-b87f-ad11332a68a5",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=db68a130-df49-4e90-90dc-c3bd27eeac60",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=e9e6cb96-0543-42b8-84a0-36abb43f2abe",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f089d82d-2d9e-4866-b605-150070773129",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f76a0f24-f902-494c-9489-15945d6eb5b9",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0f747928-e9da-4bdc-9b13-563454ca91dd",
+          "09:02 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=13d4afbc-b45a-4c81-8608-154c1a338f60",
+          "09:02 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=1442ce7a-ad25-4735-a1eb-8ce09a8c09e0",
+          "09:02 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=25e601d4-f352-4e13-94e9-661cffc9339a",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3a95bd13-d298-4ebb-b6cd-1cf151cd4e72",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3d62ac33-719e-49b9-94cd-056d020bc9f4",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=57a44802-9592-4c41-b020-9324de9bc0eb",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=66287aed-b323-49bc-a43e-0d26b64d4b05",
+          "09:02 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6f383c44-b03a-4108-9536-b1128f1e8212",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7a129b67-ad99-4958-8733-ac0ea9d5c6a0",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c649d2c4-a5cc-4513-8669-a7549335635a",
+          "09:03 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=240af864-21e3-447f-8363-7ad3135c51a4",
+          "09:03 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=32e175b9-6fb9-4f3d-b55a-5f0c4a0d9c97",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6c6ec7d4-a1c7-432b-95f8-d3bfa7c248ff",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7204081c-0d92-4cea-939d-7f94fec70d39",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7c8b2f87-b13f-442f-a322-e498e87b27d5",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=abf8abc5-8c5e-4c62-8bfb-03180d01be20",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=b9c7230c-b23b-4d44-a07c-34ab51fcdbe1",
+          "09:03 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c0507d99-4a2f-4c93-a174-2ed153c490eb",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c926045e-bcc1-4559-9fef-66212831c793",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cac924f8-1973-434b-acaa-22e1abdb1a8d",
+          "09:03 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cf5951be-6e39-4c63-b668-68d90e463f78",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2ed93e7d-365e-49be-97b4-a06411e1c97a",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2f1f5986-dda7-4ae7-ae80-fcbc55b912f6",
+          "09:04 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=70f6378c-f1da-48a5-b3b9-56c2e61e1c40",
+          "09:04 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=85f9aeac-4878-4bed-b6ed-ec1bb9a5829f",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9791f7e9-c3f5-4d12-9eaf-7a0267028e07",
+          "09:04 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=de4beae1-02b6-4e3c-8e0a-782d13f08c38"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceDelivered 20 kWLocal 2026-10-06 12:00–13:00 · 60 of 60 min coveredView de",
+            "h": 185
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 185
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 169
+          },
+          {
+            "t": "FuelExpected use 0–2.39 LLocal 2026-10-06 12:00–13:00 · Inventory residual unava",
+            "h": 169
+          },
+          {
+            "t": "RenewableUnknownLocal 2026-10-06 · One selected day; recurrence not establishedV",
+            "h": 165
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 326,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "mini-08",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-08",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-08-1440-app.png",
+      "mock_image": "link-check-mini-08-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 540,
+            "w": 1145,
+            "h": 260,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-08 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-08), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 818,
+            "w": 725,
+            "h": 808,
+            "tables": 1,
+            "rows": 13,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 501,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "storage charge requested power battery-pcs-controller/charge-requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Battery charge battery-pcs-controller/state-of-charge",
+                "1",
+                "1",
+                "09:00",
+                "09:00"
+              ],
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load delivered power clinic-meter/delivered-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load requested power clinic-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Fuel level fuel-level-sensor/fuel-level",
+                "2",
+                "2",
+                "09:00",
+                "09:59"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "feeder requested power mill-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Solar output pv-inverter-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Available solar power pv-inverter-controller/available-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand residential-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-08, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsstorage charge requested powerBattery chargeFeeder demand · Clinic metercritical load delivered powercritical load requested powerFuel levelGenerator outputFeeder demand · Mill meterfeeder requested power · Mill meterSolar outputAvailable solar powerFeeder demand · Resi",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 818,
+            "w": 403,
+            "h": 808,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-08 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1644,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1644,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1921,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-08",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z",
+            "renewable|RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-07T21%3A00%3A00.000Z&to=2026-10-08T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-07",
+          "Next day -> /sites/MG-W402-001?date=2026-10-09",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-08",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-07T21%3A00%3A00.000Z&to=2026-10-08T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A45.878Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-09T00%3A00%3A00Z",
+          "09:00 Battery charge: 80 % -> /sites/MG-W402-001/evidence?view=analysis&record=0b67cfd6-9f1f-4f15-9bc3-7723437a8ce1",
+          "09:00 Fuel level: 180 L -> /sites/MG-W402-001/evidence?view=analysis&record=b5d63324-9feb-4a3c-b4eb-c1c78d120a2b",
+          "09:01 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0654fc51-a4bf-4f0d-a86e-995bca3504d1",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0f50d4a2-10f8-42da-8a81-bfbde1450c5d",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=195864b6-d8c6-4a7f-881c-15e8da30e93a",
+          "09:01 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=45686a39-5848-4564-863b-10e495456764",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4a627826-79bd-455a-a8b2-9772621639be",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6211a5a8-89b4-482e-9025-e3b6e376253a",
+          "09:01 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=64153f65-53bb-44cd-964d-7c05ecc8c839",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=71270d1f-4cc0-4239-9ab2-53acc184d252",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8773f865-f900-4d0f-83e5-4fbda9adc901",
+          "09:01 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=895701c1-34e9-44c5-89cc-57712682fd37",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ac05dc96-2107-47ad-ba66-f9cfa62b2b81",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=25f3e97f-5adf-4589-9fa5-8abf16f9ddbc",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2ac804e9-a1a3-4482-8c0e-6b72e93c6980",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3171e6fd-a2a5-4314-8752-d5330a7da1fc",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=478f5d37-174b-4e03-8b49-e57f7974b471",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4e9b5c74-2ae3-4fce-98e7-c5204cd8bd68",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=590e68d8-9992-425e-9106-0b082e54b6a1",
+          "09:02 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5f4cc936-7ec4-4aaf-92c4-39e4b7475133",
+          "09:02 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7697cdb0-0a1a-496b-af50-c8b61b00fd7e",
+          "09:02 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9d40415b-a474-425d-9c2a-883cc98a92ad",
+          "09:02 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ad0b07a7-beef-4e22-9939-26e9824a5c46",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=dc4201b9-4f5a-4ae2-8956-f76c130d9de6",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=01fa5b25-5f01-4cf2-9948-6703b8afdf9b",
+          "09:03 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=11a96e36-da84-49f6-9403-9993e3051cd7",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=27778ec0-7e06-43fe-a29b-49faf9a63051",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=682b33e2-f15b-44e1-9f39-594338711897",
+          "09:03 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7f47613f-5d1b-4ea4-844f-454cdd509785",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=89923055-3619-4e65-97be-f9bebf2a3390",
+          "09:03 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8fbe74e2-7cb5-4833-9669-f7448431cf58",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=a283ab03-3386-48ab-8b58-f7e341ff940a",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c29a0aa6-2bee-4f50-b7d4-6517349c6eb0",
+          "09:03 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=e07fca06-3681-484e-b941-959d46e0b90b",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=fd5ad6d2-3968-480a-97a3-4a3b36aba728",
+          "09:04 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0ff59464-8201-4473-8359-4934445b4795",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4050a747-1c8b-47e5-8e4c-0f1ac4bb3b90",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=56ae6fe2-5aa8-4f70-bac3-156499925a00",
+          "09:04 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6420c7e9-66ae-4097-89c9-aaf49f85696f",
+          "09:04 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=68436f6e-2cb8-4471-a612-07d49f8f7bd7",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=968800dc-2dbd-4ed9-8d1a-ab6ea494ddf0",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=980ee637-aef6-4275-8e24-02ce64339766"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView de",
+            "h": 165
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 165
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 165
+          },
+          {
+            "t": "FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailabl",
+            "h": 165
+          },
+          {
+            "t": "RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not es",
+            "h": 165
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1921
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "mini-08",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-08",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-08-390-app.png",
+      "mock_image": "link-check-mini-08-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1229,
+            "w": 358,
+            "h": 377,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-08 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-08), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1625,
+            "w": 358,
+            "h": 930,
+            "tables": 1,
+            "rows": 13,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 501,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "storage charge requested power battery-pcs-controller/charge-requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Battery charge battery-pcs-controller/state-of-charge",
+                "1",
+                "1",
+                "09:00",
+                "09:00"
+              ],
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load delivered power clinic-meter/delivered-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "critical load requested power clinic-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Fuel level fuel-level-sensor/fuel-level",
+                "2",
+                "2",
+                "09:00",
+                "09:59"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "feeder requested power mill-meter/requested-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Solar output pv-inverter-controller/ac-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Available solar power pv-inverter-controller/available-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand residential-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-08, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsstorage charge requested powerBattery chargeFeeder demand · Clinic metercritical load delivered powercritical load requested powerFuel levelGenerator outputFeeder demand · Mill meterfeeder requested power · Mill meterSolar outputAvailable solar powerFeeder demand · Resi",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2570,
+            "w": 358,
+            "h": 460,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-08 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 3047,
+            "w": 358,
+            "h": 230,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 3293,
+            "w": 358,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3487,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-08, one UTC day at this site · As of 26 Oct 2026, 09:39 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-08",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z",
+            "renewable|RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-07T21%3A00%3A00.000Z&to=2026-10-08T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-07",
+          "Next day -> /sites/MG-W402-001?date=2026-10-09",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-08",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-08T09%3A00%3A00.000Z&to=2026-10-08T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-07T21%3A00%3A00.000Z&to=2026-10-08T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A39%3A53.458Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-09T00%3A00%3A00Z",
+          "09:00 Battery charge: 80 % -> /sites/MG-W402-001/evidence?view=analysis&record=0b67cfd6-9f1f-4f15-9bc3-7723437a8ce1",
+          "09:00 Fuel level: 180 L -> /sites/MG-W402-001/evidence?view=analysis&record=b5d63324-9feb-4a3c-b4eb-c1c78d120a2b",
+          "09:01 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0654fc51-a4bf-4f0d-a86e-995bca3504d1",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0f50d4a2-10f8-42da-8a81-bfbde1450c5d",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=195864b6-d8c6-4a7f-881c-15e8da30e93a",
+          "09:01 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=45686a39-5848-4564-863b-10e495456764",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4a627826-79bd-455a-a8b2-9772621639be",
+          "09:01 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6211a5a8-89b4-482e-9025-e3b6e376253a",
+          "09:01 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=64153f65-53bb-44cd-964d-7c05ecc8c839",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=71270d1f-4cc0-4239-9ab2-53acc184d252",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8773f865-f900-4d0f-83e5-4fbda9adc901",
+          "09:01 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=895701c1-34e9-44c5-89cc-57712682fd37",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ac05dc96-2107-47ad-ba66-f9cfa62b2b81",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=25f3e97f-5adf-4589-9fa5-8abf16f9ddbc",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2ac804e9-a1a3-4482-8c0e-6b72e93c6980",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=3171e6fd-a2a5-4314-8752-d5330a7da1fc",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=478f5d37-174b-4e03-8b49-e57f7974b471",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4e9b5c74-2ae3-4fce-98e7-c5204cd8bd68",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=590e68d8-9992-425e-9106-0b082e54b6a1",
+          "09:02 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5f4cc936-7ec4-4aaf-92c4-39e4b7475133",
+          "09:02 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7697cdb0-0a1a-496b-af50-c8b61b00fd7e",
+          "09:02 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9d40415b-a474-425d-9c2a-883cc98a92ad",
+          "09:02 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ad0b07a7-beef-4e22-9939-26e9824a5c46",
+          "09:02 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=dc4201b9-4f5a-4ae2-8956-f76c130d9de6",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=01fa5b25-5f01-4cf2-9948-6703b8afdf9b",
+          "09:03 storage charge requested power: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=11a96e36-da84-49f6-9403-9993e3051cd7",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=27778ec0-7e06-43fe-a29b-49faf9a63051",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=682b33e2-f15b-44e1-9f39-594338711897",
+          "09:03 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=7f47613f-5d1b-4ea4-844f-454cdd509785",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=89923055-3619-4e65-97be-f9bebf2a3390",
+          "09:03 critical load requested power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8fbe74e2-7cb5-4833-9669-f7448431cf58",
+          "09:03 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=a283ab03-3386-48ab-8b58-f7e341ff940a",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c29a0aa6-2bee-4f50-b7d4-6517349c6eb0",
+          "09:03 critical load delivered power: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=e07fca06-3681-484e-b941-959d46e0b90b",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=fd5ad6d2-3968-480a-97a3-4a3b36aba728",
+          "09:04 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=0ff59464-8201-4473-8359-4934445b4795",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=4050a747-1c8b-47e5-8e4c-0f1ac4bb3b90",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=56ae6fe2-5aa8-4f70-bac3-156499925a00",
+          "09:04 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6420c7e9-66ae-4097-89c9-aaf49f85696f",
+          "09:04 Generator output: 0 kW -> /sites/MG-W402-001/evidence?view=analysis&record=68436f6e-2cb8-4471-a612-07d49f8f7bd7",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=968800dc-2dbd-4ed9-8d1a-ab6ea494ddf0",
+          "09:04 feeder requested power: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=980ee637-aef6-4275-8e24-02ce64339766"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceDelivered 20 kWLocal 2026-10-08 12:00–13:00 · 60 of 60 min coveredView de",
+            "h": 185
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 185
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 149
+          },
+          {
+            "t": "FuelExpected use 0 LLocal 2026-10-08 12:00–13:00 · Inventory residual unavailabl",
+            "h": 149
+          },
+          {
+            "t": "RenewableHeadroom 18–20 kWLocal 2026-10-08 · One selected day; recurrence not es",
+            "h": 185
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 326,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "mini-12",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-12",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-12-1440-app.png",
+      "mock_image": "link-check-mini-12-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 540,
+            "w": 1145,
+            "h": 260,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-12 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-12), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 818,
+            "w": 725,
+            "h": 563,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 327,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "20",
+                "20",
+                "09:01",
+                "09:20"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "mini backup start event mini-generator-controller/start-event",
+                "3",
+                "3",
+                "09:05",
+                "09:06"
+              ],
+              [
+                "site supply state mini-primary-bus-meter/state",
+                "2",
+                "2",
+                "08:55",
+                "09:05"
+              ],
+              [
+                "Solar output pv-inverter-controller/ac-power",
+                "61",
+                "61",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Available solar power pv-inverter-controller/available-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand residential-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-12, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsFeeder demand · Clinic meterGenerator outputFeeder demand · Mill metermini backup start eventsite supply stateSolar outputAvailable solar powerFeeder demand · Residential meterReadings received326 accepted readings on this day.No rule yet says which gaps in the readings",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 818,
+            "w": 403,
+            "h": 563,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-12 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1399,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1399,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1677,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z",
+            "renewable|RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-11T21%3A00%3A00.000Z&to=2026-10-12T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-11",
+          "Next day -> /sites/MG-W402-001?date=2026-10-13",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-11T21%3A00%3A00.000Z&to=2026-10-12T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A00.673Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-13T00%3A00%3A00Z",
+          "08:55 site supply state: ENERGIZED state -> /sites/MG-W402-001/evidence?view=analysis&record=f83d9f0f-bbdb-47a9-8323-6233ea5557f4",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=23554697-76dc-4f03-80fe-ce08d46dde91",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=280dea32-f76f-41d2-9c50-83f774d98c7d",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6a8d0a3d-d135-45f4-8a06-cde5d81b2564",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6e659453-cf63-4775-9123-d125df8e682d",
+          "09:01 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=76d1705d-e402-417c-a1d0-1787e6aecf2c",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=80b30277-3a7a-4bf0-9e84-9419f8e4c469",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=46508dd9-4785-44c3-a27f-bd293c2fc775",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5a8447bf-ad62-42f4-88ac-9cd78acf7880",
+          "09:02 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=73bbe0d9-c6e8-4084-8cdb-2ad2590eb8ff",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8dbb16e0-7117-4294-8bed-b110b5d49327",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9e54f1a8-d427-4de0-956d-5dddd71a33fd",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=dba29544-8d59-4411-91db-1458474937f8",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=22ef9f51-74d2-4518-adaf-96b2a722c639",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5a78aa64-8cf2-4de3-a41e-16de0b63f659",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=af7615b9-162c-4e85-ba99-4204ba676b60",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=bb1f045f-2183-4269-900d-83f26b3022a3",
+          "09:03 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cb4cca11-648d-4436-af6e-d5a8c3a29d6c",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f0faef98-ba0e-42eb-b4cc-def5beda7f79",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=433abc44-c032-473d-8477-6fd518679ef6",
+          "09:04 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=62a53388-ffe4-44a6-9c6c-5df112e4f386",
+          "09:04 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=766d2660-bd0d-48cf-8c0d-9ebf347c9bf4",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=952fbc5a-35b7-4374-8cfb-d86646afb756",
+          "09:04 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c8a6ec75-4040-4d4b-a0c3-ccec6ce40b2f",
+          "09:04 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=eb6620e5-3c46-4b29-a51a-15ad880642c7",
+          "09:05 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=07927856-e245-401c-b118-be9328631e84",
+          "09:05 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2daaf400-fb72-4733-8bfa-c6c017c1dcf5",
+          "09:05 site supply state: LOST state -> /sites/MG-W402-001/evidence?view=analysis&record=3a0f4977-4d2e-497f-9df4-a4be8cc33aa2",
+          "09:05 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=75702177-701a-4ecc-b2ea-f8e4f9362149",
+          "09:05 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ac1fb7cd-9278-4179-a6d0-8b452a0f552b",
+          "09:05 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ea1cc526-c00d-4761-8f08-bdeb2ce22174",
+          "09:05 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=fa25c796-59f7-4c62-a36f-9e603fed842c",
+          "09:05 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=f61eae2c-440e-4996-9de3-4aba42d64d3b",
+          "09:06 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=474d1434-17f0-444c-bd94-4d15c5530d92",
+          "09:06 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=937060e6-a95d-4ce9-9a7e-dde716736da0",
+          "09:06 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=a8cf5e2f-5568-4485-8d78-d93b4fb94d88",
+          "09:06 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=a962c160-f2f4-4a51-891e-5dabc5573c8b",
+          "09:06 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=b1e4a02c-1fa2-4822-8ed3-484c14cf5ac0",
+          "09:06 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cee52eac-6205-4550-8783-0f8c18755e4e",
+          "09:06 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f333f134-2969-4b2e-a1cc-ab88be30aa9b",
+          "09:06 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=3d506acb-1223-471b-9ed5-6c6439b0da5a",
+          "09:07 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=686c74ad-b288-4ed4-86c0-0984849e5d64"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "h": 165
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 165
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 165
+          },
+          {
+            "t": "FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView det",
+            "h": 165
+          },
+          {
+            "t": "RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedV",
+            "h": 165
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1677
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "link-check",
+      "case": "mini-12",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/MG-W402-001?date=2026-10-12",
+      "mock_hash": "#/mini",
+      "app_image": "link-check-mini-12-390-app.png",
+      "mock_image": "link-check-mini-12-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1210,
+            "w": 358,
+            "h": 377,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourSelected day 2026-10-12 · plain sequence of the assessed periods · the dispatch view has the detailHour not selected: this Overview reads one whole UTC day (2026-10-12), so it cannot say what happened in one hour. The periods below are the ones the read assessed.No assessed period is selected for this day.Nothing in this panel is a current answer.Not checked yet This period is waiting to be checked. Nothing is concluded about it yet. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTC Look again after the period has been checked. The source of ",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1605,
+            "w": 358,
+            "h": 722,
+            "tables": 1,
+            "rows": 8,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 327,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "Feeder demand clinic-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Generator output generator-controller/ac-power",
+                "20",
+                "20",
+                "09:01",
+                "09:20"
+              ],
+              [
+                "Feeder demand mill-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "mini backup start event mini-generator-controller/start-event",
+                "3",
+                "3",
+                "09:05",
+                "09:06"
+              ],
+              [
+                "site supply state mini-primary-bus-meter/state",
+                "2",
+                "2",
+                "08:55",
+                "09:05"
+              ],
+              [
+                "Solar output pv-inverter-controller/ac-power",
+                "61",
+                "61",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Available solar power pv-inverter-controller/available-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ],
+              [
+                "Feeder demand residential-meter/active-power",
+                "60",
+                "60",
+                "09:01",
+                "10:00"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Operating contextSelected day · when readings arrived; context for the cards, not a status sourceSingle line diagram →When the generator was in use and when readings arrived on 2026-10-12, 00:00 to 24:00 UTC. These periods come from an answer that is not current; see the state line above.00:0006:0012:0018:0024:00Assessed periodsFeeder demand · Clinic meterGenerator outputFeeder demand · Mill metermini backup start eventsite supply stateSolar outputAvailable solar powerFeeder demand · Residential meterReadings received326 accepted readings on this day.No rule yet says which gaps in the readings",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2343,
+            "w": 358,
+            "h": 460,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attentionThe Finding chosen for this day and the day's Finding listNo Finding is selected for this day.Not knownThe Findings list is closed for this Site because its assessments are not released.No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.Findings overlapping 2026-10-12 · As of: time not recordedNo Findings are listed and no count is given. This is not a statement that the day has no Findings.Open the full Findings list for this day",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2820,
+            "w": 358,
+            "h": 230,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequenceNo current amount.No current amount: source not open The source of these readings is not open for current use, so only records kept for the audit are shown. This is not zero. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTCCost range, money gate and linksMoney gateNot readUpstreamNot checked yetHow this was worked outAmount stateSOURCE_CLOSEDFinding referencenot recordedFinding version referencenot recordedFuel cost version referencenot recordedCost method referencenot recordedMoney gate statenot recordedLimiting reason 1S3_PENDINGLimiting reason 2LI",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 3066,
+            "w": 358,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepNo supported next action.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3260,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Mini-grid depth demonstration",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Not open for current use The source of these readings is not open for current use, so no current answer is shown. 2026-10-12, one UTC day at this site · As of 26 Oct 2026, 09:40 UTCReads on this Overview: Service, Dispatch, Fuel, Renewable. Each card shows what its selected period supports.",
+          "cards": [
+            "ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →",
+            "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView detail →",
+            "RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedView detail →"
+          ],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 10,
+          "periodBar": "",
+          "details": 5,
+          "objective": [
+            "service|ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →|View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z",
+            "dispatch|DispatchNot open for current useThe source of these readings is not open for current use, so no current answer is shown.View detail →|View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+            "battery|BatteryNot availableNo battery condition read on this OverviewView detail →|View detail → -> /sites/MG-W402-001/assets",
+            "fuel|FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView detail →|View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z",
+            "renewable|RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedView detail →|View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-11T21%3A00%3A00.000Z&to=2026-10-12T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z"
+          ]
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Mini-grid depth demonstration -> /sites/MG-W402-001",
+          "Overview -> /sites/MG-W402-001",
+          "Foundation -> /sites/MG-W402-001/foundation",
+          "Health -> /sites/MG-W402-001/health",
+          "Performance -> /sites/MG-W402-001/performance",
+          "Findings -> /sites/MG-W402-001/findings",
+          "Work -> /sites/MG-W402-001/work",
+          "Financials -> /sites/MG-W402-001/financials",
+          "Evidence -> /sites/MG-W402-001/evidence",
+          "Previous day -> /sites/MG-W402-001?date=2026-10-11",
+          "Next day -> /sites/MG-W402-001?date=2026-10-13",
+          "View detail → -> /sites/MG-W402-001/performance/service?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z",
+          "View detail → -> /sites/MG-W402-001/performance/dispatch?day=2026-10-12",
+          "View detail → -> /sites/MG-W402-001/assets",
+          "View detail → -> /sites/MG-W402-001/performance/fuel?from=2026-10-12T09%3A00%3A00.000Z&to=2026-10-12T10%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z",
+          "View detail → -> /sites/MG-W402-001/performance/renewable?from=2026-10-11T21%3A00%3A00.000Z&to=2026-10-12T21%3A00%3A00.000Z&known_at=2026-10-26T09%3A40%3A07.513Z",
+          "Single line diagram → -> /sites/MG-W402-001/foundation/sld?at=2026-10-13T00%3A00%3A00Z",
+          "08:55 site supply state: ENERGIZED state -> /sites/MG-W402-001/evidence?view=analysis&record=f83d9f0f-bbdb-47a9-8323-6233ea5557f4",
+          "09:01 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=23554697-76dc-4f03-80fe-ce08d46dde91",
+          "09:01 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=280dea32-f76f-41d2-9c50-83f774d98c7d",
+          "09:01 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6a8d0a3d-d135-45f4-8a06-cde5d81b2564",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=6e659453-cf63-4775-9123-d125df8e682d",
+          "09:01 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=76d1705d-e402-417c-a1d0-1787e6aecf2c",
+          "09:01 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=80b30277-3a7a-4bf0-9e84-9419f8e4c469",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=46508dd9-4785-44c3-a27f-bd293c2fc775",
+          "09:02 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5a8447bf-ad62-42f4-88ac-9cd78acf7880",
+          "09:02 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=73bbe0d9-c6e8-4084-8cdb-2ad2590eb8ff",
+          "09:02 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=8dbb16e0-7117-4294-8bed-b110b5d49327",
+          "09:02 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=9e54f1a8-d427-4de0-956d-5dddd71a33fd",
+          "09:02 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=dba29544-8d59-4411-91db-1458474937f8",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=22ef9f51-74d2-4518-adaf-96b2a722c639",
+          "09:03 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=5a78aa64-8cf2-4de3-a41e-16de0b63f659",
+          "09:03 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=af7615b9-162c-4e85-ba99-4204ba676b60",
+          "09:03 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=bb1f045f-2183-4269-900d-83f26b3022a3",
+          "09:03 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cb4cca11-648d-4436-af6e-d5a8c3a29d6c",
+          "09:03 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f0faef98-ba0e-42eb-b4cc-def5beda7f79",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=433abc44-c032-473d-8477-6fd518679ef6",
+          "09:04 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=62a53388-ffe4-44a6-9c6c-5df112e4f386",
+          "09:04 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=766d2660-bd0d-48cf-8c0d-9ebf347c9bf4",
+          "09:04 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=952fbc5a-35b7-4374-8cfb-d86646afb756",
+          "09:04 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=c8a6ec75-4040-4d4b-a0c3-ccec6ce40b2f",
+          "09:04 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=eb6620e5-3c46-4b29-a51a-15ad880642c7",
+          "09:05 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=07927856-e245-401c-b118-be9328631e84",
+          "09:05 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=2daaf400-fb72-4733-8bfa-c6c017c1dcf5",
+          "09:05 site supply state: LOST state -> /sites/MG-W402-001/evidence?view=analysis&record=3a0f4977-4d2e-497f-9df4-a4be8cc33aa2",
+          "09:05 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=75702177-701a-4ecc-b2ea-f8e4f9362149",
+          "09:05 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ac1fb7cd-9278-4179-a6d0-8b452a0f552b",
+          "09:05 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=ea1cc526-c00d-4761-8f08-bdeb2ce22174",
+          "09:05 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=fa25c796-59f7-4c62-a36f-9e603fed842c",
+          "09:05 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=f61eae2c-440e-4996-9de3-4aba42d64d3b",
+          "09:06 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=474d1434-17f0-444c-bd94-4d15c5530d92",
+          "09:06 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=937060e6-a95d-4ce9-9a7e-dde716736da0",
+          "09:06 Solar output: 20 kW -> /sites/MG-W402-001/evidence?view=analysis&record=a8cf5e2f-5568-4485-8d78-d93b4fb94d88",
+          "09:06 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=a962c160-f2f4-4a51-891e-5dabc5573c8b",
+          "09:06 Feeder demand: 8 kW -> /sites/MG-W402-001/evidence?view=analysis&record=b1e4a02c-1fa2-4822-8ed3-484c14cf5ac0",
+          "09:06 Generator output: 15 kW -> /sites/MG-W402-001/evidence?view=analysis&record=cee52eac-6205-4550-8783-0f8c18755e4e",
+          "09:06 Available solar power: 42 kW -> /sites/MG-W402-001/evidence?view=analysis&record=f333f134-2969-4b2e-a1cc-ab88be30aa9b",
+          "09:06 mini backup start event: no value -> /sites/MG-W402-001/evidence?view=analysis&record=3d506acb-1223-471b-9ed5-6c6439b0da5a",
+          "09:07 Feeder demand: 4 kW -> /sites/MG-W402-001/evidence?view=analysis&record=686c74ad-b288-4ed4-86c0-0984849e5d64"
+        ],
+        "cardsDom": [
+          {
+            "t": "ServiceUnknownLocal 2026-10-12 12:00–13:00 · 60 of 60 min coveredView detail →",
+            "h": 185
+          },
+          {
+            "t": "DispatchNot open for current useThe source of these readings is not open for cur",
+            "h": 185
+          },
+          {
+            "t": "BatteryNot availableNo battery condition read on this OverviewView detail →",
+            "h": 149
+          },
+          {
+            "t": "FuelUnknownLocal 2026-10-12 12:00–13:00 · Inventory residual unavailableView det",
+            "h": 149
+          },
+          {
+            "t": "RenewableUnknownLocal 2026-10-12 · One selected day; recurrence not establishedV",
+            "h": 165
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 326,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 3,
+          "10px": 5,
+          "14px": 8,
+          "13px": 2,
+          "16px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "What happened in the selected hourPlain sequence from accepted readings · the dispatch view has the detailOpen Dispatch →14:20Generator running at 18 kWGenerator controller14:20Sun and battery could carry the 30 kW load42 kW solar available · battery 74%14:20–15:20Generator output kept charging the batteryBattery 74% → 88%14:50Battery output-limit report missingBattery controller15:20Generator still runningStop setting is 90% battery chargeThe generator kept running because its stop setting is 90% battery charge, not because the load needed it. Its output went into the battery.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Operating contextSelected hour · context for the cards, not a status sourceSingle line diagram →604530150kW14:2014:3014:4014:5015:0015:1015:20PV capabilityDelivered loadGenerator outputDots are readings every 15 minutes. Dotted lines join readings; they are not continuous measurement.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Needs attention1Generator ran longer than neededSolar and battery could carry the load in two 15-minute blocks (F-104).Performance › Dispatch →2A battery report is missingThe 14:50 battery output-limit report is absent, so 30 minutes stay unclear.Evidence →3Check the charging trade-offGenerator energy charged the battery. Net savings are not yet shown.Financials →",
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Bounded money consequence$3.31–3.97Cost exposure for the avoidable 30 minutes: modelled fuel plus a maintenance allowance. Not realised savings.Open financial bridge →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next stepReview the 90% generator stop settingTrial a lower stop setting and judge it on generator time, service, battery reserve and stored energy together.Review recommendation",
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Kobo Mini-grid -> #/mini",
+          "Overview -> #/mini",
+          "Foundation -> #/foundation",
+          "Health -> #/health",
+          "Performance -> #/dispatch",
+          "Findings -> #/sitefindings",
+          "Work -> #/sitework",
+          "Financials -> #/financials",
+          "Evidence -> #/evidence",
+          "View detail → -> #/service",
+          "View detail → -> #/dispatch",
+          "View detail → -> #/asset",
+          "View detail → -> #/fuel",
+          "View detail → -> #/renewable",
+          "Open Dispatch → -> #/dispatch",
+          "Single line diagram → -> #/sld",
+          "Performance › Dispatch → -> #/dispatch",
+          "Evidence → -> #/evidence",
+          "Financials → -> #/financials",
+          "Open financial bridge → -> #/financials",
+          "Review recommendation -> #/recommendation"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

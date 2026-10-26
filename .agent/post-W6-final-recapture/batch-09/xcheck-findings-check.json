@@ -1,0 +1,158 @@
+[
+ {
+  "screen": "ev-findings",
+  "case": "check-interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-findings-check-interrupted-1440-app.png",
+  "mock_image": "ev-findings-check-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->103",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "proseSizes []->['14px']",
+   "pSizes {'11px': 5, '12px': 2}->{'14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-findings",
+  "case": "check-interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-findings-check-interrupted-390-app.png",
+  "mock_image": "ev-findings-check-interrupted-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->103",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "proseSizes []->['14px']",
+   "pSizes {'11px': 5, '12px': 2}->{'14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Findings at this site ratio 1.73->0.42"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-findings",
+  "case": "check-no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-findings-check-no-window-1440-app.png",
+  "mock_image": "ev-findings-check-no-window-1440-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->103",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "proseSizes []->['14px']",
+   "pSizes {'11px': 5, '12px': 2}->{'14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-findings",
+  "case": "check-no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-findings-check-no-window-390-app.png",
+  "mock_image": "ev-findings-check-no-window-390-mock.png",
+  "app_url": "http://localhost:5189/sites/EV-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->103",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "proseSizes []->['14px']",
+   "pSizes {'11px': 5, '12px': 2}->{'14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Findings at this site ratio 1.73->0.42"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

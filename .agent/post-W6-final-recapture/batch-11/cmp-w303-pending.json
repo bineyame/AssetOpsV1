@@ -1,0 +1,304 @@
+[
+ {
+  "screen": "globalevidence",
+  "case": "w303-pending",
+  "width": "1440",
+  "new_app_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "mock_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "globalevidence-w303-pending-1440-app.png",
+  "mock_image": "globalevidence-w303-pending-1440-mock.png",
+  "app_url": "http://localhost:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 3}->{'11px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "globalevidence",
+  "case": "w303-pending",
+  "width": "390",
+  "new_app_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "mock_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "globalevidence-w303-pending-390-app.png",
+  "mock_image": "globalevidence-w303-pending-390-mock.png",
+  "app_url": "http://localhost:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "pSizes {'11px': 3}->{'11px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Capability coverage across sites",
+   "Recurring evidence gaps"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 520,
+    "cw": 318,
+    "panel": "Capability coverage across sites"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 330,
+    "cw": 318,
+    "panel": "Recurring evidence gaps"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "globalfinancials",
+  "case": "w303-pending",
+  "width": "1440",
+  "new_app_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "mock_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "globalfinancials-w303-pending-1440-app.png",
+  "mock_image": "globalfinancials-w303-pending-1440-mock.png",
+  "app_url": "http://localhost:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "globalfinancials",
+  "case": "w303-pending",
+  "width": "390",
+  "new_app_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "mock_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "globalfinancials-w303-pending-390-app.png",
+  "mock_image": "globalfinancials-w303-pending-390-mock.png",
+  "app_url": "http://localhost:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Consequence register] height 403->350"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Consequence register",
+   "Aggregation rule"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 800,
+    "cw": 318,
+    "panel": "Consequence register"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "portfolio",
+  "case": "w303-pending",
+  "width": "1440",
+  "new_app_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "mock_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "portfolio-w303-pending-1440-app.png",
+  "mock_image": "portfolio-w303-pending-1440-mock.png",
+  "app_url": "http://localhost:5181/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Where management should act first] links 6->10",
+   "[Objectives across the estate] height 392->336",
+   "[Objectives across the estate] links 0->18",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 245, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 390, 'cw': 275, 'panel': 'Objectives acros->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 428, 'cw': 275, 'panel': 'Objectives acros"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 262,
+    "cw": 135,
+    "panel": ""
+   },
+   {
+    "cls": "portfolio-matrix-scroll",
+    "sw": 428,
+    "cw": 275,
+    "panel": "Objectives across the estate"
+   },
+   {
+    "cls": "portfolio-drawer",
+    "sw": 65,
+    "cw": 58,
+    "panel": "What changed in this review"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 323,
+    "cw": 58,
+    "panel": "What changed in this review"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "portfolio",
+  "case": "w303-pending",
+  "width": "390",
+  "new_app_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "mock_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "portfolio-w303-pending-390-app.png",
+  "mock_image": "portfolio-w303-pending-390-mock.png",
+  "app_url": "http://localhost:5181/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Where management should act first] links 6->10",
+   "[Objectives across the estate] height 361->321",
+   "[Objectives across the estate] links 0->18",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 245, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Where management should act first",
+   "Objectives across the estate",
+   "An opportunity beyond reducing cost",
+   "What changed in this review"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 262,
+    "cw": 150,
+    "panel": ""
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 336,
+    "panel": "Where management should act first"
+   },
+   {
+    "cls": "portfolio-matrix-scroll",
+    "sw": 428,
+    "cw": 328,
+    "panel": "Objectives across the estate"
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 323,
+    "cw": 73,
+    "panel": "What changed in this review"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

@@ -1,0 +1,1986 @@
+{
+ "batch": "10",
+ "name": "W3 estate indices",
+ "main_sha": "89a11477",
+ "pair_count": 62,
+ "frozen_pair_count": 62,
+ "counts": {
+  "PASS": 62
+ },
+ "pairs": [
+  {
+   "screen": "findings",
+   "case": "historical",
+   "width": "1440",
+   "part": "historical",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] links 5->8"
+   ],
+   "app_image": "historical/findings-historical-1440-app.png",
+   "mock_image": "historical/findings-historical-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "historical",
+   "width": "390",
+   "part": "historical",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-09"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] height 456->555",
+    "[Findings across the estate] links 5->8",
+    "clipped [{'tag': 'A', 'cls': 'estate-cell__primary', 'text': 'Generator support merits review: bounded candidate avoidable runni->[]",
+    "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+   ],
+   "app_image": "historical/findings-historical-390-app.png",
+   "mock_image": "historical/findings-historical-390-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "historical",
+   "width": "1440",
+   "part": "historical",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-cost-historical-1440-app.png",
+   "mock_image": "historical/findings-cost-historical-1440-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "historical",
+   "width": "390",
+   "part": "historical",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-cost-historical-390-app.png",
+   "mock_image": "historical/findings-cost-historical-390-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "historical",
+   "width": "1440",
+   "part": "historical",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-risks-historical-1440-app.png",
+   "mock_image": "historical/findings-risks-historical-1440-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "historical",
+   "width": "390",
+   "part": "historical",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-risks-historical-390-app.png",
+   "mock_image": "historical/findings-risks-historical-390-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "historical",
+   "width": "1440",
+   "part": "historical",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-opportunities-historical-1440-app.png",
+   "mock_image": "historical/findings-opportunities-historical-1440-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "historical",
+   "width": "390",
+   "part": "historical",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/findings-opportunities-historical-390-app.png",
+   "mock_image": "historical/findings-opportunities-historical-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "historical",
+   "width": "1440",
+   "part": "historical",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/actions-historical-1440-app.png",
+   "mock_image": "historical/actions-historical-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "historical",
+   "width": "390",
+   "part": "historical",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:08:27Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "historical/actions-historical-390-app.png",
+   "mock_image": "historical/actions-historical-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "partial",
+   "width": "1440",
+   "part": "partial",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] links 3->6",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-partial-1440-app.png",
+   "mock_image": "partial/findings-partial-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "partial",
+   "width": "390",
+   "part": "partial",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] height 415->549",
+    "[Findings across the estate] links 3->6",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}",
+    "pageH 1330->1483",
+    "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+   ],
+   "app_image": "partial/findings-partial-390-app.png",
+   "mock_image": "partial/findings-partial-390-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "partial",
+   "width": "1440",
+   "part": "partial",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Cost lens] height 126->157",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-cost-partial-1440-app.png",
+   "mock_image": "partial/findings-cost-partial-1440-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "partial",
+   "width": "390",
+   "part": "partial",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Cost lens] height 149->203",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-cost-partial-390-app.png",
+   "mock_image": "partial/findings-cost-partial-390-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "partial",
+   "width": "1440",
+   "part": "partial",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Risks lens] height 126->157",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-risks-partial-1440-app.png",
+   "mock_image": "partial/findings-risks-partial-1440-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "partial",
+   "width": "390",
+   "part": "partial",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Risks lens] height 149->203",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-risks-partial-390-app.png",
+   "mock_image": "partial/findings-risks-partial-390-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "partial",
+   "width": "1440",
+   "part": "partial",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Opportunities lens] height 126->157",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-opportunities-partial-1440-app.png",
+   "mock_image": "partial/findings-opportunities-partial-1440-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "partial",
+   "width": "390",
+   "part": "partial",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Opportunities lens] height 149->203",
+    "pSizes {'11px': 1, '14px': 1}->{'11px': 1, '14px': 2}"
+   ],
+   "app_image": "partial/findings-opportunities-partial-390-app.png",
+   "mock_image": "partial/findings-opportunities-partial-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "partial",
+   "width": "1440",
+   "part": "partial",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "partial/actions-partial-1440-app.png",
+   "mock_image": "partial/actions-partial-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "partial",
+   "width": "390",
+   "part": "partial",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "partial/actions-partial-390-app.png",
+   "mock_image": "partial/actions-partial-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "partial-wide",
+   "width": "1440",
+   "part": "partial",
+   "route": "/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "partial/findings-partial-wide-1440-app.png",
+   "mock_image": "partial/findings-partial-wide-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "partial-wide",
+   "width": "390",
+   "part": "partial",
+   "route": "/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 304->108",
+    "mainTop 304->108"
+   ],
+   "app_image": "partial/findings-partial-wide-390-app.png",
+   "mock_image": "partial/findings-partial-wide-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] links 3->6"
+   ],
+   "app_image": "pending/findings-pending-1440-app.png",
+   "mock_image": "pending/findings-pending-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] height 415->495",
+    "[Findings across the estate] links 3->6",
+    "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+   ],
+   "app_image": "pending/findings-pending-390-app.png",
+   "mock_image": "pending/findings-pending-390-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-cost-pending-1440-app.png",
+   "mock_image": "pending/findings-cost-pending-1440-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-cost-pending-390-app.png",
+   "mock_image": "pending/findings-cost-pending-390-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-risks-pending-1440-app.png",
+   "mock_image": "pending/findings-risks-pending-1440-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-risks-pending-390-app.png",
+   "mock_image": "pending/findings-risks-pending-390-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-opportunities-pending-1440-app.png",
+   "mock_image": "pending/findings-opportunities-pending-1440-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/findings-opportunities-pending-390-app.png",
+   "mock_image": "pending/findings-opportunities-pending-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/actions-pending-1440-app.png",
+   "mock_image": "pending/actions-pending-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/actions-pending-390-app.png",
+   "mock_image": "pending/actions-pending-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "page-two-pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjA3ZjUyZTJiN2Y4Y2MyZTJiMjQwZGEyZWNjM2FkNDVmZDljODU4ZWI3NGFjZTlkMWQ4MWQyZDEwZGQyYjkyNyIsImFmdGVyIjpbIjIwMjYtMTAtMDZUMTk6MTU6MDAuMDAwMDAwWiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE2ZCJdLCJhdXRob3JpemVkX3NpdGVfaWRzIjpbIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE3NiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDNkNyJdLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMC4wMDAwMDBaIiwia25vd25fYXQiOiIyMDI2LTExLTAyVDExOjE2OjAwLjUwMDAwMFoiLCJsZW5zIjoiYWxsIiwicGFnZV9vbmVfbW9kZSI6ImxpdmUiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6NGVhMzg4MWM3YjE0OTY4ZTU0MTg2ZDQ3Yzg5ZDNiM2U0ZDExZWFiMzIxZGNmNDBhMDNhZmM4MDczMjg3MTM4YyIsInN0YXRlX2ZpbHRlciI6ImFsbCIsInRlbmFudF9pZCI6IjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInRvIjoiMjAyNi0xMC0wN1QwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] links 3->5"
+   ],
+   "app_image": "pending/findings-page-two-pending-1440-app.png",
+   "mock_image": "pending/findings-page-two-pending-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "page-two-pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjA3ZjUyZTJiN2Y4Y2MyZTJiMjQwZGEyZWNjM2FkNDVmZDljODU4ZWI3NGFjZTlkMWQ4MWQyZDEwZGQyYjkyNyIsImFmdGVyIjpbIjIwMjYtMTAtMDZUMTk6MTU6MDAuMDAwMDAwWiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE2ZCJdLCJhdXRob3JpemVkX3NpdGVfaWRzIjpbIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE3NiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDNkNyJdLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMC4wMDAwMDBaIiwia25vd25fYXQiOiIyMDI2LTExLTAyVDExOjE2OjAwLjUwMDAwMFoiLCJsZW5zIjoiYWxsIiwicGFnZV9vbmVfbW9kZSI6ImxpdmUiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6NGVhMzg4MWM3YjE0OTY4ZTU0MTg2ZDQ3Yzg5ZDNiM2U0ZDExZWFiMzIxZGNmNDBhMDNhZmM4MDczMjg3MTM4YyIsInN0YXRlX2ZpbHRlciI6ImFsbCIsInRlbmFudF9pZCI6IjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInRvIjoiMjAyNi0xMC0wN1QwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-08"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] height 366->425",
+    "[Findings across the estate] links 3->5",
+    "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+   ],
+   "app_image": "pending/findings-page-two-pending-390-app.png",
+   "mock_image": "pending/findings-page-two-pending-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] links 5->8"
+   ],
+   "app_image": "positive/findings-positive-1440-app.png",
+   "mock_image": "positive/findings-positive-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-09"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings across the estate] height 440->555",
+    "[Findings across the estate] links 5->8",
+    "clipped [{'tag': 'A', 'cls': 'estate-cell__primary', 'text': 'Generator support merits review: bounded candidate avoidable runni->[]",
+    "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+   ],
+   "app_image": "positive/findings-positive-390-app.png",
+   "mock_image": "positive/findings-positive-390-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-cost-positive-1440-app.png",
+   "mock_image": "positive/findings-cost-positive-1440-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-cost-positive-390-app.png",
+   "mock_image": "positive/findings-cost-positive-390-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-risks-positive-1440-app.png",
+   "mock_image": "positive/findings-risks-positive-1440-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-risks-positive-390-app.png",
+   "mock_image": "positive/findings-risks-positive-390-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-opportunities-positive-1440-app.png",
+   "mock_image": "positive/findings-opportunities-positive-1440-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-opportunities-positive-390-app.png",
+   "mock_image": "positive/findings-opportunities-positive-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-positive-1440-app.png",
+   "mock_image": "positive/actions-positive-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-positive-390-app.png",
+   "mock_image": "positive/actions-positive-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-no-window-1440-app.png",
+   "mock_image": "positive/findings-no-window-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-no-window-390-app.png",
+   "mock_image": "positive/findings-no-window-390-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/cost",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-cost-no-window-1440-app.png",
+   "mock_image": "positive/findings-cost-no-window-1440-mock.png"
+  },
+  {
+   "screen": "findings-cost",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/cost",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Cost lens"
+   ],
+   "mock_titles": [
+    "Cost lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-cost-no-window-390-app.png",
+   "mock_image": "positive/findings-cost-no-window-390-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/risks",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-risks-no-window-1440-app.png",
+   "mock_image": "positive/findings-risks-no-window-1440-mock.png"
+  },
+  {
+   "screen": "findings-risks",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/risks",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Risks lens"
+   ],
+   "mock_titles": [
+    "Risks lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-risks-no-window-390-app.png",
+   "mock_image": "positive/findings-risks-no-window-390-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings/opportunities",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-opportunities-no-window-1440-app.png",
+   "mock_image": "positive/findings-opportunities-no-window-1440-mock.png"
+  },
+  {
+   "screen": "findings-opportunities",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings/opportunities",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-05",
+    "B10-06",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Opportunities lens"
+   ],
+   "mock_titles": [
+    "Opportunities lens"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-opportunities-no-window-390-app.png",
+   "mock_image": "positive/findings-opportunities-no-window-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/actions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-no-window-1440-app.png",
+   "mock_image": "positive/actions-no-window-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/actions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07",
+    "B10-10"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-no-window-390-app.png",
+   "mock_image": "positive/actions-no-window-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "state-merged-empty",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-state-merged-empty-1440-app.png",
+   "mock_image": "positive/findings-state-merged-empty-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "state-merged-empty",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [
+    "Findings across the estate"
+   ],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-state-merged-empty-390-app.png",
+   "mock_image": "positive/findings-state-merged-empty-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "empty-day",
+   "width": "1440",
+   "part": "positive",
+   "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-empty-day-1440-app.png",
+   "mock_image": "positive/actions-empty-day-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "empty-day",
+   "width": "390",
+   "part": "positive",
+   "route": "/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [
+    "Managed actions"
+   ],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-empty-day-390-app.png",
+   "mock_image": "positive/actions-empty-day-390-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "refused-33d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/findings-refused-33d-1440-app.png",
+   "mock_image": "positive/findings-refused-33d-1440-mock.png"
+  },
+  {
+   "screen": "findings",
+   "case": "refused-33d",
+   "width": "390",
+   "part": "positive",
+   "route": "/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-03",
+    "B10-04",
+    "B10-05"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Findings across the estate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 304->108",
+    "mainTop 304->108"
+   ],
+   "app_image": "positive/findings-refused-33d-390-app.png",
+   "mock_image": "positive/findings-refused-33d-390-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "refused-33d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/actions?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/actions-refused-33d-1440-app.png",
+   "mock_image": "positive/actions-refused-33d-1440-mock.png"
+  },
+  {
+   "screen": "actions",
+   "case": "refused-33d",
+   "width": "390",
+   "part": "positive",
+   "route": "/actions?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B10-X1",
+    "B10-01",
+    "B10-02",
+    "B10-07"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Managed actions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 334->108",
+    "mainTop 334->108"
+   ],
+   "app_image": "positive/actions-refused-33d-390-app.png",
+   "mock_image": "positive/actions-refused-33d-390-mock.png"
+  }
+ ]
+}

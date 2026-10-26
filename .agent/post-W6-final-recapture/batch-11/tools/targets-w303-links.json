@@ -1,0 +1,206 @@
+[
+ {
+  "id": "link00",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/evidence?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z",
+  "src": "Cold replay lab \u00c2\u00b7 cold-chain"
+ },
+ {
+  "id": "link01",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "EV charging lab \u00c2\u00b7 EV charging"
+ },
+ {
+  "id": "link02",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/sites/EV-LAB-002/ev/evidence?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "EV charging lab 2 \u00c2\u00b7 EV charging"
+ },
+ {
+  "id": "link03",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/sites/KOBO-001",
+  "src": "Kobo mini-grid \u00c2\u00b7 mini-grid"
+ },
+ {
+  "id": "link04",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/operational-records?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Operational records \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link05",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/maintenance/preventive?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Preventive plan \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link06",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/COLD-LAB-001",
+  "src": "Cold replay lab"
+ },
+ {
+  "id": "link07",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/KOBO-001/financials",
+  "src": "Site bridge \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link08",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/EV-LAB-001/ev",
+  "src": "EV charging lab"
+ },
+ {
+  "id": "link09",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "Site bridge \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link10",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/EV-LAB-002/ev",
+  "src": "EV charging lab 2"
+ },
+ {
+  "id": "link11",
+  "case": "globalfinancials",
+  "url": "http://localhost:5181/sites/EV-LAB-002/ev/financials?from=2026-10-06T08%3A00%3A00.000000Z&to=2026-10-06T09%3A05%3A00.000000Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+  "src": "Site bridge \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link12",
+  "case": "portfolio",
+  "url": "http://localhost:5181/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Operating-cost exposure$0.00\u00e2\u20ac\u201c$3.44Kobo"
+ },
+ {
+  "id": "link13",
+  "case": "portfolio",
+  "url": "http://localhost:5181/findings/risks?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Service & product riskNot assessedNo rev"
+ },
+ {
+  "id": "link14",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z",
+  "src": "Cold room temperature outside its policy"
+ },
+ {
+  "id": "link15",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z",
+  "src": "Backup generator did not start when the "
+ },
+ {
+  "id": "link16",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/KOBO-001/findings/00000002-0000-4000-8000-000000000749?revision_id=00000002-0000-4000-8000-00000000074b",
+  "src": "Generator support merits review: bounded"
+ },
+ {
+  "id": "link17",
+  "case": "portfolio",
+  "url": "http://localhost:5181/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Open all Findings \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link18",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/performance/temperature",
+  "src": "Unknown"
+ },
+ {
+  "id": "link19",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/EV-LAB-001/performance/sessions",
+  "src": "Unknown"
+ },
+ {
+  "id": "link20",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/EV-LAB-002/performance/sessions",
+  "src": "Unknown"
+ },
+ {
+  "id": "link21",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/KOBO-001/performance/service",
+  "src": "Unknown"
+ },
+ {
+  "id": "link22",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/performance/backup",
+  "src": "Unknown"
+ },
+ {
+  "id": "link23",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/KOBO-001/performance/backup",
+  "src": "Unknown"
+ },
+ {
+  "id": "link24",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/health",
+  "src": "Unknown"
+ },
+ {
+  "id": "link25",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/EV-LAB-001/health",
+  "src": "Unknown"
+ },
+ {
+  "id": "link26",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/EV-LAB-002/health",
+  "src": "Unknown"
+ },
+ {
+  "id": "link27",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/KOBO-001/health",
+  "src": "Unknown"
+ },
+ {
+  "id": "link28",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/COLD-LAB-001/financials?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=2026-10-26T09%3A20%3A07.354181Z",
+  "src": "N/A"
+ },
+ {
+  "id": "link29",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/KOBO-001/evidence",
+  "src": "Limited"
+ },
+ {
+  "id": "link30",
+  "case": "portfolio",
+  "url": "http://localhost:5181/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "src": "Inspect the constraint \u00e2\u2020\u2019"
+ },
+ {
+  "id": "link31",
+  "case": "globalevidence",
+  "url": "http://localhost:5181/sites/W303-EMPTY-001/ev",
+  "src": "Empty test Site \u00c2\u00b7 EV charging"
+ },
+ {
+  "id": "link32",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/W303-EMPTY-001/performance/sessions",
+  "src": "Unknown"
+ },
+ {
+  "id": "link33",
+  "case": "portfolio",
+  "url": "http://localhost:5181/sites/W303-EMPTY-001/health",
+  "src": "Unknown"
+ }
+]

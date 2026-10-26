@@ -1,0 +1,72 @@
+[
+ {
+  "id": "findings",
+  "case": "positive",
+  "url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-cost",
+  "case": "positive",
+  "url": "http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-risks",
+  "case": "positive",
+  "url": "http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-opportunities",
+  "case": "positive",
+  "url": "http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "actions",
+  "case": "positive",
+  "url": "http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+ },
+ {
+  "id": "findings",
+  "case": "no-window",
+  "url": "http://localhost:5180/findings"
+ },
+ {
+  "id": "findings-cost",
+  "case": "no-window",
+  "url": "http://localhost:5180/findings/cost"
+ },
+ {
+  "id": "findings-risks",
+  "case": "no-window",
+  "url": "http://localhost:5180/findings/risks"
+ },
+ {
+  "id": "findings-opportunities",
+  "case": "no-window",
+  "url": "http://localhost:5180/findings/opportunities"
+ },
+ {
+  "id": "actions",
+  "case": "no-window",
+  "url": "http://localhost:5180/actions"
+ },
+ {
+  "id": "findings",
+  "case": "state-merged-empty",
+  "url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged"
+ },
+ {
+  "id": "actions",
+  "case": "empty-day",
+  "url": "http://localhost:5180/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings",
+  "case": "refused-33d",
+  "url": "http://localhost:5180/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+ },
+ {
+  "id": "actions",
+  "case": "refused-33d",
+  "url": "http://localhost:5180/actions?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+ }
+]

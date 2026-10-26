@@ -1,0 +1,2408 @@
+{
+ "batch": "11",
+ "name": "W3 estate composition",
+ "main_sha": "89a11477",
+ "pair_count": 66,
+ "frozen_pair_count": 66,
+ "counts": {
+  "PASS": 60,
+  "FIXED": 6
+ },
+ "pairs": [
+  {
+   "screen": "globalevidence",
+   "case": "w302-partial-week",
+   "width": "1440",
+   "part": "w302-partial-week",
+   "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w302-partial-week/globalevidence-w302-partial-week-1440-app.png",
+   "mock_image": "w302-partial-week/globalevidence-w302-partial-week-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w302-partial-week",
+   "width": "390",
+   "part": "w302-partial-week",
+   "route": "/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w302-partial-week/globalevidence-w302-partial-week-390-app.png",
+   "mock_image": "w302-partial-week/globalevidence-w302-partial-week-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-partial-week",
+   "width": "1440",
+   "part": "w302-partial-week",
+   "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-partial-week/globalfinancials-w302-partial-week-1440-app.png",
+   "mock_image": "w302-partial-week/globalfinancials-w302-partial-week-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-partial-week",
+   "width": "390",
+   "part": "w302-partial-week",
+   "route": "/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-partial-week/globalfinancials-w302-partial-week-390-app.png",
+   "mock_image": "w302-partial-week/globalfinancials-w302-partial-week-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-partial-week",
+   "width": "1440",
+   "part": "w302-partial-week",
+   "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-partial-week/portfolio-w302-partial-week-1440-app.png",
+   "mock_image": "w302-partial-week/portfolio-w302-partial-week-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-partial-week",
+   "width": "390",
+   "part": "w302-partial-week",
+   "route": "/portfolio?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w302-partial-week/portfolio-w302-partial-week-390-app.png",
+   "mock_image": "w302-partial-week/portfolio-w302-partial-week-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w302-pending-late-kobo",
+   "width": "1440",
+   "part": "w302-pending",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w302-pending/globalevidence-w302-pending-late-kobo-1440-app.png",
+   "mock_image": "w302-pending/globalevidence-w302-pending-late-kobo-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w302-pending-late-kobo",
+   "width": "390",
+   "part": "w302-pending",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w302-pending/globalevidence-w302-pending-late-kobo-390-app.png",
+   "mock_image": "w302-pending/globalevidence-w302-pending-late-kobo-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-pending-late-kobo",
+   "width": "1440",
+   "part": "w302-pending",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-pending/globalfinancials-w302-pending-late-kobo-1440-app.png",
+   "mock_image": "w302-pending/globalfinancials-w302-pending-late-kobo-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-pending-late-kobo",
+   "width": "390",
+   "part": "w302-pending",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-pending/globalfinancials-w302-pending-late-kobo-390-app.png",
+   "mock_image": "w302-pending/globalfinancials-w302-pending-late-kobo-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-pending-late-kobo",
+   "width": "1440",
+   "part": "w302-pending",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-pending/portfolio-w302-pending-late-kobo-1440-app.png",
+   "mock_image": "w302-pending/portfolio-w302-pending-late-kobo-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-pending-late-kobo",
+   "width": "390",
+   "part": "w302-pending",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w302-pending/portfolio-w302-pending-late-kobo-390-app.png",
+   "mock_image": "w302-pending/portfolio-w302-pending-late-kobo-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w302-positive",
+   "width": "1440",
+   "part": "w302-positive",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w302-positive/globalevidence-w302-positive-1440-app.png",
+   "mock_image": "w302-positive/globalevidence-w302-positive-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w302-positive",
+   "width": "390",
+   "part": "w302-positive",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w302-positive/globalevidence-w302-positive-390-app.png",
+   "mock_image": "w302-positive/globalevidence-w302-positive-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-positive",
+   "width": "1440",
+   "part": "w302-positive",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-positive/globalfinancials-w302-positive-1440-app.png",
+   "mock_image": "w302-positive/globalfinancials-w302-positive-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w302-positive",
+   "width": "390",
+   "part": "w302-positive",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-positive/globalfinancials-w302-positive-390-app.png",
+   "mock_image": "w302-positive/globalfinancials-w302-positive-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-positive",
+   "width": "1440",
+   "part": "w302-positive",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w302-positive/portfolio-w302-positive-1440-app.png",
+   "mock_image": "w302-positive/portfolio-w302-positive-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w302-positive",
+   "width": "390",
+   "part": "w302-positive",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14",
+    "B11-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w302-positive/portfolio-w302-positive-390-app.png",
+   "mock_image": "w302-positive/portfolio-w302-positive-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-refusal-401",
+   "width": "1440",
+   "part": "w303-401",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-401/portfolio-w303-refusal-401-1440-app.png",
+   "mock_image": "w303-401/portfolio-w303-refusal-401-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-refusal-401",
+   "width": "390",
+   "part": "w303-401",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w303-401/portfolio-w303-refusal-401-390-app.png",
+   "mock_image": "w303-401/portfolio-w303-refusal-401-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-refusal-503",
+   "width": "1440",
+   "part": "w303-503",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-503/portfolio-w303-refusal-503-1440-app.png",
+   "mock_image": "w303-503/portfolio-w303-refusal-503-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-refusal-503",
+   "width": "390",
+   "part": "w303-503",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w303-503/portfolio-w303-refusal-503-390-app.png",
+   "mock_image": "w303-503/portfolio-w303-refusal-503-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-empty-foreign-tenant",
+   "width": "1440",
+   "part": "w303-empty",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-empty/portfolio-w303-empty-foreign-tenant-1440-app.png",
+   "mock_image": "w303-empty/portfolio-w303-empty-foreign-tenant-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-empty-foreign-tenant",
+   "width": "390",
+   "part": "w303-empty",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-empty/portfolio-w303-empty-foreign-tenant-390-app.png",
+   "mock_image": "w303-empty/portfolio-w303-empty-foreign-tenant-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/evidence?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalevidence-refused-reversed-1440-app.png",
+   "mock_image": "w303-guards/globalevidence-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/evidence?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 334->127",
+    "mainTop 315->108"
+   ],
+   "app_image": "w303-guards/globalevidence-refused-reversed-390-app.png",
+   "mock_image": "w303-guards/globalevidence-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "refused-over-31d",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/evidence?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalevidence-refused-over-31d-1440-app.png",
+   "mock_image": "w303-guards/globalevidence-refused-over-31d-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "refused-over-31d",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/evidence?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 334->127",
+    "mainTop 315->108"
+   ],
+   "app_image": "w303-guards/globalevidence-refused-over-31d-390-app.png",
+   "mock_image": "w303-guards/globalevidence-refused-over-31d-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "no-window",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 2}->{'11px': 1, '12px': 2}"
+   ],
+   "app_image": "w303-guards/globalevidence-no-window-1440-app.png",
+   "mock_image": "w303-guards/globalevidence-no-window-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "no-window",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Recurring evidence gaps] height 218->196",
+    "pSizes {'11px': 3, '12px': 2}->{'11px': 1, '12px': 2}"
+   ],
+   "app_image": "w303-guards/globalevidence-no-window-390-app.png",
+   "mock_image": "w303-guards/globalevidence-no-window-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/financials?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalfinancials-refused-reversed-1440-app.png",
+   "mock_image": "w303-guards/globalfinancials-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/financials?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 334->127",
+    "mainTop 315->108"
+   ],
+   "app_image": "w303-guards/globalfinancials-refused-reversed-390-app.png",
+   "mock_image": "w303-guards/globalfinancials-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "refused-over-31d",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/financials?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalfinancials-refused-over-31d-1440-app.png",
+   "mock_image": "w303-guards/globalfinancials-refused-over-31d-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "refused-over-31d",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/financials?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 334->127",
+    "mainTop 315->108"
+   ],
+   "app_image": "w303-guards/globalfinancials-refused-over-31d-390-app.png",
+   "mock_image": "w303-guards/globalfinancials-refused-over-31d-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "no-window",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/financials",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalfinancials-no-window-1440-app.png",
+   "mock_image": "w303-guards/globalfinancials-no-window-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "no-window",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/financials",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/globalfinancials-no-window-390-app.png",
+   "mock_image": "w303-guards/globalfinancials-no-window-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/portfolio?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/portfolio-refused-reversed-1440-app.png",
+   "mock_image": "w303-guards/portfolio-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/portfolio?from=2026-10-07T00%3A00%3A00Z&to=2026-10-06T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w303-guards/portfolio-refused-reversed-390-app.png",
+   "mock_image": "w303-guards/portfolio-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "refused-over-31d",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/portfolio?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-guards/portfolio-refused-over-31d-1440-app.png",
+   "mock_image": "w303-guards/portfolio-refused-over-31d-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "refused-over-31d",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/portfolio?from=2026-09-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-13",
+    "B11-14"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 325->108",
+    "mainTop 325->108"
+   ],
+   "app_image": "w303-guards/portfolio-refused-over-31d-390-app.png",
+   "mock_image": "w303-guards/portfolio-refused-over-31d-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "no-window",
+   "width": "1440",
+   "part": "w303-guards",
+   "route": "/portfolio",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] height 532->476",
+    "[Objectives across the estate] height 392->336",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 254, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 390, 'cw': 275, 'panel': 'Objectives acros->[{'cls': 'data-table__scroll', 'sw': 240, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 428, 'cw': 275, 'panel': 'Objectives acros"
+   ],
+   "app_image": "w303-guards/portfolio-no-window-1440-app.png",
+   "mock_image": "w303-guards/portfolio-no-window-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "no-window",
+   "width": "390",
+   "part": "w303-guards",
+   "route": "/portfolio",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Objectives across the estate] height 361->321",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 254, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou->[{'cls': 'data-table__scroll', 'sw': 240, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+   ],
+   "app_image": "w303-guards/portfolio-no-window-390-app.png",
+   "mock_image": "w303-guards/portfolio-no-window-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-historical",
+   "width": "1440",
+   "part": "w303-historical",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Capability coverage across sites] rows 17->13",
+    "[Capability coverage across sites] links 17->13",
+    "[Capability coverage across sites] details 17->13",
+    "pSizes {'11px': 3, '12px': 2}->{'11px': 1, '12px': 2}"
+   ],
+   "app_image": "w303-historical/globalevidence-w303-historical-1440-app.png",
+   "mock_image": "w303-historical/globalevidence-w303-historical-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-historical",
+   "width": "390",
+   "part": "w303-historical",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Capability coverage across sites] rows 17->13",
+    "[Capability coverage across sites] links 17->13",
+    "[Capability coverage across sites] details 17->13",
+    "[Recurring evidence gaps] height 218->196",
+    "pSizes {'11px': 3, '12px': 2}->{'11px': 1, '12px': 2}"
+   ],
+   "app_image": "w303-historical/globalevidence-w303-historical-390-app.png",
+   "mock_image": "w303-historical/globalevidence-w303-historical-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-historical",
+   "width": "1440",
+   "part": "w303-historical",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-historical/globalfinancials-w303-historical-1440-app.png",
+   "mock_image": "w303-historical/globalfinancials-w303-historical-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-historical",
+   "width": "390",
+   "part": "w303-historical",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-historical/globalfinancials-w303-historical-390-app.png",
+   "mock_image": "w303-historical/globalfinancials-w303-historical-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-historical",
+   "width": "1440",
+   "part": "w303-historical",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] height 532->476",
+    "[Objectives across the estate] height 392->336",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 254, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 467, 'cw': 275, 'panel': 'Objectives acros->[{'cls': 'data-table__scroll', 'sw': 240, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 428, 'cw': 275, 'panel': 'Objectives acros"
+   ],
+   "app_image": "w303-historical/portfolio-w303-historical-1440-app.png",
+   "mock_image": "w303-historical/portfolio-w303-historical-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-historical",
+   "width": "390",
+   "part": "w303-historical",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-09-30T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Objectives across the estate] height 361->321",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 254, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou->[{'cls': 'data-table__scroll', 'sw': 240, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+   ],
+   "app_image": "w303-historical/portfolio-w303-historical-390-app.png",
+   "mock_image": "w303-historical/portfolio-w303-historical-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-partial",
+   "width": "1440",
+   "part": "w303-partial",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w303-partial/globalevidence-w303-partial-1440-app.png",
+   "mock_image": "w303-partial/globalevidence-w303-partial-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-partial",
+   "width": "390",
+   "part": "w303-partial",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3, '12px': 1}->{'11px': 1, '12px': 1}"
+   ],
+   "app_image": "w303-partial/globalevidence-w303-partial-390-app.png",
+   "mock_image": "w303-partial/globalevidence-w303-partial-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-partial",
+   "width": "1440",
+   "part": "w303-partial",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Consequence register grew 279->365 px (302->389 partial) only because the frozen 604 px inner vertical scroller (rows cut at the panel edge, 2 of 4 rows visible) is gone: all four rows now show in full. 365 px is far inside the ruled 800/1200 cap (post-W6-W3-closeout-rulings.md); the >1.3x-vs-mock flag is the ruled cap.",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Consequence register",
+     1.46
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Consequence register] height 302->389"
+   ],
+   "app_image": "w303-partial/globalfinancials-w303-partial-1440-app.png",
+   "mock_image": "w303-partial/globalfinancials-w303-partial-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-partial",
+   "width": "390",
+   "part": "w303-partial",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-partial/globalfinancials-w303-partial-390-app.png",
+   "mock_image": "w303-partial/globalfinancials-w303-partial-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-partial",
+   "width": "1440",
+   "part": "w303-partial",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 392->336",
+    "[Objectives across the estate] links 0->22",
+    "hscroll [{'cls': 'portfolio-drawer', 'sw': 416, 'cw': 135, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 254, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 512, 'cw': 275, 'panel': 'Objectives acros"
+   ],
+   "app_image": "w303-partial/portfolio-w303-partial-1440-app.png",
+   "mock_image": "w303-partial/portfolio-w303-partial-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-partial",
+   "width": "390",
+   "part": "w303-partial",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 361->321",
+    "[Objectives across the estate] links 0->22",
+    "hscroll [{'cls': 'portfolio-drawer', 'sw': 416, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 254, 'cw': 150, 'panel': ''}, {'cls': 'data-table->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+   ],
+   "app_image": "w303-partial/portfolio-w303-partial-390-app.png",
+   "mock_image": "w303-partial/portfolio-w303-partial-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-pending",
+   "width": "1440",
+   "part": "w303-pending",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w303-pending/globalevidence-w303-pending-1440-app.png",
+   "mock_image": "w303-pending/globalevidence-w303-pending-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-pending",
+   "width": "390",
+   "part": "w303-pending",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w303-pending/globalevidence-w303-pending-390-app.png",
+   "mock_image": "w303-pending/globalevidence-w303-pending-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-pending",
+   "width": "1440",
+   "part": "w303-pending",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-pending/globalfinancials-w303-pending-1440-app.png",
+   "mock_image": "w303-pending/globalfinancials-w303-pending-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-pending",
+   "width": "390",
+   "part": "w303-pending",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Consequence register] height 403->350"
+   ],
+   "app_image": "w303-pending/globalfinancials-w303-pending-390-app.png",
+   "mock_image": "w303-pending/globalfinancials-w303-pending-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-pending",
+   "width": "1440",
+   "part": "w303-pending",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 392->336",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 245, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 390, 'cw': 275, 'panel': 'Objectives acros->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 428, 'cw': 275, 'panel': 'Objectives acros"
+   ],
+   "app_image": "w303-pending/portfolio-w303-pending-1440-app.png",
+   "mock_image": "w303-pending/portfolio-w303-pending-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-pending",
+   "width": "390",
+   "part": "w303-pending",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 361->321",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'data-table__scroll', 'sw': 245, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+   ],
+   "app_image": "w303-pending/portfolio-w303-pending-390-app.png",
+   "mock_image": "w303-pending/portfolio-w303-pending-390-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-positive",
+   "width": "1440",
+   "part": "w303-positive",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w303-positive/globalevidence-w303-positive-1440-app.png",
+   "mock_image": "w303-positive/globalevidence-w303-positive-1440-mock.png"
+  },
+  {
+   "screen": "globalevidence",
+   "case": "w303-positive",
+   "width": "390",
+   "part": "w303-positive",
+   "route": "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-03",
+    "B11-04",
+    "B11-05",
+    "B11-06",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "mock_titles": [
+    "Capability coverage across sites",
+    "Recurring evidence gaps"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 3}->{'11px': 1}"
+   ],
+   "app_image": "w303-positive/globalevidence-w303-positive-390-app.png",
+   "mock_image": "w303-positive/globalevidence-w303-positive-390-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-positive",
+   "width": "1440",
+   "part": "w303-positive",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Consequence register grew 279->365 px (302->389 partial) only because the frozen 604 px inner vertical scroller (rows cut at the panel edge, 2 of 4 rows visible) is gone: all four rows now show in full. 365 px is far inside the ruled 800/1200 cap (post-W6-W3-closeout-rulings.md); the >1.3x-vs-mock flag is the ruled cap.",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Consequence register",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Consequence register] height 279->365"
+   ],
+   "app_image": "w303-positive/globalfinancials-w303-positive-1440-app.png",
+   "mock_image": "w303-positive/globalfinancials-w303-positive-1440-mock.png"
+  },
+  {
+   "screen": "globalfinancials",
+   "case": "w303-positive",
+   "width": "390",
+   "part": "w303-positive",
+   "route": "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-01",
+    "B11-03",
+    "B11-07",
+    "B11-08",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "mock_titles": [
+    "Consequence register",
+    "Aggregation rule"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w303-positive/globalfinancials-w303-positive-390-app.png",
+   "mock_image": "w303-positive/globalfinancials-w303-positive-390-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-positive",
+   "width": "1440",
+   "part": "w303-positive",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 392->336",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'portfolio-drawer', 'sw': 410, 'cw': 135, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 245, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 135, 'panel': ''}, {'cls': 'portfolio-matrix-scroll', 'sw': 428, 'cw': 275, 'panel': 'Objectives acros"
+   ],
+   "app_image": "w303-positive/portfolio-w303-positive-1440-app.png",
+   "mock_image": "w303-positive/portfolio-w303-positive-1440-mock.png"
+  },
+  {
+   "screen": "portfolio",
+   "case": "w303-positive",
+   "width": "390",
+   "part": "w303-positive",
+   "route": "/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B11-X1",
+    "B11-02",
+    "B11-03",
+    "B11-09",
+    "B11-10",
+    "B11-11",
+    "B11-12",
+    "B11-14"
+   ],
+   "app_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "mock_titles": [
+    "Where management should act first",
+    "Objectives across the estate",
+    "An opportunity beyond reducing cost",
+    "What changed in this review"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Where management should act first] links 6->10",
+    "[Objectives across the estate] height 361->321",
+    "[Objectives across the estate] links 0->18",
+    "hscroll [{'cls': 'portfolio-drawer', 'sw': 410, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 245, 'cw': 150, 'panel': ''}, {'cls': 'data-table->[{'cls': 'data-table__scroll', 'sw': 262, 'cw': 150, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 336, 'panel': 'Where management shou"
+   ],
+   "app_image": "w303-positive/portfolio-w303-positive-390-app.png",
+   "mock_image": "w303-positive/portfolio-w303-positive-390-mock.png"
+  }
+ ]
+}

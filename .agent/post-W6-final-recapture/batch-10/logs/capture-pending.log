@@ -1,0 +1,75 @@
+chrome pid 25560
+PASS  loaded http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-pending 1440: mock rendered
+PASS  findings-pending 1440: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-pending 390: mock rendered
+PASS  findings-pending 390: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-cost-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-cost-pending 1440: mock rendered
+PASS  findings-cost-pending 1440: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-cost: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-cost-pending 390: mock rendered
+PASS  findings-cost-pending 390: same panel count  {"app":["Cost lens"],"mock":["Cost lens"]}
+PASS  findings-cost-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-risks-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-risks-pending 1440: mock rendered
+PASS  findings-risks-pending 1440: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-risks: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-risks-pending 390: mock rendered
+PASS  findings-risks-pending 390: same panel count  {"app":["Risks lens"],"mock":["Risks lens"]}
+PASS  findings-risks-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-opportunities-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-opportunities-pending 1440: mock rendered
+PASS  findings-opportunities-pending 1440: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings-opportunities: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-opportunities-pending 390: mock rendered
+PASS  findings-opportunities-pending 390: same panel count  {"app":["Opportunities lens"],"mock":["Opportunities lens"]}
+PASS  findings-opportunities-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  actions-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/actions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  actions-pending 1440: mock rendered
+PASS  actions-pending 1440: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/actions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  actions-pending 390: mock rendered
+PASS  actions-pending 390: same panel count  {"app":["Managed actions"],"mock":["Managed actions"]}
+PASS  actions-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjA3ZjUyZTJiN2Y4Y2MyZTJiMjQwZGEyZWNjM2FkNDVmZDljODU4ZWI3NGFjZTlkMWQ4MWQyZDEwZGQyYjkyNyIsImFmdGVyIjpbIjIwMjYtMTAtMDZUMTk6MTU6MDAuMDAwMDAwWiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE2ZCJdLCJhdXRob3JpemVkX3NpdGVfaWRzIjpbIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE3NiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDNkNyJdLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMC4wMDAwMDBaIiwia25vd25fYXQiOiIyMDI2LTExLTAyVDExOjE5OjAwLjA5MzAwMFoiLCJsZW5zIjoiYWxsIiwicGFnZV9vbmVfbW9kZSI6ImxpdmUiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6OTRiNWZkMTQ2ZWRmZjFiMWJmNDIwZDVmNDQwZmQyOTcwMzVkMTdhM2I5Y2JiYmY0MzM2NzcwNzJjN2Y2NTFhNyIsInN0YXRlX2ZpbHRlciI6ImFsbCIsInRlbmFudF9pZCI6IjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInRvIjoiMjAyNi0xMC0wN1QwMDowMDowMC4wMDAwMDBaIiwidiI6MX0: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  findings-page-two-pending 1440: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  findings-page-two-pending 1440: mock rendered
+PASS  findings-page-two-pending 1440: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-page-two-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjA3ZjUyZTJiN2Y4Y2MyZTJiMjQwZGEyZWNjM2FkNDVmZDljODU4ZWI3NGFjZTlkMWQ4MWQyZDEwZGQyYjkyNyIsImFmdGVyIjpbIjIwMjYtMTAtMDZUMTk6MTU6MDAuMDAwMDAwWiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE2ZCJdLCJhdXRob3JpemVkX3NpdGVfaWRzIjpbIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE3NiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDNkNyJdLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMC4wMDAwMDBaIiwia25vd25fYXQiOiIyMDI2LTExLTAyVDExOjE5OjAwLjA5MzAwMFoiLCJsZW5zIjoiYWxsIiwicGFnZV9vbmVfbW9kZSI6ImxpdmUiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6OTRiNWZkMTQ2ZWRmZjFiMWJmNDIwZDVmNDQwZmQyOTcwMzVkMTdhM2I5Y2JiYmY0MzM2NzcwNzJjN2Y2NTFhNyIsInN0YXRlX2ZpbHRlciI6ImFsbCIsInRlbmFudF9pZCI6IjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInRvIjoiMjAyNi0xMC0wN1QwMDowMDowMC4wMDAwMDBaIiwidiI6MX0: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-page-two-pending 390: app rendered
+PASS  loaded http://localhost:5180/mockups/v69/index.html#/findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  findings-page-two-pending 390: mock rendered
+PASS  findings-page-two-pending 390: same panel count  {"app":["Findings across the estate"],"mock":["Findings across the estate"]}
+PASS  findings-page-two-pending 390: no app page overflow  {"overflowX":0}
+
+72/72 claims passed; evidence in pending

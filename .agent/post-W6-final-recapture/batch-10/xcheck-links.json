@@ -1,0 +1,1050 @@
+[
+ {
+  "screen": "link-check",
+  "case": "l00",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l00-1440-app.png",
+  "mock_image": "link-check-l00-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 9, '10px': 9, '14px': 8}->{'11px': 8, '10px': 9, '14px': 8}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l00",
+  "width": "390",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l00-390-app.png",
+  "mock_image": "link-check-l00-390-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 9, '10px': 9, '14px': 8}->{'11px': 8, '10px': 9, '14px': 8}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l01",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l01-1440-app.png",
+  "mock_image": "link-check-l01-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened in the selected hour', 'Operating context', 'Needs attention', 'Bounded money consequence', 'Next step'] -> ['What happened on the service day', 'Charging activity and site power', 'Needs attention', 'Bounded money consequence', 'Next step']",
+   "[Needs attention] height 126->374",
+   "[Needs attention] links 0->1",
+   "[Bounded money consequence] height 103->211",
+   "[Bounded money consequence] links 0->1",
+   "[Bounded money consequence] details 0->1",
+   "[Next step] height 103->211",
+   "proseSizes []->['14px']",
+   "pSizes {'14px': 5}->{'11px': 5, '10px': 3, '14px': 6}",
+   "pageH 1000->1391"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l01",
+  "width": "390",
+  "new_app_titles": [
+   "What happened on the service day",
+   "Charging activity and site power",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l01-390-app.png",
+  "mock_image": "link-check-l01-390-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened in the selected hour', 'Operating context', 'Needs attention', 'Bounded money consequence', 'Next step'] -> ['What happened on the service day', 'Charging activity and site power', 'Needs attention', 'Bounded money consequence', 'Next step']",
+   "[Needs attention] height 126->153",
+   "[Needs attention] links 0->1",
+   "[Bounded money consequence] height 149->231",
+   "[Bounded money consequence] links 0->1",
+   "[Bounded money consequence] details 0->1",
+   "[Next step] height 103->197",
+   "proseSizes []->['14px']",
+   "pSizes {'14px': 5}->{'11px': 5, '10px': 3, '14px': 6}",
+   "pageH 1219->2498",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l02",
+  "width": "1440",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l02-1440-app.png",
+  "mock_image": "link-check-l02-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened in the selected hour', 'Operating context', 'Needs attention', 'Bounded money consequence', 'Next step'] -> ['Site unavailable']",
+   "h1.text 'Kobo mini-grid'->'Site'",
+   "h1.top 44->24",
+   "prose.size 12px->14px",
+   "pSizes {'14px': 5}->{'14px': 1}",
+   "tabRows [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l02",
+  "width": "390",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l02-390-app.png",
+  "mock_image": "link-check-l02-390-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened in the selected hour', 'Operating context', 'Needs attention', 'Bounded money consequence', 'Next step'] -> ['Site unavailable']",
+   "h1.text 'Kobo mini-grid'->'Site'",
+   "h1.top 127->108",
+   "prose.size 12px->14px",
+   "pSizes {'14px': 5}->{'14px': 1}",
+   "tabRows [['Overview*', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']]->[]",
+   "pageH 1219->900",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l03",
+  "width": "1440",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l03-1440-app.png",
+  "mock_image": "link-check-l03-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened', 'What limits this conclusion', 'What to do next', 'Where to look next'] -> ['Site unavailable']",
+   "h1.text 'Generator support merits review'->'Finding'",
+   "h1.top 45->24",
+   "prose.size 12px->14px",
+   "proseSizes ['12px']->[]",
+   "pSizes {'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 17}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[]",
+   "pageH 1769->1000"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l03",
+  "width": "390",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l03-390-app.png",
+  "mock_image": "link-check-l03-390-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened', 'What limits this conclusion', 'What to do next', 'Where to look next'] -> ['Site unavailable']",
+   "h1.text 'Generator support merits review'->'Finding'",
+   "h1.top 149->108",
+   "prose.size 12px->14px",
+   "proseSizes ['12px']->[]",
+   "pSizes {'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 17}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[]",
+   "pageH 2686->900",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l04",
+  "width": "1440",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l04-1440-app.png",
+  "mock_image": "link-check-l04-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Action scope'] -> ['Site unavailable']",
+   "h1.text 'ACT-000001 · Battery reserve trial'->'Action'",
+   "h1.top 44->24",
+   "prose.size 12px->14px",
+   "pSizes {'11px': 6, '10px': 3}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[]",
+   "clipped [{'tag': 'CODE', 'cls': 'action-ref', 'text': '00000005-0000-4000-8000-00000000057f', 'sw': 257, 'cw': 86, 'sh': 21, 'ch->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l04",
+  "width": "390",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l04-390-app.png",
+  "mock_image": "link-check-l04-390-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['Action scope'] -> ['Site unavailable']",
+   "h1.text 'ACT-000001 · Battery reserve trial'->'Action'",
+   "h1.top 127->108",
+   "prose.size 12px->14px",
+   "pSizes {'11px': 6, '10px': 3}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[]",
+   "pageH 1010->900",
+   "clipped [{'tag': 'CODE', 'cls': 'action-ref', 'text': '00000005-0000-4000-8000-00000000057f', 'sw': 257, 'cw': 86, 'sh': 21, 'ch->[]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l05",
+  "width": "1440",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l05-1440-app.png",
+  "mock_image": "link-check-l05-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened', 'What limits this conclusion', 'What to do next', 'Where to look next'] -> ['Site unavailable']",
+   "h1.text 'Generator support merits review'->'Finding'",
+   "h1.top 45->24",
+   "prose.size 12px->14px",
+   "proseSizes ['12px']->[]",
+   "pSizes {'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 17}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[]",
+   "pageH 1789->1000"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l05",
+  "width": "390",
+  "new_app_titles": [
+   "Site unavailable"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l05-390-app.png",
+  "mock_image": "link-check-l05-390-mock.png",
+  "app_url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles ['What happened', 'What limits this conclusion', 'What to do next', 'Where to look next'] -> ['Site unavailable']",
+   "h1.text 'Generator support merits review'->'Finding'",
+   "h1.top 149->108",
+   "prose.size 12px->14px",
+   "proseSizes ['12px']->[]",
+   "pSizes {'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 17}->{'14px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[]",
+   "pageH 2705->900",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "14px prose reduced",
+   "tab rows changed",
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l06",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l06-1440-app.png",
+  "mock_image": "link-check-l06-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l06",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l06-390-app.png",
+  "mock_image": "link-check-l06-390-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l07",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l07-1440-app.png",
+  "mock_image": "link-check-l07-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001/findings/00000005-0000-4000-8000-0000000003ce?revision_id=00000005-0000-4000-8000-0000000003cf",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] height 250->279",
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+   "hscroll []->[{'cls': 'ev-id', 'sw': 429, 'cw': 347, 'panel': 'Operational context'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'ev-id', 'sw': 429, 'cw': 347, 'panel': 'Operational context'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "ev-id",
+    "sw": 429,
+    "cw": 347,
+    "panel": "Operational context"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "ev-id",
+    "sw": 429,
+    "cw": 347,
+    "panel": "Operational context"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l07",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l07-390-app.png",
+  "mock_image": "link-check-l07-390-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001/findings/00000005-0000-4000-8000-0000000003ce?revision_id=00000005-0000-4000-8000-0000000003cf",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] links 0->1",
+   "[Operational context] height 290->254",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'ev-id', 'sw': 429, 'cw': 159, 'panel': 'Operational context'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'ev-id', 'sw': 429, 'cw': 159, 'panel': 'Operational context'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "ev-id",
+    "sw": 429,
+    "cw": 159,
+    "panel": "Operational context"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "ev-id",
+    "sw": 429,
+    "cw": 159,
+    "panel": "Operational context"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l08",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l08-1440-app.png",
+  "mock_image": "link-check-l08-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->296",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll []->[{'cls': 'data-table__scroll', 'sw': 1125, 'cw': 1120, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 1125, 'cw': 1120, 'panel': 'Findings at this site'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1125,
+    "cw": 1120,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 1125,
+    "cw": 1120,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l08",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l08-390-app.png",
+  "mock_image": "link-check-l08-390-mock.png",
+  "app_url": "http://localhost:5180/sites/COLD-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->313",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 949, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 949, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 949,
+    "cw": 318,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 949,
+    "cw": 318,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l09",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l09-1440-app.png",
+  "mock_image": "link-check-l09-1440-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->159",
+   "[Findings at this site] rows 0->1",
+   "[Findings at this site] links 0->2",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "link-check",
+  "case": "l09",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "link-check-l09-390-app.png",
+  "mock_image": "link-check-l09-390-mock.png",
+  "app_url": "http://localhost:5180/sites/EV-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->159",
+   "[Findings at this site] rows 0->1",
+   "[Findings at this site] links 0->2",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 750,
+    "cw": 318,
+    "panel": "Findings at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

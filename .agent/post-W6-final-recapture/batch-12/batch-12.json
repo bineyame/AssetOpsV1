@@ -1,0 +1,1713 @@
+{
+ "batch": "12",
+ "name": "W4 mini depth",
+ "main_sha": "89a11477",
+ "pair_count": 42,
+ "frozen_pair_count": 42,
+ "counts": {
+  "PASS": 17,
+  "FIXED": 25
+ },
+ "pairs": [
+  {
+   "screen": "renewable",
+   "case": "positive",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/renewable-positive-1440-app.png",
+   "mock_image": "main/renewable-positive-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "positive",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 388, 'cw': 318, 'panel': 'Eligible and excluded wi->[{'cls': 'data-table__scroll', 'sw': 388, 'cw': 318, 'panel': 'Eligible and excluded windows'}]"
+   ],
+   "app_image": "main/renewable-positive-390-app.png",
+   "mock_image": "main/renewable-positive-390-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "positive",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 2, '13px': 4, '14px': 2}->{'11px': 2, '13px': 4, '12px': 1, '14px': 2}"
+   ],
+   "app_image": "main/service-positive-1440-app.png",
+   "mock_image": "main/service-positive-1440-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "positive",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 2, '13px': 4, '14px': 2}->{'11px': 2, '13px': 4, '12px': 1, '14px': 2}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 526, 'cw': 318, 'panel': 'Delivered power by addre->[{'cls': 'data-table__scroll', 'sw': 526, 'cw': 318, 'panel': 'Delivered power by addressed load'}]"
+   ],
+   "app_image": "main/service-positive-390-app.png",
+   "mock_image": "main/service-positive-390-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "positive",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/fuel-positive-1440-app.png",
+   "mock_image": "main/fuel-positive-1440-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "positive",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/fuel-positive-390-app.png",
+   "mock_image": "main/fuel-positive-390-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "positive",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/backup-positive-1440-app.png",
+   "mock_image": "main/backup-positive-1440-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "positive",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 719, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 719, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 548, 'cw': 318, 'panel': 'Ba"
+   ],
+   "app_image": "main/backup-positive-390-app.png",
+   "mock_image": "main/backup-positive-390-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "gap-limited",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-05",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/renewable-gap-limited-1440-app.png",
+   "mock_image": "main/renewable-gap-limited-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "gap-limited",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-05",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded wi->[{'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}]"
+   ],
+   "app_image": "main/renewable-gap-limited-390-app.png",
+   "mock_image": "main/renewable-gap-limited-390-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "gap-limited",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 2, '13px': 4, '14px': 5}->{'11px': 2, '13px': 4, '12px': 1, '14px': 5}"
+   ],
+   "app_image": "main/service-gap-limited-1440-app.png",
+   "mock_image": "main/service-gap-limited-1440-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "gap-limited",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'11px': 2, '13px': 4, '14px': 5}->{'11px': 2, '13px': 4, '12px': 1, '14px': 5}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 521, 'cw': 318, 'panel': 'Delivered power by addre->[{'cls': 'data-table__scroll', 'sw': 521, 'cw': 318, 'panel': 'Delivered power by addressed load'}]"
+   ],
+   "app_image": "main/service-gap-limited-390-app.png",
+   "mock_image": "main/service-gap-limited-390-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "gap-limited",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/fuel-gap-limited-1440-app.png",
+   "mock_image": "main/fuel-gap-limited-1440-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "gap-limited",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/fuel-gap-limited-390-app.png",
+   "mock_image": "main/fuel-gap-limited-390-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "gap-limited",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/backup-gap-limited-1440-app.png",
+   "mock_image": "main/backup-gap-limited-1440-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "gap-limited",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 752, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 752, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 542, 'cw': 318, 'panel': 'Ba"
+   ],
+   "app_image": "main/backup-gap-limited-390-app.png",
+   "mock_image": "main/backup-gap-limited-390-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "no-window",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/renewable-no-window-1440-app.png",
+   "mock_image": "main/renewable-no-window-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "no-window",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded wi->[{'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}]"
+   ],
+   "app_image": "main/renewable-no-window-390-app.png",
+   "mock_image": "main/renewable-no-window-390-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "no-window",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/service-no-window-1440-app.png",
+   "mock_image": "main/service-no-window-1440-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "no-window",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/service-no-window-390-app.png",
+   "mock_image": "main/service-no-window-390-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "no-window",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/fuel-no-window-1440-app.png",
+   "mock_image": "main/fuel-no-window-1440-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "no-window",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/fuel-no-window-390-app.png",
+   "mock_image": "main/fuel-no-window-390-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "no-window",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/backup-no-window-1440-app.png",
+   "mock_image": "main/backup-no-window-1440-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "no-window",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 503, 'cw': 318, 'panel': 'Ba"
+   ],
+   "app_image": "main/backup-no-window-390-app.png",
+   "mock_image": "main/backup-no-window-390-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "refused-invalid",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-04T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-06",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['From physical headroom to an opportunity', 'Productive-use evaluation', 'Eligible and excluded windows']",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 3}"
+   ],
+   "app_image": "main/renewable-refused-invalid-1440-app.png",
+   "mock_image": "main/renewable-refused-invalid-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "refused-invalid",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-04T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-06",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['From physical headroom to an opportunity', 'Productive-use evaluation', 'Eligible and excluded windows']",
+    "h1.top 273->127",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 3}",
+    "pageH 900->1158",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 253->108"
+   ],
+   "app_image": "main/renewable-refused-invalid-390-app.png",
+   "mock_image": "main/renewable-refused-invalid-390-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "refused-invalid",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Where the power went', 'Delivered power by addressed load', 'What is supported', 'What unlocks a service conclusion']",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 4}"
+   ],
+   "app_image": "main/service-refused-invalid-1440-app.png",
+   "mock_image": "main/service-refused-invalid-1440-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "refused-invalid",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Where the power went', 'Delivered power by addressed load', 'What is supported', 'What unlocks a service conclusion']",
+    "h1.top 265->127",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 4}",
+    "pageH 900->1288",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 245->108"
+   ],
+   "app_image": "main/service-refused-invalid-390-app.png",
+   "mock_image": "main/service-refused-invalid-390-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "refused-invalid",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Fuel balance at a glance', 'Balance bridge', 'Inspect existing generator fuel interpretation']",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 3}"
+   ],
+   "app_image": "main/fuel-refused-invalid-1440-app.png",
+   "mock_image": "main/fuel-refused-invalid-1440-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "refused-invalid",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Fuel balance at a glance', 'Balance bridge', 'Inspect existing generator fuel interpretation']",
+    "h1.top 274->127",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 3}",
+    "pageH 900->1179",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 254->108"
+   ],
+   "app_image": "main/fuel-refused-invalid-390-app.png",
+   "mock_image": "main/fuel-refused-invalid-390-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "refused-invalid",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Backup event chains', 'Backup readiness evidence', 'Operating evidence', 'Next evidence']",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 4}"
+   ],
+   "app_image": "main/backup-refused-invalid-1440-app.png",
+   "mock_image": "main/backup-refused-invalid-1440-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "refused-invalid",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; panel set changed",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-06",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Backup event chains', 'Backup readiness evidence', 'Operating evidence', 'Next evidence']",
+    "h1.top 274->127",
+    "h2 presence False->True",
+    "pSizes {}->{'10px': 4}",
+    "pageH 900->1270",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 254->108"
+   ],
+   "app_image": "main/backup-refused-invalid-390-app.png",
+   "mock_image": "main/backup-refused-invalid-390-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "known-before-evidence",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/renewable-known-before-evidence-1440-app.png",
+   "mock_image": "main/renewable-known-before-evidence-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "known-before-evidence",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-04",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded wi->[{'cls': 'data-table__scroll', 'sw': 410, 'cw': 318, 'panel': 'Eligible and excluded windows'}]"
+   ],
+   "app_image": "main/renewable-known-before-evidence-390-app.png",
+   "mock_image": "main/renewable-known-before-evidence-390-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "known-before-evidence",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/service-known-before-evidence-1440-app.png",
+   "mock_image": "main/service-known-before-evidence-1440-mock.png"
+  },
+  {
+   "screen": "service",
+   "case": "known-before-evidence",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-07",
+    "B12-08",
+    "B12-09",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "mock_titles": [
+    "Where the power went",
+    "Delivered power by addressed load",
+    "What is supported",
+    "What unlocks a service conclusion"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/service-known-before-evidence-390-app.png",
+   "mock_image": "main/service-known-before-evidence-390-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "known-before-evidence",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/fuel-known-before-evidence-1440-app.png",
+   "mock_image": "main/fuel-known-before-evidence-1440-mock.png"
+  },
+  {
+   "screen": "fuel",
+   "case": "known-before-evidence",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "mock_titles": [
+    "Fuel balance at a glance",
+    "Balance bridge",
+    "Inspect existing generator fuel interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "main/fuel-known-before-evidence-390-app.png",
+   "mock_image": "main/fuel-known-before-evidence-390-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "known-before-evidence",
+   "width": "1440",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "main/backup-known-before-evidence-1440-app.png",
+   "mock_image": "main/backup-known-before-evidence-1440-mock.png"
+  },
+  {
+   "screen": "backup",
+   "case": "known-before-evidence",
+   "width": "390",
+   "part": "main",
+   "route": "/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "mock_titles": [
+    "Backup event chains",
+    "Backup readiness evidence",
+    "Operating evidence",
+    "Next evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 740, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 503, 'cw': 318, 'panel': 'Ba"
+   ],
+   "app_image": "main/backup-known-before-evidence-390-app.png",
+   "mock_image": "main/backup-known-before-evidence-390-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "w403-decision-positive",
+   "width": "1440",
+   "part": "w403",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "w403/renewable-w403-decision-positive-1440-app.png",
+   "mock_image": "w403/renewable-w403-decision-positive-1440-mock.png"
+  },
+  {
+   "screen": "renewable",
+   "case": "w403-decision-positive",
+   "width": "390",
+   "part": "w403",
+   "route": "/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B12-X1",
+    "B12-01",
+    "B12-02",
+    "B12-03",
+    "B12-07",
+    "B12-08",
+    "B12-10",
+    "B12-11",
+    "B12-14"
+   ],
+   "app_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "mock_titles": [
+    "From physical headroom to an opportunity",
+    "Productive-use evaluation",
+    "Eligible and excluded windows"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 388, 'cw': 318, 'panel': 'Eligible and excluded wi->[{'cls': 'data-table__scroll', 'sw': 388, 'cw': 318, 'panel': 'Eligible and excluded windows'}]"
+   ],
+   "app_image": "w403/renewable-w403-decision-positive-390-app.png",
+   "mock_image": "w403/renewable-w403-decision-positive-390-mock.png"
+  }
+ ]
+}

@@ -1,0 +1,360 @@
+[
+ {
+  "screen": "findings",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings across the estate"
+  ],
+  "mock_titles": [
+   "Findings across the estate"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-historical-1440-app.png",
+  "mock_image": "findings-historical-1440-mock.png",
+  "app_url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings across the estate] links 5->8"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings across the estate"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Findings across the estate"
+  ],
+  "mock_titles": [
+   "Findings across the estate"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-historical-390-app.png",
+  "mock_image": "findings-historical-390-mock.png",
+  "app_url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings across the estate] height 456->555",
+   "[Findings across the estate] links 5->8",
+   "clipped [{'tag': 'A', 'cls': 'estate-cell__primary', 'text': 'Generator support merits review: bounded candidate avoidable runni->[]",
+   "hscroll [{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 900, 'cw': 318, 'panel': 'Findings ac->[{'cls': 'v69-chips estate-state-chips', 'sw': 460, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 672, 'cw': 318, 'panel': 'Findings ac"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings across the estate"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "v69-chips estate-state-chips",
+    "sw": 460,
+    "cw": 358,
+    "panel": ""
+   },
+   {
+    "cls": "data-table__scroll",
+    "sw": 672,
+    "cw": 318,
+    "panel": "Findings across the estate"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-cost",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Cost lens"
+  ],
+  "mock_titles": [
+   "Cost lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-cost-historical-1440-app.png",
+  "mock_image": "findings-cost-historical-1440-mock.png",
+  "app_url": "http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cost lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-cost",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Cost lens"
+  ],
+  "mock_titles": [
+   "Cost lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-cost-historical-390-app.png",
+  "mock_image": "findings-cost-historical-390-mock.png",
+  "app_url": "http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cost lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "v69-chips estate-state-chips",
+    "sw": 460,
+    "cw": 358,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-risks",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Risks lens"
+  ],
+  "mock_titles": [
+   "Risks lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-risks-historical-1440-app.png",
+  "mock_image": "findings-risks-historical-1440-mock.png",
+  "app_url": "http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Risks lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-risks",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Risks lens"
+  ],
+  "mock_titles": [
+   "Risks lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-risks-historical-390-app.png",
+  "mock_image": "findings-risks-historical-390-mock.png",
+  "app_url": "http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Risks lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "v69-chips estate-state-chips",
+    "sw": 460,
+    "cw": 358,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-opportunities",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Opportunities lens"
+  ],
+  "mock_titles": [
+   "Opportunities lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-opportunities-historical-1440-app.png",
+  "mock_image": "findings-opportunities-historical-1440-mock.png",
+  "app_url": "http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Opportunities lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "findings-opportunities",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Opportunities lens"
+  ],
+  "mock_titles": [
+   "Opportunities lens"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "findings-opportunities-historical-390-app.png",
+  "mock_image": "findings-opportunities-historical-390-mock.png",
+  "app_url": "http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Opportunities lens"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "v69-chips estate-state-chips",
+    "sw": 460,
+    "cw": 358,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "actions",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Managed actions"
+  ],
+  "mock_titles": [
+   "Managed actions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "actions-historical-1440-app.png",
+  "mock_image": "actions-historical-1440-mock.png",
+  "app_url": "http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Managed actions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "actions",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Managed actions"
+  ],
+  "mock_titles": [
+   "Managed actions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "actions-historical-390-app.png",
+  "mock_image": "actions-historical-390-mock.png",
+  "app_url": "http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:16:50Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Managed actions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 820,
+    "cw": 318,
+    "panel": "Managed actions"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

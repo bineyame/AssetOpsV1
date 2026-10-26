@@ -1,0 +1,62 @@
+[
+ {
+  "id": "link-check",
+  "case": "l00",
+  "url": "http://localhost:5180/sites/COLD-LAB-001",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l01",
+  "url": "http://localhost:5180/sites/EV-LAB-001",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l02",
+  "url": "http://localhost:5180/sites/KOBO-001",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l03",
+  "url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l04",
+  "url": "http://localhost:5180/sites/KOBO-001/actions/00000005-0000-4000-8000-000000000561?event_id=00000005-0000-4000-8000-00000000057f",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l05",
+  "url": "http://localhost:5180/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-0000000004be",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l06",
+  "url": "http://localhost:5180/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l07",
+  "url": "http://localhost:5180/sites/EV-LAB-001/findings/00000005-0000-4000-8000-0000000003ce?revision_id=00000005-0000-4000-8000-0000000003cf",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l08",
+  "url": "http://localhost:5180/sites/COLD-LAB-001/findings",
+  "mock": "finding"
+ },
+ {
+  "id": "link-check",
+  "case": "l09",
+  "url": "http://localhost:5180/sites/EV-LAB-001/findings",
+  "mock": "finding"
+ }
+]

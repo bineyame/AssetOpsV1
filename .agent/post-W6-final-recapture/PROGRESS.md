@@ -14,3 +14,10 @@
 - NEXT (if context allows): batch-02 dispatch/analysis 22 pairs with s3_dispatch_walkthrough.py (owner authorized rebuilding assetops_s3walk).
 - batch 02 UPDATED (dispatch/analysis 22 pairs now captured with s3_dispatch_walkthrough.py unmodified, owner-authorized): batch-02 now FIXED 42, PASS 20, REGRESSION-OPEN 0, GAP 0. assetops_s3walk left rebuilt (owner DB; producer has no drop). Servers stopped.
 - All agent-B work complete; all audit DBs dropped, no listeners, var/ clean.
+# Agent C (batches 09-12), main SHA 89a11477 (HEAD 1b9ae037, no product-file diff)
+- batch 09 DONE: 50 pairs, FIXED 32, PASS 18, REGRESSION-OPEN 0, GAP 0. seed.py ev interrupted/complete unmodified vs assetops_audit_b09_test (dropped).
+- batch 10 DONE: 62 pairs, FIXED 0, PASS 62, REGRESSION-OPEN 0, GAP 0. W3-01 serve.py unmodified vs w301cap_test (dropped). Observation (uncounted link check): EV finding page still has the ev-id one-line scroller (same as batch 08 OPEN).
+- batch 11 DONE: 66 pairs, FIXED 6, PASS 60, REGRESSION-OPEN 0, GAP 0. W3-03 (assetops_audit_b11_test) and W3-02 (w302j_test) producers unmodified; DBs dropped. globalfinancials Consequence register 1.37-1.46x mock: inner scroller removed, inside ruled 800 cap, classed FIXED.
+- batch 12 DONE: 42 pairs, FIXED 25, PASS 17, REGRESSION-OPEN 0, GAP 0. W4-02 seed (w402r_test) and W4-03 walkthrough (assetops_audit_b12_test) unmodified; DBs dropped; replay.json restored. 
+- Note: Vite serves on localhost (IPv6) only; targets rewritten from 127.0.0.1 to localhost. Tracked pyc .agent/W3-03-evidence/__pycache__ modified by pytest was restored with git checkout. Empty untracked var/evidence/migration-performance appeared at 12:42 (not removed).
+- All servers stopped, DBs dropped, no listeners on 9741/9751/9761/9781/188xx/518x/952x.

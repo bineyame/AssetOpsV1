@@ -1,0 +1,3 @@
+C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+prepared assetops_audit_b12_test: ['KOBO-001', 'MG-W402-001']; next: serve, then replay

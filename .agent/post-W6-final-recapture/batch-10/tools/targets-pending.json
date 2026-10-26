@@ -1,0 +1,32 @@
+[
+ {
+  "id": "findings",
+  "case": "pending",
+  "url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-cost",
+  "case": "pending",
+  "url": "http://localhost:5180/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-risks",
+  "case": "pending",
+  "url": "http://localhost:5180/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "findings-opportunities",
+  "case": "pending",
+  "url": "http://localhost:5180/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "actions",
+  "case": "pending",
+  "url": "http://localhost:5180/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+ },
+ {
+  "id": "findings",
+  "case": "page-two-pending",
+  "url": "http://localhost:5180/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjA3ZjUyZTJiN2Y4Y2MyZTJiMjQwZGEyZWNjM2FkNDVmZDljODU4ZWI3NGFjZTlkMWQ4MWQyZDEwZGQyYjkyNyIsImFmdGVyIjpbIjIwMjYtMTAtMDZUMTk6MTU6MDAuMDAwMDAwWiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE2ZCJdLCJhdXRob3JpemVkX3NpdGVfaWRzIjpbIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDE3NiIsIjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDNkNyJdLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMC4wMDAwMDBaIiwia25vd25fYXQiOiIyMDI2LTExLTAyVDExOjE5OjAwLjA5MzAwMFoiLCJsZW5zIjoiYWxsIiwicGFnZV9vbmVfbW9kZSI6ImxpdmUiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6OTRiNWZkMTQ2ZWRmZjFiMWJmNDIwZDVmNDQwZmQyOTcwMzVkMTdhM2I5Y2JiYmY0MzM2NzcwNzJjN2Y2NTFhNyIsInN0YXRlX2ZpbHRlciI6ImFsbCIsInRlbmFudF9pZCI6IjAwMDAwMDA1LTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInRvIjoiMjAyNi0xMC0wN1QwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+ }
+]

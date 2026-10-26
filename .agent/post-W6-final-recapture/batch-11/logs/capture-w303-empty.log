@@ -1,0 +1,15 @@
+chrome pid 760
+PASS  loaded http://localhost:5181/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  portfolio-w303-empty-foreign-tenant 1440: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/portfolio: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  portfolio-w303-empty-foreign-tenant 1440: mock rendered
+PASS  portfolio-w303-empty-foreign-tenant 1440: same panel count  {"app":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"],"mock":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"]}
+PASS  portfolio-w303-empty-foreign-tenant 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  portfolio-w303-empty-foreign-tenant 390: app rendered
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/portfolio: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  portfolio-w303-empty-foreign-tenant 390: mock rendered
+PASS  portfolio-w303-empty-foreign-tenant 390: same panel count  {"app":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"],"mock":["Where management should act first","Objectives across the estate","An opportunity beyond reducing cost","What changed in this review"]}
+PASS  portfolio-w303-empty-foreign-tenant 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in w303-empty
