@@ -24,9 +24,15 @@ import {
   type DomainActionClient,
   type DomainDetailResult,
   type DomainIndexScope,
+  isUtcInstant,
 } from "../sites/domainActionClient";
 import { COLD_ACTION_PRESENTATION } from "../sites/coldWorkPresentation";
-import { EV_ACTION_PRESENTATION } from "../sites/evWorkPresentation";
+import {
+  EV_ACTION_PRESENTATION,
+  EV_ACTION_WINDOW_TITLE,
+  EV_ACTION_WITHOUT_WINDOW,
+  actionWindowRefusal,
+} from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
 import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
@@ -79,7 +85,7 @@ import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref 
 import { EvAvailability } from "../sites/EvAvailability";
 import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
-import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
+import { EV_SITE_TAB_HREFS, evSiteRoutes, evWorkTabHrefs, evWorkTabSearch } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
@@ -1436,7 +1442,8 @@ const DEFAULT_DOMAIN_ACTIONS = createDomainActionClient();
 /** The W1 sections a domain Action address may arrive at (bare or legacy), redirected to `/verification` (U1). */
 const W1_ONLY_SECTIONS: readonly string[] = ["plan", "execution", "evidence", "history"];
 
-type DomainShellState = DomainDetailResult | { status: "loading" };
+/** post-W6 W5-EV R348: `window_invalid` is the refused selected window (no read was made); `message` is the cause. */
+type DomainShellState = DomainDetailResult | { status: "loading" } | { status: "window_invalid"; message: string };
 
 /** W5-04 V4a (ruling 43): the Site types whose Action address reads the domain Action first. */
 const DOMAIN_ACTION_SITE_TYPES: readonly string[] = ["COLDCHAIN", "EV_CHARGING"];
@@ -1530,7 +1537,17 @@ function DomainActionShell({
         </span>
       </nav>
       <PageHeader
-        title={loaded === null ? "Action" : `${loaded.action.action_code} · ${loaded.action.title}`}
+        title={
+          loaded !== null
+            ? `${loaded.action.action_code} · ${loaded.action.title}`
+            : p.headings === undefined
+              ? "Action"
+              : state.status === "loading"
+                ? p.headings.loading
+                : state.status === "not_found"
+                  ? p.headings.notFound
+                  : p.headings.refused
+        }
         headingId={SITE_ACTION_HEADING_ID}
         subtitle={p.subtitle}
         actions={
@@ -1587,8 +1604,22 @@ function DomainActionShell({
           <p data-domain-action-panel="loading">{p.loading}</p>
         ) : state.status === "not_found" ? (
           <p data-domain-action-panel="not-found">{p.notFound}</p>
+        ) : state.status === "window_invalid" ? (
+          // post-W6 W5-EV R348: the selected window cannot be read; nothing was read and no link carries it.
+          <div className="work-cases-state" data-domain-action-panel="window-invalid" role="alert">
+            <p>
+              <strong>{EV_ACTION_WINDOW_TITLE}</strong>
+            </p>
+            <p data-domain-action-refusal-message>{state.message}</p>
+            <p>
+              <Link to={self} data-domain-action-without-window>
+                {EV_ACTION_WITHOUT_WINDOW}
+              </Link>
+            </p>
+          </div>
         ) : (
           // post-W6 W5-cold B15-04: cold maps the exact code to its sentence and offers Retry only for 503/unreached.
+          // post-W6 W5-EV R349: EV does the same by code and status, with Reload and a labelled technical disclosure.
           <div
             className="work-cases-state"
             data-domain-action-panel="refused"
@@ -1599,10 +1630,18 @@ function DomainActionShell({
               <strong>{p.unavailable}</strong>
             </p>
             <p data-domain-action-refusal-message>{p.refusal ? p.refusal(state).message : state.message}</p>
+            {p.technicalDetail ? (
+              <Disclosure name="domain-action-technical-detail" summary="Technical detail" variant="inline">
+                <p data-domain-action-technical>
+                  {`Status ${state.http ?? "none"} · code `}
+                  <code data-vocabulary-exempt="source-reference">{state.code ?? "none"}</code>
+                </p>
+              </Disclosure>
+            ) : null}
             {p.refusal && !p.refusal(state).retry ? null : (
               <p>
                 <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
-                  {p.retry}
+                  {p.reloadLabel ?? p.retry}
                 </button>
               </p>
             )}
@@ -1616,6 +1655,36 @@ function DomainActionShell({
           <p>{p.closingNotice}</p>
         </Notice>
       )}
+    </main>
+  );
+}
+
+export const ACTION_UNKNOWN_SECTION_HEADING_ID = "action-unknown-section-heading";
+export const ACTION_UNKNOWN_SECTION_TEXT = "No Action section is served at this address.";
+export const OPEN_ACTION_VERIFICATION = "Open this Action's verification";
+
+/**
+ * post-W6 W5-EV R350 (rulings 4, W6 Q13 pattern): the shelled `This address is not served` state for a W1-only Action
+ * section on a cold or EV Site. No redirect and no read. The link keeps a valid `known_at` and, for EV, a valid
+ * `from`/`to` pair; an invalid one is dropped, never carried.
+ */
+function DomainActionUnknownSection({ site, actionId, params }: { site: LoadedSite; actionId: string; params: URLSearchParams }) {
+  const p = domainActionPresentation(site.site_type);
+  const rawKnownAt = params.get("known_at");
+  const knownAt = rawKnownAt !== null && isUtcInstant(rawKnownAt) ? rawKnownAt : null;
+  const rawWindow = p.windowQuery ? { from: params.get("from"), to: params.get("to") } : null;
+  const window = rawWindow !== null && rawWindow.from !== null && rawWindow.to !== null && actionWindowRefusal(rawWindow) === null ? rawWindow : null;
+  return (
+    <main aria-labelledby={ACTION_UNKNOWN_SECTION_HEADING_ID} data-action-unknown-section>
+      <PageHeader title="Page not available" headingId={ACTION_UNKNOWN_SECTION_HEADING_ID} />
+      <Panel heading="This address is not served" headingId="action-unknown-section-detail">
+        <p>{ACTION_UNKNOWN_SECTION_TEXT}</p>
+        <p>
+          <Link to={domainVerificationHref(site.site_id, actionId, knownAt, window)} data-action-open-verification>
+            {OPEN_ACTION_VERIFICATION}
+          </Link>
+        </p>
+      </Panel>
     </main>
   );
 }
@@ -1635,21 +1704,29 @@ function DomainActionRoute({
   verification,
   knownAt,
   window,
+  windowRefusal,
   client,
   w1,
+  unserved = null,
 }: {
   site: LoadedSite;
   actionId: string;
   verification: boolean;
   knownAt: string | null;
+  /** The selected window the Action links keep; null when none, or when it was refused (R348). */
   window: DomainActionWindow;
+  /** R348: the cause when the selected window cannot be read; no read is made and no link carries it. */
+  windowRefusal: string | null;
   client: DomainActionClient;
   w1: () => ReactNode;
+  /** R350 ruling 1: for a W1-only section, the shelled state a validated domain Action gets (no redirect). */
+  unserved?: ReactNode;
 }) {
   const [attempt, setAttempt] = useState(0);
   const [read, setRead] = useState<{ key: string; result: DomainDetailResult } | null>(null);
   const key = `${site.site_id}|${actionId}|${knownAt ?? ""}|${attempt}`;
   useEffect(() => {
+    if (windowRefusal !== null && unserved === null) return undefined;
     let active = true;
     // Ruling 64: an EV Site passes its Site type for the EV fallback sentences; cold keeps its three-argument read.
     const read =
@@ -1662,9 +1739,9 @@ function DomainActionRoute({
     return () => {
       active = false;
     };
-  }, [client, site.site_id, site.site_type, actionId, knownAt, key]);
+  }, [client, site.site_id, site.site_type, actionId, knownAt, key, windowRefusal, unserved === null]);
   const result = read !== null && read.key === key ? read.result : null;
-  if (!verification) {
+  if (!verification && (windowRefusal === null || unserved !== null)) {
     if (result === null) {
       return (
         <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-probe>
@@ -1673,6 +1750,7 @@ function DomainActionRoute({
         </main>
       );
     }
+    if (result.status === "loaded" && unserved !== null) return <>{unserved}</>;
     if (result.status === "loaded") {
       return <Navigate replace to={domainVerificationHref(site.site_id, actionId, knownAt, window)} />;
     }
@@ -1684,7 +1762,7 @@ function DomainActionRoute({
       actionId={actionId}
       knownAt={knownAt}
       window={window}
-      state={result ?? { status: "loading" }}
+      state={windowRefusal !== null ? { status: "window_invalid", message: windowRefusal } : (result ?? { status: "loading" })}
       onRetry={() => setAttempt((n) => n + 1)}
     />
   );
@@ -1726,11 +1804,30 @@ export function SiteActionFrame({
         const id = actionId ?? "";
         const w1 = () => renderW1(site, id);
         // W5-02 K2a: COLDCHAIN (P-G-6); W5-04 V4a ruling 43 adds EV_CHARGING. An unknown section name keeps the W1
-        // "No such Action section" state.
-        if (
-          DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) &&
-          (actionView === undefined || actionView === "verification" || W1_ONLY_SECTIONS.includes(actionView))
-        ) {
+        // "No such Action section" state. post-W6 W5-EV R350 (ruling 4): a W1-only section (plan, execution, evidence,
+        // history) on a cold or EV Site is not served: one shelled state, no redirect and no Action read.
+        // Architect ruling 1 (r350-rulings): the domain probe decides; only a non-loaded probe falls back to W1.
+        if (DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) && actionView !== undefined && W1_ONLY_SECTIONS.includes(actionView)) {
+          return (
+            <DomainActionRoute
+              key={`${site.site_id}|${id}|${actionView}`}
+              site={site}
+              actionId={id}
+              verification={false}
+              knownAt={params.get("known_at")}
+              window={null}
+              windowRefusal={null}
+              client={domainActions}
+              w1={w1}
+              unserved={<DomainActionUnknownSection site={site} actionId={id} params={params} />}
+            />
+          );
+        }
+        if (DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) && (actionView === undefined || actionView === "verification")) {
+          // R348: the window is parsed only where the presentation carries it (EV); a refused one is carried nowhere.
+          const carriesWindow = domainActionPresentation(site.site_type).windowQuery;
+          const rawWindow = carriesWindow ? { from: params.get("from"), to: params.get("to") } : null;
+          const windowRefusal = rawWindow === null ? null : actionWindowRefusal(rawWindow);
           return (
             <DomainActionRoute
               key={`${site.site_id}|${id}|${actionView ?? ""}`}
@@ -1738,7 +1835,8 @@ export function SiteActionFrame({
               actionId={id}
               verification={actionView === "verification"}
               knownAt={params.get("known_at")}
-              window={site.site_type === "EV_CHARGING" ? { from: params.get("from"), to: params.get("to") } : null}
+              window={windowRefusal === null ? rawWindow : null}
+              windowRefusal={windowRefusal}
               client={domainActions}
               w1={w1}
             />
@@ -2080,7 +2178,7 @@ function DomainWorkActionsPage({
         ]}
       />
       <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
-      <OperatorSiteTabs siteId={site.site_id} current="Work" search={coldTabSearch(site, params)} />
+      <OperatorSiteTabs siteId={site.site_id} current="Work" hrefs={evWorkTabHrefs(site)} search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)} />
       <WorkSubrow
         siteId={site.site_id}
         siteType={site.site_type}
@@ -2287,7 +2385,7 @@ export function SiteWorkCasesFrame({
             ]}
           />
           <ChangesWorkPageHeader site={site} screen={`sitework-${kind}`} headingId={SITE_WORK_CASES_HEADING_ID} />
-          <OperatorSiteTabs siteId={siteId} current="Work" search={coldTabSearch(site, params)} />
+          <OperatorSiteTabs siteId={siteId} current="Work" hrefs={evWorkTabHrefs(site)} search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)} />
           <WorkSubrow
             siteId={site.site_id}
             siteType={site.site_type}

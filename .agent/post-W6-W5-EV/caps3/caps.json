@@ -1,0 +1,122 @@
+[
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 197,
+      "scrollH": 195,
+      "clientH": 195,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 307,
+      "scrollH": 305,
+      "clientH": 305,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 12,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 211,
+      "scrollH": 209,
+      "clientH": 209,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 431,
+      "scrollH": 429,
+      "clientH": 429,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 12,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 324,
+      "scrollH": 322,
+      "clientH": 322,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 394,
+      "scrollH": 392,
+      "clientH": 392,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 3,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 455,
+      "scrollH": 453,
+      "clientH": 453,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 983,
+      "scrollH": 981,
+      "clientH": 981,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 3,
+    "allSet160": true
+  }
+]

@@ -1,0 +1,99 @@
+chrome pid 27644
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-bare 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-bare 1440: mock rendered
+PASS  link-check-cold-action-tab-bare 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-bare 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-bare 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-bare 390: mock rendered
+PASS  link-check-cold-action-tab-bare 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-bare 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-verification 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-verification 1440: mock rendered
+PASS  link-check-cold-action-tab-verification 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-verification 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-verification 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-verification 390: mock rendered
+PASS  link-check-cold-action-tab-verification 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-verification 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-overview 1440: mock rendered
+PASS  link-check-cold-action-tab-overview 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-overview 390: mock rendered
+PASS  link-check-cold-action-tab-overview 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-execution 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-execution 1440: mock rendered
+FAIL  link-check-cold-action-tab-execution 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-execution 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-execution 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-execution 390: mock rendered
+FAIL  link-check-cold-action-tab-execution 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-execution 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-history 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-history 1440: mock rendered
+FAIL  link-check-cold-action-tab-history 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-history 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-history 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-history 390: mock rendered
+FAIL  link-check-cold-action-tab-history 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-history 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-plan 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-plan 1440: mock rendered
+FAIL  link-check-cold-action-tab-plan 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-plan 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-plan 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-plan 390: mock rendered
+FAIL  link-check-cold-action-tab-plan 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-plan 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-tab-evidence 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-tab-evidence 1440: mock rendered
+FAIL  link-check-cold-action-tab-evidence 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-evidence 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-evidence 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-tab-evidence 390: mock rendered
+FAIL  link-check-cold-action-tab-evidence 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-tab-evidence 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence?known_at=2026-10-26T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  link-check-cold-action-evidence-with-known-at 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  link-check-cold-action-evidence-with-known-at 1440: mock rendered
+FAIL  link-check-cold-action-evidence-with-known-at 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-evidence-with-known-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence?known_at=2026-10-26T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-evidence-with-known-at 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  link-check-cold-action-evidence-with-known-at 390: mock rendered
+FAIL  link-check-cold-action-evidence-with-known-at 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  link-check-cold-action-evidence-with-known-at 390: no app page overflow  {"overflowX":0}
+
+86/96 claims passed; evidence in C:/Users/assef/Bineyame/AssetOpsV1-review10/.agent/post-W6-audit/batch-17/tools/../../../post-W6-W5-EV/cap-cold-links

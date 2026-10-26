@@ -1,0 +1,136 @@
+chrome pid 23144
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-bare 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-bare 1440: mock rendered
+PASS  cold-action-r350-domain-bare 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-bare 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-bare 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-bare 390: mock rendered
+PASS  cold-action-r350-domain-bare 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-bare 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-verification 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-verification 1440: mock rendered
+PASS  cold-action-r350-domain-verification 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-verification 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-verification 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-verification 390: mock rendered
+PASS  cold-action-r350-domain-verification 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-verification 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-overview 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-overview 1440: mock rendered
+PASS  cold-action-r350-domain-overview 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-overview 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-overview 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-overview 390: mock rendered
+PASS  cold-action-r350-domain-overview 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-overview 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-plan 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-plan 1440: mock rendered
+FAIL  cold-action-r350-domain-plan 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-plan 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-plan 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-plan 390: mock rendered
+FAIL  cold-action-r350-domain-plan 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-plan 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-execution 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-execution 1440: mock rendered
+FAIL  cold-action-r350-domain-execution 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-execution 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-execution 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-execution 390: mock rendered
+FAIL  cold-action-r350-domain-execution 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-execution 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-evidence 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-evidence 1440: mock rendered
+FAIL  cold-action-r350-domain-evidence 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-evidence 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-evidence 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-evidence 390: mock rendered
+FAIL  cold-action-r350-domain-evidence 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-evidence 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-domain-history 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-domain-history 1440: mock rendered
+FAIL  cold-action-r350-domain-history 1440: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-history 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-history 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-domain-history 390: mock rendered
+FAIL  cold-action-r350-domain-history 390: same panel count  {"app":["This address is not served"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-domain-history 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-w1shaped-plan 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-w1shaped-plan 1440: mock rendered
+FAIL  cold-action-r350-w1shaped-plan 1440: same panel count  {"app":["Success criteria"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-plan 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-plan 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-plan 390: mock rendered
+FAIL  cold-action-r350-w1shaped-plan 390: same panel count  {"app":["Success criteria"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-plan 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-w1shaped-execution 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-w1shaped-execution 1440: mock rendered
+FAIL  cold-action-r350-w1shaped-execution 1440: same panel count  {"app":["Activity log"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-execution 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-execution 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-execution 390: mock rendered
+FAIL  cold-action-r350-w1shaped-execution 390: same panel count  {"app":["Activity log"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-execution 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-w1shaped-evidence 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-w1shaped-evidence 1440: mock rendered
+FAIL  cold-action-r350-w1shaped-evidence 1440: same panel count  {"app":["Evidence requirements"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-evidence 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-evidence 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-evidence 390: mock rendered
+FAIL  cold-action-r350-w1shaped-evidence 390: same panel count  {"app":["Evidence requirements"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-evidence 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-r350-w1shaped-history 1440: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-r350-w1shaped-history 1440: mock rendered
+FAIL  cold-action-r350-w1shaped-history 1440: same panel count  {"app":["Action history"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-history 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-history 390: app rendered
+PASS  loaded http://127.0.0.1:5197/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-r350-w1shaped-history 390: mock rendered
+FAIL  cold-action-r350-w1shaped-history 390: same panel count  {"app":["Action history"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-r350-w1shaped-history 390: no app page overflow  {"overflowX":0}
+
+116/132 claims passed; evidence in C:/Users/assef/Bineyame/AssetOpsV1-review10/.agent/post-W6-W5-EV-fix/cap-cold
+exit 0

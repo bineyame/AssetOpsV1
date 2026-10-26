@@ -1,0 +1,50 @@
+[
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-bare",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-verification",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/verification",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-overview",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/overview",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-execution",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/execution",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-history",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/history",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-plan",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/plan",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-tab-evidence",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence",
+  "mock": "cold-action"
+ },
+ {
+  "id": "link-check",
+  "case": "cold-action-evidence-with-known-at",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/df467432-20db-4c45-9a74-055676b6da80/evidence?known_at=2026-10-26T00%3A00%3A00Z",
+  "mock": "cold-action"
+ }
+]

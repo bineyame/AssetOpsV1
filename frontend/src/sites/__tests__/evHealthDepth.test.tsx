@@ -197,20 +197,26 @@ describe("W5-03b E4: EV Health", () => {
 
     // Ruling 2: the server's typed refusal, never a fabricated one; Retry repeats the same read.
     const refused: Answer = { status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be earlier than 'to'." };
-    const { getHealth } = renderHealth(refused, `?from=${TO}&to=${FROM}`);
+    renderHealth(refused, `?from=${TO}&to=${FROM}`);
     await settledScreen();
-    expect(text(document.querySelector(".page-refusal__title"))).toBe("EV depth unavailable");
-    expect(text(document.querySelector("[data-ev-depth-error]"))).toBe("EV_WINDOW_INVALID 'from' must be earlier than 'to'.");
+    expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(main().textContent).not.toContain("EV_WINDOW_INVALID 'from'");
     expect(document.querySelector("[data-ev-health-card]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
+    cleanup();
+    // A 503 reloads the same read (R244).
+    const unavailable = renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null });
     await settledScreen();
-    expect(getHealth).toHaveBeenCalledTimes(2);
-    expect(getHealth.mock.calls[1]).toEqual(getHealth.mock.calls[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
+    await settledScreen();
+    expect(unavailable.getHealth).toHaveBeenCalledTimes(2);
+    expect(unavailable.getHealth.mock.calls[1]).toEqual(unavailable.getHealth.mock.calls[0]);
     cleanup();
 
     renderHealth({ status: "unavailable", message: EV_DEPTH_MALFORMED });
     await settledScreen();
-    expect(text(document.querySelector("[data-ev-depth-error]"))).toBe(EV_DEPTH_MALFORMED);
+    expect(text(document.querySelector("[data-panel-gap='ev-depth-refusal']"))).toBe("EV evidence is temporarily unavailable. Retry.");
     expect(text(main())).not.toContain("No records");
     cleanup();
 
@@ -278,4 +284,20 @@ describe("W5-03b E4: EV Health", () => {
     expect(isEvHealthRead(read("CURRENT", [{ ...METER, next_evidence: "Continuous coverage for interval-wide claims" }]))).toBe(false);
     expect(isEvHealthRead(read("CURRENT", [ROGUE]))).toBe(true);
   });
+
+  it("R347: the Site tabs open the EV pages and carry the loaded read's own window; a refused read carries none", async () => {
+    const tabs = () => Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((x) => [(x.textContent ?? "").trim(), x.getAttribute("href") ?? ""]));
+    renderHealth(loaded(read("UNKNOWN", [C1, C2])), `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    const carried = `?${new URLSearchParams({ from: FROM, to: TO, known_at: KNOWN }).toString()}`;
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${carried}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
+    cleanup();
+    renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
+  });
+
 });

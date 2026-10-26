@@ -1,0 +1,9 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_w5evfix\tree (code from 23be1457)
+=== 2. positive: database w502b_positive_w5evfix_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (30s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_w5evfix\manifest.json
+
+real	0m32.928s
+user	0m0.031s
+sys	0m0.031s

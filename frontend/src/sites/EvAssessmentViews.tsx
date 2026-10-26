@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -19,7 +19,7 @@ import {
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
-import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
 import { date, dayHm, hm, windowText } from "./coldFormat";
@@ -77,6 +77,9 @@ export const EV_COPY = {
   recordUnverified: "Source or binding unverified for this record.",
 } as const;
 
+export const EV_WINDOW_INVALID_TEXT = "The selected window needs both a start and an end, with the start before the end.";
+export const EV_WINDOW_TOO_LONG_TEXT = "The selected window is longer than 31 days.";
+
 export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" }>): string {
   if (read.status === "refused") {
     switch (read.httpStatus) {
@@ -89,9 +92,9 @@ export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" 
       case 422:
         // post-W6 W2-EV R284 (cross-card ruling 5): the one refusal set shared with cold and estate.
         return read.code === "EV_WINDOW_INVALID"
-          ? "The selected window needs both a start and an end, with the start before the end."
+          ? EV_WINDOW_INVALID_TEXT
           : read.code === "EV_WINDOW_TOO_LONG"
-            ? "The selected window is longer than 31 days."
+            ? EV_WINDOW_TOO_LONG_TEXT
             : "The selected window is invalid.";
       case 409:
         return "Selection changed. Reload this view.";
@@ -690,6 +693,11 @@ export function EvSessionsFrame(props: EvSessionsFrameProps) {
 }
 
 function EvDepthPage({ view, props }: { view: EvPerformanceView; props: EvSessionsFrameProps }) {
+  // R347: the loaded depth read reports its own selected window to the main tabs; a stale or refused read carries none.
+  const selectedKey = `${view}|${props.siteId}|${windowKey(props.window)}`;
+  const [selected, setSelected] = useState<{ key: string; search: string } | null>(null);
+  const report = useCallback((search: string) => setSelected({ key: selectedKey, search }), [selectedKey]);
+  const search = selected !== null && selected.key === selectedKey ? selected.search : "";
   return (
     <main aria-labelledby={EV_SESSIONS_HEADING_ID} data-ev-view={view}>
       <Breadcrumbs trail={[...props.parentTrail, props.performanceHref === undefined ? { label: "Performance" } : { label: "Performance", to: props.performanceHref }]} />
@@ -700,9 +708,9 @@ function EvDepthPage({ view, props }: { view: EvPerformanceView; props: EvSessio
         description={SITE_SCREEN_DESCRIPTIONS[SCREEN_OF[view]]}
         headingId={EV_SESSIONS_HEADING_ID}
       />
-      {renderEvTabs(props.tabs, "")}
+      {renderEvTabs(props.tabs, search)}
       <EvPerformanceSubtabs view={view} props={props} />
-      {props.depth}
+      <ReportSelected.Provider value={report}>{props.depth}</ReportSelected.Provider>
     </main>
   );
 }

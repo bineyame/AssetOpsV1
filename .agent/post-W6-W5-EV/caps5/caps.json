@@ -1,0 +1,98 @@
+[
+  {
+    "page": "availability",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "1440",
+    "ready": false,
+    "closed": {
+      "h": 195,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "availability",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "390",
+    "ready": false,
+    "closed": {
+      "h": 300,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "energy",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "1440",
+    "ready": false,
+    "closed": {
+      "h": 195,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "energy",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "390",
+    "ready": false,
+    "closed": {
+      "h": 300,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "ev-health",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 103,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "ev-health",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 120,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 103,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  },
+  {
+    "page": "ev-scenarios",
+    "title": "refusal block (alert to correction link)",
+    "mode": "refusal",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 120,
+      "docOverflowX": 0,
+      "scrollers": []
+    }
+  }
+]

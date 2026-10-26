@@ -937,7 +937,8 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
   });
 
   it("redirects a bare or legacy address for a domain ID to /verification, preserving known_at (direct reload)", async () => {
-    for (const path of [`/sites/${SITE}/actions/${DOMAIN_ID}`, `/sites/${SITE}/actions/${DOMAIN_ID}/history`, `/sites/${SITE}/actions/${DOMAIN_ID}/plan`]) {
+    // post-W6 W5-EV R350: only the bare address redirects; the W1-only sections are stated, never redirected.
+    for (const path of [`/sites/${SITE}/actions/${DOMAIN_ID}`]) {
       const { client } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
       await mountAction(`${path}?known_at=${encodeURIComponent(KNOWN)}`, client);
       await waitFor(() => expect(where()).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(KNOWN)}`));
@@ -971,7 +972,7 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
 
   it("a refused (503) domain probe on a bare or legacy address keeps the W1 presenter at its original address (ruling 8)", async () => {
     stubFetch(() => json(404, { detail: { code: "ACTION_NOT_FOUND", message: "No such Action." } }));
-    for (const path of [`/sites/${SITE}/actions/${W1_ID}`, `/sites/${SITE}/actions/${W1_ID}/history`, `/sites/${SITE}/actions/${DOMAIN_ID}`]) {
+    for (const path of [`/sites/${SITE}/actions/${W1_ID}`, `/sites/${SITE}/actions/${DOMAIN_ID}`]) {
       const { client, detailCalls } = domainClient(
         () => ({ status: "loaded", value: indexBody([]) }),
         () => ({ status: "refused", http: 503, code: "WORK_STORE_UNAVAILABLE", message: "Work records are unavailable right now." }),

@@ -1,0 +1,17 @@
+chrome pid 16080
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+{"page":"availability","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"1440","ready":false,"closed":{"h":195,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+{"page":"availability","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"390","ready":false,"closed":{"h":300,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+{"page":"energy","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"1440","ready":false,"closed":{"h":195,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+{"page":"energy","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"390","ready":false,"closed":{"h":300,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+{"page":"ev-health","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"1440","ready":true,"closed":{"h":103,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/health?from=2026-10-06T08:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+{"page":"ev-health","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"390","ready":true,"closed":{"h":120,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+{"page":"ev-scenarios","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"1440","ready":true,"closed":{"h":103,"docOverflowX":0,"scrollers":[]}}
+PASS  loaded http://127.0.0.1:5197/sites/EV-LAB-001/ev/financials/scenarios?from=2026-10-06T08:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+{"page":"ev-scenarios","title":"refusal block (alert to correction link)","mode":"refusal","viewport":"390","ready":true,"closed":{"h":120,"docOverflowX":0,"scrollers":[]}}

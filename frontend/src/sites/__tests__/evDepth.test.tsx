@@ -188,11 +188,13 @@ describe("W5-03a E2: EV Availability", () => {
     expect(document.querySelector("[data-ev-depth-state-notice]")).toBeNull();
     // Cards: the four mock labels and notes, durations `{h} h {m} min`, known-time one decimal.
     expect(cards()).toEqual([
-      ["Known available", "1 h 10 min", "State-supported service time"],
-      ["Known unavailable", "15 min", "Faulted or unavailable state evidenced"],
-      ["Unknown", "5 min", "No trustworthy state coverage"],
+      ["Known available", "1.17 connector-h", "State-supported service time"],
+      ["Known unavailable", "0.25 connector-h", "Faulted or unavailable state evidenced"],
+      ["Unknown", "0.08 connector-h", "No trustworthy state coverage"],
       ["Known-time availability", "82.4%", "1.17 / 1.42 known hours; coverage 94.44%"],
     ]);
+    // R345: the exact `X h Y min` stays in the card's title.
+    expect(Array.from(document.querySelectorAll("[data-ev-connector-h]")).map((n) => n.getAttribute("title"))).toEqual(["1 h 10 min", "15 min", "5 min"]);
     // Bars: one segment per ordered span, window aligned, blank outside the schedule, never collapsed.
     expect(segments(7)).toEqual([
       ["AVAILABLE", `${(20 / 60) * 100}%`],
@@ -234,7 +236,7 @@ describe("W5-03a E2: EV Availability", () => {
     const unknownOnly = connector("Connector c1", 7, [{ from: t(8, 0), to: t(9, 0), state: "UNKNOWN", evidence_ids: [] }]);
     renderAvailability(loaded(read({}, "CURRENT", [unknownOnly])));
     await settledScreen();
-    expect(cards().map((c) => c[1])).toEqual(["0 min", "0 min", "1 h 0 min", "Unknown"]);
+    expect(cards().map((c) => c[1])).toEqual(["0 connector-h", "0 connector-h", "1 connector-h", "Unknown"]);
     expect(text("[data-ev-availability-empty]")).toBe("No trustworthy connector-state spans in the selected schedule.");
     expect(text("[data-ev-bound]")).toBe("0.00–100.00%");
     // Ruling 2: exactly one hour is singular, and the prose bounds are hour numbers.
@@ -247,7 +249,7 @@ describe("W5-03a E2: EV Availability", () => {
     await settledScreen();
     expect(text("[data-ev-next-evidence]")).toBe("A telemetry outage does not prove the charging connector was physically unavailable.");
     expect(main().textContent).not.toContain("Recover the connector");
-    expect(text("[data-ev-connector-hours]")).toBe("1 connectors × 1 scheduled hours = 1 connector-hours");
+    expect(text("[data-ev-connector-hours]")).toBe("1 connector × 1 scheduled hour = 1 connector-hour");
   });
 
   it("not established and declared-empty schedules draw no bars and no rates", async () => {
@@ -272,7 +274,7 @@ describe("W5-03a E2: EV Availability", () => {
     await settledScreen();
     expect(text("[data-ev-schedule-state]")).toBe("No service hours are declared in this window.");
     expect(document.querySelector("[data-ev-bars]")).toBeNull();
-    expect(cards().map((c) => c[1])).toEqual(["0 min", "0 min", "0 min", "Unknown"]);
+    expect(cards().map((c) => c[1])).toEqual(["0 connector-h", "0 connector-h", "0 connector-h", "Unknown"]);
     expect(text("[data-ev-bound]")).toBe("Unknown");
     expect(cards()[3][2]).toBe("0 / 0 known hours; coverage not applicable");
     expect(text("[data-ev-next-evidence]")).toBe(
@@ -307,20 +309,72 @@ describe("W5-03a E2: EV Availability", () => {
     expect(text(".status-strip")).toContain("Evidence limited");
   });
 
-  it("refusal and unavailable reads show the refusal block and retry the same URL", async () => {
-    const getAvailability = renderAvailability({ status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "'from' must be before 'to'." });
+  it.each([
+    ["EV_WINDOW_INVALID", 422, "The selected window needs both a start and an end, with the start before the end.", true],
+    ["EV_WINDOW_TOO_LONG", 422, "The selected window is longer than 31 days.", true],
+    ["EV_SITE_FORBIDDEN", 403, "You do not have access to this EV evidence.", false],
+    ["EV_SITE_NOT_FOUND", 404, "This EV Site or record was not found.", false],
+    ["EV_UNAVAILABLE", 503, "EV evidence is temporarily unavailable. Retry.", false],
+  ])("R244: %s (%i) is plain, keeps the strip and tiles, and offers only what applies", async (code, httpStatus, sentence, windowRefusal) => {
+    renderAvailability({ status: "refused", httpStatus, code, message: "raw server text" }, `?from=${TO}&to=${FROM}&known_at=${KNOWN}`);
     await settledScreen();
-    expect(text("[data-page-refusal='ev-depth']")).toContain("EV depth unavailable");
-    expect(text("[data-ev-depth-error]")).toBe("EV_WINDOW_INVALID 'from' must be before 'to'.");
-    expect(main().textContent).not.toContain("No records");
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(text("[data-panel-gap='ev-depth-refusal']")).toBe(sentence);
+    expect(document.querySelectorAll("[role='alert']")).toHaveLength(1);
+    expect(main().textContent).not.toContain(code === "EV_WINDOW_INVALID" ? "raw server text" : "EV depth unavailable");
+    expect(document.querySelector("[data-page-refusal] .page-refusal__title")).toBeNull();
+    expect(text("[data-ev-strip='refused']")).toContain(windowRefusal ? "Window cannot be read" : "Unknown");
+    expect(Array.from(document.querySelectorAll("[data-ev-refused-card]")).map((n) => n.getAttribute("data-ev-refused-card"))).toEqual([
+      "Known available",
+      "Known unavailable",
+      "Unknown",
+      "Known-time availability",
+    ]);
+    expect(document.querySelector("[data-ev-window-requested]") !== null).toBe(!windowRefusal);
+    const link = document.querySelector("[data-ev-depth-correction]");
+    expect(link === null).toBe(!windowRefusal);
+    if (link !== null) {
+      expect(link.textContent).toBe("Read without a selected window");
+      expect(link.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability?known_at=${encodeURIComponent(KNOWN)}`);
+    }
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Reload" }) !== null).toBe(httpStatus === 503);
+    // The raw code lives only in the technical disclosure.
+    expect(document.querySelector("[data-disclosure='ev-refusal-detail']")?.textContent ?? "").toContain(code);
+  });
+
+  it("R244: a one-sided window is a window refusal; Reload repeats the same read; an unreachable read reloads", async () => {
+    const getAvailability = renderAvailability({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}`);
+    await settledScreen();
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     expect(getAvailability).toHaveBeenCalledTimes(2);
     expect(getAvailability.mock.calls[1]).toEqual(getAvailability.mock.calls[0]);
     cleanup();
+    renderAvailability({ status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: null }, `?from=${FROM}`);
+    await settledScreen();
+    expect(document.querySelector("[data-ev-depth-correction]")?.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability`);
+    cleanup();
     renderAvailability({ status: "unavailable", message: EV_DEPTH_MALFORMED });
     await settledScreen();
-    expect(text("[data-ev-depth-error]")).toBe("The EV depth read answered in an unexpected shape.");
+    expect(text("[data-panel-gap='ev-depth-refusal']")).toBe("EV evidence is temporarily unavailable. Retry.");
+    expect(screen.getByRole("button", { name: "Reload" })).toBeTruthy();
   });
+
+  it("R347: the Site tabs open the EV pages and carry the loaded read's own window; a refused read carries none", async () => {
+    const tabs = () => Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [(a.textContent ?? "").trim(), a.getAttribute("href") ?? ""]));
+    renderAvailability(loaded(read({})), `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    // The address has no cutoff; the loaded read's `known_at` is the one the tabs carry.
+    const carried = `?${new URLSearchParams({ from: FROM, to: TO, known_at: KNOWN }).toString()}`;
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${carried}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
+    cleanup();
+    renderAvailability({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);
+  });
+
 });
 
 describe("W5-03a E2: evDepthClient", () => {
@@ -356,7 +410,12 @@ describe("W5-03a E2: evDepthClient", () => {
     expect(boundText(null, "0.5")).toBe("Unknown");
     const r = read();
     expect(knownTimeNote(r)).toBe("1.17 / 1.42 known hours; coverage 94.44%");
-    expect(connectorHoursText(read({}, "CURRENT", [C1, { ...C1, asset_id: id(9) }]))).toBe("2 connectors × 1 scheduled hours = 2 connector-hours");
+    expect(connectorHoursText(read({}, "CURRENT", [C1, { ...C1, asset_id: id(9) }]))).toBe("2 connectors × 1 scheduled hour = 2 connector-hours");
+    // R345: counts and units agree for 0/1/2 connectors and for 1 vs 1.5 vs 8 hours.
+    expect(connectorHoursText(read({}, "CURRENT", [C1]))).toBe("1 connector × 1 scheduled hour = 1 connector-hour");
+    expect(connectorHoursText(read({}, "CURRENT", []))).toMatch(/^0 connectors|across 0 connectors$/);
+    expect(connectorHoursText(read({ scheduled_seconds: 5400 }, "CURRENT", [C1, { ...C1, asset_id: id(9), scheduled_seconds: 1800 }]))).toBe("1.5 scheduled connector-hours across 2 connectors");
+    expect(connectorHoursText(read({ scheduled_seconds: 3600 }, "CURRENT", [C1, { ...C1, asset_id: id(9), scheduled_seconds: 0 }]))).toBe("1 scheduled connector-hour across 2 connectors");
     const seg = segmentsOf(C2, instantMs(FROM), instantMs(TO));
     expect(seg.map((s) => [s.state, s.width])).toEqual([["OUTSIDE", 50], ["AVAILABLE", 50]]);
     // Conservation: the three totals equal the scheduled seconds at connector and Site level.

@@ -33,7 +33,7 @@ MONEY_COPY = {
     em.ERROR_PENDING: "New evidence is being assessed. The previous result may change.",
     em.SOURCE_GATE: "EV source or binding is unverified; session outcomes cannot be assessed.",
     em.CONTRADICTORY: "Accepted EV records conflict; no current gross tariff estimate.",
-    "STALE_BASIS": "The gross tariff scenario is being refreshed.",
+    "STALE_BASIS": "No stored gross tariff estimate matches the current evidence.",
     em.INCOMPLETE: "Delivered energy is incomplete for pricing; partial metered energy is shown separately.",
     em.TARIFF_MISSING: "No published EV tariff covers the eligible delivery.",
     em.PRICE_GAP: "One tariff revision does not cover all eligible delivery intervals.",

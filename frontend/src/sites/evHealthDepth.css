@@ -22,12 +22,12 @@
     min-width: 0;
   }
   .ev-health-condition .data-table tr > :first-child {
-    width: 27%;
+    width: 40%;
     min-width: 0;
   }
   .ev-health-condition .data-table tr > :nth-child(2),
   .ev-health-condition .data-table tr > :nth-child(3) {
-    width: 36.5%;
+    width: 30%;
     min-width: 0;
   }
   .ev-health-condition .data-table th,

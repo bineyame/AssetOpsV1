@@ -8,16 +8,17 @@
  * chart note, bound and next-evidence prose keep their forms with selected values substituted.
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
+import { RefusedGap, RefusedHead, isEvWindowRefusal, plural } from "./EvAssessmentViews";
 import { coldWindowSearch } from "./coldAssessmentClient";
 import {
   type AvailabilityConnector,
   type AvailabilitySpan,
   type EvAvailabilityRead,
   type EvDepthClient,
-  EV_DEPTH_UNREACHABLE,
   depthStateNotice,
   durationText,
 } from "./evDepthClient";
@@ -77,6 +78,16 @@ const missingHours = (seconds: number) => `${hoursText(seconds)} ${hoursText(sec
 
 const dur = (seconds: number | null) => (seconds === null ? "Unknown" : durationText(seconds));
 
+/** R345: the mock's `{hours} connector-h` card value (seconds are summed across connectors); the exact `X h Y min` stays in the title. */
+function connectorHoursValue(seconds: number | null) {
+  if (seconds === null) return "Unknown";
+  return (
+    <span title={durationText(seconds)} data-ev-connector-h="">
+      {hoursText(seconds)} <small>connector-h</small>
+    </span>
+  );
+}
+
 /** A connector's scheduled occurrences inside the window: its spans unioned (spans cover exactly the schedule). */
 function occurrences(row: AvailabilityConnector): Array<[number, number]> {
   const out: Array<[number, number]> = [];
@@ -99,9 +110,9 @@ export function connectorHoursText(read: EvAvailabilityRead): string {
   const same = rows.length > 0 && shapes.every((s) => s === shapes[0]) && rows.every((r) => r.scheduled_seconds === rows[0].scheduled_seconds);
   if (same) {
     const each = rows[0].scheduled_seconds ?? 0;
-    return `${rows.length} connectors × ${hoursText(each)} scheduled hours = ${hoursText(each * rows.length)} connector-hours`;
+    return `${plural(rows.length, "connector", "connectors")} × ${hoursText(each)} scheduled ${hoursText(each) === "1" ? "hour" : "hours"} = ${hoursText(each * rows.length)} connector-${hoursText(each * rows.length) === "1" ? "hour" : "hours"}`;
   }
-  return `${hoursText(a.scheduled_seconds)} scheduled connector-hours across ${rows.length} connectors`;
+  return `${hoursText(a.scheduled_seconds)} scheduled connector-${hoursText(a.scheduled_seconds) === "1" ? "hour" : "hours"} across ${plural(rows.length, "connector", "connectors")}`;
 }
 
 /** Pre-flight E2: the `Known-time availability` card note, mock form with selected hours and coverage. */
@@ -136,23 +147,46 @@ function useAvailabilityRead(client: EvDepthClient, siteCode: string, window: Co
   return state !== null && state.key === key ? state.value : null;
 }
 
-export function EvDepthRefusal({ read, onRetry }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; onRetry: () => void }) {
+export interface EvDepthRefusalProps {
+  read: Exclude<ColdRead<unknown>, { status: "loaded" }>;
+  /** The requested window (named only for non-window refusals; a window refusal never echoes it). */
+  window: ColdWindowQuery;
+  /** The strip's accessible name, e.g. `Connector availability`. */
+  label: string;
+  /** The page's normal tile labels, each shown as `Not assessed`; omitted when the labels depend on the read. */
+  tiles?: string[];
+  /** A page whose body is one panel keeps it, with the refusal sentence inside. */
+  panel?: { heading: string; headingId: string };
+  onRetry: () => void;
+}
+
+/** R244 (W2-EV ruling 5, Q11): the shared depth-page refusal. No page banner and no raw code in the main text. */
+export function EvDepthRefusal({ read, window, label, tiles, panel, onRetry }: EvDepthRefusalProps) {
+  const location = useLocation();
+  const windowRefusal = isEvWindowRefusal(read);
+  const hasWindow = window.from !== null || window.to !== null;
+  // C3: the same page without the selected window, keeping the evidence cutoff.
+  const correction = windowRefusal && hasWindow ? `${location.pathname}${window.known_at === null ? "" : `?known_at=${encodeURIComponent(window.known_at)}`}` : null;
+  const recoverable = read.status === "unavailable" || read.httpStatus === 503 || read.httpStatus === 409;
+  const gap = <RefusedGap id="ev-depth-refusal" read={read} />;
   return (
-    <div className="page-refusal" role="status" data-page-refusal="ev-depth">
-      <p className="page-refusal__title">
-        <strong>{EV_DEPTH_REFUSAL_HEADING}</strong>
-      </p>
-      {read.status === "refused" ? (
-        <p data-ev-depth-error>
-          <code data-vocabulary-exempt="source-reference">{read.code}</code>
-          {read.message === null ? null : <> {read.message}</>}
+    <div data-page-refusal="ev-depth">
+      <RefusedHead read={read} window={window} label={label} tiles={tiles} />
+      {panel === undefined ? gap : <Panel heading={panel.heading} headingId={panel.headingId}>{gap}</Panel>}
+      {correction === null && !recoverable ? null : (
+        <p className="ev-depth-refusal__actions" data-ev-depth-refusal-actions="">
+          {correction === null ? null : (
+            <Link to={correction} className="ev-depth-refusal__link" data-ev-depth-correction="">
+              Read without a selected window
+            </Link>
+          )}
+          {recoverable ? (
+            <button type="button" className="button" data-ev-depth-retry onClick={onRetry}>
+              Reload
+            </button>
+          ) : null}
         </p>
-      ) : (
-        <p data-ev-depth-error>{read.message ?? EV_DEPTH_UNREACHABLE}</p>
       )}
-      <button type="button" className="button" data-ev-depth-retry onClick={onRetry}>
-        Retry
-      </button>
     </div>
   );
 }
@@ -298,9 +332,9 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
       </StatusBar>
       {notice === null ? null : <Notice data={{ "data-ev-depth-state-notice": state }}>{notice}</Notice>}
       <MetricCards label="Connector availability">
-        <MetricCard label="Known available" value={dur(a.known_available_seconds)} note="State-supported service time" data={{ "data-ev-availability-card": "available" }} />
-        <MetricCard label="Known unavailable" value={dur(a.known_unavailable_seconds)} note="Faulted or unavailable state evidenced" data={{ "data-ev-availability-card": "unavailable" }} />
-        <MetricCard label="Unknown" value={dur(a.unknown_seconds)} note="No trustworthy state coverage" data={{ "data-ev-availability-card": "unknown" }} />
+        <MetricCard label="Known available" value={connectorHoursValue(a.known_available_seconds)} note="State-supported service time" data={{ "data-ev-availability-card": "available" }} />
+        <MetricCard label="Known unavailable" value={connectorHoursValue(a.known_unavailable_seconds)} note="Faulted or unavailable state evidenced" data={{ "data-ev-availability-card": "unavailable" }} />
+        <MetricCard label="Unknown" value={connectorHoursValue(a.unknown_seconds)} note="No trustworthy state coverage" data={{ "data-ev-availability-card": "unknown" }} />
         <MetricCard label="Known-time availability" value={knownTimeText(a.known_time_ratio)} note={knownTimeNote(read)} data={{ "data-ev-availability-card": "ratio" }} />
       </MetricCards>
       <StatePanel read={read} />
@@ -339,7 +373,18 @@ export interface EvAvailabilityProps {
 export function EvAvailability({ siteCode, window, client, routes }: EvAvailabilityProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useAvailabilityRead(client, siteCode, window, attempt);
+  useReportSelectedWindow(read !== null && read.status === "loaded" ? read.value : null);
   if (read === null) return <p className="prose">{AVAILABILITY_LOADING}</p>;
-  if (read.status !== "loaded") return <EvDepthRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />;
+  if (read.status !== "loaded") {
+    return (
+      <EvDepthRefusal
+        read={read}
+        window={window}
+        label="Connector availability"
+        tiles={["Known available", "Known unavailable", "Unknown", "Known-time availability"]}
+        onRetry={() => setAttempt((n) => n + 1)}
+      />
+    );
+  }
   return <AvailabilityBody read={read.value} routes={routes} />;
 }

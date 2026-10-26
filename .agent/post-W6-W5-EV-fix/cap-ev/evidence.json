@@ -1,0 +1,2941 @@
+{
+  "revision": "23be1457",
+  "captured_at": "2026-10-26T04:29:49.274Z",
+  "pairs": [
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-bare",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-bare-1440-app.png",
+      "mock_image": "ev-action-r350-domain-bare-1440-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "No such siteNo site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Site not found No such site No site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-bare",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-bare-390-app.png",
+      "mock_image": "ev-action-r350-domain-bare-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 16,
+            "y": 421,
+            "w": 358,
+            "h": 433,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 16,
+            "y": 872,
+            "w": 358,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1265,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 370854ceFinding versione0d57e1a-c6e8-4127-a5a4-fbbade3a9bc5",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "ActionsACT-000001Verification· site: Cold replay lab",
+          "mainText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 370854ce Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration.",
+          "buttons": [
+            "Open site",
+            "Inspect maintenance evidence"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 194,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1391,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Inspect maintenance evidence",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-verification",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-verification-1440-app.png",
+      "mock_image": "ev-action-r350-domain-verification-1440-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "No such siteNo site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Site not found No such site No site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 234,
+            "y": 671,
+            "w": 1161,
+            "h": 150,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Inspect maintenance evidence",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-verification",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-verification-390-app.png",
+      "mock_image": "ev-action-r350-domain-verification-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 16,
+            "y": 421,
+            "w": 358,
+            "h": 433,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 16,
+            "y": 872,
+            "w": 358,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1265,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding 370854ceFinding versione0d57e1a-c6e8-4127-a5a4-fbbade3a9bc5",
+          "cards": [],
+          "notice": [
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "ActionsACT-000001Verification· site: Cold replay lab",
+          "mainText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding 370854ce Finding version Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration.",
+          "buttons": [
+            "Open site",
+            "Inspect maintenance evidence"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 194,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1391,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+            "Open site",
+            "Inspect maintenance evidence",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-overview",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/overview?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-overview-1440-app.png",
+      "mock_image": "ev-action-r350-domain-overview-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": null,
+        "fonts": {
+          "body": {
+            "family": "Times New Roman",
+            "size": "16px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(0, 0, 0)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 8,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-overview",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/overview?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-overview-390-app.png",
+      "mock_image": "ev-action-r350-domain-overview-390-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 16,
+            "y": 154,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "No such siteNo site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Site not found No such site No site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 15,
+            "y": 550,
+            "w": 360,
+            "h": 401,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1123,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-plan",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/plan?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-plan-1440-app.png",
+      "mock_image": "ev-action-r350-domain-plan-1440-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "No such siteNo site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Site not found No such site No site with that site ID is configured. This is a statement that the site does not exist, not a site with nothing to show.",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1002,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 958
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1001
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-plan",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/plan?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-plan-390-app.png",
+      "mock_image": "ev-action-r350-domain-plan-390-mock.png",
+      "app": {
+        "titles": [
+          "This address is not served"
+        ],
+        "panels": [
+          {
+            "title": "This address is not served",
+            "x": 16,
+            "y": 154,
+            "w": 358,
+            "h": 140,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "This address is not servedNo Action section is served at this address.Open this Action's verification",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Page not available",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Open this Action's verification -> /sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Page not available This address is not served No Action section is served at this address. Open this Action's verification",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 15,
+            "y": 550,
+            "w": 360,
+            "h": 401,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1123,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-action",
+      "case": "r350-domain-execution",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/execution?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-action",
+      "app_image": "ev-action-r350-domain-execution-1440-app.png",
+      "mock_image": "ev-action-r350-domain-execution-1440-mock.png",
+      "app": {
+        "titles": [],
+        "panels": [],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": null,
+        "h1": null,
+        "fonts": {
+          "body": {
+            "family": "Times New Roman",
+            "size": "16px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(0, 0, 0)"
+          },
+          "prose": null,
+          "proseSizes": [],
+          "h2": null,
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "",
+          "buttons": [],
+          "sub": ""
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 8,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared verification plan"
+        ],
+        "panels": [
+          {
+            "title": "Declared verification plan",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 243,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Complete a witnessed charging session",
+                "Session start, end, outcome and meter delta",
+                "Pending"
+              ],
+              [
+                "No fault recurrence during observation",
+                "Connector diagnostic events with full coverage",
+                "Pending"
+              ],
+              [
+                "No reduction in service availability",
+                "Comparable status coverage / operational window",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-061 · Investigate connector 2",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "Depot Charging Hub -> #/ev",
+          "Open site -> #/ev",
+          "Verification -> #/ev-action"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Actions › ACT-061 › Verification · site: Depot Charging Hub ACT-061 · Investigate connector 2 What would establish successful service restoration? Open site Verification Open Charging operations · Depot Charging Hub Declared verification plan CRITERION REQUIRED EVIDENCE CURRENT RESULT Complete a witnessed charging session Session start, end, outcome and meter delta Pending No fault recurrence during observation Connector diagnostic events with full coverage Pending No reduction in service availability Comparable status coverage / operational window Pending A completed investigation or diagnostic reset would not establish a verified outcome. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Open site",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    }
+  ]
+}

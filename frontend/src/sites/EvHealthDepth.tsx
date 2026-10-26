@@ -20,6 +20,7 @@
  */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useReportSelectedWindow } from "./evSelectedWindow";
 import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import { type ColdRead, type ColdWindowQuery, coldWindowSearch } from "./coldAssessmentClient";
 import { EvDepthRefusal } from "./EvAvailability";
@@ -192,7 +193,10 @@ export interface EvHealthDepthProps {
 export function EvHealthDepth({ siteCode, window, client, sessionsPath }: EvHealthDepthProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useHealthRead(client, siteCode, window, attempt);
+  useReportSelectedWindow(read !== null && read.status === "loaded" ? read.value : null);
   if (read === null) return <p className="prose">{HEALTH_LOADING}</p>;
-  if (read.status !== "loaded") return <EvDepthRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />;
+  if (read.status !== "loaded") {
+    return <EvDepthRefusal read={read} window={window} label="Charger condition" panel={{ heading: "Condition and evidence", headingId: HEALTH_TABLE_HEADING_ID }} onRetry={() => setAttempt((n) => n + 1)} />;
+  }
   return <HealthBody read={read.value} sessionsPath={sessionsPath} />;
 }

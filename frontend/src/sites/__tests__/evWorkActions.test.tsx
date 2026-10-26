@@ -188,6 +188,28 @@ describe("domainActionClient EV index (rulings 44, 46)", () => {
 /* ---------- Site > Work > Actions on an EV_CHARGING Site ---------- */
 
 describe("EV Site Actions tab (v69 ev-work)", () => {
+  const tabHrefs = () => Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [text(a), a.getAttribute("href") ?? ""]);
+
+  it("R347: the Work tabs open the EV pages and carry only the explicit address window and cutoff", async () => {
+    const { client } = domainClient(() => loaded(evIndexBody([evRow()])));
+    await mountWork(workPath(), client);
+    const carried = `?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`;
+    const hrefs = Object.fromEntries(tabHrefs());
+    expect(hrefs.Overview).toBe(`/sites/${EV_SITE_CODE}/ev${carried}`);
+    expect(hrefs.Evidence).toBe(`/sites/${EV_SITE_CODE}/ev/evidence${carried}`);
+    expect(hrefs.Financials).toBe(`/sites/${EV_SITE_CODE}/ev/financials${carried}`);
+    expect(hrefs.Performance).toBe(`/sites/${EV_SITE_CODE}/performance${carried}`);
+    cleanup();
+    // A bare Work address (the implicit seven-day default) gives bare tabs.
+    await mountWork(`/sites/${EV_SITE_CODE}/work`, client);
+    expect(Object.fromEntries(tabHrefs()).Overview).toBe(`/sites/${EV_SITE_CODE}/ev`);
+    expect(Object.fromEntries(tabHrefs()).Performance).toBe(`/sites/${EV_SITE_CODE}/performance`);
+    cleanup();
+    // A refused (reversed) window carries nothing.
+    await mountWork(workPath(`from=${encodeURIComponent(EV_TO)}&to=${encodeURIComponent(EV_FROM)}`), client);
+    expect(Object.fromEntries(tabHrefs()).Overview).toBe(`/sites/${EV_SITE_CODE}/ev`);
+  });
+
   it("renders the mock strip, six columns and the positive EV row with its live selected Action link (R113 closed in V4a)", async () => {
     const { client, calls } = domainClient(() => loaded(evIndexBody([evRow()])));
     const { main } = await mountWork(workPath(), client);

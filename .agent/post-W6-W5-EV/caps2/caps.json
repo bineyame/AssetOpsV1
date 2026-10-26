@@ -1,0 +1,220 @@
+[
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 275,
+      "scrollH": 273,
+      "clientH": 273,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    },
+    "stress": {
+      "h": 547,
+      "scrollH": 545,
+      "clientH": 545,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 1349
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 1208
+        }
+      ],
+      "clippedY": 2
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 18,
+    "allSet160": false
+  },
+  {
+    "page": "availability",
+    "title": "Connector states over the service schedule",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 316,
+      "scrollH": 314,
+      "clientH": 314,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 607
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 466
+        }
+      ],
+      "clippedY": 2
+    },
+    "stress": {
+      "h": 794,
+      "scrollH": 792,
+      "clientH": 792,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 1349
+        },
+        {
+          "cls": "visually-hidden",
+          "client": 1,
+          "scroll": 1208
+        }
+      ],
+      "clippedY": 2
+    },
+    "rowsBefore": 0,
+    "rowsAfter": 0,
+    "fieldsChanged": 18,
+    "allSet160": false
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 197,
+      "scrollH": 195,
+      "clientH": 195,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 443,
+      "scrollH": 441,
+      "clientH": 441,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 20,
+    "allSet160": true
+  },
+  {
+    "page": "energy",
+    "title": "Technical-to-financial bridge",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 211,
+      "scrollH": 209,
+      "clientH": 209,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 649,
+      "scrollH": 647,
+      "clientH": 647,
+      "docOverflowX": 0,
+      "scrollers": [
+        {
+          "cls": "data-table__scroll data-table__scroll--s",
+          "client": 318,
+          "scroll": 640
+        }
+      ],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 20,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "1440",
+    "ready": true,
+    "closed": {
+      "h": 324,
+      "scrollH": 322,
+      "clientH": 322,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 558,
+      "scrollH": 556,
+      "clientH": 556,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 5,
+    "allSet160": true
+  },
+  {
+    "page": "ev-health",
+    "title": "Condition and evidence",
+    "mode": "stress",
+    "viewport": "390",
+    "ready": true,
+    "closed": {
+      "h": 455,
+      "scrollH": 453,
+      "clientH": 453,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "stress": {
+      "h": 1544,
+      "scrollH": 1542,
+      "clientH": 1542,
+      "docOverflowX": 0,
+      "scrollers": [],
+      "clippedY": 0
+    },
+    "rowsBefore": 3,
+    "rowsAfter": 5,
+    "fieldsChanged": 5,
+    "allSet160": true
+  }
+]
