@@ -1,0 +1,50 @@
+[
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 25 Oct 2026, 16:41"
+   }
+  ]
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 960,
+    "cw": 318,
+    "focusable": true,
+    "role": "region",
+    "label": "work-request-record-heading",
+    "inner": null,
+    "text": "ItemDetailStatusBasisRecord 1 · 25 Oct 2026, 16:41"
+   }
+  ]
+ }
+]

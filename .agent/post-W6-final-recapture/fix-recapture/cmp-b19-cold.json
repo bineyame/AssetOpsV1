@@ -1,0 +1,242 @@
+[
+ {
+  "screen": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-cold-worstcase-wr-000004-1440-app.png",
+  "mock_image": "wr-record-cold-worstcase-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record · activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOO->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOO",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test require"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "sw": 455,
+    "cw": 455,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-cold-worstcase-wr-000004-390-app.png",
+  "mock_image": "wr-record-cold-worstcase-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAA"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record · activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-cold-worstcase-all-open-wr-000004-1440-app.png",
+  "mock_image": "wr-record-cold-worstcase-all-open-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record · activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOO->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOO",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection complete; test require"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "sw": 455,
+    "cw": 455,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-cold-worstcase-all-open-wr-000004-390-app.png",
+  "mock_image": "wr-record-cold-worstcase-all-open-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Starter and control inspection 1 AAAAAAAAAAAAAA"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record · activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Starter and control inspection 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   },
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection complete; test required 1 OOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ }
+]

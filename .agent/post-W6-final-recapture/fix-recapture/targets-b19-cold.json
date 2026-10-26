@@ -1,0 +1,13 @@
+[
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "cold-worstcase-all-open-wr-000004",
+  "url": "http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001",
+  "openAll": true
+ }
+]

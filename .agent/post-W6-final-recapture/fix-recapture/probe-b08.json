@@ -1,0 +1,38 @@
+[
+ {
+  "id": "ev-finding",
+  "case": "interrupted",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-finding",
+  "case": "interrupted",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-finding",
+  "case": "no-window",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-finding",
+  "case": "no-window",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "ev-finding",
+  "case": "recommendation-address",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "ev-finding",
+  "case": "recommendation-address",
+  "width": 390,
+  "scrollers": []
+ }
+]

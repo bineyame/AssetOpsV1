@@ -1,0 +1,17 @@
+[
+ {
+  "id": "ev-finding",
+  "case": "interrupted",
+  "url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z"
+ },
+ {
+  "id": "ev-finding",
+  "case": "no-window",
+  "url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b"
+ },
+ {
+  "id": "ev-finding",
+  "case": "recommendation-address",
+  "url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/recommendation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z"
+ }
+]

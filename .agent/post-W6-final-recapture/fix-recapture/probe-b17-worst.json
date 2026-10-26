@@ -1,0 +1,610 @@
+[
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 37716a91-1e39-412b-869d-61ee2151c3b1",
+    "inner": null,
+    "text": "37716a91-1e39-412b-869d-61ee2151c3b1"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: d920d802-b893-4e44-b865-ea823dc8a411",
+    "inner": null,
+    "text": "d920d802-b893-4e44-b865-ea823dc8a411"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 83a536b5-a8e5-4033-a274-266ba0b1131d",
+    "inner": null,
+    "text": "83a536b5-a8e5-4033-a274-266ba0b1131d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: c0ae8fbe-9605-4ffd-8a88-62fa2a01087a",
+    "inner": null,
+    "text": "c0ae8fbe-9605-4ffd-8a88-62fa2a01087a"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 23f830b0-d9dd-4812-9d2c-02ca4f688607",
+    "inner": null,
+    "text": "23f830b0-d9dd-4812-9d2c-02ca4f688607"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 82211c4f-b596-4f9c-8a63-c163d474ea3c",
+    "inner": null,
+    "text": "82211c4f-b596-4f9c-8a63-c163d474ea3c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 6515a6ed-7156-4444-ba52-a75367883cf0",
+    "inner": null,
+    "text": "6515a6ed-7156-4444-ba52-a75367883cf0"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: e51cd19f-98fd-44ce-8379-32ec4b8d3ffe",
+    "inner": null,
+    "text": "e51cd19f-98fd-44ce-8379-32ec4b8d3ffe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 15c775a8-7c83-4a30-a9ec-8f3c3d4a8558",
+    "inner": null,
+    "text": "15c775a8-7c83-4a30-a9ec-8f3c3d4a8558"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 155,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 111deab0-68db-45a1-9fa1-b7356f1f15fd",
+    "inner": null,
+    "text": "111deab0-68db-45a1-9fa1-b7356f1f15fd"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 720,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-incidents-heading",
+    "inner": {
+     "tag": "DD",
+     "role": "group",
+     "label": "Full value: 37716a91-1e39-412b-869d-61ee2151c3b1"
+    },
+    "text": "CaseWindowWhat happenedLinked findingsStateRead fu"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 37716a91-1e39-412b-869d-61ee2151c3b1",
+    "inner": null,
+    "text": "37716a91-1e39-412b-869d-61ee2151c3b1"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: d920d802-b893-4e44-b865-ea823dc8a411",
+    "inner": null,
+    "text": "d920d802-b893-4e44-b865-ea823dc8a411"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 83a536b5-a8e5-4033-a274-266ba0b1131d",
+    "inner": null,
+    "text": "83a536b5-a8e5-4033-a274-266ba0b1131d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: c0ae8fbe-9605-4ffd-8a88-62fa2a01087a",
+    "inner": null,
+    "text": "c0ae8fbe-9605-4ffd-8a88-62fa2a01087a"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 23f830b0-d9dd-4812-9d2c-02ca4f688607",
+    "inner": null,
+    "text": "23f830b0-d9dd-4812-9d2c-02ca4f688607"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 82211c4f-b596-4f9c-8a63-c163d474ea3c",
+    "inner": null,
+    "text": "82211c4f-b596-4f9c-8a63-c163d474ea3c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 6515a6ed-7156-4444-ba52-a75367883cf0",
+    "inner": null,
+    "text": "6515a6ed-7156-4444-ba52-a75367883cf0"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: e51cd19f-98fd-44ce-8379-32ec4b8d3ffe",
+    "inner": null,
+    "text": "e51cd19f-98fd-44ce-8379-32ec4b8d3ffe"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 15c775a8-7c83-4a30-a9ec-8f3c3d4a8558",
+    "inner": null,
+    "text": "15c775a8-7c83-4a30-a9ec-8f3c3d4a8558"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 99,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 111deab0-68db-45a1-9fa1-b7356f1f15fd",
+    "inner": null,
+    "text": "111deab0-68db-45a1-9fa1-b7356f1f15fd"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": 1440,
+  "scrollers": [
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 1361d84d-a067-444e-80cf-bf227b8da1d1",
+    "inner": null,
+    "text": "1361d84d-a067-444e-80cf-bf227b8da1d1"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 779a05ff-9fc4-40d7-8c15-aedad05cacf7",
+    "inner": null,
+    "text": "779a05ff-9fc4-40d7-8c15-aedad05cacf7"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 9d996843-0b16-41fa-9190-2dd7f701b44c",
+    "inner": null,
+    "text": "9d996843-0b16-41fa-9190-2dd7f701b44c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 02cc1cc7-bbb6-4a67-8275-565827541ba9",
+    "inner": null,
+    "text": "02cc1cc7-bbb6-4a67-8275-565827541ba9"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: ad9e26f0-564f-4199-9ed3-eb32280f1979",
+    "inner": null,
+    "text": "ad9e26f0-564f-4199-9ed3-eb32280f1979"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: b047c4f7-9991-4859-bb4e-9c9af57db61b",
+    "inner": null,
+    "text": "b047c4f7-9991-4859-bb4e-9c9af57db61b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 3fc79bdf-e54d-492e-a246-8a7e9cf6454e",
+    "inner": null,
+    "text": "3fc79bdf-e54d-492e-a246-8a7e9cf6454e"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 323c1ec2-0473-4ddb-9ac1-22e73f6dd7f2",
+    "inner": null,
+    "text": "323c1ec2-0473-4ddb-9ac1-22e73f6dd7f2"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 3279e845-6dd1-424f-8343-ffaae49f6ab9",
+    "inner": null,
+    "text": "3279e845-6dd1-424f-8343-ffaae49f6ab9"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: bf818489-24e4-46de-92ff-042dcb684e89",
+    "inner": null,
+    "text": "bf818489-24e4-46de-92ff-042dcb684e89"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: c631a514-209a-4786-b405-fa86e80e0c58",
+    "inner": null,
+    "text": "c631a514-209a-4786-b405-fa86e80e0c58"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 7566c297-478e-4b32-8a52-eed5279c7694",
+    "inner": null,
+    "text": "7566c297-478e-4b32-8a52-eed5279c7694"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: f8262243-5687-4a3a-987d-f168e5ebaa1d",
+    "inner": null,
+    "text": "f8262243-5687-4a3a-987d-f168e5ebaa1d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 0bea471b-b8f1-4f30-af4a-785e92ff0f56",
+    "inner": null,
+    "text": "0bea471b-b8f1-4f30-af4a-785e92ff0f56"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 177,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 46823fee-f4ba-4a8f-a827-caa217e2431f",
+    "inner": null,
+    "text": "46823fee-f4ba-4a8f-a827-caa217e2431f"
+   }
+  ]
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "width": 390,
+  "scrollers": [
+   {
+    "cls": "data-table__scroll",
+    "tag": "DIV",
+    "sw": 760,
+    "cw": 324,
+    "focusable": true,
+    "role": "region",
+    "label": "site-work-maintenance-heading",
+    "inner": {
+     "tag": "DD",
+     "role": "group",
+     "label": "Full value: 1361d84d-a067-444e-80cf-bf227b8da1d1"
+    },
+    "text": "Work requestAssetActivityOutcomeNext evidenceRead "
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 1361d84d-a067-444e-80cf-bf227b8da1d1",
+    "inner": null,
+    "text": "1361d84d-a067-444e-80cf-bf227b8da1d1"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 779a05ff-9fc4-40d7-8c15-aedad05cacf7",
+    "inner": null,
+    "text": "779a05ff-9fc4-40d7-8c15-aedad05cacf7"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 9d996843-0b16-41fa-9190-2dd7f701b44c",
+    "inner": null,
+    "text": "9d996843-0b16-41fa-9190-2dd7f701b44c"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 02cc1cc7-bbb6-4a67-8275-565827541ba9",
+    "inner": null,
+    "text": "02cc1cc7-bbb6-4a67-8275-565827541ba9"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: ad9e26f0-564f-4199-9ed3-eb32280f1979",
+    "inner": null,
+    "text": "ad9e26f0-564f-4199-9ed3-eb32280f1979"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: b047c4f7-9991-4859-bb4e-9c9af57db61b",
+    "inner": null,
+    "text": "b047c4f7-9991-4859-bb4e-9c9af57db61b"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 3fc79bdf-e54d-492e-a246-8a7e9cf6454e",
+    "inner": null,
+    "text": "3fc79bdf-e54d-492e-a246-8a7e9cf6454e"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 323c1ec2-0473-4ddb-9ac1-22e73f6dd7f2",
+    "inner": null,
+    "text": "323c1ec2-0473-4ddb-9ac1-22e73f6dd7f2"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 3279e845-6dd1-424f-8343-ffaae49f6ab9",
+    "inner": null,
+    "text": "3279e845-6dd1-424f-8343-ffaae49f6ab9"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: bf818489-24e4-46de-92ff-042dcb684e89",
+    "inner": null,
+    "text": "bf818489-24e4-46de-92ff-042dcb684e89"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: c631a514-209a-4786-b405-fa86e80e0c58",
+    "inner": null,
+    "text": "c631a514-209a-4786-b405-fa86e80e0c58"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 7566c297-478e-4b32-8a52-eed5279c7694",
+    "inner": null,
+    "text": "7566c297-478e-4b32-8a52-eed5279c7694"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: f8262243-5687-4a3a-987d-f168e5ebaa1d",
+    "inner": null,
+    "text": "f8262243-5687-4a3a-987d-f168e5ebaa1d"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 0bea471b-b8f1-4f30-af4a-785e92ff0f56",
+    "inner": null,
+    "text": "0bea471b-b8f1-4f30-af4a-785e92ff0f56"
+   },
+   {
+    "cls": "fact-list__value",
+    "tag": "DD",
+    "sw": 218,
+    "cw": 121,
+    "focusable": true,
+    "role": "group",
+    "label": "Full value: 46823fee-f4ba-4a8f-a827-caa217e2431f",
+    "inner": null,
+    "text": "46823fee-f4ba-4a8f-a827-caa217e2431f"
+   }
+  ]
+ }
+]

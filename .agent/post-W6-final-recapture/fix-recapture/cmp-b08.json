@@ -1,0 +1,308 @@
+[
+ {
+  "screen": "ev-finding",
+  "case": "interrupted",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-interrupted-1440-app.png",
+  "mock_image": "ev-finding-interrupted-1440-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.33
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] height 250->279",
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Bounded conclusion",
+    1.2,
+    1.33
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Bounded conclusion', 1.2, 1.33)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-finding",
+  "case": "interrupted",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-interrupted-390-app.png",
+  "mock_image": "ev-finding-interrupted-390-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-finding",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-no-window-1440-app.png",
+  "mock_image": "ev-finding-no-window-1440-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.33
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] height 250->279",
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Bounded conclusion",
+    1.2,
+    1.33
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Bounded conclusion', 1.2, 1.33)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-finding",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-no-window-390-app.png",
+  "mock_image": "ev-finding-no-window-390-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-finding",
+  "case": "recommendation-address",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-recommendation-address-1440-app.png",
+  "mock_image": "ev-finding-recommendation-address-1440-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/recommendation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.33
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] height 250->279",
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Bounded conclusion",
+    1.2,
+    1.33
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Bounded conclusion', 1.2, 1.33)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "ev-finding",
+  "case": "recommendation-address",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "ev-finding-recommendation-address-390-app.png",
+  "mock_image": "ev-finding-recommendation-address-390-mock.png",
+  "app_url": "http://localhost:5190/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/recommendation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "[Bounded conclusion] links 0->1",
+   "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

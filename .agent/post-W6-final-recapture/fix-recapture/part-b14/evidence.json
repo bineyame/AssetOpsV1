@@ -1,0 +1,2222 @@
+{
+  "revision": "427b4ee8",
+  "captured_at": "2026-10-26T14:39:23.194Z",
+  "pairs": [
+    {
+      "screen": "cooling",
+      "case": "refused-reversed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cooling",
+      "app_image": "cooling-refused-reversed-1440-app.png",
+      "mock_image": "cooling-refused-reversed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 113,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 248,
+            "y": 438,
+            "w": 1160,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Context normalizationNot assessed",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 248,
+            "y": 552,
+            "w": 1160,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidenceNot assessed",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readRecovery curvesThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZContext normalizationNot assessedNext best evidenceNot assessedRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Read without a selected window -> /sites/COLD-LAB-001/performance/cooling"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 234,
+            "y": 548,
+            "w": 735,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesExample curve shapes; selected event-to-policy recovery107.552.50°C0 min102030405060Matched baselineCurrent recovery",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 987,
+            "y": 548,
+            "w": 408,
+            "h": 386,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Matched",
+              "Matched",
+              "Limited",
+              "Unknown",
+              "Not excluded"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "29–32°C",
+                "Matched"
+              ],
+              [
+                "Power availability",
+                "Continuous during recovery",
+                "Matched"
+              ],
+              [
+                "Door-open duration",
+                "Limited record",
+                "Limited"
+              ],
+              [
+                "Loading / batch",
+                "Not established",
+                "Unknown"
+              ],
+              [
+                "Defrost",
+                "No event observed",
+                "Not excluded"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperature29–32°CMatchedPower availabilityContinuous during recoveryMatchedDoor-open durationLimited recordLimitedLoading / batchNot establishedUnknownDefrostNo event observedNot excluded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 234,
+            "y": 1012,
+            "w": 1161,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Repeat a comparable recovery testRecord load, door opening, ambient conditions, defrost and cooling energy.Plan a witnessed test →2Inspect the excursion chainCheck whether lost power, rather than refrigeration condition, explains the event.Open Backup →",
+            "h3": [
+              "Repeat a comparable recovery test",
+              "Inspect the excursion chain"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1312,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Temperature -> #/temperature",
+          "Cooling -> #/cooling",
+          "Backup -> #/coldbackup",
+          "Plan a witnessed test → -> #/workverification",
+          "Open Backup → -> #/coldbackup"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1268
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cooling",
+      "case": "refused-reversed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cooling",
+      "app_image": "cooling-refused-reversed-390-app.png",
+      "mock_image": "cooling-refused-reversed-390-mock.png",
+      "app": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 16,
+            "y": 450,
+            "w": 358,
+            "h": 129,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 16,
+            "y": 597,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Context normalizationNot assessed",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 16,
+            "y": 711,
+            "w": 358,
+            "h": 96,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidenceNot assessed",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readRecovery curvesThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZContext normalizationNot assessedNext best evidenceNot assessedRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Read without a selected window -> /sites/COLD-LAB-001/performance/cooling"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 3
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 15,
+            "y": 979,
+            "w": 360,
+            "h": 235,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesExample curve shapes; selected event-to-policy recovery107.552.50°C0 min102030405060Matched baselineCurrent recovery",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 15,
+            "y": 1232,
+            "w": 360,
+            "h": 398,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Matched",
+              "Matched",
+              "Limited",
+              "Unknown",
+              "Not excluded"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "29–32°C",
+                "Matched"
+              ],
+              [
+                "Power availability",
+                "Continuous during recovery",
+                "Matched"
+              ],
+              [
+                "Door-open duration",
+                "Limited record",
+                "Limited"
+              ],
+              [
+                "Loading / batch",
+                "Not established",
+                "Unknown"
+              ],
+              [
+                "Defrost",
+                "No event observed",
+                "Not excluded"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperature29–32°CMatchedPower availabilityContinuous during recoveryMatchedDoor-open durationLimited recordLimitedLoading / batchNot establishedUnknownDefrostNo event observedNot excluded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 15,
+            "y": 1762,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Repeat a comparable recovery testRecord load, door opening, ambient conditions, defrost and cooling energy.Plan a witnessed test →2Inspect the excursion chainCheck whether lost power, rather than refrigeration condition, explains the event.Open Backup →",
+            "h3": [
+              "Repeat a comparable recovery test",
+              "Inspect the excursion chain"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2124,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Temperature -> #/temperature",
+          "Cooling -> #/cooling",
+          "Backup -> #/coldbackup",
+          "Plan a witnessed test → -> #/workverification",
+          "Open Backup → -> #/coldbackup"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 3
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-health",
+      "case": "refused-reversed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cold-health",
+      "app_image": "cold-health-refused-reversed-1440-app.png",
+      "mock_image": "cold-health-refused-reversed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 248,
+            "y": 248,
+            "w": 1160,
+            "h": 113,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Condition and evidenceThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readCondition and evidenceThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Read without a selected window -> /sites/COLD-LAB-001/health"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 234,
+            "y": 460,
+            "w": 1161,
+            "h": 198,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "GEN-CR-01",
+                "Failed response; root cause unconfirmed",
+                "Witnessed automatic-start test"
+              ],
+              [
+                "CMP-003",
+                "Recovery difference; cause undetermined",
+                "Matched loading / ambient conditions"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceGEN-CR-01Failed response; root cause unconfirmedWitnessed automatic-start testCMP-003Recovery difference; cause undeterminedMatched loading / ambient conditions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-health",
+      "case": "refused-reversed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cold-health",
+      "app_image": "cold-health-refused-reversed-390-app.png",
+      "mock_image": "cold-health-refused-reversed-390-mock.png",
+      "app": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 16,
+            "y": 391,
+            "w": 358,
+            "h": 129,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Condition and evidenceThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readCondition and evidenceThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Read without a selected window -> /sites/COLD-LAB-001/health"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 15,
+            "y": 882,
+            "w": 360,
+            "h": 269,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "GEN-CR-01",
+                "Failed response; root cause unconfirmed",
+                "Witnessed automatic-start test"
+              ],
+              [
+                "CMP-003",
+                "Recovery difference; cause undetermined",
+                "Matched loading / ambient conditions"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceGEN-CR-01Failed response; root cause unconfirmedWitnessed automatic-start testCMP-003Recovery difference; cause undeterminedMatched loading / ambient conditions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1244,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-scenarios",
+      "case": "refused-reversed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cold-scenarios",
+      "app_image": "cold-scenarios-refused-reversed-1440-app.png",
+      "mock_image": "cold-scenarios-refused-reversed-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 113,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readFinancial scenariosThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Overview -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Read without a selected window -> /sites/COLD-LAB-001/financials/scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosPlaceholder · to be designed with the ownerNo scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Overview -> #/cold-financials",
+          "Assumptions -> #/cold-assumptions",
+          "Scenarios -> #/cold-scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-scenarios",
+      "case": "refused-reversed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+      "mock_hash": "#/cold-scenarios",
+      "app_image": "cold-scenarios-refused-reversed-390-app.png",
+      "mock_image": "cold-scenarios-refused-reversed-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 16,
+            "y": 450,
+            "w": 358,
+            "h": 129,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00Z",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Window cannot be read",
+          "cards": [],
+          "notice": [],
+          "refusal": "Window cannot be readFinancial scenariosThe selected window needs both a start and an end, with the start before the end.How this was worked outRefusal codeCOLD_WINDOW_INVALIDServer message'from' must be before 'to'.Selected window start (exact)2026-10-25T17:05:00ZSelected window end (exact)2026-10-25T16:00:00ZRead without a selected window",
+          "refusalKey": "cold-depth",
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [
+            "The selected window needs both a start and an end, with the start before the end."
+          ],
+          "cardLinks": [],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Overview -> /sites/COLD-LAB-001/financials?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17%3A05%3A00Z&to=2026-10-25T16%3A00%3A00Z",
+          "Read without a selected window -> /sites/COLD-LAB-001/financials/scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 15,
+            "y": 580,
+            "w": 360,
+            "h": 355,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosPlaceholder · to be designed with the ownerNo scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1125,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Overview -> #/cold-financials",
+          "Assumptions -> #/cold-assumptions",
+          "Scenarios -> #/cold-scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

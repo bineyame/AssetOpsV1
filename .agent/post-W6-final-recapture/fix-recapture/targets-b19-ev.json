@@ -1,0 +1,13 @@
+[
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001"
+ },
+ {
+  "id": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001",
+  "openAll": true
+ }
+]
