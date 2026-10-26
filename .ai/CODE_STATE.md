@@ -5945,6 +5945,7 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - `tools/w504_ev_work_walkthrough.py` Site Work router passes `details=` (R373 EV case-detail 503 fix). `evHealthDepth.css`: Asset column 40/30/30 at <=640 px (R470).
 - Cap tooling: `.agent/post-W6-W5-EV/tools/measure-caps.mjs` (closed height, labelled 160-char DOM stress probe, refusal block, text probe), `run_ev_all.sh`, `startvite.ps1` (start Vite with Start-Process; a bare `nohup` Vite died twice). Provisional caps for unruled EV panels are in the packet; ruled ev-health 400/800 and ev-work 550/800 hold.
 - Open: unknown/pending/stale EV modes, missing-meter, historical depth, authored scenario, non-Open Action states have no unmodified producer (selected-DTO tests only); backend full suite held by the coordinator. Register: R345-R350 closed, R06 noted, R470 added.
+- Fix round (R350 ruling 1, `.agent/post-W6-W5-EV-r350-rulings.md`): `/plan /execution /evidence /history` on cold/EV go through `DomainActionRoute` with `unserved`: domain probe first; loaded domain Action = `DomainActionUnknownSection` at the same URL (no redirect, no W1 read); non-loaded probe = `w1()` with the original section. `evActionRefusal` checks `INVALID_KNOWN_AT` before unreached; `evWorkTabSearch` carries a valid UTC `known_at` alone. Evidence `.agent/post-W6-W5-EV-fix/` (`cap.sh`, targets). Producers have no W1 Action: the W1-ID landing is a W1-shaped unknown ID; a loaded W1 section is jsdom-only.
 
 ## post-W6 W5-cold-Work - cold depth and Work D3 fixes (built, in_review)
 

@@ -1,0 +1,74 @@
+[
+ {
+  "id": "ev-action",
+  "case": "r350-domain-bare",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-verification",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-overview",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/overview?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-plan",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/plan?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-execution",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/execution?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-evidence",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/evidence?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-domain-history",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/history?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-w1shaped-plan",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/plan?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-w1shaped-execution",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/execution?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-w1shaped-evidence",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/evidence?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "r350-w1shaped-history",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/history?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "mock": "ev-action"
+ },
+ {
+  "id": "ev-action",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5197/sites/EV-LAB-001/actions/d141c44f-7ed7-4b51-8e6a-27c4f16c874e/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=yesterday",
+  "mock": "ev-action"
+ }
+]

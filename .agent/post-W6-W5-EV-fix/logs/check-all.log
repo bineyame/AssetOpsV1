@@ -1,0 +1,12 @@
+[PASS] Architecture seams: Architecture check passed.
+[PASS] Estate guard self-tests (test_pg_reader_import_allowed, test_pg_reader_write_rejected, test_domain_driver_import_rejected): 4 passed in 108.81s (0:01:48)
+[PASS] Navigation truthfulness: Navigation truthfulness check passed.
+[PASS] Agent workflow: Agent workflow check passed.
+[PASS] Dependency registry:   3 Technical-to-financial bridge | 14 open / 50 total | 14 marginal / 50 points
+[PASS] Delivery checker fixtures: ℹ duration_ms 181.0192
+[PASS] Mock-gap catalogue fixtures: ℹ duration_ms 117.7298
+[PASS] Missing-claim orphan scan: Missing-claim scan passed: 42 tagged placement use(s), 10 baselined legacy occurrence(s); baseline compared with merge-base 91ae1dc71e on main and the seed ceiling 16.
+[PASS] Missing-claim scan fixtures: ℹ duration_ms 3588.9968
+[PASS] Evidence width check (W1-UX-06): ℹ duration_ms 226.5524
+[PASS] Screen ledger: v6.9 ledger valid: 110 screens, 88 distinct models, 258 panels
+All 11 guards passed.

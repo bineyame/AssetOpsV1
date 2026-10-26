@@ -1,0 +1,68 @@
+[
+ {
+  "id": "cold-action",
+  "case": "r350-domain-bare",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-verification",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/verification",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-overview",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/overview",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-plan",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/plan",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-execution",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/execution",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-evidence",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/evidence",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-domain-history",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/916b81d1-47b8-4144-be0d-108ea738c3aa/history",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-w1shaped-plan",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/plan",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-w1shaped-execution",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/execution",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-w1shaped-evidence",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/evidence",
+  "mock": "cold-action"
+ },
+ {
+  "id": "cold-action",
+  "case": "r350-w1shaped-history",
+  "url": "http://127.0.0.1:5197/sites/COLD-LAB-001/actions/aaaaaaaa-1111-4222-8333-bbbbbbbbbbbb/history",
+  "mock": "cold-action"
+ }
+]

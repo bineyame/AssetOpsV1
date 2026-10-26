@@ -342,7 +342,7 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R241 | B6-10 | temperature | D3 | Fix in W2-cold | open |
 | R242 | B6-11 | temperature, coldbackup | D3 | Fix in W2-cold | open |
 | R243 | B6-12 | temperature | D1 | `MOCK DEVIATION D1`: Chart legend 'Policy band' vs 'Upper policy limit'; axis labels carry 'UTC'; timeline 4 events vs 3; Excursion context adds a disclosure, the Power outage row has no 'Observed' chip, and 'Op | open |
-| R244 | B6-13 | temperature, coldbackup | D3 | Fix in W2-cold | open |
+| R244 | B6-13 | temperature, coldbackup | D3 | Fix in W2-cold | open (EV instances closed by post-W6 W5-EV-Work: refusal matrix, window correction link, Reload) |
 | R245 | B6-14 | temperature | D3 | Fix in W2-cold | open |
 | R246 | B6-15 | coldbackup | D3 | Fix in W2-cold | open |
 | R247 | B6-17 | coldbackup | D3 | Fix in W2-cold | open |
