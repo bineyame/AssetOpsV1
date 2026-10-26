@@ -5935,6 +5935,17 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - Evidence: `.agent/post-W6-W6-evidence/q15b/` (cap probe at the final SHA), `b18r/`, `b19r/` (recaptures), earlier `b18/`, `b19/`, `q15/`.
 - Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).
 
+## post-W6 W5-EV-Work - EV depth and Work D3 fixes (built, in_review)
+
+- Branch `task/post-W6-W5-EV-work` (main `104e9c33`); rulings `.agent/post-W6-W5-rulings.md` 3-5; packet `.agent/post-W6-W5-EV-packet.md`; evidence `.agent/post-W6-W5-EV/`.
+- `EvAvailability.tsx` `EvDepthRefusal` is the one refusal block for all four depth pages (RefusedHead + RefusedGap + `Read without a selected window` link for window refusals + Reload for 503/409/unreached); old `data-ev-depth-error` marker is gone. `connectorHoursText` uses `plural`, tiles show decimal `connector-h` with exact `X h Y min` in the title.
+- `EvEnergy.tsx` `bridgeRows`: WITHHELD + null quantity shows metered kWh in row 1; visible `MOCK DEVIATION D1 (R06)` line. `ev_site_reads.py` `MONEY_COPY["STALE_BASIS"]` = `No stored gross tariff estimate matches the current evidence.` (wire unchanged).
+- `sites/evSelectedWindow.ts` `ReportSelected` / `useReportSelectedWindow`: depth pages report the window they read; `SiteHealthFrames.tsx` EV uses `EvHealthWithTabs`; `shell/evSiteRoutes.tsx` `evWorkTabHrefs/evWorkTabSearch` feed the Work mounts (explicit valid URL window only).
+- SAF `DomainActionShell`: EV `actionWindowRefusal` (evWorkPresentation.ts) refuses before any read; presentation fields `reloadLabel`, `technicalDetail`, `headings`. `DomainActionUnknownSection`: for COLDCHAIN and EV_CHARGING, `/plan /execution /history /evidence` render `This address is not served` with `Open this Action's verification`, no read, no redirect (also for a W1 ID: residual risk in the packet). Bare route still redirects (R222 `/overview` alias unchanged).
+- `tools/w504_ev_work_walkthrough.py` Site Work router passes `details=` (R373 EV case-detail 503 fix). `evHealthDepth.css`: Asset column 40/30/30 at <=640 px (R470).
+- Cap tooling: `.agent/post-W6-W5-EV/tools/measure-caps.mjs` (closed height, labelled 160-char DOM stress probe, refusal block, text probe), `run_ev_all.sh`, `startvite.ps1` (start Vite with Start-Process; a bare `nohup` Vite died twice). Provisional caps for unruled EV panels are in the packet; ruled ev-health 400/800 and ev-work 550/800 hold.
+- Open: unknown/pending/stale EV modes, missing-meter, historical depth, authored scenario, non-Open Action states have no unmodified producer (selected-DTO tests only); backend full suite held by the coordinator. Register: R345-R350 closed, R06 noted, R470 added.
+
 ## post-W6 W5-cold-Work - cold depth and Work D3 fixes (built, in_review)
 
 - Branch `task/post-W6-W5-cold-work`; rulings `.agent/post-W6-W5-rulings.md` 1-2; packet `.agent/post-W6-W5-cold-packet.md`; handoff `.agent/post-W6-W5-cold-handoff.md`.

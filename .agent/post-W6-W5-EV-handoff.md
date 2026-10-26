@@ -33,3 +33,5 @@ Tests added/updated: evDepth (refusal matrix incl. one-sided, units, title, tabs
 - SAF `window_invalid` also applies at the bare route (no redirect), a small extension of R348.
 - evWorkPresentation now imports constants from EvAssessmentViews (heavier module); fine for tsc/tests, check build.
 - Producer change (R373) is unverified by a live run until the capture.
+
+## Update 2026-10-26: COMPLETE. Remaining steps 1-6 done; see `.agent/post-W6-W5-EV-packet.md`.

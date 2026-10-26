@@ -1069,7 +1069,7 @@ describe("W1 and EV domain Action IDs on one EV Site", () => {
     );
   }
 
-  it.each(["", "/verification", "/plan"])("an EV domain ID at `%s` makes no W1 battery request", async (section) => {
+  it.each(["", "/verification"])("an EV domain ID at `%s` makes no W1 battery request", async (section) => {
     const s = serve({ [DOMAIN_API]: evLoaded });
     mountEv(`/sites/KOBO-001/actions/${DOMAIN_ID}${section}`);
     await waitFor(() => expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/verification`));
@@ -1078,6 +1078,15 @@ describe("W1 and EV domain Action IDs on one EV Site", () => {
     expect(s.requests.length).toBeGreaterThan(0);
     expect(s.requests.every((r) => r.url.split("?")[0] === DOMAIN_API)).toBe(true);
     expect(s.requests.some((r) => r.url.startsWith(`/api/sites/KOBO-001/actions/`))).toBe(false);
+  });
+
+  it("an EV domain ID at `/plan` is not served: no redirect, no Action read (post-W6 W5-EV R350)", async () => {
+    const s = serve({ [DOMAIN_API]: evLoaded });
+    mountEv(`/sites/KOBO-001/actions/${DOMAIN_ID}/plan`);
+    await settledScreen();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/plan`);
+    expect(q("[data-action-unknown-section]")).not.toBeNull();
+    expect(s.requests).toHaveLength(0);
   });
 
   it("a W1 ID at its bare address on an EV Site keeps the W1 battery detail (ruling 43 fallback)", async () => {

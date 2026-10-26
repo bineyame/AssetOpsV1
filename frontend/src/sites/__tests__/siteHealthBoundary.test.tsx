@@ -406,7 +406,7 @@ describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () =
     );
     await settledScreen();
     expect(getHealth).toHaveBeenCalledWith("EV-LAB-001", { from: null, to: null, known_at: null });
-    expect(q("[data-ev-depth-error]")).not.toBeNull();
+    expect(q("[data-ev-depth-retry]")).not.toBeNull(); // post-W6 W5-EV R244: the refusal block (Reload) replaced the bare error marker
     // R103 (ruling 22): the neutral subtitle sits under the selected Site name; the mock's illustrative equipment line does not.
     expect(document.body.textContent).toContain("Health · site-level asset-condition summary");
     expect(document.body.textContent).not.toContain("2 × 60 kW connectors");
