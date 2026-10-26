@@ -1,0 +1,15 @@
+chrome pid 29448
+PASS  loaded http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-forbidden-403 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-forbidden-403 1440: mock rendered
+PASS  cold-work-forbidden-403 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-forbidden-403 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-forbidden-403 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-forbidden-403 390: mock rendered
+PASS  cold-work-forbidden-403 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-forbidden-403 390: no app page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in part-forbidden

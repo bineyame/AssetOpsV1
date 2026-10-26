@@ -1,0 +1,318 @@
+[
+ {
+  "screen": "cold-work",
+  "case": "worstcase",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-worstcase-1440-app.png",
+  "mock_image": "cold-work-worstcase-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    2.5
+   ]
+  ],
+  "app_diffs": [
+   "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'ACT-000006 · Witness automatic-start test 5 — long title proof xxxx->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'ACT-000006 · Witness automatic-start test 5 — long title proof xxxx"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [
+   "clipped text changed: [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'ACT-000006 · Witness automatic-start test 5 — l"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 322,
+    "cw": 322,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 221,
+    "cw": 221,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 322,
+    "cw": 322,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 221,
+    "cw": 221,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 322,
+    "cw": 322,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 221,
+    "cw": 221,
+    "sh": 70,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 322,
+    "cw": 322,
+    "sh": 53,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 221,
+    "cw": 221,
+    "sh": 70,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "cold-work",
+  "case": "worstcase",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-worstcase-390-app.png",
+  "mock_image": "cold-work-worstcase-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    1.99
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 822,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 141,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 141,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 141,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxx",
+    "sw": 198,
+    "cw": 198,
+    "sh": 88,
+    "ch": 35
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+    "sw": 128,
+    "cw": 128,
+    "sh": 141,
+    "ch": 35
+   }
+  ]
+ },
+ {
+  "screen": "cold-work",
+  "case": "worstcase-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-worstcase-all-open-1440-app.png",
+  "mock_image": "cold-work-worstcase-all-open-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    3.74
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work",
+  "case": "worstcase-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-worstcase-all-open-390-app.png",
+  "mock_image": "cold-work-worstcase-all-open-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Actions at this site",
+    3.89
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 822,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

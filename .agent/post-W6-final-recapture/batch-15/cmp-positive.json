@@ -1,0 +1,2423 @@
+[
+ {
+  "screen": "cold-work-incidents",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-current-1440-app.png",
+  "mock_image": "cold-work-incidents-current-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-current-390-app.png",
+  "mock_image": "cold-work-incidents-current-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "positive-cutoff",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-positive-cutoff-1440-app.png",
+  "mock_image": "cold-work-incidents-positive-cutoff-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "positive-cutoff",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-positive-cutoff-390-app.png",
+  "mock_image": "cold-work-incidents-positive-cutoff-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-historical-1440-app.png",
+  "mock_image": "cold-work-incidents-historical-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-historical-390-app.png",
+  "mock_image": "cold-work-incidents-historical-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-zero-1440-app.png",
+  "mock_image": "cold-work-incidents-zero-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.84
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-zero-390-app.png",
+  "mock_image": "cold-work-incidents-zero-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.5
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-refused-reversed-1440-app.png",
+  "mock_image": "cold-work-incidents-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents*', 'Maintenance']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-refused-reversed-390-app.png",
+  "mock_image": "cold-work-incidents-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 153->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents*', 'Maintenance']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 134->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-refused-span-32d-1440-app.png",
+  "mock_image": "cold-work-incidents-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents*', 'Maintenance']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-refused-span-32d-390-app.png",
+  "mock_image": "cold-work-incidents-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 143->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)*', 'Maintenance (—)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents*', 'Maintenance']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 123->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-no-window-1440-app.png",
+  "mock_image": "cold-work-incidents-no-window-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)*', 'Maintenance (1)']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 157,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 191,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-no-window-390-app.png",
+  "mock_image": "cold-work-incidents-no-window-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)*', 'Maintenance (1)']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-all-open-1440-app.png",
+  "mock_image": "cold-work-incidents-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    4.28
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-all-open-390-app.png",
+  "mock_image": "cold-work-incidents-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    4.81
+   ]
+  ],
+  "app_diffs": [
+   "pageH 1718->1890",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incidents at this site",
+    4.45,
+    4.81
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Incidents at this site', 4.45, 4.81)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "current",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-current-1440-app.png",
+  "mock_image": "cold-work-maintenance-current-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "current",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-current-390-app.png",
+  "mock_image": "cold-work-maintenance-current-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "positive-cutoff",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-positive-cutoff-1440-app.png",
+  "mock_image": "cold-work-maintenance-positive-cutoff-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "positive-cutoff",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-positive-cutoff-390-app.png",
+  "mock_image": "cold-work-maintenance-positive-cutoff-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-historical-1440-app.png",
+  "mock_image": "cold-work-maintenance-historical-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-historical-390-app.png",
+  "mock_image": "cold-work-maintenance-historical-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "zero",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-zero-1440-app.png",
+  "mock_image": "cold-work-maintenance-zero-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    1.73
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "zero",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-zero-390-app.png",
+  "mock_image": "cold-work-maintenance-zero-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    1.41
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-refused-reversed-1440-app.png",
+  "mock_image": "cold-work-maintenance-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents', 'Maintenance*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-refused-reversed-390-app.png",
+  "mock_image": "cold-work-maintenance-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] height 153->174",
+   "h1.top 153->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents', 'Maintenance*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 134->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "refused-span-32d",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-refused-span-32d-1440-app.png",
+  "mock_image": "cold-work-maintenance-refused-span-32d-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents', 'Maintenance*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "refused-span-32d",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-refused-span-32d-390-app.png",
+  "mock_image": "cold-work-maintenance-refused-span-32d-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 143->127",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents (—)', 'Maintenance (—)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (—)', 'Incidents', 'Maintenance*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 123->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-no-window-1440-app.png",
+  "mock_image": "cold-work-maintenance-no-window-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] height 317->212",
+   "[Maintenance at this site] rows 0->1",
+   "[Maintenance at this site] links 0->2",
+   "[Maintenance at this site] details 1->4",
+   "[Maintenance at this site] tables 0->1",
+   "[Maintenance at this site] columns []->['Work request', 'Asset', 'Activity', 'Outcome', 'Next evidence']",
+   "[Maintenance at this site] chips []->['Completed', 'Unverified']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)', 'Maintenance (0)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)', 'Maintenance (1)*']]",
+   "hscroll []->[{'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'M"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "Maintenance at this site ratio 1.73->1.16",
+   "[Maintenance at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 180, 'panel': 'Maintenance"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 180,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-no-window-390-app.png",
+  "mock_image": "cold-work-maintenance-no-window-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] height 324->201",
+   "[Maintenance at this site] rows 0->1",
+   "[Maintenance at this site] links 0->2",
+   "[Maintenance at this site] details 1->4",
+   "[Maintenance at this site] tables 0->1",
+   "[Maintenance at this site] columns []->['Work request', 'Asset', 'Activity', 'Outcome', 'Next evidence']",
+   "[Maintenance at this site] chips []->['Completed', 'Unverified']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)', 'Maintenance (0)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)', 'Incidents (1)', 'Maintenance (1)*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "Maintenance at this site ratio 1.41->0.87",
+   "[Maintenance at this site] table columns changed"
+  ],
+  "regress": [
+   "NEW inner horizontal scroller: [{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': 'Maintenan"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-all-open-1440-app.png",
+  "mock_image": "cold-work-maintenance-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    5.26
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-all-open-390-app.png",
+  "mock_image": "cold-work-maintenance-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    5.23
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Maintenance at this site",
+    4.87,
+    5.23
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Maintenance at this site', 4.87, 5.23)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "positive",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-positive-1440-app.png",
+  "mock_image": "cold-action-positive-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 74,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "positive",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-positive-390-app.png",
+  "mock_image": "cold-action-positive-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.4
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 74,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-all-open-1440-app.png",
+  "mock_image": "cold-action-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-all-open-390-app.png",
+  "mock_image": "cold-action-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.4
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "not-linked",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-not-linked-1440-app.png",
+  "mock_image": "cold-action-not-linked-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.321805Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "not-linked",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-not-linked-390-app.png",
+  "mock_image": "cold-action-not-linked-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.321805Z",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.43
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "historical",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-historical-1440-app.png",
+  "mock_image": "cold-action-historical-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 74,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "historical",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-historical-390-app.png",
+  "mock_image": "cold-action-historical-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.766759Z",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.4
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 74,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "not-found",
+  "width": "1440",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-not-found-1440-app.png",
+  "mock_image": "cold-action-not-found-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "not-found",
+  "width": "390",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-not-found-390-app.png",
+  "mock_image": "cold-action-not-found-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 371->128",
+   "mainTop 350->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "invalid-known-at",
+  "width": "1440",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-invalid-known-at-1440-app.png",
+  "mock_image": "cold-action-invalid-known-at-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 158->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "pSizes {'14px': 3}->{'14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "invalid-known-at",
+  "width": "390",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-invalid-known-at-390-app.png",
+  "mock_image": "cold-action-invalid-known-at-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 181->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "h1.top 312->128",
+   "pSizes {'14px': 3}->{'14px': 2}",
+   "mainTop 291->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "future-known-at",
+  "width": "1440",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-future-known-at-1440-app.png",
+  "mock_image": "cold-action-future-known-at-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2099-01-01T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 158->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "pSizes {'14px': 3}->{'14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "future-known-at",
+  "width": "390",
+  "new_app_titles": [
+   "(untitled)"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-future-known-at-390-app.png",
+  "mock_image": "cold-action-future-known-at-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2099-01-01T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[] height 181->137",
+   "[] details 0->1",
+   "[] buttons 1->0",
+   "h1.top 312->128",
+   "pSizes {'14px': 3}->{'14px': 2}",
+   "mainTop 291->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "(untitled)"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

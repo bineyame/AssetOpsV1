@@ -21,3 +21,8 @@
 - batch 12 DONE: 42 pairs, FIXED 25, PASS 17, REGRESSION-OPEN 0, GAP 0. W4-02 seed (w402r_test) and W4-03 walkthrough (assetops_audit_b12_test) unmodified; DBs dropped; replay.json restored. 
 - Note: Vite serves on localhost (IPv6) only; targets rewritten from 127.0.0.1 to localhost. Tracked pyc .agent/W3-03-evidence/__pycache__ modified by pytest was restored with git checkout. Empty untracked var/evidence/migration-performance appeared at 12:42 (not removed).
 - All servers stopped, DBs dropped, no listeners on 9741/9751/9761/9781/188xx/518x/952x.
+# Agent D (batches 13-15), main SHA 89a11477 (HEAD 13c6515b, no product-file diff)
+- batch 13 first attempt BLOCKED at Vite start (powershell -ExecutionPolicy Bypass denied); resumed after the owner addendum (plain npm.cmd start, no policy override, accepted).
+- batch 13 DONE: 54 pairs, FIXED 31, PASS 23, REGRESSION-OPEN 0, GAP 0. W4-03 walkthrough unmodified vs assetops_audit_b13_test (dropped). Observation: producer's own late capture FAILED 7/459 against retired caps (scenarios 348/391 inner caps, incidents 460); incidents-refused-overlay (producer 503 state) 505 px vs ruled 500 cap at 1440.
+- batch 14 DONE: 88 pairs, FIXED 44, PASS 38, REGRESSION-OPEN 6, GAP 0. OPEN: cooling/cold-health/cold-scenarios refused-reversed (1440+390): raw COLD_WINDOW_INVALID text, no strip/panels, Retry (frozen B14-01, R244 Q13 hand-off not applied). w502 producer unmodified, DBs dropped.
+- batch 15 DONE: 88 pairs, FIXED 38, PASS 50, REGRESSION-OPEN 0, GAP 0. w502 producer unmodified (tag b15), DBs dropped, var/ clean, no listeners.

@@ -1,0 +1,68 @@
+[
+ {
+  "screen": "cold-work",
+  "case": "store-unavailable-503",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-store-unavailable-503-1440-app.png",
+  "mock_image": "cold-work-store-unavailable-503-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work",
+  "case": "store-unavailable-503",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-store-unavailable-503-390-app.png",
+  "mock_image": "cold-work-store-unavailable-503-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

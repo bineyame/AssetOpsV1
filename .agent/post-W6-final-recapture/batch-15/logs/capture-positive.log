@@ -1,0 +1,279 @@
+chrome pid 25240
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-current 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-current 1440: mock rendered
+PASS  cold-work-incidents-current 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-current 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-current 390: mock rendered
+PASS  cold-work-incidents-current 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-positive-cutoff 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-positive-cutoff 1440: mock rendered
+PASS  cold-work-incidents-positive-cutoff 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-positive-cutoff 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-positive-cutoff 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-positive-cutoff 390: mock rendered
+PASS  cold-work-incidents-positive-cutoff 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-positive-cutoff 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-historical 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-historical 1440: mock rendered
+PASS  cold-work-incidents-historical 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-historical 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-historical 390: mock rendered
+PASS  cold-work-incidents-historical 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-zero 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-zero 1440: mock rendered
+PASS  cold-work-incidents-zero 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-zero 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-zero 390: mock rendered
+PASS  cold-work-incidents-zero 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-refused-reversed 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-refused-reversed 1440: mock rendered
+PASS  cold-work-incidents-refused-reversed 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-refused-reversed 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-refused-reversed 390: mock rendered
+PASS  cold-work-incidents-refused-reversed 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-refused-span-32d 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-refused-span-32d 1440: mock rendered
+PASS  cold-work-incidents-refused-span-32d 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-refused-span-32d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-refused-span-32d 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-refused-span-32d 390: mock rendered
+PASS  cold-work-incidents-refused-span-32d 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-refused-span-32d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-no-window 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-no-window 1440: mock rendered
+PASS  cold-work-incidents-no-window 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-no-window 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-no-window 390: mock rendered
+PASS  cold-work-incidents-no-window 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-all-open 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-all-open 1440: mock rendered
+PASS  cold-work-incidents-all-open 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-all-open 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-all-open 390: mock rendered
+PASS  cold-work-incidents-all-open 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-current 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-current 1440: mock rendered
+PASS  cold-work-maintenance-current 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-current 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-current 390: mock rendered
+PASS  cold-work-maintenance-current 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-positive-cutoff 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-positive-cutoff 1440: mock rendered
+PASS  cold-work-maintenance-positive-cutoff 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-positive-cutoff 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.876763Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-positive-cutoff 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-positive-cutoff 390: mock rendered
+PASS  cold-work-maintenance-positive-cutoff 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-positive-cutoff 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-historical 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-historical 1440: mock rendered
+PASS  cold-work-maintenance-historical 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-historical 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-historical 390: mock rendered
+PASS  cold-work-maintenance-historical 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-zero 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-zero 1440: mock rendered
+PASS  cold-work-maintenance-zero 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-zero 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-zero 390: mock rendered
+PASS  cold-work-maintenance-zero 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-refused-reversed 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-refused-reversed 1440: mock rendered
+PASS  cold-work-maintenance-refused-reversed 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-refused-reversed 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-refused-reversed 390: mock rendered
+PASS  cold-work-maintenance-refused-reversed 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-refused-span-32d 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-refused-span-32d 1440: mock rendered
+PASS  cold-work-maintenance-refused-span-32d 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-refused-span-32d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-09-22T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-refused-span-32d 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-refused-span-32d 390: mock rendered
+PASS  cold-work-maintenance-refused-span-32d 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-refused-span-32d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-no-window 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-no-window 1440: mock rendered
+PASS  cold-work-maintenance-no-window 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-no-window 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-no-window 390: mock rendered
+PASS  cold-work-maintenance-no-window 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-all-open 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-all-open 1440: mock rendered
+PASS  cold-work-maintenance-all-open 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-all-open 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-all-open 390: mock rendered
+PASS  cold-work-maintenance-all-open 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-positive 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-positive 1440: mock rendered
+PASS  cold-action-positive 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-positive 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-positive 390: mock rendered
+PASS  cold-action-positive 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-all-open 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-all-open 1440: mock rendered
+PASS  cold-action-all-open 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-all-open 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-all-open 390: mock rendered
+PASS  cold-action-all-open 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.321805Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-not-linked 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-not-linked 1440: mock rendered
+PASS  cold-action-not-linked 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-not-linked 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.321805Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-not-linked 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-not-linked 390: mock rendered
+PASS  cold-action-not-linked 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-not-linked 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-historical 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-historical 1440: mock rendered
+PASS  cold-action-historical 1440: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2026-10-26T10%3A34%3A02.766759Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-historical 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-historical 390: mock rendered
+PASS  cold-action-historical 390: same panel count  {"app":["Declared outcome criteria","Related activity"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-not-found 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-not-found 1440: mock rendered
+FAIL  cold-action-not-found 1440: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-not-found 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-not-found 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-not-found 390: mock rendered
+FAIL  cold-action-not-found 390: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-not-found 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=not-a-time: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-invalid-known-at 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-invalid-known-at 1440: mock rendered
+FAIL  cold-action-invalid-known-at 1440: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-invalid-known-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=not-a-time: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-invalid-known-at 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-invalid-known-at 390: mock rendered
+FAIL  cold-action-invalid-known-at 390: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-invalid-known-at 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2099-01-01T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-future-known-at 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-future-known-at 1440: mock rendered
+FAIL  cold-action-future-known-at 1440: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-future-known-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/COLD-LAB-001/actions/103edd83-a139-4c0b-99ad-3f6bd9a86ae4/verification?known_at=2099-01-01T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-future-known-at 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-future-known-at 390: mock rendered
+FAIL  cold-action-future-known-at 390: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-future-known-at 390: no app page overflow  {"overflowX":0}
+
+270/276 claims passed; evidence in part-positive

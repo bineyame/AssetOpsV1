@@ -1,0 +1,297 @@
+[
+ {
+  "screen": "cooling",
+  "case": "unknown",
+  "width": "1440",
+  "new_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "mock_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cooling-unknown-1440-app.png",
+  "mock_image": "cooling-unknown-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cooling",
+  "case": "unknown",
+  "width": "390",
+  "new_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "mock_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cooling-unknown-390-app.png",
+  "mock_image": "cooling-unknown-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Recovery curves",
+    1.75
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "cold-depth-graphic__scroll",
+    "sw": 480,
+    "cw": 318,
+    "panel": "Recovery curves"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-health",
+  "case": "unknown",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-health-unknown-1440-app.png",
+  "mock_image": "cold-health-unknown-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-health",
+  "case": "unknown",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-health-unknown-390-app.png",
+  "mock_image": "cold-health-unknown-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-scenarios",
+  "case": "unknown",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-scenarios-unknown-1440-app.png",
+  "mock_image": "cold-scenarios-unknown-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-scenarios",
+  "case": "unknown",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-scenarios-unknown-390-app.png",
+  "mock_image": "cold-scenarios-unknown-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work",
+  "case": "unknown",
+  "width": "1440",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-unknown-1440-app.png",
+  "mock_image": "cold-work-unknown-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work",
+  "case": "unknown",
+  "width": "390",
+  "new_app_titles": [
+   "Actions at this site"
+  ],
+  "mock_titles": [
+   "Actions at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-unknown-390-app.png",
+  "mock_image": "cold-work-unknown-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 817, 'cw': 318, 'panel': 'Actions at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Actions at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll data-table__scroll--sticky",
+    "sw": 817,
+    "cw": 318,
+    "panel": "Actions at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

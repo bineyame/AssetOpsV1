@@ -1,0 +1,1168 @@
+[
+ {
+  "screen": "cold-work-incidents",
+  "case": "worstcase",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-worstcase-1440-app.png",
+  "mock_image": "cold-work-incidents-worstcase-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    2.66
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 4 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 298,
+    "cw": 298,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 3 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 298,
+    "cw": 298,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 2 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 298,
+    "cw": 298,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 1 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 298,
+    "cw": 298,
+    "sh": 83,
+    "ch": 33
+   }
+  ]
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "worstcase",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-worstcase-390-app.png",
+  "mock_image": "cold-work-incidents-worstcase-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    2.6
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000009 · Backup response failure 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 142,
+    "cw": 142,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 4 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 193,
+    "cw": 193,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000007 · Backup response failure 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 142,
+    "cw": 142,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 3 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 193,
+    "cw": 193,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000005 · Backup response failure 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 142,
+    "cw": 142,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 2 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 193,
+    "cw": 193,
+    "sh": 108,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "INC-000003 · Backup response failure 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 142,
+    "cw": 142,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Grid lost, automatic start failed 1 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+    "sw": 193,
+    "cw": 193,
+    "sh": 108,
+    "ch": 31
+   }
+  ]
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "worstcase-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-worstcase-all-open-1440-app.png",
+  "mock_image": "cold-work-incidents-worstcase-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    10.97
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 188,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 155,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-incidents",
+  "case": "worstcase-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-incidents-worstcase-all-open-390-app.png",
+  "mock_image": "cold-work-incidents-worstcase-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    10.07
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 99, 'panel': 'In"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incidents at this site",
+    9.71,
+    10.07
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incidents at this site', 9.71, 10.07)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "disclosure__body",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Incidents at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 99,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "worstcase",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-worstcase-1440-app.png",
+  "mock_image": "cold-work-maintenance-worstcase-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    2.66
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 221,
+    "cw": 221,
+    "sh": 83,
+    "ch": 33
+   }
+  ]
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "worstcase",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-worstcase-390-app.png",
+  "mock_image": "cold-work-maintenance-worstcase-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    1.87
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000010 · Starter/control inspection 4 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 151,
+    "cw": 151,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000008 · Starter/control inspection 3 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 151,
+    "cw": 151,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000006 · Starter/control inspection 2 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 151,
+    "cw": 151,
+    "sh": 123,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "WR-000004 · Starter/control inspection 1 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+    "sw": 151,
+    "cw": 151,
+    "sh": 123,
+    "ch": 31
+   }
+  ]
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "worstcase-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-worstcase-all-open-1440-app.png",
+  "mock_image": "cold-work-maintenance-worstcase-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    15.89
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 177,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-work-maintenance",
+  "case": "worstcase-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-work-maintenance-worstcase-all-open-390-app.png",
+  "mock_image": "cold-work-maintenance-worstcase-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "ratios_over_1.3": [
+   [
+    "Maintenance at this site",
+    12.18
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}, {'cls': 'fact-list__value', 'sw': 218, 'cw': 121, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Maintenance at this site",
+    11.82,
+    12.18
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Maintenance at this site', 11.82, 12.18)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   },
+   {
+    "cls": "fact-list__value",
+    "sw": 218,
+    "cw": 121,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "worstcase",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-worstcase-1440-app.png",
+  "mock_image": "cold-action-worstcase-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "worstcase",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-worstcase-390-app.png",
+  "mock_image": "cold-action-worstcase-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.43
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "worstcase-all-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-worstcase-all-open-1440-app.png",
+  "mock_image": "cold-action-worstcase-all-open-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-action",
+  "case": "worstcase-all-open",
+  "width": "390",
+  "new_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "mock_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-action-worstcase-all-open-390-app.png",
+  "mock_image": "cold-action-worstcase-all-open-390-mock.png",
+  "app_url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification",
+  "ratios_over_1.3": [
+   [
+    "Related activity",
+    1.43
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Declared outcome criteria",
+   "Related activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

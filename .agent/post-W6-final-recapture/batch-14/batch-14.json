@@ -1,0 +1,2932 @@
+{
+ "batch": "14",
+ "name": "W5 cold depth/work",
+ "main_sha": "89a11477",
+ "pair_count": 88,
+ "frozen_pair_count": 88,
+ "counts": {
+  "PASS": 38,
+  "FIXED": 44,
+  "REGRESSION-OPEN": 6
+ },
+ "pairs": [
+  {
+   "screen": "cold-work",
+   "case": "forbidden-403",
+   "width": "1440",
+   "part": "forbidden",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "forbidden/cold-work-forbidden-403-1440-app.png",
+   "mock_image": "forbidden/cold-work-forbidden-403-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "forbidden-403",
+   "width": "390",
+   "part": "forbidden",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "forbidden/cold-work-forbidden-403-390-app.png",
+   "mock_image": "forbidden/cold-work-forbidden-403-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cooling-pending-1440-app.png",
+   "mock_image": "pending/cooling-pending-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "pending/cooling-pending-390-app.png",
+   "mock_image": "pending/cooling-pending-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cold-health-pending-1440-app.png",
+   "mock_image": "pending/cold-health-pending-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "pending/cold-health-pending-390-app.png",
+   "mock_image": "pending/cold-health-pending-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-08",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cold-scenarios-pending-1440-app.png",
+   "mock_image": "pending/cold-scenarios-pending-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-08",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "pending/cold-scenarios-pending-390-app.png",
+   "mock_image": "pending/cold-scenarios-pending-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "historical",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cooling-historical-1440-app.png",
+   "mock_image": "pending/cooling-historical-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "historical",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "pending/cooling-historical-390-app.png",
+   "mock_image": "pending/cooling-historical-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "historical",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cold-health-historical-1440-app.png",
+   "mock_image": "pending/cold-health-historical-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "historical",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "pending/cold-health-historical-390-app.png",
+   "mock_image": "pending/cold-health-historical-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "historical",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cold-scenarios-historical-1440-app.png",
+   "mock_image": "pending/cold-scenarios-historical-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "historical",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z&known_at=2026-10-24T17:24:10.935029Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "pending/cold-scenarios-historical-390-app.png",
+   "mock_image": "pending/cold-scenarios-historical-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "pending",
+   "width": "1440",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A24%3A12.792376Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "pending/cold-work-pending-1440-app.png",
+   "mock_image": "pending/cold-work-pending-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "pending",
+   "width": "390",
+   "part": "pending",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A24%3A12.792376Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 818, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "pending/cold-work-pending-390-app.png",
+   "mock_image": "pending/cold-work-pending-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "current-limited",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cooling-current-limited-1440-app.png",
+   "mock_image": "positive/cooling-current-limited-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "current-limited",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "positive/cooling-current-limited-390-app.png",
+   "mock_image": "positive/cooling-current-limited-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "current-limited",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-health-current-limited-1440-app.png",
+   "mock_image": "positive/cold-health-current-limited-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "current-limited",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-health-current-limited-390-app.png",
+   "mock_image": "positive/cold-health-current-limited-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "current-limited",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-current-limited-1440-app.png",
+   "mock_image": "positive/cold-scenarios-current-limited-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "current-limited",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 145->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 126->108"
+   ],
+   "app_image": "positive/cold-scenarios-current-limited-390-app.png",
+   "mock_image": "positive/cold-scenarios-current-limited-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "positive",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-work-positive-1440-app.png",
+   "mock_image": "positive/cold-work-positive-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "positive",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "positive/cold-work-positive-390-app.png",
+   "mock_image": "positive/cold-work-positive-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "empty-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "[Recovery curves] table columns changed",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Recovery curves] rows 0->2",
+    "[Recovery curves] tables 0->1",
+    "[Recovery curves] columns []->['Step', 'Time (UTC)', 'Evidence']"
+   ],
+   "app_image": "positive/cooling-empty-window-1440-app.png",
+   "mock_image": "positive/cooling-empty-window-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "empty-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "Recovery curves 412 px vs mock 235 (1.75x) = standing D1 R335 (chart plus accessible selected-point table); frozen 236 px had no table",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Recovery curves] height 236->412",
+    "[Recovery curves] rows 0->2",
+    "[Recovery curves] tables 0->1",
+    "[Recovery curves] columns []->['Step', 'Time (UTC)', 'Evidence']",
+    "pageH 1903->2098",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "positive/cooling-empty-window-390-app.png",
+   "mock_image": "positive/cooling-empty-window-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "empty-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Condition and evidence ratio 1.44->1.27",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Condition and evidence] height 285->251",
+    "pSizes {'13px': 1}->{}"
+   ],
+   "app_image": "positive/cold-health-empty-window-1440-app.png",
+   "mock_image": "positive/cold-health-empty-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "empty-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Condition and evidence] height 330->295",
+    "pSizes {'13px': 1}->{}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-health-empty-window-390-app.png",
+   "mock_image": "positive/cold-health-empty-window-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "empty-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-empty-window-1440-app.png",
+   "mock_image": "positive/cold-scenarios-empty-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "empty-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-scenarios-empty-window-390-app.png",
+   "mock_image": "positive/cold-scenarios-empty-window-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "zero",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-16T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-09",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     1.43
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-work-zero-1440-app.png",
+   "mock_image": "positive/cold-work-zero-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "zero",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-16T00%3A00%3A00Z&to=2026-10-23T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-09",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-work-zero-390-app.png",
+   "mock_image": "positive/cold-work-zero-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "historical",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A23%3A09.245412Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-work-historical-1440-app.png",
+   "mock_image": "positive/cold-work-historical-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "historical",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A23%3A09.245412Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "positive/cold-work-historical-390-app.png",
+   "mock_image": "positive/cold-work-historical-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cooling-refused-reversed-1440-app.png",
+   "mock_image": "positive/cooling-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 324->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 304->108"
+   ],
+   "app_image": "positive/cooling-refused-reversed-390-app.png",
+   "mock_image": "positive/cooling-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-health-refused-reversed-1440-app.png",
+   "mock_image": "positive/cold-health-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 353->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 334->108"
+   ],
+   "app_image": "positive/cold-health-refused-reversed-390-app.png",
+   "mock_image": "positive/cold-health-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-refused-reversed-1440-app.png",
+   "mock_image": "positive/cold-scenarios-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-01",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 324->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 304->108"
+   ],
+   "app_image": "positive/cold-scenarios-refused-reversed-390-app.png",
+   "mock_image": "positive/cold-scenarios-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-02",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]"
+   ],
+   "app_image": "positive/cold-work-refused-reversed-1440-app.png",
+   "mock_image": "positive/cold-work-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T17:05:00Z&to=2026-10-23T16:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-02",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-work-refused-reversed-390-app.png",
+   "mock_image": "positive/cold-work-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "refused-span-32d",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-02",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]"
+   ],
+   "app_image": "positive/cold-work-refused-span-32d-1440-app.png",
+   "mock_image": "positive/cold-work-refused-span-32d-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "refused-span-32d",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-02",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-work-refused-span-32d-390-app.png",
+   "mock_image": "positive/cold-work-refused-span-32d-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cooling-no-window-1440-app.png",
+   "mock_image": "positive/cooling-no-window-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "positive/cooling-no-window-390-app.png",
+   "mock_image": "positive/cooling-no-window-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-health-no-window-1440-app.png",
+   "mock_image": "positive/cold-health-no-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-health-no-window-390-app.png",
+   "mock_image": "positive/cold-health-no-window-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-no-window-1440-app.png",
+   "mock_image": "positive/cold-scenarios-no-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 145->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 126->108"
+   ],
+   "app_image": "positive/cold-scenarios-no-window-390-app.png",
+   "mock_image": "positive/cold-scenarios-no-window-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "no-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "default seven-day window (R338) now lists the Action row instead of the frozen empty state; Site tab row wraps at 390; 390 table scroller (822 in 318, sticky header) is the standing labelled scroller with visible scrollbar",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-09",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Actions at this site] height 262->184",
+    "[Actions at this site] rows 0->1",
+    "[Actions at this site] links 0->1",
+    "[Actions at this site] details 0->1",
+    "[Actions at this site] tables 0->1",
+    "[Actions at this site] columns []->['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']",
+    "[Actions at this site] chips []->['Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)*', 'Incidents (1)', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']]"
+   ],
+   "app_image": "positive/cold-work-no-window-1440-app.png",
+   "mock_image": "positive/cold-work-no-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "no-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "default seven-day window (R338) now lists the Action row instead of the frozen empty state; Site tab row wraps at 390; 390 table scroller (822 in 318, sticky header) is the standing labelled scroller with visible scrollbar",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-09",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Actions at this site] height 282->199",
+    "[Actions at this site] rows 0->1",
+    "[Actions at this site] links 0->1",
+    "[Actions at this site] details 0->1",
+    "[Actions at this site] tables 0->1",
+    "[Actions at this site] columns []->['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']",
+    "[Actions at this site] chips []->['Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)*', 'Incidents (1)', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "positive/cold-work-no-window-390-app.png",
+   "mock_image": "positive/cold-work-no-window-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "work-day-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cooling-work-day-window-1440-app.png",
+   "mock_image": "positive/cooling-work-day-window-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "work-day-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "positive/cooling-work-day-window-390-app.png",
+   "mock_image": "positive/cooling-work-day-window-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "work-day-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Condition and evidence",
+     1.44
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-health-work-day-window-1440-app.png",
+   "mock_image": "positive/cold-health-work-day-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "work-day-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-health-work-day-window-390-app.png",
+   "mock_image": "positive/cold-health-work-day-window-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "work-day-window",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-work-day-window-1440-app.png",
+   "mock_image": "positive/cold-scenarios-work-day-window-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "work-day-window",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-scenarios-work-day-window-390-app.png",
+   "mock_image": "positive/cold-scenarios-work-day-window-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cooling-all-open-1440-app.png",
+   "mock_image": "positive/cooling-all-open-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "positive/cooling-all-open-390-app.png",
+   "mock_image": "positive/cooling-all-open-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-health-all-open-1440-app.png",
+   "mock_image": "positive/cold-health-all-open-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Condition and evidence",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "positive/cold-health-all-open-390-app.png",
+   "mock_image": "positive/cold-health-all-open-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-scenarios-all-open-1440-app.png",
+   "mock_image": "positive/cold-scenarios-all-open-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 145->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 126->108"
+   ],
+   "app_image": "positive/cold-scenarios-all-open-390-app.png",
+   "mock_image": "positive/cold-scenarios-all-open-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "all-open",
+   "width": "1440",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "positive/cold-work-all-open-1440-app.png",
+   "mock_image": "positive/cold-work-all-open-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "all-open",
+   "width": "390",
+   "part": "positive",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-17"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "positive/cold-work-all-open-390-app.png",
+   "mock_image": "positive/cold-work-all-open-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "stale",
+   "width": "1440",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "stale/cooling-stale-1440-app.png",
+   "mock_image": "stale/cooling-stale-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "stale",
+   "width": "390",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "stale/cooling-stale-390-app.png",
+   "mock_image": "stale/cooling-stale-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "stale",
+   "width": "1440",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "stale/cold-health-stale-1440-app.png",
+   "mock_image": "stale/cold-health-stale-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "stale",
+   "width": "390",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "stale/cold-health-stale-390-app.png",
+   "mock_image": "stale/cold-health-stale-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "stale",
+   "width": "1440",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "stale/cold-scenarios-stale-1440-app.png",
+   "mock_image": "stale/cold-scenarios-stale-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "stale",
+   "width": "390",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:30:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "stale/cold-scenarios-stale-390-app.png",
+   "mock_image": "stale/cold-scenarios-stale-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "stale",
+   "width": "1440",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A24%3A41.712850Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "stale/cold-work-stale-1440-app.png",
+   "mock_image": "stale/cold-work-stale-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "stale",
+   "width": "390",
+   "part": "stale",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A24%3A41.712850Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 821, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "stale/cold-work-stale-390-app.png",
+   "mock_image": "stale/cold-work-stale-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "store-unavailable-503",
+   "width": "1440",
+   "part": "unavailable",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unavailable/cold-work-store-unavailable-503-1440-app.png",
+   "mock_image": "unavailable/cold-work-store-unavailable-503-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "store-unavailable-503",
+   "width": "390",
+   "part": "unavailable",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "unavailable/cold-work-store-unavailable-503-390-app.png",
+   "mock_image": "unavailable/cold-work-store-unavailable-503-390-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "unknown",
+   "width": "1440",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-07",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unknown/cooling-unknown-1440-app.png",
+   "mock_image": "unknown/cooling-unknown-1440-mock.png"
+  },
+  {
+   "screen": "cooling",
+   "case": "unknown",
+   "width": "390",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-06",
+    "B14-07",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "mock_titles": [
+    "Recovery curves",
+    "Context normalization",
+    "Next best evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Recovery curves",
+     1.75
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'->[{'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}]"
+   ],
+   "app_image": "unknown/cooling-unknown-390-app.png",
+   "mock_image": "unknown/cooling-unknown-390-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "unknown",
+   "width": "1440",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-07",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unknown/cold-health-unknown-1440-app.png",
+   "mock_image": "unknown/cold-health-unknown-1440-mock.png"
+  },
+  {
+   "screen": "cold-health",
+   "case": "unknown",
+   "width": "390",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/health?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-05",
+    "B14-07",
+    "B14-10",
+    "B14-13"
+   ],
+   "app_titles": [
+    "Condition and evidence"
+   ],
+   "mock_titles": [
+    "Condition and evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "unknown/cold-health-unknown-390-app.png",
+   "mock_image": "unknown/cold-health-unknown-390-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "unknown",
+   "width": "1440",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unknown/cold-scenarios-unknown-1440-app.png",
+   "mock_image": "unknown/cold-scenarios-unknown-1440-mock.png"
+  },
+  {
+   "screen": "cold-scenarios",
+   "case": "unknown",
+   "width": "390",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-04",
+    "B14-10",
+    "B14-16"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "unknown/cold-scenarios-unknown-390-app.png",
+   "mock_image": "unknown/cold-scenarios-unknown-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "unknown",
+   "width": "1440",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "unknown/cold-work-unknown-1440-app.png",
+   "mock_image": "unknown/cold-work-unknown-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "unknown",
+   "width": "390",
+   "part": "unknown",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 817, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "unknown/cold-work-unknown-390-app.png",
+   "mock_image": "unknown/cold-work-unknown-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "worstcase",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "identical to frozen: intended two-line clamp on five 160-char rows, each carrying 'Read full text' (1 px width delta only)",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-11"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     2.5
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'ACT-000006 \u00c2\u00b7 Witness automatic-start test 5 \u00e2\u20ac\u201d long title proof xxxx->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'ACT-000006 \u00c2\u00b7 Witness automatic-start test 5 \u00e2\u20ac\u201d long title proof xxxx"
+   ],
+   "app_image": "worstcase/cold-work-worstcase-1440-app.png",
+   "mock_image": "worstcase/cold-work-worstcase-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "worstcase",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "identical to frozen: intended two-line clamp on five 160-char rows, each carrying 'Read full text' (1 px width delta only)",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-11"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     1.99
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "worstcase/cold-work-worstcase-390-app.png",
+   "mock_image": "worstcase/cold-work-worstcase-390-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "worstcase-all-open",
+   "width": "1440",
+   "part": "worstcase",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-11"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     3.74
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "worstcase/cold-work-worstcase-all-open-1440-app.png",
+   "mock_image": "worstcase/cold-work-worstcase-all-open-1440-mock.png"
+  },
+  {
+   "screen": "cold-work",
+   "case": "worstcase-all-open",
+   "width": "390",
+   "part": "worstcase",
+   "route": "/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B14-X1",
+    "B14-03",
+    "B14-04",
+    "B14-10",
+    "B14-11"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     3.89
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 819, 'cw': 318, 'panel'->[{'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 822, 'cw': 318, 'panel': 'Actions at this site'}]"
+   ],
+   "app_image": "worstcase/cold-work-worstcase-all-open-390-app.png",
+   "mock_image": "worstcase/cold-work-worstcase-all-open-390-mock.png"
+  }
+ ]
+}

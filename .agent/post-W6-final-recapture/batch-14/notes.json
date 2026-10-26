@@ -1,0 +1,27 @@
+{
+ "cooling|refused-reversed": {
+  "class": "REGRESSION-OPEN",
+  "why": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim"
+ },
+ "cold-health|refused-reversed": {
+  "class": "REGRESSION-OPEN",
+  "why": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim"
+ },
+ "cold-scenarios|refused-reversed": {
+  "class": "REGRESSION-OPEN",
+  "why": "Frozen D3 B14-01 persists: refused window (from after to) renders the card 'Cold depth/Cold scenarios unavailable' with the raw code text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a Retry that cannot succeed; strip, cards and all mock panels are dropped (0 vs 1-3 panels); no window control. Register R244/R261 read closed but their Q13 split left cold depth (W5-cold-Work) and the one-refusal-set copy was not applied here (cold-work was fixed, R461). Suspected cause: cold depth refusal path (ColdCooling/ColdHealthDepth/cold scenarios error branch) still prints the server code and message verbatim"
+ },
+ "cooling|empty-window|390": {
+  "class": "PASS",
+  "why": "Recovery curves 412 px vs mock 235 (1.75x) = standing D1 R335 (chart plus accessible selected-point table); frozen 236 px had no table"
+ },
+ "cold-work|no-window": {
+  "class": "FIXED",
+  "why": "default seven-day window (R338) now lists the Action row instead of the frozen empty state; Site tab row wraps at 390; 390 table scroller (822 in 318, sticky header) is the standing labelled scroller with visible scrollbar"
+ },
+ "cold-work|worstcase": {
+  "class": "PASS",
+  "why": "identical to frozen: intended two-line clamp on five 160-char rows, each carrying 'Read full text' (1 px width delta only)"
+ },
+ "_md": "## Run record\n- W5-02b walkthrough `tools/w502_cold_work_walkthrough.py --work var/w502b_b14 --tag b14` unmodified: prepare (DBs w502b_{positive,worstcase,pending,stale,unknown}_b14_test), serve (API 8971-8977), then drop. Vite 5184 on localhost restarted per mode with ASSETOPS_API_PORT (started plainly via npm.cmd, no policy override), CDP 9524. Targets from the walkthrough manifest (windows 23 Oct 16:00-17:05Z; work windows from the manifest).\n- Claims: positive 294/300 (same 6 refused-reversed 'same panel count' failures as frozen), links 48/48 (uncounted), worstcase 24/24, pending 84/84, stale 48/48, unknown 48/48, forbidden 12/12, unavailable 12/12.\n- 88 pairs = positive 50 + pending 14 + stale 8 + unknown 8 + worstcase 4 + forbidden 2 + unavailable 2.\n- Observation (not counted, frozen B14-05 -> B1-53 cite): cooling Recovery curves table prints full evidence UUIDs (selected-point table); cold-health asset ids are now collapsed behind 'Full ID'.\n- Standing: cooling chart scroller at 390 (480 in 318, labelled by visible scrollbar), cold-work tables scroll at 390 with scrollbar and 'Next page'/'Show all' controls, two-line clamps with 'Read full text'.\n- 390 screenshots viewed: cold-work no-window/worstcase/forbidden/unavailable/span-32d, cooling empty-window/pending/refused-reversed, cold-health current-limited/refused-reversed, cold-scenarios current-limited; 1440 cold-scenarios refused. No cut text, no document overflow, no console errors, no new inner scrollers.\n- Uncounted link check (xcheck-links.json): cold Site Findings table scroller (1125 in 1120 at 1440, 949 in 318 at 390, data-table__scroll) is new vs the frozen link check; likely the intended table scroller, not a pair, not classified."
+}

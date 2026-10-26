@@ -1,0 +1,919 @@
+[
+ {
+  "screen": "scenarios",
+  "case": "populated",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-populated-1440-app.png",
+  "mock_image": "scenarios-populated-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial scenarios] height 328->381"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "populated",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-populated-390-app.png",
+  "mock_image": "scenarios-populated-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios",
+  "ratios_over_1.3": [
+   [
+    "Financial scenarios",
+    1.33
+   ]
+  ],
+  "app_diffs": [
+   "[Financial scenarios] height 372->473",
+   "pageH 900->1186",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Financial scenarios",
+    1.05,
+    1.33
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Financial scenarios', 1.05, 1.33)]"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 318,
+    "panel": "Financial scenarios"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "empty-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-empty-window-1440-app.png",
+  "mock_image": "scenarios-empty-window-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "empty-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-empty-window-390-app.png",
+  "mock_image": "scenarios-empty-window-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 178->155",
+   "pageH 900->1038",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 131->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-refused-reversed-1440-app.png",
+  "mock_image": "scenarios-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-refused-reversed-390-app.png",
+  "mock_image": "scenarios-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 261->155",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 214->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "kobo-no-scenarios",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-kobo-no-scenarios-1440-app.png",
+  "mock_image": "scenarios-kobo-no-scenarios-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials/scenarios",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "scenarios",
+  "case": "kobo-no-scenarios",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "scenarios-kobo-no-scenarios-390-app.png",
+  "mock_image": "scenarios-kobo-no-scenarios-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials/scenarios",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 182->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 162->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "alternatives",
+  "case": "db-time-409-late",
+  "width": "1440",
+  "new_app_titles": [
+   "Alternatives to investigate"
+  ],
+  "mock_titles": [
+   "Alternatives to investigate"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "alternatives-db-time-409-late-1440-app.png",
+  "mock_image": "alternatives-db-time-409-late-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/4b9521e8-780e-4dbf-9763-a898cf3b1cdd/alternatives?revision_id=8597dbfd-ca9d-43d2-9bd6-eb96d947b17e",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Alternatives to investigate"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "alternatives",
+  "case": "db-time-409-late",
+  "width": "390",
+  "new_app_titles": [
+   "Alternatives to investigate"
+  ],
+  "mock_titles": [
+   "Alternatives to investigate"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "alternatives-db-time-409-late-390-app.png",
+  "mock_image": "alternatives-db-time-409-late-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/4b9521e8-780e-4dbf-9763-a898cf3b1cdd/alternatives?revision_id=8597dbfd-ca9d-43d2-9bd6-eb96d947b17e",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 272->128",
+   "tabRows [['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]",
+   "mainTop 230->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Alternatives to investigate"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "site-tabs__list",
+    "sw": 405,
+    "cw": 358,
+    "panel": ""
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "late-settled-current",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-late-settled-current-1440-app.png",
+  "mock_image": "opportunity-finding-late-settled-current-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "late-settled-current",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-late-settled-current-390-app.png",
+  "mock_image": "opportunity-finding-late-settled-current-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "stale-k-before-late",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-stale-k-before-late-1440-app.png",
+  "mock_image": "opportunity-finding-stale-k-before-late-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f?known_at=2026-10-26T10%3A12%3A09.850320Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "stale-k-before-late",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-stale-k-before-late-390-app.png",
+  "mock_image": "opportunity-finding-stale-k-before-late-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f?known_at=2026-10-26T10%3A12%3A09.850320Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "refused-bad-known-at",
+  "width": "1440",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-refused-bad-known-at-1440-app.png",
+  "mock_image": "opportunity-finding-refused-bad-known-at-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f?known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "refused-bad-known-at",
+  "width": "390",
+  "new_app_titles": [],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-refused-bad-known-at-390-app.png",
+  "mock_image": "opportunity-finding-refused-bad-known-at-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/de49b4d1-ec6a-4f36-987f-bb43c476d22f?known_at=not-a-time",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 373->170",
+   "mainTop 311->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "sitework-incidents",
+  "case": "late-stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-incidents-late-stocked-1440-app.png",
+  "mock_image": "sitework-incidents-late-stocked-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incidents at this site] details 6->12",
+   "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'SPAN', 'cls': 'work-cases-context', 'text': 'Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour t->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour tri"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incidents at this site",
+    1.4,
+    1.52
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incidents at this site', 1.4, 1.52)]",
+   "clipped text changed: [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 · SCN-000002 · Gra"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 188,
+    "cw": 188,
+    "sh": 72,
+    "ch": 36
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 188,
+    "cw": 188,
+    "sh": 72,
+    "ch": 36
+   }
+  ]
+ },
+ {
+  "screen": "sitework-incidents",
+  "case": "late-stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-incidents-late-stocked-390-app.png",
+  "mock_image": "sitework-incidents-late-stocked-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Incidents at this site] details 6->12",
+   "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the m"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 121,
+    "cw": 121,
+    "sh": 101,
+    "ch": 34
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 121,
+    "cw": 121,
+    "sh": 101,
+    "ch": 34
+   }
+  ]
+ },
+ {
+  "screen": "sitework-maintenance",
+  "case": "late-stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-maintenance-late-stocked-1440-app.png",
+  "mock_image": "sitework-maintenance-late-stocked-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "sitework-maintenance",
+  "case": "late-stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-maintenance-late-stocked-390-app.png",
+  "mock_image": "sitework-maintenance-late-stocked-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "missing-day-limited",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-missing-day-limited-1440-app.png",
+  "mock_image": "opportunity-finding-missing-day-limited-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/ab491c6d-68cf-4d8b-92c2-f6a2a2ccda83",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "opportunity-finding",
+  "case": "missing-day-limited",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "mock_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "opportunity-finding-missing-day-limited-390-app.png",
+  "mock_image": "opportunity-finding-missing-day-limited-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/opportunities/ab491c6d-68cf-4d8b-92c2-f6a2a2ccda83",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded opportunity",
+   "Next decision",
+   "Consequence basis"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

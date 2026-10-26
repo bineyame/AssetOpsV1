@@ -1,0 +1,35 @@
+[
+ {
+  "id": "cold-work-incidents",
+  "case": "worstcase",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z"
+ },
+ {
+  "id": "cold-work-incidents",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "worstcase",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A34%3A35.407213Z",
+  "openAll": true
+ },
+ {
+  "id": "cold-action",
+  "case": "worstcase",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification"
+ },
+ {
+  "id": "cold-action",
+  "case": "worstcase-all-open",
+  "url": "http://localhost:5185/sites/COLD-LAB-001/actions/7082b526-81b7-4465-bfd0-757be1fa26a4/verification",
+  "openAll": true
+ }
+]

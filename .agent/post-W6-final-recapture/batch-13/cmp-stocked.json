@@ -1,0 +1,261 @@
+[
+ {
+  "screen": "sitework-incidents",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-incidents-stocked-1440-app.png",
+  "mock_image": "sitework-incidents-stocked-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [
+   [
+    "Incidents at this site",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Incidents at this site] details 6->12",
+   "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'SPAN', 'cls': 'work-cases-context', 'text': 'Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour t->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour tri"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Incidents at this site",
+    1.4,
+    1.52
+   ]
+  ],
+  "fix_signals": [],
+  "regress": [
+   "cap exceeded [('Incidents at this site', 1.4, 1.52)]",
+   "clipped text changed: [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 · SCN-000002 · Gra"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 188,
+    "cw": 188,
+    "sh": 72,
+    "ch": 36
+   }
+  ],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 188,
+    "cw": 188,
+    "sh": 72,
+    "ch": 36
+   }
+  ]
+ },
+ {
+  "screen": "sitework-incidents",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Incidents at this site"
+  ],
+  "mock_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-incidents-stocked-390-app.png",
+  "mock_image": "sitework-incidents-stocked-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Incidents at this site] details 6->12",
+   "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+   "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+   "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Incidents at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the m"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 121,
+    "cw": 121,
+    "sh": 101,
+    "ch": 34
+   }
+  ],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 720,
+    "cw": 324,
+    "panel": "Incidents at this site"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Operator logged a supply complaint during the mill trial window; cause not estab",
+    "sw": 193,
+    "cw": 193,
+    "sh": 46,
+    "ch": 31
+   },
+   {
+    "tag": "SPAN",
+    "cls": "work-cases-clamp",
+    "text": "Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected",
+    "sw": 121,
+    "cw": 121,
+    "sh": 101,
+    "ch": 34
+   }
+  ]
+ },
+ {
+  "screen": "sitework-maintenance",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-maintenance-stocked-1440-app.png",
+  "mock_image": "sitework-maintenance-stocked-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "sitework-maintenance",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance at this site"
+  ],
+  "mock_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitework-maintenance-stocked-390-app.png",
+  "mock_image": "sitework-maintenance-stocked-390-mock.png",
+  "app_url": "http://localhost:5183/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 760,
+    "cw": 324,
+    "panel": "Maintenance at this site"
+   }
+  ],
+  "inner_all_clipped": []
+ }
+]

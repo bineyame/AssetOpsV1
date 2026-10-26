@@ -1,0 +1,3370 @@
+{
+  "revision": "89a11477",
+  "captured_at": "2026-10-26T10:29:39.302Z",
+  "pairs": [
+    {
+      "screen": "cooling",
+      "case": "unknown",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cooling",
+      "app_image": "cooling-unknown-1440-app.png",
+      "mock_image": "cooling-unknown-1440-mock.png",
+      "app": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 248,
+            "y": 542,
+            "w": 725,
+            "h": 417,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Step",
+              "Time (UTC)",
+              "Evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Compressor running",
+                "16:05:00",
+                "6748d079-2fa5-4c0f-8ae1-e5deb29b965e"
+              ],
+              [
+                "Chamber temperature",
+                "17:00:00",
+                "b03f6f86-2921-440d-b676-3035c02a853c"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Recovery curvesSelected first observations only; not a recovery curve.Compressor runningChamber temperature16:00 UTC16:15 UTC16:30 UTC16:45 UTC17:00 UTCCompressor running · 16:05:00 UTC16:05:00Chamber temperature · 17:00:00 UTC17:00:00No accepted recovery sequence in this window.StepTime (UTC)EvidenceCompressor running16:05:006748d079-2fa5-4c0f-8ae1-e5deb29b965eChamber temperature17:00:00b03f6f86-2921-440d-b676-3035c02a853c",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 991,
+            "y": 542,
+            "w": 403,
+            "h": 417,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Not established",
+              "Not established",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "Not selected by the cooling assessment",
+                "Not established"
+              ],
+              [
+                "Power availability",
+                "1 accepted grid power record",
+                "Not established"
+              ],
+              [
+                "Door-open duration",
+                "Door open for 1 min",
+                "Not established"
+              ],
+              [
+                "Loading / batch",
+                "No loading record role",
+                "Not established"
+              ],
+              [
+                "Defrost",
+                "No defrost record role",
+                "Not established"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperatureNot selected by the cooling assessmentNot establishedPower availability1 accepted grid power recordNot establishedDoor-open durationDoor open for 1 minNot establishedLoading / batchNo loading record roleNot establishedDefrostNo defrost record roleNot established",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 248,
+            "y": 1038,
+            "w": 1145,
+            "h": 191,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Record a comparable recoveryKeep load, door, ambient, defrost and cooling-energy records.2Inspect the backup sequenceOpen Backup →",
+            "h3": [
+              "Record a comparable recovery",
+              "Inspect the backup sequence"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1278,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Comparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.Inspect recovery basis →",
+          "cards": [
+            "Usual time back to 4°CUnknownNo matched earlier window",
+            "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment",
+            "DifferenceUnknownA comparison is not supported",
+            "Comparable?Not yetAmbient, loading and defrost records missing"
+          ],
+          "notice": [
+            "No selected cold assessment covers this window. The rows below are accepted records only, not an assessed conclusion.",
+            "These records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 2,
+          "utc": 8,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Usual time back to 4°CUnknownNo matched earlier window | ",
+            "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment | ",
+            "DifferenceUnknownA comparison is not supported | ",
+            "Comparable?Not yetAmbient, loading and defrost records missing | "
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Inspect recovery basis → -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "Open Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Usual time back to 4°CUnknownNo matched earlier window",
+            "h": 124
+          },
+          {
+            "t": "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery ass",
+            "h": 124
+          },
+          {
+            "t": "DifferenceUnknownA comparison is not supported",
+            "h": 124
+          },
+          {
+            "t": "Comparable?Not yetAmbient, loading and defrost records missing",
+            "h": 124
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1278
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 234,
+            "y": 548,
+            "w": 735,
+            "h": 386,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesExample curve shapes; selected event-to-policy recovery107.552.50°C0 min102030405060Matched baselineCurrent recovery",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 987,
+            "y": 548,
+            "w": 408,
+            "h": 386,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Matched",
+              "Matched",
+              "Limited",
+              "Unknown",
+              "Not excluded"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "29–32°C",
+                "Matched"
+              ],
+              [
+                "Power availability",
+                "Continuous during recovery",
+                "Matched"
+              ],
+              [
+                "Door-open duration",
+                "Limited record",
+                "Limited"
+              ],
+              [
+                "Loading / batch",
+                "Not established",
+                "Unknown"
+              ],
+              [
+                "Defrost",
+                "No event observed",
+                "Not excluded"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperature29–32°CMatchedPower availabilityContinuous during recoveryMatchedDoor-open durationLimited recordLimitedLoading / batchNot establishedUnknownDefrostNo event observedNot excluded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 234,
+            "y": 1012,
+            "w": 1161,
+            "h": 234,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Repeat a comparable recovery testRecord load, door opening, ambient conditions, defrost and cooling energy.Plan a witnessed test →2Inspect the excursion chainCheck whether lost power, rather than refrigeration condition, explains the event.Open Backup →",
+            "h3": [
+              "Repeat a comparable recovery test",
+              "Inspect the excursion chain"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1312,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Temperature -> #/temperature",
+          "Cooling -> #/cooling",
+          "Backup -> #/coldbackup",
+          "Plan a witnessed test → -> #/workverification",
+          "Open Backup → -> #/coldbackup"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1268
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cooling",
+      "case": "unknown",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cooling",
+      "app_image": "cooling-unknown-390-app.png",
+      "mock_image": "cooling-unknown-390-mock.png",
+      "app": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 16,
+            "y": 919,
+            "w": 358,
+            "h": 412,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Step",
+              "Time (UTC)",
+              "Evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Compressor running",
+                "16:05:00",
+                "6748d079-2fa5-4c0f-8ae1-e5deb29b965e"
+              ],
+              [
+                "Chamber temperature",
+                "17:00:00",
+                "b03f6f86-2921-440d-b676-3035c02a853c"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Recovery curvesSelected first observations only; not a recovery curve.Compressor runningChamber temperature16:00 UTC16:15 UTC16:30 UTC16:45 UTC17:00 UTCCompressor running · 16:05:00 UTC16:05:00Chamber temperature · 17:00:00 UTC17:00:00No accepted recovery sequence in this window.StepTime (UTC)EvidenceCompressor running16:05:006748d079-2fa5-4c0f-8ae1-e5deb29b965eChamber temperature17:00:00b03f6f86-2921-440d-b676-3035c02a853c",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 16,
+            "y": 1347,
+            "w": 358,
+            "h": 466,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Not established",
+              "Not established",
+              "Not established",
+              "Not established",
+              "Not established"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "Not selected by the cooling assessment",
+                "Not established"
+              ],
+              [
+                "Power availability",
+                "1 accepted grid power record",
+                "Not established"
+              ],
+              [
+                "Door-open duration",
+                "Door open for 1 min",
+                "Not established"
+              ],
+              [
+                "Loading / batch",
+                "No loading record role",
+                "Not established"
+              ],
+              [
+                "Defrost",
+                "No defrost record role",
+                "Not established"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperatureNot selected by the cooling assessmentNot establishedPower availability1 accepted grid power recordNot establishedDoor-open durationDoor open for 1 minNot establishedLoading / batchNo loading record roleNot establishedDefrostNo defrost record roleNot established",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 16,
+            "y": 1927,
+            "w": 358,
+            "h": 208,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Record a comparable recoveryKeep load, door, ambient, defrost and cooling-energy records.2Inspect the backup sequenceOpen Backup →",
+            "h3": [
+              "Record a comparable recovery",
+              "Inspect the backup sequence"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2177,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Comparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.Inspect recovery basis →",
+          "cards": [
+            "Usual time back to 4°CUnknownNo matched earlier window",
+            "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment",
+            "DifferenceUnknownA comparison is not supported",
+            "Comparable?Not yetAmbient, loading and defrost records missing"
+          ],
+          "notice": [
+            "No selected cold assessment covers this window. The rows below are accepted records only, not an assessed conclusion.",
+            "These records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 2,
+          "utc": 8,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Usual time back to 4°CUnknownNo matched earlier window | ",
+            "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment | ",
+            "DifferenceUnknownA comparison is not supported | ",
+            "Comparable?Not yetAmbient, loading and defrost records missing | "
+          ],
+          "svg": 1,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Inspect recovery basis → -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "Open Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Usual time back to 4°CUnknownNo matched earlier window",
+            "h": 124
+          },
+          {
+            "t": "This time back to 4°CNot establishedNo ordered compressor-to-policy recovery ass",
+            "h": 124
+          },
+          {
+            "t": "DifferenceUnknownA comparison is not supported",
+            "h": 124
+          },
+          {
+            "t": "Comparable?Not yetAmbient, loading and defrost records missing",
+            "h": 124
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "cold-depth-graphic__scroll",
+            "sw": 480,
+            "cw": 318,
+            "panel": "Recovery curves"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "panels": [
+          {
+            "title": "Recovery curves",
+            "x": 15,
+            "y": 979,
+            "w": 360,
+            "h": 235,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Recovery curvesExample curve shapes; selected event-to-policy recovery107.552.50°C0 min102030405060Matched baselineCurrent recovery",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Context normalization",
+            "x": 15,
+            "y": 1232,
+            "w": 360,
+            "h": 398,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Factor",
+              "Evidence",
+              "Match"
+            ],
+            "chips": [
+              "Matched",
+              "Matched",
+              "Limited",
+              "Unknown",
+              "Not excluded"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Ambient temperature",
+                "29–32°C",
+                "Matched"
+              ],
+              [
+                "Power availability",
+                "Continuous during recovery",
+                "Matched"
+              ],
+              [
+                "Door-open duration",
+                "Limited record",
+                "Limited"
+              ],
+              [
+                "Loading / batch",
+                "Not established",
+                "Unknown"
+              ],
+              [
+                "Defrost",
+                "No event observed",
+                "Not excluded"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Context normalizationFactorEvidenceMatchAmbient temperature29–32°CMatchedPower availabilityContinuous during recoveryMatchedDoor-open durationLimited recordLimitedLoading / batchNot establishedUnknownDefrostNo event observedNot excluded",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next best evidence",
+            "x": 15,
+            "y": 1762,
+            "w": 360,
+            "h": 268,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Next best evidence1Repeat a comparable recovery testRecord load, door opening, ambient conditions, defrost and cooling energy.Plan a witnessed test →2Inspect the excursion chainCheck whether lost power, rather than refrigeration condition, explains the event.Open Backup →",
+            "h3": [
+              "Repeat a comparable recovery test",
+              "Inspect the excursion chain"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2124,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Temperature -> #/temperature",
+          "Cooling -> #/cooling",
+          "Backup -> #/coldbackup",
+          "Plan a witnessed test → -> #/workverification",
+          "Open Backup → -> #/coldbackup"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance*",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Temperature",
+              "Cooling*",
+              "Backup"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 512,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 3
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-health",
+      "case": "unknown",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cold-health",
+      "app_image": "cold-health-unknown-1440-app.png",
+      "mock_image": "cold-health-unknown-1440-mock.png",
+      "app": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 248,
+            "y": 437,
+            "w": 1160,
+            "h": 251,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 3,
+            "rowText": [
+              [
+                "Backup generator 3301b0d6-773d-4c69-a028-d69c6b5ec2d2generator-1Full ID3301b0d6-773d-4c69-a028-d69c6b5ec2d2",
+                "Automatic start failed",
+                "Witness an automatic-start test"
+              ],
+              [
+                "Refrigeration compressor 565f20c6-2fd2-4c64-835e-8135c2e30e3ccompressor-1Full ID565f20c6-2fd2-4c64-835e-8135c2e30e3c",
+                "Condition unknown",
+                "Record matched loading, door and ambient context"
+              ],
+              [
+                "Chamber temperature probe 0b132634-ad2d-496b-b4cf-7bedec5122b3probe-1Full ID0b132634-ad2d-496b-b4cf-7bedec5122b3",
+                "Single-point observation",
+                "Add calibrated spatial coverage"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceBackup generator 3301b0d6-773d-4c69-a028-d69c6b5ec2d2generator-1Full ID3301b0d6-773d-4c69-a028-d69c6b5ec2d2Automatic start failedWitness an automatic-start testRefrigeration compressor 565f20c6-2fd2-4c64-835e-8135c2e30e3ccompressor-1Full ID565f20c6-2fd2-4c64-835e-8135c2e30e3cCondition unknownRecord matched loading, door and ambient contextChamber temperature probe 0b132634-ad2d-496b-b4cf-7bedec5122b3probe-1Full ID0b132634-ad2d-496b-b4cf-7bedec5122b3Single-point observationAdd calibrated spatial coverage",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView detail →",
+            "Cooling plantUnknownComparable recovery and condition evidence absentView detail →",
+            "Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView detail →"
+          ],
+          "notice": [
+            "No selected cold assessment covers this window. The rows below are accepted records only, not an assessed conclusion.",
+            "These records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 3,
+          "utc": 2,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView det | View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+            "Cooling plantUnknownComparable recovery and condition evidence absentView detail → | View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+            "Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView det | View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Backup generatorNeeds attentionFailed automatic start observed; part not diagnos",
+            "h": 140
+          },
+          {
+            "t": "Cooling plantUnknownComparable recovery and condition evidence absentView detail",
+            "h": 140
+          },
+          {
+            "t": "Temperature sensingLimitedOne accepted probe does not establish room-wide covera",
+            "h": 140
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 234,
+            "y": 460,
+            "w": 1161,
+            "h": 198,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "GEN-CR-01",
+                "Failed response; root cause unconfirmed",
+                "Witnessed automatic-start test"
+              ],
+              [
+                "CMP-003",
+                "Recovery difference; cause undetermined",
+                "Matched loading / ambient conditions"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceGEN-CR-01Failed response; root cause unconfirmedWitnessed automatic-start testCMP-003Recovery difference; cause undeterminedMatched loading / ambient conditions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-health",
+      "case": "unknown",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cold-health",
+      "app_image": "cold-health-unknown-390-app.png",
+      "mock_image": "cold-health-unknown-390-mock.png",
+      "app": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 16,
+            "y": 799,
+            "w": 358,
+            "h": 295,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 3,
+            "rowText": [
+              [
+                "Backup generator 3301b0d6-773d-4c69-a028-d69c6b5ec2d2generator-1Full ID3301b0d6-773d-4c69-a028-d69c6b5ec2d2",
+                "Automatic start failed",
+                "Witness an automatic-start test"
+              ],
+              [
+                "Refrigeration compressor 565f20c6-2fd2-4c64-835e-8135c2e30e3ccompressor-1Full ID565f20c6-2fd2-4c64-835e-8135c2e30e3c",
+                "Condition unknown",
+                "Record matched loading, door and ambient context"
+              ],
+              [
+                "Chamber temperature probe 0b132634-ad2d-496b-b4cf-7bedec5122b3probe-1Full ID0b132634-ad2d-496b-b4cf-7bedec5122b3",
+                "Single-point observation",
+                "Add calibrated spatial coverage"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceBackup generator 3301b0d6-773d-4c69-a028-d69c6b5ec2d2generator-1Full ID3301b0d6-773d-4c69-a028-d69c6b5ec2d2Automatic start failedWitness an automatic-start testRefrigeration compressor 565f20c6-2fd2-4c64-835e-8135c2e30e3ccompressor-1Full ID565f20c6-2fd2-4c64-835e-8135c2e30e3cCondition unknownRecord matched loading, door and ambient contextChamber temperature probe 0b132634-ad2d-496b-b4cf-7bedec5122b3probe-1Full ID0b132634-ad2d-496b-b4cf-7bedec5122b3Single-point observationAdd calibrated spatial coverage",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1234,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [
+            "Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView detail →",
+            "Cooling plantUnknownComparable recovery and condition evidence absentView detail →",
+            "Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView detail →"
+          ],
+          "notice": [
+            "No selected cold assessment covers this window. The rows below are accepted records only, not an assessed conclusion.",
+            "These records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "",
+          "details": 3,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [
+            "Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView det | View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+            "Cooling plantUnknownComparable recovery and condition evidence absentView detail → | View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+            "Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView det | View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+          ],
+          "svg": 0,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z",
+          "View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00.000000Z&to=2026-10-25T17%3A05%3A00.000000Z&known_at=2026-10-26T10%3A20%3A33.080657Z"
+        ],
+        "cardsDom": [
+          {
+            "t": "Backup generatorNeeds attentionFailed automatic start observed; part not diagnos",
+            "h": 152
+          },
+          {
+            "t": "Cooling plantUnknownComparable recovery and condition evidence absentView detail",
+            "h": 152
+          },
+          {
+            "t": "Temperature sensingLimitedOne accepted probe does not establish room-wide covera",
+            "h": 152
+          }
+        ],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Condition and evidence"
+        ],
+        "panels": [
+          {
+            "title": "Condition and evidence",
+            "x": 15,
+            "y": 882,
+            "w": 360,
+            "h": 269,
+            "tables": 1,
+            "rows": 2,
+            "columns": [
+              "Asset",
+              "Supported assessment",
+              "Next evidence"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "GEN-CR-01",
+                "Failed response; root cause unconfirmed",
+                "Witnessed automatic-start test"
+              ],
+              [
+                "CMP-003",
+                "Recovery difference; cause undetermined",
+                "Matched loading / ambient conditions"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              []
+            ],
+            "panelText": "Condition and evidenceAssetSupported assessmentNext evidenceGEN-CR-01Failed response; root cause unconfirmedWitnessed automatic-start testCMP-003Recovery difference; cause undeterminedMatched loading / ambient conditions",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1244,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "View detail → -> #/coldbackup",
+          "View detail → -> #/cooling",
+          "View detail → -> #/cold-evidence"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {},
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-scenarios",
+      "case": "unknown",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cold-scenarios",
+      "app_image": "cold-scenarios-unknown-1440-app.png",
+      "mock_image": "cold-scenarios-unknown-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 305,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No selected cold assessment covers this window yet.",
+            "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Overview -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosPlaceholder · to be designed with the ownerNo scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Overview -> #/cold-financials",
+          "Assumptions -> #/cold-assumptions",
+          "Scenarios -> #/cold-scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-scenarios",
+      "case": "unknown",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z",
+      "mock_hash": "#/cold-scenarios",
+      "app_image": "cold-scenarios-unknown-390-app.png",
+      "mock_image": "cold-scenarios-unknown-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 16,
+            "y": 505,
+            "w": 358,
+            "h": 345,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 988,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [
+            "No selected cold assessment covers this window yet.",
+            "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Overview -> /sites/COLD-LAB-001/financials?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z",
+          "Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16%3A00%3A00Z&to=2026-10-25T17%3A05%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Financial scenarios"
+        ],
+        "panels": [
+          {
+            "title": "Financial scenarios",
+            "x": 15,
+            "y": 580,
+            "w": 360,
+            "h": 355,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Financial scenariosPlaceholder · to be designed with the ownerNo scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+            "h3": [
+              "No scenario defined yet"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1125,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Overview -> #/cold-financials",
+          "Assumptions -> #/cold-assumptions",
+          "Scenarios -> #/cold-scenarios"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials*",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Overview",
+              "Assumptions",
+              "Scenarios*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-work",
+      "case": "unknown",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-unknown-1440-app.png",
+      "mock_image": "cold-work-unknown-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 433,
+            "w": 1160,
+            "h": 184,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "ACT-000001 · Witness automatic-start test",
+                "Finding 0d0500ffFinding versionc75d51f7-37d9-426d-b9e8-80f3ff79acd5",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/e2872916-d9e3-4234-a9bf-a142e446529d/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Witness automatic-start testFinding 0d0500ffFinding versionc75d51f7-37d9-426d-b9e8-80f3ff79acd5Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 actionCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "No selected source for linked evidence. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/e2872916-d9e3-4234-a9bf-a142e446529d/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work",
+      "case": "unknown",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5184/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-unknown-390-app.png",
+      "mock_image": "cold-work-unknown-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 742,
+            "w": 358,
+            "h": 199,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [
+              [
+                "ACT-000001 · Witness automatic-start test",
+                "Finding 0d0500ffFinding versionc75d51f7-37d9-426d-b9e8-80f3ff79acd5",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/e2872916-d9e3-4234-a9bf-a142e446529d/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Witness automatic-start testFinding 0d0500ffFinding versionc75d51f7-37d9-426d-b9e8-80f3ff79acd5Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1061,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 actionCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "No selected source for linked evidence. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T10%3A20%3A34.947644Z",
+          "ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/e2872916-d9e3-4234-a9bf-a142e446529d/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll data-table__scroll--sticky",
+            "sw": 817,
+            "cw": 318,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 444,
+            "cw": 320,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

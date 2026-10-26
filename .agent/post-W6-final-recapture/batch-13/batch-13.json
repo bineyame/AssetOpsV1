@@ -1,0 +1,1900 @@
+{
+ "batch": "13",
+ "name": "W4 decisions/cases",
+ "main_sha": "89a11477",
+ "pair_count": 54,
+ "frozen_pair_count": 54,
+ "counts": {
+  "PASS": 23,
+  "FIXED": 31
+ },
+ "pairs": [
+  {
+   "screen": "scenarios",
+   "case": "populated",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-07",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial scenarios] height 328->381"
+   ],
+   "app_image": "late/scenarios-populated-1440-app.png",
+   "mock_image": "late/scenarios-populated-1440-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "populated",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Financial scenarios 1.33x mock at 390 (488 px), inside ruled 1200/1650 caps (W4 caps Q18 item 4); frozen inner vertical cap/hidden second row gone; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-07",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial scenarios",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial scenarios] height 372->473",
+    "pageH 900->1186",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]"
+   ],
+   "app_image": "late/scenarios-populated-390-app.png",
+   "mock_image": "late/scenarios-populated-390-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "empty-window",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/scenarios-empty-window-1440-app.png",
+   "mock_image": "late/scenarios-empty-window-1440-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "empty-window",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios?from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 178->155",
+    "pageH 900->1038",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 131->108"
+   ],
+   "app_image": "late/scenarios-empty-window-390-app.png",
+   "mock_image": "late/scenarios-empty-window-390-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-09",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/scenarios-refused-reversed-1440-app.png",
+   "mock_image": "late/scenarios-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/financials/scenarios?from=2026-10-21T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-09",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 261->155",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 214->108"
+   ],
+   "app_image": "late/scenarios-refused-reversed-390-app.png",
+   "mock_image": "late/scenarios-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "kobo-no-scenarios",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/KOBO-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/scenarios-kobo-no-scenarios-1440-app.png",
+   "mock_image": "late/scenarios-kobo-no-scenarios-1440-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "kobo-no-scenarios",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/KOBO-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 182->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 162->108"
+   ],
+   "app_image": "late/scenarios-kobo-no-scenarios-390-app.png",
+   "mock_image": "late/scenarios-kobo-no-scenarios-390-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409-late",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]"
+   ],
+   "app_image": "late/alternatives-db-time-409-late-1440-app.png",
+   "mock_image": "late/alternatives-db-time-409-late-1440-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409-late",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 272->128",
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]",
+    "mainTop 230->108"
+   ],
+   "app_image": "late/alternatives-db-time-409-late-390-app.png",
+   "mock_image": "late/alternatives-db-time-409-late-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "late-settled-current",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-15",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-late-settled-current-1440-app.png",
+   "mock_image": "late/opportunity-finding-late-settled-current-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "late-settled-current",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-15",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-late-settled-current-390-app.png",
+   "mock_image": "late/opportunity-finding-late-settled-current-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "stale-k-before-late",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A36%3A32.443102Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-stale-k-before-late-1440-app.png",
+   "mock_image": "late/opportunity-finding-stale-k-before-late-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "stale-k-before-late",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A36%3A32.443102Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-stale-k-before-late-390-app.png",
+   "mock_image": "late/opportunity-finding-stale-k-before-late-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "refused-bad-known-at",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=not-a-time",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-03",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-refused-bad-known-at-1440-app.png",
+   "mock_image": "late/opportunity-finding-refused-bad-known-at-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "refused-bad-known-at",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=not-a-time",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-03",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 373->170",
+    "mainTop 311->108"
+   ],
+   "app_image": "late/opportunity-finding-refused-bad-known-at-390-app.png",
+   "mock_image": "late/opportunity-finding-refused-bad-known-at-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "late-stocked",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; 1440 panel 479 px = 1.52x mock, inside ruled 500 px cap",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-17",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] details 6->12",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+    "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-context', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour t->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour tri"
+   ],
+   "app_image": "late/sitework-incidents-late-stocked-1440-app.png",
+   "mock_image": "late/sitework-incidents-late-stocked-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "late-stocked",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; 1440 panel 479 px = 1.52x mock, inside ruled 500 px cap",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-17",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] details 6->12",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+    "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]"
+   ],
+   "app_image": "late/sitework-incidents-late-stocked-390-app.png",
+   "mock_image": "late/sitework-incidents-late-stocked-390-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "late-stocked",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']"
+   ],
+   "app_image": "late/sitework-maintenance-late-stocked-1440-app.png",
+   "mock_image": "late/sitework-maintenance-late-stocked-1440-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "late-stocked",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}]"
+   ],
+   "app_image": "late/sitework-maintenance-late-stocked-390-app.png",
+   "mock_image": "late/sitework-maintenance-late-stocked-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "missing-day-limited",
+   "width": "1440",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/7bb15b94-d924-4ff2-b1b7-d36df3fd1a81",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-15",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-missing-day-limited-1440-app.png",
+   "mock_image": "late/opportunity-finding-missing-day-limited-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "missing-day-limited",
+   "width": "390",
+   "part": "late",
+   "route": "/sites/MG-W402-001/opportunities/7bb15b94-d924-4ff2-b1b7-d36df3fd1a81",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-15",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "late/opportunity-finding-missing-day-limited-390-app.png",
+   "mock_image": "late/opportunity-finding-missing-day-limited-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "one-incident",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; Site tab row wraps (no hscroll) at 390",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 235->291",
+    "[Incidents at this site] details 2->4",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open']",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-context', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour t->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour tri"
+   ],
+   "app_image": "one/sitework-incidents-one-incident-1440-app.png",
+   "mock_image": "one/sitework-incidents-one-incident-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "one-incident",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; Site tab row wraps (no hscroll) at 390",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 282->354",
+    "[Incidents at this site] details 2->4",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open']",
+    "h1.top 146->127",
+    "pageH 900->997",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]",
+    "mainTop 127->108"
+   ],
+   "app_image": "one/sitework-incidents-one-incident-390-app.png",
+   "mock_image": "one/sitework-incidents-one-incident-390-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "one-request",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified']"
+   ],
+   "app_image": "one/sitework-maintenance-one-request-1440-app.png",
+   "mock_image": "one/sitework-maintenance-one-request-1440-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "one-request",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified']",
+    "h1.top 157->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}]",
+    "mainTop 137->108"
+   ],
+   "app_image": "one/sitework-maintenance-one-request-390-app.png",
+   "mock_image": "one/sitework-maintenance-one-request-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "empty-kobo",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/KOBO-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']"
+   ],
+   "app_image": "one/sitework-incidents-empty-kobo-1440-app.png",
+   "mock_image": "one/sitework-incidents-empty-kobo-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "empty-kobo",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/KOBO-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "one/sitework-incidents-empty-kobo-390-app.png",
+   "mock_image": "one/sitework-incidents-empty-kobo-390-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "empty-kobo",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/KOBO-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance']->['Raised from (EAT) to (EAT, included) Show maintenance']"
+   ],
+   "app_image": "one/sitework-maintenance-empty-kobo-1440-app.png",
+   "mock_image": "one/sitework-maintenance-empty-kobo-1440-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "empty-kobo",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/KOBO-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance']->['Raised from (EAT) to (EAT, included) Show maintenance']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "one/sitework-maintenance-empty-kobo-390-app.png",
+   "mock_image": "one/sitework-maintenance-empty-kobo-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "empty-past-window",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']"
+   ],
+   "app_image": "one/sitework-incidents-empty-past-window-1440-app.png",
+   "mock_image": "one/sitework-incidents-empty-past-window-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "empty-past-window",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "one/sitework-incidents-empty-past-window-390-app.png",
+   "mock_image": "one/sitework-incidents-empty-past-window-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]"
+   ],
+   "app_image": "one/sitework-incidents-refused-reversed-1440-app.png",
+   "mock_image": "one/sitework-incidents-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "h1.top 181->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 162->108"
+   ],
+   "app_image": "one/sitework-incidents-refused-reversed-390-app.png",
+   "mock_image": "one/sitework-incidents-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "refused-reversed",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance']->['Raised from (EAT) to (EAT, included) Show maintenance']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]"
+   ],
+   "app_image": "one/sitework-maintenance-refused-reversed-1440-app.png",
+   "mock_image": "one/sitework-maintenance-refused-reversed-1440-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "refused-reversed",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-17T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance']->['Raised from (EAT) to (EAT, included) Show maintenance']",
+    "h1.top 181->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)*']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents', 'Maintenance*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 162->108"
+   ],
+   "app_image": "one/sitework-maintenance-refused-reversed-390-app.png",
+   "mock_image": "one/sitework-maintenance-refused-reversed-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "refused-long",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]"
+   ],
+   "app_image": "one/sitework-incidents-refused-long-1440-app.png",
+   "mock_image": "one/sitework-incidents-refused-long-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "refused-long",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-04",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents']",
+    "h1.top 171->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents (\u00e2\u20ac\u201d)*', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)', 'Incidents*', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 151->108"
+   ],
+   "app_image": "one/sitework-incidents-refused-long-390-app.png",
+   "mock_image": "one/sitework-incidents-refused-long-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "no-window",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; now lists the default seven-day window (R338) instead of the frozen empty state; the 390 table scroller (720 in 324) is the standing labelled scroller with visible scrollbar and 'Scroll the table' hint, same as one-incident",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 337->291",
+    "[Incidents at this site] rows 0->1",
+    "[Incidents at this site] links 0->1",
+    "[Incidents at this site] details 1->4",
+    "[Incidents at this site] tables 0->1",
+    "[Incidents at this site] columns []->['Case', 'Window', 'What happened', 'Linked findings', 'State']",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)*', 'Maintenance (1)']]",
+    "clipped []->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour tri"
+   ],
+   "app_image": "one/sitework-incidents-no-window-1440-app.png",
+   "mock_image": "one/sitework-incidents-no-window-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "no-window",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/work/incidents",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; now lists the default seven-day window (R338) instead of the frozen empty state; the 390 table scroller (720 in 324) is the standing labelled scroller with visible scrollbar and 'Scroll the table' hint, same as one-incident",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] height 403->354",
+    "[Incidents at this site] rows 0->1",
+    "[Incidents at this site] links 0->1",
+    "[Incidents at this site] details 1->4",
+    "[Incidents at this site] tables 0->1",
+    "[Incidents at this site] columns []->['Case', 'Window', 'What happened', 'Linked findings', 'State']",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open']",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 1, '12px': 1}->{'11px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (0)*', 'Maintenance (0)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (0)', 'Incidents (1)*', 'Maintenance (1)']]",
+    "clipped []->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]"
+   ],
+   "app_image": "one/sitework-incidents-no-window-390-app.png",
+   "mock_image": "one/sitework-incidents-no-window-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "supported-current",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "one/opportunity-finding-supported-current-1440-app.png",
+   "mock_image": "one/opportunity-finding-supported-current-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "supported-current",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "one/opportunity-finding-supported-current-390-app.png",
+   "mock_image": "one/opportunity-finding-supported-current-390-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "supported-historical",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A22%3A12.743014Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "one/opportunity-finding-supported-historical-1440-app.png",
+   "mock_image": "one/opportunity-finding-supported-historical-1440-mock.png"
+  },
+  {
+   "screen": "opportunity-finding",
+   "case": "supported-historical",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/opportunities/850a3228-33f7-4ab7-9dab-ac88cc3b9a9e?known_at=2026-10-24T17%3A22%3A12.743014Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-12",
+    "B13-13",
+    "B13-14",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "mock_titles": [
+    "Bounded opportunity",
+    "Next decision",
+    "Consequence basis"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "one/opportunity-finding-supported-historical-390-app.png",
+   "mock_image": "one/opportunity-finding-supported-historical-390-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "positive-default",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/MG-W402-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-07",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial scenarios] height 328->381"
+   ],
+   "app_image": "one/scenarios-positive-default-1440-app.png",
+   "mock_image": "one/scenarios-positive-default-1440-mock.png"
+  },
+  {
+   "screen": "scenarios",
+   "case": "positive-default",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/MG-W402-001/financials/scenarios",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Financial scenarios 1.33x mock at 390 (488 px), inside ruled 1200/1650 caps (W4 caps Q18 item 4); frozen inner vertical cap/hidden second row gone; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-07",
+    "B13-08",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Financial scenarios"
+   ],
+   "mock_titles": [
+    "Financial scenarios"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial scenarios",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial scenarios] height 372->473",
+    "pageH 900->1186",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 318, 'panel': 'Financial scenarios'}]"
+   ],
+   "app_image": "one/scenarios-positive-default-390-app.png",
+   "mock_image": "one/scenarios-positive-default-390-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]"
+   ],
+   "app_image": "one/alternatives-db-time-409-1440-app.png",
+   "mock_image": "one/alternatives-db-time-409-1440-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "db-time-409",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives?revision_id=d4df8338-62ac-4c97-8b5d-08650246816c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 272->128",
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]",
+    "mainTop 230->108"
+   ],
+   "app_image": "one/alternatives-db-time-409-390-app.png",
+   "mock_image": "one/alternatives-db-time-409-390-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "no-revision",
+   "width": "1440",
+   "part": "one",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]"
+   ],
+   "app_image": "one/alternatives-no-revision-1440-app.png",
+   "mock_image": "one/alternatives-no-revision-1440-mock.png"
+  },
+  {
+   "screen": "alternatives",
+   "case": "no-revision",
+   "width": "390",
+   "part": "one",
+   "route": "/sites/KOBO-001/findings/b62e0ef8-8530-4963-8443-eb5941c56f30/alternatives",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-10",
+    "B13-11",
+    "B13-12",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Alternatives to investigate"
+   ],
+   "mock_titles": [
+    "Alternatives to investigate"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 272->128",
+    "tabRows [['Overview', 'Analysis \u00c2\u00b7 Not available yet(off)', 'Evidence', 'Alternatives*', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives*', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]",
+    "mainTop 230->108"
+   ],
+   "app_image": "one/alternatives-no-revision-390-app.png",
+   "mock_image": "one/alternatives-no-revision-390-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "stocked",
+   "width": "1440",
+   "part": "stocked",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; 1440 panel 479 px = 1.52x mock, inside ruled 500 px closed cap (W4 caps Q18 item 5) with labelled inner scroll region",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-17",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Incidents at this site",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] details 6->12",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+    "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-context', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour t->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Decision context: OPP-000001 \u00c2\u00b7 SCN-000002 \u00c2\u00b7 Grain mill one-hour tri"
+   ],
+   "app_image": "stocked/sitework-incidents-stocked-1440-app.png",
+   "mock_image": "stocked/sitework-incidents-stocked-1440-mock.png"
+  },
+  {
+   "screen": "sitework-incidents",
+   "case": "stocked",
+   "width": "390",
+   "part": "stocked",
+   "route": "/sites/MG-W402-001/work/incidents?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "clamped Decision-context/narrative lines now carry a 'Read full text' disclosure (frozen B13-06 clamp without recovery; the measured clipped entry is the same two-line clamp, class renamed work-cases-context -> work-cases-clamp); strip reads singular '1 incident'; windows in site-local EAT; 1440 panel 479 px = 1.52x mock, inside ruled 500 px closed cap (W4 caps Q18 item 5) with labelled inner scroll region",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-02",
+    "B13-05",
+    "B13-06",
+    "B13-16",
+    "B13-17",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Incidents at this site"
+   ],
+   "mock_titles": [
+    "Incidents at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Incidents at this site] details 6->12",
+    "[Incidents at this site] chips ['Occurred from to (included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']->['Occurred from (EAT) to (EAT, included) Show incidents', 'Open', 'Open', 'Open', 'Open', 'Open']",
+    "pSizes {'11px': 1}->{'11px': 1, '12px': 1}",
+    "clipped [{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca->[{'tag': 'SPAN', 'cls': 'work-cases-clamp', 'text': 'Operator logged a supply complaint during the mill trial window; ca",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}->[{'cls': 'data-table__scroll', 'sw': 720, 'cw': 324, 'panel': 'Incidents at this site'}]"
+   ],
+   "app_image": "stocked/sitework-incidents-stocked-390-app.png",
+   "mock_image": "stocked/sitework-incidents-stocked-390-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "stocked",
+   "width": "1440",
+   "part": "stocked",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']"
+   ],
+   "app_image": "stocked/sitework-maintenance-stocked-1440-app.png",
+   "mock_image": "stocked/sitework-maintenance-stocked-1440-mock.png"
+  },
+  {
+   "screen": "sitework-maintenance",
+   "case": "stocked",
+   "width": "390",
+   "part": "stocked",
+   "route": "/sites/MG-W402-001/work/maintenance?from=2026-10-17T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B13-X1",
+    "B13-01",
+    "B13-05",
+    "B13-16",
+    "B13-18",
+    "B13-19"
+   ],
+   "app_titles": [
+    "Maintenance at this site"
+   ],
+   "mock_titles": [
+    "Maintenance at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Maintenance at this site] chips ['Raised from to (included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']->['Raised from (EAT) to (EAT, included) Show maintenance', 'Open', 'Unverified', 'Open', 'Unverified', 'Open']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site->[{'cls': 'data-table__scroll', 'sw': 760, 'cw': 324, 'panel': 'Maintenance at this site'}]"
+   ],
+   "app_image": "stocked/sitework-maintenance-stocked-390-app.png",
+   "mock_image": "stocked/sitework-maintenance-stocked-390-mock.png"
+  }
+ ]
+}
