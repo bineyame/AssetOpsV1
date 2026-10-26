@@ -100,10 +100,14 @@
 }
 
 /* W2-F M10/N1: full stored identifiers wrap instead of clipping. */
-.ev-id {
+.ev-id,
+.v69-key-values dd code.ev-id {
   overflow-wrap: anywhere;
   word-break: break-all;
   white-space: normal;
+  /* post-W6 recapture fix F1: beats the key-value code scroller (`.v69-key-values dd code`, nowrap + overflow-x:auto). */
+  overflow-x: visible;
+  display: inline;
 }
 
 /* post-W6 W5-EV R244: the depth-page refusal's correction link and Reload (24 px minimum targets). */

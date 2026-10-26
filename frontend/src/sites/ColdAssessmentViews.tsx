@@ -174,7 +174,7 @@ export function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" 
 }
 
 /** The refusal's technical disclosure: code, server message and the exact requested window. */
-function RefusalReferences({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
+export function RefusalReferences({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
   return (
     <ExactReferences
       name="cold-refusal-references"

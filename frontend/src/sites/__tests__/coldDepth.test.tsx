@@ -254,10 +254,10 @@ describe("cooling_dto_and_labels (page)", () => {
     renderCooling(COOLING_PATH, never, createColdDepthClient());
     await settledCooling();
     const refusal = main().querySelector('[data-page-refusal="cold-depth"]') as HTMLElement;
-    expect(refusal.querySelector(".page-refusal__title")?.textContent).toBe("Cold depth unavailable");
     expect(refusal.querySelector("[data-cold-depth-error]")?.textContent).toBe("The cold depth read answered in an unexpected shape.");
     expect(main().querySelector("[data-cooling-card]")).toBeNull();
-    expect(main().querySelector("section.panel")).toBeNull();
+    // Recapture fix F2: the frame keeps its three panels, the first with the sentence, the others `Not assessed`.
+    expect(main().querySelectorAll("section.panel")).toHaveLength(3);
   });
 
   it("links Inspect recovery basis and Open Backup through coldUiHref with the exact query; null renders text", async () => {
@@ -367,16 +367,22 @@ describe("cooling_state_copy", () => {
   it("a server refusal shows the heading, the exact code and message, and Retry re-reads the same window", async () => {
     const answer = () =>
       Promise.resolve<ColdRead<ColdCoolingRead>>({ status: "refused", httpStatus: 403, code: "COLD_SOURCE_DISCLOSURE_FORBIDDEN", message: "Source disclosure is not permitted." });
-    const { client } = renderCooling(COOLING_PATH, answer);
+    renderCooling(COOLING_PATH, answer);
     await settledCooling();
     const refusal = main().querySelector('[data-page-refusal="cold-depth"]') as HTMLElement;
-    expect(refusal.querySelector(".page-refusal__title")?.textContent).toBe("Cold depth unavailable");
-    expect(refusal.querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_SOURCE_DISCLOSURE_FORBIDDEN Source disclosure is not permitted.");
+    expect(refusal.querySelector("[data-cold-depth-error]")?.textContent).toBe("This site's source records may not be shown to you, so no assessment is shown.");
+    expect(refusal.textContent).toContain("COLD_SOURCE_DISCLOSURE_FORBIDDEN");
     expect(main().querySelector("[data-cold-date-bar-requested]")).not.toBeNull();
-    expect(refusal.querySelector("button[data-cold-retry]")?.textContent).toBe("Retry");
-    fireEvent.click(refusal.querySelector("button[data-cold-retry]") as HTMLElement);
-    await waitFor(() => expect(client.getCooling).toHaveBeenCalledTimes(2));
-    const calls = vi.mocked(client.getCooling).mock.calls;
+    // A 403 cannot succeed on retry: no Reload.
+    expect(refusal.querySelector("button[data-cold-retry]")).toBeNull();
+    cleanup();
+    const down = renderCooling(COOLING_PATH, () => Promise.resolve<ColdRead<ColdCoolingRead>>({ status: "refused", httpStatus: 503, code: "COLD_READ_UNAVAILABLE", message: "store down" }));
+    await settledCooling();
+    const reload = main().querySelector("button[data-cold-retry]") as HTMLElement;
+    expect(reload.textContent).toBe("Reload");
+    fireEvent.click(reload);
+    await waitFor(() => expect(down.client.getCooling).toHaveBeenCalledTimes(2));
+    const calls = vi.mocked(down.client.getCooling).mock.calls;
     expect(calls[1]).toEqual(calls[0]);
     expect(calls[0]).toEqual([SITE_CODE, { from: "2026-10-06T19:00:00Z", to: "2026-10-06T20:05:00Z", known_at: null }]);
   });
@@ -387,7 +393,14 @@ describe("cooling_state_copy", () => {
     );
     await settledCooling();
     expect(main().querySelector("[data-cold-date-bar]")).toBeNull();
-    expect(main().querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_WINDOW_INVALID from must be before to");
+    // F2 (R244, B14-01): a plain sentence, no raw code in the main text, no dead Retry, a correcting link, the frame kept.
+    expect(main().querySelector("[data-cold-depth-error]")?.textContent).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(main().querySelector("button[data-cold-retry]")).toBeNull();
+    expect(main().querySelectorAll("section.panel")).toHaveLength(3);
+    expect(main().querySelector("[data-cold-refused-strip]")).not.toBeNull();
+    const fix = main().querySelector("a[data-cold-depth-correction]") as HTMLAnchorElement;
+    expect(fix.textContent).toBe("Read without a selected window");
+    expect(fix.getAttribute("href")).not.toContain("from=");
     cleanup();
     renderCooling(COOLING_PATH, () => Promise.resolve<ColdRead<ColdCoolingRead>>({ status: "unavailable", message: null }));
     await settledCooling();

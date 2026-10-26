@@ -1,0 +1,198 @@
+[
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-wr-000004-1440-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record · activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-wr-000004-390-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record · activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection 2 recorded; recurrence and availability remain unverifi",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "1440",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-all-open-wr-000004-1440-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-all-open-wr-000004-1440-mock.png",
+  "app_url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Maintenance record · activity",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2}->{'11px': 1, '12px': 1}",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "wr-record",
+  "case": "ev-worstcase-160-all-open-wr-000004",
+  "width": "390",
+  "new_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "mock_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "wr-record-ev-worstcase-160-all-open-wr-000004-390-app.png",
+  "mock_image": "wr-record-ev-worstcase-160-all-open-wr-000004-390-mock.png",
+  "app_url": "http://localhost:5191/maintenance/requests/bf818489-24e4-46de-92ff-042dcb684e89/record?site_id=EV-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Maintenance record · activity] details 1->2",
+   "pSizes {'11px': 2, '10px': 1}->{'11px': 1, '10px': 1, '12px': 1}",
+   "clipped [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re->[{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence and availability re",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 411, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · act->[{'cls': 'data-table__scroll', 'sw': 960, 'cw': 318, 'panel': 'Maintenance record · activity'}]",
+   "consoleErrors ['Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <div> p \\n    at div->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Maintenance record · activity"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "clipped text changed: [{'tag': 'DIV', 'cls': 'global-work-clamp', 'text': 'Outcome note: Inspection 2 recorded; recurrence"
+  ],
+  "review_panel_set": false,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [
+   {
+    "cls": "data-table__scroll",
+    "sw": 960,
+    "cw": 318,
+    "panel": "Maintenance record · activity"
+   }
+  ],
+  "inner_all_clipped": [
+   {
+    "tag": "DIV",
+    "cls": "global-work-clamp",
+    "text": "Outcome note: Inspection 2 recorded; recurrence and availability remain unverifi",
+    "sw": 398,
+    "cw": 398,
+    "sh": 70,
+    "ch": 53
+   }
+  ]
+ }
+]

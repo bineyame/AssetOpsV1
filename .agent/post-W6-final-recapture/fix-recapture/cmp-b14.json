@@ -1,0 +1,232 @@
+[
+ {
+  "screen": "cooling",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "mock_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cooling-refused-reversed-1440-app.png",
+  "mock_image": "cooling-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Recovery curves', 'Context normalization', 'Next best evidence']",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 3}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cooling",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "mock_titles": [
+   "Recovery curves",
+   "Context normalization",
+   "Next best evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cooling-refused-reversed-390-app.png",
+  "mock_image": "cooling-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Recovery curves', 'Context normalization', 'Next best evidence']",
+   "h1.top 324->127",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 3}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 304->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-health",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-health-refused-reversed-1440-app.png",
+  "mock_image": "cold-health-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Condition and evidence']",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-health",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Condition and evidence"
+  ],
+  "mock_titles": [
+   "Condition and evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-health-refused-reversed-390-app.png",
+  "mock_image": "cold-health-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Condition and evidence']",
+   "h1.top 353->127",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 334->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-scenarios",
+  "case": "refused-reversed",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-scenarios-refused-reversed-1440-app.png",
+  "mock_image": "cold-scenarios-refused-reversed-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Financial scenarios']",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ },
+ {
+  "screen": "cold-scenarios",
+  "case": "refused-reversed",
+  "width": "390",
+  "new_app_titles": [
+   "Financial scenarios"
+  ],
+  "mock_titles": [
+   "Financial scenarios"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-scenarios-refused-reversed-390-app.png",
+  "mock_image": "cold-scenarios-refused-reversed-390-mock.png",
+  "app_url": "http://localhost:5184/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Financial scenarios']",
+   "h1.top 324->127",
+   "h2 presence False->True",
+   "pSizes {}->{'10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 304->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true,
+  "inner_new_hscroll": [],
+  "inner_new_clipped": [],
+  "inner_all_hscroll": [],
+  "inner_all_clipped": []
+ }
+]

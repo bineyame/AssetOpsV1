@@ -88,12 +88,12 @@ export function recordGroups(records: WorkCaseDetailRecord[]): RecordGroup[] {
 }
 
 /** Section 2: a three-line preview and the complete escaped value in a named disclosure. */
-function LongText({ text, hook }: { text: string; hook: string }) {
+function LongText({ text, hook, label = "Full activity text" }: { text: string; hook: string; label?: string }) {
   return (
     <>
       <Clamp data={{ "data-work-record-clamp": hook }}>{text}</Clamp>
       <details className="global-work-details" data-work-record-full={hook}>
-        <summary>Full activity text</summary>
+        <summary>{label}</summary>
         {text}
       </details>
     </>
@@ -119,7 +119,7 @@ function TechnicianNotes({ group }: { group: RecordGroup }) {
           `Outcome note: ${NO_OUTCOME_NOTE}`
         ) : (
           <>
-            <Clamp data={{ "data-work-record-clamp": "outcome" }}>{`Outcome note: ${head.outcome_note}`}</Clamp>
+            <LongText text={`Outcome note: ${head.outcome_note}`} hook="outcome" label="Full outcome text" />
             <span className="work-record-outcome__basis" data-work-record-outcome-basis>
               Unverified · Authored note
             </span>

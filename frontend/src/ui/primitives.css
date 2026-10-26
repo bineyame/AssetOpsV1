@@ -539,6 +539,12 @@ button:focus-visible {
   overflow-wrap: anywhere;
 }
 
+/* Recapture fix F4: a fact value that scrolls (page rules such as the EV Work case table) is keyboard reachable. */
+.fact-list__value[data-scroll-focus]:focus-visible {
+  outline: 2px solid var(--focus-ring, var(--accent));
+  outline-offset: 2px;
+}
+
 /* Table ------------------------------------------------------------------- */
 
 /*

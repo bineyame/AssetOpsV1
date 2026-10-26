@@ -1,0 +1,27 @@
+chrome pid 6968
+PASS  loaded http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-cold-worstcase-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-cold-worstcase-wr-000004 1440: mock rendered
+PASS  wr-record-cold-worstcase-wr-000004 1440: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-worstcase-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-worstcase-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-worstcase-wr-000004 390: mock rendered
+PASS  wr-record-cold-worstcase-wr-000004 390: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-worstcase-wr-000004 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 1440: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 1440: mock rendered
+PASS  wr-record-cold-worstcase-all-open-wr-000004 1440: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5189/maintenance/requests/b5894705-7b14-401e-bb68-0f84ae391752/record?site_id=COLD-LAB-001: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 390: app rendered
+PASS  loaded http://localhost:5189/mockups/v69/index.html#/wr-record: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 390: mock rendered
+PASS  wr-record-cold-worstcase-all-open-wr-000004 390: same panel count  {"app":["Maintenance record · activity"],"mock":["Maintenance record · activity"]}
+PASS  wr-record-cold-worstcase-all-open-wr-000004 390: no app page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in fix-recapture/part-b19-cold

@@ -343,7 +343,7 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R241 | B6-10 | temperature | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) |
 | R242 | B6-11 | temperature, coldbackup | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) |
 | R243 | B6-12 | temperature | D1 | `MOCK DEVIATION D1`: Chart legend 'Policy band' vs 'Upper policy limit'; axis labels carry 'UTC'; timeline 4 events vs 3; Excursion context adds a disclosure, the Power outage row has no 'Observed' chip, and 'Op | open |
-| R244 | B6-13 | temperature, coldbackup | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) (earlier note: EV instances closed by post-W6 W5-EV-Work: refusal matrix, window correction link, Reload) |
+| R244 | B6-13 | temperature, coldbackup | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) (earlier note: EV instances closed by post-W6 W5-EV-Work: refusal matrix, window correction link, Reload; REOPENED by the final recapture (B14-01: cold depth pages cooling, cold-health, cold-scenarios still showed the raw code and a dead Retry); the cold depth instance is closed by branch task/post-W6-recapture-fix: shared ColdDepthRefusal, plain sentence, window-correction link, Reload only where retry can help, frame and panels kept as Not assessed) |
 | R245 | B6-14 | temperature | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) |
 | R246 | B6-15 | coldbackup | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) |
 | R247 | B6-17 | coldbackup | D3 | Fix in W2-cold | closed in W2-cold (merge 4d51df61) |

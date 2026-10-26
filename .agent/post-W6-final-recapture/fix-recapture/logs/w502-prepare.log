@@ -1,0 +1,14 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-plan2\var\w502b_fixr\tree (code from 6a766a7e)
+=== 2. positive: database w502b_positive_fixr_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (34s)
+=== 3. worstcase: database w502b_worstcase_fixr_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (25s)
+=== 4. pending: database w502b_pending_fixr_test ===
+  built pending blocked: None {'pending': ('PENDING_RECOMPUTE', 1)}  (23s)
+=== 5. stale: database w502b_stale_fixr_test ===
+  built stale blocked: None {'stale': ('STALE_SOURCE', 1)}  (22s)
+=== 6. unknown: database w502b_unknown_fixr_test ===
+  built unknown blocked: None {'unknown': ('UNKNOWN', 1)}  (22s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-plan2\var\w502b_fixr\manifest.json
+done

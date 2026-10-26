@@ -984,6 +984,6 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
     const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
     const css = fs.readFileSync(`${cwd}/src/sites/w4-work-cases.css`, "utf8");
-    expect(css).toMatch(/@media \(min-width: 761px\) \{\s*\.work-cases \[data-work-table="incidents"\]\[data-work-mini\] \.data-table__scroll \{ max-height: 330px; overflow: auto; \}/);
+    expect(css).toMatch(/@media \(min-width: 761px\) \{\s*\.work-cases \[data-work-table="incidents"\]\[data-work-mini\] \.data-table__scroll \{ max-height: 320px; overflow: auto; \}/);
   });
 });

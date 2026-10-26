@@ -11,8 +11,9 @@ import { Link } from "react-router-dom";
 import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import type { ColdDepthClient, ColdHealthCondition, ColdHealthRead, ColdHealthRow } from "./ColdDepthClient";
-import { COLD_DEPTH_MALFORMED, COLD_DEPTH_REFUSAL_HEADING, COLD_DEPTH_UNREACHABLE, coldDepthStateNotice } from "./ColdCooling";
-import { type ColdSiteRoutes, RequestedWindowBar, SelectedWindowBar, coldUiHref } from "./coldSiteViews";
+import { ColdDepthRefusal } from "./ColdDepthRefusal";
+import { COLD_DEPTH_MALFORMED, COLD_DEPTH_UNREACHABLE, coldDepthStateNotice } from "./ColdCooling";
+import { type ColdSiteRoutes, SelectedWindowBar, coldUiHref } from "./coldSiteViews";
 
 export const HEALTH_LOADING = "Loading the site's equipment condition read.";
 export const HEALTH_EMPTY = "No condition observation is available for this window.";
@@ -47,27 +48,6 @@ function useHealthRead(client: ColdDepthClient, siteCode: string, window: ColdWi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return state !== null && state.key === key ? state.value : null;
-}
-
-function HealthRefusal({ read, onRetry }: { read: Exclude<ColdRead<ColdHealthRead>, { status: "loaded" }>; onRetry: () => void }) {
-  return (
-    <div className="page-refusal" role="status" data-page-refusal="cold-depth">
-      <p className="page-refusal__title">
-        <strong>{COLD_DEPTH_REFUSAL_HEADING}</strong>
-      </p>
-      {read.status === "refused" ? (
-        <p data-cold-depth-error>
-          <code data-vocabulary-exempt="source-reference">{read.code}</code>
-          {read.message === null ? null : <> {read.message}</>}
-        </p>
-      ) : (
-        <p data-cold-depth-error>{read.message === null ? COLD_DEPTH_UNREACHABLE : COLD_DEPTH_MALFORMED}</p>
-      )}
-      <button type="button" className="button" data-cold-retry onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
 }
 
 const assetName = (asset: ColdHealthRow["assets"][number]) => asset.display_name ?? asset.asset_code;
@@ -186,10 +166,14 @@ export function ColdHealthDepth({ siteCode, window, client, routes }: ColdHealth
   if (read === null) return <p className="prose">{HEALTH_LOADING}</p>;
   if (read.status !== "loaded") {
     return (
-      <>
-        <RequestedWindowBar window={window} refusal={{ sentence: COLD_DEPTH_REFUSAL_HEADING, retry: true, key: read.status === "refused" && read.httpStatus === 422 ? "invalid-window" : "unavailable" }} />
-        <HealthRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
-      </>
+      <ColdDepthRefusal
+        read={read}
+        window={window}
+        label="Equipment condition"
+        panels={[{ heading: "Condition and evidence", headingId: HEALTH_TABLE_HEADING_ID, className: "cold-health-condition" }]}
+        unavailable={{ unreachable: COLD_DEPTH_UNREACHABLE, malformed: COLD_DEPTH_MALFORMED }}
+        onRetry={() => setAttempt((n) => n + 1)}
+      />
     );
   }
   return <HealthBody read={read.value} routes={routes} />;

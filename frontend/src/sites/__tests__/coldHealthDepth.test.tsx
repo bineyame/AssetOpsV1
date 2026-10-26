@@ -399,13 +399,24 @@ describe("health_states_and_loading", () => {
       calls += 1;
       return { status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "from must be before to." };
     });
-    expect(container.querySelector(".page-refusal__title")?.textContent).toBe("Cold depth unavailable");
-    expect(container.querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_WINDOW_INVALID from must be before to.");
+    expect(container.querySelector("[data-cold-depth-error]")?.textContent).toBe("The selected window needs both a start and an end, with the start before the end.");
     expect(container.querySelector("[data-cold-date-bar]")).toBeNull();
     expect(container.querySelector("[data-health-card]")).toBeNull();
-    fireEvent.click(container.querySelector("[data-cold-retry]") as HTMLElement);
-    await waitFor(() => expect(calls).toBe(2));
-    expect(getHealth.mock.calls[1]).toEqual([SITE_CODE, WINDOW]);
+    // F2: a window refusal has no dead Retry; it offers the page without the window and keeps the panel.
+    expect(container.querySelector("[data-cold-retry]")).toBeNull();
+    expect(container.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(container.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(getHealth).toHaveBeenCalledTimes(1);
+    cleanup();
+    let again = 0;
+    const down = await renderHealth(() => {
+      again += 1;
+      return { status: "refused", httpStatus: 503, code: "COLD_READ_UNAVAILABLE", message: null };
+    });
+    fireEvent.click(down.container.querySelector("[data-cold-retry]") as HTMLElement);
+    await waitFor(() => expect(again).toBe(2));
+    expect(down.getHealth.mock.calls[1]).toEqual([SITE_CODE, WINDOW]);
+    expect(calls).toBe(1);
   });
 
   it("unreachable and malformed reads use their exact sentences; a 403 keeps the requested window bar", async () => {
@@ -416,7 +427,7 @@ describe("health_states_and_loading", () => {
     expect(malformed.container.querySelector("[data-cold-depth-error]")?.textContent).toBe("The cold depth read answered in an unexpected shape.");
     cleanup();
     const denied = await renderHealth(() => ({ status: "refused", httpStatus: 403, code: "COLD_SOURCE_DISCLOSURE_FORBIDDEN", message: null }));
-    expect(denied.container.querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_SOURCE_DISCLOSURE_FORBIDDEN");
+    expect(denied.container.querySelector("[data-cold-depth-error]")?.textContent).toBe("This site's source records may not be shown to you, so no assessment is shown.");
     expect(denied.container.querySelector("[data-cold-date-bar-requested]")).not.toBeNull();
   });
 
@@ -510,7 +521,7 @@ describe("condition_matrix: the composed cold Health page", () => {
       code: "COLD_WINDOW_INVALID",
       message: "from must be before to.",
     }));
-    expect(main.querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_WINDOW_INVALID from must be before to.");
+    expect(main.querySelector("[data-cold-depth-error]")?.textContent).toBe("The selected window needs both a start and an end, with the start before the end.");
     expect(main.querySelector("[data-health-card]")).toBeNull();
     expect(titles).not.toContain("Data sources · data quality, not equipment condition");
     expectNoSourcePanel(main, requests);

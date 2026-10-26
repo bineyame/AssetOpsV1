@@ -1,0 +1,38 @@
+[
+ {
+  "id": "cooling",
+  "case": "refused-reversed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "cooling",
+  "case": "refused-reversed",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "cold-health",
+  "case": "refused-reversed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "cold-health",
+  "case": "refused-reversed",
+  "width": 390,
+  "scrollers": []
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "refused-reversed",
+  "width": 1440,
+  "scrollers": []
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "refused-reversed",
+  "width": 390,
+  "scrollers": []
+ }
+]
