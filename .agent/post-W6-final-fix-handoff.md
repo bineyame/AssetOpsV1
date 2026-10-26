@@ -1,0 +1,9 @@
+# Handoff: post-W6 final fix, captures remaining (partial)
+
+Branch task/post-W6-final-fix (worktree `C:\Users\assef\Bineyame\AssetOpsV1-review10`), code SHA 6bc57581 plus docs commit. Everything except captures is done and verified (see `.agent/post-W6-final-fix-packet.md`).
+
+## Resume
+Capture the affected surfaces at 1440x1000 and 390x900 on the final SHA with the unmodified producers, one heavy job at a time, then add the counts to the packet (Captures section), commit with `git add -f .agent/...`, clean up PIDs/DBs/var folders, and do not merge.
+Tooling to reuse (do not modify producers): `.agent/post-W6-W4-recapture/tools/` (`run_b_full.sh` mini incl. Work/Scenarios/Evidence/Finding history, `run_c_cold.sh`, `run_c_ev.sh`, `capture.mjs`, README.txt notes on single-instance runs), `.agent/post-W6-R373-recapture/tools/` (`deny_app.py` for 403s), `.agent/post-W6-W5-cold-recapture/`. Copy site yamls first: `cp -n ../AssetOpsV1-plan2/var/sites/*.yaml var/sites/`. DB rules: only `*_test`, `<prefix>_audit*`, w301cap_test, w302j_test, w402r_test in assetopsv1-postgres-1. Python: `C:\Users\assef\Bineyame\AssetOpsV1\.venv\Scripts\python.exe`.
+Surfaces: mini Work Incidents/Maintenance bare address (expect seven Site-local days in the fields), cold and EV Action refusal states (403, 409, 503, unreached via deny_app), estate Findings plus Financials/Evidence/Actions/Portfolio at 390 (check inner scroll, no document overflow, first column no longer 152 px except Findings), cold Financials > Scenarios tab row with a window, EV tariff-withheld views, mini Scenarios/Finding history/Evidence where a producer reaches a missing zone (otherwise record the gap).
+Quiet machine is no longer required (the backend suite finished, exit 0) but still run one heavy job at a time with >= 2 GB free.
