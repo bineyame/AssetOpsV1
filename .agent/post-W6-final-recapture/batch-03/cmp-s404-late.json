@@ -1,0 +1,295 @@
+[
+ {
+  "screen": "finding",
+  "case": "late-stale",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-late-stale-1440-app.png",
+  "mock_image": "finding-late-stale-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/2cf9704f-aa87-4dbb-a2eb-0fdd3b24b7d4",
+  "ratios_over_1.3": [
+   [
+    "What limits this conclusion",
+    1.32
+   ],
+   [
+    "Where to look next",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[What happened] links 0->1",
+   "[What limits this conclusion] links 1->2",
+   "[What to do next] height 179->211",
+   "[What to do next] links 1->2",
+   "[Where to look next] height 525->613",
+   "[Where to look next] links 6->7",
+   "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "What limits this conclusion",
+    1.21,
+    1.32
+   ],
+   [
+    "Where to look next",
+    1.3,
+    1.52
+   ]
+  ],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [
+   "cap exceeded [('What limits this conclusion', 1.21, 1.32), ('Where to look next', 1.3, 1.52)]"
+  ],
+  "review_panel_set": false
+ },
+ {
+  "screen": "finding",
+  "case": "late-stale",
+  "width": "390",
+  "new_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "mock_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-late-stale-390-app.png",
+  "mock_image": "finding-late-stale-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/2cf9704f-aa87-4dbb-a2eb-0fdd3b24b7d4",
+  "ratios_over_1.3": [
+   [
+    "What happened",
+    1.48
+   ],
+   [
+    "What limits this conclusion",
+    1.7
+   ],
+   [
+    "Where to look next",
+    1.77
+   ]
+  ],
+  "app_diffs": [
+   "[What happened] links 0->1",
+   "[What limits this conclusion] links 1->2",
+   "[What to do next] height 199->231",
+   "[What to do next] links 1->2",
+   "[Where to look next] height 628->716",
+   "[Where to look next] links 6->7",
+   "h1.top 149->128",
+   "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened",
+   "What limits this conclusion",
+   "What to do next",
+   "Where to look next"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "What limits this conclusion",
+    1.59,
+    1.7
+   ],
+   [
+    "Where to look next",
+    1.55,
+    1.77
+   ]
+  ],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('What limits this conclusion', 1.59, 1.7), ('Where to look next', 1.55, 1.77)]"
+  ],
+  "review_panel_set": false
+ },
+ {
+  "screen": "finding-history",
+  "case": "late-stale",
+  "width": "1440",
+  "new_app_titles": [
+   "Revision history"
+  ],
+  "mock_titles": [
+   "Revision history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-history-late-stale-1440-app.png",
+  "mock_image": "finding-history-late-stale-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/2cf9704f-aa87-4dbb-a2eb-0fdd3b24b7d4/history",
+  "ratios_over_1.3": [
+   [
+    "Revision history",
+    2.13
+   ]
+  ],
+  "app_diffs": [
+   "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Revision history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "[Revision history] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "finding-history",
+  "case": "late-stale",
+  "width": "390",
+  "new_app_titles": [
+   "Revision history"
+  ],
+  "mock_titles": [
+   "Revision history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-history-late-stale-390-app.png",
+  "mock_image": "finding-history-late-stale-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/2cf9704f-aa87-4dbb-a2eb-0fdd3b24b7d4/history",
+  "ratios_over_1.3": [
+   [
+    "Revision history",
+    3.13
+   ]
+  ],
+  "app_diffs": [
+   "[Revision history] height 1097->980",
+   "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+   "h1.top 149->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Revision history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers",
+   "Revision history ratio 3.5->3.13",
+   "[Revision history] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "sitefindings",
+  "case": "late-stale",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitefindings-late-stale-1440-app.png",
+  "mock_image": "sitefindings-late-stale-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 298->242",
+   "[Findings at this site] links 0->1",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+   "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "sitefindings",
+  "case": "late-stale",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sitefindings-late-stale-390-app.png",
+  "mock_image": "sitefindings-late-stale-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 516->437",
+   "[Findings at this site] links 0->1",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+   "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

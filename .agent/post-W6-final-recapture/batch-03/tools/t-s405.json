@@ -1,0 +1,17 @@
+[
+ {
+  "id": "financials",
+  "case": "priced-current",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=3b1b0049-06dc-4f83-aab8-9cb8720d540e&revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5"
+ },
+ {
+  "id": "finding",
+  "case": "priced-current",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/3b1b0049-06dc-4f83-aab8-9cb8720d540e?revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5"
+ },
+ {
+  "id": "assumptions",
+  "case": "single-price",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions"
+ }
+]

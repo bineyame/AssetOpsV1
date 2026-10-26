@@ -1,0 +1,281 @@
+[
+ {
+  "screen": "financials",
+  "case": "mixed-withheld",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "financials-mixed-withheld-1440-app.png",
+  "mock_image": "financials-mixed-withheld-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=e30b02dd-cfb0-405e-b734-f6f8dbbcfa14&revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33",
+  "ratios_over_1.3": [
+   [
+    "What happened → what it means in money",
+    1.38
+   ]
+  ],
+  "app_diffs": [
+   "[Trade-offs and exclusions] links 0->1",
+   "pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1}->{'11px': 4, '12px': 7, '10px': 2, '14px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "financials",
+  "case": "mixed-withheld",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "financials-mixed-withheld-390-app.png",
+  "mock_image": "financials-mixed-withheld-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=e30b02dd-cfb0-405e-b734-f6f8dbbcfa14&revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33",
+  "ratios_over_1.3": [
+   [
+    "What happened → what it means in money",
+    1.84
+   ],
+   [
+    "Trade-offs and exclusions",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "[Trade-offs and exclusions] links 0->1",
+   "pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1}->{'11px': 4, '12px': 7, '10px': 2, '14px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Trade-offs and exclusions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [
+   [
+    "Trade-offs and exclusions",
+    1.29,
+    1.4
+   ]
+  ],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [
+   "cap exceeded [('Trade-offs and exclusions', 1.29, 1.4)]"
+  ],
+  "review_panel_set": false
+ },
+ {
+  "screen": "assumptions",
+  "case": "mixed-withheld",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "mock_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "assumptions-mixed-withheld-1440-app.png",
+  "mock_image": "assumptions-mixed-withheld-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials/assumptions",
+  "ratios_over_1.3": [
+   [
+    "Financial assumptions",
+    1.46
+   ],
+   [
+    "Interpretation history",
+    1.68
+   ]
+  ],
+  "app_diffs": [
+   "[Financial assumptions] links 1->2",
+   "[Interpretation history] height 554->354",
+   "[Interpretation history] details 2->4",
+   "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+   "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+   "pageH 1434->1267"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "Interpretation history ratio 2.63->1.68",
+   "[Interpretation history] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "assumptions",
+  "case": "mixed-withheld",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "mock_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "assumptions-mixed-withheld-390-app.png",
+  "mock_image": "assumptions-mixed-withheld-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/financials/assumptions",
+  "ratios_over_1.3": [
+   [
+    "Financial assumptions",
+    1.52
+   ],
+   [
+    "Interpretation history",
+    2.26
+   ]
+  ],
+  "app_diffs": [
+   "[Financial assumptions] links 1->2",
+   "[Interpretation history] height 1091->609",
+   "[Interpretation history] details 2->4",
+   "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+   "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+   "pageH 2664->2279",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 721, 'cw': 286, 'panel': "
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions",
+   "Impact preview",
+   "Interpretation history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Interpretation history ratio 4.06->2.26",
+   "[Interpretation history] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "finding-evidence",
+  "case": "mixed-source",
+  "width": "1440",
+  "new_app_titles": [
+   "Evidence bundle · Generator support merits review",
+   "Inspect source lineage"
+  ],
+  "mock_titles": [
+   "Evidence bundle · F-104",
+   "Inspect source lineage"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-evidence-mixed-source-1440-app.png",
+  "mock_image": "finding-evidence-mixed-source-1440-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/e30b02dd-cfb0-405e-b734-f6f8dbbcfa14/evidence?revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence bundle · Generator support merits review",
+   "Inspect source lineage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "finding-evidence",
+  "case": "mixed-source",
+  "width": "390",
+  "new_app_titles": [
+   "Evidence bundle · Generator support merits review",
+   "Inspect source lineage"
+  ],
+  "mock_titles": [
+   "Evidence bundle · F-104",
+   "Inspect source lineage"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "finding-evidence-mixed-source-390-app.png",
+  "mock_image": "finding-evidence-mixed-source-390-mock.png",
+  "app_url": "http://localhost:5183/sites/KOBO-001/findings/e30b02dd-cfb0-405e-b734-f6f8dbbcfa14/evidence?revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33",
+  "ratios_over_1.3": [
+   [
+    "Inspect source lineage",
+    2.18
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 149->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__sc->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle · Genera"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence bundle · Generator support merits review",
+   "Inspect source lineage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

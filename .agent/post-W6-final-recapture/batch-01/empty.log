@@ -1,0 +1,14 @@
+PASS  loaded http://localhost:5181/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sites-empty 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sites: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sites-empty 1440: mock rendered its panels
+PASS  sites-empty 1440: app and mock render the same number of panels  {"app":["Site inventory","In setup"],"mock":["Site inventory","In setup"]}
+PASS  sites-empty 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites-empty 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/sites: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sites-empty 390: mock rendered its panels
+PASS  sites-empty 390: app and mock render the same number of panels  {"app":["Site inventory","In setup"],"mock":["Site inventory","In setup"]}
+PASS  sites-empty 390: app has no horizontal page overflow  {"overflowX":0}
+
+12/12 claims passed; evidence in empty

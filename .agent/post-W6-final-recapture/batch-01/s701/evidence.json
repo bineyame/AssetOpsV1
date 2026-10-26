@@ -1,0 +1,1306 @@
+{
+  "revision": "89a11477",
+  "captured_at": "2026-10-26T07:19:22.030Z",
+  "pairs": [
+    {
+      "screen": "asset",
+      "case": "kobo001-s701",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-001/assets/2f47763d-6343-4d11-aef0-a56099b86a61",
+      "mock_hash": "#/asset",
+      "app_image": "asset-kobo001-s701-1440-app.png",
+      "mock_image": "asset-kobo001-s701-1440-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 248,
+            "y": 438,
+            "w": 725,
+            "h": 379,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 991,
+            "y": 438,
+            "w": 403,
+            "h": 379,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 248,
+            "y": 835,
+            "w": 1145,
+            "h": 358,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": [
+              "Technical details"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Battery energy storage",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "No accepted state-of-charge history on this page",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 4,
+            "12px": 2,
+            "10px": 3
+          },
+          "first": {
+            "text": "Accepted state of charge against the reserve the site is set",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": null,
+        "firstPanelY": 438,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1303,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Health",
+              "Battery",
+              "Battery energy storage [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health [current]",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "pageHeight": 1303
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 234,
+            "y": 492,
+            "w": 735,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 987,
+            "y": 492,
+            "w": 408,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Create test action →",
+              "Review capability gap →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 234,
+            "y": 826,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo battery",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": {
+          "text": "Observable reserve exposure merits review. The history is in",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "proseSizes": [
+          "12px"
+        ],
+        "proseCount": 1,
+        "td": {
+          "text": "Reserve discipline",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3,
+            "10px": 1,
+            "12px": 1
+          },
+          "first": {
+            "text": "Illustrative event count · accepted SOC and effective reserv",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 492,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1196,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Health",
+              "Performance",
+              "Configuration",
+              "Work",
+              "Evidence",
+              "Warranty"
+            ]
+          }
+        ],
+        "pageHeight": 1240
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "kobo001-s701",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-001/assets/2f47763d-6343-4d11-aef0-a56099b86a61",
+      "mock_hash": "#/asset",
+      "app_image": "asset-kobo001-s701-390-app.png",
+      "mock_image": "asset-kobo001-s701-390-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 16,
+            "y": 813,
+            "w": 358,
+            "h": 330,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 16,
+            "y": 1159,
+            "w": 358,
+            "h": 415,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 16,
+            "y": 1590,
+            "w": 358,
+            "h": 478,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": [
+              "Technical details"
+            ]
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Battery energy storage",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 155
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": {
+          "text": "No accepted state-of-charge history on this page",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "14.4px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 4,
+            "12px": 2,
+            "10px": 3
+          },
+          "first": {
+            "text": "Accepted state of charge against the reserve the site is set",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "MOCK DEVIATION D2 (R453)",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "16.8px",
+          "color": "rgb(107, 118, 144)"
+        },
+        "firstPanelY": 813,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "div",
+            "cls": "data-table__scroll",
+            "client": 318,
+            "scroll": 640
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Health",
+              "Battery",
+              "Battery energy storage [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health [current]",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "pageHeight": 2189
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 15,
+            "y": 828,
+            "w": 360,
+            "h": 274,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 15,
+            "y": 1120,
+            "w": 360,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Create test action →",
+              "Review capability gap →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 15,
+            "y": 1454,
+            "w": 360,
+            "h": 428,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo battery",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 298
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": {
+          "text": "Observable reserve exposure merits review. The history is in",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "proseSizes": [
+          "12px"
+        ],
+        "proseCount": 1,
+        "td": {
+          "text": "Reserve discipline",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3,
+            "10px": 1,
+            "12px": 1
+          },
+          "first": {
+            "text": "Illustrative event count · accepted SOC and effective reserv",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 828,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 456
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 498
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Health",
+              "Performance",
+              "Configuration",
+              "Work",
+              "Evidence",
+              "Warranty"
+            ]
+          }
+        ],
+        "pageHeight": 2072
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "refusal-kobo002",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/asset",
+      "app_image": "asset-refusal-kobo002-1440-app.png",
+      "mock_image": "asset-refusal-kobo002-1440-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 248,
+            "y": 384,
+            "w": 734,
+            "h": 99,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 1000,
+            "y": 384,
+            "w": 408,
+            "h": 99,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 248,
+            "y": 502,
+            "w": 1160,
+            "h": 99,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Battery",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 44
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsOPERATIONSPortfolioSitesAssetsNot available yetINTEL",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "12px": 3
+          },
+          "first": {
+            "text": "Not shown: the battery could not be read. This is not an emp",
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "That asset is not a battery in this site's current configura",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "firstPanelY": 384,
+        "side": {
+          "y": 0,
+          "w": 216,
+          "h": 1000,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Health",
+              "Battery",
+              "Battery [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health [current]",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "pageHeight": 1000
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 234,
+            "y": 492,
+            "w": 735,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 987,
+            "y": 492,
+            "w": 408,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Create test action →",
+              "Review capability gap →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 234,
+            "y": 826,
+            "w": 1161,
+            "h": 287,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo battery",
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 165
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": {
+          "text": "Observable reserve exposure merits review. The history is in",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "proseSizes": [
+          "12px"
+        ],
+        "proseCount": 1,
+        "td": {
+          "text": "Reserve discipline",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3,
+            "10px": 1,
+            "12px": 1
+          },
+          "first": {
+            "text": "Illustrative event count · accepted SOC and effective reserv",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 492,
+        "side": {
+          "y": 44,
+          "w": 204,
+          "h": 1196,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Health",
+              "Performance",
+              "Configuration",
+              "Work",
+              "Evidence",
+              "Warranty"
+            ]
+          }
+        ],
+        "pageHeight": 1240
+      }
+    },
+    {
+      "screen": "asset",
+      "case": "refusal-kobo002",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000",
+      "mock_hash": "#/asset",
+      "app_image": "asset-refusal-kobo002-390-app.png",
+      "mock_image": "asset-refusal-kobo002-390-mock.png",
+      "app": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and its limits"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 16,
+            "y": 608,
+            "w": 358,
+            "h": 119,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 16,
+            "y": 743,
+            "w": 358,
+            "h": 119,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and its limits",
+            "x": 16,
+            "y": 878,
+            "w": 358,
+            "h": 119,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Battery",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 127
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "22.5px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": null,
+        "proseSizes": [],
+        "proseCount": 0,
+        "td": null,
+        "th": null,
+        "body": {
+          "text": "AssetOpsMenuOPERATIONSPortfolioSitesAssetsNot available yetI",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "21px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "12px": 3
+          },
+          "first": {
+            "text": "Not shown: the battery could not be read. This is not an emp",
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "That asset is not a battery in this site's current configura",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "firstPanelY": 608,
+        "side": {
+          "y": 0,
+          "w": 390,
+          "h": 92,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [],
+        "tabs": [
+          {
+            "label": "Breadcrumb",
+            "items": [
+              "Sites",
+              "Kobo mini-grid",
+              "Health",
+              "Battery",
+              "Battery [current] [disabled]"
+            ]
+          },
+          {
+            "label": "Site sections",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health [current]",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "pageHeight": 1039
+      },
+      "mock": {
+        "titles": [
+          "Observed reserve and power exposure",
+          "Interpretation and next evidence",
+          "Condition evidence and claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Observed reserve and power exposure",
+            "x": 15,
+            "y": 828,
+            "w": 360,
+            "h": 274,
+            "columns": [],
+            "rows": 0,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Interpretation and next evidence",
+            "x": 15,
+            "y": 1120,
+            "w": 360,
+            "h": 316,
+            "columns": [],
+            "rows": 0,
+            "links": [
+              "Create test action →",
+              "Review capability gap →"
+            ],
+            "chips": [],
+            "disclosures": []
+          },
+          {
+            "title": "Condition evidence and claim boundary",
+            "x": 15,
+            "y": 1454,
+            "w": 360,
+            "h": 428,
+            "columns": [
+              "Dimension",
+              "Evidence basis",
+              "What may be concluded",
+              "What remains unknown"
+            ],
+            "rows": 4,
+            "links": [],
+            "chips": [],
+            "disclosures": []
+          }
+        ],
+        "overflowX": 0,
+        "h1": {
+          "text": "Kobo battery",
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)",
+          "y": 298
+        },
+        "h2": {
+          "text": "Observed reserve and power exposure",
+          "family": "system-ui",
+          "size": "15px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "prose": {
+          "text": "Observable reserve exposure merits review. The history is in",
+          "family": "system-ui",
+          "size": "12px",
+          "weight": "400",
+          "lineHeight": "21.6px",
+          "color": "rgb(70, 86, 110)"
+        },
+        "proseSizes": [
+          "12px"
+        ],
+        "proseCount": 1,
+        "td": {
+          "text": "Reserve discipline",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "17.6px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "th": {
+          "text": "Dimension",
+          "family": "system-ui",
+          "size": "9px",
+          "weight": "650",
+          "lineHeight": "normal",
+          "color": "rgb(117, 129, 152)"
+        },
+        "body": {
+          "text": "ARCHITECTURE REVIEWInteractive mockup · illustrative dataPor",
+          "family": "system-ui",
+          "size": "14px",
+          "weight": "400",
+          "lineHeight": "normal",
+          "color": "rgb(23, 36, 59)"
+        },
+        "bodyBg": "rgb(245, 247, 251)",
+        "panelStyle": {
+          "bg": "rgb(255, 255, 255)",
+          "border": "rgb(224, 230, 239) 1px",
+          "radius": "7px"
+        },
+        "panelP": {
+          "sizes": {
+            "11px": 3,
+            "10px": 1,
+            "12px": 1
+          },
+          "first": {
+            "text": "Illustrative event count · accepted SOC and effective reserv",
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "18.15px",
+            "color": "rgb(97, 112, 135)"
+          }
+        },
+        "pageEndNote": {
+          "text": "Warranty: cover to 1 Mar 2034 · at risk because temperature ",
+          "family": "system-ui",
+          "size": "11px",
+          "weight": "400",
+          "lineHeight": "18.15px",
+          "color": "rgb(69, 96, 128)"
+        },
+        "firstPanelY": 828,
+        "side": {
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "bg": "rgb(22, 35, 63)"
+        },
+        "clipped": [],
+        "innerScroll": [
+          {
+            "tag": "nav",
+            "cls": "tabs ",
+            "client": 360,
+            "scroll": 456
+          },
+          {
+            "tag": "div",
+            "cls": "table-wrap",
+            "client": 320,
+            "scroll": 498
+          }
+        ],
+        "tabs": [
+          {
+            "label": "Context tabs",
+            "items": [
+              "Overview",
+              "Health",
+              "Performance",
+              "Configuration",
+              "Work",
+              "Evidence",
+              "Warranty"
+            ]
+          }
+        ],
+        "pageHeight": 2072
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+Action ACT-000001 (60fe883b-8522-4617-bbc7-180f7ce23ab9) on Finding F01 094b3993-0540-467f-8051-be37307fedc1
+  Finding F01, origin version
+    http://localhost:5461/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d
+  recommendation:1#a accepted snapshot + live status
+    http://localhost:5461/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d
+  recommendation:1#a latest Finding version (earlier trial still open notice)
+    http://localhost:5461/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation
+  recommendation:1#a unavailable (SOC at headroom)
+    http://localhost:5461/sites/KOBO-001/findings/f31f4ef4-6f76-471f-b0e4-2c6e655d2faf/recommendation
+  action-overview:1#a
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9
+  action-execution:1#a
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/execution
+  action-history:1#a
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history
+  changes:1#a
+    http://localhost:5461/sites/KOBO-001/foundation/changes/55ce756c-2cd9-44ff-bea1-9cb9eed1c1c5
+  bare changes (unavailable)
+    http://localhost:5461/sites/KOBO-001/foundation/changes
+  second Action (F02, failed no-change, still pending)
+    http://localhost:5461/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f/execution
+  history at ACCEPTED
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=dff32d87-482e-4d14-a2d1-066debd985f8
+  history at OBSERVED
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699
+  history at FAILED ACTION_FOUNDATION_STALE
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=b119f537-c4c8-4c00-b7ca-799166451813
+  history at FAILED ACTION_VALUE_INVALID
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=a0be7980-43b4-4556-b39c-d39f4d6075c5
+  history at FAILED ACTION_EFFECTIVE_TIME_INVALID
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=13851973-f7bd-444f-8ac1-04747e37fff3
+  history at APPLIED
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=421ad328-af3c-4fba-bbd5-f9122264c8da
+  history recorded through the observation
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?recorded_at=2026-11-01T00:30:00+00:00
+  selector conflict (both)
+    http://localhost:5461/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699&recorded_at=2026-11-01T00:30:00+00:00
+  Foundation versions: expected abddf50b-c2a3-4841-85b5-ea045465da8b, split 930c1ff0-5539-4980-8890-5724726dc7e3, new 4eba0044-5880-49e5-b317-92bd72b2ed37

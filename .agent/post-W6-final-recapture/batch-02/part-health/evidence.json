@@ -1,0 +1,1818 @@
+{
+  "revision": "89a11477",
+  "captured_at": "2026-10-26T07:31:02.983Z",
+  "pairs": [
+    {
+      "screen": "health",
+      "case": "kobo001-gateways",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo001-gateways-1440-app.png",
+      "mock_image": "health-kobo001-gateways-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 248,
+            "y": 273,
+            "w": 1145,
+            "h": 253,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              "Open"
+            ],
+            "chips": [
+              "Unknown"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 543,
+            "w": 1145,
+            "h": 766,
+            "tables": 3,
+            "rows": 9,
+            "columns": [
+              "Source",
+              "Status at 07:31 UTC",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Unknown age",
+              "Old",
+              "Nothing received",
+              "Current",
+              "Current",
+              "Current",
+              "Current",
+              "Current",
+              "Disabled",
+              "Nothing received"
+            ],
+            "links": 9,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1420,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 2,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1420
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 669,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1080,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1036
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo001-gateways",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo001-gateways-390-app.png",
+      "mock_image": "health-kobo001-gateways-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 16,
+            "y": 469,
+            "w": 358,
+            "h": 342,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              "Open"
+            ],
+            "chips": [
+              "Unknown"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 828,
+            "w": 358,
+            "h": 867,
+            "tables": 3,
+            "rows": 9,
+            "columns": [
+              "Source",
+              "Status at 07:31 UTC",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Unknown age",
+              "Old",
+              "Nothing received",
+              "Current",
+              "Current",
+              "Current",
+              "Current",
+              "Current",
+              "Disabled",
+              "Nothing received"
+            ],
+            "links": 9,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1854,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 640,
+            "cw": 318,
+            "panel": "Physical asset condition"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 920,
+            "cw": 318,
+            "panel": "Data sources · data quality, not equipment condition"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 640,
+            "cw": 284,
+            "panel": "Data sources · data quality, not equipment condition"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 663,
+            "cw": 284,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 2,
+          "10px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 15,
+            "y": 562,
+            "w": 360,
+            "h": 442,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1022,
+            "w": 360,
+            "h": 391,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1604,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 561,
+            "cw": 320,
+            "panel": "Physical asset condition"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 399,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo002-nogateway",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-002/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo002-nogateway-1440-app.png",
+      "mock_image": "health-kobo002-nogateway-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 248,
+            "y": 250,
+            "w": 1160,
+            "h": 197,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 465,
+            "w": 1160,
+            "h": 308,
+            "tables": 2,
+            "rows": 1,
+            "columns": [
+              "Source",
+              "Status at 07:31 UTC",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Disabled",
+              "Nothing received"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2,
+          "13px": 2,
+          "14px": 1,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 669,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1080,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1036
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "health",
+      "case": "kobo002-nogateway",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-002/health",
+      "mock_hash": "#/health",
+      "app_image": "health-kobo002-nogateway-390-app.png",
+      "mock_image": "health-kobo002-nogateway-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 16,
+            "y": 469,
+            "w": 358,
+            "h": 274,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 761,
+            "w": 358,
+            "h": 426,
+            "tables": 2,
+            "rows": 1,
+            "columns": [
+              "Source",
+              "Status at 07:31 UTC",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Disabled",
+              "Nothing received"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1346,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 920,
+            "cw": 318,
+            "panel": "Data sources · data quality, not equipment condition"
+          },
+          {
+            "cls": "data-table__scroll",
+            "sw": 663,
+            "cw": 284,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2,
+          "13px": 2,
+          "14px": 1,
+          "10px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 15,
+            "y": 562,
+            "w": 360,
+            "h": 442,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1022,
+            "w": 360,
+            "h": 391,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1604,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 561,
+            "cw": 320,
+            "panel": "Physical asset condition"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 399,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "health",
+      "case": "unknown-site-refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/NO-SUCH-SITE/health",
+      "mock_hash": "#/health",
+      "app_image": "health-unknown-site-refused-1440-app.png",
+      "mock_image": "health-unknown-site-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 248,
+            "y": 76,
+            "w": 1160,
+            "h": 103,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 24,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 669,
+            "w": 1161,
+            "h": 285,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1080,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1036
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "health",
+      "case": "unknown-site-refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/NO-SUCH-SITE/health",
+      "mock_hash": "#/health",
+      "app_image": "health-unknown-site-refused-390-app.png",
+      "mock_image": "health-unknown-site-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "No such site"
+        ],
+        "panels": [
+          {
+            "title": "No such site",
+            "x": 16,
+            "y": 154,
+            "w": 358,
+            "h": 149,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 900,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Site not found",
+          "top": 108,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "23.1px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Physical asset condition",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "panels": [
+          {
+            "title": "Physical asset condition",
+            "x": 15,
+            "y": 562,
+            "w": 360,
+            "h": 442,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Asset",
+              "Assessment",
+              "Evidence",
+              "Main reason",
+              "Open findings",
+              "Open work",
+              ""
+            ],
+            "chips": [
+              "Watch",
+              "Unknown",
+              "Unknown"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1022,
+            "w": 360,
+            "h": 391,
+            "tables": 1,
+            "rows": 3,
+            "columns": [
+              "Source",
+              "Status at 15:20",
+              "Quality",
+              "Affects",
+              "Open"
+            ],
+            "chips": [
+              "Gap",
+              "None",
+              "Good"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1604,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health*",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 510,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 561,
+            "cw": 320,
+            "panel": "Physical asset condition"
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 399,
+            "cw": 320,
+            "panel": "Data sources · data quality, not equipment condition"
+          }
+        ],
+        "pSizes": {
+          "11px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

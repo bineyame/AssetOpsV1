@@ -1,0 +1,213 @@
+[
+ {
+  "screen": "health",
+  "case": "kobo001-gateways",
+  "width": "1440",
+  "new_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-kobo001-gateways-1440-app.png",
+  "mock_image": "health-kobo001-gateways-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/health",
+  "ratios_over_1.3": [
+   [
+    "Data sources · data quality, not equipment condition",
+    2.69
+   ]
+  ],
+  "app_diffs": [
+   "[Data sources · data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+   "[Data sources · data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Data sources · data quality, not equipment condition] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "health",
+  "case": "kobo001-gateways",
+  "width": "390",
+  "new_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-kobo001-gateways-390-app.png",
+  "mock_image": "health-kobo001-gateways-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/health",
+  "ratios_over_1.3": [
+   [
+    "Data sources · data quality, not equipment condition",
+    2.22
+   ]
+  ],
+  "app_diffs": [
+   "[Data sources · data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+   "[Data sources · data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Physical asset condition->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Physical asset condition'}, {'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Data sources · data quality, not equipment condition] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "health",
+  "case": "kobo002-nogateway",
+  "width": "1440",
+  "new_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-kobo002-nogateway-1440-app.png",
+  "mock_image": "health-kobo002-nogateway-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-002/health",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Data sources · data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Data sources · data quality, not equipment condition] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "health",
+  "case": "kobo002-nogateway",
+  "width": "390",
+  "new_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-kobo002-nogateway-390-app.png",
+  "mock_image": "health-kobo002-nogateway-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-002/health",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Data sources · data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources · data qual->[{'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources · data quality, not equipment condition'}, {'cls': 'data-table__scroll', '"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Data sources · data quality, not equipment condition] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "health",
+  "case": "unknown-site-refused",
+  "width": "1440",
+  "new_app_titles": [
+   "No such site"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-unknown-site-refused-1440-app.png",
+  "mock_image": "health-unknown-site-refused-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/NO-SUCH-SITE/health",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "health",
+  "case": "unknown-site-refused",
+  "width": "390",
+  "new_app_titles": [
+   "No such site"
+  ],
+  "mock_titles": [
+   "Physical asset condition",
+   "Data sources · data quality, not equipment condition"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "health-unknown-site-refused-390-app.png",
+  "mock_image": "health-unknown-site-refused-390-mock.png",
+  "app_url": "http://localhost:5182/sites/NO-SUCH-SITE/health",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 385->108",
+   "mainTop 385->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

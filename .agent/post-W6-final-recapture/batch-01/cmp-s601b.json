@@ -1,0 +1,163 @@
+[
+ {
+  "screen": "changes",
+  "case": "applied",
+  "width": "1440",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Change and effect] disclosures ['Versions and records this change names']->['How this was worked out', 'Versions and records this change names']",
+   "tabs [{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]->[{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change & effect [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]",
+   "pageEndNote 'There is no list of Site changes yet; a change is reached fr'->None"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Change and effect",
+    1.31
+   ],
+   [
+    "Decision path",
+    1.31
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "changes-applied-1440-app.png",
+  "mock_image": "changes-applied-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "applied",
+  "width": "390",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Change and effect] disclosures ['Versions and records this change names']->['How this was worked out', 'Versions and records this change names']",
+   "firstPanelY 813->877",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]",
+   "tabs [{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]->[{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change & effect [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]",
+   "pageEndNote 'There is no list of Site changes yet; a change is reached fr'->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Change and effect",
+    1.35
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "changes-applied-390-app.png",
+  "mock_image": "changes-applied-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "no-selection-s601b",
+  "width": "1440",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "changes-no-selection-s601b-1440-app.png",
+  "mock_image": "changes-no-selection-s601b-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "no-selection-s601b",
+  "width": "390",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 579->569",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   200,
+   127
+  ],
+  "app_image": "changes-no-selection-s601b-390-app.png",
+  "mock_image": "changes-no-selection-s601b-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 header band shorter",
+   "tab row no longer scrolls"
+  ],
+  "regress": []
+ }
+]

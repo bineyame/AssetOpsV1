@@ -1,0 +1,52 @@
+[
+ {
+  "id": "evidence",
+  "case": "stocked",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence"
+ },
+ {
+  "id": "evidence",
+  "case": "no-readings",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z"
+ },
+ {
+  "id": "evidence",
+  "case": "window",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "no-selection",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "supported",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=3d41fe2a-1aee-496e-bbbe-5f797a31027f"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "indeterminate",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=3d67a76c-e85a-4e3e-be8c-f5d8b58e94ac"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "limited",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=d4947953-8311-4c2c-b48f-0be45e607a5d"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "historical",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-13&revision=029606e2-bbcd-4612-8694-a21fa00cd1f1"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "stale",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-15&revision=fa23f806-bcd9-4f66-a92d-4c93904663e6"
+ },
+ {
+  "id": "evidence-analysis",
+  "case": "refused-other-day",
+  "url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&day=2026-10-08&revision=3d41fe2a-1aee-496e-bbbe-5f797a31027f"
+ }
+]

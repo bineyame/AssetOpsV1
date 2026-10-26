@@ -1,0 +1,222 @@
+[
+ {
+  "screen": "dispatch",
+  "case": "supported",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "supported",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "limited",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "limited",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "limited-no-selection",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "limited-no-selection",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "refused-failed",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "refused-failed",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "stale-pending",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "stale-pending",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "default-no-day",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "default-no-day",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "window-id-as-revision",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "dispatch",
+  "case": "window-id-as-revision",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "supported",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "supported",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "limited",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "limited",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "refused-failed",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "refused-failed",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "spec-route",
+  "width": "1440",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ },
+ {
+  "screen": "analysis",
+  "case": "spec-route",
+  "width": "390",
+  "new_app_titles": null,
+  "mock_titles": null,
+  "vocab_new": [],
+  "overflowX": 0,
+  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+ }
+]

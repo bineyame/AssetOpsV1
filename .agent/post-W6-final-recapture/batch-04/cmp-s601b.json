@@ -1,0 +1,1059 @@
+[
+ {
+  "screen": "recommendation",
+  "case": "accepted",
+  "width": "1440",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-accepted-1440-app.png",
+  "mock_image": "recommendation-accepted-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "accepted",
+  "width": "390",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-accepted-390-app.png",
+  "mock_image": "recommendation-accepted-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.32
+   ],
+   [
+    "Evidence needed to verify",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "latest-trial-open",
+  "width": "1440",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-latest-trial-open-1440-app.png",
+  "mock_image": "recommendation-latest-trial-open-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "latest-trial-open",
+  "width": "390",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-latest-trial-open-390-app.png",
+  "mock_image": "recommendation-latest-trial-open-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.39
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "unavailable",
+  "width": "1440",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-unavailable-1440-app.png",
+  "mock_image": "recommendation-unavailable-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/f31f4ef4-6f76-471f-b0e4-2c6e655d2faf/recommendation",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.34
+   ],
+   [
+    "Declare success before evaluating",
+    1.34
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "unavailable",
+  "width": "390",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-unavailable-390-app.png",
+  "mock_image": "recommendation-unavailable-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/f31f4ef4-6f76-471f-b0e4-2c6e655d2faf/recommendation",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.42
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "recorded",
+  "width": "1440",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-recorded-1440-app.png",
+  "mock_image": "action-overview-recorded-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    1.37
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "recorded",
+  "width": "390",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-recorded-390-app.png",
+  "mock_image": "action-overview-recorded-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    2.17
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "pending-f02",
+  "width": "1440",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-pending-f02-1440-app.png",
+  "mock_image": "action-overview-pending-f02-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    1.37
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "pending-f02",
+  "width": "390",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-pending-f02-390-app.png",
+  "mock_image": "action-overview-pending-f02-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    2.05
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "unknown-section",
+  "width": "1440",
+  "new_app_titles": [
+   "No such Action section"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-unknown-section-1440-app.png",
+  "mock_image": "action-overview-unknown-section-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/nosuch",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[No such Action section] height 103->140",
+   "pSizes {'14px': 1}->{'14px': 2}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such Action section"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "unknown-section",
+  "width": "390",
+  "new_app_titles": [
+   "No such Action section"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-unknown-section-390-app.png",
+  "mock_image": "action-overview-unknown-section-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/nosuch",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[No such Action section] height 126->163",
+   "h1.top 360->128",
+   "pSizes {'14px': 1}->{'14px': 2}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 341->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such Action section"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-execution",
+  "case": "applied",
+  "width": "1440",
+  "new_app_titles": [
+   "Activity log"
+  ],
+  "mock_titles": [
+   "Activity log"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-execution-applied-1440-app.png",
+  "mock_image": "action-execution-applied-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/execution",
+  "ratios_over_1.3": [
+   [
+    "Activity log",
+    1.53
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Activity log"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-execution",
+  "case": "applied",
+  "width": "390",
+  "new_app_titles": [
+   "Activity log"
+  ],
+  "mock_titles": [
+   "Activity log"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-execution-applied-390-app.png",
+  "mock_image": "action-execution-applied-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/execution",
+  "ratios_over_1.3": [
+   [
+    "Activity log",
+    2.69
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Activity log'}]->[{'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Activity log'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Activity log"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-execution",
+  "case": "failed-pending",
+  "width": "1440",
+  "new_app_titles": [
+   "Activity log"
+  ],
+  "mock_titles": [
+   "Activity log"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-execution-failed-pending-1440-app.png",
+  "mock_image": "action-execution-failed-pending-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f/execution",
+  "ratios_over_1.3": [
+   [
+    "Activity log",
+    1.73
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Activity log"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-execution",
+  "case": "failed-pending",
+  "width": "390",
+  "new_app_titles": [
+   "Activity log"
+  ],
+  "mock_titles": [
+   "Activity log"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-execution-failed-pending-390-app.png",
+  "mock_image": "action-execution-failed-pending-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f/execution",
+  "ratios_over_1.3": [
+   [
+    "Activity log",
+    2.9
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 383, 'cw': 318, 'panel': 'Activity log'}]->[{'cls': 'data-table__scroll', 'sw': 383, 'cw': 318, 'panel': 'Activity log'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Activity log"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "all",
+  "width": "1440",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-all-1440-app.png",
+  "mock_image": "action-history-all-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history",
+  "ratios_over_1.3": [
+   [
+    "Action history",
+    1.46
+   ]
+  ],
+  "app_diffs": [
+   "[Action history] chips ['Every recorded event']->['Every recorded event', 'Latest at read time']",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "all",
+  "width": "390",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-all-390-app.png",
+  "mock_image": "action-history-all-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history",
+  "ratios_over_1.3": [
+   [
+    "Action history",
+    1.86
+   ]
+  ],
+  "app_diffs": [
+   "[Action history] chips ['Every recorded event']->['Every recorded event', 'Latest at read time']",
+   "h1.top 178->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 576, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 576, 'cw': 318, 'panel': 'Action history'}]",
+   "mainTop 158->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "event-failed-stale",
+  "width": "1440",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-event-failed-stale-1440-app.png",
+  "mock_image": "action-history-event-failed-stale-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=b119f537-c4c8-4c00-b7ca-799166451813",
+  "ratios_over_1.3": [
+   [
+    "Action history",
+    1.49
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "event-failed-stale",
+  "width": "390",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-event-failed-stale-390-app.png",
+  "mock_image": "action-history-event-failed-stale-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=b119f537-c4c8-4c00-b7ca-799166451813",
+  "ratios_over_1.3": [
+   [
+    "Action history",
+    1.82
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 172->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 996, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 996, 'cw': 318, 'panel': 'Action history'}]",
+   "mainTop 153->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "recorded-at",
+  "width": "1440",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-recorded-at-1440-app.png",
+  "mock_image": "action-history-recorded-at-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "recorded-at",
+  "width": "390",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-recorded-at-390-app.png",
+  "mock_image": "action-history-recorded-at-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+  "ratios_over_1.3": [
+   [
+    "Action history",
+    1.74
+   ]
+  ],
+  "app_diffs": [
+   "h1.top 182->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 678, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 678, 'cw': 318, 'panel': 'Action history'}]",
+   "mainTop 162->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "selector-conflict",
+  "width": "1440",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-selector-conflict-1440-app.png",
+  "mock_image": "action-history-selector-conflict-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699&recorded_at=2026-11-01T00:30:00%2B00:00",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-history",
+  "case": "selector-conflict",
+  "width": "390",
+  "new_app_titles": [
+   "Action history"
+  ],
+  "mock_titles": [
+   "Action history"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-history-selector-conflict-390-app.png",
+  "mock_image": "action-history-selector-conflict-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699&recorded_at=2026-11-01T00:30:00%2B00:00",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 217->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 198->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action history"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-plan",
+  "case": "pre-plan-s601b",
+  "width": "1440",
+  "new_app_titles": [
+   "Success criteria"
+  ],
+  "mock_titles": [
+   "Success criteria"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-plan-pre-plan-s601b-1440-app.png",
+  "mock_image": "action-plan-pre-plan-s601b-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/plan",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Success criteria"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-plan",
+  "case": "pre-plan-s601b",
+  "width": "390",
+  "new_app_titles": [
+   "Success criteria"
+  ],
+  "mock_titles": [
+   "Success criteria"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-plan-pre-plan-s601b-390-app.png",
+  "mock_image": "action-plan-pre-plan-s601b-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/plan",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 232->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 213->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Success criteria"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-evidence",
+  "case": "pre-plan-s601b",
+  "width": "1440",
+  "new_app_titles": [
+   "Evidence requirements"
+  ],
+  "mock_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-evidence-pre-plan-s601b-1440-app.png",
+  "mock_image": "action-evidence-pre-plan-s601b-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/evidence",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-evidence",
+  "case": "pre-plan-s601b",
+  "width": "390",
+  "new_app_titles": [
+   "Evidence requirements"
+  ],
+  "mock_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-evidence-pre-plan-s601b-390-app.png",
+  "mock_image": "action-evidence-pre-plan-s601b-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/evidence",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 224->128",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 205->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

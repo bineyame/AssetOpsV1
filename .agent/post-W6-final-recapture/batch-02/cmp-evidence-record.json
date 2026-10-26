@@ -1,0 +1,94 @@
+[
+ {
+  "screen": "evidence-analysis",
+  "case": "record-opened",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How each limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "evidence-analysis-record-opened-1440-app.png",
+  "mock_image": "evidence-analysis-record-opened-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&record=1687c876-16c1-4701-a2f6-7586718f2630",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    2.0
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 910->531",
+   "[Accepted records behind the conclusions] details 7->6",
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+   "pSizes {'11px': 1, '10px': 4, '14px': 14, '12px': 3}->{'11px': 1, '10px': 4, '14px': 2, '12px': 3}",
+   "pageH 1647->1267",
+   "hscroll [{'cls': 'data-table__scroll', 'sw': 1213, 'cw': 1065, 'panel': 'Deliveries'}]->[{'cls': 'data-table__scroll', 'sw': 1209, 'cw': 1065, 'panel': 'Deliveries'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How each limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "Accepted records behind the conclusions ratio 3.42->2.0",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "evidence-analysis",
+  "case": "record-opened",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How each limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "evidence-analysis-record-opened-390-app.png",
+  "mock_image": "evidence-analysis-record-opened-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/evidence?view=analysis&record=1687c876-16c1-4701-a2f6-7586718f2630",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.99
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 1235->740",
+   "[Accepted records behind the conclusions] details 7->6",
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+   "pSizes {'11px': 1, '10px': 4, '14px': 14, '12px': 3}->{'11px': 1, '10px': 4, '14px': 2, '12px': 3}",
+   "pageH 2411->1979",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 431, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 608, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}, {'cls': 'data-table__scroll', 'sw': 376, 'cw"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How each limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "Accepted records behind the conclusions ratio 3.33->1.99",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

@@ -1,0 +1,322 @@
+[
+ {
+  "screen": "action-plan",
+  "case": "guardrail",
+  "width": "1440",
+  "new_app_titles": [
+   "Success criteria"
+  ],
+  "mock_titles": [
+   "Success criteria"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-plan-guardrail-1440-app.png",
+  "mock_image": "action-plan-guardrail-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea/plan",
+  "ratios_over_1.3": [
+   [
+    "Success criteria",
+    1.47
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Success criteria"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-plan",
+  "case": "guardrail",
+  "width": "390",
+  "new_app_titles": [
+   "Success criteria"
+  ],
+  "mock_titles": [
+   "Success criteria"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-plan-guardrail-390-app.png",
+  "mock_image": "action-plan-guardrail-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea/plan",
+  "ratios_over_1.3": [
+   [
+    "Success criteria",
+    1.68
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Success criteria"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-evidence",
+  "case": "guardrail",
+  "width": "1440",
+  "new_app_titles": [
+   "Evidence requirements"
+  ],
+  "mock_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-evidence-guardrail-1440-app.png",
+  "mock_image": "action-evidence-guardrail-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea/evidence",
+  "ratios_over_1.3": [
+   [
+    "Evidence requirements",
+    1.51
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-evidence",
+  "case": "guardrail",
+  "width": "390",
+  "new_app_titles": [
+   "Evidence requirements"
+  ],
+  "mock_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-evidence-guardrail-390-app.png",
+  "mock_image": "action-evidence-guardrail-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea/evidence",
+  "ratios_over_1.3": [
+   [
+    "Evidence requirements",
+    2.31
+   ]
+  ],
+  "app_diffs": [
+   "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'},->[{'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'}, {'cls': 'data-table__scroll', 'sw': 923, 'cw': 286, 'panel': '"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Evidence requirements"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "guardrail",
+  "width": "1440",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-guardrail-1440-app.png",
+  "mock_image": "action-overview-guardrail-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    1.43
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "action-overview",
+  "case": "guardrail",
+  "width": "390",
+  "new_app_titles": [
+   "Action scope"
+  ],
+  "mock_titles": [
+   "Action scope"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "action-overview-guardrail-390-app.png",
+  "mock_image": "action-overview-guardrail-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/actions/0870c880-d8b0-4e60-bead-e80bcf459bea",
+  "ratios_over_1.3": [
+   [
+    "Action scope",
+    2.4
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Action scope"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "guardrail-hold",
+  "width": "1440",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-guardrail-hold-1440-app.png",
+  "mock_image": "recommendation-guardrail-hold-1440-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/f67678f7-0802-4fc8-8d79-af4044cea459/recommendation?revision_id=381bdb63-dd2b-4e8c-849a-d8ed07110a0a",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.39
+   ],
+   [
+    "Declare success before evaluating",
+    1.39
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "recommendation",
+  "case": "guardrail-hold",
+  "width": "390",
+  "new_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "mock_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "recommendation-guardrail-hold-390-app.png",
+  "mock_image": "recommendation-guardrail-hold-390-mock.png",
+  "app_url": "http://localhost:5184/sites/KOBO-001/findings/f67678f7-0802-4fc8-8d79-af4044cea459/recommendation?revision_id=381bdb63-dd2b-4e8c-849a-d8ed07110a0a",
+  "ratios_over_1.3": [
+   [
+    "Proposed intervention",
+    1.55
+   ]
+  ],
+  "app_diffs": [
+   "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis · Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Proposed intervention",
+   "Declare success before evaluating",
+   "Evidence needed to verify"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

@@ -1,0 +1,3088 @@
+{
+ "batch": "03",
+ "name": "W1 Finding/money",
+ "main_sha": "89a11477",
+ "pair_count": 72,
+ "frozen_pair_count": 72,
+ "counts": {
+  "FIXED": 59,
+  "PASS": 13
+ },
+ "pairs": [
+  {
+   "screen": "finding",
+   "case": "late-stale",
+   "width": "1440",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What limits this conclusion",
+     1.32
+    ],
+    [
+     "Where to look next",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 179->211",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 525->613",
+    "[Where to look next] links 6->7",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s404-late/finding-late-stale-1440-app.png",
+   "mock_image": "s404-late/finding-late-stale-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "late-stale",
+   "width": "390",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened",
+     1.48
+    ],
+    [
+     "What limits this conclusion",
+     1.7
+    ],
+    [
+     "Where to look next",
+     1.77
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 199->231",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 628->716",
+    "[Where to look next] links 6->7",
+    "h1.top 149->128",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404-late/finding-late-stale-390-app.png",
+   "mock_image": "s404-late/finding-late-stale-390-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "late-stale",
+   "width": "1440",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     2.13
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]"
+   ],
+   "app_image": "s404-late/finding-history-late-stale-1440-app.png",
+   "mock_image": "s404-late/finding-history-late-stale-1440-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "late-stale",
+   "width": "390",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers; Revision history ratio 3.5->3.13; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     3.13
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] height 1097->980",
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404-late/finding-history-late-stale-390-app.png",
+   "mock_image": "s404-late/finding-history-late-stale-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "late-stale",
+   "width": "1440",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 298->242",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}"
+   ],
+   "app_image": "s404-late/sitefindings-late-stale-1440-app.png",
+   "mock_image": "s404-late/sitefindings-late-stale-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "late-stale",
+   "width": "390",
+   "part": "s404-late",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 516->437",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404-late/sitefindings-late-stale-390-app.png",
+   "mock_image": "s404-late/sitefindings-late-stale-390-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "open",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What limits this conclusion",
+     1.32
+    ],
+    [
+     "Where to look next",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 179->211",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 525->613",
+    "[Where to look next] links 6->7",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s404/finding-open-1440-app.png",
+   "mock_image": "s404/finding-open-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "open",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What limits this conclusion",
+     1.7
+    ],
+    [
+     "Where to look next",
+     1.77
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 199->231",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 628->716",
+    "[Where to look next] links 6->7",
+    "h1.top 149->128",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 26}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 28}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-open-390-app.png",
+   "mock_image": "s404/finding-open-390-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "version1",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a?revision_id=921f15e4-bc01-4fd2-b4ab-38c58a16b539",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Where to look next",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 1->2",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 179->211",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 525->613",
+    "[Where to look next] links 6->7",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 13}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 15}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s404/finding-version1-1440-app.png",
+   "mock_image": "s404/finding-version1-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "version1",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a?revision_id=921f15e4-bc01-4fd2-b4ab-38c58a16b539",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened",
+     1.32
+    ],
+    [
+     "What limits this conclusion",
+     1.7
+    ],
+    [
+     "Where to look next",
+     1.77
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 1->2",
+    "[What limits this conclusion] links 1->2",
+    "[What to do next] height 199->231",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 628->716",
+    "[Where to look next] links 6->7",
+    "h1.top 149->128",
+    "pSizes {'11px': 6, '19px': 1, '12px': 8, '10px': 2, '14px': 13}->{'11px': 7, '19px': 1, '12px': 9, '10px': 2, '14px': 15}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-version1-390-app.png",
+   "mock_image": "s404/finding-version1-390-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "notfound",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09",
+    "B3-10"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]"
+   ],
+   "app_image": "s404/finding-notfound-1440-app.png",
+   "mock_image": "s404/finding-notfound-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "notfound",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09",
+    "B3-10"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-notfound-390-app.png",
+   "mock_image": "s404/finding-notfound-390-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "latest",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s404/finding-evidence-latest-1440-app.png",
+   "mock_image": "s404/finding-evidence-latest-1440-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "latest",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Inspect source lineage",
+     2.18
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__sc->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle \u00b7 Genera"
+   ],
+   "app_image": "s404/finding-evidence-latest-390-app.png",
+   "mock_image": "s404/finding-evidence-latest-390-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "notfound",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-10",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Selected Finding",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Finding'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]"
+   ],
+   "app_image": "s404/finding-evidence-notfound-1440-app.png",
+   "mock_image": "s404/finding-evidence-notfound-1440-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "notfound",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-10",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Selected Finding",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Finding'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-evidence-notfound-390-app.png",
+   "mock_image": "s404/finding-evidence-notfound-390-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "latest",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     2.13
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]"
+   ],
+   "app_image": "s404/finding-history-latest-1440-app.png",
+   "mock_image": "s404/finding-history-latest-1440-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "latest",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers; Revision history ratio 3.5->3.13; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     3.13
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] height 1097->980",
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-history-latest-390-app.png",
+   "mock_image": "s404/finding-history-latest-390-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "version1",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history?revision_id=921f15e4-bc01-4fd2-b4ab-38c58a16b539",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     2.64
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]"
+   ],
+   "app_image": "s404/finding-history-version1-1440-app.png",
+   "mock_image": "s404/finding-history-version1-1440-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "version1",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/2ce656e8-70ae-49fa-81e1-724fd714422a/history?revision_id=921f15e4-bc01-4fd2-b4ab-38c58a16b539",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers; Revision history ratio 4.25->3.81; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     3.81
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] height 1329->1194",
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s404/finding-history-version1-390-app.png",
+   "mock_image": "s404/finding-history-version1-390-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "notfound",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-10",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Finding'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]"
+   ],
+   "app_image": "s404/finding-history-notfound-1440-app.png",
+   "mock_image": "s404/finding-history-notfound-1440-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "notfound",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/history",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-10",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Finding'",
+    "h1.top 226->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis \u00b7 Not available yet(off)', 'Evidence(off)', 'Alternatives for this Finding unavailable(off)', 'Recommendation(off)', 'History(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview(off)', 'Analysis(off)', 'Evidence(off)', 'Alternatives \u00b7 Not available yet(off)', 'Recommendation(off)', 'History(off)']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 483, 'cw': 358, 'panel': ''}]",
+    "mainTop 205->108"
+   ],
+   "app_image": "s404/finding-history-notfound-390-app.png",
+   "mock_image": "s404/finding-history-notfound-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "stocked",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Findings at this site ratio 1.76->1.57",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Findings at this site",
+     1.57
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 507->451",
+    "[Findings at this site] links 9->13",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']->['From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']",
+    "pSizes {'11px': 10, '12px': 1}->{'11px': 6, '12px': 1}"
+   ],
+   "app_image": "s404/sitefindings-stocked-1440-app.png",
+   "mock_image": "s404/sitefindings-stocked-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "stocked",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Findings at this site ratio 1.66->1.49",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Findings at this site",
+     1.49
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 763->684",
+    "[Findings at this site] links 9->13",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']->['From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']",
+    "pSizes {'11px': 10, '12px': 1}->{'11px': 6, '12px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}->[{'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}]"
+   ],
+   "app_image": "s404/sitefindings-stocked-390-app.png",
+   "mock_image": "s404/sitefindings-stocked-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "page2",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Findings at this site ratio 1.58->1.39",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Findings at this site",
+     1.39
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 455->399",
+    "[Findings at this site] links 7->10",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']->['From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']",
+    "pSizes {'11px': 8, '12px': 1}->{'11px': 4, '12px': 1}"
+   ],
+   "app_image": "s404/sitefindings-page2-1440-app.png",
+   "mock_image": "s404/sitefindings-page2-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "page2",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Findings at this site ratio 1.51->1.33",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Findings at this site",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 693->614",
+    "[Findings at this site] links 7->10",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']->['From (UTC day)To (UTC day, included)Show Findings', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed', 'Not assessed']",
+    "pSizes {'11px': 8, '12px': 1}->{'11px': 4, '12px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}->[{'cls': 'data-table__scroll', 'sw': 1223, 'cw': 318, 'panel': 'Findings at this site'}]"
+   ],
+   "app_image": "s404/sitefindings-page2-390-app.png",
+   "mock_image": "s404/sitefindings-page2-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "empty",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 318->262",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}"
+   ],
+   "app_image": "s404/sitefindings-empty-1440-app.png",
+   "mock_image": "s404/sitefindings-empty-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "empty",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 555->476",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404/sitefindings-empty-390-app.png",
+   "mock_image": "s404/sitefindings-empty-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "stale",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 298->242",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}"
+   ],
+   "app_image": "s404/sitefindings-stale-1440-app.png",
+   "mock_image": "s404/sitefindings-stale-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "stale",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 516->437",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404/sitefindings-stale-390-app.png",
+   "mock_image": "s404/sitefindings-stale-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "failed",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 298->242",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}"
+   ],
+   "app_image": "s404/sitefindings-failed-1440-app.png",
+   "mock_image": "s404/sitefindings-failed-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "failed",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 531->452",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 3}->{'11px': 1, '12px': 3}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404/sitefindings-failed-390-app.png",
+   "mock_image": "s404/sitefindings-failed-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "unassessed",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 324->268",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 4}->{'11px': 1, '12px': 4}"
+   ],
+   "app_image": "s404/sitefindings-unassessed-1440-app.png",
+   "mock_image": "s404/sitefindings-unassessed-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "unassessed",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 562->483",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 4}->{'11px': 1, '12px': 4}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404/sitefindings-unassessed-390-app.png",
+   "mock_image": "s404/sitefindings-unassessed-390-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "nowindow",
+   "width": "1440",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 324->268",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 4}->{'11px': 1, '12px': 4}"
+   ],
+   "app_image": "s404/sitefindings-nowindow-1440-app.png",
+   "mock_image": "s404/sitefindings-nowindow-1440-mock.png"
+  },
+  {
+   "screen": "sitefindings",
+   "case": "nowindow",
+   "width": "390",
+   "part": "s404",
+   "route": "/sites/KOBO-001/findings",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-13",
+    "B3-14"
+   ],
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 562->483",
+    "[Findings at this site] links 0->1",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['From (UTC day)To (UTC day, included)Show Findings']",
+    "pSizes {'11px': 5, '12px': 4}->{'11px': 1, '12px': 4}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s404/sitefindings-nowindow-390-app.png",
+   "mock_image": "s404/sitefindings-nowindow-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "priced-current",
+   "width": "1440",
+   "part": "s405",
+   "route": "/sites/KOBO-001/financials?finding_id=b6b17a85-0b1d-4b2e-87f1-a2756b57e745&revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 3, '14px': 1}"
+   ],
+   "app_image": "s405/financials-priced-current-1440-app.png",
+   "mock_image": "s405/financials-priced-current-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "priced-current",
+   "width": "390",
+   "part": "s405",
+   "route": "/sites/KOBO-001/financials?finding_id=b6b17a85-0b1d-4b2e-87f1-a2756b57e745&revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.7
+    ],
+    [
+     "Trade-offs and exclusions",
+     1.69
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 3, '14px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it means in money'}, {'cls': 'data-table__scroll', 'sw': 408, 'cw'"
+   ],
+   "app_image": "s405/financials-priced-current-390-app.png",
+   "mock_image": "s405/financials-priced-current-390-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "priced-current",
+   "width": "1440",
+   "part": "s405",
+   "route": "/sites/KOBO-001/findings/b6b17a85-0b1d-4b2e-87f1-a2756b57e745?revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Where to look next",
+     1.46
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] height 225->250",
+    "[What limits this conclusion] links 0->1",
+    "[What to do next] height 179->211",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 502->590",
+    "[Where to look next] links 4->5",
+    "pSizes {'11px': 6, '19px': 1, '12px': 7, '10px': 2, '14px': 29}->{'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 31}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s405/finding-priced-current-1440-app.png",
+   "mock_image": "s405/finding-priced-current-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "priced-current",
+   "width": "390",
+   "part": "s405",
+   "route": "/sites/KOBO-001/findings/b6b17a85-0b1d-4b2e-87f1-a2756b57e745?revision_id=ffc6bc5c-fef3-4773-85fa-13a83ab8d0f0",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Where to look next",
+     1.63
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 0->1",
+    "[What to do next] height 199->231",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 570->658",
+    "[Where to look next] links 4->5",
+    "h1.top 149->128",
+    "pSizes {'11px': 6, '19px': 1, '12px': 7, '10px': 2, '14px': 29}->{'11px': 7, '19px': 1, '12px': 8, '10px': 2, '14px': 31}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s405/finding-priced-current-390-app.png",
+   "mock_image": "s405/finding-priced-current-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "single-price",
+   "width": "1440",
+   "part": "s405",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Interpretation history ratio 5.31->3.23; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.46
+    ],
+    [
+     "Interpretation history",
+     3.23
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 1121->681",
+    "[Interpretation history] rows 4->3",
+    "[Interpretation history] links 12->10",
+    "[Interpretation history] details 5->8",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Earlier version', 'Latest at this moment', 'Latest at this moment', 'First price']->['Latest at this moment', 'Earlier version', 'Latest at this moment', 'First price']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 2001->1594"
+   ],
+   "app_image": "s405/assumptions-single-price-1440-app.png",
+   "mock_image": "s405/assumptions-single-price-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "single-price",
+   "width": "390",
+   "part": "s405",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Interpretation history ratio 10.13->3.97; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.52
+    ],
+    [
+     "Interpretation history",
+     3.97
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 2726->1068",
+    "[Interpretation history] rows 4->3",
+    "[Interpretation history] links 12->10",
+    "[Interpretation history] details 5->8",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Earlier version', 'Latest at this moment', 'Latest at this moment', 'First price']->['Latest at this moment', 'Earlier version', 'Latest at this moment', 'First price']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 4300->2738",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 721, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s405/assumptions-single-price-390-app.png",
+   "mock_image": "s405/assumptions-single-price-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "mixed-withheld",
+   "width": "1440",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/financials?finding_id=4f566b9c-fb13-4d4b-8d96-d8eff49e94ac&revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.38
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1}->{'11px': 4, '12px': 7, '10px': 2, '14px': 1}"
+   ],
+   "app_image": "s408-mixed/financials-mixed-withheld-1440-app.png",
+   "mock_image": "s408-mixed/financials-mixed-withheld-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "mixed-withheld",
+   "width": "390",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/financials?finding_id=4f566b9c-fb13-4d4b-8d96-d8eff49e94ac&revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew by the ruled 'Inspect technical basis' link (W3 Q22/R199); +26 px, no ruled cap exceeded, no overflow or clipping; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.84
+    ],
+    [
+     "Trade-offs and exclusions",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 6, '10px': 2, '14px': 1}->{'11px': 4, '12px': 7, '10px': 2, '14px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it means in money'}]"
+   ],
+   "app_image": "s408-mixed/financials-mixed-withheld-390-app.png",
+   "mock_image": "s408-mixed/financials-mixed-withheld-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "mixed-withheld",
+   "width": "1440",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Interpretation history ratio 2.63->1.68; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.46
+    ],
+    [
+     "Interpretation history",
+     1.68
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 554->354",
+    "[Interpretation history] details 2->4",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 1434->1267"
+   ],
+   "app_image": "s408-mixed/assumptions-mixed-withheld-1440-app.png",
+   "mock_image": "s408-mixed/assumptions-mixed-withheld-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "mixed-withheld",
+   "width": "390",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Interpretation history ratio 4.06->2.26; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.52
+    ],
+    [
+     "Interpretation history",
+     2.26
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 1091->609",
+    "[Interpretation history] details 2->4",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 2664->2279",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 721, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s408-mixed/assumptions-mixed-withheld-390-app.png",
+   "mock_image": "s408-mixed/assumptions-mixed-withheld-390-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "mixed-source",
+   "width": "1440",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/findings/4f566b9c-fb13-4d4b-8d96-d8eff49e94ac/evidence?revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s408-mixed/finding-evidence-mixed-source-1440-app.png",
+   "mock_image": "s408-mixed/finding-evidence-mixed-source-1440-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "mixed-source",
+   "width": "390",
+   "part": "s408-mixed",
+   "route": "/sites/KOBO-001/findings/4f566b9c-fb13-4d4b-8d96-d8eff49e94ac/evidence?revision_id=e46abda4-4c99-49fa-ae97-3e79ce3f665d",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Inspect source lineage",
+     2.18
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__sc->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle \u00b7 Genera"
+   ],
+   "app_image": "s408-mixed/finding-evidence-mixed-source-390-app.png",
+   "mock_image": "s408-mixed/finding-evidence-mixed-source-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "priced",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886&consequence_revision_id=2fce1844-384a-4ffd-874c-221b8416c46e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     2.11
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 6, '10px': 3, '14px': 2, '13px': 1}->{'11px': 4, '12px': 7, '10px': 3, '14px': 2, '13px': 1}"
+   ],
+   "app_image": "s408-owner/financials-priced-1440-app.png",
+   "mock_image": "s408-owner/financials-priced-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "priced",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886&consequence_revision_id=2fce1844-384a-4ffd-874c-221b8416c46e",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     3.1
+    ],
+    [
+     "Trade-offs and exclusions",
+     1.69
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 6, '10px': 3, '14px': 2, '13px': 1}->{'11px': 4, '12px': 7, '10px': 3, '14px': 2, '13px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it means in money'}, {'cls': 'data-table__scroll', 'sw': 408, 'cw'"
+   ],
+   "app_image": "s408-owner/financials-priced-390-app.png",
+   "mock_image": "s408-owner/financials-priced-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "unpriced",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=8acabc0a-10c6-4e96-96b9-18804e48f7b3&revision_id=27ffbb1e-ef1f-4532-b33d-c3538a29ef7c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.39
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 4, '14px': 1}"
+   ],
+   "app_image": "s408-owner/financials-unpriced-1440-app.png",
+   "mock_image": "s408-owner/financials-unpriced-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "unpriced",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=8acabc0a-10c6-4e96-96b9-18804e48f7b3&revision_id=27ffbb1e-ef1f-4532-b33d-c3538a29ef7c",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew by the ruled 'Inspect technical basis' link (W3 Q22/R199); +26 px, no ruled cap exceeded, no overflow or clipping; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.87
+    ],
+    [
+     "Trade-offs and exclusions",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 4, '14px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it means in money'}]"
+   ],
+   "app_image": "s408-owner/financials-unpriced-390-app.png",
+   "mock_image": "s408-owner/financials-unpriced-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "quantity-unavailable",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=26ac2bed-1349-4726-9647-00d6d135f898",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 3, '14px': 1}"
+   ],
+   "app_image": "s408-owner/financials-quantity-unavailable-1440-app.png",
+   "mock_image": "s408-owner/financials-quantity-unavailable-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "quantity-unavailable",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=f1753882-7d2c-4b57-b00d-11a74c44f1c7&revision_id=26ac2bed-1349-4726-9647-00d6d135f898",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew by the ruled 'Inspect technical basis' link (W3 Q22/R199); +26 px, no ruled cap exceeded, no overflow or clipping; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What happened \u2192 what it means in money",
+     1.76
+    ],
+    [
+     "Trade-offs and exclusions",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Trade-offs and exclusions] links 0->1",
+    "pSizes {'11px': 4, '12px': 4, '10px': 3, '14px': 1}->{'11px': 4, '12px': 5, '10px': 3, '14px': 1}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it ->[{'cls': 'data-table__scroll', 'sw': 605, 'cw': 318, 'panel': 'What happened \u2192 what it means in money'}]"
+   ],
+   "app_image": "s408-owner/financials-quantity-unavailable-390-app.png",
+   "mock_image": "s408-owner/financials-quantity-unavailable-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "nofinding",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s408-owner/financials-nofinding-1440-app.png",
+   "mock_image": "s408-owner/financials-nofinding-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "nofinding",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s408-owner/financials-nofinding-390-app.png",
+   "mock_image": "s408-owner/financials-nofinding-390-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "notfound",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s408-owner/financials-notfound-1440-app.png",
+   "mock_image": "s408-owner/financials-notfound-1440-mock.png"
+  },
+  {
+   "screen": "financials",
+   "case": "notfound",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-15",
+    "B3-16"
+   ],
+   "app_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "mock_titles": [
+    "What happened \u2192 what it means in money",
+    "Assumptions in use",
+    "Trade-offs and exclusions"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s408-owner/financials-notfound-390-app.png",
+   "mock_image": "s408-owner/financials-notfound-390-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "priced",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What limits this conclusion",
+     1.47
+    ],
+    [
+     "Where to look next",
+     1.46
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 0->1",
+    "[What to do next] height 179->211",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 502->590",
+    "[Where to look next] links 4->5",
+    "pSizes {'11px': 6, '19px': 1, '12px': 9, '10px': 2, '14px': 17}->{'11px': 7, '19px': 1, '12px': 10, '10px': 2, '14px': 19}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s408-owner/finding-priced-1440-app.png",
+   "mock_image": "s408-owner/finding-priced-1440-mock.png"
+  },
+  {
+   "screen": "finding",
+   "case": "priced",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Panel grew only by ruled additions (Alternatives link, Recommendation/Financials links, W3 rulings Q15/R192); closed heights stay inside the ruled caps: Where to look next 613/716 px vs cap 650/1000, What limits this conclusion 308/414 vs 500/800 (finding-history Revision history 850/2000 not exceeded); tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-04",
+    "B3-05",
+    "B3-06",
+    "B3-07",
+    "B3-08",
+    "B3-09"
+   ],
+   "app_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "mock_titles": [
+    "What happened",
+    "What limits this conclusion",
+    "What to do next",
+    "Where to look next"
+   ],
+   "ratios_over_1.3": [
+    [
+     "What limits this conclusion",
+     2.02
+    ],
+    [
+     "Where to look next",
+     1.63
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[What happened] links 0->1",
+    "[What limits this conclusion] links 0->1",
+    "[What to do next] height 199->231",
+    "[What to do next] links 1->2",
+    "[Where to look next] height 570->658",
+    "[Where to look next] links 4->5",
+    "h1.top 149->128",
+    "pSizes {'11px': 6, '19px': 1, '12px': 9, '10px': 2, '14px': 17}->{'11px': 7, '19px': 1, '12px': 10, '10px': 2, '14px': 19}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)'], ['Overview*', 'Analysis']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s408-owner/finding-priced-390-app.png",
+   "mock_image": "s408-owner/finding-priced-390-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "labelled",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/evidence?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]"
+   ],
+   "app_image": "s408-owner/finding-evidence-labelled-1440-app.png",
+   "mock_image": "s408-owner/finding-evidence-labelled-1440-mock.png"
+  },
+  {
+   "screen": "finding-evidence",
+   "case": "labelled",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/evidence?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-11"
+   ],
+   "app_titles": [
+    "Evidence bundle \u00b7 Generator support merits review",
+    "Inspect source lineage"
+   ],
+   "mock_titles": [
+    "Evidence bundle \u00b7 F-104",
+    "Inspect source lineage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Inspect source lineage",
+     2.18
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence*', 'Alternatives', 'Recommendation', 'History', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence*', 'Alternatives', 'Recommendation', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}, {'cls': 'data-table__sc->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 332, 'cw': 318, 'panel': 'Evidence bundle \u00b7 Genera"
+   ],
+   "app_image": "s408-owner/finding-evidence-labelled-390-app.png",
+   "mock_image": "s408-owner/finding-evidence-labelled-390-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "priced",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/history?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     1.55
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]"
+   ],
+   "app_image": "s408-owner/finding-history-priced-1440-app.png",
+   "mock_image": "s408-owner/finding-history-priced-1440-mock.png"
+  },
+  {
+   "screen": "finding-history",
+   "case": "priced",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/findings/f1753882-7d2c-4b57-b00d-11a74c44f1c7/history?revision_id=3a9738f5-ec76-4ac9-a2df-d59909e0d886",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers; Revision history ratio 2.3->2.12; [Revision history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-01",
+    "B3-02",
+    "B3-03",
+    "B3-12"
+   ],
+   "app_titles": [
+    "Revision history"
+   ],
+   "mock_titles": [
+    "Revision history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Revision history",
+     2.12
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Revision history] columns ['Version recorded', 'Event', 'Basis']->['Time (EAT)', 'Event', 'Basis']",
+    "h1.top 149->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation', 'History*', 'What this finding means in money(off)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s408-owner/finding-history-priced-390-app.png",
+   "mock_image": "s408-owner/finding-history-priced-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "default",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Interpretation history ratio 8.64->3.23; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.57
+    ],
+    [
+     "Interpretation history",
+     3.23
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 1823->681",
+    "[Interpretation history] rows 7->3",
+    "[Interpretation history] links 30->21",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Latest at this moment', 'Earlier version', 'Earlier version', 'Earlier version', 'Latest at this moment']->['Latest at this moment', 'Latest at this moment', 'Earlier version', 'First price', 'Scheduled change', 'Correction']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 2743->1634"
+   ],
+   "app_image": "s408-owner/assumptions-default-1440-app.png",
+   "mock_image": "s408-owner/assumptions-default-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "default",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Interpretation history ratio 17.0->3.88; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.66
+    ],
+    [
+     "Interpretation history",
+     3.88
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 4572->1045",
+    "[Interpretation history] rows 7->3",
+    "[Interpretation history] links 30->21",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Latest at this moment', 'Earlier version', 'Earlier version', 'Earlier version', 'Latest at this moment']->['Latest at this moment', 'Latest at this moment', 'Earlier version', 'First price', 'Scheduled change', 'Correction']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 6225->2794",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 764, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s408-owner/assumptions-default-390-app.png",
+   "mock_image": "s408-owner/assumptions-default-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "recorded-T1",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A31%3A59.108265%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Interpretation history ratio 5.31->3.23; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.52
+    ],
+    [
+     "Interpretation history",
+     3.23
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 1121->681",
+    "[Interpretation history] rows 4->3",
+    "[Interpretation history] links 12->10",
+    "[Interpretation history] details 5->8",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Earlier version', 'Latest at this moment', 'Latest at this moment', 'First price']->['Latest at this moment', 'Earlier version', 'Latest at this moment', 'First price']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 2041->1634"
+   ],
+   "app_image": "s408-owner/assumptions-recorded-T1-1440-app.png",
+   "mock_image": "s408-owner/assumptions-recorded-T1-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "recorded-T1",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A31%3A59.108265%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Interpretation history ratio 10.13->3.97; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.56
+    ],
+    [
+     "Interpretation history",
+     3.97
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 1->2",
+    "[Interpretation history] height 2726->1068",
+    "[Interpretation history] rows 4->3",
+    "[Interpretation history] links 12->10",
+    "[Interpretation history] details 5->8",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Earlier version', 'Latest at this moment', 'Latest at this moment', 'First price']->['Latest at this moment', 'Earlier version', 'Latest at this moment', 'First price']",
+    "pSizes {'11px': 2, '12px': 4, '10px': 3, '23px': 1}->{'11px': 2, '12px': 4, '10px': 2, '23px': 1}",
+    "pageH 4358->2796",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 721, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s408-owner/assumptions-recorded-T1-390-app.png",
+   "mock_image": "s408-owner/assumptions-recorded-T1-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "recorded-T3",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Interpretation history ratio 8.64->3.23; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.63
+    ],
+    [
+     "Interpretation history",
+     3.23
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 1823->681",
+    "[Interpretation history] rows 7->3",
+    "[Interpretation history] links 30->21",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Latest at this moment', 'Earlier version', 'Earlier version', 'Earlier version', 'Latest at this moment']->['Latest at this moment', 'Latest at this moment', 'Earlier version', 'First price', 'Scheduled change', 'Correction']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 2783->1673"
+   ],
+   "app_image": "s408-owner/assumptions-recorded-T3-1440-app.png",
+   "mock_image": "s408-owner/assumptions-recorded-T3-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "recorded-T3",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers; Interpretation history ratio 17.0->3.88; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.7
+    ],
+    [
+     "Interpretation history",
+     3.88
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 4572->1045",
+    "[Interpretation history] rows 7->3",
+    "[Interpretation history] links 30->21",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "[Interpretation history] chips ['Latest at this moment', 'Latest at this moment', 'Earlier version', 'Earlier version', 'Earlier version', 'Latest at this moment']->['Latest at this moment', 'Latest at this moment', 'Earlier version', 'First price', 'Scheduled change', 'Correction']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 6283->2852",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 486, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 416, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 764, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s408-owner/assumptions-recorded-T3-390-app.png",
+   "mock_image": "s408-owner/assumptions-recorded-T3-390-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "T3-page2",
+   "width": "1440",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDEzOjMyOjIxLjI1MDc0MCswMDowMCIsIjJmY2UxODQ0LTM4NGEtNGZmZC04NzRjLTIyMWI4NDE2YzQ2ZSJdLCJmZW5jZSI6InNjaDEtMWJkNzJkNWFlZTM4ODcyNDkzYWEzNjE3NThhOTFlYzlhNzBlYmI4NTdkYjExZjcwYWE3MjU1MTg1ZDIyYjA1YSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjRUMTM6MzM6MjMuMDEwNzQ4KzAwOjAwIiwic2l0ZV9pZCI6Ijc5MGEwNzRjLTJiZmUtNGQ1ZS05ZGZiLTUyOGFiMDQzYjFiOSIsInRlbmFudF9pZCI6IjI4OTg3ZjQ5LTNmZGEtNGM5MS05YjBkLTVlZjU0MTg3ZjE2YyIsInYiOjF9&history_limit=2",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "14px prose reduced; Interpretation history ratio 4.46->2.23; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.63
+    ],
+    [
+     "Interpretation history",
+     2.23
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 942->470",
+    "[Interpretation history] details 4->7",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1, '14px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 1902->1463"
+   ],
+   "app_image": "s408-owner/assumptions-T3-page2-1440-app.png",
+   "mock_image": "s408-owner/assumptions-T3-page2-1440-mock.png"
+  },
+  {
+   "screen": "assumptions",
+   "case": "T3-page2",
+   "width": "390",
+   "part": "s408-owner",
+   "route": "/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-24T13%3A33%3A23.010748%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDEzOjMyOjIxLjI1MDc0MCswMDowMCIsIjJmY2UxODQ0LTM4NGEtNGZmZC04NzRjLTIyMWI4NDE2YzQ2ZSJdLCJmZW5jZSI6InNjaDEtMWJkNzJkNWFlZTM4ODcyNDkzYWEzNjE3NThhOTFlYzlhNzBlYmI4NTdkYjExZjcwYWE3MjU1MTg1ZDIyYjA1YSIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjRUMTM6MzM6MjMuMDEwNzQ4KzAwOjAwIiwic2l0ZV9pZCI6Ijc5MGEwNzRjLTJiZmUtNGQ1ZS05ZGZiLTUyOGFiMDQzYjFiOSIsInRlbmFudF9pZCI6IjI4OTg3ZjQ5LTNmZGEtNGM5MS05YjBkLTVlZjU0MTg3ZjE2YyIsInYiOjF9&history_limit=2",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "14px prose reduced; fewer horizontal scrollers; Interpretation history ratio 7.0->3.11; [Interpretation history] table columns changed",
+   "frozen_findings": [
+    "B3-X1",
+    "B3-17",
+    "B3-18"
+   ],
+   "app_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "mock_titles": [
+    "Financial assumptions",
+    "Impact preview",
+    "Interpretation history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Financial assumptions",
+     1.7
+    ],
+    [
+     "Interpretation history",
+     3.11
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Financial assumptions] links 8->9",
+    "[Interpretation history] height 1883->837",
+    "[Interpretation history] details 4->7",
+    "[Interpretation history] columns ['Version', 'Diesel price', 'Recorded amount', 'Source', 'Status']->['Version', 'Fuel price', 'Recorded amount', 'Status']",
+    "pSizes {'11px': 2, '12px': 5, '10px': 3, '23px': 1, '14px': 1}->{'11px': 2, '12px': 5, '10px': 2, '23px': 1}",
+    "pageH 3594->2645",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 447, 'cw': 318, 'panel': 'Interpretation history'}->[{'cls': 'data-table__scroll', 'sw': 377, 'cw': 318, 'panel': 'Interpretation history'}, {'cls': 'data-table__scroll', 'sw': 764, 'cw': 286, 'panel': "
+   ],
+   "app_image": "s408-owner/assumptions-T3-page2-390-app.png",
+   "mock_image": "s408-owner/assumptions-T3-page2-390-mock.png"
+  }
+ ]
+}

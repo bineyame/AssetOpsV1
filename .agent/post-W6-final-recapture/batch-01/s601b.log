@@ -1,0 +1,26 @@
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes/74a86c11-995f-4edc-be42-a9a3f9e8bd0d: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-applied 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-applied 1440: mock rendered its panels
+PASS  changes-applied 1440: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-applied 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes/74a86c11-995f-4edc-be42-a9a3f9e8bd0d: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-applied 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-applied 390: mock rendered its panels
+PASS  changes-applied 390: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-applied 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  changes-no-selection-s601b 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  changes-no-selection-s601b 1440: mock rendered its panels
+PASS  changes-no-selection-s601b 1440: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-no-selection-s601b 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/foundation/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-no-selection-s601b 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/changes: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  changes-no-selection-s601b 390: mock rendered its panels
+PASS  changes-no-selection-s601b 390: app and mock render the same number of panels  {"app":["Change and effect","Decision path"],"mock":["Change and effect","Decision path"]}
+PASS  changes-no-selection-s601b 390: app has no horizontal page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in s601b

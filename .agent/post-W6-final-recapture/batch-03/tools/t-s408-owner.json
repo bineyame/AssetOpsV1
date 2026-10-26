@@ -1,0 +1,62 @@
+[
+ {
+  "id": "financials",
+  "case": "priced",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=a6773c03-8d2f-47d2-85ca-e10f499ea336&revision_id=69ba9d86-8928-4865-a4d9-a5b7385155a6&consequence_revision_id=e8f2ac2b-8f62-4772-a500-a962b30436bc"
+ },
+ {
+  "id": "financials",
+  "case": "unpriced",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=53ffd011-4c75-4406-9709-58a58df495cc&revision_id=b8e3433b-141e-4011-98ee-2a3bd8244d65"
+ },
+ {
+  "id": "financials",
+  "case": "quantity-unavailable",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=a6773c03-8d2f-47d2-85ca-e10f499ea336&revision_id=30755234-5d95-460e-b091-5d887e205213"
+ },
+ {
+  "id": "financials",
+  "case": "nofinding",
+  "url": "http://localhost:5183/sites/KOBO-001/financials"
+ },
+ {
+  "id": "financials",
+  "case": "notfound",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=00000000-0000-4000-8000-000000000000"
+ },
+ {
+  "id": "finding",
+  "case": "priced",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/a6773c03-8d2f-47d2-85ca-e10f499ea336?revision_id=69ba9d86-8928-4865-a4d9-a5b7385155a6"
+ },
+ {
+  "id": "finding-evidence",
+  "case": "labelled",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/a6773c03-8d2f-47d2-85ca-e10f499ea336/evidence?revision_id=69ba9d86-8928-4865-a4d9-a5b7385155a6"
+ },
+ {
+  "id": "finding-history",
+  "case": "priced",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/a6773c03-8d2f-47d2-85ca-e10f499ea336/history?revision_id=69ba9d86-8928-4865-a4d9-a5b7385155a6"
+ },
+ {
+  "id": "assumptions",
+  "case": "default",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "id": "assumptions",
+  "case": "recorded-T1",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-26T07%3A47%3A48.330058%2B00%3A00"
+ },
+ {
+  "id": "assumptions",
+  "case": "recorded-T3",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-26T07%3A48%3A26.303948%2B00%3A00"
+ },
+ {
+  "id": "assumptions",
+  "case": "T3-page2",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions?recorded_at=2026-10-26T07%3A48%3A26.303948%2B00%3A00&history_after=eyJhZnRlciI6WyIyMDI2LTEwLTI2VDA3OjQ3OjU4LjQ5MTkwMCswMDowMCIsImU4ZjJhYzJiLThmNjItNDc3Mi1hNTAwLWE5NjJiMzA0MzZiYyJdLCJmZW5jZSI6InNjaDEtYTc3MzYwNDVkNjQ4NDc1ODNiNWQyOGU1NDBiMWU0OGIxMGFlMGIzZGRkMmRhMWY3ZDhmY2VlZmI2MDkyZjJmYiIsImxpbWl0IjoyLCJyZWNvcmRlZF9hdCI6IjIwMjYtMTAtMjZUMDc6NDg6MjYuMzAzOTQ4KzAwOjAwIiwic2l0ZV9pZCI6ImQwMGY0NDQwLTliM2ItNDQyNS1iMDM3LTYwN2U4ZGUxODY1YSIsInRlbmFudF9pZCI6ImE5ZGMzZGRhLTUxOGMtNGYxMy1iYzBkLWEyZGJhNzk2YmQxZCIsInYiOjF9&history_limit=2"
+ }
+]

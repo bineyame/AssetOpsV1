@@ -1,0 +1,4611 @@
+{
+  "revision": "89a11477",
+  "captured_at": "2026-10-26T07:34:32.516Z",
+  "pairs": [
+    {
+      "screen": "mini",
+      "case": "priced",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-23",
+      "mock_hash": "#/mini",
+      "app_image": "mini-priced-1440-app.png",
+      "mock_image": "mini-priced-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 524,
+            "w": 1145,
+            "h": 333,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 874,
+            "w": 725,
+            "h": 518,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 176,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 874,
+            "w": 403,
+            "h": 518,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1411,
+            "w": 725,
+            "h": 248,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 24,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1411,
+            "w": 403,
+            "h": 248,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1759,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "10px": 11,
+          "13px": 2,
+          "14px": 1,
+          "27px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1759
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "priced",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-23",
+      "mock_hash": "#/mini",
+      "app_image": "mini-priced-390-app.png",
+      "mock_image": "mini-priced-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1141,
+            "w": 358,
+            "h": 400,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1559,
+            "w": 358,
+            "h": 667,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 176,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2243,
+            "w": 358,
+            "h": 248,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2507,
+            "w": 358,
+            "h": 317,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 24,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2840,
+            "w": 358,
+            "h": 226,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3157,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 330,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 4,
+          "10px": 11,
+          "13px": 2,
+          "14px": 1,
+          "27px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "held",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-24",
+      "mock_hash": "#/mini",
+      "app_image": "mini-held-1440-app.png",
+      "mock_image": "mini-held-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 524,
+            "w": 1145,
+            "h": 333,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 874,
+            "w": 725,
+            "h": 518,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 176,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 874,
+            "w": 403,
+            "h": 518,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1411,
+            "w": 725,
+            "h": 229,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 15,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1411,
+            "w": 403,
+            "h": 229,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1741,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "10px": 11,
+          "13px": 2,
+          "14px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1741
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "held",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-24",
+      "mock_hash": "#/mini",
+      "app_image": "mini-held-390-app.png",
+      "mock_image": "mini-held-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1141,
+            "w": 358,
+            "h": 433,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1592,
+            "w": 358,
+            "h": 667,
+            "tables": 1,
+            "rows": 7,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 176,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2276,
+            "w": 358,
+            "h": 248,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2540,
+            "w": 358,
+            "h": 334,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 15,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2890,
+            "w": 358,
+            "h": 226,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3208,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 330,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 4,
+          "10px": 11,
+          "13px": 2,
+          "14px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "ordinary-no-amount",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-02",
+      "mock_hash": "#/mini",
+      "app_image": "mini-ordinary-no-amount-1440-app.png",
+      "mock_image": "mini-ordinary-no-amount-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 524,
+            "w": 1145,
+            "h": 304,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 846,
+            "w": 725,
+            "h": 595,
+            "tables": 1,
+            "rows": 10,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 330,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 846,
+            "w": 403,
+            "h": 595,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1459,
+            "w": 725,
+            "h": 229,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1459,
+            "w": 403,
+            "h": 229,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1789,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 4,
+          "10px": 10,
+          "13px": 2,
+          "14px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1789
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "ordinary-no-amount",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-02",
+      "mock_hash": "#/mini",
+      "app_image": "mini-ordinary-no-amount-390-app.png",
+      "mock_image": "mini-ordinary-no-amount-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1141,
+            "w": 358,
+            "h": 372,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1531,
+            "w": 358,
+            "h": 792,
+            "tables": 1,
+            "rows": 10,
+            "columns": [
+              "Reading",
+              "Records",
+              "Good",
+              "First",
+              "Last"
+            ],
+            "chips": [],
+            "links": 330,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 2339,
+            "w": 358,
+            "h": 248,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 1,
+            "h3": [
+              "Generator support merits review"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2603,
+            "w": 358,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2935,
+            "w": 358,
+            "h": 226,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the Finding for this day"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3253,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 330,
+            "cw": 318,
+            "panel": "Operating context"
+          }
+        ],
+        "pSizes": {
+          "11px": 4,
+          "10px": 10,
+          "13px": 2,
+          "14px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "failed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-07",
+      "mock_hash": "#/mini",
+      "app_image": "mini-failed-1440-app.png",
+      "mock_image": "mini-failed-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 562,
+            "w": 1145,
+            "h": 236,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 816,
+            "w": 725,
+            "h": 454,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 816,
+            "w": 403,
+            "h": 454,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1287,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1287,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1565,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 7,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1565
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "failed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-07",
+      "mock_hash": "#/mini",
+      "app_image": "mini-failed-390-app.png",
+      "mock_image": "mini-failed-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1229,
+            "w": 358,
+            "h": 287,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1534,
+            "w": 358,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1886,
+            "w": 358,
+            "h": 454,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2356,
+            "w": 358,
+            "h": 212,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2585,
+            "w": 358,
+            "h": 154,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2830,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 7,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "unassessed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-11-10",
+      "mock_hash": "#/mini",
+      "app_image": "mini-unassessed-1440-app.png",
+      "mock_image": "mini-unassessed-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 524,
+            "w": 1145,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 786,
+            "w": 725,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 786,
+            "w": 403,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1207,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1207,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1485,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 6,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1485
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "unassessed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-11-10",
+      "mock_hash": "#/mini",
+      "app_image": "mini-unassessed-390-app.png",
+      "mock_image": "mini-unassessed-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1191,
+            "w": 358,
+            "h": 344,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1554,
+            "w": 358,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1906,
+            "w": 358,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2326,
+            "w": 358,
+            "h": 212,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2554,
+            "w": 358,
+            "h": 154,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2799,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 6,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "default-no-date",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5182/sites/KOBO-001",
+      "mock_hash": "#/mini",
+      "app_image": "mini-default-no-date-1440-app.png",
+      "mock_image": "mini-default-no-date-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 248,
+            "y": 524,
+            "w": 1145,
+            "h": 244,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 248,
+            "y": 786,
+            "w": 725,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 786,
+            "w": 403,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1207,
+            "w": 725,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1207,
+            "w": 403,
+            "h": 176,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1485,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 6,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1485
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 373,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1227,
+            "w": 735,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1227,
+            "w": 408,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1487,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 1443
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "mini",
+      "case": "default-no-date",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5182/sites/KOBO-001",
+      "mock_hash": "#/mini",
+      "app_image": "mini-default-no-date-390-app.png",
+      "mock_image": "mini-default-no-date-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 16,
+            "y": 1191,
+            "w": 358,
+            "h": 344,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 16,
+            "y": 1554,
+            "w": 358,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1906,
+            "w": 358,
+            "h": 404,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 1,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2326,
+            "w": 358,
+            "h": 212,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 2,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2554,
+            "w": 358,
+            "h": 154,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2799,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Kobo mini-grid",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 3,
+          "10px": 6,
+          "14px": 6,
+          "13px": 1,
+          "16px": 1,
+          "12px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "What happened in the selected hour",
+          "Operating context",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened in the selected hour",
+            "x": 15,
+            "y": 1236,
+            "w": 360,
+            "h": 523,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Operating context",
+            "x": 15,
+            "y": 1777,
+            "w": 360,
+            "h": 286,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2082,
+            "w": 360,
+            "h": 370,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Generator ran longer than needed",
+              "A battery report is missing",
+              "Check the charging trade-off"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2470,
+            "w": 360,
+            "h": 190,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2678,
+            "w": 360,
+            "h": 193,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "h3": [
+              "Review the 90% generator stop setting"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2965,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Kobo Mini-grid",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview*",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work",
+              "Financials",
+              "Evidence"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 511,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 5,
+          "12px": 3,
+          "10px": 1,
+          "14px": 2
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

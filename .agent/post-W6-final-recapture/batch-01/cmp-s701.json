@@ -1,0 +1,165 @@
+[
+ {
+  "screen": "asset",
+  "case": "kobo001-s701",
+  "width": "1440",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "asset-kobo001-s701-1440-app.png",
+  "mock_image": "asset-kobo001-s701-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "kobo001-s701",
+  "width": "390",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 749->813",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 640}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 640}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Interpretation and next evidence",
+    1.31
+   ]
+  ],
+  "dark_h1y_old_new": [
+   155,
+   155
+  ],
+  "app_image": "asset-kobo001-s701-390-app.png",
+  "mock_image": "asset-kobo001-s701-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "refusal-kobo002",
+  "width": "1440",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Observed reserve and power exposure] height 126->99",
+   "[Interpretation and next evidence] height 126->99"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "asset-refusal-kobo002-1440-app.png",
+  "mock_image": "asset-refusal-kobo002-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "refusal-kobo002",
+  "width": "390",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 537->608",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "asset-refusal-kobo002-390-app.png",
+  "mock_image": "asset-refusal-kobo002-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "14px prose reduced"
+  ],
+  "regress": []
+ }
+]

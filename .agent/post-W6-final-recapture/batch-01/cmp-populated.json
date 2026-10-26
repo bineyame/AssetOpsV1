@@ -1,0 +1,1151 @@
+[
+ {
+  "screen": "sites",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "mock_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 291->311",
+   "tabs []->[{'label': 'Breadcrumb', 'items': ['Sites [current] [disabled]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   24,
+   44
+  ],
+  "app_image": "sites-stocked-1440-app.png",
+  "mock_image": "sites-stocked-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "breadcrumb added"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "sites",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "mock_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 687->707",
+   "tabs []->[{'label': 'Breadcrumb', 'items': ['Sites [current] [disabled]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   108,
+   127
+  ],
+  "app_image": "sites-stocked-390-app.png",
+  "mock_image": "sites-stocked-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "breadcrumb added"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "now",
+  "width": "1440",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Configured topology] height 595->407"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Time-valid control configuration",
+    2.61
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "foundation-now-1440-app.png",
+  "mock_image": "foundation-now-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "Configured topology ratio 1.5->1.03"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "now",
+  "width": "390",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Identity and operating obligations] height 678->606",
+   "firstPanelY 525->589",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 395}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 395}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Time-valid control configuration",
+    2.82
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "foundation-now-390-app.png",
+  "mock_image": "foundation-now-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown",
+   "14px prose reduced",
+   "Time-valid control configuration ratio 2.93->2.82"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "no-version",
+  "width": "1440",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "h1 text 'KOBO-001'->'Kobo mini-grid'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "foundation-no-version-1440-app.png",
+  "mock_image": "foundation-no-version-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "no-version",
+  "width": "390",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "h1 text 'KOBO-001'->'Kobo mini-grid'",
+   "firstPanelY 691->755",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "foundation-no-version-390-app.png",
+  "mock_image": "foundation-no-version-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab row no longer scrolls"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "imported-period",
+  "width": "1440",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Configured topology] height 595->407"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Time-valid control configuration",
+    2.61
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "foundation-imported-period-1440-app.png",
+  "mock_image": "foundation-imported-period-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "Configured topology ratio 1.5->1.03"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "foundation",
+  "case": "imported-period",
+  "width": "390",
+  "new_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "mock_titles": [
+   "Configured topology",
+   "Identity & operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Identity and operating obligations] height 678->606",
+   "firstPanelY 585->649",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 395}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 395}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Configured topology",
+   "Identity and operating obligations",
+   "Time-valid control configuration"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Time-valid control configuration",
+    2.82
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "foundation-imported-period-390-app.png",
+  "mock_image": "foundation-imported-period-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown",
+   "14px prose reduced",
+   "Time-valid control configuration ratio 2.93->2.82"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "readiness",
+  "case": "now",
+  "width": "1440",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 edge-kobo-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 GW-MG-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "pageEndNote 'This view assesses configuration: roles, channel links, Foun'->None"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 edge-kobo-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Readiness and commissioning evidence",
+    1.63
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "readiness-now-1440-app.png",
+  "mock_image": "readiness-now-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "readiness",
+  "case": "now",
+  "width": "390",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 edge-kobo-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 GW-MG-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 936->1000",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 529}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 529}]",
+   "pageEndNote 'This view assesses configuration: roles, channel links, Foun'->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 edge-kobo-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Readiness and commissioning evidence",
+    1.99
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "readiness-now-390-app.png",
+  "mock_image": "readiness-now-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "readiness",
+  "case": "no-version",
+  "width": "1440",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 No gateway selected",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 GW-MG-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "h1 text 'KOBO-001'->'Kobo mini-grid'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 No gateway selected",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "readiness-no-version-1440-app.png",
+  "mock_image": "readiness-no-version-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "readiness",
+  "case": "no-version",
+  "width": "390",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 No gateway selected",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 GW-MG-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "h1 text 'KOBO-001'->'Kobo mini-grid'",
+   "firstPanelY 673->737",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status \u00c2\u00b7 No gateway selected",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "readiness-no-version-390-app.png",
+  "mock_image": "readiness-no-version-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab row no longer scrolls"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "now",
+  "width": "1440",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    2.23
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "sld-now-1440-app.png",
+  "mock_image": "sld-now-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "now",
+  "width": "390",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Kobo mini-grid] height 1221->954",
+   "[Kobo mini-grid] links ['Site evidence \u00e2\u2020\u2019', 'Site Evidence \u00e2\u2020\u2019']->['Site evidence \u00e2\u2020\u2019', 'PV array \u00c2\u00b7 60 kW', 'PV inverter \u00c2\u00b7 50 kW', 'Battery energy storage \u00c2\u00b7 200 kWh', 'Battery power conversion system \u00c2\u00b7 30 kW', 'Diesel generator \u00c2\u00b7 40 kW', 'Generator fuel tank \u00c2\u00b7 400 L', 'AC bus \u00c2\u00b7 400 V']",
+   "firstPanelY 507->571",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'sld__scroll', 'client': 316, 'scroll': 952}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    1.95
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "sld-now-390-app.png",
+  "mock_image": "sld-now-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "battery",
+  "width": "1440",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    2.23
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "sld-battery-1440-app.png",
+  "mock_image": "sld-battery-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "battery",
+  "width": "390",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Kobo mini-grid] height 1435->1168",
+   "[Kobo mini-grid] links ['Site evidence \u00e2\u2020\u2019', 'Clear selected part', 'Site Evidence \u00e2\u2020\u2019']->['Site evidence \u00e2\u2020\u2019', 'PV array \u00c2\u00b7 60 kW', 'PV inverter \u00c2\u00b7 50 kW', 'Battery energy storage \u00c2\u00b7 200 kWh', 'Battery power conversion system \u00c2\u00b7 30 kW', 'Diesel generator \u00c2\u00b7 40 kW', 'Generator fuel tank \u00c2\u00b7 400 L', 'AC bus \u00c2\u00b7 400 V']",
+   "firstPanelY 507->571",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'sld__scroll', 'client': 316, 'scroll': 952}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    1.95
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "sld-battery-390-app.png",
+  "mock_image": "sld-battery-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "unknown-part",
+  "width": "1440",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "pageEndNote 'Selected part is not in this Foundation period. Part no-such'->None"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    2.23
+   ]
+  ],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "sld-unknown-part-1440-app.png",
+  "mock_image": "sld-unknown-part-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "sld",
+  "case": "unknown-part",
+  "width": "390",
+  "new_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "Kobo Mini-grid \u00c2\u00b7 AC-coupled mini-grid",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Kobo mini-grid] height 1221->954",
+   "[Kobo mini-grid] links ['Site evidence \u00e2\u2020\u2019', 'Site Evidence \u00e2\u2020\u2019']->['Site evidence \u00e2\u2020\u2019', 'PV array \u00c2\u00b7 60 kW', 'PV inverter \u00c2\u00b7 50 kW', 'Battery energy storage \u00c2\u00b7 200 kWh', 'Battery power conversion system \u00c2\u00b7 30 kW', 'Diesel generator \u00c2\u00b7 40 kW', 'Generator fuel tank \u00c2\u00b7 400 L', 'AC bus \u00c2\u00b7 400 V']",
+   "firstPanelY 632->671",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'sld__scroll', 'client': 316, 'scroll': 952}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 341}]",
+   "pageEndNote 'Selected part is not in this Foundation period. Part no-such'->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Kobo mini-grid",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    1.95
+   ]
+  ],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "sld-unknown-part-390-app.png",
+  "mock_image": "sld-unknown-part-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "changes-no-selection-1440-app.png",
+  "mock_image": "changes-no-selection-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 579->569",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   200,
+   127
+  ],
+  "app_image": "changes-no-selection-390-app.png",
+  "mock_image": "changes-no-selection-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 header band shorter",
+   "tab row no longer scrolls"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "unknown-id",
+  "width": "1440",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "tabs [{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]->[{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change & effect [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "changes-unknown-id-1440-app.png",
+  "mock_image": "changes-unknown-id-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "changes",
+  "case": "unknown-id",
+  "width": "390",
+  "new_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "mock_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]",
+   "tabs [{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]->[{'label': 'Breadcrumb', 'items': ['Sites', 'Kobo mini-grid', 'Foundation', 'Change & effect [current] [disabled]']}, {'label': 'Site sections', 'items': ['Overview', 'Foundation [current]', 'Health', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}, {'label': 'Foundation views', 'items': ['Site model', 'Single line diagram', 'Readiness', 'Change & effect [current]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Change and effect",
+   "Decision path"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   192,
+   127
+  ],
+  "app_image": "changes-unknown-id-390-app.png",
+  "mock_image": "changes-unknown-id-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 header band shorter",
+   "tab row no longer scrolls"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "kobo001-battery",
+  "width": "1440",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "asset-kobo001-battery-1440-app.png",
+  "mock_image": "asset-kobo001-battery-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "kobo001-battery",
+  "width": "390",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 749->813",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}, {'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 640}]->[{'tag': 'div', 'cls': 'data-table__scroll', 'client': 318, 'scroll': 640}]",
+   "pageEndNote None->'MOCK DEVIATION D2 (R453)'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [
+   [
+    "Interpretation and next evidence",
+    1.31
+   ]
+  ],
+  "dark_h1y_old_new": [
+   155,
+   155
+  ],
+  "app_image": "asset-kobo001-battery-390-app.png",
+  "mock_image": "asset-kobo001-battery-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "MOCK DEVIATION label shown"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "unknown-asset",
+  "width": "1440",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Observed reserve and power exposure] height 126->99",
+   "[Interpretation and next evidence] height 126->99"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   44,
+   44
+  ],
+  "app_image": "asset-unknown-asset-1440-app.png",
+  "mock_image": "asset-unknown-asset-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "unknown-asset",
+  "width": "390",
+  "new_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 537->608",
+   "innerScroll [{'tag': 'ol', 'cls': 'site-tabs__list', 'client': 358, 'scroll': 521}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and its limits"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   127,
+   127
+  ],
+  "app_image": "asset-unknown-asset-390-app.png",
+  "mock_image": "asset-unknown-asset-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab row no longer scrolls",
+   "14px prose reduced"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "unknown-site",
+  "width": "1440",
+  "new_app_titles": [
+   "No such site"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such site"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   24,
+   24
+  ],
+  "app_image": "asset-unknown-site-1440-app.png",
+  "mock_image": "asset-unknown-site-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": []
+ },
+ {
+  "screen": "asset",
+  "case": "unknown-site",
+  "width": "390",
+  "new_app_titles": [
+   "No such site"
+  ],
+  "mock_titles": [
+   "Observed reserve and power exposure",
+   "Interpretation and next evidence",
+   "Condition evidence and claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 432->154"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "No such site"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   385,
+   108
+  ],
+  "app_image": "asset-unknown-site-390-app.png",
+  "mock_image": "asset-unknown-site-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "390 header band shorter"
+  ],
+  "regress": []
+ }
+]

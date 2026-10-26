@@ -1,0 +1,6 @@
+[
+ {"id":"action-plan","case":"guardrail","url":"http://localhost:5184/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/plan"},
+ {"id":"action-evidence","case":"guardrail","url":"http://localhost:5184/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/evidence"},
+ {"id":"action-overview","case":"guardrail","url":"http://localhost:5184/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75"},
+ {"id":"recommendation","case":"guardrail-hold","url":"http://localhost:5184/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911"}
+]

@@ -1,0 +1,9 @@
+[
+ {"id":"recommendation","case":"verified-replay","url":"http://localhost:5184/sites/KOBO-001/findings/ebe679e4-6514-44e4-bf9f-0818decfcbd0/recommendation?revision_id=b0863aaa-6062-4f17-8dbf-33aa95942307"},
+ {"id":"action-overview","case":"verified-replay","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4"},
+ {"id":"action-execution","case":"verified-replay","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4/execution"},
+ {"id":"action-history","case":"verified-replay","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4/history"},
+ {"id":"action-plan","case":"pass","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4/plan"},
+ {"id":"action-plan","case":"exact-plan","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4/plan?plan_revision_id=731ce87d-9cad-4771-9ff4-02699bec0f29"},
+ {"id":"action-evidence","case":"pass","url":"http://localhost:5184/sites/KOBO-001/actions/71307d1a-9709-49f8-af91-8442b744a2c4/evidence"}
+]

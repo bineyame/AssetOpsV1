@@ -1,0 +1,79 @@
+[
+ {
+  "screen": "sites",
+  "case": "empty",
+  "width": "1440",
+  "new_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "mock_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "firstPanelY 243->262",
+   "tabs []->[{'label': 'Breadcrumb', 'items': ['Sites [current] [disabled]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   24,
+   44
+  ],
+  "app_image": "sites-empty-1440-app.png",
+  "mock_image": "sites-empty-1440-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "breadcrumb added"
+  ],
+  "regress": []
+ },
+ {
+  "screen": "sites",
+  "case": "empty",
+  "width": "390",
+  "new_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "mock_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_diffs": [
+   "[Site inventory] height 393->341",
+   "firstPanelY 561->581",
+   "tabs []->[{'label': 'Breadcrumb', 'items': ['Sites [current] [disabled]']}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Site inventory",
+   "In setup"
+  ],
+  "vocab_old": [],
+  "ratios_over_1.3": [],
+  "dark_h1y_old_new": [
+   108,
+   127
+  ],
+  "app_image": "sites-empty-390-app.png",
+  "mock_image": "sites-empty-390-mock.png",
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "breadcrumb added"
+  ],
+  "regress": []
+ }
+]

@@ -1,0 +1,17 @@
+[
+ {
+  "id": "financials",
+  "case": "mixed-withheld",
+  "url": "http://localhost:5183/sites/KOBO-001/financials?finding_id=e30b02dd-cfb0-405e-b734-f6f8dbbcfa14&revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33"
+ },
+ {
+  "id": "assumptions",
+  "case": "mixed-withheld",
+  "url": "http://localhost:5183/sites/KOBO-001/financials/assumptions"
+ },
+ {
+  "id": "finding-evidence",
+  "case": "mixed-source",
+  "url": "http://localhost:5183/sites/KOBO-001/findings/e30b02dd-cfb0-405e-b734-f6f8dbbcfa14/evidence?revision_id=a812d1e1-319b-4ce2-ace4-3eaa22314c33"
+ }
+]

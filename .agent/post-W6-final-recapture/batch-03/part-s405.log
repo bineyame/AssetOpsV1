@@ -1,0 +1,39 @@
+chrome pid 30596
+PASS  loaded http://localhost:5183/sites/KOBO-001/financials?finding_id=3b1b0049-06dc-4f83-aab8-9cb8720d540e&revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  financials-priced-current 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  financials-priced-current 1440: mock rendered
+PASS  financials-priced-current 1440: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Trade-offs and exclusions"],"mock":["What happened → what it means in money","Assumptions in use","Trade-offs and exclusions"]}
+PASS  financials-priced-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/financials?finding_id=3b1b0049-06dc-4f83-aab8-9cb8720d540e&revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  financials-priced-current 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/financials: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  financials-priced-current 390: mock rendered
+PASS  financials-priced-current 390: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Trade-offs and exclusions"],"mock":["What happened → what it means in money","Assumptions in use","Trade-offs and exclusions"]}
+PASS  financials-priced-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/3b1b0049-06dc-4f83-aab8-9cb8720d540e?revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-priced-current 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  finding-priced-current 1440: mock rendered
+PASS  finding-priced-current 1440: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-priced-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/findings/3b1b0049-06dc-4f83-aab8-9cb8720d540e?revision_id=e36b737f-877e-4f06-b388-a3b93f4e15c5: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-priced-current 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/finding: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  finding-priced-current 390: mock rendered
+PASS  finding-priced-current 390: same panel count  {"app":["What happened","What limits this conclusion","What to do next","Where to look next"],"mock":["What happened","What limits this conclusion","What to do next","Where to look next"]}
+PASS  finding-priced-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/financials/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions-single-price 1440: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  assumptions-single-price 1440: mock rendered
+PASS  assumptions-single-price 1440: same panel count  {"app":["Financial assumptions","Impact preview","Interpretation history"],"mock":["Financial assumptions","Impact preview","Interpretation history"]}
+PASS  assumptions-single-price 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5183/sites/KOBO-001/financials/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions-single-price 390: app rendered
+PASS  loaded http://localhost:5183/mockups/v69/index.html#/assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  assumptions-single-price 390: mock rendered
+PASS  assumptions-single-price 390: same panel count  {"app":["Financial assumptions","Impact preview","Interpretation history"],"mock":["Financial assumptions","Impact preview","Interpretation history"]}
+PASS  assumptions-single-price 390: no app page overflow  {"overflowX":0}
+
+36/36 claims passed; evidence in part-s405

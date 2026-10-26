@@ -1,0 +1,171 @@
+chrome pid 23096
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-accepted 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-accepted 1440: mock rendered
+PASS  recommendation-accepted 1440: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-accepted 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation?revision_id=e5f2f6dc-56b6-4afa-84fd-5d9df0f7289d: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-accepted 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-accepted 390: mock rendered
+PASS  recommendation-accepted 390: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-accepted 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-latest-trial-open 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-latest-trial-open 1440: mock rendered
+PASS  recommendation-latest-trial-open 1440: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-latest-trial-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/094b3993-0540-467f-8051-be37307fedc1/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-latest-trial-open 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-latest-trial-open 390: mock rendered
+PASS  recommendation-latest-trial-open 390: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-latest-trial-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/f31f4ef4-6f76-471f-b0e4-2c6e655d2faf/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-unavailable 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  recommendation-unavailable 1440: mock rendered
+PASS  recommendation-unavailable 1440: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-unavailable 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/findings/f31f4ef4-6f76-471f-b0e4-2c6e655d2faf/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-unavailable 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/recommendation: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  recommendation-unavailable 390: mock rendered
+PASS  recommendation-unavailable 390: same panel count  {"app":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"],"mock":["Proposed intervention","Declare success before evaluating","Evidence needed to verify"]}
+PASS  recommendation-unavailable 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-overview-recorded 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-recorded 1440: mock rendered
+PASS  action-overview-recorded 1440: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-recorded 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-recorded 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-recorded 390: mock rendered
+PASS  action-overview-recorded 390: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-recorded 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-overview-pending-f02 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-pending-f02 1440: mock rendered
+PASS  action-overview-pending-f02 1440: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-pending-f02 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-pending-f02 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-pending-f02 390: mock rendered
+PASS  action-overview-pending-f02 390: same panel count  {"app":["Action scope"],"mock":["Action scope"]}
+PASS  action-overview-pending-f02 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/nosuch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-overview-unknown-section 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-overview-unknown-section 1440: mock rendered
+PASS  action-overview-unknown-section 1440: same panel count  {"app":["No such Action section"],"mock":["Action scope"]}
+PASS  action-overview-unknown-section 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/nosuch: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-unknown-section 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-overview: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-overview-unknown-section 390: mock rendered
+PASS  action-overview-unknown-section 390: same panel count  {"app":["No such Action section"],"mock":["Action scope"]}
+PASS  action-overview-unknown-section 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-execution-applied 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-execution-applied 1440: mock rendered
+PASS  action-execution-applied 1440: same panel count  {"app":["Activity log"],"mock":["Activity log"]}
+PASS  action-execution-applied 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-applied 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-applied 390: mock rendered
+PASS  action-execution-applied 390: same panel count  {"app":["Activity log"],"mock":["Activity log"]}
+PASS  action-execution-applied 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f/execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-execution-failed-pending 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-execution: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-execution-failed-pending 1440: mock rendered
+PASS  action-execution-failed-pending 1440: same panel count  {"app":["Activity log"],"mock":["Activity log"]}
+PASS  action-execution-failed-pending 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/d0c59a34-0e48-47df-8a4c-d35c3ab20c5f/execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-failed-pending 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-execution: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-execution-failed-pending 390: mock rendered
+PASS  action-execution-failed-pending 390: same panel count  {"app":["Activity log"],"mock":["Activity log"]}
+PASS  action-execution-failed-pending 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-history-all 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-all 1440: mock rendered
+PASS  action-history-all 1440: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-all 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-all 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-all 390: mock rendered
+PASS  action-history-all 390: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-all 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=b119f537-c4c8-4c00-b7ca-799166451813: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-history-event-failed-stale 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-event-failed-stale 1440: mock rendered
+PASS  action-history-event-failed-stale 1440: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-event-failed-stale 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=b119f537-c4c8-4c00-b7ca-799166451813: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-event-failed-stale 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-event-failed-stale 390: mock rendered
+PASS  action-history-event-failed-stale 390: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-event-failed-stale 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?recorded_at=2026-11-01T00:30:00%2B00:00: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-history-recorded-at 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-recorded-at 1440: mock rendered
+PASS  action-history-recorded-at 1440: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-recorded-at 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?recorded_at=2026-11-01T00:30:00%2B00:00: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-recorded-at 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-recorded-at 390: mock rendered
+PASS  action-history-recorded-at 390: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-recorded-at 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699&recorded_at=2026-11-01T00:30:00%2B00:00: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-history-selector-conflict 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-history-selector-conflict 1440: mock rendered
+PASS  action-history-selector-conflict 1440: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-selector-conflict 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/history?event_id=132bf54b-6e13-4f7b-b073-20d1fc31a699&recorded_at=2026-11-01T00:30:00%2B00:00: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-selector-conflict 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-history: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-history-selector-conflict 390: mock rendered
+PASS  action-history-selector-conflict 390: same panel count  {"app":["Action history"],"mock":["Action history"]}
+PASS  action-history-selector-conflict 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-plan-pre-plan-s601b 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-plan: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-plan-pre-plan-s601b 1440: mock rendered
+PASS  action-plan-pre-plan-s601b 1440: same panel count  {"app":["Success criteria"],"mock":["Success criteria"]}
+PASS  action-plan-pre-plan-s601b 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-pre-plan-s601b 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-plan: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-plan-pre-plan-s601b 390: mock rendered
+PASS  action-plan-pre-plan-s601b 390: same panel count  {"app":["Success criteria"],"mock":["Success criteria"]}
+PASS  action-plan-pre-plan-s601b 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  action-evidence-pre-plan-s601b 1440: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  action-evidence-pre-plan-s601b 1440: mock rendered
+PASS  action-evidence-pre-plan-s601b 1440: same panel count  {"app":["Evidence requirements"],"mock":["Evidence requirements"]}
+PASS  action-evidence-pre-plan-s601b 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5184/sites/KOBO-001/actions/60fe883b-8522-4617-bbc7-180f7ce23ab9/evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-pre-plan-s601b 390: app rendered
+PASS  loaded http://localhost:5184/mockups/v69/index.html#/action-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  action-evidence-pre-plan-s601b 390: mock rendered
+PASS  action-evidence-pre-plan-s601b 390: same panel count  {"app":["Evidence requirements"],"mock":["Evidence requirements"]}
+PASS  action-evidence-pre-plan-s601b 390: no app page overflow  {"overflowX":0}
+
+168/168 claims passed; evidence in s601b

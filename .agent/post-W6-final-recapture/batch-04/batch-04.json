@@ -1,0 +1,2325 @@
+{
+ "batch": "04",
+ "name": "W1 Action/work",
+ "main_sha": "89a11477",
+ "pair_count": 50,
+ "frozen_pair_count": 50,
+ "counts": {
+  "FIXED": 50
+ },
+ "pairs": [
+  {
+   "screen": "recommendation",
+   "case": "accepted",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation?revision_id=673e6a4e-594a-45e6-b2a0-e3acb78534a5",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+   ],
+   "app_image": "s601b/recommendation-accepted-1440-app.png",
+   "mock_image": "s601b/recommendation-accepted-1440-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "accepted",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation?revision_id=673e6a4e-594a-45e6-b2a0-e3acb78534a5",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.32
+    ],
+    [
+     "Evidence needed to verify",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s601b/recommendation-accepted-390-app.png",
+   "mock_image": "s601b/recommendation-accepted-390-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "latest-trial-open",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+   ],
+   "app_image": "s601b/recommendation-latest-trial-open-1440-app.png",
+   "mock_image": "s601b/recommendation-latest-trial-open-1440-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "latest-trial-open",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/a13f1fe5-5ec8-49cd-92db-3cb022ce9467/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.39
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s601b/recommendation-latest-trial-open-390-app.png",
+   "mock_image": "s601b/recommendation-latest-trial-open-390-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "unavailable",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/8cf723d2-9843-4cfd-99f9-d67e8f07a838/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07",
+    "B4-25"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.34
+    ],
+    [
+     "Declare success before evaluating",
+     1.34
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+   ],
+   "app_image": "s601b/recommendation-unavailable-1440-app.png",
+   "mock_image": "s601b/recommendation-unavailable-1440-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "unavailable",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/findings/8cf723d2-9843-4cfd-99f9-d67e8f07a838/recommendation",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07",
+    "B4-25"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.42
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s601b/recommendation-unavailable-390-app.png",
+   "mock_image": "s601b/recommendation-unavailable-390-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "recorded",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-overview-recorded-1440-app.png",
+   "mock_image": "s601b/action-overview-recorded-1440-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "recorded",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     2.17
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s601b/action-overview-recorded-390-app.png",
+   "mock_image": "s601b/action-overview-recorded-390-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "pending-f02",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-overview-pending-f02-1440-app.png",
+   "mock_image": "s601b/action-overview-pending-f02-1440-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "pending-f02",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     2.05
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s601b/action-overview-pending-f02-390-app.png",
+   "mock_image": "s601b/action-overview-pending-f02-390-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "unknown-section",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/nosuch",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-16",
+    "R69-verified",
+    "B4-24",
+    "B1-07"
+   ],
+   "app_titles": [
+    "No such Action section"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[No such Action section] height 103->140",
+    "pSizes {'14px': 1}->{'14px': 2}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-overview-unknown-section-1440-app.png",
+   "mock_image": "s601b/action-overview-unknown-section-1440-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "unknown-section",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/nosuch",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-16",
+    "R69-verified",
+    "B4-24",
+    "B1-07",
+    "B1-02"
+   ],
+   "app_titles": [
+    "No such Action section"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[No such Action section] height 126->163",
+    "h1.top 360->128",
+    "pSizes {'14px': 1}->{'14px': 2}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 341->108"
+   ],
+   "app_image": "s601b/action-overview-unknown-section-390-app.png",
+   "mock_image": "s601b/action-overview-unknown-section-390-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "applied",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     1.53
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-execution-applied-1440-app.png",
+   "mock_image": "s601b/action-execution-applied-1440-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "applied",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     2.69
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Activity log'}]->[{'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Activity log'}]"
+   ],
+   "app_image": "s601b/action-execution-applied-390-app.png",
+   "mock_image": "s601b/action-execution-applied-390-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "failed-pending",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     1.73
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-execution-failed-pending-1440-app.png",
+   "mock_image": "s601b/action-execution-failed-pending-1440-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "failed-pending",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/8741979f-b243-40e0-8360-87a331d3435d/execution",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     2.9
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 383, 'cw': 318, 'panel': 'Activity log'}]->[{'cls': 'data-table__scroll', 'sw': 383, 'cw': 318, 'panel': 'Activity log'}]"
+   ],
+   "app_image": "s601b/action-execution-failed-pending-390-app.png",
+   "mock_image": "s601b/action-execution-failed-pending-390-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "all",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.46
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Action history] chips ['Every recorded event']->['Every recorded event', 'Latest at read time']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+   ],
+   "app_image": "s601b/action-history-all-1440-app.png",
+   "mock_image": "s601b/action-history-all-1440-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "all",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.86
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Action history] chips ['Every recorded event']->['Every recorded event', 'Latest at read time']",
+    "h1.top 178->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 576, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 576, 'cw': 318, 'panel': 'Action history'}]",
+    "mainTop 158->108"
+   ],
+   "app_image": "s601b/action-history-all-390-app.png",
+   "mock_image": "s601b/action-history-all-390-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "event-failed-stale",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=7779eb1e-f8ae-4a31-8798-138c399b72ce",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.49
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+   ],
+   "app_image": "s601b/action-history-event-failed-stale-1440-app.png",
+   "mock_image": "s601b/action-history-event-failed-stale-1440-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "event-failed-stale",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=7779eb1e-f8ae-4a31-8798-138c399b72ce",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.82
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 172->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 996, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 996, 'cw': 318, 'panel': 'Action history'}]",
+    "mainTop 153->108"
+   ],
+   "app_image": "s601b/action-history-event-failed-stale-390-app.png",
+   "mock_image": "s601b/action-history-event-failed-stale-390-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "recorded-at",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+   ],
+   "app_image": "s601b/action-history-recorded-at-1440-app.png",
+   "mock_image": "s601b/action-history-recorded-at-1440-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "recorded-at",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.74
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 182->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 678, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 678, 'cw': 318, 'panel': 'Action history'}]",
+    "mainTop 162->108"
+   ],
+   "app_image": "s601b/action-history-recorded-at-390-app.png",
+   "mock_image": "s601b/action-history-recorded-at-390-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "selector-conflict",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=1122043e-30dc-4951-832a-e7673a06f9e5&recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]"
+   ],
+   "app_image": "s601b/action-history-selector-conflict-1440-app.png",
+   "mock_image": "s601b/action-history-selector-conflict-1440-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "selector-conflict",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/history?event_id=1122043e-30dc-4951-832a-e7673a06f9e5&recorded_at=2026-11-01T00:30:00%2B00:00",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 217->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 198->108"
+   ],
+   "app_image": "s601b/action-history-selector-conflict-390-app.png",
+   "mock_image": "s601b/action-history-selector-conflict-390-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "pre-plan-s601b",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/plan",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-21",
+    "R69-verified",
+    "B4-23"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-plan-pre-plan-s601b-1440-app.png",
+   "mock_image": "s601b/action-plan-pre-plan-s601b-1440-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "pre-plan-s601b",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/plan",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-21",
+    "R69-verified",
+    "B4-23",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 232->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 213->108"
+   ],
+   "app_image": "s601b/action-plan-pre-plan-s601b-390-app.png",
+   "mock_image": "s601b/action-plan-pre-plan-s601b-390-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "pre-plan-s601b",
+   "width": "1440",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/evidence",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-22",
+    "R69-verified",
+    "B4-23"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]"
+   ],
+   "app_image": "s601b/action-evidence-pre-plan-s601b-1440-app.png",
+   "mock_image": "s601b/action-evidence-pre-plan-s601b-1440-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "pre-plan-s601b",
+   "width": "390",
+   "part": "s601b",
+   "route": "/sites/KOBO-001/actions/b1fd7cef-3c52-4fb7-91bb-a70e00fa0a11/evidence",
+   "producer": "tools/s601b_action_walkthrough.py --db assetops_s601b_audit --work var/s601b_audit_b4 prepare; serve --port 18401 --web-port 5184",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-22",
+    "R69-verified",
+    "B4-23",
+    "B1-02"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 224->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 205->108"
+   ],
+   "app_image": "s601b/action-evidence-pre-plan-s601b-390-app.png",
+   "mock_image": "s601b/action-evidence-pre-plan-s601b-390-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "guardrail",
+   "width": "1440",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/plan",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.47
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b-guardrail/action-plan-guardrail-1440-app.png",
+   "mock_image": "s602b-guardrail/action-plan-guardrail-1440-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "guardrail",
+   "width": "390",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/plan",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.68
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b-guardrail/action-plan-guardrail-390-app.png",
+   "mock_image": "s602b-guardrail/action-plan-guardrail-390-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "guardrail",
+   "width": "1440",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-22",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Evidence requirements",
+     1.51
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b-guardrail/action-evidence-guardrail-1440-app.png",
+   "mock_image": "s602b-guardrail/action-evidence-guardrail-1440-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "guardrail",
+   "width": "390",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-22",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Evidence requirements",
+     2.31
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 5}->{'10px': 5, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'},->[{'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'}, {'cls': 'data-table__scroll', 'sw': 923, 'cw': 286, 'panel': '"
+   ],
+   "app_image": "s602b-guardrail/action-evidence-guardrail-390-app.png",
+   "mock_image": "s602b-guardrail/action-evidence-guardrail-390-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "guardrail",
+   "width": "1440",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     1.43
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b-guardrail/action-overview-guardrail-1440-app.png",
+   "mock_image": "s602b-guardrail/action-overview-guardrail-1440-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "guardrail",
+   "width": "390",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/actions/05d42afb-5c52-4054-adb9-be1d1439be75",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     2.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b-guardrail/action-overview-guardrail-390-app.png",
+   "mock_image": "s602b-guardrail/action-overview-guardrail-390-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "guardrail-hold",
+   "width": "1440",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.39
+    ],
+    [
+     "Declare success before evaluating",
+     1.39
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+   ],
+   "app_image": "s602b-guardrail/recommendation-guardrail-hold-1440-app.png",
+   "mock_image": "s602b-guardrail/recommendation-guardrail-hold-1440-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "guardrail-hold",
+   "width": "390",
+   "part": "s602b-guardrail",
+   "route": "/sites/KOBO-001/findings/fee50247-6779-4dda-9d3b-38902951ff11/recommendation?revision_id=c7bf62bc-c3ea-4d7f-9fd6-1a2206d25911",
+   "producer": "tools/s602b_verification_walkthrough.py ... serve --case guardrail --port 18401 (TEST-SCOPED guardrail case API on 18402; Vite restarted with ASSETOPS_API_PORT=18402)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.55
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s602b-guardrail/recommendation-guardrail-hold-390-app.png",
+   "mock_image": "s602b-guardrail/recommendation-guardrail-hold-390-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "verified-replay",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4/recommendation?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]"
+   ],
+   "app_image": "s602b/recommendation-verified-replay-1440-app.png",
+   "mock_image": "s602b/recommendation-verified-replay-1440-mock.png"
+  },
+  {
+   "screen": "recommendation",
+   "case": "verified-replay",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/findings/bd96cfc9-a2b0-4e6c-b987-1ac36a7366f4/recommendation?revision_id=8ae175fc-a00c-479d-a0e6-78dc44463365",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-01",
+    "B4-08",
+    "B4-09",
+    "B4-10",
+    "B4-12",
+    "B4-13",
+    "B4-14",
+    "B4-15",
+    "B1-53",
+    "B1-07"
+   ],
+   "app_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "mock_titles": [
+    "Proposed intervention",
+    "Declare success before evaluating",
+    "Evidence needed to verify"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Proposed intervention",
+     1.36
+    ],
+    [
+     "Evidence needed to verify",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.text 'Generator support review'->'Generator support merits review: bounded candidate avoidable running'",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Analysis \u00b7 Not available yet(off)', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]->[['Overview', 'Analysis', 'Evidence', 'Alternatives', 'Recommendation*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'site-tabs__list', 'sw': 493, 'cw': 358, 'panel': ''}]->[{'cls': 'site-tabs__list', 'sw': 405, 'cw': 358, 'panel': ''}]"
+   ],
+   "app_image": "s602b/recommendation-verified-replay-390-app.png",
+   "mock_image": "s602b/recommendation-verified-replay-390-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "verified-replay",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     1.43
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b/action-overview-verified-replay-1440-app.png",
+   "mock_image": "s602b/action-overview-verified-replay-1440-mock.png"
+  },
+  {
+   "screen": "action-overview",
+   "case": "verified-replay",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-16",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Action scope"
+   ],
+   "mock_titles": [
+    "Action scope"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action scope",
+     2.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview*', 'Plan', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b/action-overview-verified-replay-390-app.png",
+   "mock_image": "s602b/action-overview-verified-replay-390-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "verified-replay",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/execution",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     1.53
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Activity log] chips ['Applied; effect not yet measured', 'Accepted', 'Applied', 'Not recognised']->['Applied; effect not yet measured', 'Accepted', 'Applied', 'Resolved']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b/action-execution-verified-replay-1440-app.png",
+   "mock_image": "s602b/action-execution-verified-replay-1440-mock.png"
+  },
+  {
+   "screen": "action-execution",
+   "case": "verified-replay",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/execution",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-17",
+    "B1-53",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Activity log"
+   ],
+   "mock_titles": [
+    "Activity log"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity log",
+     2.76
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Activity log] chips ['Applied; effect not yet measured', 'Accepted', 'Applied', 'Not recognised']->['Applied; effect not yet measured', 'Accepted', 'Applied', 'Resolved']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan', 'Application*', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 428, 'cw': 318, 'panel': 'Activity log'}]->[{'cls': 'data-table__scroll', 'sw': 401, 'cw': 318, 'panel': 'Activity log'}]"
+   ],
+   "app_image": "s602b/action-execution-verified-replay-390-app.png",
+   "mock_image": "s602b/action-execution-verified-replay-390-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "verified-replay",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/history",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "B4-19/R218 closed: the duplicated raw 'RESOLVED' row with the wrong 'Trial accepted' meaning is gone (now 'Applied to the Site Foundation' / 'Trial outcome recorded' / 'Resolved'), entry counts consistent ('3 of 4' with 'Show all 4 entries'). Panel 295->332 px (new Applied row) is well inside the Q37 caps; the truncated change-record ids on that row are the standing R217 pattern",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B4-19"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Action history] height 295->332",
+    "[Action history] links 5->6",
+    "[Action history] chips ['Every recorded event', 'Most recent']->['Every recorded event', 'Latest at read time', 'Most recent']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "clipped [{'tag': 'CAPTION', 'cls': 'w1f4-action-caption', 'text': 'Action history', 'sw': 89, 'cw': 22, 'sh': 42, 'ch': 24}]->[{'tag': 'CAPTION', 'cls': 'w1f4-action-caption', 'text': 'Action history', 'sw': 89, 'cw': 22, 'sh': 42, 'ch': 24}, {'t",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "s602b/action-history-verified-replay-1440-app.png",
+   "mock_image": "s602b/action-history-verified-replay-1440-mock.png"
+  },
+  {
+   "screen": "action-history",
+   "case": "verified-replay",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/history",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "B4-19/R218 closed (duplicate raw RESOLVED row gone, counts consistent); Action history ratio 2.42->2.06, inside the Q37 800 px cap; truncated change-record ids are the standing R217 pattern",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-18",
+    "B4-20",
+    "B1-53",
+    "R69-verified",
+    "B4-19"
+   ],
+   "app_titles": [
+    "Action history"
+   ],
+   "mock_titles": [
+    "Action history"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Action history",
+     2.06
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Action history] height 589->501",
+    "[Action history] links 5->6",
+    "[Action history] chips ['Every recorded event', 'Most recent']->['Every recorded event', 'Latest at read time', 'Most recent']",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification', 'History*']]",
+    "clipped [{'tag': 'CAPTION', 'cls': 'w1f4-action-caption', 'text': 'Action history', 'sw': 89, 'cw': 22, 'sh': 42, 'ch': 24}]->[{'tag': 'CAPTION', 'cls': 'w1f4-action-caption', 'text': 'Action history', 'sw': 89, 'cw': 22, 'sh': 42, 'ch': 24}, {'t",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 398, 'cw': 318, 'panel': 'Action history'}]->[{'cls': 'data-table__scroll', 'sw': 576, 'cw': 318, 'panel': 'Action history'}]",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "s602b/action-history-verified-replay-390-app.png",
+   "mock_image": "s602b/action-history-verified-replay-390-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "pass",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.38
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b/action-plan-pass-1440-app.png",
+   "mock_image": "s602b/action-plan-pass-1440-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "pass",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b/action-plan-pass-390-app.png",
+   "mock_image": "s602b/action-plan-pass-390-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "exact-plan",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan?plan_revision_id=504af0fd-35a7-402e-8671-e0e9d8220d55",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.38
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b/action-plan-exact-plan-1440-app.png",
+   "mock_image": "s602b/action-plan-exact-plan-1440-mock.png"
+  },
+  {
+   "screen": "action-plan",
+   "case": "exact-plan",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/plan?plan_revision_id=504af0fd-35a7-402e-8671-e0e9d8220d55",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-21",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Success criteria"
+   ],
+   "mock_titles": [
+    "Success criteria"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Success criteria",
+     1.52
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]->[['Overview', 'Plan*', 'Application', 'Evidence', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b/action-plan-exact-plan-390-app.png",
+   "mock_image": "s602b/action-plan-exact-plan-390-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "pass",
+   "width": "1440",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B4-07",
+    "B4-22",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Evidence requirements",
+     1.41
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]"
+   ],
+   "app_image": "s602b/action-evidence-pass-1440-app.png",
+   "mock_image": "s602b/action-evidence-pass-1440-mock.png"
+  },
+  {
+   "screen": "action-evidence",
+   "case": "pass",
+   "width": "390",
+   "part": "s602b",
+   "route": "/sites/KOBO-001/actions/7f678c85-0f11-4634-8fab-aa61c09a57ff/evidence",
+   "producer": "tools/s602b_verification_walkthrough.py --db assetops_s602b_audit --work var/s602b_audit_b4 prepare; serve --case guardrail --port 18401 --web-port 5184 (replay API 18401)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B1-01",
+    "B1-04",
+    "B4-03",
+    "B4-04",
+    "B4-05",
+    "B4-06",
+    "B4-11",
+    "B1-03",
+    "B4-07",
+    "B4-22",
+    "R69-verified"
+   ],
+   "app_titles": [
+    "Evidence requirements"
+   ],
+   "mock_titles": [
+    "Evidence requirements"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Evidence requirements",
+     2.03
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "pSizes {'10px': 2}->{'10px': 2, '12px': 1}",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence*', 'Verification', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'},->[{'cls': 'data-table__scroll', 'sw': 390, 'cw': 286, 'panel': 'Evidence requirements'}, {'cls': 'data-table__scroll', 'sw': 923, 'cw': 286, 'panel': '"
+   ],
+   "app_image": "s602b/action-evidence-pass-390-app.png",
+   "mock_image": "s602b/action-evidence-pass-390-mock.png"
+  }
+ ]
+}

@@ -1,0 +1,613 @@
+[
+ {
+  "screen": "mini",
+  "case": "priced",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-priced-1440-app.png",
+  "mock_image": "mini-priced-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-23",
+  "ratios_over_1.3": [
+   [
+    "What happened in the selected hour",
+    1.4
+   ],
+   [
+    "Operating context",
+    1.39
+   ],
+   [
+    "Needs attention",
+    1.39
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 175->176"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "priced",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-priced-390-app.png",
+  "mock_image": "mini-priced-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-23",
+  "ratios_over_1.3": [
+   [
+    "Operating context",
+    2.33
+   ],
+   [
+    "Bounded money consequence",
+    1.67
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 175->176",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]->[{'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "held",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-held-1440-app.png",
+  "mock_image": "mini-held-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-24",
+  "ratios_over_1.3": [
+   [
+    "What happened in the selected hour",
+    1.4
+   ],
+   [
+    "Operating context",
+    1.39
+   ],
+   [
+    "Needs attention",
+    1.39
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 175->176"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "held",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-held-390-app.png",
+  "mock_image": "mini-held-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-24",
+  "ratios_over_1.3": [
+   [
+    "Operating context",
+    2.33
+   ],
+   [
+    "Bounded money consequence",
+    1.76
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 175->176",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]->[{'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "ordinary-no-amount",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-ordinary-no-amount-1440-app.png",
+  "mock_image": "mini-ordinary-no-amount-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-02",
+  "ratios_over_1.3": [
+   [
+    "Operating context",
+    1.6
+   ],
+   [
+    "Needs attention",
+    1.6
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 329->330"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "ordinary-no-amount",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-ordinary-no-amount-390-app.png",
+  "mock_image": "mini-ordinary-no-amount-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-02",
+  "ratios_over_1.3": [
+   [
+    "Operating context",
+    2.77
+   ],
+   [
+    "Bounded money consequence",
+    1.66
+   ]
+  ],
+  "app_diffs": [
+   "[Operating context] links 329->330",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]->[{'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "failed",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-failed-1440-app.png",
+  "mock_image": "mini-failed-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-07",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operating context] links 0->1",
+   "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "failed",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-failed-390-app.png",
+  "mock_image": "mini-failed-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-10-07",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operating context] links 0->1",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "unassessed",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-unassessed-1440-app.png",
+  "mock_image": "mini-unassessed-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-11-10",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operating context] links 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "unassessed",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-unassessed-390-app.png",
+  "mock_image": "mini-unassessed-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001?date=2026-11-10",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Operating context] links 0->1",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "default-no-date",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-default-no-date-1440-app.png",
+  "mock_image": "mini-default-no-date-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened in the selected hour] height 333->244",
+   "[What happened in the selected hour] links 1->0",
+   "[Operating context] height 518->404",
+   "[Operating context] rows 7->0",
+   "[Operating context] links 175->1",
+   "[Operating context] details 1->0",
+   "[Operating context] tables 1->0",
+   "[Operating context] columns ['Reading', 'Records', 'Good', 'First', 'Last']->[]",
+   "[Needs attention] height 518->404",
+   "[Needs attention] links 2->1",
+   "[Bounded money consequence] height 229->176",
+   "[Bounded money consequence] links 15->0",
+   "[Next step] height 229->176",
+   "[Next step] links 2->1",
+   "pSizes {'11px': 4, '10px': 11, '13px': 2, '14px': 1, '16px': 1, '12px': 2}->{'11px': 3, '10px': 6, '14px': 6, '13px': 1, '16px': 1, '12px': 2}",
+   "pageH 1716->1485"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "What happened in the selected hour ratio 1.4->1.03",
+   "Operating context ratio 1.39->1.08",
+   "Needs attention ratio 1.39->1.08",
+   "[Operating context] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "mini",
+  "case": "default-no-date",
+  "width": "390",
+  "new_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "mini-default-no-date-390-app.png",
+  "mock_image": "mini-default-no-date-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened in the selected hour] height 433->344",
+   "[What happened in the selected hour] links 1->0",
+   "[Operating context] height 667->336",
+   "[Operating context] rows 7->0",
+   "[Operating context] links 175->1",
+   "[Operating context] details 1->0",
+   "[Operating context] tables 1->0",
+   "[Operating context] columns ['Reading', 'Records', 'Good', 'First', 'Last']->[]",
+   "[Needs attention] height 248->404",
+   "[Needs attention] links 2->1",
+   "[Bounded money consequence] height 334->212",
+   "[Bounded money consequence] links 15->0",
+   "[Next step] height 226->154",
+   "[Next step] links 2->1",
+   "pSizes {'11px': 4, '10px': 11, '13px': 2, '14px': 1, '16px': 1, '12px': 2}->{'11px': 3, '10px': 6, '14px': 6, '13px': 1, '16px': 1, '12px': 2}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 330, 'cw': 318, 'panel': 'Operating context'}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened in the selected hour",
+   "Operating context",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Operating context ratio 2.33->1.17",
+   "Bounded money consequence ratio 1.76->1.12",
+   "[Operating context] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]
