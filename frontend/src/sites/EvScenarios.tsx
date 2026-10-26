@@ -26,6 +26,7 @@ import {
   type EvScenariosRead,
   type EvScenariosState,
 } from "./evScenariosClient";
+import { useReportSelectedWindow } from "./evSelectedWindow";
 import "./coldScenarios.css";
 import "./evScenarios.css";
 
@@ -287,6 +288,7 @@ export interface EvScenariosProps {
 export function EvScenarios({ siteCode, window, scenarioAt, client }: EvScenariosProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useScenarioList(client, siteCode, { ...window, scenario_at: scenarioAt }, attempt);
+  useReportSelectedWindow(read !== null && read.status === "loaded" ? read.value : null);
   if (read === null) return <p className="prose">{EV_SCENARIOS_LOADING}</p>;
   if (read.status !== "loaded") {
     return (

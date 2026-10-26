@@ -11,6 +11,7 @@
  */
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, DataTable, KeyValues, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import { Disclosure } from "../ui/Disclosure";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
@@ -284,6 +285,7 @@ export interface EvEnergyProps {
 export function EvEnergy({ siteCode, window, client, routes }: EvEnergyProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useEnergyRead(client, siteCode, window, attempt);
+  useReportSelectedWindow(read !== null && read.status === "loaded" ? read.value : null);
   if (read === null) return <p className="prose">{ENERGY_LOADING}</p>;
   if (read.status !== "loaded") {
     return (

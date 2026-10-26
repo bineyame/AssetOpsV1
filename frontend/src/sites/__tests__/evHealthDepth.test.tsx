@@ -284,4 +284,20 @@ describe("W5-03b E4: EV Health", () => {
     expect(isEvHealthRead(read("CURRENT", [{ ...METER, next_evidence: "Continuous coverage for interval-wide claims" }]))).toBe(false);
     expect(isEvHealthRead(read("CURRENT", [ROGUE]))).toBe(true);
   });
+
+  it("R347: the Site tabs open the EV pages and carry the loaded read's own window; a refused read carries none", async () => {
+    const tabs = () => Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((x) => [(x.textContent ?? "").trim(), x.getAttribute("href") ?? ""]));
+    renderHealth(loaded(read("UNKNOWN", [C1, C2])), `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    const carried = `?${new URLSearchParams({ from: FROM, to: TO, known_at: KNOWN }).toString()}`;
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${carried}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
+    cleanup();
+    renderHealth({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials`);
+  });
+
 });

@@ -7,7 +7,8 @@
 import { useCallback, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
-import { coldWindowFromParams } from "../sites/coldAssessmentClient";
+import { coldWindowFromParams, type ColdWindowQuery } from "../sites/coldAssessmentClient";
+import { ReportSelected } from "../sites/evSelectedWindow";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { ColdHealthDepth } from "../sites/ColdHealthDepth";
 import { createEvDepthClient, type EvDepthClient } from "../sites/evDepthClient";
@@ -20,6 +21,7 @@ import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
+import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
@@ -29,6 +31,25 @@ const DEFAULT_EV_DEPTH = createEvDepthClient();
 const LINKS: HealthLinks = { health: siteHealthHref, assets: siteAssetsHref, asset: siteAssetHref };
 export const SITE_HEALTH_HEADING_ID = "site-health-heading";
 export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
+
+/**
+ * R347 (W5-EV): the EV Health main tabs open the built EV pages and carry the loaded read's own selected window
+ * (Q14/Q23); a refused or no-window read carries none.
+ */
+function EvHealthWithTabs({ siteId, window, client }: { siteId: string; window: ColdWindowQuery; client: EvDepthClient }) {
+  const selectedKey = `${siteId}|${window.from ?? ""}|${window.to ?? ""}|${window.known_at ?? ""}`;
+  const [selected, setSelected] = useState<{ key: string; search: string } | null>(null);
+  const report = useCallback((search: string) => setSelected({ key: selectedKey, search }), [selectedKey]);
+  const search = selected !== null && selected.key === selectedKey ? selected.search : "";
+  return (
+    <>
+      <OperatorSiteTabs siteId={siteId} current="Health" hrefs={EV_SITE_TAB_HREFS} search={search} />
+      <ReportSelected.Provider value={report}>
+        <EvHealthDepth siteCode={siteId} window={window} client={client} sessionsPath={sitePerformanceHref(siteId, "sessions")} />
+      </ReportSelected.Provider>
+    </>
+  );
+}
 
 export function SiteHealthFrame({
   detail,
@@ -68,7 +89,7 @@ export function SiteHealthFrame({
             description={SITE_SCREEN_DESCRIPTIONS.health}
             headingId={SITE_HEALTH_HEADING_ID}
           />
-          <OperatorSiteTabs siteId={site.site_id} current="Health" search={coldTabSearch(site, params)} />
+          {site.site_type === "EV_CHARGING" ? null : <OperatorSiteTabs siteId={site.site_id} current="Health" search={coldTabSearch(site, params)} />}
           <HealthLinksContext.Provider value={LINKS}>
             {site.site_type === "COLDCHAIN" ? (
               /* W5-F1 F1-1 (R22): v69 cold-health ends at Condition and evidence; no Data sources panel. */
@@ -80,12 +101,7 @@ export function SiteHealthFrame({
               />
             ) : site.site_type === "EV_CHARGING" ? (
               /* W5-03b E4 (R60 withdrawn): v69 ev-health ends at Condition and evidence; no Data sources panel. */
-              <EvHealthDepth
-                siteCode={site.site_id}
-                window={coldWindowFromParams(params)}
-                client={evDepth}
-                sessionsPath={sitePerformanceHref(site.site_id, "sessions")}
-              />
+              <EvHealthWithTabs siteId={site.site_id} window={coldWindowFromParams(params)} client={evDepth} />
             ) : (
               <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
             )}

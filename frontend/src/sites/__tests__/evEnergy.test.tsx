@@ -312,6 +312,23 @@ describe("W5-03a E3: EV Energy", () => {
     expect(text("[data-panel-gap='ev-depth-refusal']")).toBe("You do not have access to this EV evidence.");
     expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
   });
+
+  it("R347: the Site tabs open the EV pages and carry the loaded read's own window; a refused read carries none", async () => {
+    const tabs = () => Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [(a.textContent ?? "").trim(), a.getAttribute("href") ?? ""]));
+    renderEnergy(loaded(read({})), `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    // The address has no cutoff; the loaded read's `known_at` is the one the tabs carry.
+    const carried = `?${new URLSearchParams({ from: FROM, to: TO, known_at: KNOWN }).toString()}`;
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${carried}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
+    expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
+    cleanup();
+    renderEnergy({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);
+  });
+
 });
 
 describe("W5-03a E3: chart geometry and validator", () => {

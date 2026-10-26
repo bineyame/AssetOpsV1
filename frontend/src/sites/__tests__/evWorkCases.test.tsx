@@ -108,6 +108,19 @@ afterEach(() => {
   cleanup();
 });
 
+describe("EV Work case tabs: main tabs (R347)", () => {
+  it("open the EV pages and carry the explicit window, or nothing without one", async () => {
+    await mountCases("incidents", loaded(evCaseBody([evIncident(1)])));
+    const hrefs = () => Object.fromEntries(Array.from(document.querySelectorAll('nav[aria-label="Site sections"] a')).map((a) => [text(a), a.getAttribute("href") ?? ""]));
+    const carried = `?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`;
+    expect(hrefs().Overview).toBe(`/sites/${EV_SITE_CODE}/ev${carried}`);
+    expect(hrefs().Evidence).toBe(`/sites/${EV_SITE_CODE}/ev/evidence${carried}`);
+    cleanup();
+    await mountCases("maintenance", loaded(evCaseBody([evIncident(1)])), EV_SITE, "");
+    expect(hrefs().Overview).toBe(`/sites/${EV_SITE_CODE}/ev`);
+  });
+});
+
 describe("W5-04 V3a: EV Site-time Window (build spec E5 withdrawn, R-10)", () => {
   it("formats the two-zone and date-boundary vectors with K3a's shared formatter", () => {
     expect(siteWindowText("2026-10-06T16:11:00Z", "Etc/UTC")).toBe("6 Oct · from 16:11");

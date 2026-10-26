@@ -79,7 +79,7 @@ import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref 
 import { EvAvailability } from "../sites/EvAvailability";
 import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
-import { EV_SITE_TAB_HREFS, evSiteRoutes } from "./evSiteRoutes";
+import { EV_SITE_TAB_HREFS, evSiteRoutes, evWorkTabHrefs, evWorkTabSearch } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
@@ -2080,7 +2080,7 @@ function DomainWorkActionsPage({
         ]}
       />
       <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
-      <OperatorSiteTabs siteId={site.site_id} current="Work" search={coldTabSearch(site, params)} />
+      <OperatorSiteTabs siteId={site.site_id} current="Work" hrefs={evWorkTabHrefs(site)} search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)} />
       <WorkSubrow
         siteId={site.site_id}
         siteType={site.site_type}
@@ -2287,7 +2287,7 @@ export function SiteWorkCasesFrame({
             ]}
           />
           <ChangesWorkPageHeader site={site} screen={`sitework-${kind}`} headingId={SITE_WORK_CASES_HEADING_ID} />
-          <OperatorSiteTabs siteId={siteId} current="Work" search={coldTabSearch(site, params)} />
+          <OperatorSiteTabs siteId={siteId} current="Work" hrefs={evWorkTabHrefs(site)} search={coldTabSearch(site, params) ?? evWorkTabSearch(site, params)} />
           <WorkSubrow
             siteId={site.site_id}
             siteType={site.site_type}

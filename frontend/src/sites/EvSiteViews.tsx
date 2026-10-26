@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord } from "./coldAssessmentWords";
@@ -40,7 +40,7 @@ import type {
 } from "./evSiteClient";
 import { EvScenarios } from "./EvScenarios";
 import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosClient";
-import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
+import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -321,7 +321,6 @@ function StateNote({ env }: { env: EvEnvelope }) {
 
 /** The selected window and cutoff (copy ledger: `{from}–{to} UTC · known at {known_at} UTC`). */
 /** post-W6 W2-EV (Q14): each screen's window bar reports its loaded read's selected query to the frame's main tabs. */
-const ReportSelected = createContext<((search: string) => void) | null>(null);
 
 function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | null }) {
   const report = useContext(ReportSelected);

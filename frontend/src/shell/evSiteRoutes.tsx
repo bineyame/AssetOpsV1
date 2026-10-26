@@ -1,7 +1,8 @@
 import { useSearchParams, useParams } from "react-router-dom";
 
 import { Panel } from "../ui";
-import { coldWindowFromParams } from "../sites/coldAssessmentClient";
+import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
+import { invalidScope } from "../sites/domainActionClient";
 import { EV_SITE_HEADING_ID, EvSiteFrame, type EvSiteRoutes, type EvSiteView } from "../sites/EvSiteViews";
 import type { EvSiteClient } from "../sites/evSiteClient";
 import type { EvScenariosClient } from "../sites/evScenariosClient";
@@ -41,6 +42,21 @@ export const EV_SITE_TAB_HREFS: OperatorSiteTabHrefs = {
   Evidence: (siteId) => siteEvHref(siteId, "evidence"),
   Financials: (siteId) => siteEvHref(siteId, "financials"),
 };
+
+/**
+ * R347 (W5-EV): an EV Site's Work tabs open the EV pages (`hrefs`) and carry only the explicit address window and cutoff
+ * (Q14/Q23, C7): the implicit seven-day Work default is never pushed onto evidence pages as a selected evidence window, and an
+ * address the Work read refuses (one-sided, reversed, over 31 days, not UTC) carries nothing. Other Site types get `undefined`.
+ */
+export const evWorkTabHrefs = (site: { site_type: string }): OperatorSiteTabHrefs | undefined => (site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined);
+
+export function evWorkTabSearch(site: { site_type: string }, params: URLSearchParams): string | undefined {
+  if (site.site_type !== "EV_CHARGING") return undefined;
+  const window = coldWindowFromParams(params);
+  if (window.from === null || window.to === null) return "";
+  const refused = invalidScope({ from: window.from, to: window.to, knownAt: window.known_at, cursor: null });
+  return refused === null ? coldWindowSearch(window) : "";
+}
 
 const CURRENT_TAB: Record<EvSiteView, string> = {
   overview: "Overview",

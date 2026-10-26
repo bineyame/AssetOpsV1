@@ -9,6 +9,7 @@
  */
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import { RefusedGap, RefusedHead, isEvWindowRefusal, plural } from "./EvAssessmentViews";
@@ -372,6 +373,7 @@ export interface EvAvailabilityProps {
 export function EvAvailability({ siteCode, window, client, routes }: EvAvailabilityProps) {
   const [attempt, setAttempt] = useState(0);
   const read = useAvailabilityRead(client, siteCode, window, attempt);
+  useReportSelectedWindow(read !== null && read.status === "loaded" ? read.value : null);
   if (read === null) return <p className="prose">{AVAILABILITY_LOADING}</p>;
   if (read.status !== "loaded") {
     return (
