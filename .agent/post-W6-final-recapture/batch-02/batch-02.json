@@ -5,9 +5,8 @@
  "pair_count": 62,
  "frozen_pair_count": 62,
  "counts": {
-  "GAP": 22,
-  "FIXED": 30,
-  "PASS": 10
+  "PASS": 20,
+  "FIXED": 42
  },
  "pairs": [
   {
@@ -18,8 +17,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -33,14 +32,27 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 04:00\u00e2\u20ac\u201c04:15 UTC",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Accepted sample coverage",
+     1.42
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-supported-1440-app.png",
+   "mock_image": "dispatch/dispatch-supported-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -50,8 +62,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -65,14 +77,29 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 04:00\u00e2\u20ac\u201c04:15 UTC",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Sources and 15-minute blocks",
+     2.22
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}, {'cls': 'data-table__scroll', 'sw': 369, 'cw': 284, 'panel'"
+   ],
+   "app_image": "dispatch/dispatch-supported-390-app.png",
+   "mock_image": "dispatch/dispatch-supported-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -82,8 +109,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -97,14 +124,27 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 03:30\u00e2\u20ac\u201c11:00 UTC",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Accepted sample coverage",
+     1.31
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-limited-1440-app.png",
+   "mock_image": "dispatch/dispatch-limited-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -114,8 +154,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -129,14 +169,29 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 03:30\u00e2\u20ac\u201c11:00 UTC",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Sources and 15-minute blocks",
+     2.44
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}, {'cls': 'data-table__scroll', 'sw': 374, 'cw': 284, 'panel'"
+   ],
+   "app_image": "dispatch/dispatch-limited-390-app.png",
+   "mock_image": "dispatch/dispatch-limited-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -146,8 +201,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -161,14 +216,27 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Accepted sample coverage",
+     1.31
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-limited-no-selection-1440-app.png",
+   "mock_image": "dispatch/dispatch-limited-no-selection-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -178,8 +246,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -193,14 +261,29 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Sources and 15-minute blocks",
+     1.58
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+   ],
+   "app_image": "dispatch/dispatch-limited-no-selection-390-app.png",
+   "mock_image": "dispatch/dispatch-limited-no-selection-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -210,8 +293,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -225,14 +308,27 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Accepted sample coverage",
+     1.31
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-refused-failed-1440-app.png",
+   "mock_image": "dispatch/dispatch-refused-failed-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -242,8 +338,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -257,14 +353,24 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+   ],
+   "app_image": "dispatch/dispatch-refused-failed-390-app.png",
+   "mock_image": "dispatch/dispatch-refused-failed-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -274,8 +380,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-05",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -289,14 +395,27 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Accepted sample coverage",
+     1.31
+    ]
+   ],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-stale-pending-1440-app.png",
+   "mock_image": "dispatch/dispatch-stale-pending-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -306,8 +425,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-05",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -321,14 +440,24 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+   ],
+   "app_image": "dispatch/dispatch-stale-pending-390-app.png",
+   "mock_image": "dispatch/dispatch-stale-pending-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -338,8 +467,8 @@
    "route": "/sites/KOBO-001/performance/dispatch",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -353,14 +482,22 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/dispatch-default-no-day-1440-app.png",
+   "mock_image": "dispatch/dispatch-default-no-day-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -370,8 +507,8 @@
    "route": "/sites/KOBO-001/performance/dispatch",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -385,14 +522,24 @@
     "B2-28",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "dispatch/dispatch-default-no-day-390-app.png",
+   "mock_image": "dispatch/dispatch-default-no-day-390-mock.png"
   },
   {
    "screen": "dispatch",
@@ -402,8 +549,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=56a36c3f-cbbe-4c57-9dda-1a13e1376eea&block=1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; panel set changed",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -418,14 +565,37 @@
     "B2-29",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Sources and 15-minute blocks', 'Selected block \u00c2\u00b7 No block selected', 'Accepted sample coverage']",
+    "header h None->59",
+    "h1.text None->'Kobo mini-grid'",
+    "h1.size None->'27px'",
+    "h1.family None->'system-ui'",
+    "h1.weight None->'650'",
+    "h1.color None->'rgb(23, 36, 59)'",
+    "h1.top None->44",
+    "prose presence False->True",
+    "h2 presence False->True",
+    "pSizes {}->{'14px': 3}",
+    "tabRows []->[['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence'], ['Service', 'Dispatch*', 'Fuel', 'Renewable', 'Backup'], ['Overview*', 'Analysis']]",
+    "consoleErrors [\"TypeError: Cannot read properties of undefined (reading '1')\\n    at WindowView (http://localhost:->[]",
+    "mainTop 0->24"
+   ],
+   "app_image": "dispatch/dispatch-window-id-as-revision-1440-app.png",
+   "mock_image": "dispatch/dispatch-window-id-as-revision-1440-mock.png"
   },
   {
    "screen": "dispatch",
@@ -435,8 +605,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=56a36c3f-cbbe-4c57-9dda-1a13e1376eea&block=1",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "h1 text changed; tab rows changed; panel set changed",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -451,14 +621,38 @@
     "B2-29",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 No block selected",
+    "Accepted sample coverage"
+   ],
+   "mock_titles": [
+    "Sources and 15-minute blocks",
+    "Selected block \u00c2\u00b7 14:20\u00e2\u20ac\u201c14:35",
+    "Accepted sample coverage"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "titles [] -> ['Sources and 15-minute blocks', 'Selected block \u00c2\u00b7 No block selected', 'Accepted sample coverage']",
+    "header h None->58",
+    "h1.text None->'Kobo mini-grid'",
+    "h1.size None->'23px'",
+    "h1.family None->'system-ui'",
+    "h1.weight None->'650'",
+    "h1.color None->'rgb(23, 36, 59)'",
+    "h1.top None->127",
+    "prose presence False->True",
+    "h2 presence False->True",
+    "pSizes {}->{'14px': 3}",
+    "tabRows []->[['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence'], ['Service', 'Dispatch*', 'Fuel', 'Renewable', 'Backup'], ['Overview*', 'Analysis']]",
+    "pageH 900->1175",
+    "consoleErrors [\"TypeError: Cannot read properties of undefined (reading '1')\\n    at WindowView (http://localhost:->[]",
+    "mainTop 0->108"
+   ],
+   "app_image": "dispatch/dispatch-window-id-as-revision-390-app.png",
+   "mock_image": "dispatch/dispatch-window-id-as-revision-390-mock.png"
   },
   {
    "screen": "analysis",
@@ -468,8 +662,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -482,14 +676,22 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/analysis-supported-1440-app.png",
+   "mock_image": "dispatch/analysis-supported-1440-mock.png"
   },
   {
    "screen": "analysis",
@@ -499,8 +701,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -513,14 +715,24 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]->[{'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]"
+   ],
+   "app_image": "dispatch/analysis-supported-390-app.png",
+   "mock_image": "dispatch/analysis-supported-390-mock.png"
   },
   {
    "screen": "analysis",
@@ -530,8 +742,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -544,14 +756,22 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/analysis-limited-1440-app.png",
+   "mock_image": "dispatch/analysis-limited-1440-mock.png"
   },
   {
    "screen": "analysis",
@@ -561,8 +781,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -575,14 +795,24 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]->[{'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]"
+   ],
+   "app_image": "dispatch/analysis-limited-390-app.png",
+   "mock_image": "dispatch/analysis-limited-390-mock.png"
   },
   {
    "screen": "analysis",
@@ -592,8 +822,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -606,14 +836,22 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/analysis-refused-failed-1440-app.png",
+   "mock_image": "dispatch/analysis-refused-failed-1440-mock.png"
   },
   {
    "screen": "analysis",
@@ -623,8 +861,8 @@
    "route": "/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -637,14 +875,24 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "dispatch/analysis-refused-failed-390-app.png",
+   "mock_image": "dispatch/analysis-refused-failed-390-mock.png"
   },
   {
    "screen": "analysis",
@@ -654,8 +902,8 @@
    "route": "/sites/KOBO-001/performance/analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -669,14 +917,20 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Awaiting evidence migration"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [],
+   "app_image": "dispatch/analysis-spec-route-1440-app.png",
+   "mock_image": "dispatch/analysis-spec-route-1440-mock.png"
   },
   {
    "screen": "analysis",
@@ -686,8 +940,8 @@
    "route": "/sites/KOBO-001/performance/analysis",
    "producer": null,
    "sha": "89a11477",
-   "classification": "GAP",
-   "reason": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured.",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
    "frozen_findings": [
     "B2-01",
     "B2-02",
@@ -702,14 +956,24 @@
     "B2-34",
     "B2-36"
    ],
-   "app_titles": null,
-   "mock_titles": null,
-   "ratios_over_1.3": null,
+   "app_titles": [
+    "Awaiting evidence migration"
+   ],
+   "mock_titles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
-   "app_diffs_vs_frozen": null,
-   "app_image": "dispatch/None",
-   "mock_image": "dispatch/None"
+   "app_diffs_vs_frozen": [
+    "h1.top 307->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 288->108"
+   ],
+   "app_image": "dispatch/analysis-spec-route-390-app.png",
+   "mock_image": "dispatch/analysis-spec-route-390-mock.png"
   },
   {
    "screen": "evidence-analysis",
@@ -749,7 +1013,7 @@
    "app_diffs_vs_frozen": [
     "[Accepted records behind the conclusions] height 910->531",
     "[Accepted records behind the conclusions] details 7->6",
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "pSizes {'11px': 1, '10px': 4, '14px': 14, '12px': 3}->{'11px': 1, '10px': 4, '14px': 2, '12px': 3}",
     "pageH 1647->1267",
     "hscroll [{'cls': 'data-table__scroll', 'sw': 1213, 'cw': 1065, 'panel': 'Deliveries'}]->[{'cls': 'data-table__scroll', 'sw': 1209, 'cw': 1065, 'panel': 'Deliveries'}]"
@@ -795,7 +1059,7 @@
    "app_diffs_vs_frozen": [
     "[Accepted records behind the conclusions] height 1235->740",
     "[Accepted records behind the conclusions] details 7->6",
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "pSizes {'11px': 1, '10px': 4, '14px': 14, '12px': 3}->{'11px': 1, '10px': 4, '14px': 2, '12px': 3}",
     "pageH 2411->1979",
     "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 431, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 608, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}, {'cls': 'data-table__scroll', 'sw': 376, 'cw"
@@ -826,12 +1090,12 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [],
@@ -864,24 +1128,24 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [
     [
-     "Data sources \u00b7 data quality, not equipment condition",
+     "Data sources \u00c2\u00b7 data quality, not equipment condition",
      1.45
     ]
    ],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data quality, not equipment condition'}]"
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data quality, not equipment condition'}]"
    ],
    "app_image": "evidence/evidence-stocked-390-app.png",
    "mock_image": "evidence/evidence-stocked-390-mock.png"
@@ -909,12 +1173,12 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [],
@@ -947,24 +1211,24 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [
     [
-     "Data sources \u00b7 data quality, not equipment condition",
+     "Data sources \u00c2\u00b7 data quality, not equipment condition",
      1.36
     ]
    ],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data quality, not equipment condition'}]"
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data quality, not equipment condition'}]"
    ],
    "app_image": "evidence/evidence-no-readings-390-app.png",
    "mock_image": "evidence/evidence-no-readings-390-mock.png"
@@ -992,12 +1256,12 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [],
@@ -1030,24 +1294,24 @@
    ],
    "app_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "mock_titles": [
     "What we can conclude now",
-    "Data sources \u00b7 data quality, not equipment condition",
+    "Data sources \u00c2\u00b7 data quality, not equipment condition",
     "Most useful next evidence"
    ],
    "ratios_over_1.3": [
     [
-     "Data sources \u00b7 data quality, not equipment condition",
+     "Data sources \u00c2\u00b7 data quality, not equipment condition",
      1.42
     ]
    ],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00b7 data quality, not equipment condition'}]"
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 480, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data quality, not equipment condition'}]"
    ],
    "app_image": "evidence/evidence-window-390-app.png",
    "mock_image": "evidence/evidence-window-390-mock.png"
@@ -1088,7 +1352,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "hscroll [{'cls': 'data-table__scroll', 'sw': 1213, 'cw': 1065, 'panel': 'Deliveries'}]->[{'cls': 'data-table__scroll', 'sw': 1209, 'cw': 1065, 'panel': 'Deliveries'}]"
    ],
    "app_image": "evidence/evidence-analysis-no-selection-1440-app.png",
@@ -1130,7 +1394,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 431, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 608, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}, {'cls': 'data-table__scroll', 'sw': 376, 'cw"
    ],
    "app_image": "evidence/evidence-analysis-no-selection-390-app.png",
@@ -1172,7 +1436,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] height 266->311",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 101->0",
@@ -1220,7 +1484,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 101->0",
     "[How each limit is set] details 12->7",
@@ -1267,7 +1531,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] height 266->311",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 87->0",
@@ -1315,7 +1579,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 87->0",
     "[How each limit is set] details 11->7",
@@ -1362,7 +1626,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] height 266->311",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 81->0",
@@ -1410,7 +1674,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 81->0",
     "[How each limit is set] details 12->7",
@@ -1457,7 +1721,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] height 266->311",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 99->0",
@@ -1505,7 +1769,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 99->0",
     "[How each limit is set] details 12->7",
@@ -1552,7 +1816,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] height 266->311",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 101->0",
@@ -1600,7 +1864,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "[How each limit is set] rows 5->0",
     "[How each limit is set] links 101->0",
     "[How each limit is set] details 12->7",
@@ -1647,7 +1911,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "hscroll [{'cls': 'data-table__scroll', 'sw': 1213, 'cw': 1065, 'panel': 'Deliveries'}]->[{'cls': 'data-table__scroll', 'sw': 1209, 'cw': 1065, 'panel': 'Deliveries'}]"
    ],
    "app_image": "evidence/evidence-analysis-refused-other-day-1440-app.png",
@@ -1689,7 +1953,7 @@
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Accepted records behind the conclusions] columns ['Source \u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
+    "[Accepted records behind the conclusions] columns ['Source \u00c2\u00b7 reading', 'Value', 'Taken', 'Sent', 'Received', 'Record']->['Source \u00c2\u00b7 reading', 'Value', 'Measured (EAT)', 'Sent', 'Received', 'Record']",
     "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 431, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 608, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}, {'cls': 'data-table__scroll', 'sw': 376, 'cw"
    ],
    "app_image": "evidence/evidence-analysis-refused-other-day-390-app.png",
@@ -1704,7 +1968,7 @@
    "producer": null,
    "sha": "89a11477",
    "classification": "FIXED",
-   "reason": "[Data sources \u00b7 data quality, not equipment condition] table columns changed",
+   "reason": "[Data sources \u00c2\u00b7 data quality, not equipment condition] table columns changed",
    "frozen_findings": [
     "B2-01",
     "B2-03",
@@ -1715,23 +1979,23 @@
    ],
    "app_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [
     [
-     "Data sources \u00b7 data quality, not equipment condition",
+     "Data sources \u00c2\u00b7 data quality, not equipment condition",
      2.69
     ]
    ],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Data sources \u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
-    "[Data sources \u00b7 data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']"
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']"
    ],
    "app_image": "health/health-kobo001-gateways-1440-app.png",
    "mock_image": "health/health-kobo001-gateways-1440-mock.png"
@@ -1745,7 +2009,7 @@
    "producer": null,
    "sha": "89a11477",
    "classification": "FIXED",
-   "reason": "fewer horizontal scrollers; [Data sources \u00b7 data quality, not equipment condition] table columns changed",
+   "reason": "fewer horizontal scrollers; [Data sources \u00c2\u00b7 data quality, not equipment condition] table columns changed",
    "frozen_findings": [
     "B2-01",
     "B2-03",
@@ -1756,23 +2020,23 @@
    ],
    "app_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [
     [
-     "Data sources \u00b7 data quality, not equipment condition",
+     "Data sources \u00c2\u00b7 data quality, not equipment condition",
      2.22
     ]
    ],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Data sources \u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
-    "[Data sources \u00b7 data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']",
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] chips ['Unknown age', 'Old', 'Nothing received', 'Old', 'Current', 'Current']->['Unknown age', 'Old', 'Nothing received', 'Current', 'Current', 'Current']",
     "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Physical asset condition->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Physical asset condition'}, {'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel'"
    ],
    "app_image": "health/health-kobo001-gateways-390-app.png",
@@ -1787,7 +2051,7 @@
    "producer": null,
    "sha": "89a11477",
    "classification": "FIXED",
-   "reason": "[Data sources \u00b7 data quality, not equipment condition] table columns changed",
+   "reason": "[Data sources \u00c2\u00b7 data quality, not equipment condition] table columns changed",
    "frozen_findings": [
     "B2-01",
     "B2-03",
@@ -1798,17 +2062,17 @@
    ],
    "app_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Data sources \u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']"
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']"
    ],
    "app_image": "health/health-kobo002-nogateway-1440-app.png",
    "mock_image": "health/health-kobo002-nogateway-1440-mock.png"
@@ -1822,7 +2086,7 @@
    "producer": null,
    "sha": "89a11477",
    "classification": "FIXED",
-   "reason": "fewer horizontal scrollers; [Data sources \u00b7 data quality, not equipment condition] table columns changed",
+   "reason": "fewer horizontal scrollers; [Data sources \u00c2\u00b7 data quality, not equipment condition] table columns changed",
    "frozen_findings": [
     "B2-01",
     "B2-03",
@@ -1833,18 +2097,18 @@
    ],
    "app_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [],
    "overflowX": 0,
    "vocab": [],
    "app_diffs_vs_frozen": [
-    "[Data sources \u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
-    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources \u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources \u00b7 data quality, not equipment condition'}, {'cls': 'data-table__scroll', '"
+    "[Data sources \u00c2\u00b7 data quality, not equipment condition] columns ['Source', 'Status at 13:10 UTC', 'Quality', 'Affects', 'Open']->['Source', 'Status at 07:31 UTC', 'Quality', 'Affects', 'Open']",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data qual->[{'cls': 'data-table__scroll', 'sw': 920, 'cw': 318, 'panel': 'Data sources \u00c2\u00b7 data quality, not equipment condition'}, {'cls': 'data-table__scroll', '"
    ],
    "app_image": "health/health-kobo002-nogateway-390-app.png",
    "mock_image": "health/health-kobo002-nogateway-390-mock.png"
@@ -1872,7 +2136,7 @@
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [],
    "overflowX": 0,
@@ -1905,7 +2169,7 @@
    ],
    "mock_titles": [
     "Physical asset condition",
-    "Data sources \u00b7 data quality, not equipment condition"
+    "Data sources \u00c2\u00b7 data quality, not equipment condition"
    ],
    "ratios_over_1.3": [],
    "overflowX": 0,

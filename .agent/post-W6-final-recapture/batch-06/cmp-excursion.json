@@ -1,0 +1,1117 @@
+[
+ {
+  "screen": "cold-foundation",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-stocked-1440-app.png",
+  "mock_image": "cold-foundation-stocked-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-foundation",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-stocked-390-app.png",
+  "mock_image": "cold-foundation-stocked-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+  "ratios_over_1.3": [
+   [
+    "Operating interpretation",
+    1.72
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-foundation",
+  "case": "no-version",
+  "width": "1440",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-no-version-1440-app.png",
+  "mock_image": "cold-foundation-no-version-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-foundation",
+  "case": "no-version",
+  "width": "390",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-no-version-390-app.png",
+  "mock_image": "cold-foundation-no-version-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 178->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 159->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-readiness",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · GW-CR-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-readiness-stocked-1440-app.png",
+  "mock_image": "cold-readiness-stocked-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness",
+  "ratios_over_1.3": [
+   [
+    "Readiness and commissioning evidence",
+    2.15
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-readiness",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · GW-CR-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-readiness-stocked-390-app.png",
+  "mock_image": "cold-readiness-stocked-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness",
+  "ratios_over_1.3": [
+   [
+    "Readiness and commissioning evidence",
+    1.59
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 536, 'cw': 318, 'panel': 'Readiness and commission->[{'cls': 'data-table__scroll', 'sw': 536, 'cw': 318, 'panel': 'Readiness and commissioning evidence'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-readiness",
+  "case": "no-version",
+  "width": "1440",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · GW-CR-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-readiness-no-version-1440-app.png",
+  "mock_image": "cold-readiness-no-version-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-readiness",
+  "case": "no-version",
+  "width": "390",
+  "new_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "mock_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · GW-CR-01",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-readiness-no-version-390-app.png",
+  "mock_image": "cold-readiness-no-version-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Readiness and commissioning evidence",
+   "Gateway status · edge-cold-lab-001",
+   "Connected sources",
+   "Effect on readiness and confidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-sld",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-sld-stocked-1440-app.png",
+  "mock_image": "cold-sld-stocked-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld",
+  "ratios_over_1.3": [
+   [
+    "What each part does",
+    1.55
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-sld",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-sld-stocked-390-app.png",
+  "mock_image": "cold-sld-stocked-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-sld",
+  "case": "no-version",
+  "width": "1440",
+  "new_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-sld-no-version-1440-app.png",
+  "mock_image": "cold-sld-no-version-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-sld",
+  "case": "no-version",
+  "width": "390",
+  "new_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "mock_titles": [
+   "GreenHarvest Cold Room · Hybrid cold room: solar, battery, grid and diesel backup",
+   "What each part does"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-sld-no-version-390-app.png",
+  "mock_image": "cold-sld-no-version-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 176->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 157->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Cold replay lab",
+   "What each part does"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "excursion",
+  "width": "1440",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-excursion-1440-app.png",
+  "mock_image": "temperature-excursion-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "excursion",
+  "width": "390",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-excursion-390-app.png",
+  "mock_image": "temperature-excursion-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-no-selection-1440-app.png",
+  "mock_image": "temperature-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-no-selection-390-app.png",
+  "mock_image": "temperature-no-selection-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-refused-1440-app.png",
+  "mock_image": "temperature-refused-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Temperature with operating context] height 96->113",
+   "[Temperature with operating context] details 0->1",
+   "[Excursion context] height 96->113"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-refused-390-app.png",
+  "mock_image": "temperature-refused-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Temperature with operating context] height 96->129",
+   "[Temperature with operating context] details 0->1",
+   "pageH 934->1060",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "excursion",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-excursion-1440-app.png",
+  "mock_image": "coldbackup-excursion-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.67
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "excursion",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-excursion-390-app.png",
+  "mock_image": "coldbackup-excursion-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.62
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 447, 'cw': 318, 'panel': 'Ev"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-no-selection-1440-app.png",
+  "mock_image": "coldbackup-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-no-selection-390-app.png",
+  "mock_image": "coldbackup-no-selection-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 808, 'cw': 318, 'panel': 'Backup event chains'}]->[{'cls': 'data-table__scroll', 'sw': 808, 'cw': 318, 'panel': 'Backup event chains'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-refused-1440-app.png",
+  "mock_image": "coldbackup-refused-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What the chain shows] height 96->113",
+   "[What the chain shows] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-refused-390-app.png",
+  "mock_image": "coldbackup-refused-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What the chain shows] height 96->129",
+   "[What the chain shows] details 0->1",
+   "pageH 1056->1281",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-excursion",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-excursion-1440-app.png",
+  "mock_image": "cold-finding-start-excursion-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-excursion",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-excursion-390-app.png",
+  "mock_image": "cold-finding-start-excursion-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000176",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "unknown-id",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-unknown-id-1440-app.png",
+  "mock_image": "cold-finding-unknown-id-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000fffff",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] height 96->113",
+   "[Bounded conclusion] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "unknown-id",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-unknown-id-390-app.png",
+  "mock_image": "cold-finding-unknown-id-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000fffff",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] height 96->113",
+   "[Bounded conclusion] details 0->1",
+   "h1.top 138->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 118->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "excursion-finding",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-excursion-finding-1440-app.png",
+  "mock_image": "cold-finding-excursion-finding-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "excursion-finding",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-excursion-finding-390-app.png",
+  "mock_image": "cold-finding-excursion-finding-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000002-0000-4000-8000-000000000170",
+  "ratios_over_1.3": [
+   [
+    "Bounded conclusion",
+    1.36
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Temperature",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

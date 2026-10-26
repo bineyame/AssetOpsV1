@@ -1,0 +1,92 @@
+[
+ {
+  "screen": "verification",
+  "case": "target_miss",
+  "width": "1440",
+  "new_app_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "mock_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "verification-target_miss-1440-app.png",
+  "mock_image": "verification-target_miss-1440-mock.png",
+  "app_url": "http://localhost:5185/sites/KOBO-001/actions/f09c6125-d1f1-4420-af74-f371b32a24c6/verification",
+  "ratios_over_1.3": [
+   [
+    "Activity evidence",
+    1.4
+   ],
+   [
+    "Outcome evidence",
+    1.4
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "verification",
+  "case": "target_miss",
+  "width": "390",
+  "new_app_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "mock_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "verification-target_miss-390-app.png",
+  "mock_image": "verification-target_miss-390-mock.png",
+  "app_url": "http://localhost:5185/sites/KOBO-001/actions/f09c6125-d1f1-4420-af74-f371b32a24c6/verification",
+  "ratios_over_1.3": [
+   [
+    "Outcome evidence",
+    1.44
+   ]
+  ],
+  "app_diffs": [
+   "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 979, 'c"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Target and guardrails evaluated together",
+   "Activity evidence",
+   "Outcome evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "tab rows changed",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

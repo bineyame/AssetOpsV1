@@ -1,0 +1,51 @@
+chrome pid 32128
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-verified-current 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-verified-current 1440: mock rendered
+PASS  verification-verified-current 1440: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-verified-current 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-verified-current 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-verified-current 390: mock rendered
+PASS  verification-verified-current 390: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-verified-current 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification?outcome_id=5eb372a6-02fc-491c-b78f-83a22017e08d: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-historical-outcome 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-historical-outcome 1440: mock rendered
+PASS  verification-historical-outcome 1440: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-historical-outcome 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification?outcome_id=5eb372a6-02fc-491c-b78f-83a22017e08d: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-historical-outcome 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-historical-outcome 390: mock rendered
+PASS  verification-historical-outcome 390: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-historical-outcome 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification?outcome_id=5eb372a6-02fc-491c-b78f-83a22017e08d&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  verification-selector-conflict 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-selector-conflict 1440: mock rendered
+PASS  verification-selector-conflict 1440: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-selector-conflict 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/1dc405f4-8c00-4f31-a1a5-1fb77bed9d72/verification?outcome_id=5eb372a6-02fc-491c-b78f-83a22017e08d&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-selector-conflict 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-selector-conflict 390: mock rendered
+PASS  verification-selector-conflict 390: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-selector-conflict 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  verification-unknown-action 1440: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  verification-unknown-action 1440: mock rendered
+PASS  verification-unknown-action 1440: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-unknown-action 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5185/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-unknown-action 390: app rendered
+PASS  loaded http://localhost:5185/mockups/v69/index.html#/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  verification-unknown-action 390: mock rendered
+PASS  verification-unknown-action 390: same panel count  {"app":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"],"mock":["Target and guardrails evaluated together","Activity evidence","Outcome evidence"]}
+PASS  verification-unknown-action 390: no app page overflow  {"overflowX":0}
+
+48/48 claims passed; evidence in .agent/post-W6-final-recapture/batch-05/s602b-replay

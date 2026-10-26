@@ -1,0 +1,1799 @@
+[
+ {
+  "screen": "cold-findings",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-stocked-1440-app.png",
+  "mock_image": "cold-findings-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->296",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll []->[{'cls': 'data-table__scroll', 'sw': 1125, 'cw': 1120, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-stocked-390-app.png",
+  "mock_image": "cold-findings-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->313",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 949, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "Findings at this site ratio 1.31->0.96",
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-no-selection-1440-app.png",
+  "mock_image": "cold-findings-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->119",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-no-selection-390-app.png",
+  "mock_image": "cold-findings-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->137",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Findings at this site ratio 1.31->0.42"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-refused-1440-app.png",
+  "mock_image": "cold-findings-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 267->113",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "pSizes {'11px': 5, '12px': 3}->{'10px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-refused-390-app.png",
+  "mock_image": "cold-findings-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 441->129",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+   "pSizes {'11px': 5, '12px': 3}->{'10px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "Findings at this site ratio 1.35->0.39"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-no-window-1440-app.png",
+  "mock_image": "cold-findings-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 217->296",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll []->[{'cls': 'data-table__scroll', 'sw': 1125, 'cw': 1120, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-findings",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Findings at this site"
+  ],
+  "mock_titles": [
+   "Findings at this site"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-findings-no-window-390-app.png",
+  "mock_image": "cold-findings-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/findings",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Findings at this site] height 430->313",
+   "[Findings at this site] rows 0->2",
+   "[Findings at this site] links 0->4",
+   "[Findings at this site] buttons 1->0",
+   "[Findings at this site] tables 0->1",
+   "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+   "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->['Not assessed', 'Open', 'Not assessed', 'Not assessed', 'Open', 'Not assessed']",
+   "td presence False->True",
+   "th presence False->True",
+   "pSizes {'11px': 5, '12px': 2}->{'11px': 1, '12px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 949, 'cw': 318, 'panel': 'Findings at this site'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Findings at this site"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "Findings at this site ratio 1.31->0.96",
+   "[Findings at this site] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-stocked-1440-app.png",
+  "mock_image": "cold-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 6, '10px': 9, '14px': 7}->{'11px': 5, '10px': 9, '14px': 7}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-stocked-390-app.png",
+  "mock_image": "cold-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Bounded money consequence",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 6, '10px': 9, '14px': 7}->{'11px': 5, '10px': 9, '14px': 7}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-no-selection-1440-app.png",
+  "mock_image": "cold-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-no-selection-390-app.png",
+  "mock_image": "cold-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] height 119->137",
+   "[Chamber temperature] links 0->1",
+   "pageH 1587->1781",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-refused-1440-app.png",
+  "mock_image": "cold-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened · power → cooling → product conditions] height 96->113",
+   "[What happened · power → cooling → product conditions] details 0->1",
+   "[Chamber temperature] links 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-refused-390-app.png",
+  "mock_image": "cold-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened · power → cooling → product conditions] height 119->152",
+   "[What happened · power → cooling → product conditions] details 0->1",
+   "[Chamber temperature] height 119->137",
+   "[Chamber temperature] links 0->1",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-no-window-1440-app.png",
+  "mock_image": "cold-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 6, '10px': 9, '14px': 7}->{'11px': 5, '10px': 9, '14px': 7}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "mock_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-no-window-390-app.png",
+  "mock_image": "cold-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001",
+  "ratios_over_1.3": [
+   [
+    "Bounded money consequence",
+    1.52
+   ]
+  ],
+  "app_diffs": [
+   "[Chamber temperature] links 0->1",
+   "pSizes {'11px': 6, '10px': 9, '14px': 7}->{'11px': 5, '10px': 9, '14px': 7}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened · power → cooling → product conditions",
+   "Chamber temperature",
+   "Needs attention",
+   "Bounded money consequence",
+   "Next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-stocked-1440-app.png",
+  "mock_image": "cold-evidence-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-stocked-390-app.png",
+  "mock_image": "cold-evidence-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "What we can conclude now",
+    1.32
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now->[{'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 825, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-no-selection-1440-app.png",
+  "mock_image": "cold-evidence-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-no-selection-390-app.png",
+  "mock_image": "cold-evidence-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-refused-1440-app.png",
+  "mock_image": "cold-evidence-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] height 119->136",
+   "[What we can conclude now] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-refused-390-app.png",
+  "mock_image": "cold-evidence-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What we can conclude now] height 119->152",
+   "[What we can conclude now] details 0->1",
+   "pageH 915->1011",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-no-window-1440-app.png",
+  "mock_image": "cold-evidence-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "mock_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-no-window-390-app.png",
+  "mock_image": "cold-evidence-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence",
+  "ratios_over_1.3": [
+   [
+    "What we can conclude now",
+    1.32
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now->[{'cls': 'data-table__scroll', 'sw': 820, 'cw': 318, 'panel': 'What we can conclude now'}, {'cls': 'data-table__scroll', 'sw': 825, 'cw': 318, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What we can conclude now",
+   "Data sources · data quality, not equipment condition",
+   "Most useful next evidence"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-stocked-1440-app.png",
+  "mock_image": "cold-evidence-analysis-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.47
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-stocked-390-app.png",
+  "mock_image": "cold-evidence-analysis-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-no-selection-1440-app.png",
+  "mock_image": "cold-evidence-analysis-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-no-selection-390-app.png",
+  "mock_image": "cold-evidence-analysis-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']",
+   "h1.top 172->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 509, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 507, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]",
+   "mainTop 152->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-refused-1440-app.png",
+  "mock_image": "cold-evidence-analysis-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 119->136",
+   "[Accepted records behind the conclusions] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-refused-390-app.png",
+  "mock_image": "cold-evidence-analysis-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] height 119->152",
+   "[Accepted records behind the conclusions] details 0->1",
+   "h1.top 277->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 257->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-no-window-1440-app.png",
+  "mock_image": "cold-evidence-analysis-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.47
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-evidence-analysis",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "mock_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-evidence-analysis-no-window-390-app.png",
+  "mock_image": "cold-evidence-analysis-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis",
+  "ratios_over_1.3": [
+   [
+    "Accepted records behind the conclusions",
+    1.31
+   ]
+  ],
+  "app_diffs": [
+   "[Accepted records behind the conclusions] columns ['Source · reading', 'Value', 'Measured (EAT)', 'Sent (UTC)', 'Received (UTC)', 'Record']->['Source · reading', 'Value', 'Measured (EAT)', 'Sent (EAT)', 'Received (EAT)', 'Record']",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind ->[{'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'Accepted records behind the conclusions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Accepted records behind the conclusions",
+   "How a claim limit is set"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers",
+   "[Accepted records behind the conclusions] table columns changed"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-stocked-1440-app.png",
+  "mock_image": "cold-financials-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-stocked-390-app.png",
+  "mock_image": "cold-financials-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Not included",
+    1.87
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-no-selection-1440-app.png",
+  "mock_image": "cold-financials-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-no-selection-390-app.png",
+  "mock_image": "cold-financials-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 544, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 544, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-refused-1440-app.png",
+  "mock_image": "cold-financials-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened → what it means in money] height 96->113",
+   "[What happened → what it means in money] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-refused-390-app.png",
+  "mock_image": "cold-financials-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[What happened → what it means in money] height 96->129",
+   "[What happened → what it means in money] details 0->1",
+   "pageH 963->1060",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-no-window-1440-app.png",
+  "mock_image": "cold-financials-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-financials",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "mock_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-financials-no-window-390-app.png",
+  "mock_image": "cold-financials-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials",
+  "ratios_over_1.3": [
+   [
+    "Not included",
+    1.87
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it ->[{'cls': 'data-table__scroll', 'sw': 970, 'cw': 318, 'panel': 'What happened → what it means in money'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What happened → what it means in money",
+   "Assumptions in use",
+   "Not included"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "stocked",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-stocked-1440-app.png",
+  "mock_image": "cold-assumptions-stocked-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "stocked",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-stocked-390-app.png",
+  "mock_image": "cold-assumptions-stocked-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "no-selection",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-no-selection-1440-app.png",
+  "mock_image": "cold-assumptions-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "no-selection",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-no-selection-390-app.png",
+  "mock_image": "cold-assumptions-no-selection-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "refused",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-refused-1440-app.png",
+  "mock_image": "cold-assumptions-refused-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] height 119->136",
+   "[Financial assumptions] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "refused",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-refused-390-app.png",
+  "mock_image": "cold-assumptions-refused-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Financial assumptions] height 137->170",
+   "[Financial assumptions] details 0->1",
+   "h1.top 266->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 247->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "no-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-no-window-1440-app.png",
+  "mock_image": "cold-assumptions-no-window-1440-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-assumptions",
+  "case": "no-window",
+  "width": "390",
+  "new_app_titles": [
+   "Financial assumptions"
+  ],
+  "mock_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-assumptions-no-window-390-app.png",
+  "mock_image": "cold-assumptions-no-window-390-mock.png",
+  "app_url": "http://localhost:5187/sites/COLD-LAB-001/financials/assumptions",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]->[{'cls': 'data-table__scroll', 'sw': 520, 'cw': 318, 'panel': 'Financial assumptions'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Financial assumptions"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

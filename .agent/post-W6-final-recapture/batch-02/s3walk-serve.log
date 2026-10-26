@@ -1,0 +1,3 @@
+API on http://127.0.0.1:18201 (log C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-walkthrough\logs\api.log), pid 16928
+Frontend, from frontend/:  $env:ASSETOPS_API_PORT="18201"; npm.cmd run dev -- --port 5320 --strictPort
+Then open http://localhost:5320/sites/KOBO-001/performance/dispatch?day=2026-10-09 . Ctrl+C stops the API.

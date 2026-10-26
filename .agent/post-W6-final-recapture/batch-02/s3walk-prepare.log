@@ -1,0 +1,13 @@
+=== 1. Private work tree (git HEAD) with its own var/ ===
+  C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-walkthrough\tree (code from 49bf3214)
+  demo manifest: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-walkthrough\s3-dispatch-cases-v1.json (copied from the producer work directory)
+=== 2. Database assetops_s3walk as a copy of assetops_s3cases ===
+  copied
+=== 3. File-backed comparison (writes the report into the private tree only) ===
+  PASSED: Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+  Lineage: {'selected_runs': 10, 'selected_heads_other_model': 0, 'run_evidence_not_accepted': 0, 'revision_evidence_outside_run': 0, 'runs_without_window_revision': 0, 'foundation_revisions_missing': 0}
+  Report: C:\Users\assef\AppData\Local\AssetOps\s3-dispatch-walkthrough\tree\var\evidence\migration-performance\kobo-001\20261026T084908791074Z-68f7cc49-9e03-4481-8b03-2d78ab425c98.json
+  Performance cutover: permitted
+=== 4. Staged states: FAILED 2026-10-07, PENDING 2026-10-05 (walkthrough database only) ===
+  staged: FAILED 2026-10-07 and PENDING 2026-10-05
+Prepared. Next: serve.

@@ -1,0 +1,5 @@
+[
+ {"id":"temperature","case":"normal","url":"http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id":"coldbackup","case":"normal","url":"http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"},
+ {"id":"cold-foundation","case":"normal-replay","url":"http://localhost:5186/sites/COLD-LAB-001/foundation"}
+]

@@ -5,3 +5,12 @@
 - batch 04 DONE: 50 pairs, FIXED 50, PASS 0, REGRESSION-OPEN 0, GAP 0 (observation: raw ACTION_* codes + ellipsized ids still on action-history under open D2 R217). DBs dropped, servers stopped, var/ clean.
 # Agent B (batches 05-08), main SHA 89a11477 (HEAD cfd0c989, no product-file diff)
 - batch 05 BLOCKED at start: s603 prepare+attest ran fine (unmodified, DB assetops_s603_owner_audit), then the Bash call that started `serve` in the background plus start-vite.ps1 (PowerShell -ExecutionPolicy Bypass) was DENIED by the auto-mode permission classifier. Per brief: stopped, no workaround. DB dropped via producer's own `drop`, var/s603_owner_audit removed, no processes left. Only batch-05/{tools,logs,sha.txt,head.txt} written. No pairs captured in batches 05-08.
+- UPDATE after owner authorized local servers (owner-local-servers-authorization-2026-10-26.md): resumed.
+- batch 05 DONE: 26 pairs, FIXED 22, PASS 4, REGRESSION-OPEN 0, GAP 0. s603 + s602b (replay + 4 cases) unmodified; DBs dropped, servers stopped.
+- batch 06 DONE: 46 pairs, FIXED 24, PASS 22, REGRESSION-OPEN 0, GAP 0. seed.py unmodified against assetops_audit_b06_test (dropped). Observation: refusal panels gained a collapsed details disclosure (96->113/129 px), flagged only.
+- helper tools added: tools/seed-phase.sh, start-api.sh, stop-serve.ps1, stop-port.ps1.
+- batch 07 DONE: 60 pairs, FIXED 36, PASS 24, REGRESSION-OPEN 0, GAP 0. seed.py cold excursion/normal unmodified vs assetops_audit_b07_test (dropped).
+- batch 08 DONE: 56 pairs, FIXED 27, PASS 23, REGRESSION-OPEN 6, GAP 0. seed.py ev x5 unmodified vs assetops_audit_b08_test (dropped). OPEN: ev-finding Overview (cases interrupted, no-window, recommendation-address; 1440 and 390): Session id in Operational context became a one-line horizontal scroller and is cut (frozen: wrapped, R277). Evidence batch-08/interrupted/ev-finding-*-app.png.
+- NEXT (if context allows): batch-02 dispatch/analysis 22 pairs with s3_dispatch_walkthrough.py (owner authorized rebuilding assetops_s3walk).
+- batch 02 UPDATED (dispatch/analysis 22 pairs now captured with s3_dispatch_walkthrough.py unmodified, owner-authorized): batch-02 now FIXED 42, PASS 20, REGRESSION-OPEN 0, GAP 0. assetops_s3walk left rebuilt (owner DB; producer has no drop). Servers stopped.
+- All agent-B work complete; all audit DBs dropped, no listeners, var/ clean.

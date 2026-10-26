@@ -1,0 +1,1080 @@
+{
+ "batch": "05",
+ "name": "W1 verification",
+ "main_sha": "89a11477",
+ "pair_count": 26,
+ "frozen_pair_count": 26,
+ "counts": {
+  "FIXED": 22,
+  "PASS": 4
+ },
+ "pairs": [
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "1440",
+   "part": "s602b-case-guardrail",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.4
+    ],
+    [
+     "Outcome evidence",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-case-guardrail/verification-guardrail-1440-app.png",
+   "mock_image": "s602b-case-guardrail/verification-guardrail-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "guardrail",
+   "width": "390",
+   "part": "s602b-case-guardrail",
+   "route": "/sites/KOBO-001/actions/c1e32234-99e1-47b9-93d5-98563235cd27/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Target and guardrails evaluated together",
+     1.44
+    ],
+    [
+     "Outcome evidence",
+     1.44
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 979, 'c"
+   ],
+   "app_image": "s602b-case-guardrail/verification-guardrail-390-app.png",
+   "mock_image": "s602b-case-guardrail/verification-guardrail-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "1440",
+   "part": "s602b-case-inconclusive",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.43
+    ],
+    [
+     "Outcome evidence",
+     1.43
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-case-inconclusive/verification-inconclusive-1440-app.png",
+   "mock_image": "s602b-case-inconclusive/verification-inconclusive-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "inconclusive",
+   "width": "390",
+   "part": "s602b-case-inconclusive",
+   "route": "/sites/KOBO-001/actions/26849529-f152-425b-9f7a-49b6a7f32f98/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Target and guardrails evaluated together",
+     1.44
+    ],
+    [
+     "Outcome evidence",
+     1.53
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 402, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 402, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 877, 'c"
+   ],
+   "app_image": "s602b-case-inconclusive/verification-inconclusive-390-app.png",
+   "mock_image": "s602b-case-inconclusive/verification-inconclusive-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "1440",
+   "part": "s602b-case-target_miss",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.4
+    ],
+    [
+     "Outcome evidence",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-case-target_miss/verification-target_miss-1440-app.png",
+   "mock_image": "s602b-case-target_miss/verification-target_miss-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "target_miss",
+   "width": "390",
+   "part": "s602b-case-target_miss",
+   "route": "/sites/KOBO-001/actions/6a9f1b95-e629-4cb6-b667-f449cc8397e0/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Outcome evidence",
+     1.44
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 356, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 979, 'c"
+   ],
+   "app_image": "s602b-case-target_miss/verification-target_miss-390-app.png",
+   "mock_image": "s602b-case-target_miss/verification-target_miss-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "1440",
+   "part": "s602b-case-withdrawn",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.43
+    ],
+    [
+     "Outcome evidence",
+     1.43
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-case-withdrawn/verification-withdrawn-1440-app.png",
+   "mock_image": "s602b-case-withdrawn/verification-withdrawn-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "withdrawn",
+   "width": "390",
+   "part": "s602b-case-withdrawn",
+   "route": "/sites/KOBO-001/actions/1d4ee6a2-f5a4-4fa2-8902-69c1e3104489/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Target and guardrails evaluated together",
+     1.38
+    ],
+    [
+     "Activity evidence",
+     1.38
+    ],
+    [
+     "Outcome evidence",
+     1.47
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 394, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 990, 'c"
+   ],
+   "app_image": "s602b-case-withdrawn/verification-withdrawn-390-app.png",
+   "mock_image": "s602b-case-withdrawn/verification-withdrawn-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "1440",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.34
+    ],
+    [
+     "Outcome evidence",
+     1.34
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-replay/verification-verified-current-1440-app.png",
+   "mock_image": "s602b-replay/verification-verified-current-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "verified-current",
+   "width": "390",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Outcome evidence",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 972, 'c"
+   ],
+   "app_image": "s602b-replay/verification-verified-current-390-app.png",
+   "mock_image": "s602b-replay/verification-verified-current-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "1440",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Activity evidence",
+     1.34
+    ],
+    [
+     "Outcome evidence",
+     1.34
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-replay/verification-historical-outcome-1440-app.png",
+   "mock_image": "s602b-replay/verification-historical-outcome-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "historical-outcome",
+   "width": "390",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Outcome evidence",
+     1.37
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Target and guardrails ev->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Target and guardrails evaluated together'}, {'cls': 'data-table__scroll', 'sw': 972, 'c"
+   ],
+   "app_image": "s602b-replay/verification-historical-outcome-390-app.png",
+   "mock_image": "s602b-replay/verification-historical-outcome-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "1440",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-07",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-replay/verification-selector-conflict-1440-app.png",
+   "mock_image": "s602b-replay/verification-selector-conflict-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "selector-conflict",
+   "width": "390",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/235e5f8e-940e-4b50-ad2d-2aafdc2eddd7/verification?outcome_id=8e84494a-affd-466e-99be-d5e03b224299&recorded_at=2026-10-16T01%3A00%3A00%2B00%3A00",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-07",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Outcome evidence] height 185->166",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s602b-replay/verification-selector-conflict-390-app.png",
+   "mock_image": "s602b-replay/verification-selector-conflict-390-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "1440",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-08",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]"
+   ],
+   "app_image": "s602b-replay/verification-unknown-action-1440-app.png",
+   "mock_image": "s602b-replay/verification-unknown-action-1440-mock.png"
+  },
+  {
+   "screen": "verification",
+   "case": "unknown-action",
+   "width": "390",
+   "part": "s602b-replay",
+   "route": "/sites/KOBO-001/actions/00000000-0000-4000-8000-000000000000/verification",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-01",
+    "B5-02",
+    "B5-03",
+    "B5-04",
+    "B5-05",
+    "B5-06",
+    "B5-08",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "mock_titles": [
+    "Target and guardrails evaluated together",
+    "Activity evidence",
+    "Outcome evidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 151->128",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings*', 'Work', 'Financials', 'Evidence'], ['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]->[['Overview', 'Plan', 'Application', 'Evidence', 'Verification*', 'History']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 131->108"
+   ],
+   "app_image": "s602b-replay/verification-unknown-action-390-app.png",
+   "mock_image": "s602b-replay/verification-unknown-action-390-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "positive",
+   "width": "1440",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     1.36
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s603/sitework-positive-1440-app.png",
+   "mock_image": "s603/sitework-positive-1440-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "positive",
+   "width": "390",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     1.65
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 531, 'cw': 318, 'panel': 'Actions at this site'}, ->[{'cls': 'data-table__scroll', 'sw': 531, 'cw': 318, 'panel': 'Actions at this site'}, {'cls': 'data-table', 'sw': 373, 'cw': 104, 'panel': 'Actions a"
+   ],
+   "app_image": "s603/sitework-positive-390-app.png",
+   "mock_image": "s603/sitework-positive-390-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "1440",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s603/sitework-page1-limit1-1440-app.png",
+   "mock_image": "s603/sitework-page1-limit1-1440-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "page1-limit1",
+   "width": "390",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z&limit=1",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Actions at this site",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 512, 'cw': 318, 'panel': 'Actions at this site'}, ->[{'cls': 'data-table__scroll', 'sw': 512, 'cw': 318, 'panel': 'Actions at this site'}, {'cls': 'data-table', 'sw': 373, 'cw': 104, 'panel': 'Actions a"
+   ],
+   "app_image": "s603/sitework-page1-limit1-390-app.png",
+   "mock_image": "s603/sitework-page1-limit1-390-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "zero",
+   "width": "1440",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s603/sitework-zero-1440-app.png",
+   "mock_image": "s603/sitework-zero-1440-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "zero",
+   "width": "390",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "s603/sitework-zero-390-app.png",
+   "mock_image": "s603/sitework-zero-390-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "1440",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "s603/sitework-no-window-1440-app.png",
+   "mock_image": "s603/sitework-no-window-1440-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "no-window",
+   "width": "390",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 144->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 125->108"
+   ],
+   "app_image": "s603/sitework-no-window-390-app.png",
+   "mock_image": "s603/sitework-no-window-390-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "1440",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]"
+   ],
+   "app_image": "s603/sitework-invalid-window-1440-app.png",
+   "mock_image": "s603/sitework-invalid-window-1440-mock.png"
+  },
+  {
+   "screen": "sitework",
+   "case": "invalid-window",
+   "width": "390",
+   "part": "s603",
+   "route": "/sites/KOBO-001/work?from=2026-11-02T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+   "producer": null,
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "tab rows changed; fewer horizontal scrollers",
+   "frozen_findings": [
+    "B5-X1",
+    "B5-09",
+    "B5-10",
+    "B5-11",
+    "B5-12"
+   ],
+   "app_titles": [
+    "Actions at this site"
+   ],
+   "mock_titles": [
+    "Actions at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 144->127",
+    "tabRows [['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents (\u00e2\u20ac\u201d)', 'Maintenance (\u00e2\u20ac\u201d)']]->[['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence'], ['Actions (\u00e2\u20ac\u201d)*', 'Incidents', 'Maintenance']]",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 125->108"
+   ],
+   "app_image": "s603/sitework-invalid-window-390-app.png",
+   "mock_image": "s603/sitework-invalid-window-390-mock.png"
+  }
+ ]
+}

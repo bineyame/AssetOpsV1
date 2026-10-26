@@ -3,220 +3,831 @@
   "screen": "dispatch",
   "case": "supported",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 04:00–04:15 UTC",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-supported-1440-app.png",
+  "mock_image": "dispatch-supported-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+  "ratios_over_1.3": [
+   [
+    "Accepted sample coverage",
+    1.42
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 04:00–04:15 UTC",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "supported",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 04:00–04:15 UTC",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-supported-390-app.png",
+  "mock_image": "dispatch-supported-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
+  "ratios_over_1.3": [
+   [
+    "Sources and 15-minute blocks",
+    2.22
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}, {'cls': 'data-table__scroll', 'sw': 369, 'cw': 284, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 04:00–04:15 UTC",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "limited",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 03:30–11:00 UTC",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-limited-1440-app.png",
+  "mock_image": "dispatch-limited-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1",
+  "ratios_over_1.3": [
+   [
+    "Accepted sample coverage",
+    1.31
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 03:30–11:00 UTC",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "limited",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 03:30–11:00 UTC",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-limited-390-app.png",
+  "mock_image": "dispatch-limited-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1",
+  "ratios_over_1.3": [
+   [
+    "Sources and 15-minute blocks",
+    2.44
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}, {'cls': 'data-table__scroll', 'sw': 374, 'cw': 284, 'panel'"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 03:30–11:00 UTC",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "limited-no-selection",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-limited-no-selection-1440-app.png",
+  "mock_image": "dispatch-limited-no-selection-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+  "ratios_over_1.3": [
+   [
+    "Accepted sample coverage",
+    1.31
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "limited-no-selection",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-limited-no-selection-390-app.png",
+  "mock_image": "dispatch-limited-no-selection-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+  "ratios_over_1.3": [
+   [
+    "Sources and 15-minute blocks",
+    1.58
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "refused-failed",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-refused-failed-1440-app.png",
+  "mock_image": "dispatch-refused-failed-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+  "ratios_over_1.3": [
+   [
+    "Accepted sample coverage",
+    1.31
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "refused-failed",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-refused-failed-390-app.png",
+  "mock_image": "dispatch-refused-failed-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "stale-pending",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-stale-pending-1440-app.png",
+  "mock_image": "dispatch-stale-pending-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-05",
+  "ratios_over_1.3": [
+   [
+    "Accepted sample coverage",
+    1.31
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "stale-pending",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-stale-pending-390-app.png",
+  "mock_image": "dispatch-stale-pending-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-05",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage->[{'cls': 'data-table__scroll', 'sw': 361, 'cw': 318, 'panel': 'Accepted sample coverage'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "default-no-day",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-default-no-day-1440-app.png",
+  "mock_image": "dispatch-default-no-day-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "default-no-day",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-default-no-day-390-app.png",
+  "mock_image": "dispatch-default-no-day-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "dispatch",
   "case": "window-id-as-revision",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-window-id-as-revision-1440-app.png",
+  "mock_image": "dispatch-window-id-as-revision-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=56a36c3f-cbbe-4c57-9dda-1a13e1376eea&block=1",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Sources and 15-minute blocks', 'Selected block · No block selected', 'Accepted sample coverage']",
+   "header h None->59",
+   "h1.text None->'Kobo mini-grid'",
+   "h1.size None->'27px'",
+   "h1.family None->'system-ui'",
+   "h1.weight None->'650'",
+   "h1.color None->'rgb(23, 36, 59)'",
+   "h1.top None->44",
+   "prose presence False->True",
+   "h2 presence False->True",
+   "pSizes {}->{'14px': 3}",
+   "tabRows []->[['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence'], ['Service', 'Dispatch*', 'Fuel', 'Renewable', 'Backup'], ['Overview*', 'Analysis']]",
+   "consoleErrors [\"TypeError: Cannot read properties of undefined (reading '1')\\n    at WindowView (http://localhost:->[]",
+   "mainTop 0->24"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true
  },
  {
   "screen": "dispatch",
   "case": "window-id-as-revision",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · No block selected",
+   "Accepted sample coverage"
+  ],
+  "mock_titles": [
+   "Sources and 15-minute blocks",
+   "Selected block · 14:20–14:35",
+   "Accepted sample coverage"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "dispatch-window-id-as-revision-390-app.png",
+  "mock_image": "dispatch-window-id-as-revision-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=56a36c3f-cbbe-4c57-9dda-1a13e1376eea&block=1",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "titles [] -> ['Sources and 15-minute blocks', 'Selected block · No block selected', 'Accepted sample coverage']",
+   "header h None->58",
+   "h1.text None->'Kobo mini-grid'",
+   "h1.size None->'23px'",
+   "h1.family None->'system-ui'",
+   "h1.weight None->'650'",
+   "h1.color None->'rgb(23, 36, 59)'",
+   "h1.top None->127",
+   "prose presence False->True",
+   "h2 presence False->True",
+   "pSizes {}->{'14px': 3}",
+   "tabRows []->[['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence'], ['Service', 'Dispatch*', 'Fuel', 'Renewable', 'Backup'], ['Overview*', 'Analysis']]",
+   "pageH 900->1175",
+   "consoleErrors [\"TypeError: Cannot read properties of undefined (reading '1')\\n    at WindowView (http://localhost:->[]",
+   "mainTop 0->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "h1 text changed",
+   "tab rows changed",
+   "panel set changed"
+  ],
+  "regress": [],
+  "review_panel_set": true
  },
  {
   "screen": "analysis",
   "case": "supported",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-supported-1440-app.png",
+  "mock_image": "analysis-supported-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "supported",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-supported-390-app.png",
+  "mock_image": "analysis-supported-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]->[{'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "limited",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-limited-1440-app.png",
+  "mock_image": "analysis-limited-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "limited",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-limited-390-app.png",
+  "mock_image": "analysis-limited-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]->[{'cls': 'data-table__scroll', 'sw': 537, 'cw': 318, 'panel': 'Constraint comparison'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "refused-failed",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-refused-failed-1440-app.png",
+  "mock_image": "analysis-refused-failed-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "refused-failed",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-refused-failed-390-app.png",
+  "mock_image": "analysis-refused-failed-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "spec-route",
   "width": "1440",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Awaiting evidence migration"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-spec-route-1440-app.png",
+  "mock_image": "analysis-spec-route-1440-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Awaiting evidence migration"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
  },
  {
   "screen": "analysis",
   "case": "spec-route",
   "width": "390",
-  "new_app_titles": null,
-  "mock_titles": null,
+  "new_app_titles": [
+   "Awaiting evidence migration"
+  ],
+  "mock_titles": [
+   "Constraint comparison",
+   "Bounded fuel calculation",
+   "Coverage, confidence and alternatives"
+  ],
   "vocab_new": [],
   "overflowX": 0,
-  "gap": "s3_dispatch_walkthrough.py (the only producer of the staged FAILED 10-07 / PENDING 10-05 and selected-interval states) has no --db/--work option: run unmodified it DROPs and re-creates the fixed database assetops_s3walk (the owner's walkthrough DB) and uses the owner's work folder. That DB is outside the permitted set (*_test, producer _audit scratch, w301cap/w302j/w402r), and the audit used a renaming wrapper which the standing brief forbids. Not captured."
+  "app_image": "analysis-spec-route-390-app.png",
+  "mock_image": "analysis-spec-route-390-mock.png",
+  "app_url": "http://localhost:5182/sites/KOBO-001/performance/analysis",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "h1.top 307->127",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+   "mainTop 288->108"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Awaiting evidence migration"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
  }
 ]

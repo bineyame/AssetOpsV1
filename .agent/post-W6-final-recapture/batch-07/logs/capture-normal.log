@@ -1,0 +1,75 @@
+chrome pid 22484
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-findings-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-findings: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-findings-normal 1440: mock rendered
+PASS  cold-findings-normal 1440: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  cold-findings-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/findings?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-findings-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-findings: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-findings-normal 390: mock rendered
+PASS  cold-findings-normal 390: same panel count  {"app":["Findings at this site"],"mock":["Findings at this site"]}
+PASS  cold-findings-normal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-normal 1440: mock rendered
+PASS  cold-normal 1440: same panel count  {"app":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"],"mock":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"]}
+PASS  cold-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-normal 390: mock rendered
+PASS  cold-normal 390: same panel count  {"app":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"],"mock":["What happened · power → cooling → product conditions","Chamber temperature","Needs attention","Bounded money consequence","Next step"]}
+PASS  cold-normal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-evidence-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-evidence: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-evidence-normal 1440: mock rendered
+PASS  cold-evidence-normal 1440: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  cold-evidence-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-evidence-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-evidence: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-evidence-normal 390: mock rendered
+PASS  cold-evidence-normal 390: same panel count  {"app":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"],"mock":["What we can conclude now","Data sources · data quality, not equipment condition","Most useful next evidence"]}
+PASS  cold-evidence-normal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-evidence-analysis-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-evidence-analysis-normal 1440: mock rendered
+PASS  cold-evidence-analysis-normal 1440: same panel count  {"app":["Accepted records behind the conclusions","How a claim limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  cold-evidence-analysis-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/evidence?view=analysis&from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-evidence-analysis-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-evidence-analysis-normal 390: mock rendered
+PASS  cold-evidence-analysis-normal 390: same panel count  {"app":["Accepted records behind the conclusions","How a claim limit is set"],"mock":["Accepted records behind the conclusions","How a claim limit is set"]}
+PASS  cold-evidence-analysis-normal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-financials-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-financials: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-financials-normal 1440: mock rendered
+PASS  cold-financials-normal 1440: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Not included"],"mock":["What happened → what it means in money","Assumptions in use","Not included"]}
+PASS  cold-financials-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-financials-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-financials: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-financials-normal 390: mock rendered
+PASS  cold-financials-normal 390: same panel count  {"app":["What happened → what it means in money","Assumptions in use","Not included"],"mock":["What happened → what it means in money","Assumptions in use","Not included"]}
+PASS  cold-financials-normal 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-assumptions-normal 1440: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-assumptions: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-assumptions-normal 1440: mock rendered
+PASS  cold-assumptions-normal 1440: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  cold-assumptions-normal 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5187/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-assumptions-normal 390: app rendered
+PASS  loaded http://localhost:5187/mockups/v69/index.html#/cold-assumptions: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-assumptions-normal 390: mock rendered
+PASS  cold-assumptions-normal 390: same panel count  {"app":["Financial assumptions"],"mock":["Financial assumptions"]}
+PASS  cold-assumptions-normal 390: no app page overflow  {"overflowX":0}
+
+72/72 claims passed; evidence in .agent/post-W6-final-recapture/batch-07/part-normal

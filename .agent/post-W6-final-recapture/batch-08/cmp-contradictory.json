@@ -1,0 +1,158 @@
+[
+ {
+  "screen": "sessions",
+  "case": "contradictory",
+  "width": "1440",
+  "new_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "mock_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sessions-contradictory-1440-app.png",
+  "mock_image": "sessions-contradictory-1440-mock.png",
+  "app_url": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Session service records] height 229->269",
+   "proseSizes ['14px']->['10px', '14px']",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "sessions",
+  "case": "contradictory",
+  "width": "390",
+  "new_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "mock_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sessions-contradictory-390-app.png",
+  "mock_image": "sessions-contradictory-390-mock.png",
+  "app_url": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Session service records] height 229->324",
+   "proseSizes ['14px']->['10px', '14px']",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+   "pageH 1345->1504",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "sessions",
+  "case": "contradictory-default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "mock_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sessions-contradictory-default-window-1440-app.png",
+  "mock_image": "sessions-contradictory-default-window-1440-mock.png",
+  "app_url": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Session service records] height 229->269",
+   "proseSizes ['14px']->['10px', '14px']",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "sessions",
+  "case": "contradictory-default-window",
+  "width": "390",
+  "new_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "mock_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "sessions-contradictory-default-window-390-app.png",
+  "mock_image": "sessions-contradictory-default-window-390-mock.png",
+  "app_url": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Session service records] height 229->324",
+   "proseSizes ['14px']->['10px', '14px']",
+   "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+   "pageH 1345->1504",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Session service records",
+   "How to read the denominator",
+   "Cause remains bounded"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

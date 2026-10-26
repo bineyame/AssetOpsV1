@@ -1,0 +1,1813 @@
+{
+ "batch": "08",
+ "name": "W2 EV Foundation/assessment",
+ "main_sha": "89a11477",
+ "pair_count": 56,
+ "frozen_pair_count": 56,
+ "counts": {
+  "PASS": 23,
+  "FIXED": 27,
+  "REGRESSION-OPEN": 6
+ },
+ "pairs": [
+  {
+   "screen": "sessions",
+   "case": "complete",
+   "width": "1440",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "complete/sessions-complete-1440-app.png",
+   "mock_image": "complete/sessions-complete-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "complete",
+   "width": "390",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "complete/sessions-complete-390-app.png",
+   "mock_image": "complete/sessions-complete-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "complete-default-window",
+   "width": "1440",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "complete/sessions-complete-default-window-1440-app.png",
+   "mock_image": "complete/sessions-complete-default-window-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "complete-default-window",
+   "width": "390",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "complete/sessions-complete-default-window-390-app.png",
+   "mock_image": "complete/sessions-complete-default-window-390-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "complete-replay",
+   "width": "1440",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "complete/ev-foundation-complete-replay-1440-app.png",
+   "mock_image": "complete/ev-foundation-complete-replay-1440-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "complete-replay",
+   "width": "390",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Physical site",
+     1.34
+    ],
+    [
+     "Operating interpretation",
+     1.5
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "complete/ev-foundation-complete-replay-390-app.png",
+   "mock_image": "complete/ev-foundation-complete-replay-390-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "complete-replay",
+   "width": "1440",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Readiness and commissioning evidence] links 2->4",
+    "pSizes {'11px': 24, '10px': 4, '14px': 6}->{'11px': 22, '10px': 4, '14px': 6}",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "complete/ev-readiness-complete-replay-1440-app.png",
+   "mock_image": "complete/ev-readiness-complete-replay-1440-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "complete-replay",
+   "width": "390",
+   "part": "complete",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness",
+   "producer": ".agent/W2-F-evidence/seed.py ev complete (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Readiness and commissioning evidence] links 2->4",
+    "pSizes {'11px': 8, '10px': 20, '14px': 6}->{'11px': 6, '10px': 20, '14px': 6}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 561, 'cw': 318, 'panel': 'Readiness and commission->[{'cls': 'data-table__scroll', 'sw': 483, 'cw': 318, 'panel': 'Readiness and commissioning evidence'}]",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "complete/ev-readiness-complete-replay-390-app.png",
+   "mock_image": "complete/ev-readiness-complete-replay-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "contradictory",
+   "width": "1440",
+   "part": "contradictory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev contradictory (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->269",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+   ],
+   "app_image": "contradictory/sessions-contradictory-1440-app.png",
+   "mock_image": "contradictory/sessions-contradictory-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "contradictory",
+   "width": "390",
+   "part": "contradictory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev contradictory (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->324",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+    "pageH 1345->1504",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "contradictory/sessions-contradictory-390-app.png",
+   "mock_image": "contradictory/sessions-contradictory-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "contradictory-default-window",
+   "width": "1440",
+   "part": "contradictory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev contradictory (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->269",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+   ],
+   "app_image": "contradictory/sessions-contradictory-default-window-1440-app.png",
+   "mock_image": "contradictory/sessions-contradictory-default-window-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "contradictory-default-window",
+   "width": "390",
+   "part": "contradictory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev contradictory (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->324",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+    "pageH 1345->1504",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "contradictory/sessions-contradictory-default-window-390-app.png",
+   "mock_image": "contradictory/sessions-contradictory-default-window-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "fault",
+   "width": "1440",
+   "part": "fault",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev fault (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "fault/sessions-fault-1440-app.png",
+   "mock_image": "fault/sessions-fault-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "fault",
+   "width": "390",
+   "part": "fault",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev fault (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "fault/sessions-fault-390-app.png",
+   "mock_image": "fault/sessions-fault-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "fault-default-window",
+   "width": "1440",
+   "part": "fault",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev fault (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "fault/sessions-fault-default-window-1440-app.png",
+   "mock_image": "fault/sessions-fault-default-window-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "fault-default-window",
+   "width": "390",
+   "part": "fault",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev fault (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "fault/sessions-fault-default-window-390-app.png",
+   "mock_image": "fault/sessions-fault-default-window-390-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "stocked",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-foundation-stocked-1440-app.png",
+   "mock_image": "interrupted/ev-foundation-stocked-1440-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "stocked",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Physical site",
+     1.34
+    ],
+    [
+     "Operating interpretation",
+     1.5
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "interrupted/ev-foundation-stocked-390-app.png",
+   "mock_image": "interrupted/ev-foundation-stocked-390-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "no-version",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-foundation-no-version-1440-app.png",
+   "mock_image": "interrupted/ev-foundation-no-version-1440-mock.png"
+  },
+  {
+   "screen": "ev-foundation",
+   "case": "no-version",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "mock_titles": [
+    "Physical site",
+    "Operating interpretation"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 169->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 150->108"
+   ],
+   "app_image": "interrupted/ev-foundation-no-version-390-app.png",
+   "mock_image": "interrupted/ev-foundation-no-version-390-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "stocked",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Readiness and commissioning evidence] links 2->4",
+    "pSizes {'11px': 24, '10px': 4, '14px': 6}->{'11px': 22, '10px': 4, '14px': 6}",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "interrupted/ev-readiness-stocked-1440-app.png",
+   "mock_image": "interrupted/ev-readiness-stocked-1440-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "stocked",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 edge-ev-lab-001",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Readiness and commissioning evidence] links 2->4",
+    "pSizes {'11px': 8, '10px': 20, '14px': 6}->{'11px': 6, '10px': 20, '14px': 6}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 561, 'cw': 318, 'panel': 'Readiness and commission->[{'cls': 'data-table__scroll', 'sw': 483, 'cw': 318, 'panel': 'Readiness and commissioning evidence'}]",
+    "consoleErrors ['Warning: Encountered two children with the same key, `%s`. Keys should be unique so that component->[]"
+   ],
+   "app_image": "interrupted/ev-readiness-stocked-390-app.png",
+   "mock_image": "interrupted/ev-readiness-stocked-390-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "no-version",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 Gateway not read",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-readiness-no-version-1440-app.png",
+   "mock_image": "interrupted/ev-readiness-no-version-1440-mock.png"
+  },
+  {
+   "screen": "ev-readiness",
+   "case": "no-version",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 Gateway not read",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "mock_titles": [
+    "Readiness and commissioning evidence",
+    "Gateway status \u00c2\u00b7 GW-EV-01",
+    "Connected sources",
+    "Effect on readiness and confidence"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "interrupted/ev-readiness-no-version-390-app.png",
+   "mock_image": "interrupted/ev-readiness-no-version-390-mock.png"
+  },
+  {
+   "screen": "ev-sld",
+   "case": "stocked",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/sld",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "EV charging lab",
+    "What each part does"
+   ],
+   "mock_titles": [
+    "Depot Charging Hub \u00c2\u00b7 Depot charging hub",
+    "What each part does"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-sld-stocked-1440-app.png",
+   "mock_image": "interrupted/ev-sld-stocked-1440-mock.png"
+  },
+  {
+   "screen": "ev-sld",
+   "case": "stocked",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/sld",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "EV charging lab",
+    "What each part does"
+   ],
+   "mock_titles": [
+    "Depot Charging Hub \u00c2\u00b7 Depot charging hub",
+    "What each part does"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "interrupted/ev-sld-stocked-390-app.png",
+   "mock_image": "interrupted/ev-sld-stocked-390-mock.png"
+  },
+  {
+   "screen": "ev-sld",
+   "case": "no-version",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "EV charging lab",
+    "What each part does"
+   ],
+   "mock_titles": [
+    "Depot Charging Hub \u00c2\u00b7 Depot charging hub",
+    "What each part does"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-sld-no-version-1440-app.png",
+   "mock_image": "interrupted/ev-sld-no-version-1440-mock.png"
+  },
+  {
+   "screen": "ev-sld",
+   "case": "no-version",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "EV charging lab",
+    "What each part does"
+   ],
+   "mock_titles": [
+    "Depot Charging Hub \u00c2\u00b7 Depot charging hub",
+    "What each part does"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 181->155",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 134->108"
+   ],
+   "app_image": "interrupted/ev-sld-no-version-390-app.png",
+   "mock_image": "interrupted/ev-sld-no-version-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "interrupted",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "interrupted/sessions-interrupted-1440-app.png",
+   "mock_image": "interrupted/sessions-interrupted-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "interrupted",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "interrupted/sessions-interrupted-390-app.png",
+   "mock_image": "interrupted/sessions-interrupted-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "default-window",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 183->206"
+   ],
+   "app_image": "interrupted/sessions-default-window-1440-app.png",
+   "mock_image": "interrupted/sessions-default-window-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "default-window",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->240",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "interrupted/sessions-default-window-390-app.png",
+   "mock_image": "interrupted/sessions-default-window-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "no-selection",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-05T08:00:00Z&to=2026-10-05T09:05:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/sessions-no-selection-1440-app.png",
+   "mock_image": "interrupted/sessions-no-selection-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "no-selection",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-05T08:00:00Z&to=2026-10-05T09:05:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "interrupted/sessions-no-selection-390-app.png",
+   "mock_image": "interrupted/sessions-no-selection-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "refused",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T09:05:00Z&to=2026-10-06T08:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 119->144",
+    "[Session service records] details 0->1"
+   ],
+   "app_image": "interrupted/sessions-refused-1440-app.png",
+   "mock_image": "interrupted/sessions-refused-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "refused",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T09:05:00Z&to=2026-10-06T08:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 119->160",
+    "[Session service records] details 0->1",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+   ],
+   "app_image": "interrupted/sessions-refused-390-app.png",
+   "mock_image": "interrupted/sessions-refused-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "interrupted",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "The 'cap exceeded Bounded conclusion 1.2->1.33' flag is inside the ruled 600 px cap (279 px; growth from the accepted Q7 'Inspect claim evidence' link) and is NOT the finding. Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-interrupted-1440-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 250->279",
+    "[Bounded conclusion] links 0->1",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll []->[{'cls': 'ev-id', 'sw': 429, 'cw': 347, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-interrupted-1440-app.png",
+   "mock_image": "interrupted/ev-finding-interrupted-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "interrupted",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-interrupted-390-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] links 0->1",
+    "[Operational context] height 290->254",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'ev-id', 'sw': 429, 'cw': 159, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-interrupted-390-app.png",
+   "mock_image": "interrupted/ev-finding-interrupted-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "no-window",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "The 'cap exceeded Bounded conclusion 1.2->1.33' flag is inside the ruled 600 px cap (279 px; growth from the accepted Q7 'Inspect claim evidence' link) and is NOT the finding. Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-no-window-1440-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 250->279",
+    "[Bounded conclusion] links 0->1",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll []->[{'cls': 'ev-id', 'sw': 429, 'cw': 347, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-no-window-1440-app.png",
+   "mock_image": "interrupted/ev-finding-no-window-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "no-window",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-no-window-390-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] links 0->1",
+    "[Operational context] height 290->254",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'ev-id', 'sw': 429, 'cw': 159, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-no-window-390-app.png",
+   "mock_image": "interrupted/ev-finding-no-window-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "refused",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09:05:00Z&to=2026-10-06T08:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 96->121",
+    "[Bounded conclusion] details 0->1"
+   ],
+   "app_image": "interrupted/ev-finding-refused-1440-app.png",
+   "mock_image": "interrupted/ev-finding-refused-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "refused",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T09:05:00Z&to=2026-10-06T08:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 96->137",
+    "[Bounded conclusion] details 0->1",
+    "h1.top 181->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 162->108"
+   ],
+   "app_image": "interrupted/ev-finding-refused-390-app.png",
+   "mock_image": "interrupted/ev-finding-refused-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "unknown-id",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 96->121",
+    "[Bounded conclusion] details 0->1"
+   ],
+   "app_image": "interrupted/ev-finding-unknown-id-1440-app.png",
+   "mock_image": "interrupted/ev-finding-unknown-id-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "unknown-id",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-000000000fff?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 96->121",
+    "[Bounded conclusion] details 0->1",
+    "h1.top 181->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 162->108"
+   ],
+   "app_image": "interrupted/ev-finding-unknown-id-390-app.png",
+   "mock_image": "interrupted/ev-finding-unknown-id-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "recommendation-address",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/recommendation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "The 'cap exceeded Bounded conclusion 1.2->1.33' flag is inside the ruled 600 px cap (279 px; growth from the accepted Q7 'Inspect claim evidence' link) and is NOT the finding. Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-recommendation-address-1440-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.33
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] height 250->279",
+    "[Bounded conclusion] links 0->1",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll []->[{'cls': 'ev-id', 'sw': 429, 'cw': 347, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-recommendation-address-1440-app.png",
+   "mock_image": "interrupted/ev-finding-recommendation-address-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "recommendation-address",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/recommendation?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "REGRESSION-OPEN",
+   "reason": "Session id in Operational context ('SES ev-9ada0e59...', 64 chars) is now a one-line horizontal scroller (ev-id sw 429 > cw 347 at 1440, cw 159 at 390) instead of wrapping to 2/3 lines as in the frozen capture and as register R277 / W2-F M10-N1 css (.ev-id wrap) state; the id is visibly cut at the panel edge (390 also cuts 'Connector c1', 'Observed abort'). Frozen hscroll was none. Evidence: batch-08/interrupted/ev-finding-recommendation-address-390-app.png vs post-W6-audit/batch-08/interrupted/. Suspected cause: a later generic one-line-id scroller rule overriding .ev-id wrap (css not located).",
+   "frozen_findings": null,
+   "app_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [
+    [
+     "Bounded conclusion",
+     1.4
+    ]
+   ],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Bounded conclusion] links 0->1",
+    "[Operational context] height 290->254",
+    "pSizes {'19px': 1, '14px': 3, '11px': 6}->{'19px': 1, '14px': 4, '11px': 6}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'ev-id', 'sw': 429, 'cw': 159, 'panel': 'Operational context'}]"
+   ],
+   "app_image": "interrupted/ev-finding-recommendation-address-390-app.png",
+   "mock_image": "interrupted/ev-finding-recommendation-address-390-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "evidence-child",
+   "width": "1440",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Finding section"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [],
+   "app_image": "interrupted/ev-finding-evidence-child-1440-app.png",
+   "mock_image": "interrupted/ev-finding-evidence-child-1440-mock.png"
+  },
+  {
+   "screen": "ev-finding",
+   "case": "evidence-child",
+   "width": "390",
+   "part": "interrupted",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b/evidence?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Finding section"
+   ],
+   "mock_titles": [
+    "Bounded conclusion",
+    "Operational context",
+    "Recommended next step"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "h1.top 360->127",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]",
+    "mainTop 341->108"
+   ],
+   "app_image": "interrupted/ev-finding-evidence-child-390-app.png",
+   "mock_image": "interrupted/ev-finding-evidence-child-390-mock.png"
+  },
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check",
+   "width": "1440",
+   "part": "inventory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place (inventory check only)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "[Findings at this site] table columns changed",
+   "frozen_findings": null,
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 217->159",
+    "[Findings at this site] rows 0->1",
+    "[Findings at this site] links 0->2",
+    "[Findings at this site] buttons 1->0",
+    "[Findings at this site] tables 0->1",
+    "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 5, '12px': 2}->{}"
+   ],
+   "app_image": "inventory/ev-findings-inventory-check-1440-app.png",
+   "mock_image": "inventory/ev-findings-inventory-check-1440-mock.png"
+  },
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check",
+   "width": "390",
+   "part": "inventory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place (inventory check only)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Findings at this site ratio 1.73->0.64; [Findings at this site] table columns changed",
+   "frozen_findings": null,
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 430->159",
+    "[Findings at this site] rows 0->1",
+    "[Findings at this site] links 0->2",
+    "[Findings at this site] buttons 1->0",
+    "[Findings at this site] tables 0->1",
+    "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 5, '12px': 2}->{}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'Findings at this site'}]"
+   ],
+   "app_image": "inventory/ev-findings-inventory-check-390-app.png",
+   "mock_image": "inventory/ev-findings-inventory-check-390-mock.png"
+  },
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check-window",
+   "width": "1440",
+   "part": "inventory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place (inventory check only)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "[Findings at this site] table columns changed",
+   "frozen_findings": null,
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 217->159",
+    "[Findings at this site] rows 0->1",
+    "[Findings at this site] links 0->2",
+    "[Findings at this site] buttons 1->0",
+    "[Findings at this site] tables 0->1",
+    "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 5, '12px': 2}->{}"
+   ],
+   "app_image": "inventory/ev-findings-inventory-check-window-1440-app.png",
+   "mock_image": "inventory/ev-findings-inventory-check-window-1440-mock.png"
+  },
+  {
+   "screen": "ev-findings",
+   "case": "inventory-check-window",
+   "width": "390",
+   "part": "inventory",
+   "route": "http://localhost:5188/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev interrupted (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place (inventory check only)",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "Findings at this site ratio 1.73->0.64; [Findings at this site] table columns changed",
+   "frozen_findings": null,
+   "app_titles": [
+    "Findings at this site"
+   ],
+   "mock_titles": [
+    "Findings at this site"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Findings at this site] height 430->159",
+    "[Findings at this site] rows 0->1",
+    "[Findings at this site] links 0->2",
+    "[Findings at this site] buttons 1->0",
+    "[Findings at this site] tables 0->1",
+    "[Findings at this site] columns []->['Finding', 'Domain', 'Priority', 'Confidence', 'State', 'Main consequence', 'Lens']",
+    "[Findings at this site] chips ['AllCost Not available yetRisks Not available yetOpportunities Not available yet', 'From (UTC day)To (UTC day, included)Show Findings']->[]",
+    "td presence False->True",
+    "th presence False->True",
+    "pSizes {'11px': 5, '12px': 2}->{}",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[{'cls': 'data-table__scroll', 'sw': 750, 'cw': 318, 'panel': 'Findings at this site'}]"
+   ],
+   "app_image": "inventory/ev-findings-inventory-check-window-390-app.png",
+   "mock_image": "inventory/ev-findings-inventory-check-window-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "missing-meter",
+   "width": "1440",
+   "part": "missing-meter",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev missing-meter (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->246",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+   ],
+   "app_image": "missing-meter/sessions-missing-meter-1440-app.png",
+   "mock_image": "missing-meter/sessions-missing-meter-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "missing-meter",
+   "width": "390",
+   "part": "missing-meter",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00Z&to=2026-10-06T09:05:00Z&known_at=2026-10-06T09:00:00Z",
+   "producer": ".agent/W2-F-evidence/seed.py ev missing-meter (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->333",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+    "pageH 1328->1497",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "missing-meter/sessions-missing-meter-390-app.png",
+   "mock_image": "missing-meter/sessions-missing-meter-390-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "missing-meter-default-window",
+   "width": "1440",
+   "part": "missing-meter",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev missing-meter (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "PASS",
+   "reason": "no measured difference from the frozen capture beyond standing/ruled rows",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 206->246",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}"
+   ],
+   "app_image": "missing-meter/sessions-missing-meter-default-window-1440-app.png",
+   "mock_image": "missing-meter/sessions-missing-meter-default-window-1440-mock.png"
+  },
+  {
+   "screen": "sessions",
+   "case": "missing-meter-default-window",
+   "width": "390",
+   "part": "missing-meter",
+   "route": "http://localhost:5188/sites/EV-LAB-001/performance/sessions",
+   "producer": ".agent/W2-F-evidence/seed.py ev missing-meter (unmodified; W2-05b EV replay -> EV worker -> authored tariff -> EV consequence worker), reseeded in place",
+   "sha": "89a11477",
+   "classification": "FIXED",
+   "reason": "fewer horizontal scrollers",
+   "frozen_findings": null,
+   "app_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "mock_titles": [
+    "Session service records",
+    "How to read the denominator",
+    "Cause remains bounded"
+   ],
+   "ratios_over_1.3": [],
+   "overflowX": 0,
+   "vocab": [],
+   "app_diffs_vs_frozen": [
+    "[Session service records] height 229->333",
+    "proseSizes ['14px']->['10px', '14px']",
+    "pSizes {'11px': 1, '14px': 2}->{'11px': 1, '10px': 1, '12px': 1, '14px': 2}",
+    "pageH 1328->1497",
+    "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'->[{'cls': 'data-table__scroll', 'sw': 640, 'cw': 318, 'panel': 'Session service records'}]"
+   ],
+   "app_image": "missing-meter/sessions-missing-meter-default-window-390-app.png",
+   "mock_image": "missing-meter/sessions-missing-meter-default-window-390-mock.png"
+  }
+ ]
+}

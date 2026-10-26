@@ -1,0 +1,237 @@
+[
+ {
+  "screen": "temperature",
+  "case": "normal",
+  "width": "1440",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-normal-1440-app.png",
+  "mock_image": "temperature-normal-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "normal",
+  "width": "390",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-normal-390-app.png",
+  "mock_image": "temperature-normal-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "normal",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-normal-1440-app.png",
+  "mock_image": "coldbackup-normal-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.75
+   ]
+  ],
+  "app_diffs": [
+   "[What the chain shows] height 148->125",
+   "proseSizes ['14px']->[]",
+   "pSizes {'19px': 1, '14px': 1, '10px': 9, '11px': 1}->{'19px': 1, '10px': 9, '11px': 1}"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "normal",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-normal-390-app.png",
+  "mock_image": "coldbackup-normal-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.77
+   ]
+  ],
+  "app_diffs": [
+   "[What the chain shows] height 179->156",
+   "proseSizes ['14px']->[]",
+   "pSizes {'19px': 1, '14px': 1, '10px': 9, '11px': 1}->{'19px': 1, '10px': 9, '11px': 1}",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 791, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 791, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 447, 'cw': 318, 'panel': 'Ev"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "14px prose reduced",
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-foundation",
+  "case": "normal-replay",
+  "width": "1440",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-normal-replay-1440-app.png",
+  "mock_image": "cold-foundation-normal-replay-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-foundation",
+  "case": "normal-replay",
+  "width": "390",
+  "new_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "mock_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-foundation-normal-replay-390-app.png",
+  "mock_image": "cold-foundation-normal-replay-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/foundation",
+  "ratios_over_1.3": [
+   [
+    "Operating interpretation",
+    1.72
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Physical site",
+   "Operating interpretation"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]

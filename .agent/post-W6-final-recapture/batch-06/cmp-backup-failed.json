@@ -1,0 +1,389 @@
+[
+ {
+  "screen": "temperature",
+  "case": "backup-failed",
+  "width": "1440",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-backup-failed-1440-app.png",
+  "mock_image": "temperature-backup-failed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "temperature",
+  "case": "backup-failed",
+  "width": "390",
+  "new_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "mock_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "temperature-backup-failed-390-app.png",
+  "mock_image": "temperature-backup-failed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Temperature with operating context",
+   "Excursion context",
+   "Claim boundary"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "backup-failed",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-backup-failed-1440-app.png",
+  "mock_image": "coldbackup-backup-failed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.67
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "backup-failed",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-backup-failed-390-app.png",
+  "mock_image": "coldbackup-backup-failed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.62
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 447, 'cw': 318, 'panel': 'Ev"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "default-window",
+  "width": "1440",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-default-window-1440-app.png",
+  "mock_image": "coldbackup-default-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.67
+   ]
+  ],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "coldbackup",
+  "case": "default-window",
+  "width": "390",
+  "new_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "mock_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "coldbackup-default-window-390-app.png",
+  "mock_image": "coldbackup-default-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/performance/backup",
+  "ratios_over_1.3": [
+   [
+    "Evidence by causal step",
+    1.62
+   ]
+  ],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {->[{'cls': 'data-table__scroll', 'sw': 810, 'cw': 318, 'panel': 'Backup event chains'}, {'cls': 'data-table__scroll', 'sw': 447, 'cw': 318, 'panel': 'Ev"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "What the chain shows",
+   "Reconstructed event chain",
+   "Backup event chains",
+   "Evidence by causal step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-backup-failed",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-backup-failed-1440-app.png",
+  "mock_image": "cold-finding-start-backup-failed-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+  "ratios_over_1.3": [],
+  "app_diffs": [],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-backup-failed",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-backup-failed-390-app.png",
+  "mock_image": "cold-finding-start-backup-failed-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-refused-window",
+  "width": "1440",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-refused-window-1440-app.png",
+  "mock_image": "cold-finding-start-refused-window-1440-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] height 96->113",
+   "[Bounded conclusion] details 0->1"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [],
+  "regress": [],
+  "review_panel_set": false
+ },
+ {
+  "screen": "cold-finding",
+  "case": "start-refused-window",
+  "width": "390",
+  "new_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "mock_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_new": [],
+  "overflowX": 0,
+  "app_image": "cold-finding-start-refused-window-390-app.png",
+  "mock_image": "cold-finding-start-refused-window-390-mock.png",
+  "app_url": "http://localhost:5186/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+  "ratios_over_1.3": [],
+  "app_diffs": [
+   "[Bounded conclusion] height 96->129",
+   "[Bounded conclusion] details 0->1",
+   "hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}]->[]"
+  ],
+  "mock_diffs": [],
+  "old_app_titles": [
+   "Bounded conclusion",
+   "Operational context",
+   "Recommended next step"
+  ],
+  "vocab_old": [],
+  "ratio_worse": [],
+  "fix_signals": [
+   "fewer horizontal scrollers"
+  ],
+  "regress": [],
+  "review_panel_set": false
+ }
+]
