@@ -1,0 +1,9 @@
+# Architect rulings: post-W6 W5-EV R350
+
+2026-10-26. Binding for `task/post-W6-W5-EV-work`; this refines W5 rulings 4 without changing the W5-04 ruling 43 W1 fallback.
+
+1. **R350: keep W1 detail. Merge blocker.** On a cold or EV Site, `/plan`, `/execution`, `/evidence` and `/history` must first probe the domain Action detail by Site and Action ID, as the bare route already does. A validated domain Action gets the shelled `Page not available` / `This address is not served` state at the original address, with no redirect and no W1 read. A non-loaded domain probe keeps the existing W1 fallback, including the original section and W1 selectors; in particular, a W1 ID must render its W1 section. The probe is the sole exception to R350's no-read instruction: there is no route-only way to distinguish the two Action identities. Keep the current `/verification`, bare and `/overview` behavior. Repair `SiteActionFrame` / `DomainActionRoute` in `SiteAnalyticsFrames.tsx` and the cold/EV mixed-ID tests before this branch merges; do not defer this regression to the backlog. Prove each of the four suffixes for both ID kinds, with domain IDs staying at the requested URL and W1 IDs rendering W1 content. Recapture the cold and EV R350 landings after repair.
+
+2. **R348 bare EV route: confirm.** An invalid selected EV `from`/`to` at the bare Action address gets the same invalid-window refusal as `/verification`, before any Action detail read or redirect. Its correction link drops the refused window and preserves a valid `known_at`. Cold continues to ignore the window.
+
+3. **R349 409: confirm Reload.** A 409 says `The Action changed while it was being read.` and offers `Reload` to fetch the current read again. It makes no write and carries the current valid selection. Keep the technical code in the disclosure; do not offer Reload on the terminal 403, 404 or 422 refusals.
