@@ -1,0 +1,203 @@
+chrome pid 27072
+OK   renewable-positive-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Productive-use evaluation rows160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation rows160-gap 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160-gap 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation firstcell160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Eligible and excluded windows rows160 1440: real=383 synthetic=401 verified=true fields=20/20 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows rows160-gap 1440: real=383 synthetic=401 verified=true fields=20/20 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows varcells160 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows varcells160-gap 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows firstcell160 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+OK   renewable-positive-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Productive-use evaluation rows160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation rows160-gap 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160-gap 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation firstcell160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Eligible and excluded windows rows160 390: real=482 synthetic=482 verified=true fields=20/20 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows rows160-gap 390: real=482 synthetic=482 verified=true fields=20/20 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows varcells160 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows varcells160-gap 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows firstcell160 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+OK   service-positive-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Delivered power by addressed load rows160 1440: real=266 synthetic=289 verified=true fields=25/25 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load rows160-gap 1440: real=266 synthetic=289 verified=true fields=25/25 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load varcells160 1440: real=266 synthetic=289 verified=true fields=10/10 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load varcells160-gap 1440: real=266 synthetic=289 verified=true fields=10/10 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load firstcell160 1440: real=266 synthetic=289 verified=true fields=5/5 clipped=0 open=289 openClipped=0 doc=0
+  What unlocks rows160 1440: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks rows160-gap 1440: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160 1440: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160-gap 1440: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks firstcell160 1440: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   service-positive-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Delivered power by addressed load rows160 390: real=326 synthetic=326 verified=true fields=25/25 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load rows160-gap 390: real=326 synthetic=326 verified=true fields=25/25 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load varcells160 390: real=326 synthetic=326 verified=true fields=10/10 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load varcells160-gap 390: real=326 synthetic=326 verified=true fields=10/10 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load firstcell160 390: real=326 synthetic=326 verified=true fields=5/5 clipped=0 open=326 openClipped=0 doc=0
+  What unlocks rows160 390: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks rows160-gap 390: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160 390: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160-gap 390: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks firstcell160 390: real=133 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   fuel-positive-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Balance bridge rows160 1440: real=353 synthetic=366 verified=true fields=15/15 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge rows160-gap 1440: real=353 synthetic=366 verified=true fields=15/15 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge varcells160 1440: real=353 synthetic=366 verified=true fields=10/10 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge varcells160-gap 1440: real=353 synthetic=366 verified=true fields=10/10 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge firstcell160 1440: real=353 synthetic=366 verified=true fields=5/5 clipped=0 open=366 openClipped=0 doc=0
+  Inspect existing generator fuel rows160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel rows160-gap 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160-gap 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel firstcell160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   fuel-positive-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Balance bridge rows160 390: real=579 synthetic=579 verified=true fields=15/15 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge rows160-gap 390: real=579 synthetic=579 verified=true fields=15/15 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge varcells160 390: real=579 synthetic=579 verified=true fields=10/10 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge varcells160-gap 390: real=579 synthetic=579 verified=true fields=10/10 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge firstcell160 390: real=579 synthetic=579 verified=true fields=5/5 clipped=0 open=579 openClipped=0 doc=0
+  Inspect existing generator fuel rows160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel rows160-gap 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160-gap 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel firstcell160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   backup-positive-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Backup event chains rows160 1440: real=188 synthetic=2310 verified=true fields=40/40 clipped=0 open=2310 openClipped=0 doc=0
+  Backup event chains rows160-gap 1440: real=188 synthetic=2343 verified=true fields=40/40 clipped=0 open=2343 openClipped=0 doc=0
+  Backup event chains varcells160 1440: real=188 synthetic=390 verified=true fields=0/0 clipped=0 open=390 openClipped=0 doc=0
+  Backup event chains varcells160-gap 1440: real=188 synthetic=423 verified=true fields=0/0 clipped=0 open=423 openClipped=0 doc=0
+  Backup event chains firstcell160 1440: real=188 synthetic=536 verified=true fields=5/5 clipped=0 open=536 openClipped=0 doc=0
+  Backup readiness evidence rows160 1440: real=302 synthetic=316 verified=true fields=15/15 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence rows160-gap 1440: real=302 synthetic=316 verified=true fields=15/15 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence varcells160 1440: real=302 synthetic=316 verified=true fields=10/10 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence varcells160-gap 1440: real=302 synthetic=316 verified=true fields=10/10 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence firstcell160 1440: real=302 synthetic=316 verified=true fields=5/5 clipped=0 open=316 openClipped=0 doc=0
+OK   backup-positive-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Backup event chains rows160 390: real=217 synthetic=2295 verified=true fields=40/40 clipped=0 open=2295 openClipped=0 doc=0
+  Backup event chains rows160-gap 390: real=217 synthetic=2378 verified=true fields=40/40 clipped=0 open=2378 openClipped=0 doc=0
+  Backup event chains varcells160 390: real=217 synthetic=536 verified=true fields=0/0 clipped=0 open=536 openClipped=0 doc=0
+  Backup event chains varcells160-gap 390: real=217 synthetic=618 verified=true fields=0/0 clipped=0 open=618 openClipped=0 doc=0
+  Backup event chains firstcell160 390: real=217 synthetic=2295 verified=true fields=5/5 clipped=0 open=2295 openClipped=0 doc=0
+  Backup readiness evidence rows160 390: real=380 synthetic=471 verified=true fields=15/15 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence rows160-gap 390: real=380 synthetic=471 verified=true fields=15/15 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence varcells160 390: real=380 synthetic=471 verified=true fields=10/10 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence varcells160-gap 390: real=380 synthetic=471 verified=true fields=10/10 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence firstcell160 390: real=380 synthetic=471 verified=true fields=5/5 clipped=0 open=471 openClipped=0 doc=0
+OK   renewable-gap-limited-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Productive-use evaluation rows160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation rows160-gap 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160-gap 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation firstcell160 1440: real=269 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Eligible and excluded windows rows160 1440: real=383 synthetic=401 verified=true fields=20/20 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows rows160-gap 1440: real=383 synthetic=401 verified=true fields=20/20 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows varcells160 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows varcells160-gap 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+  Eligible and excluded windows firstcell160 1440: real=383 synthetic=401 verified=true fields=5/5 clipped=0 open=401 openClipped=0 doc=0
+OK   renewable-gap-limited-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Productive-use evaluation rows160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation rows160-gap 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation varcells160-gap 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Productive-use evaluation firstcell160 390: real=266 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Eligible and excluded windows rows160 390: real=482 synthetic=482 verified=true fields=20/20 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows rows160-gap 390: real=482 synthetic=482 verified=true fields=20/20 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows varcells160 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows varcells160-gap 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+  Eligible and excluded windows firstcell160 390: real=482 synthetic=482 verified=true fields=5/5 clipped=0 open=482 openClipped=0 doc=0
+OK   service-gap-limited-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Delivered power by addressed load rows160 1440: real=266 synthetic=289 verified=true fields=25/25 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load rows160-gap 1440: real=266 synthetic=289 verified=true fields=25/25 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load varcells160 1440: real=266 synthetic=289 verified=true fields=10/10 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load varcells160-gap 1440: real=266 synthetic=289 verified=true fields=10/10 clipped=0 open=289 openClipped=0 doc=0
+  Delivered power by addressed load firstcell160 1440: real=266 synthetic=289 verified=true fields=5/5 clipped=0 open=289 openClipped=0 doc=0
+  What unlocks rows160 1440: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks rows160-gap 1440: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160 1440: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160-gap 1440: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks firstcell160 1440: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   service-gap-limited-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Delivered power by addressed load rows160 390: real=326 synthetic=326 verified=true fields=25/25 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load rows160-gap 390: real=326 synthetic=326 verified=true fields=25/25 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load varcells160 390: real=326 synthetic=326 verified=true fields=10/10 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load varcells160-gap 390: real=326 synthetic=326 verified=true fields=10/10 clipped=0 open=326 openClipped=0 doc=0
+  Delivered power by addressed load firstcell160 390: real=326 synthetic=326 verified=true fields=5/5 clipped=0 open=326 openClipped=0 doc=0
+  What unlocks rows160 390: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks rows160-gap 390: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160 390: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks varcells160-gap 390: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  What unlocks firstcell160 390: real=201 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   fuel-gap-limited-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Balance bridge rows160 1440: real=353 synthetic=366 verified=true fields=15/15 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge rows160-gap 1440: real=353 synthetic=366 verified=true fields=15/15 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge varcells160 1440: real=353 synthetic=366 verified=true fields=10/10 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge varcells160-gap 1440: real=353 synthetic=366 verified=true fields=10/10 clipped=0 open=366 openClipped=0 doc=0
+  Balance bridge firstcell160 1440: real=353 synthetic=353 verified=true fields=5/5 clipped=0 open=353 openClipped=0 doc=0
+  Inspect existing generator fuel rows160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel rows160-gap 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160-gap 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel firstcell160 1440: real=134 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   fuel-gap-limited-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+  Balance bridge rows160 390: real=579 synthetic=579 verified=true fields=15/15 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge rows160-gap 390: real=579 synthetic=579 verified=true fields=15/15 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge varcells160 390: real=579 synthetic=579 verified=true fields=10/10 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge varcells160-gap 390: real=579 synthetic=579 verified=true fields=10/10 clipped=0 open=579 openClipped=0 doc=0
+  Balance bridge firstcell160 390: real=579 synthetic=579 verified=true fields=5/5 clipped=0 open=579 openClipped=0 doc=0
+  Inspect existing generator fuel rows160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel rows160-gap 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel varcells160-gap 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+  Inspect existing generator fuel firstcell160 390: real=193 synthetic=undefined verified=false fields=undefined/undefined clipped=undefined open=undefined openClipped=undefined doc=undefined reason=no table body in panel
+OK   backup-gap-limited-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Backup event chains rows160 1440: real=188 synthetic=2310 verified=true fields=40/40 clipped=0 open=2310 openClipped=0 doc=0
+  Backup event chains rows160-gap 1440: real=188 synthetic=2343 verified=true fields=40/40 clipped=0 open=2343 openClipped=0 doc=0
+  Backup event chains varcells160 1440: real=188 synthetic=390 verified=true fields=0/0 clipped=0 open=390 openClipped=0 doc=0
+  Backup event chains varcells160-gap 1440: real=188 synthetic=423 verified=true fields=0/0 clipped=0 open=423 openClipped=0 doc=0
+  Backup event chains firstcell160 1440: real=188 synthetic=536 verified=true fields=5/5 clipped=0 open=536 openClipped=0 doc=0
+  Backup readiness evidence rows160 1440: real=299 synthetic=316 verified=true fields=15/15 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence rows160-gap 1440: real=299 synthetic=316 verified=true fields=15/15 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence varcells160 1440: real=299 synthetic=316 verified=true fields=10/10 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence varcells160-gap 1440: real=299 synthetic=316 verified=true fields=10/10 clipped=0 open=316 openClipped=0 doc=0
+  Backup readiness evidence firstcell160 1440: real=299 synthetic=316 verified=true fields=5/5 clipped=0 open=316 openClipped=0 doc=0
+OK   backup-gap-limited-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+  Backup event chains rows160 390: real=217 synthetic=2295 verified=true fields=40/40 clipped=0 open=2295 openClipped=0 doc=0
+  Backup event chains rows160-gap 390: real=217 synthetic=2378 verified=true fields=40/40 clipped=0 open=2378 openClipped=0 doc=0
+  Backup event chains varcells160 390: real=217 synthetic=536 verified=true fields=0/0 clipped=0 open=536 openClipped=0 doc=0
+  Backup event chains varcells160-gap 390: real=217 synthetic=618 verified=true fields=0/0 clipped=0 open=618 openClipped=0 doc=0
+  Backup event chains firstcell160 390: real=217 synthetic=2295 verified=true fields=5/5 clipped=0 open=2295 openClipped=0 doc=0
+  Backup readiness evidence rows160 390: real=380 synthetic=471 verified=true fields=15/15 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence rows160-gap 390: real=380 synthetic=471 verified=true fields=15/15 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence varcells160 390: real=380 synthetic=471 verified=true fields=10/10 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence varcells160-gap 390: real=380 synthetic=471 verified=true fields=10/10 clipped=0 open=471 openClipped=0 doc=0
+  Backup readiness evidence firstcell160 390: real=380 synthetic=471 verified=true fields=5/5 clipped=0 open=471 openClipped=0 doc=0
+OK   renewable-no-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   renewable-no-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   service-no-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   service-no-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   fuel-no-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   fuel-no-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   backup-no-window-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   backup-no-window-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   renewable-refused-invalid-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   renewable-refused-invalid-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   service-refused-invalid-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   service-refused-invalid-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   fuel-refused-invalid-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   fuel-refused-invalid-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   backup-refused-invalid-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   backup-refused-invalid-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   renewable-known-before-evidence-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   renewable-known-before-evidence-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   service-known-before-evidence-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   service-known-before-evidence-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   fuel-known-before-evidence-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   fuel-known-before-evidence-390 h1="Mini-grid depth demonstration" overflowX=0 panels=3 console=0
+OK   backup-known-before-evidence-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+OK   backup-known-before-evidence-390 h1="Mini-grid depth demonstration" overflowX=0 panels=4 console=0
+done 40 records
+exit 0

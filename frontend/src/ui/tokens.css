@@ -131,6 +131,22 @@
   --badge-config-gap-text: #8e580c;
   --badge-config-gap-border: #f0cf98;
 
+  /* post-W6 W4 R309 (Q2): semantic status chips, the mock's .badge.green/.amber/.red/grey. Applied only where a stored
+     enum drives the tone, always beside the word (WCAG 2.2 1.4.1). Chip text on its own background: green 5.7:1,
+     amber 5.3:1, red 5.8:1, neutral 6.9:1 (>= 4.5:1). */
+  --status-green-bg: #e3f4ed;
+  --status-green-text: #166b50;
+  --status-green-border: #b5dfcd;
+  --status-amber-bg: #fff1d9;
+  --status-amber-text: #8e580c;
+  --status-amber-border: #c9a24a;
+  --status-red-bg: #fcebea;
+  --status-red-text: #a13838;
+  --status-red-border: #d26565;
+  --status-neutral-bg: #f1f5f9;
+  --status-neutral-text: #475569;
+  --status-neutral-border: #cbd5e1;
+
   /* Configured single line diagram (V-01a round 2, mock `.sld-*`). Families
      of equipment, never operating state. */
   --sld-ink: #16233f;
@@ -156,6 +172,12 @@
   --series-2: #eb6834;
   --series-3: #1baf7a;
   --series-4: #eda100;
+  /* post-W6 W4 R309 (Q3): fixed mock series identities, darkened from v69 (#d9a346, #99a5b7, #409985, #c15d5d) where
+     needed so each fill keeps >= 3:1 against the white panel and the #f4f7fb track (WCAG 2.2 1.4.11). */
+  --series-pv: #a87a2c;
+  --series-margin: #77839a;
+  --series-headroom: #3a8f7c;
+  --series-critical: #b65252;
 
   /* Tabs (mock `.tabs`): neutral ink, accent only on the current tab. */
   --tab-text: #58667f;

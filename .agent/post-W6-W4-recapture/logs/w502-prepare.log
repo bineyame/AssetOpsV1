@@ -1,0 +1,7 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review9\var\w502b_w4rc\tree (code from c1a96140)
+=== 2. positive: database w502b_positive_w4rc_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (57s)
+=== 3. worstcase: database w502b_worstcase_w4rc_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (36s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review9\var\w502b_w4rc\manifest.json

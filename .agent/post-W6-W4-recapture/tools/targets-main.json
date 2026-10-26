@@ -1,0 +1,102 @@
+[
+ {
+  "id": "renewable",
+  "case": "positive",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z"
+ },
+ {
+  "id": "service",
+  "case": "positive",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z"
+ },
+ {
+  "id": "fuel",
+  "case": "positive",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z"
+ },
+ {
+  "id": "backup",
+  "case": "positive",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z"
+ },
+ {
+  "id": "renewable",
+  "case": "gap-limited",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/renewable?from=2026-10-07T21:00:00Z&to=2026-10-12T21:00:00Z"
+ },
+ {
+  "id": "service",
+  "case": "gap-limited",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/service?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ },
+ {
+  "id": "fuel",
+  "case": "gap-limited",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/fuel?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ },
+ {
+  "id": "backup",
+  "case": "gap-limited",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/backup?from=2026-10-12T09:00:00Z&to=2026-10-12T10:00:00Z"
+ },
+ {
+  "id": "renewable",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/renewable"
+ },
+ {
+  "id": "service",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/service"
+ },
+ {
+  "id": "fuel",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/fuel"
+ },
+ {
+  "id": "backup",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/backup"
+ },
+ {
+  "id": "renewable",
+  "case": "refused-invalid",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/renewable?from=2026-10-04T21:00:00Z&to=2026-10-10T21:00:00Z"
+ },
+ {
+  "id": "service",
+  "case": "refused-invalid",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z"
+ },
+ {
+  "id": "fuel",
+  "case": "refused-invalid",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z"
+ },
+ {
+  "id": "backup",
+  "case": "refused-invalid",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z"
+ },
+ {
+  "id": "renewable",
+  "case": "known-before-evidence",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-10T21:00:00Z&known_at=2026-10-01T00:00:00Z"
+ },
+ {
+  "id": "service",
+  "case": "known-before-evidence",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z"
+ },
+ {
+  "id": "fuel",
+  "case": "known-before-evidence",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z"
+ },
+ {
+  "id": "backup",
+  "case": "known-before-evidence",
+  "url": "http://127.0.0.1:5451/sites/MG-W402-001/performance/backup?from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-01T00:00:00Z"
+ }
+]

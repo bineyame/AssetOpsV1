@@ -656,7 +656,13 @@ const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
 export const ANALYSIS_HELPER_ALTERNATIVES =
   "Analysis unavailable for this authored alternative; use the Finding overview and evidence.";
 /** u6 ruling 1: the W1 detail supplies no public Finding code. */
-export const FINDING_CODE_UNAVAILABLE = "Finding code unavailable";
+/**
+ * post-W6 W4 R328 (Q15, build ruling 1): the crumb slot between `Findings` and the section. The selected mini Finding
+ * read carries no public Finding code yet, so the slot reads `Finding` in every state and never says the code is
+ * unavailable. R328 stays open: a backend slice must expose a stable Site-scoped public code first; never synthesize
+ * one from a UUID, title or display order.
+ */
+export const FINDING_CRUMB = "Finding";
 /** u6 ruling 3: a cold or EV Finding child address. */
 export const FINDING_SECTION_UNAVAILABLE = "This Finding section is not available for this kind of Finding.";
 /** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
@@ -816,7 +822,7 @@ type MiniSelection =
  * `Analysis`, `Evidence`, live `Alternatives`, `Recommendation`, `History` (u5 6b). One W1 Finding read
  * (`getFinding(site, finding, revision_id|null)`) resolves the exact selected revision before any Alternatives href or
  * Alternatives read exists, and the same resolved selection pins the sibling tabs (u6 ruling 5). The global breadcrumb
- * is `Findings › Finding code unavailable › {section} · site: {Site}` (u6 ruling 1, u5 6b).
+ * is `Findings › Finding › {section} · site: {Site}` (u6 ruling 1, u5 6b; post-W6 W4 R328).
  */
 function CanonicalMiniFinding({
   site,
@@ -927,11 +933,11 @@ function CanonicalMiniFinding({
           <li className="breadcrumbs__item">
             <Link to={FINDINGS_PATH}>Findings</Link>
           </li>
-          {selection.status === "loaded" ? (
+          {selection.status === "loading" ? null : (
             <li className="breadcrumbs__item">
-              <span data-finding-code-gap>{FINDING_CODE_UNAVAILABLE}</span>
+              <span data-finding-crumb>{FINDING_CRUMB}</span>
             </li>
-          ) : null}
+          )}
           {section === null ? null : (
             <li className="breadcrumbs__item">
               <span className="breadcrumbs__current" aria-current="page">
@@ -1332,7 +1338,7 @@ export function SiteFinancialsFrame({
               {site.site_type === "COLDCHAIN" ? (
                 <ColdScenarios siteCode={site.site_id} window={coldWindow} scenarioAt={scenarioAt} client={coldScenarioList} />
               ) : site.site_type === "MINIGRID" ? (
-                <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} onScope={onScope} />
+                <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} timeZone={site.timezone ?? null} onScope={onScope} />
               ) : (
                 <Panel heading="Financial scenarios" headingId="site-scenarios-unsupported-heading">
                   <p data-scenarios-site-type-unsupported>Scenarios are read for mini-grid sites only.</p>
@@ -2107,7 +2113,13 @@ const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: s
   { key: "maintenance", label: "Maintenance", href: (siteId, query) => siteWorkMaintenanceHref(siteId, query) },
 ];
 
-type WorkCounts = { actions: number | null; incidents: number | null; maintenance: number | null };
+/**
+ * post-W6 W4 R322 (Q9): `INPUT_REFUSED` is a list the server refused for its input (a 422 window, cutoff or cursor):
+ * its tab is a bare label. `null` stays the unknown count of a source failure, shown with the `(—)` suffix.
+ */
+const INPUT_REFUSED = "input-refused" as const;
+type WorkCount = number | null | typeof INPUT_REFUSED;
+type WorkCounts = { actions: WorkCount; incidents: WorkCount; maintenance: WorkCount };
 const NO_COUNTS: WorkCounts = { actions: null, incidents: null, maintenance: null };
 const fullCount = (value: number): number | null => (Number.isFinite(value) && value >= 0 ? value : null);
 
@@ -2153,7 +2165,7 @@ function useWorkCounts(
     }
     (["incidents", "maintenance"] as const).forEach((kind) => {
       workClient.getWorkIndex(siteId, kind, { from, to, limit: 1, knownAt: coldKnownAt, cursor: null }).then(
-        (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+        (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : r.status === "invalid" ? INPUT_REFUSED : null }),
         () => put({ [kind]: null }),
       );
     });
@@ -2197,7 +2209,7 @@ function WorkSubrow({
               to={tab.href(siteId, query)}
               aria-current={tab.key === current ? "page" : undefined}
             >
-              {`${tab.label} (${counts[tab.key] ?? "—"})`}
+              {counts[tab.key] === INPUT_REFUSED ? tab.label : `${tab.label} (${counts[tab.key] ?? "—"})`}
             </Link>
           </li>
         ))}

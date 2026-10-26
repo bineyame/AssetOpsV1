@@ -458,3 +458,57 @@ describe("Work subtab query preservation by Site type", () => {
     expect(subtabHrefs()).toEqual(["/sites/MG-002/work", "/sites/MG-002/work/incidents", "/sites/MG-002/work/maintenance"]);
   });
 });
+
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+
+describe("post-W6 W4 R333 (D2 R453): the Site tab row wraps at narrow widths", () => {
+
+  it("primitives.css wraps the Site row up to 760 px with no inner horizontal scroller, and shows R453 only there", () => {
+    const css = NODE_FS.readFileSync(`${CWD}/src/ui/primitives.css`, "utf8");
+    const media = css.match(/@media \(max-width: 760px\) \{\s*\.site-tabs--site \.site-tabs__list \{([^}]*)\}\s*\.site-tabs--site \.site-tabs__deviation \{([^}]*)\}/);
+    expect(media).not.toBeNull();
+    expect(media?.[1]).toMatch(/flex-wrap:\s*wrap/);
+    expect(media?.[1]).toMatch(/overflow-x:\s*visible/);
+    expect(media?.[2]).toMatch(/display:\s*block/);
+    expect(css).toMatch(/\.site-tabs__deviation \{\s*display: none;/);
+  });
+
+  function overflowingRow(flexWrap: "wrap" | "nowrap") {
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains("site-tabs__list") ? 700 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains("site-tabs__list") ? 358 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const [left, right] = this.classList.contains("site-tabs__list") ? [0, 358] : this.getAttribute("aria-current") === "page" ? [450, 500] : [0, 0];
+      return { left, right, top: 0, bottom: 0, width: right - left, height: 0, x: left, y: 0, toJSON: () => ({}) } as DOMRect;
+    });
+    const real = window.getComputedStyle.bind(window);
+    vi.spyOn(window, "getComputedStyle").mockImplementation((element: Element, pseudo?: string | null) => {
+      const style = real(element, pseudo);
+      return element.classList.contains("site-tabs__list") ? ({ ...style, flexWrap } as CSSStyleDeclaration) : style;
+    });
+  }
+
+  it("a wrapped row is never scrolled programmatically; every label, Overview first, stays in the one nav group", async () => {
+    overflowingRow("wrap");
+    renderAt("/sites/MG-002/work/incidents");
+    await settledScreen();
+    const list = tabRow().querySelector(".site-tabs__list") as HTMLElement;
+    expect(list.scrollLeft).toBe(0);
+    expect(within(tabRow()).getAllByRole("link").map((link) => link.textContent)).toEqual(RENDERED_TABS);
+    expect(within(tabRow()).getByRole("link", { name: "Work" })).toHaveAttribute("aria-current", "page");
+    expect(tabRow().querySelector("[data-mock-deviation='R453']")?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R453)");
+    vi.restoreAllMocks();
+  });
+
+  it("control: the same overflowing row on one line is still scrolled to its current tab", async () => {
+    overflowingRow("nowrap");
+    renderAt("/sites/MG-002/work/incidents");
+    await settledScreen();
+    expect((tabRow().querySelector(".site-tabs__list") as HTMLElement).scrollLeft).toBeGreaterThanOrEqual(158);
+    vi.restoreAllMocks();
+  });
+});

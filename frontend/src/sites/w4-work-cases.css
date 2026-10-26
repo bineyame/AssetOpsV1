@@ -83,6 +83,14 @@
   font-size: 12px;
 }
 
+/* post-W6 W4 R324 (Q12): the mini decision context with its own Read full text disclosure; the preview inside keeps
+   the shared two-line .work-cases-clamp, and the opened body is never clipped. */
+.work-cases-context-wrap {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
 /* PR-12.3: the single refused-overlay line beside the Incident table. */
 .work-cases-context--panel {
   display: block;
@@ -193,4 +201,17 @@
 /* The mock statusbar spacer: the static Manage text sits at the right end. */
 .work-cases [data-work-manage] {
   margin-left: auto;
+}
+
+/* post-W6 W4 unit 5 (guide §1; ruled Incidents 1440 cap 500): five mini Incident rows with long titles, narratives
+   and decision context reach ~850 px at 1440 (paging is already five rows), so above the 760 px breakpoint the mini
+   Incident table scrolls vertically inside its focusable, labelled region, keeping the panel within 500 px. */
+@media (min-width: 761px) {
+  .work-cases [data-work-table="incidents"][data-work-mini] .data-table__scroll { max-height: 330px; overflow: auto; }
+}
+
+.work-cases-vscroll-hint {
+  margin: var(--space-1, 4px) 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }

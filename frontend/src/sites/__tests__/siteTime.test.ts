@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { eatTime } from "../coldSiteViews";
-import { siteTime, siteZoneLabel } from "../siteTime";
+import { nextIsoDate, siteLocalEndUtc, siteLocalLastDay, siteTime, siteZoneLabel } from "../siteTime";
 
 describe("post-W6 W2-EV: shared Site-timezone formatter", () => {
   it("formats Addis Ababa local time with seconds, the EAT label and exact UTC", () => {
@@ -39,5 +39,26 @@ describe("post-W6 W2-EV: shared Site-timezone formatter", () => {
     expect(eatTime("2026-10-24T13:08:42Z")).toBe("16:08:42");
     expect(eatTime("2026-10-24T13:08:42Z", "Etc/UTC")).toBe("13:08:42");
     expect(eatTime(null)).toBeNull();
+  });
+});
+
+describe("post-W6 W4 build ruling 7: inclusive Site-local end dates over a half-open UTC bound", () => {
+  it("an included last day becomes the next Site-local midnight, across month end", () => {
+    expect(siteLocalEndUtc("2026-10-31", "Africa/Addis_Ababa")).toBe("2026-10-31T21:00:00Z");
+    expect(siteLocalEndUtc("2026-12-31", null)).toBe("2027-01-01T00:00:00Z");
+    expect(nextIsoDate("2026-02-28")).toBe("2026-03-01");
+    expect(siteLocalEndUtc("not-a-date", "Africa/Addis_Ababa")).toBe("");
+  });
+
+  it("a clock change: the next local midnight keeps the offset in force at that midnight", () => {
+    // Europe/London leaves BST (UTC+1) at 01:00Z on 25 Oct 2026.
+    expect(siteLocalEndUtc("2026-10-24", "Europe/London")).toBe("2026-10-24T23:00:00Z");
+    expect(siteLocalEndUtc("2026-10-25", "Europe/London")).toBe("2026-10-26T00:00:00Z");
+  });
+
+  it("an exclusive bound shows its preceding Site-local date", () => {
+    expect(siteLocalLastDay("2026-10-31T21:00:00Z", "Africa/Addis_Ababa")).toBe("2026-10-31");
+    expect(siteLocalLastDay("2026-10-26T00:00:00Z", "Europe/London")).toBe("2026-10-25");
+    expect(siteLocalLastDay("bad", null)).toBe("");
   });
 });

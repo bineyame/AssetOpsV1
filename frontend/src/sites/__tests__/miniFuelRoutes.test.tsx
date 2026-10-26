@@ -311,3 +311,29 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
     expect(client.getFuel).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("post-W6 W4 R313: fuel refused frame", () => {
+  const CASES: Array<[string, string, string]> = [
+    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
+    ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
+    ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
+  ];
+  // unit-5 capture: the refused frame keeps every v69 panel of the screen, in page order.
+  const REFUSED_PANELS = ["Fuel balance at a glance", "Balance bridge", "Inspect existing generator fuel interpretation"];
+
+  it.each(CASES)("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
+    const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
+    renderFuel([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/fuel?${query}`);
+    await settledScreen();
+    expect(await screen.findByText(reason)).toBeTruthy();
+    expect(main().textContent).not.toContain("SERVER MESSAGE");
+    expect(main().textContent).not.toContain("INVALID_WINDOW");
+    expect(strip()).toContain("Window cannot be read");
+    expect(strip()).toContain("Confidence: Not assessed");
+    expect(cardValues()).toEqual(["Not assessed", "Not assessed", "Not assessed", "Not assessed"]);
+    expect(panelTitled(REFUSED_PANELS[0]).textContent).toContain(reason);
+    for (const title of REFUSED_PANELS.slice(1)) expect(panelTitled(title).textContent).toContain("Not assessed");
+    expect(Array.from(document.querySelectorAll("main section.panel h2"), (h) => h.textContent?.trim())).toEqual(REFUSED_PANELS);
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+  });
+});

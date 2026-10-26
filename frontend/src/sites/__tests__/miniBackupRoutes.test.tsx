@@ -328,3 +328,38 @@ describe("W4-02 unit 6: backup keeps the v69 strip, cards, chains, readiness, op
     expect(client.getBackup).toHaveBeenCalledTimes(2);
   });
 });
+
+describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
+  it("R309: PASS green, FAIL red, INCOMPLETE amber, the constant readiness chip neutral", async () => {
+    renderBackup([ok(read({ rows: [chain({ result: "PASS" }), chain({ result: "FAIL" }), chain({ result: "INCOMPLETE" })] }))]);
+    await settledScreen();
+    await screen.findByText("Backup readiness: Unknown");
+    const chains = panelTitled("Backup event chains");
+    const tones = Array.from(chains.querySelectorAll("tbody .badge"), (el) => /status-tone--(\w+)/.exec(el.className)?.[1]);
+    expect(tones).toEqual(["green", "red", "amber"]);
+    expect(screen.getByText("Backup readiness: Unknown").className).toContain("status-tone--neutral");
+  });
+  const CASES: Array<[string, string, string]> = [
+    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
+    ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
+    ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
+  ];
+  // unit-5 capture: the refused frame keeps every v69 panel of the screen, in page order.
+  const REFUSED_PANELS = ["Backup event chains", "Backup readiness evidence", "Operating evidence", "Next evidence"];
+
+  it.each(CASES)("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
+    const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
+    renderBackup([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/backup?${query}`);
+    await settledScreen();
+    expect(await screen.findByText(reason)).toBeTruthy();
+    expect(main().textContent).not.toContain("SERVER MESSAGE");
+    expect(main().textContent).not.toContain("INVALID_WINDOW");
+    expect(strip()).toContain("Window cannot be read");
+    expect(strip()).toContain("Confidence: Not assessed");
+    expect(cardValues()).toEqual(["Not assessed", "Not assessed", "Not assessed", "Not assessed"]);
+    expect(panelTitled(REFUSED_PANELS[0]).textContent).toContain(reason);
+    for (const title of REFUSED_PANELS.slice(1)) expect(panelTitled(title).textContent).toContain("Not assessed");
+    expect(Array.from(document.querySelectorAll("main section.panel h2"), (h) => h.textContent?.trim())).toEqual(REFUSED_PANELS);
+    expect(screen.getAllByText(reason)).toHaveLength(1);
+  });
+});

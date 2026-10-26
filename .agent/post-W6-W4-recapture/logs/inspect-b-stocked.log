@@ -1,0 +1,15 @@
+chrome pid 27092
+OK   sitework-incidents-stocked-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 1440: real=479 synthetic=479 verified=true fields=10/10 clipped=6 open=788 openClipped=6 doc=0
+  Incidents at this site fields160-gap 1440: real=479 synthetic=512 verified=true fields=10/10 clipped=6 open=821 openClipped=6 doc=0
+OK   sitework-incidents-stocked-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Incidents at this site fields160 390: real=435 synthetic=435 verified=true fields=10/10 clipped=6 open=1053 openClipped=6 doc=0
+  Incidents at this site fields160-gap 390: real=435 synthetic=518 verified=true fields=10/10 clipped=6 open=1136 openClipped=6 doc=0
+OK   sitework-maintenance-stocked-1440 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 1440: real=316 synthetic=832 verified=true fields=25/25 clipped=0 open=11828 openClipped=0 doc=0
+  Maintenance at this site fields160-gap 1440: real=316 synthetic=865 verified=true fields=25/25 clipped=0 open=11861 openClipped=0 doc=0
+OK   sitework-maintenance-stocked-390 h1="Mini-grid depth demonstration" overflowX=0 panels=1 console=0
+  Maintenance at this site fields160 390: real=345 synthetic=1123 verified=true fields=25/25 clipped=0 open=11588 openClipped=0 doc=0
+  Maintenance at this site fields160-gap 390: real=345 synthetic=1205 verified=true fields=25/25 clipped=0 open=11671 openClipped=0 doc=0
+done 4 records
+exit 0

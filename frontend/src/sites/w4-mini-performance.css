@@ -164,8 +164,11 @@
 }
 
 /* Cards rows: the whole row stays within its budget; an opened note scrolls inside the row. */
+/* post-W6 W4 R318: every card in a row stretches to one height, and wrapped rows (2 x 2 at 390) share one row height. */
 .mini-cards-bound {
   max-height: var(--mini-max);
+  align-items: stretch;
+  grid-auto-rows: 1fr;
 }
 
 .v69-metric .mini-more > summary {

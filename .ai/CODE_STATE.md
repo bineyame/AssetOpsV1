@@ -5934,3 +5934,15 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - Tests: `work/__tests__/cellDisclosure.test.tsx`, `cellDisclosureStub.ts` (jsdom box-size and ResizeObserver stubs), page tests' "caps ruling 4" blocks.
 - Evidence: `.agent/post-W6-W6-evidence/q15b/` (cap probe at the final SHA), `b18r/`, `b19r/` (recaptures), earlier `b18/`, `b19/`, `q15/`.
 - Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).
+
+## post-W6 W4-mini - mini depth, mini decisions and Site Work text (built, in_review)
+
+Branch `task/post-W6-W4-mini` (main `4d51df61` merged). Packet `.agent/post-W6-W4-packet.md`; rulings `.agent/post-W6-W4-rulings.md`, `.agent/post-W6-W4-build-rulings.md`; evidence `.agent/post-W6-W4-recapture/`. No backend change.
+
+- Mini Performance/Scenarios/Alternatives/Opportunity: tones, chips and bars per v69 (contrast min 3.47:1 bars, 5.3:1 chips); neutral `Lens: Opportunity` (D1 R454); recurrence wording through the Q19 predicate; refused-window frame keeps every v69 panel (service, fuel, backup) and is scoped to 422 only (`miniRefusalScope.test.tsx`: 4 screens x 5 statuses).
+- Refusal copy by exact code before status (Q4); Scenarios `To (EAT, included)` and Work `to (EAT, included)` via `siteLocalLastDay`/`nextIsoDate`/`siteLocalEndUtc` in `lib/siteTime.ts` (month-end and Europe/London clock-change tests).
+- Site Work: Site time, plain refusals, count cause, long text; Site tab row wraps up to 760 px (R453, D2 labelled); mini Incident table bounded above 760 px (`max-height: 330px`, `[data-work-mini]`) with a hint outside the labelled `mini-scroll` region; Productive-use evaluation overflows inside a focusable labelled region.
+- Capture tooling: `.agent/post-W6-W4-recapture/tools/` (`run_b_full.sh`, `run_c_cold.sh`, `run_c_ev.sh`, `mk_probe_b.py`); run each ONE at a time (overlapping launches deadlock the walkthrough DB).
+- Verified at final head: vitest 3344/3344, tsc, build, check-all 11/11; captures 240/240, 168/168, 12/12, 24/24, late 130/132 (refused bad-known-at has no panels by design), cold 192/192 and 48/48, EV 144/144.
+- Open: R328 (backend public-code dependency); provisional Q18 caps await the Architect; producer late gate still has retired u9c caps (Scenarios 348/391, Incidents 460); EV worstcase refused by producer; populated Alternatives (F02 future-dated), five-long-row and mini 503 are probe/component proof only.
+
