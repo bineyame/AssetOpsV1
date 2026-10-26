@@ -73,6 +73,12 @@ export interface DomainActionPresentation {
    * Absent (EV), the shell prints the refusal message with Retry, unchanged.
    */
   refusal?: (refusal: { http: number | null; code: string | null; message: string }) => { message: string; retry: boolean };
+  /** post-W6 W5-EV R349: the button label when a refusal is recoverable (`Reload`); absent, `retry` is used. */
+  reloadLabel?: string;
+  /** post-W6 W5-EV R349: print the typed status and code in a labelled `Technical detail` disclosure, never in the main text. */
+  technicalDetail?: boolean;
+  /** post-W6 W5-EV R349: plain state headings for the page h1 (absent, the h1 stays `Action` until loaded). */
+  headings?: { loading: string; notFound: string; refused: string };
   panel: DomainActionPanelPresentation;
 }
 

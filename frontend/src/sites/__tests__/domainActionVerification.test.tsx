@@ -552,7 +552,7 @@ describe("ev-action query selection (ruling 14) and route dispatch (ruling 43)",
     expect(main.textContent).not.toContain("From (UTC)");
   });
 
-  it.each(["", "/plan", "/history"])("redirects a loaded EV domain Action at `%s` to /verification with the same query", async (path) => {
+  it.each([""])("redirects a loaded EV domain Action at `%s` to /verification with the same query", async (path) => {
     const { calls } = await mountEv(() => loaded(evDetail({ status: "HISTORICAL" })), `${path}${query}`);
     await waitFor(() => expect(text(screen.getByTestId("where"))).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${expected}`));
     await settledScreen();
@@ -585,24 +585,140 @@ describe("ev-action non-loaded states: one untitled panel (rulings 16, 40, 42; R
   });
 
   it.each([
-    [409, "DOMAIN_INTENT_BASIS_CHANGED", "The selected EV work basis changed; reload the Action."],
-    [403, "SITE_ACCESS_DENIED", "You do not have access to this site's work."],
-    [422, "INVALID_KNOWN_AT", "'known_at' must be one UTC instant no later than the read time."],
-    [503, "WORK_STORE_UNAVAILABLE", "The work store is unavailable."],
-  ])("a %s refusal shows `EV work unavailable`, the server message and a Retry that re-reads", async (http, code, message) => {
-    const { main, calls } = await mountEv(() => ({ status: "refused", http, code, message }));
+    [409, "DOMAIN_INTENT_BASIS_CHANGED", "The Action changed while it was being read.", "Reload"],
+    [403, "SITE_ACCESS_DENIED", "You do not have access to this site.", null],
+    [422, "INVALID_KNOWN_AT", "Choose a valid evidence cutoff.", null],
+    [503, "WORK_STORE_UNAVAILABLE", "EV work is unavailable right now. Try again.", "Reload"],
+    [500, "SOMETHING_ELSE", "The Action could not be read.", null],
+  ])("R349: a %s refusal is mapped by code and status, never the server text, with Reload only where it can help", async (http, code, sentence, action) => {
+    const { main, calls } = await mountEv(() => ({ status: "refused", http, code, message: "raw server text 2026-10-06T12:00:00Z" }));
     expect(main.querySelectorAll("section.panel")).toHaveLength(1);
     expect(main.querySelector("section.panel h2")).toBeNull();
+    expect(text(main.querySelector("h1"))).toBe("Action unavailable");
     const panel = main.querySelector('[data-domain-action-panel="refused"]') as HTMLElement;
     expect(panel.getAttribute("data-domain-action-refusal")).toBe(code);
-    expect(text(panel.querySelector("strong"))).toBe("EV work unavailable");
-    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(message);
+    expect(panel.getAttribute("role")).toBe("alert");
+    expect(main.querySelectorAll("[role='alert']")).toHaveLength(1);
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(sentence);
+    expect(main.textContent).not.toContain("raw server text");
+    // The code and status live only in the labelled technical disclosure.
+    const detail = panel.querySelector('[data-disclosure="domain-action-technical-detail"]') as HTMLElement;
+    expect(text(detail.querySelector("summary"))).toBe("Technical detail");
+    expect(text(detail.querySelector("[data-domain-action-technical]"))).toBe(`Status ${http} · code ${code}`);
+    expect(panel.querySelector("p:not([data-domain-action-technical]):not([data-domain-action-refusal-message])")?.textContent ?? "").not.toContain(code);
     expect(main.textContent).not.toContain("Cold work unavailable");
-    expect(main.textContent).not.toContain("Pending");
     expect(main.querySelector("[data-domain-action-notice]")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    if (action === null) {
+      expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
+    } else {
+      fireEvent.click(screen.getByRole("button", { name: "Reload" }));
+      await settledScreen();
+      expect(calls).toHaveLength(2);
+    }
+  });
+
+  it("R349: the h1 is `Loading Action…` while reading and `Action not found` for a 404", async () => {
+    const loading = await mountEv(() => new Promise<never>(() => undefined), "/verification", false);
+    expect(text(loading.main.querySelector("h1"))).toBe("Loading Action…");
+    cleanup();
+    const missing = await mountEv(() => ({ status: "not_found", http: 404, code: "ACTION_NOT_FOUND", message: "x" }));
+    expect(text(missing.main.querySelector("h1"))).toBe("Action not found");
+    expect(missing.main.querySelector("[data-domain-action-retry]")).toBeNull();
+  });
+
+  it("R349: an unreached server reads as unavailable and reloads", async () => {
+    const { main } = await mountEv(() => ({ status: "refused", http: null, code: null, message: "The EV work read could not be reached." }));
+    expect(text(main.querySelector("[data-domain-action-refusal-message]"))).toBe("EV work is unavailable right now. Try again.");
+    expect(screen.getByRole("button", { name: "Reload" })).toBeTruthy();
+  });
+});
+
+describe("ev-action window (R348)", () => {
+  const q = (from: string | null, to: string | null, extra = `&known_at=${encodeURIComponent(EV_KNOWN)}`) =>
+    `?${[from === null ? "" : `from=${encodeURIComponent(from)}`, to === null ? "" : `to=${encodeURIComponent(to)}`].filter(Boolean).join("&")}${extra}`;
+  const SAME = "The selected window needs both a start and an end, with the start before the end.";
+
+  it.each([
+    ["one-sided", q(EV_FROM, null), SAME],
+    ["reversed", q(EV_TO, EV_FROM), SAME],
+    ["32 days", q("2026-09-01T00:00:00Z", "2026-10-03T00:00:00Z"), "The selected window is longer than 31 days."],
+    ["non-UTC", q("2026-10-06T08:00:00+03:00", "2026-10-06T09:00:00+03:00"), SAME],
+  ])("a %s window is refused before any read and carried by no link", async (_name, query, sentence) => {
+    const { main, calls } = await mountEv(() => loaded(evDetail()), `/verification${query}`);
+    expect(calls).toEqual([]);
+    const panel = main.querySelector('[data-domain-action-panel="window-invalid"]') as HTMLElement;
+    expect(panel.getAttribute("role")).toBe("alert");
+    expect(text(panel.querySelector("strong"))).toBe("Window cannot be read");
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe(sentence);
+    expect(text(main.querySelector("h1"))).toBe("Action unavailable");
+    expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();
+    // The one correction opens the Action without the window and keeps the valid cutoff.
+    const without = `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?known_at=${encodeURIComponent(EV_KNOWN)}`;
+    expect(main.querySelector("[data-domain-action-without-window]")?.getAttribute("href")).toBe(without);
+    expect(text(main.querySelector("[data-domain-action-without-window]"))).toBe("Open this Action without a window");
+    expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(without);
+    for (const a of Array.from(main.querySelectorAll("a"))) expect(a.getAttribute("href") ?? "").not.toContain("from=");
+  });
+
+  it("a valid window is carried unchanged and a bare address (no window) reads normally", async () => {
+    const ok = `?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`;
+    const { main, calls } = await mountEv(() => loaded(evDetail()), `/verification${ok}`);
+    expect(calls).toHaveLength(1);
+    expect(main.querySelector('[data-domain-action-panel="window-invalid"]')).toBeNull();
+    expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toContain(`from=${encodeURIComponent(EV_FROM)}`);
+    cleanup();
+    const bare = await mountEv(() => loaded(evDetail()), "/verification");
+    expect(bare.calls).toHaveLength(1);
+  });
+
+  it("cold ignores the window entirely: no refusal, the read is made and the tab carries only known_at", async () => {
+    const { main, calls } = await mount(() => loaded(positive()), `?from=${encodeURIComponent(EV_TO)}&to=${encodeURIComponent(EV_FROM)}&known_at=${encodeURIComponent(EV_KNOWN)}`);
+    expect(calls).toHaveLength(1);
+    expect(main.querySelector('[data-domain-action-panel="window-invalid"]')).toBeNull();
+    expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).not.toContain("from=");
+  });
+});
+
+describe("Action section addresses (R350, cold and EV)", () => {
+  it.each(["plan", "execution", "evidence", "history"])("EV `/%s` is the shelled not-served state: no read, no redirect, valid params kept", async (section) => {
+    const query = `?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`;
+    const { main, calls } = await mountEv(() => loaded(evDetail()), `/${section}${query}`);
+    expect(calls).toEqual([]);
+    expect(text(screen.getByTestId("where"))).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/${section}${query}`);
+    expect(text(main.querySelector("h1"))).toBe("Page not available");
+    expect(text(main.querySelector("section.panel h2"))).toBe("This address is not served");
+    const link = main.querySelector("[data-action-open-verification]") as HTMLElement;
+    expect(text(link)).toBe("Open this Action's verification");
+    expect(link.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`);
+  });
+
+  it("drops an invalid window and an invalid cutoff from the link", async () => {
+    const { main } = await mountEv(() => loaded(evDetail()), `/history?from=${encodeURIComponent(EV_TO)}&to=${encodeURIComponent(EV_FROM)}&known_at=yesterday`);
+    expect(main.querySelector("[data-action-open-verification]")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`);
+  });
+
+  it("the bare route still redirects (R222 alias) and /verification still reads", async () => {
+    const { calls } = await mountEv(() => loaded(evDetail()), "");
+    await waitFor(() => expect(text(screen.getByTestId("where"))).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`));
+    expect(calls.length).toBeGreaterThan(0);
+  });
+
+  it.each(["plan", "history"])("cold `/%s` is the same not-served state with only a valid known_at kept", async (section) => {
+    const d = domain(() => loaded(positive()));
+    render(
+      <MemoryRouter initialEntries={[`/sites/${SITE}/actions/${DOMAIN_ID}/${section}?known_at=${encodeURIComponent(EV_KNOWN)}&from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}`]}>
+        <Routes>
+          <Route path="/sites/:siteId/actions/:actionId/:actionView" element={<SiteActionFrame detail={siteDetail(COLD_SITE)} sitesPath="/sites" domainActions={d.client} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
     await settledScreen();
-    expect(calls).toHaveLength(2);
+    expect(d.calls).toEqual([]);
+    const main = document.querySelector("main") as HTMLElement;
+    expect(text(main.querySelector("h1"))).toBe("Page not available");
+    expect(text(main.querySelector("section.panel h2"))).toBe("This address is not served");
+    expect(main.querySelector("[data-action-open-verification]")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(EV_KNOWN)}`);
   });
 });
 
@@ -674,7 +790,7 @@ describe("domainActionClient EV detail (rulings 43, 44, 64)", () => {
     await settledScreen();
     const panel = document.querySelector('[data-domain-action-panel="refused"]') as HTMLElement;
     expect(panel.getAttribute("data-domain-action-refusal")).toBe("UNREACHABLE");
-    expect(text(panel)).toContain("EV work unavailable");
-    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe("The EV work read could not be reached.");
+    expect(text(panel.querySelector("[data-domain-action-refusal-message]"))).toBe("EV work is unavailable right now. Try again.");
+    expect(screen.getByRole("button", { name: "Reload" })).toBeTruthy();
   });
 });

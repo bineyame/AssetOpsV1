@@ -461,7 +461,7 @@ describe("cold Site Work and domain Action route frames", () => {
   });
 
   // W5-04 V4a (rulings 16, 40, 42; R110): a 409 basis change is the one untitled EV refusal panel; Retry re-reads.
-  it("shows a 409 EV detail read as `EV work unavailable` with the server message and a Retry that re-reads", async () => {
+  it("shows a 409 EV detail read as the plain changed-Action sentence with a Reload that re-reads (R349)", async () => {
     let reads = 0;
     vi.stubGlobal("fetch", async (url: string) => {
       if (url.split("?")[0] === evDetailPath) {
@@ -479,11 +479,13 @@ describe("cold Site Work and domain Action route frames", () => {
     const panel = main.querySelector("[data-domain-action-panel='refused']") as HTMLElement;
     expect(panel.getAttribute("data-domain-action-refusal")).toBe("DOMAIN_INTENT_BASIS_CHANGED");
     expect(panel.textContent).toContain("EV work unavailable");
-    expect(panel.querySelector("[data-domain-action-refusal-message]")?.textContent).toBe("The selected EV work basis changed; reload the Action.");
+    expect(panel.querySelector("[data-domain-action-refusal-message]")?.textContent).toBe("The Action changed while it was being read.");
+    expect(main.querySelector("h1")?.textContent).toBe("Action unavailable");
+    expect(main.textContent).not.toContain("The selected EV work basis changed");
     expect(main.querySelectorAll("section.panel h2")).toHaveLength(0);
     expect(main.textContent).not.toContain("Pending");
     expect(reads).toBe(1);
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reload" }));
     await settledScreen();
     expect(reads).toBe(2);
   });

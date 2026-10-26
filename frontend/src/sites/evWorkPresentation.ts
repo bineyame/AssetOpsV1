@@ -4,7 +4,8 @@
  * reads. Cold literals stay in `coldWorkPresentation.ts` (ruling 47 moves shared literals only in V4a).
  */
 import { coldCurrentnessNotice, coldCurrentnessTone } from "./coldWorkPresentation";
-import type { DomainIndexScope } from "./domainActionClient";
+import { invalidScope, isUtcInstant, type DomainIndexScope } from "./domainActionClient";
+import { EV_WINDOW_INVALID_TEXT, EV_WINDOW_TOO_LONG_TEXT } from "./EvAssessmentViews";
 import type { DomainActionPresentation } from "./DomainActionVerification";
 
 /** The v69 `ev-work` panel title (`index.html:340-343`, `siteWorkScreen`). */
@@ -26,6 +27,7 @@ export const EV_WORK_EMPTY = ["No actions at this site", "No accepted recommenda
 export const EV_WORK_LOADING = "Loading the site's Actions.";
 export const EV_WORK_UNAVAILABLE = "EV work unavailable";
 export const EV_WORK_RETRY = "Retry";
+export const EV_WORK_RELOAD = "Reload";
 
 export const EV_OWNER_MISSING = "Not assigned";
 export const EV_DUE_MISSING = "Not set";
@@ -73,6 +75,51 @@ export function evShowAll(rows: number): string {
   return `Show all ${rows} Actions`;
 }
 
+/**
+ * post-W6 W5-EV R349 (W4 Q10 taxonomy, EV noun): the EV Action refusal sentence and whether Reload is offered. Mapped by
+ * code and status, never the raw server text: a 422 `INVALID_KNOWN_AT` names the cutoff, 403 is access, 503 and an unreached
+ * server are the recoverable unavailable state, 409 is a changed Action, anything else is one plain sentence. A 404 never
+ * reaches here (`ACTION_NOT_FOUND` has its own state). Reload only where a retry could succeed (503, unreached, 409).
+ */
+export const EV_ACTION_REFUSAL_COPY = {
+  invalidKnownAt: "Choose a valid evidence cutoff.",
+  forbidden: "You do not have access to this site.",
+  unavailable: "EV work is unavailable right now. Try again.",
+  changed: "The Action changed while it was being read.",
+  other: "The Action could not be read.",
+} as const;
+
+export function evActionRefusal(refusal: { http: number | null; code: string | null; message: string }): { message: string; retry: boolean } {
+  if (refusal.http === null || refusal.http === 503) return { message: EV_ACTION_REFUSAL_COPY.unavailable, retry: true };
+  if (refusal.http === 403) return { message: EV_ACTION_REFUSAL_COPY.forbidden, retry: false };
+  if (refusal.http === 409) return { message: EV_ACTION_REFUSAL_COPY.changed, retry: true };
+  if (refusal.http === 422 && refusal.code === "INVALID_KNOWN_AT") return { message: EV_ACTION_REFUSAL_COPY.invalidKnownAt, retry: false };
+  return { message: EV_ACTION_REFUSAL_COPY.other, retry: false };
+}
+
+/** R349 (C4): the plain state h1s of the EV Action page; the loaded title is `{code} · {title}`. */
+export const EV_ACTION_HEADINGS = { loading: "Loading Action…", notFound: "Action not found", refused: "Action unavailable" } as const;
+
+/** R348: the one title of an unreadable selected window (W2-EV ruling 5). */
+export const EV_ACTION_WINDOW_TITLE = "Window cannot be read";
+export const EV_ACTION_WITHOUT_WINDOW = "Open this Action without a window";
+
+/**
+ * R348: the selected `from`/`to` an EV Action address may carry. Neither is fine (no window); both must be UTC instants,
+ * the start before the end, at most 31 days apart (the Work list's own rule, `invalidScope`). A one-sided, reversed,
+ * over-long or non-UTC pair is refused with the W2-EV ruling-5 sentence, before any read, and carried nowhere.
+ */
+export function actionWindowRefusal(window: { from: string | null; to: string | null }): string | null {
+  if (window.from === null && window.to === null) return null;
+  const bad = invalidScope({ from: window.from ?? "", to: window.to ?? "", knownAt: null, cursor: null });
+  if (bad === null) return null;
+  if (window.from !== null && window.to !== null && isUtcInstant(window.from) && isUtcInstant(window.to)) {
+    const span = new Date(window.to).getTime() - new Date(window.from).getTime();
+    if (span > 0 && span > 31 * 24 * 3600 * 1000) return EV_WINDOW_TOO_LONG_TEXT;
+  }
+  return EV_WINDOW_INVALID_TEXT;
+}
+
 /** W5-04 V4a: the v69 `ev-action` page words (`frontend/mockups/v69/index.html:710-713`; build spec ledger `ev-action`). */
 export const EV_ACTION_SUBTITLE = "What would establish successful service restoration?";
 /** Readiness ruling 16: the untitled state panel's loading and 404 sentences. */
@@ -109,6 +156,10 @@ export const EV_ACTION_PRESENTATION: DomainActionPresentation = {
   retry: EV_WORK_RETRY,
   closingNotice: EV_ACTION_NOTICE,
   windowQuery: true,
+  refusal: evActionRefusal,
+  reloadLabel: EV_WORK_RELOAD,
+  technicalDetail: true,
+  headings: EV_ACTION_HEADINGS,
   panel: {
     criteriaTitle: EV_PLAN_TITLE,
     columns: EV_PLAN_COLUMNS,
