@@ -91,7 +91,7 @@ export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactN
       {cells.map(([term, value, key], index) => (
         <div key={key ?? index} data-mheader-cell={key}>
           <dt>{term}</dt>
-          <KeyValueValue>{value}</KeyValueValue>
+          <dd>{value}</dd>
         </div>
       ))}
     </dl>
@@ -109,7 +109,7 @@ export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string
       {rows.map(([term, value, key, wide], index) => (
         <div key={key ?? index} data-key-value={key} data-key-value-wide={wide ? "" : undefined}>
           <dt>{term}</dt>
-          <dd>{value}</dd>
+          <KeyValueValue>{value}</KeyValueValue>
         </div>
       ))}
     </dl>
