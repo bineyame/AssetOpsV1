@@ -1,0 +1,22 @@
+[
+ {
+  "id": "cooling",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-health",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-scenarios",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z"
+ },
+ {
+  "id": "cold-work",
+  "case": "unknown",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A49%3A22.196816Z"
+ }
+]

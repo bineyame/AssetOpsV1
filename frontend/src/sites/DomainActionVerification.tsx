@@ -22,6 +22,12 @@ import { coldRequestHref } from "./siteWorkCases";
 export const COLD_RELATED_TITLE = "Related activity";
 /** MOCK DEVIATION (D2) R100: the honest selected state when no completed inspection is linked at the cutoff. */
 export const COLD_RELATED_NOT_LINKED = "No completed inspection is linked to this Action.";
+/**
+ * post-W6 W5-cold R344 (B15-10, K4): exact linked-request states. A linked VERIFICATION_WINDOW request with its performed
+ * record, and a linked CANCELLED request, are stated as such; neither establishes a verified outcome.
+ */
+export const COLD_RELATED_VERIFICATION_WINDOW = "Work was recorded; verification is open and no outcome is established.";
+export const COLD_RELATED_CANCELLED = "The linked request was cancelled; no completed work or verified outcome is established.";
 export const COLD_INSPECT = "Inspect maintenance evidence";
 export const COLD_INSPECT_UNAVAILABLE = "Maintenance detail is unavailable for this record.";
 export const COLD_SOURCE_FINDING = "Open source Finding →";
@@ -62,6 +68,11 @@ export interface DomainActionPresentation {
   closingNotice: string;
   /** Whether the detail's own links keep the selected `from,to` beside `known_at` (EV ruling 14); cold keeps `known_at` only. */
   windowQuery: boolean;
+  /**
+   * post-W6 W5-cold B15-04 (W4 Q10, W5 rulings 2): the refusal sentence and whether Retry is offered, by exact code.
+   * Absent (EV), the shell prints the refusal message with Retry, unchanged.
+   */
+  refusal?: (refusal: { http: number | null; code: string | null; message: string }) => { message: string; retry: boolean };
   panel: DomainActionPanelPresentation;
 }
 
@@ -84,8 +95,9 @@ const INSPECT_NOTE_ID = "domain-action-inspect-unavailable";
 
 /**
  * Rulings 5 and 19: the Related activity sentence for the selected request. COMPLETED with its performed record is a
- * completed inspection; a linked OPEN or IN_PROGRESS request is named with its state; anything else (no case, or
- * COMPLETED without its performed record) is the no-completed-inspection sentence.
+ * completed inspection; a linked OPEN or IN_PROGRESS request is named with its state; post-W6 R344 adds linked
+ * VERIFICATION_WINDOW with its record and linked CANCELLED; anything else (no case, COMPLETED or VERIFICATION_WINDOW
+ * without its performed record) is the no-completed-inspection sentence.
  */
 function relatedSentence(work: DomainActionDetail["links"]["work"]): { kind: string; text: string } {
   if (work.case_id !== null && work.case_title !== null && work.case_code !== null) {
@@ -94,6 +106,12 @@ function relatedSentence(work: DomainActionDetail["links"]["work"]): { kind: str
     }
     if (work.request_state === "OPEN" || work.request_state === "IN_PROGRESS") {
       return { kind: work.request_state === "OPEN" ? "open" : "in-progress", text: coldRelatedOngoing(work.case_title, work.case_code, work.request_state) };
+    }
+    if (work.request_state === "VERIFICATION_WINDOW" && work.record_id !== null) {
+      return { kind: "verification-window", text: COLD_RELATED_VERIFICATION_WINDOW };
+    }
+    if (work.request_state === "CANCELLED") {
+      return { kind: "cancelled", text: COLD_RELATED_CANCELLED };
     }
   }
   return { kind: "not-linked", text: COLD_RELATED_NOT_LINKED };

@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import type { ColdDepthClient, ColdHealthCondition, ColdHealthRead, ColdHealthRow } from "./ColdDepthClient";
-import { COLD_DEPTH_MALFORMED, COLD_DEPTH_REFUSAL_HEADING, COLD_DEPTH_STATE_NOTICE, COLD_DEPTH_UNREACHABLE } from "./ColdCooling";
+import { COLD_DEPTH_MALFORMED, COLD_DEPTH_REFUSAL_HEADING, COLD_DEPTH_UNREACHABLE, coldDepthStateNotice } from "./ColdCooling";
 import { type ColdSiteRoutes, RequestedWindowBar, SelectedWindowBar, coldUiHref } from "./coldSiteViews";
 
 export const HEALTH_LOADING = "Loading the site's equipment condition read.";
@@ -121,7 +121,7 @@ function HealthBody({ read, routes }: { read: ColdHealthRead; routes: ColdSiteRo
   return (
     <>
       <SelectedWindowBar read={read} />
-      {state === "CURRENT" ? null : <Notice data={{ "data-health-state-notice": state }}>{COLD_DEPTH_STATE_NOTICE[state]}</Notice>}
+      {state === "CURRENT" ? null : <Notice data={{ "data-health-state-notice": state }}>{coldDepthStateNotice(state, rows.some((row) => row.evidence_ids.length > 0))}</Notice>}
       <MetricCards columns={3} label="Equipment condition">
         {rows.map((row) => {
           const href = coldUiHref(row.link, routes);

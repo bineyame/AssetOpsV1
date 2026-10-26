@@ -14,7 +14,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { coldSiteRoutes } from "../../shell/coldSiteRoutes";
 import { settledScreen } from "../../test/settled";
 import { type ColdRead, NO_WINDOW, type ColdWindowQuery } from "../coldAssessmentClient";
-import { COLD_DEPTH_STATE_NOTICE } from "../ColdCooling";
+import { COLD_DEPTH_STATE_NOTICE, COLD_DEPTH_UNKNOWN_WITH_ROWS } from "../ColdCooling";
 import {
   type ColdDepthClient,
   type ColdHealthRead,
@@ -345,9 +345,13 @@ describe("condition_matrix", () => {
     const sentence = a.container.querySelector("[data-health-empty]") as HTMLElement;
     expect(sentence.textContent).toBe(HEALTH_EMPTY);
     expect(sentence.compareDocumentPosition(a.container.querySelector("table") as HTMLElement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // post-W6 R336: no row cites evidence, so the UNKNOWN notice keeps the plain ledger sentence.
+    expect(a.container.querySelector("[data-health-state-notice]")?.textContent).toBe("No selected cold assessment covers this window yet.");
     cleanup();
     const b = await renderHealth(loaded([empty[0], empty[1], sensing(NOT_CONFIGURED.TEMPERATURE_SENSING)], "UNKNOWN"));
     expect(b.container.querySelector("[data-health-empty]")).toBeNull();
+    // A Not configured row cites no accepted record either: still the plain sentence.
+    expect(b.container.querySelector("[data-health-state-notice]")?.textContent).toBe("No selected cold assessment covers this window yet.");
   });
 });
 
@@ -378,7 +382,8 @@ describe("health_states_and_loading", () => {
     for (const state of ["PENDING_RECOMPUTE", "HISTORICAL", "STALE_SOURCE", "UNKNOWN"] as const) {
       const { container } = await renderHealth(loaded(undefined, state));
       const notice = container.querySelector("[data-health-state-notice]") as HTMLElement;
-      expect(notice.textContent).toBe(COLD_DEPTH_STATE_NOTICE[state]);
+      // post-W6 R336: the default rows cite evidence, so UNKNOWN says the rows are accepted records only.
+      expect(notice.textContent).toBe(state === "UNKNOWN" ? COLD_DEPTH_UNKNOWN_WITH_ROWS : COLD_DEPTH_STATE_NOTICE[state]);
       const bar = container.querySelector("[data-cold-date-bar]") as HTMLElement;
       expect(bar.nextElementSibling).toBe(notice);
       expect(notice.nextElementSibling?.matches("ul.v69-cards")).toBe(true);

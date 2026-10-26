@@ -1,0 +1,304 @@
+chrome pid 11492
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-current-limited 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-current-limited 1440: mock rendered
+PASS  cooling-current-limited 1440: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-current-limited 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-current-limited 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-current-limited 390: mock rendered
+PASS  cooling-current-limited 390: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-current-limited 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-current-limited 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-current-limited 1440: mock rendered
+PASS  cold-health-current-limited 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-current-limited 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-current-limited 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-current-limited 390: mock rendered
+PASS  cold-health-current-limited 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-current-limited 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-current-limited 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-current-limited 1440: mock rendered
+PASS  cold-scenarios-current-limited 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-current-limited 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-current-limited 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-current-limited 390: mock rendered
+PASS  cold-scenarios-current-limited 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-current-limited 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-positive 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-positive 1440: mock rendered
+PASS  cold-work-positive 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-positive 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-positive 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-positive 390: mock rendered
+PASS  cold-work-positive 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-positive 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-empty-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-empty-window 1440: mock rendered
+PASS  cooling-empty-window 1440: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-empty-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-empty-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-empty-window 390: mock rendered
+PASS  cooling-empty-window 390: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-empty-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-empty-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-empty-window 1440: mock rendered
+PASS  cold-health-empty-window 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-empty-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-empty-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-empty-window 390: mock rendered
+PASS  cold-health-empty-window 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-empty-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-empty-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-empty-window 1440: mock rendered
+PASS  cold-scenarios-empty-window 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-empty-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-empty-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-empty-window 390: mock rendered
+PASS  cold-scenarios-empty-window 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-empty-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-zero 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-zero 1440: mock rendered
+PASS  cold-work-zero 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-zero 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-18T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-zero 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-zero 390: mock rendered
+PASS  cold-work-zero 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-zero 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A47%3A23.074563Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-historical 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-historical 1440: mock rendered
+PASS  cold-work-historical 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-historical 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A47%3A23.074563Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-historical 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-historical 390: mock rendered
+PASS  cold-work-historical 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-historical 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cooling-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-refused-reversed 1440: mock rendered
+FAIL  cooling-refused-reversed 1440: same panel count  {"app":[],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-refused-reversed 390: mock rendered
+FAIL  cooling-refused-reversed 390: same panel count  {"app":[],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-refused-reversed 1440: mock rendered
+FAIL  cold-health-refused-reversed 1440: same panel count  {"app":[],"mock":["Condition and evidence"]}
+PASS  cold-health-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-refused-reversed 390: mock rendered
+FAIL  cold-health-refused-reversed 390: same panel count  {"app":[],"mock":["Condition and evidence"]}
+PASS  cold-health-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-refused-reversed 1440: mock rendered
+FAIL  cold-scenarios-refused-reversed 1440: same panel count  {"app":[],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-refused-reversed 390: mock rendered
+FAIL  cold-scenarios-refused-reversed 390: same panel count  {"app":[],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-refused-reversed 1440: mock rendered
+PASS  cold-work-refused-reversed 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T17:05:00Z&to=2026-10-25T16:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-refused-reversed 390: mock rendered
+PASS  cold-work-refused-reversed 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-refused-span-32d 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-refused-span-32d 1440: mock rendered
+PASS  cold-work-refused-span-32d 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-refused-span-32d 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-09-22T00:00:00Z&to=2026-10-24T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-refused-span-32d 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-refused-span-32d 390: mock rendered
+PASS  cold-work-refused-span-32d 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-refused-span-32d 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-no-window 1440: mock rendered
+PASS  cooling-no-window 1440: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-no-window 390: mock rendered
+PASS  cooling-no-window 390: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-no-window 1440: mock rendered
+PASS  cold-health-no-window 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-no-window 390: mock rendered
+PASS  cold-health-no-window 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-no-window 1440: mock rendered
+PASS  cold-scenarios-no-window 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-no-window 390: mock rendered
+PASS  cold-scenarios-no-window 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-no-window 1440: mock rendered
+PASS  cold-work-no-window 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-no-window 390: mock rendered
+PASS  cold-work-no-window 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-no-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-work-day-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-work-day-window 1440: mock rendered
+PASS  cooling-work-day-window 1440: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-work-day-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-work-day-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-work-day-window 390: mock rendered
+PASS  cooling-work-day-window 390: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-work-day-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-work-day-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-work-day-window 1440: mock rendered
+PASS  cold-health-work-day-window 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-work-day-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-work-day-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-work-day-window 390: mock rendered
+PASS  cold-health-work-day-window 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-work-day-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-work-day-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-work-day-window 1440: mock rendered
+PASS  cold-scenarios-work-day-window 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-work-day-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-work-day-window 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-work-day-window 390: mock rendered
+PASS  cold-scenarios-work-day-window 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-work-day-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cooling-all-open 1440: mock rendered
+PASS  cooling-all-open 1440: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/performance/cooling?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cooling: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cooling-all-open 390: mock rendered
+PASS  cooling-all-open 390: same panel count  {"app":["Recovery curves","Context normalization","Next best evidence"],"mock":["Recovery curves","Context normalization","Next best evidence"]}
+PASS  cooling-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-health-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-health-all-open 1440: mock rendered
+PASS  cold-health-all-open 1440: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/health?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-health-all-open 390: mock rendered
+PASS  cold-health-all-open 390: same panel count  {"app":["Condition and evidence"],"mock":["Condition and evidence"]}
+PASS  cold-health-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-scenarios-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-scenarios-all-open 1440: mock rendered
+PASS  cold-scenarios-all-open 1440: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/financials/scenarios?from=2026-10-25T16:00:00Z&to=2026-10-25T17:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-scenarios: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-scenarios-all-open 390: mock rendered
+PASS  cold-scenarios-all-open 390: same panel count  {"app":["Financial scenarios"],"mock":["Financial scenarios"]}
+PASS  cold-scenarios-all-open 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-all-open 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-all-open 1440: mock rendered
+PASS  cold-work-all-open 1440: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-all-open 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-all-open 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-all-open 390: mock rendered
+PASS  cold-work-all-open 390: same panel count  {"app":["Actions at this site"],"mock":["Actions at this site"]}
+PASS  cold-work-all-open 390: no app page overflow  {"overflowX":0}
+
+294/300 claims passed; evidence in C:/Users/assef/Bineyame/AssetOpsV1-review10/.agent/post-W6-W5-cold-recapture/b14-positive
+exit 0

@@ -1,0 +1,112 @@
+chrome pid 13364
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-one-incident 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-one-incident 1440: mock rendered
+PASS  sitework-incidents-one-incident 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-one-incident 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-one-incident 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-one-incident 390: mock rendered
+PASS  sitework-incidents-one-incident 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-one-incident 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-maintenance-one-request 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-maintenance-one-request 1440: mock rendered
+PASS  sitework-maintenance-one-request 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-one-request 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-one-request 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-one-request 390: mock rendered
+PASS  sitework-maintenance-one-request 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-one-request 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-empty-kobo 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-empty-kobo 1440: mock rendered
+PASS  sitework-incidents-empty-kobo 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-empty-kobo 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/KOBO-001/work/incidents?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-empty-kobo 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-empty-kobo 390: mock rendered
+PASS  sitework-incidents-empty-kobo 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-empty-kobo 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/KOBO-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-maintenance-empty-kobo 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-maintenance-empty-kobo 1440: mock rendered
+PASS  sitework-maintenance-empty-kobo 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-empty-kobo 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/KOBO-001/work/maintenance?from=2026-10-19T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-empty-kobo 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-empty-kobo 390: mock rendered
+PASS  sitework-maintenance-empty-kobo 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-empty-kobo 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-empty-past-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-empty-past-window 1440: mock rendered
+PASS  sitework-incidents-empty-past-window 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-empty-past-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-09-01T00%3A00%3A00Z&to=2026-09-08T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-empty-past-window 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-empty-past-window 390: mock rendered
+PASS  sitework-incidents-empty-past-window 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-empty-past-window 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-refused-reversed 1440: mock rendered
+PASS  sitework-incidents-refused-reversed 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-refused-reversed 390: mock rendered
+PASS  sitework-incidents-refused-reversed 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-maintenance-refused-reversed 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-maintenance-refused-reversed 1440: mock rendered
+PASS  sitework-maintenance-refused-reversed 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-refused-reversed 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance?from=2026-10-27T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-refused-reversed 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-maintenance-refused-reversed 390: mock rendered
+PASS  sitework-maintenance-refused-reversed 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  sitework-maintenance-refused-reversed 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-refused-long 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-refused-long 1440: mock rendered
+PASS  sitework-incidents-refused-long 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-refused-long 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents?from=2025-01-01T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-refused-long 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-refused-long 390: mock rendered
+PASS  sitework-incidents-refused-long 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-refused-long 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  sitework-incidents-no-window 1440: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  sitework-incidents-no-window 1440: mock rendered
+PASS  sitework-incidents-no-window 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-no-window 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5452/sites/MG-W402-001/work/incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-no-window 390: app rendered
+PASS  loaded http://127.0.0.1:5452/mockups/v69/index.html#/sitework-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  sitework-incidents-no-window 390: mock rendered
+PASS  sitework-incidents-no-window 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  sitework-incidents-no-window 390: no app page overflow  {"overflowX":0}
+
+108/108 claims passed; evidence in C:/Users/assef/Bineyame/AssetOpsV1-review10/.agent/post-W6-W5-cold-recapture/mini
+exit 0

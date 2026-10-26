@@ -1588,16 +1588,24 @@ function DomainActionShell({
         ) : state.status === "not_found" ? (
           <p data-domain-action-panel="not-found">{p.notFound}</p>
         ) : (
-          <div className="work-cases-state" data-domain-action-panel="refused" data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}>
+          // post-W6 W5-cold B15-04: cold maps the exact code to its sentence and offers Retry only for 503/unreached.
+          <div
+            className="work-cases-state"
+            data-domain-action-panel="refused"
+            data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}
+            role={p.refusal ? "alert" : undefined}
+          >
             <p>
               <strong>{p.unavailable}</strong>
             </p>
-            <p data-domain-action-refusal-message>{state.message}</p>
-            <p>
-              <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
-                {p.retry}
-              </button>
-            </p>
+            <p data-domain-action-refusal-message>{p.refusal ? p.refusal(state).message : state.message}</p>
+            {p.refusal && !p.refusal(state).retry ? null : (
+              <p>
+                <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
+                  {p.retry}
+                </button>
+              </p>
+            )}
           </div>
         )}
       </Panel>
@@ -1952,7 +1960,7 @@ function workScopeFromQuery(params: URLSearchParams): (ActionIndexScope & { know
 
 /**
  * W5-02 K2a ("Shared Site UI", U3) / W5-04 V2a (R-9): the COLDCHAIN and EV_CHARGING Work scope. Without `from`/`to` the
- * window is W4's seven complete UTC days ending today 00:00 UTC; the cutoff and the Actions cursor come from the URL.
+ * window is seven UTC calendar days including today (post-W6 R338, `defaultWorkWindow`); the cutoff and the Actions cursor come from the URL.
  * `limit` is not a URL query. A mini-grid Site keeps its W1 choose-window state.
  */
 function domainWorkScope(params: URLSearchParams): DomainIndexScope {
@@ -2072,7 +2080,7 @@ function DomainWorkActionsPage({
         ]}
       />
       <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
-      <OperatorSiteTabs siteId={site.site_id} current="Work" />
+      <OperatorSiteTabs siteId={site.site_id} current="Work" search={coldTabSearch(site, params)} />
       <WorkSubrow
         siteId={site.site_id}
         siteType={site.site_type}
@@ -2088,6 +2096,7 @@ function DomainWorkActionsPage({
       <DomainWorkWindow
         scope={scope}
         legacyCold={presentation.legacyCold}
+        basis="actions"
         onApply={(next) => navigate(page({ ...next, cursor: null }))}
       />
       <DomainSiteWorkActions
@@ -2223,7 +2232,7 @@ function WorkSubrow({
  * Incidents | Maintenance. The window, fixed cutoff and server cursor live in
  * the URL (`?from=&to=&known_at=&cursor=`); the earlier pages' cursors ride in
  * history state so Previous survives a reload. Without a window the first read
- * is the seven complete UTC days ending today 00:00 UTC (B10).
+ * is seven UTC calendar days including today (post-W6 R338, `defaultWorkWindow`).
  */
 export const SITE_WORK_CASES_HEADING_ID = "site-work-cases-heading";
 
@@ -2278,7 +2287,7 @@ export function SiteWorkCasesFrame({
             ]}
           />
           <ChangesWorkPageHeader site={site} screen={`sitework-${kind}`} headingId={SITE_WORK_CASES_HEADING_ID} />
-          <OperatorSiteTabs siteId={siteId} current="Work" />
+          <OperatorSiteTabs siteId={siteId} current="Work" search={coldTabSearch(site, params)} />
           <WorkSubrow
             siteId={site.site_id}
             siteType={site.site_type}
@@ -2297,6 +2306,7 @@ export function SiteWorkCasesFrame({
             <DomainWorkWindow
               scope={{ from: scope.from, to: scope.to, knownAt: scope.knownAt ?? null }}
               legacyCold={site.site_type === "COLDCHAIN"}
+              basis={kind}
               onApply={(next) =>
                 navigate(hrefFor(site.site_id, domainWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
               }

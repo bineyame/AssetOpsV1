@@ -1,0 +1,4212 @@
+{
+  "revision": "c66fb93a",
+  "captured_at": "2026-10-26T01:35:07.381Z",
+  "pairs": [
+    {
+      "screen": "ev-work-incidents",
+      "case": "worstcase-five-160",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-worstcase-five-160-1440-app.png",
+      "mock_image": "ev-work-incidents-worstcase-five-160-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 373,
+            "w": 1160,
+            "h": 502,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 16,
+            "rowText": [
+              [
+                "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverified",
+                "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:12UTC and IDsOccurred2026-10-26 01:12 UTCRecorded2026-10-26 01:20 UTCCase IDf3eac05f-59ce-4a3b-b38c-30c0dafb2cb5Version IDc9895046-6171-4c51-9d55-71a57977ed67Source of cited recordsSource unverified",
+                "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:11UTC and IDsOccurred2026-10-26 01:11 UTCRecorded2026-10-26 01:20 UTCCase IDc83634f3-2142-488d-b0d2-b968bc3b1744Version ID6553bf7e-050f-41f4-a02f-056b76e87dc6Source of cited recordsSource unverified",
+                "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:10UTC and IDsOccurred2026-10-26 01:10 UTCRecorded2026-10-26 01:20 UTCCase ID6bda28ae-5c88-4f7a-8308-7048724a2394Version ID8c029446-48fa-4991-8b79-38459312369bSource of cited recordsSource unverified",
+                "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:09UTC and IDsOccurred2026-10-26 01:09 UTCRecorded2026-10-26 01:20 UTCCase ID349a5ca4-f97f-4b64-aa26-8089840469dcVersion ID442f2c4b-7f4d-4d16-a61c-895586ed4028Source of cited recordsSource unverified",
+                "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 7,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 16,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A35%3A22.290023Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to EV · 5 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:13UTC and IDs Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:12UTC and IDs Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:11UTC and IDs Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:10UTC and IDs Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:09UTC and IDs Connector fault 1 ended a charging session — long narrative proof",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)*",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 224,
+            "cw": 224,
+            "sh": 83,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 303,
+            "cw": 303,
+            "sh": 66,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 224,
+            "cw": 224,
+            "sh": 83,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 303,
+            "cw": 303,
+            "sh": 66,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 224,
+            "cw": 224,
+            "sh": 83,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 303,
+            "cw": 303,
+            "sh": 66,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 224,
+            "cw": 224,
+            "sh": 83,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 303,
+            "cw": 303,
+            "sh": 66,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 224,
+            "cw": 224,
+            "sh": 83,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 303,
+            "cw": 303,
+            "sh": 66,
+            "ch": 33
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "worstcase-five-160",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-worstcase-five-160-390-app.png",
+      "mock_image": "ev-work-incidents-worstcase-five-160-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 663,
+            "w": 358,
+            "h": 445,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 16,
+            "rowText": [
+              [
+                "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverified",
+                "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:12UTC and IDsOccurred2026-10-26 01:12 UTCRecorded2026-10-26 01:20 UTCCase IDf3eac05f-59ce-4a3b-b38c-30c0dafb2cb5Version IDc9895046-6171-4c51-9d55-71a57977ed67Source of cited recordsSource unverified",
+                "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:11UTC and IDsOccurred2026-10-26 01:11 UTCRecorded2026-10-26 01:20 UTCCase IDc83634f3-2142-488d-b0d2-b968bc3b1744Version ID6553bf7e-050f-41f4-a02f-056b76e87dc6Source of cited recordsSource unverified",
+                "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:10UTC and IDsOccurred2026-10-26 01:10 UTCRecorded2026-10-26 01:20 UTCCase ID6bda28ae-5c88-4f7a-8308-7048724a2394Version ID8c029446-48fa-4991-8b79-38459312369bSource of cited recordsSource unverified",
+                "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:09UTC and IDsOccurred2026-10-26 01:09 UTCRecorded2026-10-26 01:20 UTCCase ID349a5ca4-f97f-4b64-aa26-8089840469dcVersion ID442f2c4b-7f4d-4d16-a61c-895586ed4028Source of cited recordsSource unverified",
+                "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnRead full textConnector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1229,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 7,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 16,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A35%3A30.869387Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to EV · 5 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:13UTC and IDs Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:12UTC and IDs Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:11UTC and IDs Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:10UTC and IDs Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn Read full text No linked finding Open INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx Read full text 26 Oct · from 01:09UTC and IDs Connector fault 1 ended a charging sessi",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)*",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 142,
+            "cw": 142,
+            "sh": 108,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 193,
+            "cw": 193,
+            "sh": 92,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 142,
+            "cw": 142,
+            "sh": 108,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 193,
+            "cw": 193,
+            "sh": 92,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 142,
+            "cw": 142,
+            "sh": 108,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 193,
+            "cw": 193,
+            "sh": 92,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 142,
+            "cw": 142,
+            "sh": 108,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 193,
+            "cw": 193,
+            "sh": 92,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "INC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxx",
+            "sw": 142,
+            "cw": 142,
+            "sh": 108,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Connector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnn",
+            "sw": 193,
+            "cw": 193,
+            "sh": 92,
+            "ch": 31
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "worstcase-five-160-all-open",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-worstcase-five-160-all-open-1440-app.png",
+      "mock_image": "ev-work-incidents-worstcase-five-160-all-open-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 373,
+            "w": 1145,
+            "h": 1998,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 16,
+            "rowText": [
+              [
+                "Read full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverified",
+                "Read full textConnector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:12UTC and IDsOccurred2026-10-26 01:12 UTCRecorded2026-10-26 01:20 UTCCase IDf3eac05f-59ce-4a3b-b38c-30c0dafb2cb5Version IDc9895046-6171-4c51-9d55-71a57977ed67Source of cited recordsSource unverified",
+                "Read full textConnector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:11UTC and IDsOccurred2026-10-26 01:11 UTCRecorded2026-10-26 01:20 UTCCase IDc83634f3-2142-488d-b0d2-b968bc3b1744Version ID6553bf7e-050f-41f4-a02f-056b76e87dc6Source of cited recordsSource unverified",
+                "Read full textConnector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:10UTC and IDsOccurred2026-10-26 01:10 UTCRecorded2026-10-26 01:20 UTCCase ID6bda28ae-5c88-4f7a-8308-7048724a2394Version ID8c029446-48fa-4991-8b79-38459312369bSource of cited recordsSource unverified",
+                "Read full textConnector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:09UTC and IDsOccurred2026-10-26 01:09 UTCRecorded2026-10-26 01:20 UTCCase ID349a5ca4-f97f-4b64-aa26-8089840469dcVersion ID442f2c4b-7f4d-4d16-a61c-895586ed4028Source of cited recordsSource unverified",
+                "Read full textConnector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverifiedRead full textConnector fault 5 ended a charging session — long narrat",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2481,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 10,
+          "utc": 23,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 16,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1145,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 16,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A35%3A38.900128Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to EV · 5 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE Read full text INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:13UTC and IDs Occurred 2026-10-26 01:13 UTC Recorded 2026-10-26 01:20 UTC Case ID dbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8c Version ID 90fbce74-58cf-47b0-b6ce-64679b2f4026 Source of cited records Source unverified Read full text Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:12UTC and IDs Occurred 2026-10-26 01:12 UTC Recorded 2026-10-26 01:20 UTC Case ID f3eac05f-59ce-4a3b-b38c-30c0dafb2cb5 Version ID c9895046-6171-4c51-9d55-71a57977ed67 Source of cited records Source unverified Read full text Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:11UTC and IDs Occurred 2026-10-26 01:11 UTC Recorded 2026-10-26 01:20 UTC Case ID c83634f3-2142-488d-b0d2-b968bc3b1744 Version ID 6553bf7e-050f-41f4-a02f-056b76e87dc6 Source of cited records Source unverified Read full text Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)*",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 155,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 26,
+          "14px": 8
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 2481
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-incidents",
+      "case": "worstcase-five-160-all-open",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-incidents",
+      "app_image": "ev-work-incidents-worstcase-five-160-all-open-390-app.png",
+      "mock_image": "ev-work-incidents-worstcase-five-160-all-open-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 663,
+            "w": 358,
+            "h": 2290,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 0,
+            "buttons": 0,
+            "details": 16,
+            "rowText": [
+              [
+                "Read full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverified",
+                "Read full textConnector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:12UTC and IDsOccurred2026-10-26 01:12 UTCRecorded2026-10-26 01:20 UTCCase IDf3eac05f-59ce-4a3b-b38c-30c0dafb2cb5Version IDc9895046-6171-4c51-9d55-71a57977ed67Source of cited recordsSource unverified",
+                "Read full textConnector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:11UTC and IDsOccurred2026-10-26 01:11 UTCRecorded2026-10-26 01:20 UTCCase IDc83634f3-2142-488d-b0d2-b968bc3b1744Version ID6553bf7e-050f-41f4-a02f-056b76e87dc6Source of cited recordsSource unverified",
+                "Read full textConnector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:10UTC and IDsOccurred2026-10-26 01:10 UTCRecorded2026-10-26 01:20 UTCCase ID6bda28ae-5c88-4f7a-8308-7048724a2394Version ID8c029446-48fa-4991-8b79-38459312369bSource of cited recordsSource unverified",
+                "Read full textConnector fault 2 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ],
+              [
+                "Read full textINC-000001 · Charging session fault 1 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "26 Oct · from 01:09UTC and IDsOccurred2026-10-26 01:09 UTCRecorded2026-10-26 01:20 UTCCase ID349a5ca4-f97f-4b64-aa26-8089840469dcVersion ID442f2c4b-7f4d-4d16-a61c-895586ed4028Source of cited recordsSource unverified",
+                "Read full textConnector fault 1 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+                "No linked finding",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateRead full textINC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx26 Oct · from 01:13UTC and IDsOccurred2026-10-26 01:13 UTCRecorded2026-10-26 01:20 UTCCase IDdbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8cVersion ID90fbce74-58cf-47b0-b6ce-64679b2f4026Source of cited recordsSource unverifiedRead full textConnector fault 5 ended a charging session — long narrat",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3073,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 10,
+          "utc": 23,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 16,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 16,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A35%3A47.772539Z"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to EV · 5 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE Read full text INC-000009 · Charging session fault 5 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:13UTC and IDs Occurred 2026-10-26 01:13 UTC Recorded 2026-10-26 01:20 UTC Case ID dbaf0e25-6bc5-4f1b-ac3b-ba1bdd392c8c Version ID 90fbce74-58cf-47b0-b6ce-64679b2f4026 Source of cited records Source unverified Read full text Connector fault 5 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000007 · Charging session fault 4 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:12UTC and IDs Occurred 2026-10-26 01:12 UTC Recorded 2026-10-26 01:20 UTC Case ID f3eac05f-59ce-4a3b-b38c-30c0dafb2cb5 Version ID c9895046-6171-4c51-9d55-71a57977ed67 Source of cited records Source unverified Read full text Connector fault 4 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000005 · Charging session fault 3 — long case title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 26 Oct · from 01:11UTC and IDs Occurred 2026-10-26 01:11 UTC Recorded 2026-10-26 01:20 UTC Case ID c83634f3-2142-488d-b0d2-b968bc3b1744 Version ID 6553bf7e-050f-41f4-a02f-056b76e87dc6 Source of cited records Source unverified Read full text Connector fault 3 ended a charging session — long narrative proof nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn No linked finding Open Read full text INC-000003 · Charging session fault 2 — long case title proof xxxxxxxxxxxxxxxxx",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)*",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 26,
+          "14px": 8
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 336,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1215,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Incidents → -> #/incidents"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "worstcase-five-160",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-worstcase-five-160-1440-app.png",
+      "mock_image": "ev-work-maintenance-worstcase-five-160-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 373,
+            "w": 1160,
+            "h": 502,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 31,
+            "rowText": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 5 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:18 UTCRecorded2026-10-26 01:20 UTCCase ID9988a82d-bec9-415e-8366-f7fbf3fa61b7Version ID3dda1d89-6943-4904-8876-d458e064430aActivity record ID8e1fd57a-e176-4481-a638-f615a176a769Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 4 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:17 UTCRecorded2026-10-26 01:20 UTCCase ID67452f4b-6d89-463f-8c22-6e4c3e19bccdVersion IDf6e29f7b-e396-4109-9859-80a84f7c1927Activity record IDc3ea564a-12a6-4364-bb46-2ed69160712cSource of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 3 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 3 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:16 UTCRecorded2026-10-26 01:20 UTCCase IDf404aa33-2ffc-4e53-9a83-11e2439f14c4Version ID8b50a943-b040-4f3b-94d6-460467b17dffActivity record IDf723cac9-b669-4648-b354-588c777e83d6Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 2 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 2 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:15 UTCRecorded2026-10-26 01:20 UTCCase ID12464b7a-e483-46e0-90a1-bcba2e7d40b8Version ID7b66d537-3c6f-4f41-8bbf-3ca3bf57c226Activity record IDfeadde76-fc39-4e47-be04-eae673f22bf6Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 1 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 1 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwc1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 maintenance casesSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 0,
+          "utc": 8,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 31,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 5,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 15,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A35%3A55.690392Z",
+          "WR-000010 · Connector diagnostic inspection 5 — long request -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001",
+          "WR-000008 · Connector diagnostic inspection 4 — long request -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001",
+          "WR-000006 · Connector diagnostic inspection 3 — long request -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001",
+          "WR-000004 · Connector diagnostic inspection 2 — long request -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001",
+          "WR-000002 · Connector diagnostic inspection 1 — long request -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to EV · 5 maintenance cases Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded Showing 1–5 of 5 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)",
+              "Maintenance (5)*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwww",
+            "sw": 224,
+            "cw": 224,
+            "sh": 99,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwww",
+            "sw": 224,
+            "cw": 224,
+            "sh": 99,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwww",
+            "sw": 224,
+            "cw": 224,
+            "sh": 99,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwww",
+            "sw": 224,
+            "cw": 224,
+            "sh": 99,
+            "ch": 33
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwww",
+            "sw": 224,
+            "cw": 224,
+            "sh": 99,
+            "ch": 33
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "worstcase-five-160",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-worstcase-five-160-390-app.png",
+      "mock_image": "ev-work-maintenance-worstcase-five-160-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 663,
+            "w": 358,
+            "h": 445,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 31,
+            "rowText": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 5 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:18 UTCRecorded2026-10-26 01:20 UTCCase ID9988a82d-bec9-415e-8366-f7fbf3fa61b7Version ID3dda1d89-6943-4904-8876-d458e064430aActivity record ID8e1fd57a-e176-4481-a638-f615a176a769Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 4 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:17 UTCRecorded2026-10-26 01:20 UTCCase ID67452f4b-6d89-463f-8c22-6e4c3e19bccdVersion IDf6e29f7b-e396-4109-9859-80a84f7c1927Activity record IDc3ea564a-12a6-4364-bb46-2ed69160712cSource of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 3 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 3 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:16 UTCRecorded2026-10-26 01:20 UTCCase IDf404aa33-2ffc-4e53-9a83-11e2439f14c4Version ID8b50a943-b040-4f3b-94d6-460467b17dffActivity record IDf723cac9-b669-4648-b354-588c777e83d6Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 2 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 2 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:15 UTCRecorded2026-10-26 01:20 UTCCase ID12464b7a-e483-46e0-90a1-bcba2e7d40b8Version ID7b66d537-3c6f-4f41-8bbf-3ca3bf57c226Activity record IDfeadde76-fc39-4e47-be04-eae673f22bf6Source of cited recordsSource unverified",
+                "OpenActivity recordedInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaRead full textInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteInspection 1 recorded; recurrence and availability remain unverified — long outcome proof ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooRead full textInspection 1 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwc1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1229,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 maintenance casesSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 0,
+          "utc": 8,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 31,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 5,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 15,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A36%3A03.366883Z",
+          "WR-000010 · Connector diagnostic inspection 5 — long request -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001",
+          "WR-000008 · Connector diagnostic inspection 4 — long request -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001",
+          "WR-000006 · Connector diagnostic inspection 3 — long request -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001",
+          "WR-000004 · Connector diagnostic inspection 2 — long request -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001",
+          "WR-000002 · Connector diagnostic inspection 1 — long request -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to EV · 5 maintenance cases Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww Read full text c1 · EV_CONNECTORUTC and IDs OpenActivity recorded UnverifiedOutcome note No next evidence recorded Showing 1–5 of 5 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site.",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)",
+              "Maintenance (5)*"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwww",
+            "sw": 151,
+            "cw": 151,
+            "sh": 139,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwww",
+            "sw": 151,
+            "cw": 151,
+            "sh": 139,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwww",
+            "sw": 151,
+            "cw": 151,
+            "sh": 139,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwww",
+            "sw": 151,
+            "cw": 151,
+            "sh": 139,
+            "ch": 31
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwww",
+            "sw": 151,
+            "cw": 151,
+            "sh": 139,
+            "ch": 31
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 760,
+            "cw": 324,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1195,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "worstcase-five-160-all-open",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-worstcase-five-160-all-open-1440-app.png",
+      "mock_image": "ev-work-maintenance-worstcase-five-160-all-open-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 373,
+            "w": 1145,
+            "h": 2216,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 31,
+            "rowText": [
+              [
+                "Read full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:18 UTCRecorded2026-10-26 01:20 UTCCase ID9988a82d-bec9-415e-8366-f7fbf3fa61b7Version ID3dda1d89-6943-4904-8876-d458e064430aActivity record ID8e1fd57a-e176-4481-a638-f615a176a769Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:17 UTCRecorded2026-10-26 01:20 UTCCase ID67452f4b-6d89-463f-8c22-6e4c3e19bccdVersion IDf6e29f7b-e396-4109-9859-80a84f7c1927Activity record IDc3ea564a-12a6-4364-bb46-2ed69160712cSource of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 3 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:16 UTCRecorded2026-10-26 01:20 UTCCase IDf404aa33-2ffc-4e53-9a83-11e2439f14c4Version ID8b50a943-b040-4f3b-94d6-460467b17dffActivity record IDf723cac9-b669-4648-b354-588c777e83d6Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 2 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:15 UTCRecorded2026-10-26 01:20 UTCCase ID12464b7a-e483-46e0-90a1-bcba2e7d40b8Version ID7b66d537-3c6f-4f41-8bbf-3ca3bf57c226Activity record IDfeadde76-fc39-4e47-be04-eae673f22bf6Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 1 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwc1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverifiedOpenActivity rec",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 2699,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 maintenance casesSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 15,
+          "utc": 24,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 31,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 5,
+          "windowForm": {
+            "x": 248,
+            "w": 1145,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 15,
+          "detailsOpen": 31,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A36%3A10.687554Z",
+          "WR-000010 · Connector diagnostic inspection 5 — long request -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001",
+          "WR-000008 · Connector diagnostic inspection 4 — long request -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001",
+          "WR-000006 · Connector diagnostic inspection 3 — long request -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001",
+          "WR-000004 · Connector diagnostic inspection 2 — long request -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001",
+          "WR-000002 · Connector diagnostic inspection 1 — long request -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to EV · 5 maintenance cases Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE Read full text WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww c1 · EV_CONNECTORUTC and IDs Occurred 2026-10-26 01:19 UTC Recorded 2026-10-26 01:20 UTC Case ID 25976ad1-7075-4d76-9bbd-beed2643b375 Version ID 4153e8e3-dc9c-440d-b36b-5312aa994c37 Activity record ID dbff6022-e378-4af0-a96a-abc63b1c91dc Source of cited records Source unverified OpenActivity recorded Read full text Inspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa UnverifiedOutcome note Read full text Inspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo No next evidence recorded Read full text WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww c1 · EV_CONNECTORUTC and IDs Occurred 2026-10-26 01:18 UTC Recorded 2026-10-26 01:20 UTC Case ID 9988a82d-bec9-415e-8366-f7fbf3fa61b7 Version ID 3dda1d89-6943-4904-8876-d458e064430a Activity record ID 8e1fd57a-e176-4481-a638-f615a176a769 Source of cited records Source unverified OpenActivity recorded Read full text Inspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa UnverifiedOutcome note Read full text Inspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo No next evidence recorded Read full text WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)",
+              "Maintenance (5)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 177,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 31,
+          "14px": 8
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 2699
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 296,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 08:00–16:00 EAT ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "ev-work-maintenance",
+      "case": "worstcase-five-160-all-open",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+      "mock_hash": "#/ev-work-maintenance",
+      "app_image": "ev-work-maintenance-worstcase-five-160-all-open-390-app.png",
+      "mock_image": "ev-work-maintenance-worstcase-five-160-all-open-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 663,
+            "w": 358,
+            "h": 2426,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified",
+              "Open",
+              "Unverified"
+            ],
+            "links": 5,
+            "buttons": 0,
+            "details": 31,
+            "rowText": [
+              [
+                "Read full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:18 UTCRecorded2026-10-26 01:20 UTCCase ID9988a82d-bec9-415e-8366-f7fbf3fa61b7Version ID3dda1d89-6943-4904-8876-d458e064430aActivity record ID8e1fd57a-e176-4481-a638-f615a176a769Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:17 UTCRecorded2026-10-26 01:20 UTCCase ID67452f4b-6d89-463f-8c22-6e4c3e19bccdVersion IDf6e29f7b-e396-4109-9859-80a84f7c1927Activity record IDc3ea564a-12a6-4364-bb46-2ed69160712cSource of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 3 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 3 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:16 UTCRecorded2026-10-26 01:20 UTCCase IDf404aa33-2ffc-4e53-9a83-11e2439f14c4Version ID8b50a943-b040-4f3b-94d6-460467b17dffActivity record IDf723cac9-b669-4648-b354-588c777e83d6Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 2 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 2 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ],
+              [
+                "Read full textWR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+                "c1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:15 UTCRecorded2026-10-26 01:20 UTCCase ID12464b7a-e483-46e0-90a1-bcba2e7d40b8Version ID7b66d537-3c6f-4f41-8bbf-3ca3bf57c226Activity record IDfeadde76-fc39-4e47-be04-eae673f22bf6Source of cited recordsSource unverified",
+                "OpenActivity recordedRead full textInspect connector 1 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "UnverifiedOutcome noteRead full textInspection 1 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000004 · Connector diagnostic inspection 2 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001"
+              ],
+              [
+                "WR-000002 · Connector diagnostic inspection 1 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceRead full textWR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwc1 · EV_CONNECTORUTC and IDsOccurred2026-10-26 01:19 UTCRecorded2026-10-26 01:20 UTCCase ID25976ad1-7075-4d76-9bbd-beed2643b375Version ID4153e8e3-dc9c-440d-b36b-5312aa994c37Activity record IDdbff6022-e378-4af0-a96a-abc63b1c91dcSource of cited recordsSource unverifiedOpenActivity rec",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 3209,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "EV charging lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to EV · 5 maintenance casesSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [
+            "EV_CONNECTORUTC"
+          ],
+          "uuids": 15,
+          "utc": 24,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 31,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 5,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 15,
+          "detailsOpen": 31,
+          "backticks": [],
+          "rawConnector": [
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC",
+            "c1 · EV_CONNECTORUTC"
+          ],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "EV charging lab -> /sites/EV-LAB-001",
+          "Overview -> /sites/EV-LAB-001",
+          "Foundation -> /sites/EV-LAB-001/foundation",
+          "Health -> /sites/EV-LAB-001/health",
+          "Performance -> /sites/EV-LAB-001/performance",
+          "Findings -> /sites/EV-LAB-001/findings",
+          "Work -> /sites/EV-LAB-001/work",
+          "Financials -> /sites/EV-LAB-001/financials",
+          "Evidence -> /sites/EV-LAB-001/evidence",
+          "Actions (5) -> /sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T01%3A36%3A19.391877Z",
+          "WR-000010 · Connector diagnostic inspection 5 — long request -> /maintenance/requests/25976ad1-7075-4d76-9bbd-beed2643b375?site_id=EV-LAB-001",
+          "WR-000008 · Connector diagnostic inspection 4 — long request -> /maintenance/requests/9988a82d-bec9-415e-8366-f7fbf3fa61b7?site_id=EV-LAB-001",
+          "WR-000006 · Connector diagnostic inspection 3 — long request -> /maintenance/requests/67452f4b-6d89-463f-8c22-6e4c3e19bccd?site_id=EV-LAB-001",
+          "WR-000004 · Connector diagnostic inspection 2 — long request -> /maintenance/requests/f404aa33-2ffc-4e53-9a83-11e2439f14c4?site_id=EV-LAB-001",
+          "WR-000002 · Connector diagnostic inspection 1 — long request -> /maintenance/requests/12464b7a-e483-46e0-90a1-bcba2e7d40b8?site_id=EV-LAB-001"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "SitesEV charging labWork",
+          "mainText": "Sites EV charging lab Work EV charging lab Demonstration data · EV-LAB-001 EV charging operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (5) Incidents (5) Maintenance (5) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to EV · 5 maintenance cases Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE Read full text WR-000010 · Connector diagnostic inspection 5 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww c1 · EV_CONNECTORUTC and IDs Occurred 2026-10-26 01:19 UTC Recorded 2026-10-26 01:20 UTC Case ID 25976ad1-7075-4d76-9bbd-beed2643b375 Version ID 4153e8e3-dc9c-440d-b36b-5312aa994c37 Activity record ID dbff6022-e378-4af0-a96a-abc63b1c91dc Source of cited records Source unverified OpenActivity recorded Read full text Inspect connector 5 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa UnverifiedOutcome note Read full text Inspection 5 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo No next evidence recorded Read full text WR-000008 · Connector diagnostic inspection 4 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww c1 · EV_CONNECTORUTC and IDs Occurred 2026-10-26 01:18 UTC Recorded 2026-10-26 01:20 UTC Case ID 9988a82d-bec9-415e-8366-f7fbf3fa61b7 Version ID 3dda1d89-6943-4904-8876-d458e064430a Activity record ID 8e1fd57a-e176-4481-a638-f615a176a769 Source of cited records Source unverified OpenActivity recorded Read full text Inspect connector 4 and witness a charging session — long activity proof aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa UnverifiedOutcome note Read full text Inspection 4 recorded; recurrence and availability remain unverified — long outcome proof oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo No next evidence recorded Read full text WR-000006 · Connector diagnostic inspection 3 — long request title proof wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+          "buttons": [
+            "Apply"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (5)",
+              "Incidents (5)",
+              "Maintenance (5)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 760,
+            "cw": 324,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 31,
+          "14px": 8
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 689,
+            "w": 360,
+            "h": 316,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyNo maintenance work at this siteNo inspection or repair has been raised here in the selected period.",
+            "h3": [
+              "No maintenance work at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1195,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "Depot Charging Hub",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 5,
+          "readFull": 0,
+          "detailsOpen": 0,
+          "backticks": [],
+          "rawConnector": [],
+          "vscroll": []
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "Depot Charging Hub -> #/ev",
+          "Overview -> #/ev",
+          "Foundation -> #/ev-foundation",
+          "Health -> #/ev-health",
+          "Performance -> #/sessions",
+          "Findings -> #/ev-findings",
+          "Work -> #/ev-work",
+          "Financials -> #/ev-financials",
+          "Evidence -> #/ev-evidence",
+          "Actions (1) -> #/ev-work",
+          "Incidents (0) -> #/ev-work-incidents",
+          "Maintenance (0) -> #/ev-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance"
+        ],
+        "cardsDom": [],
+        "extra": {
+          "crumb": "",
+          "mainText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › Depot Charging Hub › Work Depot Charging Hub Simulated site · EV-DEMO-01 2 × 60 kW connectors · 80 kW site limit · no stationary battery Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (0) Maintenance (0) Scoped to Depot · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately No maintenance work at this site No inspection or repair has been raised here in the selected period. Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes",
+          "buttons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+            "Canonical basis & implementation notes"
+          ],
+          "sub": ""
+        },
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (0)",
+              "Maintenance (0)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+[
+ {
+  "id": "ev-action",
+  "case": "worstcase-positive-action",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/d687ab56-2bbc-4016-b4fc-909f568e091b/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-2",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ea30b0d8-2cd8-439d-9de5-d661a9d7e967/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-all-open",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/ea30b0d8-2cd8-439d-9de5-d661a9d7e967/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-3",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/87f46c86-9d01-4964-b2ab-251d8313e821/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-4",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/10935d60-ba42-4217-9b39-7885d23ad39b/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-action",
+  "case": "worstcase-160-5",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/actions/5616908b-d251-42ec-9e64-c932ad9df9b6/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-incidents",
+  "case": "worstcase-five-160-all-open",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/incidents?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z"
+ },
+ {
+  "id": "ev-work-maintenance",
+  "case": "worstcase-five-160-all-open",
+  "url": "http://127.0.0.1:5187/sites/EV-LAB-001/work/maintenance?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+  "openAll": true
+ }
+]

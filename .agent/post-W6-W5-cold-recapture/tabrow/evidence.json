@@ -1,0 +1,806 @@
+{
+  "revision": "c66fb93a",
+  "captured_at": "2026-10-26T01:16:22.399Z",
+  "pairs": [
+    {
+      "screen": "cold-work-incidents",
+      "case": "tab-row-known-at",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "cold-work-incidents-tab-row-known-at-1440-app.png",
+      "mock_image": "cold-work-incidents-tab-row-known-at-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 433,
+            "w": 1160,
+            "h": 337,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-25 03:00 EAT to 2026-10-27 03:00 EAT [from, to) (2026-10-25 00:00 UTC to 2026-10-27 00:00 UTC)Read as of2026-10-25 15:00 EAT (2026-10-25 12:00 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:f9b4cedcf3bdb38bffb65a2bf0b8eab0f602e098380f82ede02a6e527660fff6Each record behind this result is",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Read as of 2026-10-25 12:00 UTC. Later work may differ.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (0) Incidents (0) Maintenance (0) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to Cold · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Read as of 2026-10-25 12:00 UTC. Later work may differ. Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Actions (0) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Incidents (0) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Maintenance (0) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work-incidents",
+      "case": "tab-row-known-at",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "cold-work-incidents-tab-row-known-at-390-app.png",
+      "mock_image": "cold-work-incidents-tab-row-known-at-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 723,
+            "w": 358,
+            "h": 344,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 1,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themNo incidents at this siteNo operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.What this list is based onWindow2026-10-25 03:00 EAT to 2026-10-27 03:00 EAT [from, to) (2026-10-25 00:00 UTC to 2026-10-27 00:00 UTC)Read as of2026-10-25 15:00 EAT (2026-10-25 12:00 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:f9b4cedcf3bdb38bffb65a2bf0b8eab0f602e098380f82ede02a6e527660fff6Each record behind this result is",
+            "h3": [
+              "No incidents at this site"
+            ],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1187,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": null,
+          "th": null
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Read as of 2026-10-25 12:00 UTC. Later work may differ.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (0) Incidents (0) Maintenance (0) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to Cold · 0 incidents Same records and states as the global Incidents list Manage in Incidents → Read as of 2026-10-25 12:00 UTC. Later work may differ. Incidents at this site A case links chronology, findings and work without copying them No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap. What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Actions (0) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Incidents (0) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Maintenance (0) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-25T12%3A00%3A00Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (0)",
+              "Incidents (0)*",
+              "Maintenance (0)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1,
+          "12px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 411,
+            "cw": 320,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

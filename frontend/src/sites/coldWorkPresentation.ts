@@ -19,7 +19,8 @@ export const COLD_WORK_GLOBAL_GAP = "Global Actions does not include cold-chain 
 // fixture; the subtitle appears only when the full selected set has no due date (`all_due_dates_unset`).
 export const COLD_WORK_DUE_UNSET = "Due dates are not yet set";
 
-export const COLD_WORK_EMPTY = ["No actions at this site", "No accepted recommendation or evidence request has been raised here yet."] as const;
+/** post-W6 W5-cold R338 (B14-09; guide §3): the empty copy names the selected window, not "yet". */
+export const COLD_WORK_EMPTY = ["No actions at this site", "No Action was raised here in the selected window."] as const;
 
 export const COLD_WORK_LOADING = "Loading the site's Actions.";
 export const COLD_ACTION_LOADING = "Loading the cold Action declaration.";
@@ -59,9 +60,9 @@ export const COLD_RESULT_LABELS: Record<string, string> = {
 export const LONG_TEXT_THRESHOLD = 80;
 export const READ_FULL_TEXT = "Read full text";
 
-/** `{n} actions`: the mock's literal count noun, kept as `1 actions` for one (U3). */
+/** post-W6 W5-cold R334 (B14-03; guide §4 local plural, as `evActionCount`): `1 action`, otherwise `{n} actions`. */
 export function coldActionCount(count: number): string {
-  return `${count} actions`;
+  return count === 1 ? "1 action" : `${count} actions`;
 }
 
 /** `Show all {N} Actions`: the current page's row count past the fold. */
@@ -112,6 +113,24 @@ export function isLongText(text: string): boolean {
 }
 
 /**
+ * post-W6 W5-cold B15-04 (cites R322; W4 Q10 exact-code taxonomy, W5 rulings 2): the cold Action refusal by exact code.
+ * Never the raw server message, cutoff or Site code. Retry only for 503 and an unreached server; a client-authored
+ * sentence (no code: unreachable or unexpected shape) is kept as written.
+ */
+export const COLD_ACTION_REFUSAL_COPY: Record<string, string> = {
+  INVALID_KNOWN_AT: "Choose a valid evidence cutoff.",
+  SITE_SCOPE_FORBIDDEN: "You do not have access to this site.",
+  WORK_STORE_UNAVAILABLE: "Cold work is unavailable right now. Try again.",
+};
+export const COLD_ACTION_REFUSED = "The attempt was refused.";
+
+export function coldActionRefusal(refusal: { http: number | null; code: string | null; message: string }): { message: string; retry: boolean } {
+  const retry = refusal.http === null || refusal.http === 503;
+  if (refusal.code === null) return { message: refusal.message, retry };
+  return { message: COLD_ACTION_REFUSAL_COPY[refusal.code] ?? COLD_ACTION_REFUSED, retry };
+}
+
+/**
  * W5-04 V4a (readiness rulings 15, 41, 47): the cold domain Action detail presentation (v69 `cold-action`,
  * `frontend/mockups/v69/index.html:742-746`), with the K4 literals unchanged so the cold output stays byte-identical:
  * `{owner} · {shortName} · {Finding label}` status (ruling 9), the `Finding version` disclosure, the Related activity
@@ -131,6 +150,7 @@ export const COLD_ACTION_PRESENTATION: DomainActionPresentation = {
   retry: COLD_WORK_RETRY,
   closingNotice: COLD_ACTION_NOTICE,
   windowQuery: false,
+  refusal: coldActionRefusal,
   panel: {
     criteriaTitle: COLD_CRITERIA_TITLE,
     columns: COLD_CRITERIA_COLUMNS,

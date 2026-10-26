@@ -1,0 +1,40 @@
+chrome pid 11104
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-incidents-unavailable-503 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-incidents-unavailable-503 1440: mock rendered
+PASS  cold-work-incidents-unavailable-503 1440: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-unavailable-503 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-unavailable-503 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work-incidents: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-incidents-unavailable-503 390: mock rendered
+PASS  cold-work-incidents-unavailable-503 390: same panel count  {"app":["Incidents at this site"],"mock":["Incidents at this site"]}
+PASS  cold-work-incidents-unavailable-503 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-work-maintenance-unavailable-503 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-work-maintenance-unavailable-503 1440: mock rendered
+PASS  cold-work-maintenance-unavailable-503 1440: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-unavailable-503 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-unavailable-503 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-work-maintenance: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-work-maintenance-unavailable-503 390: mock rendered
+PASS  cold-work-maintenance-unavailable-503 390: same panel count  {"app":["Maintenance at this site"],"mock":["Maintenance at this site"]}
+PASS  cold-work-maintenance-unavailable-503 390: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/actions/a03b9b44-b842-435b-99ef-682eb982326e/verification: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  cold-action-unavailable-503 1440: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-action: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  cold-action-unavailable-503 1440: mock rendered
+FAIL  cold-action-unavailable-503 1440: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-unavailable-503 1440: no app page overflow  {"overflowX":0}
+PASS  loaded http://127.0.0.1:5185/sites/COLD-LAB-001/actions/a03b9b44-b842-435b-99ef-682eb982326e/verification: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-unavailable-503 390: app rendered
+PASS  loaded http://127.0.0.1:5185/mockups/v69/index.html#/cold-action: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  cold-action-unavailable-503 390: mock rendered
+FAIL  cold-action-unavailable-503 390: same panel count  {"app":["(untitled)"],"mock":["Declared outcome criteria","Related activity"]}
+PASS  cold-action-unavailable-503 390: no app page overflow  {"overflowX":0}
+
+34/36 claims passed; evidence in C:/Users/assef/Bineyame/AssetOpsV1-review10/.agent/post-W6-W5-cold-recapture/b15-unavailable
+exit 0

@@ -5935,6 +5935,15 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - Evidence: `.agent/post-W6-W6-evidence/q15b/` (cap probe at the final SHA), `b18r/`, `b19r/` (recaptures), earlier `b18/`, `b19/`, `q15/`.
 - Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).
 
+## post-W6 W5-cold-Work - cold depth and Work D3 fixes (built, in_review)
+
+- Branch `task/post-W6-W5-cold-work`; rulings `.agent/post-W6-W5-rulings.md` 1-2; packet `.agent/post-W6-W5-cold-packet.md`; handoff `.agent/post-W6-W5-cold-handoff.md`.
+- `defaultWorkWindow` (`sites/workClient.ts`) is `[today−6d, tomorrow)` UTC for every Site Work consumer (cold/EV Actions, all cases incl. mini).
+- `DomainWorkWindow` requires `basis` (`actions|incidents|maintenance`) and states `DOMAIN_WORK_WINDOW_BASIS` under the control; mini cases form has none.
+- `DomainActionPresentation.refusal?` maps a refusal to `{message, retry}`; cold uses `coldActionRefusal` (exact code, Retry only 503/unreached, `role="alert"`); EV absent = unchanged.
+- `relatedSentence` states linked VERIFICATION_WINDOW (with record) and linked CANCELLED; cold `coldDepthStateNotice` / `scenariosStateNotice` make UNKNOWN and pending notices row/count-aware; R25 subtitle replaced.
+- Cooling badges carry W4 `status-tone--*` classes (CSS `ui/primitives.css:1202`, verified). R339: the Work Actions and cases tab rows take `coldTabSearch(site, params)` (cold only; mini/EV bare); Scenarios/Health/Cooling came with W2-cold.
+- Evidence `.agent/post-W6-W5-cold-recapture/` (cold b14/b15 sets, EV, mini, tab row; all pass except the baseline 6+6 state-panel pairs and forbidden/unavailable cold-action 2 each). Open: R344 VERIFICATION_WINDOW/linked CANCELLED no producer; ruled-cap stress clones not re-measured; W5-EV edits the same shared files next. Rows R334/R336-R339/R344 closed, R460/R461 added.
 ## post-W6 W4-mini - mini depth, mini decisions and Site Work text (built, in_review)
 
 Branch `task/post-W6-W4-mini` (main `4d51df61` merged). Packet `.agent/post-W6-W4-packet.md`; rulings `.agent/post-W6-W4-rulings.md`, `.agent/post-W6-W4-build-rulings.md`; evidence `.agent/post-W6-W4-recapture/`. No backend change.

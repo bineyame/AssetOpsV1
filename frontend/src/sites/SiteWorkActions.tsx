@@ -750,6 +750,17 @@ export interface DomainWorkWindowScope {
   knownAt: string | null;
 }
 
+/**
+ * post-W6 W5-cold R338 (B15-06; W5 rulings 1): the listing basis under the cold/EV Window control. Incidents and
+ * Maintenance repeat W6 Q7's global lines verbatim; Maintenance names its actual `created_at` filter.
+ */
+export const DOMAIN_WORK_WINDOW_BASIS = {
+  actions: "Listed by the time each Action was raised.",
+  incidents: "Listed by incident start time.",
+  maintenance: "Listed by the time each request was opened.",
+} as const;
+export type DomainWorkWindowBasis = keyof typeof DOMAIN_WORK_WINDOW_BASIS;
+
 const utcDay = (instant: string) => (isUtcInstant(instant) ? new Date(instant).toISOString().slice(0, 10) : "");
 
 /**
@@ -768,9 +779,12 @@ export function DomainWorkWindow({
   scope,
   onApply,
   legacyCold,
+  basis,
 }: {
   scope: DomainWorkWindowScope;
   onApply: (next: DomainWorkWindowScope) => void;
+  /** post-W6 R338: which listing basis line to state under the control. */
+  basis: DomainWorkWindowBasis;
   /** True on a COLDCHAIN Site: keep the K2 `data-cold-work-window*` attributes and classes. */
   legacyCold: boolean;
 }) {
@@ -825,6 +839,9 @@ export function DomainWorkWindow({
           {error}
         </span>
       )}
+      <p className="domain-work-window__basis" data-domain-work-window-basis={basis}>
+        {DOMAIN_WORK_WINDOW_BASIS[basis]}
+      </p>
     </form>
   );
 }

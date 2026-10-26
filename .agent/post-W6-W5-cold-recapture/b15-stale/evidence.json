@@ -1,0 +1,2753 @@
+{
+  "revision": "c66fb93a",
+  "captured_at": "2026-10-26T01:05:50.311Z",
+  "pairs": [
+    {
+      "screen": "cold-work-incidents",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "cold-work-incidents-stale-1440-app.png",
+      "mock_image": "cold-work-incidents-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 248,
+            "y": 433,
+            "w": 1160,
+            "h": 212,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "25 Oct · from 19:11UTC and IDsOccurred2026-10-25 16:11 UTCRecorded2026-10-26 00:48 UTCCase ID97d5a451-cf31-481b-9129-6907ef2ebbd7Version ID09c911cd-709f-491d-9787-fdd64af1d0d7Linked actionsAction 3bfbe171Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 74451507Finding versionb143ff77-cb57-4123-b7e4-3e3f25d4f43e · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure25 Oct · from 19:11UTC and IDsOccurred2026-10-25 16:11 UTCRecorded2026-10-26 00:48 UTCCase ID97d5a451-cf31-481b-9129-6907ef2ebbd7Version ID09c911cd-709f-491d-9787-fdd64af1d0d7Linked actionsAction 3bfbe171Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 74451507Finding versionb143ff77-cb57-4123-b7e4-3e3f25d4f43e · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aa",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Linked evidence source is out of date. The work record remains recorded. Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 25 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 74451507Finding version· Finding e54bdd4dFinding version Open Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 157,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 191,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work-incidents",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-work-incidents",
+      "app_image": "cold-work-incidents-stale-390-app.png",
+      "mock_image": "cold-work-incidents-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 16,
+            "y": 742,
+            "w": 358,
+            "h": 247,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "INC-000001 · Backup response failure",
+                "25 Oct · from 19:11UTC and IDsOccurred2026-10-25 16:11 UTCRecorded2026-10-26 00:48 UTCCase ID97d5a451-cf31-481b-9129-6907ef2ebbd7Version ID09c911cd-709f-491d-9787-fdd64af1d0d7Linked actionsAction 3bfbe171Source of cited recordsGenerated test data",
+                "Grid lost, automatic start failed, chamber above policy",
+                "Finding 74451507Finding versionb143ff77-cb57-4123-b7e4-3e3f25d4f43e · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-000001 · Backup response failure25 Oct · from 19:11UTC and IDsOccurred2026-10-25 16:11 UTCRecorded2026-10-26 00:48 UTCCase ID97d5a451-cf31-481b-9129-6907ef2ebbd7Version ID09c911cd-709f-491d-9787-fdd64af1d0d7Linked actionsAction 3bfbe171Source of cited recordsGenerated test dataGrid lost, automatic start failed, chamber above policyFinding 74451507Finding versionb143ff77-cb57-4123-b7e4-3e3f25d4f43e · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aa",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1109,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 3,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by incident start time.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 incidentSame records and states as the global Incidents listManage in Incidents →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "OPEN=Open"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Listed by incident start time. Scoped to Cold · 1 incident Same records and states as the global Incidents list Manage in Incidents → Linked evidence source is out of date. The work record remains recorded. Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-000001 · Backup response failure 25 Oct · from 19:11UTC and IDs Grid lost, automatic start failed, chamber above policy Finding 74451507Finding version· Finding e54bdd4dFinding version Open Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Manage in Incidents → -> /incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 720,
+            "cw": 324,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 99,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          },
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Incidents at this site"
+        ],
+        "panels": [
+          {
+            "title": "Incidents at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Case",
+              "Window",
+              "What happened",
+              "Linked findings",
+              "State"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 3,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "INC-203 · Backup response failure",
+                "6 Oct · from 19:11",
+                "Grid lost, automatic start failed, chamber above policy",
+                "F-118 · F-119",
+                "Open"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "INC-203 · Backup response failure -> #/incident",
+                "F-118 -> #/cold-finding",
+                "F-119 -> #/cold-finding-excursion"
+              ]
+            ],
+            "panelText": "Incidents at this siteA case links chronology, findings and work without copying themCaseWindowWhat happenedLinked findingsStateINC-203 · Backup response failure6 Oct · from 19:11Grid lost, automatic start failed, chamber above policyF-118 · F-119Open",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 incidents"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 incidents Same records and states as the global Incidents list Manage in Incidents → Incidents at this site A case links chronology, findings and work without copying them CASE WINDOW WHAT HAPPENED LINKED FINDINGS STATE INC-203 · Backup response failure 6 Oct · from 19:11 Grid lost, automatic start failed, chamber above policy F-118 · F-119 Open Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Incidents → -> #/incidents",
+          "INC-203 · Backup response failure -> #/incident",
+          "F-118 -> #/cold-finding",
+          "F-119 -> #/cold-finding-excursion"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)*",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 411,
+            "cw": 320,
+            "panel": "Incidents at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-work-maintenance",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-work-maintenance",
+      "app_image": "cold-work-maintenance-stale-1440-app.png",
+      "mock_image": "cold-work-maintenance-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 248,
+            "y": 433,
+            "w": 1160,
+            "h": 212,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Unverified"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Starter/control inspection",
+                "generator-1 · backup generatorUTC and IDsOccurred2026-10-25 16:20 UTCRecorded2026-10-26 00:48 UTCCase ID7a945fc0-434c-43ea-a9de-848ee642a735Version IDb5919163-68ba-4c94-a310-68183221a06cAsset ID4f1e18cf-fefe-49a2-a37d-6543826fb7ecActivity record ID8fa8de35-8b82-4e25-afb0-44f3ca7b52f9Incident ID97d5a451-cf31-481b-9129-6907ef2ebbd7Linked actionsAction 3bfbe171Source of cited recordsGenerated test data",
+                "CompletedActivity recordedStarter and control inspection",
+                "UnverifiedOutcome noteInspection complete; witnessed automatic-start test remains required",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Starter/control inspection -> /maintenance/requests/7a945fc0-434c-43ea-a9de-848ee642a735?site_id=COLD-LAB-001&known_at=2026-10-26T00%3A48%3A51.607104Z",
+                "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000002 · Starter/control inspectiongenerator-1 · backup generatorUTC and IDsOccurred2026-10-25 16:20 UTCRecorded2026-10-26 00:48 UTCCase ID7a945fc0-434c-43ea-a9de-848ee642a735Version IDb5919163-68ba-4c94-a310-68183221a06cAsset ID4f1e18cf-fefe-49a2-a37d-6543826fb7ecActivity record ID8fa8de35-8b82-4e25-afb0-44f3ca7b52f9Incident ID97d5a451-cf31-481b-9129-6907ef2ebbd7Linked actionsAction 3bfbe171Source of cited recordsGenerated test dataCompletedActivity recordedSta",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "16.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 maintenance caseSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 57,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 maintenance caseSame records and states as the global Maintenance listManage in Maintenance →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "COMPLETED=Completed"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to Cold · 1 maintenance case Same records and states as the global Maintenance list Manage in Maintenance → Linked evidence source is out of date. The work record remains recorded. Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000002 · Starter/control inspection generator-1 · backup generatorUTC and IDs CompletedActivity recorded UnverifiedOutcome note No next evidence recorded Showing 1–1 of 1 What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "WR-000002 · Starter/control inspection -> /maintenance/requests/7a945fc0-434c-43ea-a9de-848ee642a735?site_id=COLD-LAB-001&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 180,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Unverified"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · backup generator",
+                "Completed",
+                "Unverified",
+                "Witnessed automatic-start test"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/workverification"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-019 · Starter and control inspectionGEN-CR-01 · backup generatorCompletedUnverifiedWitnessed automatic-start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-019 · Starter and control inspection GEN-CR-01 · backup generator Completed Unverified Witnessed automatic-start test Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance",
+          "WR-019 · Starter and control inspection -> #/workverification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work-maintenance",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-work-maintenance",
+      "app_image": "cold-work-maintenance-stale-390-app.png",
+      "mock_image": "cold-work-maintenance-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 16,
+            "y": 742,
+            "w": 358,
+            "h": 201,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Unverified"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 4,
+            "rowText": [
+              [
+                "WR-000002 · Starter/control inspection",
+                "generator-1 · backup generatorUTC and IDsOccurred2026-10-25 16:20 UTCRecorded2026-10-26 00:48 UTCCase ID7a945fc0-434c-43ea-a9de-848ee642a735Version IDb5919163-68ba-4c94-a310-68183221a06cAsset ID4f1e18cf-fefe-49a2-a37d-6543826fb7ecActivity record ID8fa8de35-8b82-4e25-afb0-44f3ca7b52f9Incident ID97d5a451-cf31-481b-9129-6907ef2ebbd7Linked actionsAction 3bfbe171Source of cited recordsGenerated test data",
+                "CompletedActivity recordedStarter and control inspection",
+                "UnverifiedOutcome noteInspection complete; witnessed automatic-start test remains required",
+                "No next evidence recorded"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-000002 · Starter/control inspection -> /maintenance/requests/7a945fc0-434c-43ea-a9de-848ee642a735?site_id=COLD-LAB-001&known_at=2026-10-26T00%3A48%3A51.607104Z",
+                "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-000002 · Starter/control inspectiongenerator-1 · backup generatorUTC and IDsOccurred2026-10-25 16:20 UTCRecorded2026-10-26 00:48 UTCCase ID7a945fc0-434c-43ea-a9de-848ee642a735Version IDb5919163-68ba-4c94-a310-68183221a06cAsset ID4f1e18cf-fefe-49a2-a37d-6543826fb7ecActivity record ID8fa8de35-8b82-4e25-afb0-44f3ca7b52f9Incident ID97d5a451-cf31-481b-9129-6907ef2ebbd7Linked actionsAction 3bfbe171Source of cited recordsGenerated test dataCompletedActivity recordedSta",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1063,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "15.4px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 1 maintenance caseSame records and states as the global Maintenance listManage in Maintenance →",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 4,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+          "details": 4,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 161,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each request was opened.",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "SitesCold replay labWork",
+          "subtitle": "Cold-room operations at this site.",
+          "headerButtons": [],
+          "strip": "Scoped to Cold · 1 maintenance caseSame records and states as the global Maintenance listManage in Maintenance →",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [
+            "COMPLETED=Completed"
+          ],
+          "bodyText": "Sites Cold replay lab Work Cold replay lab Demonstration data · COLD-LAB-001 Cold-room operations at this site. Overview Foundation Health Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Actions (1) Incidents (1) Maintenance (1) Window From (UTC) To (UTC, exclusive) Apply Listed by the time each request was opened. Scoped to Cold · 1 maintenance case Same records and states as the global Maintenance list Manage in Maintenance → Linked evidence source is out of date. The work record remains recorded. Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-000002 · Starter/control inspection generator-1 · backup generatorUTC and IDs CompletedActivity recorded UnverifiedOutcome note No next evidence recorded Showing 1–1 of 1 Scroll the table for more columns → What this list is based on Opening a record moves you to its own area; the breadcrumb keeps this site."
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Foundation -> /sites/COLD-LAB-001/foundation?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Health -> /sites/COLD-LAB-001/health?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Performance -> /sites/COLD-LAB-001/performance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Findings -> /sites/COLD-LAB-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Work -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Financials -> /sites/COLD-LAB-001/financials?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Evidence -> /sites/COLD-LAB-001/evidence?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Manage in Maintenance → -> /maintenance?from=2026-10-25T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "WR-000002 · Starter/control inspection -> /maintenance/requests/7a945fc0-434c-43ea-a9de-848ee642a735?site_id=COLD-LAB-001&known_at=2026-10-26T00%3A48%3A51.607104Z",
+          "Action 3bfbe171 -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-tabs--site",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "data-table__scroll",
+            "sw": 760,
+            "cw": 324,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          },
+          {
+            "cls": "fact-list__value",
+            "sw": 218,
+            "cw": 121,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Maintenance at this site"
+        ],
+        "panels": [
+          {
+            "title": "Maintenance at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Work request",
+              "Asset",
+              "Activity",
+              "Outcome",
+              "Next evidence"
+            ],
+            "chips": [
+              "Completed",
+              "Unverified"
+            ],
+            "links": 1,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "WR-019 · Starter and control inspection",
+                "GEN-CR-01 · backup generator",
+                "Completed",
+                "Unverified",
+                "Witnessed automatic-start test"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "WR-019 · Starter and control inspection -> #/workverification"
+              ]
+            ],
+            "panelText": "Maintenance at this siteCompleted work is activity; the outcome is verified separatelyWork requestAssetActivityOutcomeNext evidenceWR-019 · Starter and control inspectionGEN-CR-01 · backup generatorCompletedUnverifiedWitnessed automatic-start test",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 1,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Sites›GreenHarvest Cold Room›Work",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Site Kobo Mini-grid · Mini-grid GreenHarvest Cold Room · Cold-chain Depot Charging Hub · EV charging Window: Event window ▾ BY Sites › GreenHarvest Cold Room › Work GreenHarvest Cold Room Simulated site · CR-DEMO-01 Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup Overview Foundation Health Performance Findings Work Financials Evidence Actions (1) Incidents (1) Maintenance (1) Scoped to GreenHarvest · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance → Maintenance at this site Completed work is activity; the outcome is verified separately WORK REQUEST ASSET ACTIVITY OUTCOME NEXT EVIDENCE WR-019 · Starter and control inspection GEN-CR-01 · backup generator Completed Unverified Witnessed automatic-start test Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Maintenance → -> #/maintenance",
+          "WR-019 · Starter and control inspection -> #/workverification"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)",
+              "Incidents (1)",
+              "Maintenance (1)*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 436,
+            "cw": 320,
+            "panel": "Maintenance at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-action",
+      "case": "stale",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification?known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-action",
+      "app_image": "cold-action-stale-1440-app.png",
+      "mock_image": "cold-action-stale-1440-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 248,
+            "y": 301,
+            "w": 1160,
+            "h": 292,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 248,
+            "y": 611,
+            "w": 1160,
+            "h": 168,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 45,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding e54bdd4d Finding version Linked evidence source is out of date. The work record remains recorded. Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification?known_at=2026-10-26T00%3A48%3A51.607104Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 287,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 234,
+            "y": 671,
+            "w": 1161,
+            "h": 150,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Find a screen Window: Event window 6 Oct 2026 · 19:00–20:00 EAT ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-action",
+      "case": "stale",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5185/sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification?known_at=2026-10-26T00%3A48%3A51.607104Z",
+      "mock_hash": "#/cold-action",
+      "app_image": "cold-action-stale-390-app.png",
+      "mock_image": "cold-action-stale-390-mock.png",
+      "app": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 16,
+            "y": 500,
+            "w": 358,
+            "h": 433,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 16,
+            "y": 951,
+            "w": 358,
+            "h": 272,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 0,
+            "buttons": 1,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1343,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "ACT-000001 · Witness automatic-start test",
+          "top": 128,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "14px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "OpenMaintenance lead · Cold · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+          "cards": [],
+          "notice": [
+            "Linked evidence source is out of date. The work record remains recorded.",
+            "Completed inspection does not establish successful service restoration."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 1,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 2,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "ActionsACT-000001Verification· site: Cold replay lab",
+          "subtitle": "Has backup service been restored after the inspection?",
+          "headerButtons": [
+            "Open site"
+          ],
+          "strip": "OpenMaintenance lead · Cold · Finding e54bdd4dFinding version544ad7dc-3840-4431-90ef-3aeb0158aade",
+          "related": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+          "inspect": {
+            "tag": "BUTTON",
+            "text": "Inspect maintenance evidence",
+            "disabled": false,
+            "href": null
+          },
+          "finding": "Open source Finding →",
+          "intentMissing": "",
+          "criteria": [
+            "Automatic startAccepted command followed by successful running statusNot tested",
+            "Power deliveryGenerator supply reaches the cooling systemNot tested",
+            "Cooling recoveryTemperature recovery within declared test conditionsNot established",
+            "RecurrenceCovered observation window without a qualifying repeatPending"
+          ],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "ActionsACT-000001Verification· site: Cold replay lab ACT-000001 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · Cold · Finding e54bdd4d Finding version Linked evidence source is out of date. The work record remains recorded. Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet. Completed inspection does not establish successful service restoration."
+        },
+        "mainLinks": [
+          "Actions -> /actions",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Open site -> /sites/COLD-LAB-001",
+          "Verification -> /sites/COLD-LAB-001/actions/3bfbe171-5291-4de0-9881-230d97b7f730/verification?known_at=2026-10-26T00%3A48%3A51.607104Z"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "disclosure__body",
+            "sw": 218,
+            "cw": 74,
+            "panel": ""
+          }
+        ],
+        "pSizes": {
+          "14px": 2
+        },
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panels": [
+          {
+            "title": "Declared outcome criteria",
+            "x": 15,
+            "y": 578,
+            "w": 360,
+            "h": 428,
+            "tables": 1,
+            "rows": 4,
+            "columns": [
+              "Criterion",
+              "Required evidence",
+              "Current result"
+            ],
+            "chips": [],
+            "links": 0,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "Automatic start",
+                "Accepted command followed by successful running status",
+                "Not tested"
+              ],
+              [
+                "Power delivery",
+                "Generator supply reaches the cooling system",
+                "Not tested"
+              ],
+              [
+                "Cooling recovery",
+                "Temperature recovery within declared test conditions",
+                "Not established"
+              ],
+              [
+                "Recurrence",
+                "Covered observation window without a qualifying repeat",
+                "Pending"
+              ]
+            ],
+            "rowLinks": [
+              [],
+              [],
+              [],
+              []
+            ],
+            "panelText": "Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPending",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          },
+          {
+            "title": "Related activity",
+            "x": 15,
+            "y": 1024,
+            "w": 360,
+            "h": 194,
+            "tables": 0,
+            "rows": 0,
+            "columns": [],
+            "chips": [],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [],
+            "rowLinks": [],
+            "panelText": "Related activityStarter/control inspection WR-019 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding →",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1391,
+        "header": {
+          "cls": "topbar",
+          "h": 90,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "ACT-051 · Witness automatic-start test",
+          "top": 298,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [
+            "12px"
+          ],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 3,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "b15": {
+          "crumbs": "Actions›ACT-051›Verification· site: GreenHarvest Cold Room",
+          "subtitle": "",
+          "headerButtons": [
+            "Find a screen",
+            "Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾"
+          ],
+          "strip": "",
+          "related": "",
+          "inspect": null,
+          "finding": "",
+          "intentMissing": "",
+          "criteria": [],
+          "showing": "",
+          "rowStates": [],
+          "bodyText": "Bineyame Operations / Demo estate Window: Event window ▾ BY Actions › ACT-051 › Verification · site: GreenHarvest Cold Room ACT-051 · Witness automatic-start test Has backup service been restored after the inspection? Open site Verification Open Maintenance lead · GreenHarvest · F-118 Declared outcome criteria CRITERION REQUIRED EVIDENCE CURRENT RESULT Automatic start Accepted command followed by successful running status Not tested Power delivery Generator supply reaches the cooling system Not tested Cooling recovery Temperature recovery within declared test conditions Not established Recurrence Covered observation window without a qualifying repeat Pending Related activity Starter/control inspection WR-019 is complete. A witnessed outcome test remains required. Inspect maintenance evidence Open source Finding → Completed inspection does not establish successful service restoration. Illustrative mockup data · proposal for implementation · not connected to site telemetry Canonical basis & implementation notes"
+        },
+        "mainLinks": [
+          "Actions -> #/actions",
+          "GreenHarvest Cold Room -> #/cold",
+          "Open site -> #/cold",
+          "Verification -> #/cold-action",
+          "Inspect maintenance evidence -> #/workverification",
+          "Open source Finding → -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Verification*"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "12px": 1,
+          "14px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

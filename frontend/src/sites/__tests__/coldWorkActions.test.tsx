@@ -22,6 +22,7 @@ import {
   type DomainIndexScope,
 } from "../domainActionClient";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN } from "../siteWorkCases";
+import { coldActionCount } from "../coldWorkPresentation";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import type { WorkClient, WorkScope } from "../workClient";
@@ -356,7 +357,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelector("[data-site-work-window]")).toBeNull();
     // K2 ruling 1: the only form is the page-local cold `Window` control (R88).
     expect(Array.from(main.querySelectorAll("form")).map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
-    expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 actions");
+    expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 action");
   });
 
   it("W5-04 V2a ruling 45: cold keeps every K2 data-cold-work name and also carries data-domain-work; its read keeps two arguments", async () => {
@@ -409,6 +410,10 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const { main } = await mountWork(workPath(), client);
     expect(main.querySelector(".panel__description")).toBeNull();
     expect(text(main.querySelector("[data-cold-work-due]"))).toBe("2026-11-02");
+  });
+
+  it("post-W6 R334: the strip count reads 0 actions, 1 action, 2 actions", () => {
+    expect([0, 1, 2].map(coldActionCount)).toEqual(["0 actions", "1 action", "2 actions"]);
   });
 
   it("defaults to W4's last seven complete UTC days and reads with no cursor and no cutoff", async () => {
@@ -483,7 +488,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const empty = main.querySelector("[data-cold-work-empty]") as HTMLElement;
     expect(empty.querySelector("svg")).not.toBeNull();
     expect(text(empty.querySelector("h3"))).toBe("No actions at this site");
-    expect(text(empty.querySelector("p"))).toBe("No accepted recommendation or evidence request has been raised here yet.");
+    expect(text(empty.querySelector("p"))).toBe("No Action was raised here in the selected window.");
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 0 actions");
     expect(main.querySelector(".panel__description")).toBeNull();
     expect(main.querySelector("table")).toBeNull();
@@ -635,6 +640,26 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(text(form.querySelector("[data-cold-work-window-apply]"))).toBe("Apply");
     expect(form.querySelector("[data-cold-work-window-error]")).toBeNull();
     expectV69Panels("cold-work");
+  });
+
+  it("post-W6 R338: the default window is seven UTC calendar days including today, and states its listing basis", async () => {
+    // A row raised today at 23:59Z is inside the default [today−6d, tomorrow); one raised seven days ago is not.
+    const now = new Date("2026-10-25T23:59:00Z");
+    const w = defaultWorkWindow(now);
+    expect(w).toEqual({ from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" });
+    const inside = (raisedAt: string) => raisedAt >= w.from && raisedAt < w.to;
+    expect(inside("2026-10-25T23:59:00Z")).toBe(true);
+    expect(inside("2026-10-19T00:00:00Z")).toBe(true);
+    expect(inside("2026-10-18T23:59:59Z")).toBe(false);
+    // Month boundary: today 2026-11-01 keeps the six earlier October days.
+    expect(defaultWorkWindow(new Date("2026-11-01T00:00:00Z"))).toEqual({ from: "2026-10-26T00:00:00Z", to: "2026-11-02T00:00:00Z" });
+    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const { main } = await mountWork(`/sites/${SITE}/work`, client);
+    const today = new Date().toISOString().slice(0, 10);
+    expect(indexCalls[0].scope.to > `${today}T00:00:00Z`).toBe(true);
+    const basis = main.querySelector("[data-cold-work-window] [data-domain-work-window-basis]");
+    expect(basis?.getAttribute("data-domain-work-window-basis")).toBe("actions");
+    expect(text(basis)).toBe("Listed by the time each Action was raised.");
   });
 
   it("Apply writes from,to into the URL, keeps an explicit known_at, drops the cursor and reads page one (ruling 1)", async () => {
@@ -866,7 +891,7 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(document.querySelector("[data-domain-action-strip]")).toBeNull();
   });
 
-  it("a 404 says not found and never falls back to W1; a refusal shows the server message and Retry", async () => {
+  it("a 404 says not found and never falls back to W1; a refusal shows its exact-code sentence, Retry only for 503", async () => {
     stubFetch(() => json(599, {}));
     const missing = domainClient(
       () => ({ status: "loaded", value: indexBody([]) }),
@@ -893,6 +918,19 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(text(main.querySelector("h1"))).toBe("Action");
     expect(main.querySelector("[data-domain-action-crumb-code]")).toBeNull();
     expect(main.querySelector("[data-domain-action-notice]")).toBeNull();
+    // post-W6 B15-04: a 403 offers no Retry; a 503 does.
+    expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
+    cleanup();
+    attempts = 0;
+    const unavailable = domainClient(
+      () => ({ status: "loaded", value: indexBody([]) }),
+      () => {
+        attempts += 1;
+        return { status: "refused", http: 503, code: "WORK_STORE_UNAVAILABLE", message: "The work store is unavailable." };
+      },
+    );
+    main = await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`, unavailable.client);
+    expect(text(main.querySelector("[data-domain-action-refusal-message]"))).toBe("Cold work is unavailable right now. Try again.");
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
     await waitFor(() => expect(attempts).toBe(2));
     expect(fetchRecord).toEqual([]);
@@ -967,5 +1005,45 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`, client, { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel);
     expect(detailCalls).toEqual([]);
     expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
+  });
+});
+
+/* ---------- R339: the Site tab row keeps the selected window on cold Work ---------- */
+describe("W5-cold R339: Site tabs on cold Work carry from/to/known_at", () => {
+  const tabHrefs = () =>
+    Array.from(document.querySelectorAll(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"] a`)).map((a) => a.getAttribute("href") ?? "");
+  const tripleQuery = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const empty = () => domainClient(() => ({ status: "loaded", value: indexBody([]) })).client;
+
+  it("Actions: every tab href carries the triple", async () => {
+    await mountWork(workPath(tripleQuery), empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) {
+      const u = new URL(h, "http://x");
+      expect([u.searchParams.get("from"), u.searchParams.get("to"), u.searchParams.get("known_at")]).toEqual([FROM, TO, KNOWN]);
+    }
+  });
+
+  it.each(["incidents", "maintenance"] as const)("%s cases: every tab href carries the triple", async (kind) => {
+    await mountCases(kind, `/sites/${SITE}/work/${kind}?${tripleQuery}`, empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(new URL(h, "http://x").searchParams.get("known_at")).toBe(KNOWN);
+  });
+
+  it("a bare Work URL gives bare tabs", async () => {
+    await mountWork(`/sites/${SITE}/work`, empty());
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(h).not.toContain("?");
+  });
+
+  it("a mini-grid Site keeps bare tabs even with a window in the address", async () => {
+    const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
+    await mountCases("incidents", `/sites/${SITE}/work/incidents?${tripleQuery}`, empty(), mini);
+    const hrefs = tabHrefs();
+    expect(hrefs.length).toBeGreaterThan(3);
+    for (const h of hrefs) expect(h).not.toContain("known_at");
   });
 });

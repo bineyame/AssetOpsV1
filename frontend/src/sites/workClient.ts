@@ -180,10 +180,15 @@ export function createWorkClient(basePath: string = SITES_API_PATH): WorkClient 
   };
 }
 
-/** B10: the seven complete UTC days ending today 00:00 UTC, `[from, to)`. */
+/**
+ * post-W6 W5-cold R338 (B14-09; W5 rulings 1, as W6 Q7): seven UTC calendar days including today,
+ * `[today − 6 days 00:00Z, tomorrow 00:00Z)`. Shared by cold/EV Actions and every Site type's Work cases.
+ */
 export function defaultWorkWindow(now: Date = new Date()): { from: string; to: string } {
-  const today = `${now.toISOString().slice(0, 10)}T00:00:00Z`;
+  const today = new Date(`${now.toISOString().slice(0, 10)}T00:00:00Z`);
   const from = new Date(today);
-  from.setUTCDate(from.getUTCDate() - 7);
-  return { from: `${from.toISOString().slice(0, 10)}T00:00:00Z`, to: today };
+  from.setUTCDate(from.getUTCDate() - 6);
+  const to = new Date(today);
+  to.setUTCDate(to.getUTCDate() + 1);
+  return { from: `${from.toISOString().slice(0, 10)}T00:00:00Z`, to: `${to.toISOString().slice(0, 10)}T00:00:00Z` };
 }

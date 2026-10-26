@@ -1,0 +1,17 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_w5c\tree (code from c66fb93a)
+=== 2. positive: database w502b_positive_w5c_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (35s)
+=== 3. worstcase: database w502b_worstcase_w5c_test ===
+  built worstcase blocked: None {'worstcase': ('CURRENT', 6)}  (25s)
+=== 4. pending: database w502b_pending_w5c_test ===
+  built pending blocked: None {'pending': ('PENDING_RECOMPUTE', 1)}  (30s)
+=== 5. stale: database w502b_stale_w5c_test ===
+  built stale blocked: None {'stale': ('STALE_SOURCE', 1)}  (33s)
+=== 6. unknown: database w502b_unknown_w5c_test ===
+  built unknown blocked: None {'unknown': ('UNKNOWN', 1)}  (30s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_w5c\manifest.json
+
+real	2m36.830s
+user	0m0.000s
+sys	0m0.000s

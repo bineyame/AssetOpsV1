@@ -437,10 +437,12 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 
   it("narrow_mock_panels_and_unavailable_links", async () => {
-    // First load with no window: the seven complete UTC days ending today 00:00 UTC, five rows.
+    // post-W6 R338: first load with no window reads seven UTC calendar days including today, [today−6d, tomorrow).
     const w = defaultWorkWindow();
     expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(7 * 86_400_000);
     expect(w.to.endsWith("T00:00:00Z")).toBe(true);
+    const today = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
+    expect(w.from <= today && today < w.to).toBe(true);
     const requests = serve({
       [api("maintenance", w)]: { status: 200, body: body([]) },
       [api("incidents", w)]: { status: 200, body: body([]) },
