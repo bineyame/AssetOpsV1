@@ -41,3 +41,5 @@
 - Pairs 1414 (= frozen index). PASS 641, FIXED 755, REGRESSION-OPEN 18, GAP 0.
 - REGRESSION-OPEN: batch 08 (6, EV Finding ev-id one-line scroller cut, R277), batch 14 (6, cold refused-reversed raw COLD_WINDOW_INVALID card, B14-01), batch 19 (6, WR Outcome note clamp without disclosure, B19F-01).
 - Batch 02 GAP 22 was later captured with the owner-authorized s3 walkthrough; no GAP remains.
+# Clip/scroller re-scan of batches 01-07 (no re-capture), main 136ceb01
+- batch-01-07-clip-rescan.md: compare3 inner-overflow logic over all 356 stored pairs (clip-rescan-01-07/rescan.py) + 42 by-eye 390 images (longest per 38 screen IDs + extras). REGRESSION-OPEN 0. STANDING 1: action-history ellipsized Foundation version id (R217/B4-18; now on verified-replay too since B4-19 fixed). Flags not counted: unlabelled unfocusable table scrollers inside closed disclosures (Health Technical details SiteHealth.tsx:623/:772, Financials method table FindingConsequence.tsx:455, Asset Technical SiteBattery.tsx:482), pre-existing, unregistered. Gaps: no focus/label measures and no all-open state in 01-07; batch 01 has no Y-clip. No producers, servers or DBs used.
