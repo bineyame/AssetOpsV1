@@ -1,0 +1,94 @@
+[
+ {
+  "name": "estate-findings",
+  "url": "http://127.0.0.1:5453/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-findings-week",
+  "url": "http://127.0.0.1:5453/findings?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-financials",
+  "url": "http://127.0.0.1:5453/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-evidence",
+  "url": "http://127.0.0.1:5453/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-actions",
+  "url": "http://127.0.0.1:5453/actions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-03T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-portfolio",
+  "url": "http://127.0.0.1:5453/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-financials-week",
+  "url": "http://127.0.0.1:5453/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z"
+ },
+ {
+  "name": "estate-evidence-week",
+  "url": "http://127.0.0.1:5453/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z"
+ },
+ {
+  "name": "site-KOBO-001-findings",
+  "url": "http://127.0.0.1:5453/sites/KOBO-001/findings"
+ },
+ {
+  "name": "site-COLD-LAB-001-findings",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings"
+ },
+ {
+  "name": "site-EV-LAB-001-findings",
+  "url": "http://127.0.0.1:5453/sites/EV-LAB-001/findings"
+ },
+ {
+  "name": "ev-financials-pinned-k",
+  "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z"
+ },
+ {
+  "name": "ev-financials-pinned-early",
+  "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T08%3A30%3A00Z"
+ },
+ {
+  "name": "kobo-finding-kv",
+  "url": "http://127.0.0.1:5453/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+  "evals": {
+   "kv": "(()=>{const c=[...document.querySelectorAll('.v69-key-values dd code')]; const o=c.filter(e=>e.hasAttribute('tabindex')); const a=o[0]; if(!a) return {codes:c.length,focusable:0}; a.scrollIntoView({block:'center'}); a.focus(); const s=getComputedStyle(a); return {codes:c.length,focusable:o.length,aria:a.getAttribute('aria-label'),outline:s.outlineStyle+' '+s.outlineWidth+' '+s.outlineColor,active:document.activeElement===a,matches:a.matches(':focus-visible'),sw:a.scrollWidth,cw:a.clientWidth}})()"
+  }
+ },
+ {
+  "name": "cold-finding-kv",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+  "evals": {
+   "kv": "(()=>{const c=[...document.querySelectorAll('.v69-key-values dd code')]; const o=c.filter(e=>e.hasAttribute('tabindex')); const a=o[0]; if(!a) return {codes:c.length,focusable:0}; a.scrollIntoView({block:'center'}); a.focus(); const s=getComputedStyle(a); return {codes:c.length,focusable:o.length,aria:a.getAttribute('aria-label'),outline:s.outlineStyle+' '+s.outlineWidth+' '+s.outlineColor,active:document.activeElement===a,matches:a.matches(':focus-visible'),sw:a.scrollWidth,cw:a.clientWidth}})()"
+  }
+ },
+ {
+  "name": "cold-fin-scen-window",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"
+ },
+ {
+  "name": "cold-fin-scen-bad",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense"
+ },
+ {
+  "name": "cold-fin-scen-bare",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios"
+ },
+ {
+  "name": "cold-work-bad-window",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+  "evals": {
+   "tabs": "JSON.stringify([...document.querySelectorAll('main a')].filter(a=>/\\/sites\\/COLD-LAB-001\\//.test(a.getAttribute('href')||'')).map(a=>a.getAttribute('href')).slice(0,40))"
+  }
+ },
+ {
+  "name": "cold-work-valid-window",
+  "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+  "evals": {
+   "tabs": "JSON.stringify([...document.querySelectorAll('main a')].filter(a=>/\\/sites\\/COLD-LAB-001\\//.test(a.getAttribute('href')||'')).map(a=>a.getAttribute('href')).slice(0,40))"
+  }
+ }
+]

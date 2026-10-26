@@ -1,0 +1,41 @@
+chrome pid 20672
+estate-findings 1440: h1="Findings" docOverflowX=0
+estate-findings 390: h1="Findings" docOverflowX=0
+estate-findings-week 1440: h1="Findings" docOverflowX=0
+estate-findings-week 390: h1="Findings" docOverflowX=0
+estate-financials 1440: h1="Portfolio financials" docOverflowX=0
+estate-financials 390: h1="Portfolio financials" docOverflowX=0
+estate-evidence 1440: h1="Portfolio evidence" docOverflowX=0
+estate-evidence 390: h1="Portfolio evidence" docOverflowX=0
+estate-actions 1440: h1="Actions" docOverflowX=0
+estate-actions 390: h1="Actions" docOverflowX=0
+estate-portfolio 1440: h1="Portfolio Value & Operations" docOverflowX=0
+estate-portfolio 390: h1="Portfolio Value & Operations" docOverflowX=0
+estate-financials-week 1440: h1="Portfolio financials" docOverflowX=0
+estate-financials-week 390: h1="Portfolio financials" docOverflowX=0
+estate-evidence-week 1440: h1="Portfolio evidence" docOverflowX=0
+estate-evidence-week 390: h1="Portfolio evidence" docOverflowX=0
+site-KOBO-001-findings 1440: h1="Findings" docOverflowX=0
+site-KOBO-001-findings 390: h1="Findings" docOverflowX=0
+site-COLD-LAB-001-findings 1440: h1="Cold replay lab" docOverflowX=0
+site-COLD-LAB-001-findings 390: h1="Cold replay lab" docOverflowX=0
+site-EV-LAB-001-findings 1440: h1="EV charging lab" docOverflowX=0
+site-EV-LAB-001-findings 390: h1="EV charging lab" docOverflowX=0
+ev-financials-pinned-k 1440: h1="EV charging lab" docOverflowX=0
+ev-financials-pinned-k 390: h1="EV charging lab" docOverflowX=0
+ev-financials-pinned-early 1440: h1="EV charging lab" docOverflowX=0
+ev-financials-pinned-early 390: h1="EV charging lab" docOverflowX=0
+kobo-finding-kv 1440: h1="Finding" docOverflowX=0
+kobo-finding-kv 390: h1="Finding" docOverflowX=0
+cold-finding-kv 1440: h1="Cold room temperature outside its policy band" docOverflowX=0
+cold-finding-kv 390: h1="Cold room temperature outside its policy band" docOverflowX=0
+cold-fin-scen-window 1440: h1="Cold replay lab" docOverflowX=0
+cold-fin-scen-window 390: h1="Cold replay lab" docOverflowX=0
+cold-fin-scen-bad 1440: h1="Cold replay lab" docOverflowX=0
+cold-fin-scen-bad 390: h1="Cold replay lab" docOverflowX=0
+cold-fin-scen-bare 1440: h1="Cold replay lab" docOverflowX=0
+cold-fin-scen-bare 390: h1="Cold replay lab" docOverflowX=0
+cold-work-bad-window 1440: h1="Cold replay lab" docOverflowX=0
+cold-work-bad-window 390: h1="Cold replay lab" docOverflowX=0
+cold-work-valid-window 1440: h1="Cold replay lab" docOverflowX=0
+cold-work-valid-window 390: h1="Cold replay lab" docOverflowX=0

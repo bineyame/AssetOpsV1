@@ -1,0 +1,208 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:50:33.424Z",
+ "results": [
+  {
+   "name": "cold-positive-work",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00.000000Z&to=2026-10-27T00%3A00%3A00.000000Z",
+   "image": "cold-positive-work-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Action",
+       "w": 241
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll data-table__scroll--sticky",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (1)Incidents (1)Maintenance (1)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · 1 actionCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Witness automatic-start testFinding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Maintenance leadNot setOpenStart requested → generator runs → power → coolingOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-positive-work",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00.000000Z&to=2026-10-27T00%3A00%3A00.000000Z",
+   "image": "cold-positive-work-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Action",
+       "w": 220
+      },
+      "tableW": 822,
+      "wrapCls": "data-table__scroll data-table__scroll--sticky",
+      "wrapOverflowX": "auto",
+      "wrapSW": 822,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (1)Incidents (1)Maintenance (1)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · 1 actionCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Witness automatic-start testFinding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Maintenance leadNot setOpenStart requested → generator runs → power → coolingOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-positive-action",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653",
+   "image": "cold-positive-action-1440.png",
+   "measure": {
+    "h1": "ACT-000001 · Witness automatic-start test",
+    "titles": [
+     "Declared outcome criteria",
+     "Related activity"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 227
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: Cold replay labACT-000001 · Witness automatic-start testHas backup service been restored after the inspection?Open siteVerificationOpenMaintenance lead · Cold · Finding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPendingRelated activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.Completed inspection does not establish successful service restoration."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\",\"Inspect maintenance evidence\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-positive-action",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653",
+   "image": "cold-positive-action-390.png",
+   "measure": {
+    "h1": "ACT-000001 · Witness automatic-start test",
+    "titles": [
+     "Declared outcome criteria",
+     "Related activity"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 76
+      },
+      "tableW": 304,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 304,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: Cold replay labACT-000001 · Witness automatic-start testHas backup service been restored after the inspection?Open siteVerificationOpenMaintenance lead · Cold · Finding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPendingRelated activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.Completed inspection does not establish successful service restoration."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\",\"Inspect maintenance evidence\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-positive-action-verification",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653/verification",
+   "image": "cold-positive-action-verification-1440.png",
+   "measure": {
+    "h1": "ACT-000001 · Witness automatic-start test",
+    "titles": [
+     "Declared outcome criteria",
+     "Related activity"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 227
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: Cold replay labACT-000001 · Witness automatic-start testHas backup service been restored after the inspection?Open siteVerificationOpenMaintenance lead · Cold · Finding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPendingRelated activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.Completed inspection does not establish successful service restoration."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\",\"Inspect maintenance evidence\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-positive-action-verification",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5471/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653/verification",
+   "image": "cold-positive-action-verification-390.png",
+   "measure": {
+    "h1": "ACT-000001 · Witness automatic-start test",
+    "titles": [
+     "Declared outcome criteria",
+     "Related activity"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 76
+      },
+      "tableW": 304,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 304,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: Cold replay labACT-000001 · Witness automatic-start testHas backup service been restored after the inspection?Open siteVerificationOpenMaintenance lead · Cold · Finding 17ba3549Finding version716e93a2-5634-4620-a257-da74056501f4Declared outcome criteriaCriterionRequired evidenceCurrent resultAutomatic startAccepted command followed by successful running statusNot testedPower deliveryGenerator supply reaches the cooling systemNot testedCooling recoveryTemperature recovery within declared test conditionsNot establishedRecurrenceCovered observation window without a qualifying repeatPendingRelated activityStarter/control inspection WR-000002 is complete. A witnessed outcome test remains required.Inspect maintenance evidence Open source Finding → The selected Finding revision cannot be opened here yet.Completed inspection does not establish successful service restoration."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\",\"Inspect maintenance evidence\"],\"details\":[{\"s\":\"Finding version\",\"open\":true,\"t\":\"Finding version\\n716e93a2-5634-4620-a257-da74056501f4\"}],\"alerts\":[]}"
+   }
+  }
+ ]
+}

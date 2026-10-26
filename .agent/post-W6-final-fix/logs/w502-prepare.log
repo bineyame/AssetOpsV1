@@ -1,0 +1,6 @@
+=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_pwfx\tree (code from 83560929)
+=== 2. positive: database w502b_positive_pwfx_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (27s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-review10\var\w502b_pwfx\manifest.json
+done

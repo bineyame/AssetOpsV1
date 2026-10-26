@@ -1,0 +1,7 @@
+positive: ready
+zero: ready
+worstcase: ready
+unknown: unavailable - the replay selected 0 SUPPORTED EV Findings, so no Action detail state
+pending: unavailable - a late accepted event before W5-03 reassessment needs a modified replay
+stale: unavailable - a superseded source binding before reselection needs a modified replay
+FINISHED

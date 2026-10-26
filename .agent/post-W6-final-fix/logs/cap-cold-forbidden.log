@@ -1,0 +1,8 @@
+chrome pid 18380
+cold-forbidden-work 1440: h1="Cold replay lab" docOverflowX=0
+cold-forbidden-work 390: h1="Cold replay lab" docOverflowX=0
+cold-forbidden-action 1440: h1="Action" docOverflowX=0
+cold-forbidden-action 390: h1="Action" docOverflowX=0
+cold-forbidden-action-verification 1440: h1="Action" docOverflowX=0
+cold-forbidden-action-verification 390: h1="Action" docOverflowX=0
+exit 0

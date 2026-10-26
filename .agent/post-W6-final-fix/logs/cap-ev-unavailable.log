@@ -1,0 +1,6 @@
+chrome pid 30796
+ev-unavailable-work 1440: h1="Work" docOverflowX=0
+ev-unavailable-work 390: h1="Work" docOverflowX=0
+ev-unavailable-action-verification 1440: h1="Action" docOverflowX=0
+ev-unavailable-action-verification 390: h1="Action" docOverflowX=0
+exit 0

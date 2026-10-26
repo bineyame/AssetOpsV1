@@ -1,0 +1,138 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:56:00.965Z",
+ "results": [
+  {
+   "name": "ev-positive-work",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5471/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-positive-work-1440.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Action",
+       "w": 220
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll data-table__scroll--sticky",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesEV charging labWorkEV charging labDemonstration data · EV-LAB-001EV charging operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (1)Incidents (1)Maintenance (1)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Investigate connector 2Finding 42203164Finding versione657cbc7-df90-4482-bfbb-5fb5c3cbac7c The selected Finding revision cannot be opened here yet.Charging operationsNot setOpenA complete witnessed session and no repeat faultOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\"],\"details\":[{\"s\":\"Finding version\",\"t\":\"Finding version\\ne657cbc7-df90-4482-bfbb-5fb5c3cbac7c The selected Finding revision cannot be opened here yet.\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-positive-work",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5471/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-positive-work-390.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Action",
+       "w": 220
+      },
+      "tableW": 821,
+      "wrapCls": "data-table__scroll data-table__scroll--sticky",
+      "wrapOverflowX": "auto",
+      "wrapSW": 821,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "SitesEV charging labWorkEV charging labDemonstration data · EV-LAB-001EV charging operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (1)Incidents (1)Maintenance (1)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to EV · 1 actionEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.Actions at this siteDue dates are not yet setActionSourceOwnerDueStateSuccess criterionACT-000001 · Investigate connector 2Finding 42203164Finding versione657cbc7-df90-4482-bfbb-5fb5c3cbac7c The selected Finding revision cannot be opened here yet.Charging operationsNot setOpenA complete witnessed session and no repeat faultOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\"],\"details\":[{\"s\":\"Finding version\",\"t\":\"Finding version\\ne657cbc7-df90-4482-bfbb-5fb5c3cbac7c The selected Finding revision cannot be opened here yet.\"}],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-positive-action-verification",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5471/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-positive-action-verification-1440.png",
+   "measure": {
+    "h1": "ACT-000001 · Investigate connector 2",
+    "titles": [
+     "Declared verification plan"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 407
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: EV charging labACT-000001 · Investigate connector 2What would establish successful service restoration?Open siteVerificationOpenCharging operations · EV charging labDeclared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPendingA completed investigation or diagnostic reset would not establish a verified outcome."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-positive-action-verification",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5471/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-positive-action-verification-390.png",
+   "measure": {
+    "h1": "ACT-000001 · Investigate connector 2",
+    "titles": [
+     "Declared verification plan"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Criterion",
+       "w": 79
+      },
+      "tableW": 308,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 308,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "ActionsACT-000001Verification· site: EV charging labACT-000001 · Investigate connector 2What would establish successful service restoration?Open siteVerificationOpenCharging operations · EV charging labDeclared verification planCriterionRequired evidenceCurrent resultComplete a witnessed charging sessionSession start, end, outcome and meter deltaPendingNo fault recurrence during observationConnector diagnostic events with full coveragePendingNo reduction in service availabilityComparable status coverage / operational windowPendingA completed investigation or diagnostic reset would not establish a verified outcome."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[],\"alerts\":[]}"
+   }
+  }
+ ]
+}
