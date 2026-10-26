@@ -13,7 +13,8 @@ import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import { classificationWord } from "./coldAssessmentWords";
 import type { ColdScenarioItem, ColdScenarioQuery, ColdScenariosClient, ColdScenariosRead, ColdScenariosState } from "./coldScenariosClient";
 import { dayHm, windowText } from "./coldFormat";
-import { RequestedWindowBar, SelectedWindowBar } from "./coldSiteViews";
+import { ColdDepthRefusal } from "./ColdDepthRefusal";
+import { SelectedWindowBar } from "./coldSiteViews";
 import "./coldScenarios.css";
 
 export const SCENARIOS_LOADING = "Loading the site's cold scenarios.";
@@ -89,27 +90,6 @@ function useScenarioPage(client: ColdScenariosClient, siteCode: string, query: C
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
   return state !== null && state.key === key ? state.value : null;
-}
-
-function ScenariosRefusal({ read, onRetry }: { read: Exclude<ColdRead<ColdScenariosRead>, { status: "loaded" }>; onRetry: () => void }) {
-  return (
-    <div className="page-refusal" role="status" data-page-refusal="cold-scenarios">
-      <p className="page-refusal__title">
-        <strong>{SCENARIOS_REFUSAL_HEADING}</strong>
-      </p>
-      {read.status === "refused" ? (
-        <p data-cold-scenarios-error>
-          <code data-vocabulary-exempt="source-reference">{read.code}</code>
-          {read.message === null ? null : <> {read.message}</>}
-        </p>
-      ) : (
-        <p data-cold-scenarios-error>{read.message === null ? SCENARIOS_UNREACHABLE : SCENARIOS_MALFORMED}</p>
-      )}
-      <button type="button" className="button" data-cold-retry onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
 }
 
 /** One exact source reference: its own exempt span, character-broken, one per line. */
@@ -365,22 +345,20 @@ export function ColdScenarios({ siteCode, window, scenarioAt, client }: ColdScen
   if (read === null) return <p className="prose">{SCENARIOS_LOADING}</p>;
   if (read.status !== "loaded") {
     return (
-      <>
-        <RequestedWindowBar
-          window={window}
-          refusal={{ sentence: SCENARIOS_REFUSAL_HEADING, retry: true, key: read.status === "refused" && read.httpStatus === 422 ? "invalid-window" : "unavailable" }}
-        />
-        <ScenariosRefusal
-          read={read}
-          onRetry={() => {
-            // W5-01b review L1: a changed basis invalidates every followed cursor, so Retry starts at page 1.
-            if (read.status === "refused" && read.httpStatus === 409 && read.code === "COLD_SCENARIO_CURSOR_BASIS_CHANGED" && cursors.length > 0) {
-              setCursors([]);
-            }
-            setAttempt((n) => n + 1);
-          }}
-        />
-      </>
+      <ColdDepthRefusal
+        read={read}
+        window={window}
+        label="Financial scenarios"
+        panels={[{ heading: SCENARIOS_PANEL, headingId: PANEL_HEADING_ID, className: "cold-scenarios-panel" }]}
+        unavailable={{ unreachable: SCENARIOS_UNREACHABLE, malformed: SCENARIOS_MALFORMED }}
+        onRetry={() => {
+          // W5-01b review L1: a changed basis invalidates every followed cursor, so Retry starts at page 1.
+          if (read.status === "refused" && read.httpStatus === 409 && read.code === "COLD_SCENARIO_CURSOR_BASIS_CHANGED" && cursors.length > 0) {
+            setCursors([]);
+          }
+          setAttempt((n) => n + 1);
+        }}
+      />
     );
   }
   return (

@@ -267,17 +267,15 @@ describe("cold Scenarios page states", () => {
     // 422: heading, exact code and message, a Retry button that refetches the same read; no window line.
     const invalid = stub(() => ({ status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "'from' must be before 'to'." }));
     let root = await renderBody(invalid.client, WINDOW, AT);
-    const refusal = root.querySelector('[data-page-refusal="cold-scenarios"]') as HTMLElement;
-    expect(refusal.querySelector(".page-refusal__title")?.textContent).toBe("Cold scenarios unavailable");
-    expect(refusal.querySelector("[data-cold-scenarios-error]")?.textContent).toBe("COLD_WINDOW_INVALID 'from' must be before 'to'.");
+    const refusal = root.querySelector('[data-page-refusal="cold-depth"]') as HTMLElement;
+    expect(refusal.querySelector("[data-cold-depth-error]")?.textContent).toBe("The selected window needs both a start and an end, with the start before the end.");
     expect(root.querySelector("[data-cold-date-bar]")).toBeNull();
     expect(root.querySelector("[data-scenarios-empty]")).toBeNull();
     expect(root.textContent).not.toContain("No scenario defined yet");
-    const retry = refusal.querySelector("button[data-cold-retry]") as HTMLButtonElement;
-    expect(retry.textContent).toBe("Retry");
-    fireEvent.click(retry);
-    await waitFor(() => expect(invalid.list).toHaveBeenCalledTimes(2));
-    expect(invalid.list.mock.calls[1]).toEqual(invalid.list.mock.calls[0]);
+    // F2: no dead Retry for a window refusal; the correcting link and the panel frame stay.
+    expect(refusal.querySelector("button[data-cold-retry]")).toBeNull();
+    expect(refusal.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(root.querySelectorAll("section.panel")).toHaveLength(1);
     expect(invalid.list.mock.calls[0]).toEqual([SITE_CODE, { ...WINDOW, scenario_at: AT }, null]);
     cleanup();
 
@@ -285,16 +283,20 @@ describe("cold Scenarios page states", () => {
     const down = stub(() => ({ status: "refused", httpStatus: 503, code: "COLD_READ_UNAVAILABLE", message: "store down" }));
     root = await renderBody(down.client);
     expect(root.querySelector("[data-cold-date-bar-requested]")).not.toBeNull();
-    expect(root.querySelector("[data-cold-scenarios-error]")?.textContent).toBe("COLD_READ_UNAVAILABLE store down");
+    expect(root.querySelector("[data-cold-depth-error]")?.textContent).toBe("The cold-chain assessment could not be read. Nothing is shown as assessed until it can be.");
+    const reload = root.querySelector("button[data-cold-retry]") as HTMLButtonElement;
+    expect(reload.textContent).toBe("Reload");
+    fireEvent.click(reload);
+    await waitFor(() => expect(down.list).toHaveBeenCalledTimes(2));
     cleanup();
 
     // Network loss and a malformed 200: the unavailable copy, never an empty list.
     root = await renderBody(stub(() => ({ status: "unavailable", message: null })).client);
-    expect(root.querySelector("[data-cold-scenarios-error]")?.textContent).toBe(SCENARIOS_UNREACHABLE);
+    expect(root.querySelector("[data-cold-depth-error]")?.textContent).toBe(SCENARIOS_UNREACHABLE);
     expect(root.querySelector("[data-scenarios-empty]")).toBeNull();
     cleanup();
     root = await renderBody(stub(() => ({ status: "unavailable", message: SCENARIOS_MALFORMED })).client);
-    expect(root.querySelector("[data-cold-scenarios-error]")?.textContent).toBe(SCENARIOS_MALFORMED);
+    expect(root.querySelector("[data-cold-depth-error]")?.textContent).toBe(SCENARIOS_MALFORMED);
     cleanup();
 
     // Currentness: one amber notice above the panel per non-current state; none when current.

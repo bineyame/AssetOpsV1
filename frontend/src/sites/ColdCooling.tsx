@@ -17,8 +17,9 @@ import {
   type CoolingRecoveryState,
   coolingCardLabels,
 } from "./ColdDepthClient";
+import { ColdDepthRefusal } from "./ColdDepthRefusal";
 import { CoolingObservationGraphic } from "./coldDepthGraphics";
-import { type ColdSiteRoutes, RequestedWindowBar, SelectedWindowBar, coldUiHref, recordLabel, utcClock } from "./coldSiteViews";
+import { type ColdSiteRoutes, SelectedWindowBar, coldUiHref, recordLabel, utcClock } from "./coldSiteViews";
 
 export const COOLING_LOADING = "Loading the site's cooling read.";
 export const COLD_DEPTH_REFUSAL_HEADING = "Cold depth unavailable";
@@ -136,27 +137,6 @@ function LinkOrText({ href, children, data }: { href: string | null; children: s
     <Link to={href} {...data}>
       {children}
     </Link>
-  );
-}
-
-function CoolingRefusal({ read, onRetry }: { read: Exclude<ColdRead<ColdCoolingRead>, { status: "loaded" }>; onRetry: () => void }) {
-  return (
-    <div className="page-refusal" role="status" data-page-refusal="cold-depth">
-      <p className="page-refusal__title">
-        <strong>{COLD_DEPTH_REFUSAL_HEADING}</strong>
-      </p>
-      {read.status === "refused" ? (
-        <p data-cold-depth-error>
-          <code data-vocabulary-exempt="source-reference">{read.code}</code>
-          {read.message === null ? null : <> {read.message}</>}
-        </p>
-      ) : (
-        <p data-cold-depth-error>{read.message === null ? COLD_DEPTH_UNREACHABLE : COLD_DEPTH_MALFORMED}</p>
-      )}
-      <button type="button" className="button" data-cold-retry onClick={onRetry}>
-        Retry
-      </button>
-    </div>
   );
 }
 
@@ -280,10 +260,18 @@ export function ColdCooling({ siteCode, window, client, routes }: ColdCoolingPro
   if (read === null) return <p className="prose">{COOLING_LOADING}</p>;
   if (read.status !== "loaded") {
     return (
-      <>
-        <RequestedWindowBar window={window} refusal={{ sentence: COLD_DEPTH_REFUSAL_HEADING, retry: true, key: read.status === "refused" && read.httpStatus === 422 ? "invalid-window" : "unavailable" }} />
-        <CoolingRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
-      </>
+      <ColdDepthRefusal
+        read={read}
+        window={window}
+        label="Cooling comparison"
+        panels={[
+          { heading: "Recovery curves", headingId: POINTS_HEADING_ID },
+          { heading: "Context normalization", headingId: CONTEXT_HEADING_ID },
+          { heading: "Next best evidence", headingId: "cold-cooling-next-heading" },
+        ]}
+        unavailable={{ unreachable: COLD_DEPTH_UNREACHABLE, malformed: COLD_DEPTH_MALFORMED }}
+        onRetry={() => setAttempt((n) => n + 1)}
+      />
     );
   }
   return <CoolingBody read={read.value} routes={routes} />;

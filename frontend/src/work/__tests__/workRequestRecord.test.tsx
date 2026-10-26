@@ -299,8 +299,9 @@ describe("W6-01c C3: work request Maintenance record", () => {
     expect(groups[0].getAttribute("data-work-record-group")).toBe(v3.id);
     const cell = groups[0].querySelector('[data-work-record-item="Technician notes"] td') as HTMLElement;
     expect(text(cell.querySelector('[data-work-record-clamp="activity"]'))).toBe("Corrected note: relay re-made and torqued.");
+    expect(text(cell.querySelector('[data-work-record-clamp="outcome"]'))).toBe("Outcome note: Start succeeded on test.");
     expect(text(cell.querySelector('[data-work-record-outcome="recorded"]'))).toBe(
-      "Outcome note: Start succeeded on test.Unverified · Authored note",
+      "Outcome note: Start succeeded on test.Full outcome textOutcome note: Start succeeded on test.Unverified · Authored note",
     );
     const earlier = cell.querySelector("[data-work-record-earlier]") as HTMLElement;
     expect(earlier.tagName).toBe("DETAILS");
@@ -338,6 +339,19 @@ describe("W6-01c C3: work request Maintenance record", () => {
     expect(full.tagName).toBe("DETAILS");
     expect(text(full.querySelector("summary"))).toBe("Full activity text");
     expect(full.textContent).toBe(`Full activity text${ACTIVITY4000}`);
+  });
+
+  it("F3: a long outcome note keeps its three-line preview and a Full outcome text disclosure with the complete text", async () => {
+    const outcome = `Outcome note: ${"Start succeeded after the relay was re-made. ".repeat(80).trim()}`;
+    mount(PAGE, client(loaded(detail([rec("402", { outcome_note: outcome.replace("Outcome note: ", "") })]))));
+    await settled();
+    const clamp = q('[data-work-record-clamp="outcome"]') as HTMLElement;
+    expect(clamp.className).toContain("global-work-clamp");
+    const full = q('[data-work-record-full="outcome"]') as HTMLElement;
+    expect(full.tagName).toBe("DETAILS");
+    expect(text(full.querySelector("summary"))).toBe("Full outcome text");
+    expect(full.textContent).toBe(`Full outcome text${outcome}`);
+    expect(q('[data-work-record-outcome-basis]')).not.toBeNull();
   });
 
   it("states loading with the ruled literals and builds both live tabs from the validated inputs", async () => {

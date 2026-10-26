@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 /**
  * The one table pattern.
@@ -90,7 +90,46 @@ export function Fact({ term, children }: FactProps) {
   return (
     <>
       <dt className="fact-list__term">{term}</dt>
-      <dd className="fact-list__value">{children}</dd>
+      <FactValue>{children}</FactValue>
     </>
+  );
+}
+
+/**
+ * Recapture fix F4 (B13-18, the L11 treatment of `KeyValueValue`): a fact value that holds a code token and is itself a
+ * scroll region (a page rule such as the EV Work case table's `.fact-list__value:has(> code){overflow-x:auto}`) must be
+ * reachable by keyboard. Only a value that actually scrolls becomes a focusable group named by its full text; one that
+ * fits or does not scroll stays out of the tab order, and an author-supplied tabindex, role or label is kept.
+ */
+function FactValue({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const dd = ref.current;
+    if (dd === null) return undefined;
+    const mark = () => {
+      const ours = dd.hasAttribute("data-scroll-focus");
+      const overflow = getComputedStyle(dd).overflowX;
+      const scrolls =
+        (overflow === "auto" || overflow === "scroll") && dd.querySelector(":scope > code") !== null && dd.scrollWidth > dd.clientWidth + 1;
+      if (scrolls) {
+        if (!ours && (dd.hasAttribute("tabindex") || dd.hasAttribute("role") || dd.hasAttribute("aria-label"))) return;
+        dd.setAttribute("data-scroll-focus", "");
+        dd.setAttribute("tabindex", "0");
+        dd.setAttribute("role", "group");
+        dd.setAttribute("aria-label", `Full value: ${dd.textContent ?? ""}`);
+      } else if (ours) {
+        for (const name of ["data-scroll-focus", "tabindex", "role", "aria-label"]) dd.removeAttribute(name);
+      }
+    };
+    mark();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(mark);
+    observer.observe(dd);
+    return () => observer.disconnect();
+  });
+  return (
+    <dd ref={ref} className="fact-list__value">
+      {children}
+    </dd>
   );
 }

@@ -205,9 +205,10 @@
 
 /* post-W6 W4 unit 5 (guide §1; ruled Incidents 1440 cap 500): five mini Incident rows with long titles, narratives
    and decision context reach ~850 px at 1440 (paging is already five rows), so above the 760 px breakpoint the mini
-   Incident table scrolls vertically inside its focusable, labelled region, keeping the panel within 500 px. */
+   Incident table scrolls vertically inside its focusable, labelled region, keeping the panel within 500 px. Recapture fix: 330 -> 320 px, because the real scoped decision-context 503 adds one
+   notice line (505 px measured at 330); at 320 that state is ~495 px. */
 @media (min-width: 761px) {
-  .work-cases [data-work-table="incidents"][data-work-mini] .data-table__scroll { max-height: 330px; overflow: auto; }
+  .work-cases [data-work-table="incidents"][data-work-mini] .data-table__scroll { max-height: 320px; overflow: auto; }
 }
 
 .work-cases-vscroll-hint {
