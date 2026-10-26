@@ -1,0 +1,1102 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:30:18.327Z",
+ "results": [
+  {
+   "name": "estate-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-findings-1440.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "estate-findings-col",
+       "estate-findings-col",
+       "estate-findings-col"
+      ],
+      "firstTh": {
+       "text": "Finding",
+       "w": 258
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-11-02 11:05:28 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findings4Across 3 sitesHigh priorityNot assessedLow confidenceNot assessedAwaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome.All statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensObserved EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated te"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-findings-390.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "estate-findings-col",
+       "estate-findings-col",
+       "estate-findings-col"
+      ],
+      "firstTh": {
+       "text": "Finding",
+       "w": 152
+      },
+      "tableW": 672,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 672,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-11-02 11:05:30 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findings4Across 3 sitesHigh priorityNot assessedLow confidenceNot assessedAwaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome.All statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensObserved EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated te"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-findings-week",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/findings?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-findings-week-1440.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "estate-findings-col",
+       "estate-findings-col",
+       "estate-findings-col"
+      ],
+      "firstTh": {
+       "text": "Finding",
+       "w": 258
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-11-02 11:05:32 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findingsCoverage incompleteHigh priorityNot assessedLow confidenceNot assessedAwaiting verificationCoverage incompleteAll statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensObserved EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test dataEV-LAB-001EV charging labNot assessedNot assessedSupportedNo consequence recordedNo supported lensKobo mini-grid has no selected result; totals are unknown.Kobo mini-grid is not yet assessed; est"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-findings-week",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/findings?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-findings-week-390.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "estate-findings-col",
+       "estate-findings-col",
+       "estate-findings-col"
+      ],
+      "firstTh": {
+       "text": "Finding",
+       "w": 152
+      },
+      "tableW": 672,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 672,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-11-02 11:05:35 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findingsCoverage incompleteHigh priorityNot assessedLow confidenceNot assessedAwaiting verificationCoverage incompleteAll statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterFindingSitePriorityConfidenceStateMain consequenceLensCold room temperature outside its policy bandFinding 00000005Finding 00000005-0000-4000-8000-00000000016d · revision 00000005-0000-4000-8000-00000000016e · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensBackup generator did not start when the grid failedFinding 00000005Finding 00000005-0000-4000-8000-000000000173 · revision 00000005-0000-4000-8000-000000000174 · Generated test dataCOLD-LAB-001Cold replay labNot assessedNot assessedSupportedNo consequence recordedNo supported lensObserved EV charging interruptionFinding 00000005Finding 00000005-0000-4000-8000-0000000003ce · revision 00000005-0000-4000-8000-0000000003cf · Generated test dataEV-LAB-001EV charging labNot assessedNot assessedSupportedNo consequence recordedNo supported lensKobo mini-grid has no selected result; totals are unknown.Kobo mini-grid is not yet assessed; est"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-financials-1440.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 123
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-10-26 06:28:55 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceEV charging labGross tariff estimate6 Oct 2026 · 08:00–09:05 UTC15 kWhKES 4.17Gross tariff scenario; not cash collected.Basis detailsSiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0000000002b6Overlap groupev:6a1c6108daafc45a438b79160a6117dae2e6932a20ba4741b1e8bf24cbd9e756Site bridge →Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapp"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-financials-390.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 88
+      },
+      "tableW": 800,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 800,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-10-26 06:28:57 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceEV charging labGross tariff estimate6 Oct 2026 · 08:00–09:05 UTC15 kWhKES 4.17Gross tariff scenario; not cash collected.Basis detailsSiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0000000002b6Overlap groupev:6a1c6108daafc45a438b79160a6117dae2e6932a20ba4741b1e8bf24cbd9e756Site bridge →Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapp"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-evidence-1440.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 189
+      },
+      "tableW": 1105,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1105,
+      "wrapCW": 1105
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 459
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-10-26 06:28:59 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceCold replay lab · cold-chainBackup responseRecord detailsCapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000005-0000-4000-8000-000000000170Evidence record references00000005-0000-4000-8000-0000000000b5, 00000005-0000-4000-8000-0000000000b7, 00000005-0000-4000-8000-0000000000b9, 00000005-0000-4000-8000-0000000000ba, 00000005-0000-4000-8000-0000000000bc, 00000005-0000-4000-8000-0000000000bd, 00000005-0000-4000-8000-0000000000bf, 00000005-0000-4000-8000-0000000000c1, 00000005-0000-4000-8000-0000000000c3, 00000005-0000-4000-8000-0000000000c5, 00000005-0000-4000-8000-0000000000c7, 00000005-0000-4000-8000-0000000000c9, 00000005-0000-4000-8000-0000000000ca, 00000005-0000-4000-8000-0000000000cc, 00000005-0000-4000-8000-00000000"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-evidence-390.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 86
+      },
+      "tableW": 520,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 520,
+      "wrapCW": 288
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 123
+      },
+      "tableW": 330,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 330,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff 2026-10-26 06:29:02 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceCold replay lab · cold-chainBackup responseRecord detailsCapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000005-0000-4000-8000-000000000170Evidence record references00000005-0000-4000-8000-0000000000b5, 00000005-0000-4000-8000-0000000000b7, 00000005-0000-4000-8000-0000000000b9, 00000005-0000-4000-8000-0000000000ba, 00000005-0000-4000-8000-0000000000bc, 00000005-0000-4000-8000-0000000000bd, 00000005-0000-4000-8000-0000000000bf, 00000005-0000-4000-8000-0000000000c1, 00000005-0000-4000-8000-0000000000c3, 00000005-0000-4000-8000-0000000000c5, 00000005-0000-4000-8000-0000000000c7, 00000005-0000-4000-8000-0000000000c9, 00000005-0000-4000-8000-0000000000ca, 00000005-0000-4000-8000-0000000000cc, 00000005-0000-4000-8000-00000000"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-actions",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/actions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-03T00%3A00%3A00Z",
+   "image": "estate-actions-1440.png",
+   "measure": {
+    "h1": "Actions",
+    "titles": [
+     "Managed actions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Action",
+       "w": 269
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "ActionsInterventions, owners and declared outcome criteriaWindow 2026-11-01 to 2026-11-02 (UTC days)Evidence cutoff 2026-11-02 11:05:46 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowOpen actions1Accepted workDue / overdueNot setNo due dates recordedVerification window0Verified in 30 days0No verified outcome in the last 30 daysManaged actionsPending → Applied → Verification window → Verified or withdrawnActionSiteSourceOwnerStateSuccess criterionAction ACT-000001Kobo mini-gridKOBO-001Finding 00000005Not setAppliedNo success criterion recordedVerification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-actions",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/actions?from=2026-11-01T00%3A00%3A00Z&to=2026-11-03T00%3A00%3A00Z",
+   "image": "estate-actions-390.png",
+   "measure": {
+    "h1": "Actions",
+    "titles": [
+     "Managed actions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Action",
+       "w": 197
+      },
+      "tableW": 820,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 820,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "ActionsInterventions, owners and declared outcome criteriaWindow 2026-11-01 to 2026-11-02 (UTC days)Evidence cutoff 2026-11-02 11:05:48 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowOpen actions1Accepted workDue / overdueNot setNo due dates recordedVerification window0Verified in 30 days0No verified outcome in the last 30 daysManaged actionsPending → Applied → Verification window → Verified or withdrawnActionSiteSourceOwnerStateSuccess criterionAction ACT-000001Kobo mini-gridKOBO-001Finding 00000005Not setAppliedNo success criterion recordedVerification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-portfolio",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-portfolio-1440.png",
+   "measure": {
+    "h1": "Portfolio Value & Operations",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "Portfolio Value & OperationsOperating decisions across the estate: cost, service, productive use and asset valueWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff latestFrom to (included) Evidence cutoff (UTC) ShowEstate records are unavailable right now. Try again."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-portfolio",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "estate-portfolio-390.png",
+   "measure": {
+    "h1": "Portfolio Value & Operations",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "Portfolio Value & OperationsOperating decisions across the estate: cost, service, productive use and asset valueWindow 2026-10-06 to 2026-10-06 (UTC days)Evidence cutoff latestFrom to (included) Evidence cutoff (UTC) ShowEstate records are unavailable right now. Try again."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials-week",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-financials-week-1440.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 123
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-10-26 06:29:13 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceEV charging labGross tariff estimate6 Oct 2026 · 08:00–09:05 UTC15 kWhKES 4.17Gross tariff scenario; not cash collected.Basis detailsSiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0000000002b6Overlap groupev:6a1c6108daafc45a438b79160a6117dae2e6932a20ba4741b1e8bf24cbd9e756Site bridge →Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapp"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials-week",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/financials?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-financials-week-390.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 88
+      },
+      "tableW": 800,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 800,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-10-26 06:29:15 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceEV charging labGross tariff estimate6 Oct 2026 · 08:00–09:05 UTC15 kWhKES 4.17Gross tariff scenario; not cash collected.Basis detailsSiteEV charging lab · EV-LAB-001LimitsGross tariff scenario; not cash collected. Gross scenario only; not cash collected.Assumption references00000005-0000-4000-8000-0000000003d0Assumption fingerprintsha256:11a06db2fbb5fc52daeb661ee0e66f9ae48876632897c9587f47b9651a41d6d5Consequence reference00000005-0000-4000-8000-0000000003d2Line referenceev_charging:00000005-0000-4000-8000-0000000003d2Technical inputs00000005-0000-4000-8000-0000000003c9Evidence references00000005-0000-4000-8000-000000000266, 00000005-0000-4000-8000-000000000285, 00000005-0000-4000-8000-0000000002a4, 00000005-0000-4000-8000-0000000002b6Overlap groupev:6a1c6108daafc45a438b79160a6117dae2e6932a20ba4741b1e8bf24cbd9e756Site bridge →Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapp"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence-week",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-evidence-week-1440.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 189
+      },
+      "tableW": 1105,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1105,
+      "wrapCW": 1105
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 459
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-10-26 06:29:18 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceCold replay lab · cold-chainBackup responseRecord detailsCapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000005-0000-4000-8000-000000000170Evidence record references00000005-0000-4000-8000-0000000000b5, 00000005-0000-4000-8000-0000000000b7, 00000005-0000-4000-8000-0000000000b9, 00000005-0000-4000-8000-0000000000ba, 00000005-0000-4000-8000-0000000000bc, 00000005-0000-4000-8000-0000000000bd, 00000005-0000-4000-8000-0000000000bf, 00000005-0000-4000-8000-0000000000c1, 00000005-0000-4000-8000-0000000000c3, 00000005-0000-4000-8000-0000000000c5, 00000005-0000-4000-8000-0000000000c7, 00000005-0000-4000-8000-0000000000c9, 00000005-0000-4000-8000-0000000000ca, 00000005-0000-4000-8000-0000000000cc, 00000005-0000-4000-8000-00000000"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence-week",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/evidence?from=2026-10-05T00%3A00%3A00Z&to=2026-10-12T00%3A00%3A00Z",
+   "image": "estate-evidence-week-390.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 86
+      },
+      "tableW": 520,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 520,
+      "wrapCW": 288
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 123
+      },
+      "tableW": 330,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 330,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-05 to 2026-10-11 (UTC days)Evidence cutoff 2026-10-26 06:29:21 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceCold replay lab · cold-chainBackup responseRecord detailsCapabilityBackup responseSiteCold replay lab · COLD-LAB-001Evidence window2026-10-06 19:00–20:05 UTCAssessmentNoneSelected record references00000005-0000-4000-8000-000000000170Evidence record references00000005-0000-4000-8000-0000000000b5, 00000005-0000-4000-8000-0000000000b7, 00000005-0000-4000-8000-0000000000b9, 00000005-0000-4000-8000-0000000000ba, 00000005-0000-4000-8000-0000000000bc, 00000005-0000-4000-8000-0000000000bd, 00000005-0000-4000-8000-0000000000bf, 00000005-0000-4000-8000-0000000000c1, 00000005-0000-4000-8000-0000000000c3, 00000005-0000-4000-8000-0000000000c5, 00000005-0000-4000-8000-0000000000c7, 00000005-0000-4000-8000-0000000000c9, 00000005-0000-4000-8000-0000000000ca, 00000005-0000-4000-8000-0000000000cc, 00000005-0000-4000-8000-00000000"
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-KOBO-001-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/KOBO-001/findings",
+   "image": "site-KOBO-001-findings-1440.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "FindingsSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-KOBO-001-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/KOBO-001/findings",
+   "image": "site-KOBO-001-findings-390.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "FindingsSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-COLD-LAB-001-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings",
+   "image": "site-COLD-LAB-001-findings-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 544
+      },
+      "tableW": 1125,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1125,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesCold replay labFindingsCold replay labDemonstration data · COLD-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not available yetFindings at this siteDomain links back to the Performance view that produced the findingFindingDomainPriorityConfidenceStateMain consequenceLensBackup generator did not start when the grid failedBegan Not recordedBackupNot assessedObservedOpenStart failedNot assessedCold room temperature outside its policy bandBegan 19:10–19:15TemperatureNot assessedBoundedOpenAt least 45 min above the limit · peak 4.8 °CNot assessedMOCK DEVIATION D1 (R435)"
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-COLD-LAB-001-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings",
+   "image": "site-COLD-LAB-001-findings-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 240
+      },
+      "tableW": 949,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 949,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "SitesCold replay labFindingsCold replay labDemonstration data · COLD-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not available yetFindings at this siteDomain links back to the Performance view that produced the findingFindingDomainPriorityConfidenceStateMain consequenceLensBackup generator did not start when the grid failedBegan Not recordedBackupNot assessedObservedOpenStart failedNot assessedCold room temperature outside its policy bandBegan 19:10–19:15TemperatureNot assessedBoundedOpenAt least 45 min above the limit · peak 4.8 °CNot assessedMOCK DEVIATION D1 (R435)"
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-EV-LAB-001-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/findings",
+   "image": "site-EV-LAB-001-findings-1440.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 322
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesEV charging labFindingsEV charging labDemonstration data · EV-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings listManage in Findings · Not available yetFindings at this siteFindingDomainPriorityConfidenceStateMain consequenceLensObserved EV charging interruptionSessionsNot assessedObservedOpenNot in this listNot assessed"
+   },
+   "extra": {}
+  },
+  {
+   "name": "site-EV-LAB-001-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/findings",
+   "image": "site-EV-LAB-001-findings-390.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 240
+      },
+      "tableW": 750,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 750,
+      "wrapCW": 318
+     }
+    ],
+    "mainText": "SitesEV charging labFindingsEV charging labDemonstration data · EV-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to EV charging lab · 1 open · 6 Oct 2026 08:00–09:05 UTC · EV charging Findings are not in the global Findings listManage in Findings · Not available yetFindings at this siteFindingDomainPriorityConfidenceStateMain consequenceLensObserved EV charging interruptionSessionsNot assessedObservedOpenNot in this listNot assessed"
+   },
+   "extra": {}
+  },
+  {
+   "name": "ev-financials-pinned-k",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z",
+   "image": "ev-financials-pinned-k-1440.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "What happened → what it means in money",
+     "Assumptions in use",
+     "Trade-offs and exclusions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesEV charging labFinancialsEV charging labDemonstration data · EV-LAB-001Financials · what the site's technical behaviour means in moneyOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenarios · Not available yetNo finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source findingPortfolio roll-up →Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed.What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findingsAssumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptionsTrade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every ot"
+   },
+   "extra": {}
+  },
+  {
+   "name": "ev-financials-pinned-k",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T09%3A00%3A00Z",
+   "image": "ev-financials-pinned-k-390.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "What happened → what it means in money",
+     "Assumptions in use",
+     "Trade-offs and exclusions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesEV charging labFinancialsEV charging labDemonstration data · EV-LAB-001Financials · what the site's technical behaviour means in moneyOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenarios · Not available yetNo finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source findingPortfolio roll-up →Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed.What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findingsAssumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptionsTrade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every ot"
+   },
+   "extra": {}
+  },
+  {
+   "name": "ev-financials-pinned-early",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T08%3A30%3A00Z",
+   "image": "ev-financials-pinned-early-1440.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "What happened → what it means in money",
+     "Assumptions in use",
+     "Trade-offs and exclusions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesEV charging labFinancialsEV charging labDemonstration data · EV-LAB-001Financials · what the site's technical behaviour means in moneyOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenarios · Not available yetNo finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source findingPortfolio roll-up →Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed.What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findingsAssumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptionsTrade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every ot"
+   },
+   "extra": {}
+  },
+  {
+   "name": "ev-financials-pinned-early",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/EV-LAB-001/financials?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A05%3A00Z&known_at=2026-10-06T08%3A30%3A00Z",
+   "image": "ev-financials-pinned-early-390.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "What happened → what it means in money",
+     "Assumptions in use",
+     "Trade-offs and exclusions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesEV charging labFinancialsEV charging labDemonstration data · EV-LAB-001Financials · what the site's technical behaviour means in moneyOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenarios · Not available yetNo finding selectedData confidence: not assessedselected finding window · no financial status here; status stays on the source findingPortfolio roll-up →Operating-cost exposureNo finding selectedOpen a finding to see its bounded fuel cost. This is not zero.Revenue / serviceNot establishedNo supported unserved-energy or revenue basis exists for this site, so no revenue or service consequence is stated.Asset exposureNot establishedNo asset value, replacement cost or warranty terms are recorded for this site, so no asset exposure is stated.Realised savingsNot establishedSavings need a verified comparison of energy and service with and without a change, which does not exist, so none is claimed.What happened → what it means in moneyOpen a finding and choose “What this finding means in money” to see its money view here. Go to this site's findingsAssumptions in useDiesel priceUnpriced: no price is recorded for todayDefault priceNone is used in its placeNo diesel price is recorded for today at this site.Review assumptionsTrade-offs and exclusionsWhen an amount is shown. Only for a current finding version whose readings come from an established source and whose whole time one recorded diesel price covers. Every ot"
+   },
+   "extra": {}
+  },
+  {
+   "name": "kobo-finding-kv",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+   "image": "kobo-finding-kv-1440.png",
+   "measure": {
+    "h1": "Finding",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "FindingSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "kobo-finding-kv",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/KOBO-001/findings/00000005-0000-4000-8000-0000000004bd?revision_id=00000005-0000-4000-8000-00000000058c",
+   "image": "kobo-finding-kv-390.png",
+   "measure": {
+    "h1": "Finding",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "FindingSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "cold-finding-kv",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+   "image": "cold-finding-kv-1440.png",
+   "measure": {
+    "h1": "Cold room temperature outside its policy band",
+    "titles": [
+     "Bounded conclusion",
+     "Temperature",
+     "Recommended next step"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFindingsFindingCold room temperature outside its policy bandCold replay lab · cold-chain findingOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewRecommendation · Not available yetOpen Cold replay lab · Confidence: Bounded · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Selected source: Generated test dataBounded conclusionThe chamber was above 4 °C for at least 45 minutes, starting 19:10–19:15 and still outside policy at the window end, peaking at 4.8 °C.This is exposure context. It does not establish spoilage, product loss or a money value.The excursion had not returned to the band by the end of the window.Inspect the temperature readings →TemperatureNo usable reading 19:20–19:251°2°3°4°5°6°Above policy at least 45 min19:00 · 3.8 °C19:05 · 3.9 °C19:10 · 4 °C19:15 · 4.1 °C19:25 · 4.2 °C19:30 · 4.3 °C19:35 · 4.4 °C19:40 · 4.5 °C19:45 · 4.6 °C19:50 · 4.7 °C19:55 · 4.8 °C20:00 · 4.8 °C19:00 UTC19:15 UTC19:30 UTC19:45 UTC20:00 UTCChamber temperaturePolicy bandNo usable readingNo usable reading 19:20–19:25 (no probe reading, 0 of 1 expected)How this was worked outFinding00000005-0000-4000-8000-00000000016dFinding version00000005-0000-4000-8000-00000000016eEpisode00000005-0000-4000-8000-00000000016bEpisode version00000005-0000-4000-8000-00000000016cAssessment version00000005-0000-4000-8000-00000000016aFinding basisa7df4e47fefd4f4522f61fcbb17a385300d43eeb9ad6cfa0bbe98fcabea56fffAccepted records00000005-0"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "cold-finding-kv",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings/00000005-0000-4000-8000-00000000016d?revision_id=00000005-0000-4000-8000-00000000016e",
+   "image": "cold-finding-kv-390.png",
+   "measure": {
+    "h1": "Cold room temperature outside its policy band",
+    "titles": [
+     "Bounded conclusion",
+     "Temperature",
+     "Recommended next step"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFindingsFindingCold room temperature outside its policy bandCold replay lab · cold-chain findingOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewRecommendation · Not available yetOpen Cold replay lab · Confidence: Bounded · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Selected source: Generated test dataBounded conclusionThe chamber was above 4 °C for at least 45 minutes, starting 19:10–19:15 and still outside policy at the window end, peaking at 4.8 °C.This is exposure context. It does not establish spoilage, product loss or a money value.The excursion had not returned to the band by the end of the window.Inspect the temperature readings →TemperatureNo usable reading 19:20–19:251°2°3°4°5°6°Above policy at least 45 min19:00 · 3.8 °C19:05 · 3.9 °C19:10 · 4 °C19:15 · 4.1 °C19:25 · 4.2 °C19:30 · 4.3 °C19:35 · 4.4 °C19:40 · 4.5 °C19:45 · 4.6 °C19:50 · 4.7 °C19:55 · 4.8 °C20:00 · 4.8 °C19:00 UTC19:15 UTC19:30 UTC19:45 UTC20:00 UTCChamber temperaturePolicy bandNo usable readingNo usable reading 19:20–19:25 (no probe reading, 0 of 1 expected)How this was worked outFinding00000005-0000-4000-8000-00000000016dFinding version00000005-0000-4000-8000-00000000016eEpisode00000005-0000-4000-8000-00000000016bEpisode version00000005-0000-4000-8000-00000000016cAssessment version00000005-0000-4000-8000-00000000016aFinding basisa7df4e47fefd4f4522f61fcbb17a385300d43eeb9ad6cfa0bbe98fcabea56fffAccepted records00000005-0"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "cold-fin-scen-window",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-fin-scen-window-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTCSelected evidence through 26 Oct 06:26:45 UTCNo selected cold assessment covers this window yet.Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-fin-scen-window",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-fin-scen-window-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTCSelected evidence through 26 Oct 06:26:45 UTCNo selected cold assessment covers this window yet.Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-fin-scen-bad",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-fin-scen-bad-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosCold scenarios unavailableCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.Retry"
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-fin-scen-bad",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-fin-scen-bad-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosCold scenarios unavailableCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.Retry"
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-fin-scen-bare",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios",
+   "image": "cold-fin-scen-bare-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 6 Oct 2026 19:00–20:05 UTCSelected evidence through 26 Oct 06:26:45 UTCFinancial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-fin-scen-bare",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios",
+   "image": "cold-fin-scen-bare-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 6 Oct 2026 19:00–20:05 UTCSelected evidence through 26 Oct 06:26:45 UTCFinancial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {}
+  },
+  {
+   "name": "cold-work-bad-window",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-work-bad-window-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)IncidentsMaintenanceWindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · — actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteCold work unavailableThe window may span at most 31 days.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "tabs": "[\"/sites/COLD-LAB-001/foundation\",\"/sites/COLD-LAB-001/health\",\"/sites/COLD-LAB-001/performance\",\"/sites/COLD-LAB-001/findings\",\"/sites/COLD-LAB-001/work\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/evidence\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/work/incidents?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/work/maintenance?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\"]"
+   }
+  },
+  {
+   "name": "cold-work-bad-window",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-work-bad-window-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)IncidentsMaintenanceWindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · — actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteCold work unavailableThe window may span at most 31 days.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "tabs": "[\"/sites/COLD-LAB-001/foundation\",\"/sites/COLD-LAB-001/health\",\"/sites/COLD-LAB-001/performance\",\"/sites/COLD-LAB-001/findings\",\"/sites/COLD-LAB-001/work\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/evidence\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/work/incidents?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/work/maintenance?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\"]"
+   }
+  },
+  {
+   "name": "cold-work-valid-window",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-work-valid-window-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (0)Maintenance (0)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · 0 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteNo actions at this siteNo Action was raised here in the selected window.Opening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "tabs": "[\"/sites/COLD-LAB-001/foundation?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/health?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/performance?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/findings?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/evidence?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work/incidents?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work/maintenance?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\"]"
+   }
+  },
+  {
+   "name": "cold-work-valid-window",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-work-valid-window-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (0)Maintenance (0)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · 0 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteNo actions at this siteNo Action was raised here in the selected window.Opening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "tabs": "[\"/sites/COLD-LAB-001/foundation?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/health?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/performance?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/findings?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/evidence?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work/incidents?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/work/maintenance?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\"]"
+   }
+  }
+ ]
+}

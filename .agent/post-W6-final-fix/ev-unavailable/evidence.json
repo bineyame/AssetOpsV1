@@ -1,0 +1,82 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:56:43.759Z",
+ "results": [
+  {
+   "name": "ev-unavailable-work",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5477/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-unavailable-work-1440.png",
+   "measure": {
+    "h1": "Work",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "WorkSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-unavailable-work",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5477/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-unavailable-work-390.png",
+   "measure": {
+    "h1": "Work",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "WorkSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-unavailable-action-verification",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5477/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-unavailable-action-verification-1440.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "ActionSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-unavailable-action-verification",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5477/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-unavailable-action-verification-390.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [
+     "Site unavailable"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "ActionSite unavailableThe site store could not be read, so nothing is known about whether the site is configured."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  }
+ ]
+}

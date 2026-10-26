@@ -5967,3 +5967,14 @@ Branch `task/post-W6-W4-mini` (main `4d51df61` merged). Packet `.agent/post-W6-W
 - Verified at final head: vitest 3344/3344, tsc, build, check-all 11/11; captures 240/240, 168/168, 12/12, 24/24, late 130/132 (refused bad-known-at has no panels by design), cold 192/192 and 48/48, EV 144/144.
 - Open: R328 (backend public-code dependency); provisional Q18 caps await the Architect; producer late gate still has retired u9c caps (Scenarios 348/391, Incidents 460); EV worstcase refused by producer; populated Alternatives (F02 future-dated), five-long-row and mini 503 are probe/component proof only.
 
+
+## post-W6 final-fix - whole-diff review Mediums and Lows (built, awaiting owner walkthrough)
+
+Branch `task/post-W6-final-fix` from main `739c0d7a`. Rulings `.agent/post-W6-final-review-rulings.md` (binding); packet `.agent/post-W6-final-fix-packet.md`.
+
+- M1: mini Site Work Incidents/Maintenance default is seven Site-local calendar days including today (`siteSevenDayWindow` in `sites/siteTime.ts`; `workCasesScope(params, site)` in `SiteAnalyticsFrames.tsx` picks it for non-cold/EV Sites, R338 UTC days stay for cold/EV and global Work). Invalid or missing zone uses UTC.
+- M2: cold Action refusal map mirrors EV (`coldActionRefusal`, 409 and 503/unreached offer Reload, 403/INVALID_KNOWN_AT/other have none), `COLD_WORK_RELOAD`, cold gets the "Technical detail" disclosure; the cold Actions list keeps its own Retry (app-wide label convergence is backlog (j)).
+- M3: the 640 px 152 px first-column rules apply only to the Findings table (`:has(col.estate-findings-col)`).
+- L3: one sentence `STALE_BASIS_COPY` for the withheld tariff state on Site and estate pinned reads (`ev_site_reads.py`; `STALE_AS_OF_COPY` aliases it). L4/L5: `coldTabSearch` applies the EV valid-window gate (complete, ordered, at most 31 days, UTC; cutoff kept alone) and the cold Financials > Scenarios tab row uses it. L6: `siteZoneDisplayLabel`/`SITE_ZONE_UNAVAILABLE_LABEL` ("UTC (Site time zone unavailable)") on mini Scenarios and Work fields, Finding history header, mini Evidence Measured/Sent/Received headers. L8: dead mini Performance 422 branch removed. L9: `EV_WINDOW_NOT_UTC_TEXT` for an ordered non-UTC Action window. L11: `KeyValueValue` (V69Layout) makes an overflowing `dd code` focusable (tabindex 0, role group, "Full value: ..." name) with a CSS focus ring.
+- Register housekeeping done per `.agent/post-W6-register-reconciliation.md`: 117 stale D3 rows closed with merge shas (19 are split parents pointing at their child), 60 planned rows now `standing (owner)`, R224 duplicate of R207, counts refreshed; R328 and R374 stay open. Backlog (j) added to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+- Open: backlog (j) items (L1, L2, L7, L10 probes, L11 duplicate 760 px rule, Reload/Retry convergence).

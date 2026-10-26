@@ -250,7 +250,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     guard = stale["financials"]["consequence"]
     assert (guard["state"], guard["reason"], guard["amount"], guard["currency"], guard["revision_id"]) == (
         "WITHHELD", "STALE_BASIS", None, None, None)
-    assert guard["limitation"] == "No stored gross tariff estimate matches the current evidence."
+    assert guard["limitation"] == "No stored gross tariff estimate matches the evidence at this cutoff."
     assert stale["overview"]["consequence_summary"]["amount"] is None
     assert len(ev_money_rows(built)["ev_consequence_revision"]) == 2  # the guard is never inserted
 

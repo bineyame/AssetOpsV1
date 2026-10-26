@@ -1,0 +1,6 @@
+chrome pid 30572
+ev-forbidden-work 1440: h1="EV charging lab" docOverflowX=0
+ev-forbidden-work 390: h1="EV charging lab" docOverflowX=0
+ev-forbidden-action-verification 1440: h1="Action unavailable" docOverflowX=0
+ev-forbidden-action-verification 390: h1="Action unavailable" docOverflowX=0
+exit 0

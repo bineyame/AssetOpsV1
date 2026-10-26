@@ -1,0 +1,78 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:56:23.362Z",
+ "results": [
+  {
+   "name": "ev-forbidden-work",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5476/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-forbidden-work-1440.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesEV charging labWorkEV charging labDemonstration data · EV-LAB-001EV charging operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)Incidents (—)Maintenance (—)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.Actions at this siteEV work unavailableNo access to Site 'EV-LAB-001'.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\",\"Retry\"],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-forbidden-work",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5476/sites/EV-LAB-001/work?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-forbidden-work-390.png",
+   "measure": {
+    "h1": "EV charging lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesEV charging labWorkEV charging labDemonstration data · EV-LAB-001EV charging operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)Incidents (—)Maintenance (—)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to EV · — actionsEV Actions recorded at this siteGlobal Actions does not include EV Actions yet.Actions at this siteEV work unavailableNo access to Site 'EV-LAB-001'.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\",\"Retry\"],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "ev-forbidden-action-verification",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5476/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-forbidden-action-verification-1440.png",
+   "measure": {
+    "h1": "Action unavailable",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "ActionsVerification· site: EV charging labAction unavailableWhat would establish successful service restoration?Open siteVerificationEV work unavailableYou do not have access to this site.Technical detailStatus 403 · code SITE_SCOPE_FORBIDDEN"
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[{\"s\":\"Technical detail\",\"t\":\"Technical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"}],\"alerts\":[\"EV work unavailable\\n\\nYou do not have access to this site.\\n\\nTechnical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"]}"
+   }
+  },
+  {
+   "name": "ev-forbidden-action-verification",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5476/sites/EV-LAB-001/actions/f8e4bf39-0f2d-4980-9112-ac1825166d9f/verification?from=2026-10-26T00%3A00%3A00Z&to=2026-10-27T00%3A00%3A00Z",
+   "image": "ev-forbidden-action-verification-390.png",
+   "measure": {
+    "h1": "Action unavailable",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "ActionsVerification· site: EV charging labAction unavailableWhat would establish successful service restoration?Open siteVerificationEV work unavailableYou do not have access to this site.Technical detailStatus 403 · code SITE_SCOPE_FORBIDDEN"
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[{\"s\":\"Technical detail\",\"t\":\"Technical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"}],\"alerts\":[\"EV work unavailable\\n\\nYou do not have access to this site.\\n\\nTechnical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"]}"
+   }
+  }
+ ]
+}

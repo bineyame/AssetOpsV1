@@ -1,0 +1,116 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:45:37.307Z",
+ "results": [
+  {
+   "name": "cold-fin-scen-window",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-fin-scen-window-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTCSelected evidence through 26 Oct 06:26:45 UTCNo selected cold assessment covers this window yet.Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials/assumptions?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\nOverview\\nAssumptions\\nScenarios\\n\\nSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTC\\nSelected evidence through 26 Oct 06:26:45 UTC\\n\\nNo selected cold assessment covers this window yet.\\nFinancial scena\"}"
+   }
+  },
+  {
+   "name": "cold-fin-scen-window",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+   "image": "cold-fin-scen-window-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTCSelected evidence through 26 Oct 06:26:45 UTCNo selected cold assessment covers this window yet.Financial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials/assumptions?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\",\"/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\n\\nMOCK DEVIATION D2 (R453)\\n\\nOverview\\nAssumptions\\nScenarios\\n\\nSelected window 1 Oct 2026 00:00–7 Oct 00:00 UTC\\nSelected evidence through 26 Oct 06:26:45 UTC\\n\\nNo selected cold assessment covers this \"}"
+   }
+  },
+  {
+   "name": "cold-fin-scen-bad",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-fin-scen-bad-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosCold scenarios unavailableCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.Retry"
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials/assumptions?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\nOverview\\nAssumptions\\nScenarios\\n\\nCold scenarios unavailable\\n\\nCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.\\n\\nRetry\"}"
+   }
+  },
+  {
+   "name": "cold-fin-scen-bad",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense",
+   "image": "cold-fin-scen-bad-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosCold scenarios unavailableCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.Retry"
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials/assumptions?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\",\"/sites/COLD-LAB-001/financials/scenarios?from=2026-10-01T00%3A00%3A00%2B03%3A00&to=nonsense\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\n\\nMOCK DEVIATION D2 (R453)\\n\\nOverview\\nAssumptions\\nScenarios\\n\\nCold scenarios unavailable\\n\\nCOLD_TIME_INVALID 'from' must be a UTC instant such as 2026-10-06T19:00:00Z, at most microsecond precision.\\n\"}"
+   }
+  },
+  {
+   "name": "cold-fin-scen-bare",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios",
+   "image": "cold-fin-scen-bare-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 6 Oct 2026 19:00–20:05 UTCSelected evidence through 26 Oct 06:26:45 UTCFinancial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials/assumptions\",\"/sites/COLD-LAB-001/financials/scenarios\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\nOverview\\nAssumptions\\nScenarios\\n\\nSelected window 6 Oct 2026 19:00–20:05 UTC\\nSelected evidence through 26 Oct 06:26:45 UTC\\n\\nFinancial scenarios\\n\\nLabelled what-ifs authored for this site; never meas\"}"
+   }
+  },
+  {
+   "name": "cold-fin-scen-bare",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/financials/scenarios",
+   "image": "cold-fin-scen-bare-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labFinancialsScenariosCold replay labDemonstration data · COLD-LAB-001Financials · scenarios (placeholder)OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosSelected window 6 Oct 2026 19:00–20:05 UTCSelected evidence through 26 Oct 06:26:45 UTCFinancial scenariosLabelled what-ifs authored for this site; never measured results.No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "links": "{\"tabs\":[\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials\",\"/sites/COLD-LAB-001/financials/assumptions\",\"/sites/COLD-LAB-001/financials/scenarios\"],\"inputs\":[],\"h\":\"Sites\\nCold replay lab\\nFinancials\\nScenarios\\nCold replay lab\\nDemonstration data · COLD-LAB-001\\n\\nFinancials · scenarios (placeholder)\\n\\nOverview\\nFoundation\\nHealth\\nPerformance\\nFindings\\nWork\\nFinancials\\nEvidence\\n\\nMOCK DEVIATION D2 (R453)\\n\\nOverview\\nAssumptions\\nScenarios\\n\\nSelected window 6 Oct 2026 19:00–20:05 UTC\\nSelected evidence through 26 Oct 06:26:45 UTC\\n\\nFinancial scenarios\\n\\nLabelled what-ifs authore\"}"
+   }
+  }
+ ]
+}

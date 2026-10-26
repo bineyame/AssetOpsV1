@@ -1,0 +1,26 @@
+[
+ {
+  "name": "cold-unavailable-work",
+  "url": "http://127.0.0.1:5477/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00.000000Z&to=2026-10-27T00%3A00%3A00.000000Z",
+  "open": "main details",
+  "evals": {
+   "p": "JSON.stringify({buttons:[...document.querySelectorAll('main button, main a.button, main [role=button]')].map(b=>b.textContent.trim().slice(0,40)),details:[...document.querySelectorAll('main details')].map(d=>({s:(d.querySelector('summary')||{}).textContent,open:d.open,t:d.innerText.slice(0,200)})),alerts:[...document.querySelectorAll('main [role=alert],main .refusal,main .state-panel')].map(a=>a.innerText.slice(0,300))})"
+  }
+ },
+ {
+  "name": "cold-unavailable-action",
+  "url": "http://127.0.0.1:5477/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653",
+  "open": "main details",
+  "evals": {
+   "p": "JSON.stringify({buttons:[...document.querySelectorAll('main button, main a.button, main [role=button]')].map(b=>b.textContent.trim().slice(0,40)),details:[...document.querySelectorAll('main details')].map(d=>({s:(d.querySelector('summary')||{}).textContent,open:d.open,t:d.innerText.slice(0,200)})),alerts:[...document.querySelectorAll('main [role=alert],main .refusal,main .state-panel')].map(a=>a.innerText.slice(0,300))})"
+  }
+ },
+ {
+  "name": "cold-unavailable-action-verification",
+  "url": "http://127.0.0.1:5477/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653/verification",
+  "open": "main details",
+  "evals": {
+   "p": "JSON.stringify({buttons:[...document.querySelectorAll('main button, main a.button, main [role=button]')].map(b=>b.textContent.trim().slice(0,40)),details:[...document.querySelectorAll('main details')].map(d=>({s:(d.querySelector('summary')||{}).textContent,open:d.open,t:d.innerText.slice(0,200)})),alerts:[...document.querySelectorAll('main [role=alert],main .refusal,main .state-panel')].map(a=>a.innerText.slice(0,300))})"
+  }
+ }
+]

@@ -551,6 +551,10 @@ describe("W3-01 estate roots", () => {
     expect(estateCss).toMatch(/\.estate-page \.data-table__scroll \{[^}]*overflow-x: auto/s);
     const narrow = estateCss.slice(estateCss.indexOf("@media (max-width: 640px)"));
     expect(narrow).toMatch(/td:first-child \{[^}]*width: 152px;[^}]*max-width: 152px/s);
+    // post-W6 final-fix M3: the 152px first column is the Findings table's only (its column group), never another estate table's.
+    expect(narrow).toMatch(/\.data-table:has\(col\.estate-findings-col\) td:first-child \{[^}]*width: 152px/s);
+    expect(narrow).toMatch(/\.data-table:has\(col\.estate-findings-col\) col:first-child \{[^}]*width: 152px/s);
+    expect(narrow).not.toMatch(/\.estate-page \.data-table (th|td|col):first-child/);
     const client = fakeClient((lens) => loaded(findingsBody(lens, { rows: [findingRow(1)] })));
     for (const entry of [`/findings?${WINDOW}`, `${ESTATE_ACTIONS_PATH}?${WINDOW}`]) {
       const view = renderAt(entry, client);

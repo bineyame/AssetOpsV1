@@ -20,7 +20,7 @@
  * and never as a conclusion about how the site is operating.
  */
 
-import { siteTime, siteZoneLabel } from "./siteTime";
+import { SITE_ZONE_UNAVAILABLE_LABEL, siteTime, siteZoneLabel } from "./siteTime";
 import { findingLocalTime } from "./findingTime";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -1324,6 +1324,8 @@ function Inspector({
 }) {
   const measuredZone = zoneAbbreviation(timezone, evidence.window.start);
   const selectedDay = selectedLocalDay(evidence.window.start, timezone);
+  // post-W6 final-fix L6: an unusable Site zone says so beside every time column (UI guide section 4).
+  const zoneNote = usableZone(timezone) === null ? ` ${SITE_ZONE_UNAVAILABLE_LABEL}` : "";
   const [params, setParams] = useSearchParams();
   const signal = params.get("signal");
   const source = params.get("source");
@@ -1438,9 +1440,9 @@ function Inspector({
                   <th scope="col">Source · reading</th>
                   <th scope="col">Value</th>
                   {/* post-W6 shell R170 (Q18): measured time on the Site's clock, like the mock `Measured (EAT)`. */}
-                  <th scope="col" data-evidence-measured-zone={measuredZone}>{`Measured (${measuredZone})`}</th>
-                  <th scope="col">Sent</th>
-                  <th scope="col">Received</th>
+                  <th scope="col" data-evidence-measured-zone={measuredZone}>{zoneNote === "" ? `Measured (${measuredZone})` : `Measured${zoneNote}`}</th>
+                  <th scope="col">{`Sent${zoneNote}`}</th>
+                  <th scope="col">{`Received${zoneNote}`}</th>
                   <th scope="col">Record</th>
                 </tr>
               </thead>

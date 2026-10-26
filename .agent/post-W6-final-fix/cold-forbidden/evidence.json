@@ -1,0 +1,116 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:50:56.556Z",
+ "results": [
+  {
+   "name": "cold-forbidden-work",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00.000000Z&to=2026-10-27T00%3A00%3A00.000000Z",
+   "image": "cold-forbidden-work-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)Incidents (—)Maintenance (—)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · — actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteCold work unavailableNo access to Site 'COLD-LAB-001'.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\",\"Retry\"],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-forbidden-work",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/work?from=2026-10-25T00%3A00%3A00.000000Z&to=2026-10-27T00%3A00%3A00.000000Z",
+   "image": "cold-forbidden-work-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Actions at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesCold replay labWorkCold replay labDemonstration data · COLD-LAB-001Cold-room operations at this site.OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (—)Incidents (—)Maintenance (—)WindowFrom (UTC) To (UTC, exclusive) ApplyListed by the time each Action was raised.Scoped to Cold · — actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.Actions at this siteCold work unavailableNo access to Site 'COLD-LAB-001'.RetryOpening a record moves you to its own area; the breadcrumb keeps this site."
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Apply\",\"Retry\"],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-forbidden-action",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653",
+   "image": "cold-forbidden-action-1440.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [
+     "Action scope"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "ActionsOverview· site: Cold replay labActionCold replay labOpen siteOverviewPlanApplicationEvidenceVerificationHistoryAction not foundThis site has no such action.Reason given: No such Action for this Site.Action scopeNot shown: the Action could not be read."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-forbidden-action",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653",
+   "image": "cold-forbidden-action-390.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [
+     "Action scope"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "ActionsOverview· site: Cold replay labActionCold replay labOpen siteOverviewPlanApplicationEvidenceVerificationHistoryAction not foundThis site has no such action.Reason given: No such Action for this Site.Action scopeNot shown: the Action could not be read."
+   },
+   "extra": {
+    "p": "{\"buttons\":[],\"details\":[],\"alerts\":[]}"
+   }
+  },
+  {
+   "name": "cold-forbidden-action-verification",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653/verification",
+   "image": "cold-forbidden-action-verification-1440.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "ActionsVerification· site: Cold replay labActionHas backup service been restored after the inspection?Open siteVerificationCold work unavailableYou do not have access to this site.Technical detailStatus 403 · code SITE_SCOPE_FORBIDDEN"
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[{\"s\":\"Technical detail\",\"open\":true,\"t\":\"Technical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"}],\"alerts\":[\"Cold work unavailable\\n\\nYou do not have access to this site.\\n\\nTechnical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"]}"
+   }
+  },
+  {
+   "name": "cold-forbidden-action-verification",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5476/sites/COLD-LAB-001/actions/5bf0e298-6c76-40ba-acd8-9e1f02010653/verification",
+   "image": "cold-forbidden-action-verification-390.png",
+   "measure": {
+    "h1": "Action",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "ActionsVerification· site: Cold replay labActionHas backup service been restored after the inspection?Open siteVerificationCold work unavailableYou do not have access to this site.Technical detailStatus 403 · code SITE_SCOPE_FORBIDDEN"
+   },
+   "extra": {
+    "p": "{\"buttons\":[\"Open site\"],\"details\":[{\"s\":\"Technical detail\",\"open\":true,\"t\":\"Technical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"}],\"alerts\":[\"Cold work unavailable\\n\\nYou do not have access to this site.\\n\\nTechnical detail\\n\\nStatus 403 · code SITE_SCOPE_FORBIDDEN\"]}"
+   }
+  }
+ ]
+}

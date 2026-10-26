@@ -285,7 +285,6 @@ function refusalCopy(read: Exclude<MiniRead<unknown>, { status: "loaded" }>): { 
   if (http === 401) return { key: "unauthenticated", title: "Sign in required", body: "Sign in to read this site's mini-grid assessment." };
   if (http === 403) return { key: "forbidden", title: "Access refused", body: "You do not have access to this site." };
   if (http === 404) return { key: "not-found", title: "Not found", body: "This page was not found." };
-  if (http === 422) return { key: "invalid-window", title: "Period cannot be read", body: MINI_INVALID_WINDOW };
   return { key: "unavailable", title: "Assessment unavailable", body: MINI_UNAVAILABLE };
 }
 

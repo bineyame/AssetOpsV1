@@ -20,7 +20,7 @@ import {
   type ScenarioRow,
   type ScenarioScope,
 } from "./miniDecisionsClient";
-import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneLabel } from "./siteTime";
+import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 
@@ -270,7 +270,7 @@ export function ScenariosWindow({
     setLast(siteLocalLastDay(scope.to, timeZone));
     setError(null);
   }, [scope.from, scope.to, timeZone]);
-  const zone = siteZoneLabel(timeZone, scope.from);
+  const zone = siteZoneDisplayLabel(timeZone, scope.from);
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const from = first ? siteLocalMidnightUtc(first, timeZone) : "";

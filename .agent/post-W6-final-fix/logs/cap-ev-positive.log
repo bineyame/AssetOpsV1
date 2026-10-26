@@ -1,0 +1,6 @@
+chrome pid 18596
+ev-positive-work 1440: h1="EV charging lab" docOverflowX=0
+ev-positive-work 390: h1="EV charging lab" docOverflowX=0
+ev-positive-action-verification 1440: h1="ACT-000001 · Investigate connector 2" docOverflowX=0
+ev-positive-action-verification 390: h1="ACT-000001 · Investigate connector 2" docOverflowX=0
+exit 0

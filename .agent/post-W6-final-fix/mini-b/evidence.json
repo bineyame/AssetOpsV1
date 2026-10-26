@@ -1,0 +1,130 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:25:49.084Z",
+ "results": [
+  {
+   "name": "mini-scenarios",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "image": "mini-scenarios-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Scenario",
+       "w": 224
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationFinancialsScenariosMini-grid depth demonstrationDemonstration data · MG-W402-001Financials · scenariosOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosWindowFrom (EAT) To (EAT, included) ApplyMOCK DEVIATION D2 (R450)Financial scenariosDeclared scenarios are separate from measured results.Scenarios created through 26 Oct 2026, 06:25:35 UTCScenarioDeclared changePhysical basisIllustrative resultStateGrain mill trial without tariff · Productive load · SCN-000003Scenario detail unavailableDuration 1 h; Proposed load 10 kW5 pinned renewable revisions Inspect pinned revisions10 kWh energy scenario per eligible window; gross sales unknownDefined · Energy onlyGrain mill one-hour trial (corrected narrative) · Productive load · SCN-000002Scenario detail unavailableDuration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh5 pinned renewable revisions Inspect pinned revisions$2.50 gross sales scenario per eligible window, before costsDefined · Gross scenario2 of 2Scenario creation unavailableScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"1970-01-01\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-scenarios",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "image": "mini-scenarios-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Scenario",
+       "w": 144
+      },
+      "tableW": 720,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 720,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationFinancialsScenariosMini-grid depth demonstrationDemonstration data · MG-W402-001Financials · scenariosOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosWindowFrom (EAT) To (EAT, included) ApplyMOCK DEVIATION D2 (R450)Financial scenariosDeclared scenarios are separate from measured results.Scenarios created through 26 Oct 2026, 06:25:41 UTCScenarioDeclared changePhysical basisIllustrative resultStateGrain mill trial without tariff · Productive load · SCN-000003Scenario detail unavailableDuration 1 h; Proposed load 10 kW5 pinned renewable revisions Inspect pinned revisions10 kWh energy scenario per eligible window; gross sales unknownDefined · Energy onlyGrain mill one-hour trial (corrected narrative) · Productive load · SCN-000002Scenario detail unavailableDuration 1 h; Proposed load 10 kW; Tariff 0.25 USD/kWh5 pinned renewable revisions Inspect pinned revisions$2.50 gross sales scenario per eligible window, before costsDefined · Gross scenario2 of 2Scenario creation unavailableScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"1970-01-01\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-finding-history",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0c626391-d78b-41de-8876-9973b080a127?revision_id=9823bc65-d401-4b64-8884-0acf2f8b684d",
+   "image": "mini-finding-history-1440.png",
+   "measure": {
+    "h1": "Generator support merits review",
+    "titles": [
+     "What happened",
+     "What limits this conclusion",
+     "What to do next",
+     "Where to look next"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "FindingsFindingOverview· site: Kobo mini-gridGenerator support merits reviewKobo mini-grid · generator support findingOpen siteOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)MOCK DEVIATION D2 (R383)OverviewAnalysisEvidenceAlternativesRecommendationHistoryPriority: not assessedConfidence: not assessedState: OpenUsing the latest checked readingsLatest version (1 of 1)2026-10-09 02:20–03:30 EAT UTC time2026-10-08T23:20:00.000Z to 2026-10-09T00:30:00.000ZWhat happenedPeriod covered · 2026-10-09 02:20–03:30 EAT · 1 h 10 minInspect evidence →Open: 55 min of generator time possibly avoidableSource unverified. We cannot establish the source of all records behind this result. No current cost is shown. Source record for this finding versionEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.No reading has a confirmed source. (78 records)Finding version: 9823bc65-d401-4b64-8884-0acf2f8b684dRecords whose source is not established: 01648d32-6b5c-47f9-bc91-f690f5c1a70b, 04490d0a-fdb8-436a-94bf-2e5e53885349, 05bcfa25-4ee3-4ed7-9088-d6734a885553, 062be848-bf55-49c9-942d-c324efd9bd0c, 148f952c-ee8a-4613-b7d6-3bed7c9f27a6, 1d20edd3-82f2-4227-b630-8ca5ecb2fcfc, 1e842a34-8c52-4877-b0c7-ef6d00095ff8, 217e095c-1ae4-4606-ac27-a29314aef89c, 21d70102-37c2-448d-b012-3751bd46821e, 240c560e-cd"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "mini-finding-history",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0c626391-d78b-41de-8876-9973b080a127?revision_id=9823bc65-d401-4b64-8884-0acf2f8b684d",
+   "image": "mini-finding-history-390.png",
+   "measure": {
+    "h1": "Generator support merits review",
+    "titles": [
+     "What happened",
+     "What limits this conclusion",
+     "What to do next",
+     "Where to look next"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "FindingsFindingOverview· site: Kobo mini-gridGenerator support merits reviewKobo mini-grid · generator support findingOpen siteOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)MOCK DEVIATION D2 (R383)OverviewAnalysisEvidenceAlternativesRecommendationHistoryPriority: not assessedConfidence: not assessedState: OpenUsing the latest checked readingsLatest version (1 of 1)2026-10-09 02:20–03:30 EAT UTC time2026-10-08T23:20:00.000Z to 2026-10-09T00:30:00.000ZWhat happenedPeriod covered · 2026-10-09 02:20–03:30 EAT · 1 h 10 minInspect evidence →Open: 55 min of generator time possibly avoidableSource unverified. We cannot establish the source of all records behind this result. No current cost is shown. Source record for this finding versionEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.No reading has a confirmed source. (78 records)Finding version: 9823bc65-d401-4b64-8884-0acf2f8b684dRecords whose source is not established: 01648d32-6b5c-47f9-bc91-f690f5c1a70b, 04490d0a-fdb8-436a-94bf-2e5e53885349, 05bcfa25-4ee3-4ed7-9088-d6734a885553, 062be848-bf55-49c9-942d-c324efd9bd0c, 148f952c-ee8a-4613-b7d6-3bed7c9f27a6, 1d20edd3-82f2-4227-b630-8ca5ecb2fcfc, 1e842a34-8c52-4877-b0c7-ef6d00095ff8, 217e095c-1ae4-4606-ac27-a29314aef89c, 21d70102-37c2-448d-b012-3751bd46821e, 240c560e-cd"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  }
+ ]
+}

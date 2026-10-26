@@ -1,0 +1,86 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:45:14.858Z",
+ "results": [
+  {
+   "name": "l11-synthetic-focus",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings",
+   "image": "l11-synthetic-focus-1440.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 544
+      },
+      "tableW": 1125,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1125,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SYNTHETIC PROBE, NOT PRODUCT DATAbefore 0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-SitesCold replay labFindingsCold replay labDemonstration data · COLD-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not available yetFindings at this siteDomain links back to the Performance view that produced the findingFindingDomainPriorityConfidenceStateMain consequenceLensBackup generator did not start when the grid failedBegan Not recordedBackupNot assessedObservedOpenStart failedNot assessedCold room temperature outside its policy bandBegan 19:10–19:15TemperatureNot assessedBoundedOpenAt least 45 min above the limit · peak 4.8 °CNot assessedMOCK DEVIATION D1 (R435)"
+   },
+   "extra": {
+    "probe": {
+     "active": true,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(29, 78, 216)",
+     "offset": "2px",
+     "sw": 1234,
+     "cw": 556
+    }
+   }
+  },
+  {
+   "name": "l11-synthetic-focus",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5453/sites/COLD-LAB-001/findings",
+   "image": "l11-synthetic-focus-390.png",
+   "measure": {
+    "h1": "Cold replay lab",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [],
+      "firstTh": {
+       "text": "Finding",
+       "w": 240
+      },
+      "tableW": 949,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 949,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "SYNTHETIC PROBE, NOT PRODUCT DATAbefore 0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-0123456789abcdef-SitesCold replay labFindingsCold replay labDemonstration data · COLD-LAB-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetScoped to Cold replay lab · 2 open · 6 Oct 2026 19:00–20:05 UTC · Up to date for this window · Cold-chain Findings are not in the global Findings list MOCK DEVIATION D1 (R436)Manage in Findings · Not available yetFindings at this siteDomain links back to the Performance view that produced the findingFindingDomainPriorityConfidenceStateMain consequenceLensBackup generator did not start when the grid failedBegan Not recordedBackupNot assessedObservedOpenStart failedNot assessedCold room temperature outside its policy bandBegan 19:10–19:15TemperatureNot assessedBoundedOpenAt least 45 min above the limit · peak 4.8 °CNot assessedMOCK DEVIATION D1 (R435)"
+   },
+   "extra": {
+    "probe": {
+     "active": true,
+     "focusVisible": true,
+     "outline": "solid 2px rgb(29, 78, 216)",
+     "offset": "2px",
+     "sw": 1234,
+     "cw": 148
+    }
+   }
+  }
+ ]
+}

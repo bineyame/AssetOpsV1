@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import { PageHeader } from "./PageHeader";
 
@@ -109,11 +109,53 @@ export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string
       {rows.map(([term, value, key, wide], index) => (
         <div key={key ?? index} data-key-value={key} data-key-value-wide={wide ? "" : undefined}>
           <dt>{term}</dt>
-          <dd>{value}</dd>
+          <KeyValueValue>{value}</KeyValueValue>
         </div>
       ))}
     </dl>
   );
+}
+
+/**
+ * post-W6 final-fix L11: a code token wider than its value box scrolls inside itself (`primitives.css`); a scrolling
+ * region must be reachable by keyboard. Each overflowing `code` in the value becomes a focusable group named by its
+ * full text (the visible focus ring is CSS); one that fits stays out of the tab order.
+ */
+export function KeyValueValue({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (root === null) return undefined;
+    const mark = () => {
+      root.querySelectorAll("code").forEach((code) => {
+        // Only what this effect added is ever removed; an author-supplied label or role is kept as written.
+        const ours = code.hasAttribute("data-scroll-focus");
+        if (code.scrollWidth > code.clientWidth + 1) {
+          if (!ours && code.hasAttribute("tabindex")) return;
+          if (!ours) code.setAttribute("data-scroll-focus", code.hasAttribute("aria-label") ? "kept" : "");
+          code.setAttribute("tabindex", "0");
+          if (code.getAttribute("data-scroll-focus") === "") {
+            code.setAttribute("role", "group");
+            code.setAttribute("aria-label", `Full value: ${code.textContent ?? ""}`);
+          }
+        } else if (ours) {
+          const added = code.getAttribute("data-scroll-focus") === "";
+          code.removeAttribute("data-scroll-focus");
+          code.removeAttribute("tabindex");
+          if (added) {
+            code.removeAttribute("role");
+            code.removeAttribute("aria-label");
+          }
+        }
+      });
+    };
+    mark();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(mark);
+    observer.observe(root);
+    return () => observer.disconnect();
+  });
+  return <dd ref={ref}>{children}</dd>;
 }
 
 export interface AttentionItem {

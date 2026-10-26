@@ -1,0 +1,638 @@
+{
+ "revision": "83560929",
+ "captured": "2026-10-26T06:24:46.738Z",
+ "results": [
+  {
+   "name": "mini-incidents-bare",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents",
+   "image": "mini-incidents-bare-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Incidents at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Case",
+       "w": 246
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationWorkMini-grid depth demonstrationDemonstration data · MG-W402-001Site-scoped work · incidentsOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (1)Maintenance (1)Scoped to Mini-grid · 1 incidentThese are work records at this siteManage in IncidentsIncidents at this siteA case links chronology, findings and work without copying themOccurred from (EAT) to (EAT, included) Show incidentsCaseWindowWhat happenedLinked findingsStateINC-000001 · Mill trial supply complaint26 Oct · from 08:23 EATUTC and IDsOccurred2026-10-26 05:23 UTCRecorded2026-10-26 06:23 UTCCase ID7c8e960e-fc47-4857-9da3-1cd7f11d1c31Version ID93716576-e0e2-45ec-95b9-f990c6c6c609Source of cited recordsSource unverifiedOperator logged a supply complaint during the mill trial window; cause not established.Read full textOperator logged a supply complaint during the mill trial window; cause not established.No linked findingDecision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable)Read full textDecision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative)OpenShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-20 00:00 EAT to 2026-10-27 00:00 EAT [from, to) (2026-10-19 21:00 UTC to 2026-10-26 21:00 UTC)Read as of2026-10-26 09:23 EAT (2026-10-26 06:23 UTC)Linked evidenceCOMPLETESource of cited records"
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"2026-10-20\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-incidents-bare",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/incidents",
+   "image": "mini-incidents-bare-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Incidents at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Case",
+       "w": 158
+      },
+      "tableW": 720,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 720,
+      "wrapCW": 309
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationWorkMini-grid depth demonstrationDemonstration data · MG-W402-001Site-scoped work · incidentsOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (1)Maintenance (1)Scoped to Mini-grid · 1 incidentThese are work records at this siteManage in IncidentsIncidents at this siteA case links chronology, findings and work without copying themOccurred from (EAT) to (EAT, included) Show incidentsCaseWindowWhat happenedLinked findingsStateINC-000001 · Mill trial supply complaint26 Oct · from 08:23 EATUTC and IDsOccurred2026-10-26 05:23 UTCRecorded2026-10-26 06:23 UTCCase ID7c8e960e-fc47-4857-9da3-1cd7f11d1c31Version ID93716576-e0e2-45ec-95b9-f990c6c6c609Source of cited recordsSource unverifiedOperator logged a supply complaint during the mill trial window; cause not established.Read full textOperator logged a supply complaint during the mill trial window; cause not established.No linked findingDecision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative) (Scenario detail unavailable)Read full textDecision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (corrected narrative)OpenShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-20 00:00 EAT to 2026-10-27 00:00 EAT [from, to) (2026-10-19 21:00 UTC to 2026-10-26 21:00 UTC)Read as of2026-10-26 09:23 EAT (2026-10-26 06:23 UTC)Linked evidenceCOMPLETESource of cited records"
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"2026-10-20\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-maintenance-bare",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance",
+   "image": "mini-maintenance-bare-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Maintenance at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Work request",
+       "w": 246
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationWorkMini-grid depth demonstrationDemonstration data · MG-W402-001Site-scoped work · maintenanceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (1)Maintenance (1)Scoped to Mini-grid · 1 maintenance caseThese are work records at this siteManage in MaintenanceMaintenance at this siteCompleted work is activity; the outcome is verified separatelyRaised from (EAT) to (EAT, included) Show maintenanceWork requestAssetActivityOutcomeNext evidenceWR-000002 · Inspect mill feeder breakerNo asset linkedUTC and IDsOccurred2026-10-26 05:23 UTCRecorded2026-10-26 06:23 UTCCase IDfc5f362f-c536-4cc7-8891-a1118edd0b35Version ID6775b260-15f9-4592-ac51-e5aa87ba223aSource of cited recordsSource unverifiedOpen No activity recordedUnverified No outcome recordedNo next evidence recordedShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-20 00:00 EAT to 2026-10-27 00:00 EAT [from, to) (2026-10-19 21:00 UTC to 2026-10-26 21:00 UTC)Read as of2026-10-26 09:23 EAT (2026-10-26 06:23 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:c1f9f4e10fb7642e33e3a38a0233ec495c9fa8e45216d4b30720da249efb1c77Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no recor"
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"2026-10-20\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-maintenance-bare",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/work/maintenance",
+   "image": "mini-maintenance-bare-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Maintenance at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Work request",
+       "w": 167
+      },
+      "tableW": 760,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 760,
+      "wrapCW": 309
+     }
+    ],
+    "mainText": "SitesMini-grid depth demonstrationWorkMini-grid depth demonstrationDemonstration data · MG-W402-001Site-scoped work · maintenanceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Actions (0)Incidents (1)Maintenance (1)Scoped to Mini-grid · 1 maintenance caseThese are work records at this siteManage in MaintenanceMaintenance at this siteCompleted work is activity; the outcome is verified separatelyRaised from (EAT) to (EAT, included) Show maintenanceWork requestAssetActivityOutcomeNext evidenceWR-000002 · Inspect mill feeder breakerNo asset linkedUTC and IDsOccurred2026-10-26 05:23 UTCRecorded2026-10-26 06:23 UTCCase IDfc5f362f-c536-4cc7-8891-a1118edd0b35Version ID6775b260-15f9-4592-ac51-e5aa87ba223aSource of cited recordsSource unverifiedOpen No activity recordedUnverified No outcome recordedNo next evidence recordedShowing 1–1 of 1Scroll the table for more columns →What this list is based onWindow2026-10-20 00:00 EAT to 2026-10-27 00:00 EAT [from, to) (2026-10-19 21:00 UTC to 2026-10-26 21:00 UTC)Read as of2026-10-26 09:23 EAT (2026-10-26 06:23 UTC)Linked evidenceCOMPLETESource of cited recordsSource unverifiedList fencesha256:1660768f8a5b08c33dba29b5279412acc55fcd5fd4754d9115274deec99b1313Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.This version cites no recor"
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"2026-10-20\"},{\"n\":null,\"v\":\"2026-10-26\"}]"
+   }
+  },
+  {
+   "name": "mini-scenarios",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "image": "mini-scenarios-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationFinancialsScenariosMini-grid depth demonstrationDemonstration data · MG-W402-001Financials · scenariosOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosWindowFrom (EAT) To (EAT, included) ApplyMOCK DEVIATION D2 (R450)Financial scenariosDeclared scenarios are separate from measured results.Loading the site's scenarios.Scenario creation unavailableScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"\"},{\"n\":null,\"v\":\"\"}]"
+   }
+  },
+  {
+   "name": "mini-scenarios",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/financials/scenarios",
+   "image": "mini-scenarios-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Financial scenarios"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationFinancialsScenariosMini-grid depth demonstrationDemonstration data · MG-W402-001Financials · scenariosOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)OverviewAssumptionsScenariosWindowFrom (EAT) To (EAT, included) ApplyMOCK DEVIATION D2 (R450)Financial scenariosDeclared scenarios are separate from measured results.Loading the site's scenarios.Scenario creation unavailableScenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence."
+   },
+   "extra": {
+    "fields": "[{\"n\":null,\"v\":\"\"},{\"n\":null,\"v\":\"\"}]"
+   }
+  },
+  {
+   "name": "mini-opportunity-finding",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/940a7b6d-77c6-4434-be7a-63e745492321",
+   "image": "mini-opportunity-finding-1440.png",
+   "measure": {
+    "h1": "Productive-use headroom at Mini-grid depth demonstration",
+    "titles": [
+     "Bounded opportunity",
+     "Next decision",
+     "Consequence basis"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationCan recurring renewable headroom support useful additional demand?Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedCurrent selectionRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; collections unverifiedBounded opportunityRenewable capacity appears available for a one-hour productive load in 4 adequately observed windows.Electrical feasibility does not establish customer demand, collections or a realised financial benefit.Inspect opportunity evidenceNext decisionValidate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial.Open renewable evaluationConsequence basisTechnical quantity18–20 kW usable headroomScenario energyUnavailable in this readTariffUnavailable in this readGross sales$2.50 · scenarioManaged ActionNot yet accepted"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "mini-opportunity-finding",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/opportunities/940a7b6d-77c6-4434-be7a-63e745492321",
+   "image": "mini-opportunity-finding-390.png",
+   "measure": {
+    "h1": "Productive-use headroom at Mini-grid depth demonstration",
+    "titles": [
+     "Bounded opportunity",
+     "Next decision",
+     "Consequence basis"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "Global Findings unavailable; this opportunity is reached from Renewable evaluation.OPP-000001Overview· site: Mini-grid depth demonstrationProductive-use headroom at Mini-grid depth demonstrationCan recurring renewable headroom support useful additional demand?Open siteOverviewOPP-000001 · OpportunityConfidence: Not assessedCurrent selectionRecommendation · demand unverifiedUsable headroom18–20 kWAfter the selected retained marginEligible days4 / 5Separate five-day studyProposed load10 kWLinked scenario (name unavailable)Gross sales scenario$2.50Before costs; collections unverifiedBounded opportunityRenewable capacity appears available for a one-hour productive load in 4 adequately observed windows.Electrical feasibility does not establish customer demand, collections or a realised financial benefit.Inspect opportunity evidenceNext decisionValidate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial.Open renewable evaluationConsequence basisTechnical quantity18–20 kW usable headroomScenario energyUnavailable in this readTariffUnavailable in this readGross sales$2.50 · scenarioManaged ActionNot yet accepted"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "mini-finding-history",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0c626391-d78b-41de-8876-9973b080a127?revision_id=9823bc65-d401-4b64-8884-0acf2f8b684d",
+   "image": "mini-finding-history-1440.png",
+   "measure": {
+    "h1": "Generator support merits review",
+    "titles": [
+     "What happened",
+     "What limits this conclusion",
+     "What to do next",
+     "Where to look next"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "FindingsFindingOverview· site: Kobo mini-gridGenerator support merits reviewKobo mini-grid · generator support findingOpen siteOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)MOCK DEVIATION D2 (R383)OverviewAnalysisEvidenceAlternativesRecommendationHistoryPriority: not assessedConfidence: not assessedState: OpenUsing the latest checked readingsLatest version (1 of 1)2026-10-09 02:20–03:30 EAT UTC time2026-10-08T23:20:00.000Z to 2026-10-09T00:30:00.000ZWhat happenedPeriod covered · 2026-10-09 02:20–03:30 EAT · 1 h 10 minInspect evidence →Open: 55 min of generator time possibly avoidableSource unverified. We cannot establish the source of all records behind this result. No current cost is shown. Source record for this finding versionEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.No reading has a confirmed source. (78 records)Finding version: 9823bc65-d401-4b64-8884-0acf2f8b684dRecords whose source is not established: 01648d32-6b5c-47f9-bc91-f690f5c1a70b, 04490d0a-fdb8-436a-94bf-2e5e53885349, 05bcfa25-4ee3-4ed7-9088-d6734a885553, 062be848-bf55-49c9-942d-c324efd9bd0c, 148f952c-ee8a-4613-b7d6-3bed7c9f27a6, 1d20edd3-82f2-4227-b630-8ca5ecb2fcfc, 1e842a34-8c52-4877-b0c7-ef6d00095ff8, 217e095c-1ae4-4606-ac27-a29314aef89c, 21d70102-37c2-448d-b012-3751bd46821e, 240c560e-cd"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "mini-finding-history",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/KOBO-001/findings/0c626391-d78b-41de-8876-9973b080a127?revision_id=9823bc65-d401-4b64-8884-0acf2f8b684d",
+   "image": "mini-finding-history-390.png",
+   "measure": {
+    "h1": "Generator support merits review",
+    "titles": [
+     "What happened",
+     "What limits this conclusion",
+     "What to do next",
+     "Where to look next"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "FindingsFindingOverview· site: Kobo mini-gridGenerator support merits reviewKobo mini-grid · generator support findingOpen siteOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)MOCK DEVIATION D2 (R383)OverviewAnalysisEvidenceAlternativesRecommendationHistoryPriority: not assessedConfidence: not assessedState: OpenUsing the latest checked readingsLatest version (1 of 1)2026-10-09 02:20–03:30 EAT UTC time2026-10-08T23:20:00.000Z to 2026-10-09T00:30:00.000ZWhat happenedPeriod covered · 2026-10-09 02:20–03:30 EAT · 1 h 10 minInspect evidence →Open: 55 min of generator time possibly avoidableSource unverified. We cannot establish the source of all records behind this result. No current cost is shown. Source record for this finding versionEach record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.No reading has a confirmed source. (78 records)Finding version: 9823bc65-d401-4b64-8884-0acf2f8b684dRecords whose source is not established: 01648d32-6b5c-47f9-bc91-f690f5c1a70b, 04490d0a-fdb8-436a-94bf-2e5e53885349, 05bcfa25-4ee3-4ed7-9088-d6734a885553, 062be848-bf55-49c9-942d-c324efd9bd0c, 148f952c-ee8a-4613-b7d6-3bed7c9f27a6, 1d20edd3-82f2-4227-b630-8ca5ecb2fcfc, 1e842a34-8c52-4877-b0c7-ef6d00095ff8, 217e095c-1ae4-4606-ac27-a29314aef89c, 21d70102-37c2-448d-b012-3751bd46821e, 240c560e-cd"
+   },
+   "extra": {
+    "kv": {
+     "codes": 0,
+     "focusable": 0
+    }
+   }
+  },
+  {
+   "name": "mini-evidence",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/evidence",
+   "image": "mini-evidence-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "What we can conclude now",
+     "Data sources · data quality, not equipment condition",
+     "Most useful next evidence"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationEvidenceMini-grid depth demonstrationDemonstration data · MG-W402-001Evidence · accepted readings and what is missingOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Awaiting evidence migrationThis site's configuration has moved to its stored Foundation versions. Its evidence is awaiting evidence migration, so earlier results are not shown beside the updated configuration.What we can conclude nowNot shown: awaiting evidence migration. This is not an empty result.Data sources · data quality, not equipment conditionNot shown: awaiting evidence migration. This is not an empty result.Most useful next evidenceNot shown: awaiting evidence migration. This is not an empty result."
+   },
+   "extra": {}
+  },
+  {
+   "name": "mini-evidence",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/evidence",
+   "image": "mini-evidence-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "What we can conclude now",
+     "Data sources · data quality, not equipment condition",
+     "Most useful next evidence"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationEvidenceMini-grid depth demonstrationDemonstration data · MG-W402-001Evidence · accepted readings and what is missingOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)Awaiting evidence migrationThis site's configuration has moved to its stored Foundation versions. Its evidence is awaiting evidence migration, so earlier results are not shown beside the updated configuration.What we can conclude nowNot shown: awaiting evidence migration. This is not an empty result.Data sources · data quality, not equipment conditionNot shown: awaiting evidence migration. This is not an empty result.Most useful next evidenceNot shown: awaiting evidence migration. This is not an empty result."
+   },
+   "extra": {}
+  },
+  {
+   "name": "mini-site-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/findings",
+   "image": "mini-site-findings-1440.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationFindingsMini-grid depth demonstrationDemonstration data · MG-W402-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetThe Findings for this window are not knownWe have not checked this period No assessment exists for this period, so nothing is concluded about it. Mini-grid dispatch Findings at this site · 26 Oct 2026 (UTC) · As of: time not recordedManage in Findings →Findings at this siteDomain links back to the Performance view that produced the finding.Opportunity index unavailable; open the renewable evaluation for this site's five-day study.From (UTC day)To (UTC day, included)Show FindingsNo Findings are listed and no count is given. This is not a statement that the window has no Findings.Look again after every day in this window has been checked.Days in this window26 Oct 2026Not knownWe have not checked this periodHow this was worked outRecorded list stateUNASSESSEDList as of (exact time)not recordedList prepared at (exact time)2026-10-26T06:24:18.257446+00:00List referencesfi1-1d0500c97aff1a0ffa97062ac373e158282970c044663f373aafef7b34eb497dMatching pass referencenot recordedMatched through check numbernot recordedAssessment record, 26 Oct 2026not recorded"
+   },
+   "extra": {}
+  },
+  {
+   "name": "mini-site-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/sites/MG-W402-001/findings",
+   "image": "mini-site-findings-390.png",
+   "measure": {
+    "h1": "Mini-grid depth demonstration",
+    "titles": [
+     "Findings at this site"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "SitesMini-grid depth demonstrationFindingsMini-grid depth demonstrationDemonstration data · MG-W402-001Findings · conclusions about this site and the limits of their evidenceOverviewFoundationHealthPerformanceFindingsWorkFinancialsEvidenceMOCK DEVIATION D2 (R453)AllCost Not available yetRisks Not available yetOpportunities Not available yetThe Findings for this window are not knownWe have not checked this period No assessment exists for this period, so nothing is concluded about it. Mini-grid dispatch Findings at this site · 26 Oct 2026 (UTC) · As of: time not recordedManage in Findings →Findings at this siteDomain links back to the Performance view that produced the finding.Opportunity index unavailable; open the renewable evaluation for this site's five-day study.From (UTC day)To (UTC day, included)Show FindingsNo Findings are listed and no count is given. This is not a statement that the window has no Findings.Look again after every day in this window has been checked.Days in this window26 Oct 2026Not knownWe have not checked this periodHow this was worked outRecorded list stateUNASSESSEDList as of (exact time)not recordedList prepared at (exact time)2026-10-26T06:24:20.436326+00:00List referencesfi1-1d0500c97aff1a0ffa97062ac373e158282970c044663f373aafef7b34eb497dMatching pass referencenot recordedMatched through check numbernot recordedAssessment record, 26 Oct 2026not recorded"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-findings",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/findings",
+   "image": "estate-findings-1440.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:22 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findingsCoverage incompleteHigh priorityNot assessedLow confidenceNot assessedAwaiting verificationCoverage incompleteAll statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterKobo mini-grid, Mini-grid depth demonstration has no selected result; totals are unknown.Kobo mini-grid, Mini-grid depth demonstration is not yet assessed; estate totals are unknown. Priority, confidence and workflow state stay separate."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-findings",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/findings",
+   "image": "estate-findings-390.png",
+   "measure": {
+    "h1": "Findings",
+    "titles": [
+     "Findings across the estate"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "FindingsEvidence-backed operating conclusions · one global object modelAll findingsCostRisksOpportunitiesWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:25 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSupported findingsCoverage incompleteHigh priorityNot assessedLow confidenceNot assessedAwaiting verificationCoverage incompleteAll statesSupportedUnconfirmedNo longer supportedMergedFindings across the estateLens is how a finding is read, not a second object · state is a filterKobo mini-grid, Mini-grid depth demonstration has no selected result; totals are unknown.Kobo mini-grid, Mini-grid depth demonstration is not yet assessed; estate totals are unknown. Priority, confidence and workflow state stay separate."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/financials",
+   "image": "estate-financials-1440.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 123
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:27 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceNo consequence lines for this window · Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapping technical bases differ.Aggregation ruleAggregate distinct eligible consequence-line IDs by category, currency and compatible window. Reuse the exact site consequence revision; preserve exclusions and assumption references.Results (1) · No comparable total 1 grouping result. Comparable total unavailable for this selection.Coverage incompleteCandidate operating-cost exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-financials",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/financials",
+   "image": "estate-financials-390.png",
+   "measure": {
+    "h1": "Portfolio financials",
+    "titles": [
+     "Consequence register",
+     "Aggregation rule"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site",
+       "w": 88
+      },
+      "tableW": 800,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 800,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "FinancialsPortfolio financialsEstate consequences with source-site ownership and bounded interpretationWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:29 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSite-owned consequences Values grouped by basis and period; no financial assessmentConsequence registerNo independent repricing or technical re-derivationSiteCategoryWindow / quantityValueBasis / limitSourceNo consequence lines for this window · Some Sites are still being assessed · The prior mini-grid amount is unavailable in this selectionThese values are not an additive profit or savings total. Categories, time periods, uncertainty and overlapping technical bases differ.Aggregation ruleAggregate distinct eligible consequence-line IDs by category, currency and compatible window. Reuse the exact site consequence revision; preserve exclusions and assumption references.Results (1) · No comparable total 1 grouping result. Comparable total unavailable for this selection.Coverage incompleteCandidate operating-cost exposureNo consequence lines in this category; some Sites have no complete selectionComparable total unavailable for this selection"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/evidence",
+   "image": "estate-evidence-1440.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 189
+      },
+      "tableW": 1105,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1105,
+      "wrapCW": 1105
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 459
+      },
+      "tableW": 1120,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 1120,
+      "wrapCW": 1120
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:32 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceKobo mini-grid · mini-gridOpens current Site viewGenerator supportRecord detailsCapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-19 00:00 – 2026-10-20 00:00 UTCAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recordedReasonsReason details are not available2026-10-19 00:00 – 2026-10-20 00:00 UTCUnknownNot assessedNo current ceilingNot recordedKobo mini-grid · mini-gridOpens current Site viewGenerator supportRecord detailsCapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-20 00:00 – 2026-10-21 00:00 UTCAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recordedReasonsReason details are not available2026-10-20 00:00 – 2026-10-21 00:00 UTCUnknownNot assesse"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-evidence",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/evidence",
+   "image": "estate-evidence-390.png",
+   "measure": {
+    "h1": "Portfolio evidence",
+    "titles": [
+     "Capability coverage across sites",
+     "Recurring evidence gaps"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Site / domain",
+       "w": 86
+      },
+      "tableW": 520,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 520,
+      "wrapCW": 288
+     },
+     {
+      "cls": "data-table",
+      "cols": [
+       "",
+       "",
+       ""
+      ],
+      "firstTh": {
+       "text": "Gap",
+       "w": 134
+      },
+      "tableW": 330,
+      "wrapCls": "data-table__scroll",
+      "wrapOverflowX": "auto",
+      "wrapSW": 330,
+      "wrapCW": 303
+     }
+    ],
+    "mainText": "EvidencePortfolio evidenceCross-site claim readiness, recurring gaps and instrumentation prioritiesWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:35 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowSites with limited claimsNot assessedSome Site evidence is unavailablePriority evidence actionsNot assessedPriority is not recorded for estate evidence gapsUnsupported claimsNot assessedNo cross-domain unsupported-claim count is recordedCapability coverage across sitesEach row links to site-owned readiness; this page does not independently score the claimsSite / domainOperational capabilityReadinessCurrent ceilingNext evidenceKobo mini-grid · mini-gridOpens current Site viewGenerator supportRecord detailsCapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-19 00:00 – 2026-10-20 00:00 UTCAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recordedReasonsReason details are not available2026-10-19 00:00 – 2026-10-20 00:00 UTCUnknownNot assessedNo current ceilingNot recordedKobo mini-grid · mini-gridOpens current Site viewGenerator supportRecord detailsCapabilityGenerator supportSiteKobo mini-grid · KOBO-001Evidence window2026-10-20 00:00 – 2026-10-21 00:00 UTCAssessmentUnknown · Not assessedSelected record referencesNone selectedEvidence record referencesNone recordedReasonsReason details are not available2026-10-20 00:00 – 2026-10-21 00:00 UTCUnknownNot assesse"
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-actions",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/actions",
+   "image": "estate-actions-1440.png",
+   "measure": {
+    "h1": "Actions",
+    "titles": [
+     "Managed actions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "ActionsInterventions, owners and declared outcome criteriaWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:37 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowOpen actions0Due / overdueNot setNo due dates recordedVerification window0Verified in 30 days0No verified outcome in the last 30 daysManaged actionsPending → Applied → Verification window → Verified or withdrawnNo actions match.Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-actions",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/actions",
+   "image": "estate-actions-390.png",
+   "measure": {
+    "h1": "Actions",
+    "titles": [
+     "Managed actions"
+    ],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "ActionsInterventions, owners and declared outcome criteriaWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff 2026-10-26 06:24:40 UTC (latest at read time)From to (included) Evidence cutoff (UTC) ShowOpen actions0Due / overdueNot setNo due dates recordedVerification window0Verified in 30 days0No verified outcome in the last 30 daysManaged actionsPending → Applied → Verification window → Verified or withdrawnNo actions match.Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-portfolio",
+   "viewport": "1440",
+   "url": "http://127.0.0.1:5452/portfolio",
+   "image": "estate-portfolio-1440.png",
+   "measure": {
+    "h1": "Portfolio Value & Operations",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 1440,
+    "tables": [],
+    "mainText": "Portfolio Value & OperationsOperating decisions across the estate: cost, service, productive use and asset valueWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff latestFrom to (included) Evidence cutoff (UTC) ShowEstate records are unavailable right now. Try again."
+   },
+   "extra": {}
+  },
+  {
+   "name": "estate-portfolio",
+   "viewport": "390",
+   "url": "http://127.0.0.1:5452/portfolio",
+   "image": "estate-portfolio-390.png",
+   "measure": {
+    "h1": "Portfolio Value & Operations",
+    "titles": [],
+    "docOverflowX": 0,
+    "innerWidth": 390,
+    "tables": [],
+    "mainText": "Portfolio Value & OperationsOperating decisions across the estate: cost, service, productive use and asset valueWindow 2026-10-19 to 2026-10-25 (UTC days)Evidence cutoff latestFrom to (included) Evidence cutoff (UTC) ShowEstate records are unavailable right now. Try again."
+   },
+   "extra": {}
+  }
+ ]
+}

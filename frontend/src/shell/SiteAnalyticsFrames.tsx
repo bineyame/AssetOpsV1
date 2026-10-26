@@ -40,6 +40,7 @@ import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
 import { createWorkClient, defaultWorkWindow, workPageQuery, type WorkClient, type WorkKind, type WorkScope } from "../sites/workClient";
+import { siteSevenDayWindow } from "../sites/siteTime";
 import {
   createFindingIndexClient,
   FINDING_INDEX_DOMAIN,
@@ -1325,7 +1326,7 @@ export function SiteFinancialsFrame({
                 description={site.site_type === "COLDCHAIN" ? SITE_SCREEN_DESCRIPTIONS.coldScenarios : SITE_SCREEN_DESCRIPTIONS.scenarios}
                 headingId={SITE_FINANCIALS_HEADING_ID}
               />
-              <OperatorSiteTabs siteId={siteId} current="Financials" />
+              <OperatorSiteTabs siteId={siteId} current="Financials" search={coldTabSearch(site, params)} />
               {site.site_type === "COLDCHAIN" ? (
                 <FinancialsSections
                   siteId={site.site_id}
@@ -2334,10 +2335,13 @@ function WorkSubrow({
  */
 export const SITE_WORK_CASES_HEADING_ID = "site-work-cases-heading";
 
-function workCasesScope(params: URLSearchParams): WorkScope {
+function workCasesScope(params: URLSearchParams, site: { site_type: string; timezone?: string | null }): WorkScope {
   const from = params.get("from");
   const to = params.get("to");
-  const window = from && to ? { from, to } : defaultWorkWindow();
+  // post-W6 final-fix M1: a mini Site's default is seven Site-local days (its form fields show the same days); cold
+  // and EV keep R338's seven UTC days.
+  const fallback = domainWorkPresentation(site.site_type) === null ? siteSevenDayWindow(site.timezone ?? null) : defaultWorkWindow();
+  const window = from && to ? { from, to } : fallback;
   return { ...window, knownAt: params.get("known_at"), cursor: params.get("cursor") };
 }
 
@@ -2369,13 +2373,14 @@ export function SiteWorkCasesFrame({
   const [params] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const scope = workCasesScope(params);
   const trail = workTrail(location.state);
   const hrefFor = kind === "incidents" ? siteWorkIncidentsHref : siteWorkMaintenanceHref;
   const Body = kind === "incidents" ? SiteWorkIncidents : SiteWorkMaintenance;
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Work" headingId={SITE_WORK_CASES_HEADING_ID}>
-      {(site) => (
+      {(site) => {
+        const scope = workCasesScope(params, site);
+        return (
         <main aria-labelledby={SITE_WORK_CASES_HEADING_ID}>
           <Breadcrumbs
             trail={[
@@ -2428,7 +2433,8 @@ export function SiteWorkCasesFrame({
             }
           />
         </main>
-      )}
+        );
+      }}
     </SiteScoped>
   );
 }

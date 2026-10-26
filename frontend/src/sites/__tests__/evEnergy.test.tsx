@@ -232,12 +232,12 @@ describe("W5-03a E3: EV Energy", () => {
   });
 
   it("R346: a read-guard consequence shows the card's metered quantity; a stored null stays Unknown; R06 is labelled", async () => {
-    const guard = { ...ESTIMATED, state: "WITHHELD", quantity_kwh: null, amount: null, tariff_value: null, currency: null, limitation: "No stored gross tariff estimate matches the current evidence." };
+    const guard = { ...ESTIMATED, state: "WITHHELD", quantity_kwh: null, amount: null, tariff_value: null, currency: null, limitation: "No stored gross tariff estimate matches the evidence at this cutoff." };
     expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: guard }))[0]).toEqual([
       "15.000 kWh complete-record delivery",
       "No eligible tariff applied",
       "Unpriced",
-      "No stored gross tariff estimate matches the current evidence.",
+      "No stored gross tariff estimate matches the evidence at this cutoff.",
     ]);
     // A stored (non-withheld) consequence with no quantity is a stored unknown.
     expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: { ...guard, state: "UNPRICED" } }))[0][0]).toBe("Unknown");

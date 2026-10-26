@@ -18,7 +18,8 @@ import { siteFindingHref } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
-import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
+import { type WorkIndexBody, type WorkRow } from "../workClient";
+import { siteSevenDayWindow } from "../siteTime";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName, siteWindowText } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -144,8 +145,13 @@ const actionCount = (total: number) => ({
 const page = (kind: string, w: { from: string; to: string }) =>
   `/sites/KOBO-001/work/${kind}?${new URLSearchParams(w).toString()}`;
 
+/** final-fix L6: a test sets this to `""` to make the Site's zone unavailable. */
+let zoneOverride: string | null = null;
 const detail: SiteDetailClient = {
-  getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+  getSite: async (siteId: string) => ({
+    status: "loaded",
+    site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId, ...(zoneOverride === null ? {} : { timezone: zoneOverride }) },
+  }),
 } as SiteDetailClient;
 const directory: SiteDirectoryClient = {
   listSites: async () => ({ status: "loaded", sites: [HYBRID_MINI_GRID_SITE] }),
@@ -437,12 +443,13 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 
   it("narrow_mock_panels_and_unavailable_links", async () => {
-    // post-W6 R338: first load with no window reads seven UTC calendar days including today, [today−6d, tomorrow).
-    const w = defaultWorkWindow();
+    // post-W6 final-fix M1: a mini Site's first load with no window reads seven Site-local (EAT) calendar days including
+    // today, [local midnight today−6d, local midnight tomorrow), as UTC instants.
+    const w = siteSevenDayWindow("Africa/Addis_Ababa");
     expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(7 * 86_400_000);
-    expect(w.to.endsWith("T00:00:00Z")).toBe(true);
-    const today = `${new Date().toISOString().slice(0, 10)}T00:00:00Z`;
-    expect(w.from <= today && today < w.to).toBe(true);
+    expect(w.to.endsWith("T21:00:00Z")).toBe(true);
+    const now = new Date().toISOString();
+    expect(w.from <= now && now < w.to).toBe(true);
     const requests = serve({
       [api("maintenance", w)]: { status: 200, body: body([]) },
       [api("incidents", w)]: { status: 200, body: body([]) },
@@ -833,6 +840,42 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     // 21:00Z is the next local day at 00:00 EAT.
     expect(text(document.querySelector("main tbody tr [data-work-window]"))).toBe("7 Oct · from 00:00 EAT");
     expect(text(strip())).not.toContain("UTC+3");
+  });
+
+  it("final-fix M1: the untouched form of a bare mini address shows the same seven Site-local days it reads, and Search keeps them", async () => {
+    // 26 Oct 22:30Z is already 27 Oct 01:30 in EAT: today is the 27th at the Site.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-26T22:30:00Z"));
+    try {
+      const W = { from: "2026-10-20T21:00:00Z", to: "2026-10-27T21:00:00Z" };
+      const requests = serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
+      mount("/sites/KOBO-001/work/incidents");
+      await settledScreen();
+      const inputs = document.querySelectorAll<HTMLInputElement>("[data-work-window] input");
+      await vi.waitFor(() => expect([inputs[0].value, inputs[1].value]).toEqual(["2026-10-21", "2026-10-27"]));
+      expect(requests).toEqual([api("incidents", W)]);
+      fireEvent.submit(document.querySelector("[data-work-window]") as HTMLElement);
+      await settledScreen();
+      // No edit: the Search bounds equal the default bounds (same API read, now explicit in the address).
+      expect(requests.every((r) => r === api("incidents", W))).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("final-fix L6: a missing Site zone names itself beside both date fields", async () => {
+    zoneOverride = "";
+    try {
+      const W = { from: "2026-10-05T00:00:00Z", to: "2026-10-06T00:00:00Z" };
+      serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
+      mount(page("incidents", W));
+      await settledScreen();
+      const form = text(document.querySelector("[data-work-window]"));
+      expect(form).toContain("(UTC (Site time zone unavailable))");
+      expect(form).toContain("to (UTC (Site time zone unavailable), included)");
+    } finally {
+      zoneOverride = null;
+    }
   });
 
   it("R320: a missing or invalid zone says UTC", () => {
