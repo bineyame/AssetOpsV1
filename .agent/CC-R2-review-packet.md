@@ -202,3 +202,49 @@ evaluation, so `action` is null, `expect` is null and `fake` is null.
 - `capture` at 1440×1000 and 390×900, with a screenshot check against v69 `#/portfolio`.
 - **layout evidence: not run.**
 
+## Heavy evidence after Q5/Q6 (2026-10-28, `f181d168`)
+
+1. **Tier 2.** `test_cc_placement_postgres.py` ran on `assetops_cc2_test`: **2 passed**, 0 failed, 0 skipped, in
+   102.9 s. Both the W3-03 fixture test and `test_ev_interruption_placement` (UNPRICED_RISK) passed.
+2. **Prepare.** I ran `s602b_verification_walkthrough.py --db assetops_s602b_audit_cc --work var/s602b_cc prepare`
+   unmodified, with the tree at `f181d168`. It took 4:55 and exited with rc 0.
+   - All five cases built.
+   - `case estate: no Action (CC-R2-Q6); ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED'])`.
+     That means the 10-21 and 10-11 assertions passed.
+3. **Capture.** `capture` took 2:56, with Vite on 5466/5467, started by `npm.cmd run dev -- --port N --strictPort`.
+   Vite bound to localhost (::1); the script uses `localhost`. I stopped Vite by PID: node 32656 and 16008, npm 23716
+   and 22232.
+   - **Part `estate`: 20/20 claims passed** at 1440×1000 and 390×900. See `.agent/CC-R2-evidence/results-estate.json`.
+   - The other parts are not CC-R2 surfaces: replay 69/70, target_miss 8/8, guardrail 13/14, inconclusive 6/6,
+     withdrawn 21/22. The 3 failures are the same narrow-width overflow, `site-tabs__link:421`, on the
+     Recommendation/hold pages (`.agent/CC-R2-evidence/capture-other-parts-failures.txt`). CC-R2 does not touch the
+     site tabs. I am reporting them, not fixing them.
+   - Afterwards I removed the DBs and the work folder with the tool's `drop`.
+4. **Evidence in the repo** (`.agent/CC-R2-evidence/`):
+   - the 4 app PNGs (`app-case-estate-portfolio[-policy]-{desktop,narrow}.png`);
+   - the 2 mock PNGs (`mock-portfolio-{desktop,narrow}.png`);
+   - `results-estate.json`;
+   - `comparison.md`.
+
+**My check against v69 `#/portfolio`, with the deviations labelled.**
+- **Layout matches.** The page has the same panel order and grid:
+  - the five value cards;
+  - the pulse row;
+  - "Where management should act first" (left), with "Objectives across the estate" and the evidence aside (right);
+  - the opportunity and "What changed" panels;
+  - the footer.
+  The app adds "Portfolio scope & consequence ownership" (an existing standing row, not CC-R2).
+- **Labelled deviations, as shown.**
+  - R502: the Placement column has a "Needs investigation first · 1" group heading row instead of priority badges.
+  - Q3: the subtitle says "grouped by where to look first", not "ranked", and the bottom line says "Placement and
+    confidence answer different questions."
+  - F3: the mechanism words read "Possible extended generator support".
+  - The "How placement works" disclosure sits under the table.
+- **At 390px.** The table scrolls inside its own scroller, and the page does not scroll sideways (claim passed).
+- **Observation for the UI/UX pass (not a failure).**
+  - At 1440px the Placement column (9%) is narrow, so its reason line wraps to about 10 short lines.
+  - At 390px the group heading's text sits inside the scrolled table.
+  - Neither breaks a claim. I leave both for the post-W6 UI/UX pass and do not change them here.
+- **Limitation of the evidence.** It shows one group only, by ruling (Q6). The multi-group served Portfolio belongs
+  to the demo sprint.
+
