@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below); scoped Claude exception for `Docs/demo-sprint/commercial-capability-readiness.html` (2026-10-27; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -36,7 +36,9 @@ weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
 
-## Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27)
+## Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27) — ended
+
+Ended 2026-10-27: the document, with the Implementer's questions worked in, was delivered to the owner. The row is Codex again. The original record follows.
 
 The owner set Architect to Claude for one deliverable: an implementer-friendly,
 code-grounded version of `Docs/demo-sprint/commercial-capability-readiness.md`,
