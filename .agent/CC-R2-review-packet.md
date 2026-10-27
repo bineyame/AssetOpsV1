@@ -168,3 +168,37 @@ the walkthrough. All four questions are ruled.
    - The DBs and the work folder were removed with the tool's `drop`.
 3. **Capture: not run.** `prepare` did not finish, so no `cases.json` exists. **layout evidence: not run** (blocked
    by Q6). No Vite or API process was started.
+
+## Q5/Q6 rulings applied (2026-10-28)
+
+**Q5.** `test_ev_interruption_placement` now expects `EV_UNPRICED` (UNPRICED_RISK, rank 4,
+`UNPRICED_SERVICE_INTERRUPTION`), `episode_end == "2026-10-06T08:16:00Z"` and consequence `UNPRICED`. The docstrings
+record the CC-00 EV fact as rank 4.
+
+**Q6.** Case `estate` builds F01, F02, F03, F05 (through UNCONFIRMED) and price v1. It has no Action, plan or
+evaluation, so `action` is null, `expect` is null and `fake` is null.
+- **Assertions.** They run on two one-day reads at the F2-pinned time.
+  - 10-21: status CURRENT and exactly the F05 row. It is NEEDS_INVESTIGATION / `EVIDENCE_SOURCE_UNKNOWN` +
+    `LIFECYCLE_UNCONFIRMED`, with confidence UNKNOWN and counts NI 1, others 0.
+  - 10-11: two NEEDS_INVESTIGATION / `EVIDENCE_SOURCE_UNKNOWN` rows, 09:30 then 08:00.
+  - Both reads: no double count, no priority and `next_cursor` null.
+- **Walkthrough.** The links listing prints the Portfolio URL for a case with no Action.
+- **`.mjs`.** `casesSuite` sends a case with no Action only to `portfolioSuite`. `portfolioSuite` reads 10-21 and
+  claims one heading, "Needs investigation first · 1". The F05 row has both reason lines and confidence
+  UNKNOWN, "Unconfirmed Finding · Source not resolved", and the panel shows no guarded word or raw code. Claims 5-7
+  are unchanged.
+- **Dropped, owner-visible.** No served page shows KOBO-001 in MONITOR, ACT_NOW or COMPARE_VALUE. The multi-group
+  served Portfolio moves to the demo sprint, per the ruling.
+
+**Checks after the rulings.**
+- Tier 1 backend: 441 passed, 15 skipped.
+- Frontend `src/estate`: 65 passed.
+- `tsc` is clean, and `py_compile` passed for the touched files.
+- Both guards passed.
+
+**Owed, on hold until the coordinator gives the go.**
+- Tier-2 `test_cc_placement_postgres.py` (both tests).
+- Walkthrough `prepare` (case `estate`).
+- `capture` at 1440×1000 and 390×900, with a screenshot check against v69 `#/portfolio`.
+- **layout evidence: not run.**
+

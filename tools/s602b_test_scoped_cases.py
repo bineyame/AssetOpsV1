@@ -44,11 +44,13 @@ LABELS = {
     "inconclusive": "Could not conclude (INCONCLUSIVE) - the real roles-2 windows are incomplete; no fake",
     "withdrawn": "VERIFIED, then late evidence: resolution withdrawn, overlap hold, re-settled INCONCLUSIVE - "
                  "authored complete windows plus the real late reading",
-    "estate": "Portfolio placement (CC-R2): a VERIFIED change, a recurrence with no Action and an unconfirmed "
-              "Finding on one Site - authored complete windows",
+    "estate": "Portfolio placement (CC-R2): the unconfirmed Finding on test-scoped readings; source not resolved, "
+              "no Action",
 }
-#: CC-R2: the Portfolio read the `estate` case asserts (build spec CC-R2 "Producer" 1).
-ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-03T00:00:00Z&to=2026-11-03T00:00:00Z"
+#: CC-R2-Q6 ruling: the one-day Portfolio read the `estate` case asserts and captures (supersedes F1's 31 days).
+ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z"
+#: CC-R2-Q6 ruling: the MG-B day, asserted only (rule 1 hides its recurrence: source not resolved).
+ESTATE_MG_B = "/api/estate/portfolio?from=2026-10-11T00:00:00Z&to=2026-10-12T00:00:00Z"
 
 
 class Patch:
@@ -130,15 +132,9 @@ def build(url: str, work: Path, case: str) -> None:
             outcome = ev.evaluate(h, action_id, "eval-0003").json()["outcome"]
             assert outcome["outcome"] == "INCONCLUSIVE", outcome
             out["expect"] = {"current_state": "INCONCLUSIVE", "outcome": "INCONCLUSIVE", "label": "Could not conclude"}
-        elif case == "estate":  # the `withdrawn` case's steps up to and including its first VERIFIED evaluation
-            inject = set()
-            ev.complete_windows(Patch(), h, inject=inject)
-            action_id, plan, _ = ev.bound_plan(runner, h)
-            h.clock.at = ev.CLOSED + timedelta(hours=1)
-            outcome = ev.evaluate(h, action_id, "eval-0001").json()["outcome"]
-            assert outcome["outcome"] == "VERIFIED", outcome
-            fake["inject"] = sorted(inject)
-            out["expect"] = {"current_state": "VERIFIED", "outcome": "VERIFIED"}
+        elif case == "estate":  # CC-R2-Q6 ruling: no Action, plan or evaluation in this case
+            action_id, plan, outcome = None, None, {"outcome_id": None, "reasons": [], "outcome": None}
+            out["expect"] = None
         else:  # withdrawn
             inject: set = set()
             ev.complete_windows(Patch(), h, inject=inject)
@@ -166,7 +162,7 @@ def build(url: str, work: Path, case: str) -> None:
         pinned = max(h.clock.at, runner.now) + timedelta(minutes=1)
         out |= {"action": action_id, "plan": plan["plan_id"] if isinstance(plan, dict) else plan,
                 "outcome": outcome["outcome_id"], "outcome_reasons": outcome["reasons"],
-                "pinned_at": pinned.isoformat(), "fake": fake if case != "inconclusive" else None,
+                "pinned_at": pinned.isoformat(), "fake": fake if case not in ("inconclusive", "estate") else None,
                 "findings": {day: str(fid) for day, fid in findings.items()}}
     finally:
         h.close()
@@ -178,13 +174,16 @@ def build(url: str, work: Path, case: str) -> None:
     if case == "estate":  # any failure exits non-zero before the case file (and so before any capture) exists
         out["placement"] = estate_assertions(out)
     (work / f"case-{case}.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
-    print(f"case {case}: {outcome['outcome']} {outcome['reasons']} action {action_id}")
+    if case == "estate":
+        print(f"case estate: no Action (CC-R2-Q6); {out['placement']['F05']}")
+    else:
+        print(f"case {case}: {outcome['outcome']} {outcome['reasons']} action {action_id}")
 
 
 def estate_findings(runner, url: str, S4: dict) -> None:
     """CC-R2 case `estate`: S4 F03 (its 09:30 anchor recurs after 08:00 with no Action: the MG-B stand-in), S4 F05
     through and including its first UNCONFIRMED match (the MG-C stand-in), then diesel price v1 (build spec CC-D2
-    "Price": one revision covers both verification windows), before any Action or evaluation."""
+    "Price": one revision covers both verification windows); no Action or evaluation in this case (CC-R2-Q6)."""
     from test_s4_finding_store_postgres import check, run_case
 
     run_case(runner, S4["F03"])
@@ -272,56 +271,58 @@ def _placed(row: dict | None) -> tuple:
 
 
 def estate_assertions(spec: dict) -> dict:
-    """CC-R2 Producer 1 end assertions on the served Portfolio body; returns the three rows' placements."""
+    """CC-R2-Q6 ruling: the served Portfolio on 2026-10-21 (the MG-C stand-in, captured) and 2026-10-11 (the MG-B
+    day, asserted only); returns the F05 placement, the counts and its `data-portfolio-row` key."""
     from fastapi.testclient import TestClient
 
     from assetops_backend.estate.money_invariants import double_count_violations
 
     _cursor_key()
-    response = TestClient(pinned_app(spec)).get(ESTATE_PORTFOLIO)
-    if response.status_code != 200:
-        raise SystemExit(f"estate: Portfolio read {response.status_code}: {response.text[:400]}")
-    body = response.json()
-    rows = body["rows"]
+    client = TestClient(pinned_app(spec))
     failures: list[str] = []
 
-    def one(name: str, pick) -> dict | None:
-        found = [r for r in rows if pick(r)]
-        if len(found) != 1:
-            failures.append(f"{name}: {len(found)} matching rows")
-            return None
-        return found[0]
+    def read(path: str) -> dict:
+        response = client.get(path)
+        if response.status_code != 200:
+            raise SystemExit(f"estate: Portfolio read {path} {response.status_code}: {response.text[:400]}")
+        body = response.json()
+        if body["status"] != "CURRENT":
+            failures.append(f"{path}: status {body['status']}")
+        violations = double_count_violations(body)
+        if violations:
+            failures.append(f"{path}: double-count violations: {violations}")
+        if any(r["priority"] is not None for r in body["rows"]):
+            failures.append(f"{path}: a row has a numeric priority")
+        if body["next_cursor"] is not None:
+            failures.append(f"{path}: does not fit one page")
+        return body
 
-    f01 = one("F01 (verified Action)", lambda r: r["action_id"] == spec["action"])
-    f03 = one("F03 09:30 recurrence", lambda r: r["episode_start"] == "2026-10-11T09:30:00Z")
-    f05 = one("F05 unconfirmed", lambda r: r["episode_start"] == "2026-10-21T08:00:00Z")
-    if _placed(f01) != ("MONITOR", ["VERIFIED_WATCH_RETURN"]):
-        failures.append(f"F01 placed {_placed(f01)}")
-    group, codes = _placed(f03)
-    if group != "ACT_NOW" or "RECURRED" not in codes or "NO_ACTION_RECORDED" not in codes:
-        failures.append(f"F03 09:30 placed {_placed(f03)}")
-    group, codes = _placed(f05)
-    if group != "NEEDS_INVESTIGATION" or "LIFECYCLE_UNCONFIRMED" not in codes:
-        failures.append(f"F05 placed {_placed(f05)}")
-    if any(r["source_provenance"]["state"] in ("UNKNOWN", "MIXED") for r in (f01, f03, f05) if r is not None):
-        failures.append("a KOBO-001 row resolves to source UNKNOWN or MIXED (build spec CC-R2 Stop)")
-    violations = double_count_violations(body)
-    if violations:
-        failures.append(f"double-count violations: {violations}")
-    if any(r["priority"] is not None for r in rows):
-        failures.append("a row has a numeric priority")
-    if body["next_cursor"] is not None:
-        failures.append("the estate Portfolio does not fit one page")
+    body, mg_b = read(ESTATE_PORTFOLIO), read(ESTATE_MG_B)
+    rows = body["rows"]
+    f05 = rows[0] if len(rows) == 1 else None
+    if f05 is None:
+        failures.append(f"10-21: {len(rows)} rows, expected exactly one (F05)")
+    else:
+        facts = (f05["episode_start"], f05["lifecycle"], f05["mechanism"], f05["workflow_label"],
+                 f05["source_provenance"]["state"], _placed(f05), f05["confidence"], f05["confidence_reasons"])
+        want = ("2026-10-21T08:00:00Z", "UNCONFIRMED", "GENERATOR_SUPPORT_CANDIDATE", "Recommendation not accepted",
+                "UNKNOWN", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"]), "UNKNOWN",
+                ["Unconfirmed Finding", "Source not resolved"])
+        if facts != want:
+            failures.append(f"10-21 F05 {facts}")
+    counts = {"NEEDS_INVESTIGATION": 1, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}
+    if body["summary"]["placement_counts"] != counts:
+        failures.append(f"10-21 counts {body['summary']['placement_counts']}")
+    got_b = [(r["episode_start"], r["lifecycle"], _placed(r)) for r in mg_b["rows"]]
+    if got_b != [(at, "SUPPORTED", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN"]))
+                 for at in ("2026-10-11T09:30:00Z", "2026-10-11T08:00:00Z")]:
+        failures.append(f"10-11 rows {got_b}")
     if failures:
-        detail = [(r["episode_start"], r["lifecycle"], r["source_provenance"]["state"], r["workflow_label"],
-                   _placed(r)) for r in rows]
-        raise SystemExit("estate: placement assertions failed:\n  " + "\n  ".join(failures) + f"\nrows: {detail}")
-    print(f"estate: F01 {_placed(f01)}, F03 {_placed(f03)}, F05 {_placed(f05)}; no double count")
-    key = lambda r: f"{r['finding_id']}|{r['finding_revision_id']}"  # noqa: E731 - the page's data-portfolio-row
-    # CC-R2-Q4 ruling: the capture script finds the three rows by these keys.
-    return {"F01": _placed(f01), "F03": _placed(f03), "F05": _placed(f05),
-            "counts": body["summary"]["placement_counts"],
-            "rows": {"F01": key(f01), "F03": key(f03), "F05": key(f05)}}
+        raise SystemExit("estate: placement assertions failed:\n  " + "\n  ".join(failures))
+    print("estate: F05 ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED']); "
+          "10-11: 2 rows NEEDS_INVESTIGATION; no double count")
+    key = f"{f05['finding_id']}|{f05['finding_revision_id']}"  # the page's data-portfolio-row
+    return {"F05": _placed(f05), "counts": body["summary"]["placement_counts"], "rows": {"F05": key}}
 
 
 def serve(url: str, work: Path, case: str, port: int) -> None:

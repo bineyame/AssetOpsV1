@@ -290,36 +290,31 @@ const BOTTOM_LINE = "Placement and confidence answer different questions.";
 async function portfolioSuite(label, c) {
   const p = c.placement;
   const ready = `${settled} && document.querySelector('[data-estate-root="portfolio"] [data-portfolio-row]')`;
-  const loaded = await go(`${CASES_BASE}/portfolio?from=2026-10-03T00:00:00Z&to=2026-11-03T00:00:00Z`, ready);
+  const loaded = await go(`${CASES_BASE}/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z`, ready);
   claim(`${label} estate Portfolio loads with rows`, loaded);
-  // 1. Group headings: no repeats, GROUPS order, the three expected groups, exact label · count text.
+  // 1. CC-R2-Q6 ruling: one group heading, the MG-C stand-in's group, with its count.
   const heads = await js(`[...document.querySelectorAll('tr[data-placement-group]')].map(t => [t.dataset.placementGroup, t.textContent.trim()])`);
-  const order = heads.map(([g]) => GROUPS.indexOf(g));
-  const texts = heads.every(([g, t]) => t === (p.counts === null || p.counts[g] === null ? GROUP_LABEL[g] : `${GROUP_LABEL[g]} · ${p.counts[g]}`));
-  claim(`${label} estate Portfolio: group headings once each, in group order, with label and count`,
-    new Set(heads.map(([g]) => g)).size === heads.length && order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1]))
-      && ["NEEDS_INVESTIGATION", "ACT_NOW", "MONITOR"].every((g) => heads.some(([h]) => h === g)) && texts, heads);
-  // 2-3. The three placements, the nearest heading above each row, and the reason lines.
-  const expected = { F01: "MONITOR", F03: "ACT_NOW", F05: "NEEDS_INVESTIGATION" };
-  for (const [name, group] of Object.entries(expected)) {
-    const got = await js(`(() => { const r = document.querySelector('[data-portfolio-row=' + JSON.stringify(${JSON.stringify(p.rows[name])}) + ']');
-      if (!r) return null; let h = r.previousElementSibling; while (h && !h.matches('tr[data-placement-group]')) h = h.previousElementSibling;
-      return { placement: r.querySelector('[data-portfolio-placement]')?.dataset.portfolioPlacement ?? null, heading: h?.dataset.placementGroup ?? null,
-        reasons: r.querySelector('[data-portfolio-placement-reasons]')?.textContent ?? null }; })()`);
-    const reasons = got?.reasons ?? "";
-    const reasonOk = name === "F01" ? reasons === "Change verified on test data; watch for a return"
-      : name === "F03" ? /Returned after an earlier episode \(Finding [0-9a-f]{8}\)/.test(reasons) && reasons.includes("No accepted Action; open the recommendation")
-      : reasons.includes("The latest assessment no longer confirms this Finding; check its basis");
-    claim(`${label} estate Portfolio: ${name} is ${group} under its own heading, with its reason line`,
-      got !== null && got.placement === group && got.heading === group && reasonOk, got);
-  }
-  // 4. Confidence on every row; no guarded word in the priority panel.
-  const conf = await js(`({ rows: [...document.querySelectorAll('[data-portfolio-row] [data-portfolio-confidence]')].map(e => [e.dataset.portfolioConfidence, e.textContent.trim()]),
-    count: document.querySelectorAll('[data-portfolio-row]').length, panel: document.querySelector('[data-portfolio-panel="priority"]')?.textContent ?? '' })`);
-  const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(conf.panel)).map(String);
-  claim(`${label} estate Portfolio: every row has a confidence code and text; no guarded word in the panel`,
-    conf.rows.length === conf.count && conf.count > 0 && conf.rows.every(([code, t]) => ["SUPPORTED_SOURCE_COHERENT", "LIMITED", "UNKNOWN"].includes(code) && t !== "")
-      && words.length === 0 && !/[A-Z]+_[A-Z_]+/.test(conf.panel), { rows: conf.rows.length, count: conf.count, words });
+  claim(`${label} estate Portfolio: one heading, Needs investigation first · 1`,
+    JSON.stringify(heads) === JSON.stringify([["NEEDS_INVESTIGATION", "Needs investigation first · 1"]]), heads);
+  // 2-3. The one F05 row, under that heading, with both reason lines.
+  const got = await js(`(() => { const all = document.querySelectorAll('[data-portfolio-row]');
+    const r = document.querySelector('[data-portfolio-row=' + JSON.stringify(${JSON.stringify(p.rows.F05)}) + ']');
+    if (!r) return { count: all.length }; let h = r.previousElementSibling; while (h && !h.matches('tr[data-placement-group]')) h = h.previousElementSibling;
+    return { count: all.length, placement: r.querySelector('[data-portfolio-placement]')?.dataset.portfolioPlacement ?? null,
+      heading: h?.dataset.placementGroup ?? null, reasons: r.querySelector('[data-portfolio-placement-reasons]')?.textContent ?? null,
+      confidence: r.querySelector('[data-portfolio-confidence]')?.dataset.portfolioConfidence ?? null,
+      confidenceText: r.querySelector('[data-portfolio-confidence] small')?.textContent ?? null }; })()`);
+  const reasons = got.reasons ?? "";
+  claim(`${label} estate Portfolio: F05 is the one row, NEEDS_INVESTIGATION under its heading, with both reason lines`,
+    got.count === 1 && got.placement === "NEEDS_INVESTIGATION" && got.heading === "NEEDS_INVESTIGATION"
+      && reasons.includes("Evidence source is not resolved; check the source before acting")
+      && reasons.includes("The latest assessment no longer confirms this Finding; check its basis"), got);
+  // 4. Confidence; no guarded word and no raw code in the priority panel.
+  const panel = await js(`document.querySelector('[data-portfolio-panel="priority"]')?.textContent ?? ''`);
+  const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(panel)).map(String);
+  claim(`${label} estate Portfolio: F05 confidence UNKNOWN, "Unconfirmed Finding · Source not resolved"; no guarded word or raw code`,
+    got.confidence === "UNKNOWN" && got.confidenceText === "Unconfirmed Finding · Source not resolved"
+      && words.length === 0 && !/[A-Z]+_[A-Z_]+/.test(panel), { confidence: got.confidence, text: got.confidenceText, words });
   // 5. Bottom line and the closed policy disclosure.
   const policy = await js(`(() => { const d = document.querySelector('[data-placement-policy]');
     return { bottom: document.querySelector('[data-portfolio-panel="priority"] .panel-bottom span')?.textContent ?? null,
@@ -343,6 +338,10 @@ async function casesSuite(label) {
   // --- TEST-SCOPED cases (cases.json: { cases: { name: { label, action, expect, recommendation? } } }) ---
   // ASSETOPS_S602B_PART=<case> runs one case: the walkthrough serves one case database at a time.
   for (const [name, c] of Object.entries(CASES).filter(([n]) => PART === "all" || PART === n)) {
+    if (c.action == null) { // CC-R2-Q6: case estate has no Action; only its Portfolio is captured
+      if (c.placement) await portfolioSuite(label, c);
+      continue;
+    }
     await go(`${csite}/actions/${c.action}/verification`, `${settled} && document.querySelector('[data-verification-current-state]')`);
     const got = await js(`({ state: document.querySelector('[data-verification-current-state]')?.dataset.verificationCurrentState,
       outcome: document.querySelector('[data-verification-outcome]')?.dataset.verificationOutcome ?? null,

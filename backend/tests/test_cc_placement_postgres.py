@@ -5,8 +5,9 @@ CC-00 facts pinned from this fixture (recorded in `.agent/CC-R2-review-packet.md
 (`COLD_EXCURSION` and `COLD_START_FAILURE`) have a null stored `episode_end`, so each is ACT_NOW with
 `EPISODE_OPEN` + `NO_ACTION_RECORDED`; the EV `complete` producer selects no EV Finding, so no EV row exists in this
 fixture (pinned as `ev == []`); KOBO-001's W1 row is PRICED in a SINGLE_LINE group with a closed episode, so it is
-COMPARE_VALUE / `PRICED_SINGLE`. The EV row is asserted on the W2-05b `interrupted` chain (CC-R2-Q2 ruling): one
-SUPPORTED `EV_INTERRUPTION` Finding with a null session end, so CC-00 records rank 2 (ACT_NOW) for it.
+COMPARE_VALUE / `PRICED_SINGLE`. The EV row is asserted on the W2-05b `interrupted` chain (CC-R2-Q2/Q5 rulings): one
+SUPPORTED `EV_INTERRUPTION` Finding whose stored session revision ends at the 08:16 abort, so CC-00 records rank 4
+(UNPRICED_RISK) for it.
 """
 
 from __future__ import annotations
@@ -32,6 +33,8 @@ ACT_NOW_OPEN = {"policy_version": "estate-placement/1", "group": "ACT_NOW", "gro
     {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
 PRICED_SINGLE = {"policy_version": "estate-placement/1", "group": "COMPARE_VALUE", "group_rank": 3, "reasons": [
     {"code": "PRICED_SINGLE", "text": "Priced cost exposure; no like line to compare with"}]}
+EV_UNPRICED = {"policy_version": "estate-placement/1", "group": "UNPRICED_RISK", "group_rank": 4, "reasons": [
+    {"code": "UNPRICED_SERVICE_INTERRUPTION", "text": "Charging service interruption; no price basis"}]}
 GROUPS = ("NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "UNPRICED_RISK", "MONITOR")
 
 
@@ -97,9 +100,10 @@ EV_WINDOW = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z"}
 
 
 def test_ev_interruption_placement(ev_chain) -> None:
-    """CC-R2-Q2 ruling (b): the W2-05b `interrupted` chain selects one SUPPORTED `EV_INTERRUPTION` Finding whose
-    session has no end; with no Action it is ACT_NOW / `EPISODE_OPEN` + `NO_ACTION_RECORDED` (rank 2). Stop (never
-    fake) when there is no EV row, its source is not REGISTERED_SIMULATION, or its episode end is not null."""
+    """CC-R2-Q2/Q5: the W2-05b `interrupted` chain selects one SUPPORTED `EV_INTERRUPTION` Finding. Its stored session
+    revision records the abort at 08:16 as the end, so with no Action the row is UNPRICED_RISK /
+    `UNPRICED_SERVICE_INTERRUPTION` (rank 4). Stop (never fake) when there is no EV row, its source is not
+    REGISTERED_SIMULATION, or its episode end is not 2026-10-06T08:16:00Z."""
     built = ev_chain("interrupted")
     built.start_release_upload()
     run_worker(built)
@@ -111,10 +115,11 @@ def test_ev_interruption_placement(ev_chain) -> None:
     assert double_count_violations(body) == []
     (row,) = body["rows"]
     assert row["source_provenance"]["state"] == "REGISTERED_SIMULATION", row["source_provenance"]
-    assert row["episode_end"] is None
+    assert row["episode_end"] == "2026-10-06T08:16:00Z"
+    assert row["consequence"]["state"] == "UNPRICED"
     assert (row["domain"], row["mechanism"]) == ("EV_CHARGING", "EV_INTERRUPTION")
     assert row["workflow_label"] == "Recommendation not accepted"
-    assert row["placement"] == ACT_NOW_OPEN and row["priority"] is None
+    assert row["placement"] == EV_UNPRICED and row["priority"] is None
     assert (row["confidence"], row["confidence_reasons"]) == (
         "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
     risks = view.ok(**EV_WINDOW, lens="risks", limit=100)

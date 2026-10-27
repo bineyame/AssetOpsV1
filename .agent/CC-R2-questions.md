@@ -243,3 +243,165 @@ case)". F03 alone does not block it.
 - **Needs:** an Architect ruling on the MG-C stand-in's build order or steps. For example, run the F05 steps after
   the F01 VERIFIED evaluation. That changes the Foundation after the trial, so its effect on the Portfolio read and
   on the F01 placement needs checking. Alternatively, choose another UNCONFIRMED producer.
+
+---
+
+# Rulings on Q5 and Q6 (Architect, Claude, 2026-10-28)
+
+Produced by the Architect (Claude) under the 2026-10-27 default binding. Checked in code at `5d0438f9` and by three
+Architect probes on scratch DBs `assetops_s602b_audit_q6{a,b,c}`. The probes were built with the case tool's own
+`build` steps from the worktree and read through `pinned_app` with the F2 pin. All three DBs were dropped
+afterwards, and no repo file changed. Every literal below is exact.
+
+## CC-R2-Q5 ruling: the EV row is UNPRICED_RISK / `UNPRICED_SERVICE_INTERRUPTION`; keep the `interrupted` chain
+
+**What the row supports (verified).**
+- The Q2 ruling's premise was an Architect error. `test_w205b_ev_replay_postgres.py:132` (`end_at: None`) is the
+  event-derived view: no `EV_SESSION_END` event exists. The stored session revision is `OBSERVED_ABORT` with end
+  `08:16` (`R12_TABLE["interrupted"]`, same file `:659`). The estate projection reads the stored revision
+  (`postgres_estate_read._ev_window`, `:301-310`). So `episode_end = 2026-10-06T08:16:00Z` is the correct product
+  fact: an interrupted session ends at its abort.
+- Placement walk (`placement.py:_rule`):
+  - Rule 1 does not fire: the source is `REGISTERED_SIMULATION` and the lifecycle is SUPPORTED.
+  - Rule 2 has no signal: no recurrence, no reopen, and an end is recorded.
+  - Rule 3 does not fire: "Recommendation not accepted" is not a rule-3 label.
+  - Rule 4 does not fire: the EV consequence is always `UNPRICED` (`coverage.py:267`).
+  - Rule 5 fires: **UNPRICED_RISK, rank 4, [`UNPRICED_SERVICE_INTERRUPTION`]**.
+
+  This is the spec's original default (Producer 2, Q-C22). The CC-00 EV fact is rank 4.
+- No other existing EV chain has a selected `EV_INTERRUPTION` Finding with a null end. `contradictory` has a null
+  end but is `CONFLICTING_TERMINAL` / EXCLUDED. `complete`, `fault`, `missing-meter` and `late-record` are
+  COMPLETED. The test keeps `interrupted`.
+- Q-C21's "Cold/EV can only be open" is wrong for EV. It now reads: "Cold and EV rows never recur (C13); they are
+  open only when no end is recorded."
+
+**Exact changes, `backend/tests/test_cc_placement_postgres.py`.**
+1. Add a new constant beside `ACT_NOW_OPEN`:
+   `EV_UNPRICED = {"policy_version": "estate-placement/1", "group": "UNPRICED_RISK", "group_rank": 4, "reasons": [{"code": "UNPRICED_SERVICE_INTERRUPTION", "text": "Charging service interruption; no price basis"}]}`
+2. The `test_ev_interruption_placement` docstring becomes: "CC-R2-Q2/Q5: the W2-05b `interrupted` chain selects
+   one SUPPORTED `EV_INTERRUPTION` Finding. Its stored session revision records the abort at 08:16 as the end, so
+   with no Action the row is UNPRICED_RISK / `UNPRICED_SERVICE_INTERRUPTION` (rank 4). Stop (never fake) when
+   there is no EV row, its source is not REGISTERED_SIMULATION, or its episode end is not 2026-10-06T08:16:00Z."
+3. `assert row["episode_end"] is None` becomes `assert row["episode_end"] == "2026-10-06T08:16:00Z"`.
+4. Add `assert row["consequence"]["state"] == "UNPRICED"`.
+5. `assert row["placement"] == ACT_NOW_OPEN and row["priority"] is None` becomes
+   `assert row["placement"] == EV_UNPRICED and row["priority"] is None`.
+6. Everything else is unchanged:
+   - domain and mechanism, and `workflow_label`;
+   - confidence: `SUPPORTED_SOURCE_COHERENT` with `["Supported Finding", "Generated test data source"]`;
+   - `lens=risks` returning that one row;
+   - `double_count_violations == []`.
+7. The module docstring records the CC-00 EV fact as rank 4 (UNPRICED_RISK). `test_rule_5_unpriced_risk` in
+   `test_cc_placement.py` stays.
+
+**F4 recheck.** The text stays **"No end is recorded for this episode"**, with no code change. Only the
+justification changes. The EV `interrupted` session has a recorded end, so `EPISODE_OPEN` never applies to it. The
+text is true for every row it does apply to:
+- a cold excursion with no recorded end;
+- a cold start failure, which is stored as a point (`postgres_finding_store.py:672-673`).
+
+Strike "and the EV `interrupted` session has `abort_at` with `end_at` null" from F4.
+
+## CC-R2-Q6 ruling: case `estate` has no F01 trial; it reads the MG-C stand-in's day
+
+**Cause confirmed.** `verification.py:162-178` requires the baseline's covering revision to be the one the applied
+change moved *from*. F05's backdated `runtime` control (effective 10-21) is published before the Action. The change
+(effective 11-02) therefore splits the runtime revision, not the baseline's `542d291e…`. The 409 is by design:
+`test_s6_verification_evaluator_postgres.py::test_f1_baseline_under_an_unrelated_earlier_revision_is_not_comparable`
+pins exactly this.
+
+**Options tested.**
+- **Drop F05's control step.** Rejected. The control is what makes the 10-21 basis Indeterminate, and so
+  UNCONFIRMED (`finding_episode.py:582-592`). Without it there is no stand-in.
+- **F05 after the VERIFIED evaluation (probe b).** Rejected. The freeze succeeds, eval-0001 is VERIFIED, and F05
+  reaches UNCONFIRMED. The backdated control then moves the selections, and the F01 verification read becomes
+  `REASSESSMENT_PENDING` (`FOUNDATION_CHANGED`; the baseline 10-06 and later 11-02 selections moved). That is the
+  spec Stop "F01 no longer VERIFIED".
+- **Freeze only on F03.** Not possible: F03 has no Action and no reserve trial.
+
+**Two further spec Stops the probes exposed, in every order (probes b and c).**
+- **Window coverage.**
+  - `from=2026-10-03..2026-11-03` (F1) gives Site coverage `UNKNOWN`, status `UNKNOWN` and `rows: []`.
+  - Mini-grid coverage is UNKNOWN when any UTC day in the window has no dispatch selection (`coverage.py:96-117`;
+    W3-01 goldens `day-without-assessment-unknown` and `findings-mixed-week`). This case has readings on a few days
+    only.
+  - F01's day cannot be read at all. Its one-day window is `EMPTY_SCOPE`, because `site_import` is
+    2026-10-07T10:00Z. Any window that holds 10-06 also holds the unassessed day 10-07.
+- **Source.** Every S4-runner KOBO-001 row has source `UNKNOWN`, because the readings are bound to no registered
+  run or authored publication (`source_provenance.py:24`). Rule 1 therefore places every row in NEEDS_INVESTIGATION
+  / `EVIDENCE_SOURCE_UNKNOWN`. This is the spec Stop "KOBO-001 rows resolve to source UNKNOWN (report; do not fake
+  provenance)".
+
+F01 MONITOR and F03 ACT_NOW/`RECURRED` cannot be produced from this producer in any order. The coverage and source
+rules are correct product behaviour. The ruling keeps what is true and fakes nothing.
+
+**Ruled build (verified, probe c).** The steps are F01, F02, F03, F05 through its first UNCONFIRMED match, and
+diesel price v1. There is no Action, plan or evaluation.
+- **The 2026-10-21 one-day read:**
+  - status CURRENT and exactly one row: 08:00Z–09:00Z, UNCONFIRMED, `GENERATOR_SUPPORT_CANDIDATE`, "Recommendation
+    not accepted", consequence UNPRICED;
+  - NEEDS_INVESTIGATION with `["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"]`;
+  - confidence UNKNOWN with `["Unconfirmed Finding", "Source not resolved"]`;
+  - counts NEEDS_INVESTIGATION 1 and every other group 0, no double count, `next_cursor` null.
+- **The 2026-10-11 read:** two NEEDS_INVESTIGATION / `["EVIDENCE_SOURCE_UNKNOWN"]` rows, 09:30 then 08:00.
+- **Pinned time (F2):** `max(h.clock.at, runner.now) + 1 min` = 2026-11-01T00:01Z.
+
+**Exact changes, `tools/s602b_test_scoped_cases.py`.**
+1. `ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z"`. This supersedes
+   F1's 31-day literal. One day is within `MAX_DAYS`.
+2. `LABELS["estate"] = "Portfolio placement (CC-R2): the unconfirmed Finding on test-scoped readings; source not resolved, no Action"`.
+3. `build()`, estate branch:
+   - The body becomes `action_id, plan, outcome = None, None, {"outcome_id": None, "reasons": [], "outcome": None}`
+     followed by `out["expect"] = None`.
+   - In `out |= {...}`, `"fake"` becomes `fake if case not in ("inconclusive", "estate") else None`.
+   - The `pinned` line is unchanged (F2).
+   - The final print for estate is `print(f"case estate: no Action (CC-R2-Q6); {out['placement']['F05']}")`. The
+     other cases keep the existing print.
+4. `estate_findings`: steps and order unchanged. In the docstring, drop "before any Action or evaluation" and add
+   "no Action or evaluation in this case (CC-R2-Q6)".
+5. `estate_assertions`:
+   - **Requests.** One request of `ESTATE_PORTFOLIO` and one of
+     `"/api/estate/portfolio?from=2026-10-11T00:00:00Z&to=2026-10-12T00:00:00Z"`.
+   - **Both reads.** HTTP 200, `body["status"] == "CURRENT"`, `double_count_violations == []`, no numeric
+     `priority`, and `next_cursor` null.
+   - **10-21 read.** Exactly one row (F05):
+     - `episode_start == "2026-10-21T08:00:00Z"`, `lifecycle == "UNCONFIRMED"`;
+     - `mechanism == "GENERATOR_SUPPORT_CANDIDATE"`, `workflow_label == "Recommendation not accepted"`;
+     - `source_provenance.state == "UNKNOWN"`;
+     - `_placed == ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"])`;
+     - `confidence == "UNKNOWN"`, `confidence_reasons == ["Unconfirmed Finding", "Source not resolved"]`;
+     - `summary.placement_counts == {"NEEDS_INVESTIGATION": 1, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}`.
+   - **10-11 read.** Asserted only, not captured. Two rows, 09:30Z then 08:00Z, both SUPPORTED with
+     `("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN"])`. This is the MG-B fact: rule 1 hides its recurrence.
+   - **Removed.** The F01 and F03 checks, and the "source UNKNOWN or MIXED" failure. Source UNKNOWN is now the
+     pinned fact.
+   - **Return value.** `{"F05": _placed(f05), "counts": body["summary"]["placement_counts"], "rows": {"F05": key(f05)}}`.
+   - **Print.** `estate: F05 ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED']); 10-11: 2 rows NEEDS_INVESTIGATION; no double count`.
+   - **Stop.** Any mismatch exits non-zero before the case file is written. Report it.
+
+**Exact changes, `tools/s602b_verification_walkthrough.py`.** In the serve listing loop, a case whose `action` is
+null prints the following and continues, without a verification URL:
+`f"  [{name}] TEST-SCOPED: {case['label']}\n    http://localhost:{web + 1}/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z"`
+
+**Exact changes, `tools/s602b-verification-evidence.mjs` (amends Q4).**
+- `casesSuite`: when `c.action == null`, skip the verification claim, its `noOverflow` and the `app-case-${name}`
+  shot. Call only `portfolioSuite(label, c)`.
+- `portfolioSuite` loads `${CASES_BASE}/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z`.
+- Claim 1: the headings equal `[["NEEDS_INVESTIGATION", "Needs investigation first · 1"]]`.
+- Claims 2–3: there is one row, `[data-portfolio-row="${c.placement.rows.F05}"]`.
+  - Its placement is NEEDS_INVESTIGATION, under that heading.
+  - Its reason text contains both "Evidence source is not resolved; check the source before acting" and "The latest
+    assessment no longer confirms this Finding; check its basis".
+- Claim 4: `data-portfolio-confidence == "UNKNOWN"`, and the text equals "Unconfirmed Finding · Source not
+  resolved". The vocabulary and `[A-Z]+_[A-Z_]+` checks are unchanged.
+- Claims 5–7 are unchanged: the bottom line, the policy disclosure, the layout and the six PNGs.
+
+**What this drops (owner-visible; the coordinator informs the owner).**
+- CC-R2 no longer has a served page that shows KOBO-001 in MONITOR, ACT_NOW or COMPARE_VALUE.
+- The case no longer shows a verified change next to the unconfirmed Finding.
+- Every group rule stays proven at tier 2: the pure rules; the W3-03 fixture (cold ACT_NOW, KOBO COMPARE_VALUE); the
+  EV test (UNPRICED_RISK).
+- A served multi-group Portfolio needs two things: mini-grid readings bound to a registered run, and every UTC day in
+  the window assessed. No existing producer does this, so it goes to the story-bootstrap demo sprint before the
+  walkthrough. Building it in CC-R2 would be a new producer design.
+- Owner Q11 holds: the stand-in appears, as NEEDS_INVESTIGATION / `LIFECYCLE_UNCONFIRMED`.
