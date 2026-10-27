@@ -365,6 +365,14 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
     assert financials["summary"]["estate_total"] is None
     assert financials["summary"]["estate_total_state"] == "NO_ESTATE_TOTAL"
     assert w1_line["category"] != a["category"]  # distinct categories, never combined
+    # CC-R1: the no-double-count invariant over the Portfolio member set and both bodies' groups (the EV group is
+    # COMPARABLE, so a summed group is checked); the Portfolio reader lives in the scope-snapshot module.
+    from test_w303_portfolio_scope_snapshot_postgres import Portfolio
+    from assetops_backend.estate.money_invariants import double_count_violations
+    portfolio_body = Portfolio(fx.engine, fx.tenant_id).ok(**fx.window, limit=100)
+    assert [g for g in financials["groups"] if g["amount"] is not None]
+    assert double_count_violations(portfolio_body, financials) == []
+    assert all(x["beneficiary"] for x in portfolio_body["selected_lines"])
 
     # Evidence: every authorized Site has selected Evidence rows in the same window.
     assert {r["site_id"] for r in evidence["rows"]} == set(fx.site_ids.values())

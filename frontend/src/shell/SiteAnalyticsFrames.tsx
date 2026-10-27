@@ -1388,6 +1388,8 @@ export function SiteFinancialsFrame({
             (intervalRevisionId === null ? "" : `&revision=${encodeURIComponent(intervalRevisionId)}`) +
             "&view=analysis",
           overview: siteFinancialsHref(site.site_id),
+          // CC-R1: the forward link from the money view to the same Finding version's recommendation.
+          recommendation: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "recommendation", rev),
         };
         return (
           <main aria-labelledby={SITE_FINANCIALS_HEADING_ID}>

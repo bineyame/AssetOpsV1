@@ -415,11 +415,16 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
 
 
 def group_key_for_partition(category: Any, currency: Any, window_start: Any, window_end: Any, period_kind: Any,
-                            assumption_fingerprint: Any) -> str:
+                            assumption_fingerprint: Any, *, beneficiary: str | None = None) -> str:
     """Versioned amendment (shared financial group key): `sha256:` plus lowercase SHA-256 hex of UTF-8 sorted-key
-    compact JSON over exactly these six wire values (JSON nulls kept). W3-03 imports this; never hash elsewhere."""
+    compact JSON over exactly these six wire values (JSON nulls kept). W3-03 imports this; never hash elsewhere.
+    Commercial spec 0.4: a beneficiary other than the category default is added to the hashed payload, so a
+    default-beneficiary key stays byte-identical."""
+    from assetops_backend.estate.financials import BENEFICIARY_OF_CATEGORY  # lazy: financials imports this module
     payload = {"category": category, "currency": currency, "window_start": window_start, "window_end": window_end,
                "period_kind": period_kind, "assumption_fingerprint": assumption_fingerprint}
+    if beneficiary is not None and beneficiary != BENEFICIARY_OF_CATEGORY.get(category):
+        payload["beneficiary"] = beneficiary
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
     return "sha256:" + hashlib.sha256(raw).hexdigest()
 

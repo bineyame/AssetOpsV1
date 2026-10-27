@@ -79,3 +79,10 @@
   font-size: 12px;
   line-height: 1.8;
 }
+
+/* CC-R1 / R501: the beneficiary is a second line inside the category cell. */
+.line-beneficiary {
+  display: block;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}

@@ -45,6 +45,10 @@ OBSERVED, SCENARIO = "OBSERVED_WINDOW", "SCENARIO_WINDOW"
 #: listed and partitioned when a stored head exists, but the category is outside the mock enum and gets no sentinel.
 APPLICABLE = {MINI_GRID: (OPERATING,), COLD: (PRODUCT,), EV: (TARIFF,)}
 COLD_CATEGORY = {"PRODUCT_EXPOSURE": PRODUCT, "RECORDED_REPAIR": REPAIR}
+CONTRIBUTION = "PRODUCTIVE_USE_CONTRIBUTION_SCENARIO"
+#: Owner Q9 (a constant per category): who a money line benefits. Commercial build spec 0.4.
+BENEFICIARY_OF_CATEGORY = {OPERATING: "MINI_OPERATOR", CONTRIBUTION: "MINI_OPERATOR", PRODUCT: "GOODS_OWNER",
+                           REPAIR: "COOLING_PROVIDER", TARIFF: "CHARGING_SERVICE"}
 
 ELIGIBLE, UNPRICED, UNKNOWN_E, PENDING_E, HISTORICAL_E, WITHHELD, CONFLICT = (
     "ELIGIBLE", "UNPRICED", "UNKNOWN", "PENDING", "HISTORICAL", "WITHHELD", "CONFLICT")
@@ -119,7 +123,7 @@ def _line(site: dict[str, Any], domain: str, category: str, revision_id: str, *,
     ws, we = _at(window_start), _at(window_end)
     return {
         "line_key": line_key, "domain": domain, "site_id": str(site["site_id"]), "site_code": site["site_code"],
-        "site_name": site["site_name"], "category": category,
+        "site_name": site["site_name"], "category": category, "beneficiary": BENEFICIARY_OF_CATEGORY[category],
         "finding_id": None if finding_id is None else str(finding_id),
         "finding_revision_id": None if finding_revision_id is None else str(finding_revision_id),
         "consequence_revision_id": str(revision_id).lower(), "window_start": wire_time(ws), "window_end": wire_time(we),
@@ -287,9 +291,13 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
 
 # --- comparison ---------------------------------------------------------------------------------------------
 
+def _beneficiary(line: dict[str, Any]) -> str | None:
+    return line.get("beneficiary", BENEFICIARY_OF_CATEGORY.get(line["category"]))
+
+
 def _partition(line: dict[str, Any]) -> tuple:
     return (line["category"], line["_currency"], line["window_start"], line["window_end"], line["period_kind"],
-            line["assumption_fingerprint"])
+            line["assumption_fingerprint"], _beneficiary(line))
 
 
 def _overlaps(eligible: list[dict[str, Any]]) -> tuple[set[str], set[str]]:
@@ -319,8 +327,8 @@ def compare(lines: list[dict[str, Any]], applicable: dict[str, bool]) -> tuple[l
     groups, exclusions = [], []
     for key in sorted(parts, key=lambda p: json.dumps(p, default=str)):
         members = sorted(parts[key], key=lambda x: x["line_key"])
-        category, currency, ws, we, period, fingerprint = key
-        gkey = group_key_for_partition(category, currency, ws, we, period, fingerprint)
+        category, currency, ws, we, period, fingerprint, beneficiary = key
+        gkey = group_key_for_partition(category, currency, ws, we, period, fingerprint, beneficiary=beneficiary)
         reasons = {r for m in members for r in m["reason_codes"]}
         eligible = [m for m in members if m["eligibility"] == ELIGIBLE]
         involved, overlap = _overlaps(eligible) if len(eligible) >= 2 else (set(), set())

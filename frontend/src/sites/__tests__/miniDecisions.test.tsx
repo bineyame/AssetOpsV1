@@ -234,7 +234,16 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(first[0]).toBe("Grain mill one-hour trial · Productive load · SCN-000004Scenario detail unavailable");
     expect(first[1]).toBe("Proposed load 10 kW; Duration 1 h; Tariff 0.25 USD/kWh");
     expect(first[2]).toBe("2 pinned renewable revisions Inspect pinned revisions");
-    expect(first[3]).toBe("$2.50 gross sales scenario per eligible window, before costs");
+    // CC-R1 / R500: the claim label sits under the gross scenario figure, in the same cell; no other row has one.
+    expect(first[3]).toBe(
+      "$2.50 gross sales scenario per eligible window, before costs" +
+        "Modelled opportunity · declared assumptions · benefits: mini-grid operator",
+    );
+    const labels = document.querySelectorAll("[data-scenarios-table] .claim-label");
+    expect(labels).toHaveLength(1);
+    expect(labels[0]).toHaveAttribute("data-claim-level", "MODELLED_OPPORTUNITY");
+    expect(labels[0]).toHaveAttribute("data-beneficiary", "MINI_OPERATOR");
+    expect(labels[0].textContent).not.toMatch(/saving|saved/i);
     expect(first[4]).toBe("Defined · Gross scenario");
     expect(second[0]).toContain("SCN-1234567"); // never truncated above 999999
     expect(second.slice(1)).toEqual([

@@ -20,7 +20,8 @@ import {
   type ScenarioRow,
   type ScenarioScope,
 } from "./miniDecisionsClient";
-import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
+import { ClaimLabel } from "./ClaimLabel";
+import { siteLocalDate,siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 
@@ -159,7 +160,13 @@ function Rows({ rows }: { rows: ScenarioRow[] }) {
                   </>
                 )}
               </td>
-              <td data-scenario-result>{illustrative(row)}</td>
+              <td data-scenario-result>
+                {illustrative(row)}
+                {/* CC-R1 / R500: the claim level and beneficiary under the gross scenario figure. */}
+                {row.calculation_state === "GROSS_SCENARIO" && row.gross_sales !== null ? (
+                  <ClaimLabel level="MODELLED_OPPORTUNITY" beneficiary="MINI_OPERATOR" />
+                ) : null}
+              </td>
               <td data-scenario-state>
                 {row.scenario_state === "HISTORICAL" ? "Historical basis" : "Defined"} ·{" "}
                 {CALCULATION_WORDS[row.calculation_state] ?? row.calculation_state}
