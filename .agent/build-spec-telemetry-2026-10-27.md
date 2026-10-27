@@ -815,3 +815,25 @@ Questions: `.agent/implementer-questions-telemetry-spec-2026-10-27.md` (70, numb
 **Q-T69.** The harness waits real wall time (≥ 3 s inside the pause window) and reads `source_contacts[].last_contact_at` before and after. Contact is stamped on admit, in wall time (`service.py:685`, `:1103-1117`). `inject_fault CLOCK_OFFSET` is not used. (TEL-04 gate 7)
 
 **Q-T70.** Confirmed. `GatewayProcess` creates and protects `gateway.credential` via `serve` → `ensure_credential`, owner-only for the current user. The poller subprocess runs as that user and `GatewayLink` reads the file per call (`ipc.py:164-167`). (TEL-04)
+
+### J. TEL-T1 rulings (Architect, Claude, 2026-10-27; questions in `.agent/TEL-T1-questions.md`)
+
+**TEL-T1-Q1.** Confirmed: on a row with registers of mixed widths, every sentinel must fit the narrowest register of the row, or the profile is refused with `SENTINEL_OUT_OF_RANGE`. (TEL-01)
+
+**TEL-T1-Q2.** Confirmed: `sentinels` stays a `frozenset`, and "first sentinel" (Q-T15, `encode_sentinel`) means the smallest declared sentinel, `min(row.sentinels)`. (TEL-01)
+
+**TEL-T1-Q3.** Confirmed: a wrong function code (neither the request's nor its exception form), or a byte count that disagrees with the MBAP length, is `NO_ANSWER` kind `RESET`. The connection is dropped and the read is not retried. A well-framed answer with the wrong word count is `WORDS` → `CONFIG_FAULT`. (TEL-02, 0.7)
+
+**TEL-T1-Q4.** Confirmed: exception codes the 0.7 table does not name (05, 07, 08, ≥ 0x80) → `FAILED`, with no sample and no retry; the raw capture keeps the code. (TEL-02, 0.7)
+
+**TEL-T1-Q5.** Confirmed: the emulator decides quantization on **row** status (`row.status == "ILLUSTRATIVE"`), never on profile status. The `-2` unit-100 `pv-ac-output` row is copied from `-1` with row status `UNPINNED`, so it stays quantized. TEL-05b adds an emulator test for both cases. (TEL-03, TEL-05b)
+
+**TEL-T1-Q6.** Deferred to TEL-04: `modbus_poller.new_session_ref(profile, wall_now, token=lambda: secrets.token_hex(4)) -> str`. It returns `field:<profile_id>:<profile_version>:<YYYYMMDDTHHMMSSZ>:<8 lowercase hex>` (Q-T34), and a unit test checks the format with an injected token. (TEL-04)
+
+**TEL-T1-Q7 (finding: rational source values).** `registered.request()` uses `simulator-lab-publication:3`, so the `-1` JSONL carries exact rationals (e.g. `1035/19`). The 0.000001 premise in the TEL-03 representability paragraph holds only for the registered-Kobo profiles (V1-V4). The rule stands as built: the fixture keeps v3, and the emulator quantizes GX rows to the register resolution. **TEL-04/05 compare at the emulator register resolution, exactly, with no tolerance and no floats:**
+- `expected = quantize_half_even(gx_server.presented_value(row, Fraction(obs.reported_value)), row.output_resolution)` (0.001 kW for PV, 1 % for SoC; the second step is a no-op for `-1`). Use only the existing helpers.
+- For every `GOOD` report whose observation is `REPORTED`, `Fraction(envelope value text) == expected`.
+- An independent bound check: `abs(arrived - Fraction(obs.reported_value)) <= q / 2`, with `q = register_quantum × 10^(scale_exponent + unit_exponent)` in the source unit.
+- Outcomes are compared as in Q-T40.
+- TEL-05b unit-101 (`ILLUSTRATIVE`) rows compare `arrived == Fraction(obs.reported_value)` exactly. V4 publishes at 0.000001, which is the int32 exponent −6 register resolution. `NOT_A_MULTIPLE` there is a stop, not a reason to quantize.
+- The claim record adds "source values are exact rationals from simulator-lab-publication v3". (TEL-03 claim, TEL-04, TEL-05, TEL-05b)
