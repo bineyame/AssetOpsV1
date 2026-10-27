@@ -34,6 +34,7 @@ import { Link } from "react-router-dom";
 import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, when } from "./actionPresentation";
+import { ClaimLabel } from "./ClaimLabel";
 import { reasonWords as sourceReasonWords } from "./sourceProvenance";
 import {
   actionReadAsOf,
@@ -379,6 +380,10 @@ export function ActionVerification({
           references={references}
           next={next}
         />
+      ) : null}
+      {/* CC-R1 / R500 (Q-C16, CC-R1-Q1): a VERIFIED or INEFFECTIVE displayed outcome is a verified technical result. */}
+      {view === "verification" && verdict !== null && (shown?.outcome === "VERIFIED" || shown?.outcome === "INEFFECTIVE") ? (
+        <ClaimLabel level="VERIFIED_SIMULATED_TECHNICAL" beneficiary="MINI_OPERATOR" />
       ) : null}
       {view === "verification" ? (
         <>

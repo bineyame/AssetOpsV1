@@ -1,7 +1,7 @@
 # CC-R1 review packet
 
 Task: CC-R1, links, claim labels, beneficiary key and the no-double-count check. Lane C. Task file: `tasks/CC-R1-links-labels.md`.
-Branch: `task/CC-R1-claim-links-beneficiary`, from main `4a166d98`. Code commits: `b902f95b` and `41deb446`.
+Branch: `task/CC-R1-claim-links-beneficiary`, from main `4a166d98`. Code commits: `b902f95b`, `41deb446`, and the ruling round (CC-R1-Q1/Q2, see "Ruling round" below).
 Reviewer diff: `git diff 4a166d98..HEAD -- ':!.agent'`.
 Spec: `.agent/build-spec-commercial-2026-10-27.md` section 0.4, section CC-R1, and the "Implementer questions and resolutions".
 
@@ -85,7 +85,7 @@ The fixture facts were surveyed by reading code; nothing was observed live. They
 | An existing group key is unchanged (pinned) | met | `::test_default_beneficiary_group_key_is_unchanged`. It pins `sha256:2de8f72a…41139`, computed independently by hashlib from the `test_w302_money_api._eligible` line. |
 | Invariant is `[]` on every existing `test_w303_portfolio_*` body | met | `Portfolio.ok()` asserts it in every scope-snapshot and comparison test; the fixture test asserts it with Financials; the fake-world API body is covered in `test_cc_money_invariants.py`. Tier 2 passed (below). |
 | Invariant gives one violation per crafted defect | met | `test_cc_money_invariants.py`: 13 parametrised defects, each giving exactly one violation with the expected code |
-| Three labels render with `data-claim-level` | **partial** | The gross scenario label and the ClaimLabel unit tests are done. The verdict label is held (Q1). The estate line carries `data-beneficiary`, and the spec gives it no claim level. |
+| Three labels render with `data-claim-level` | met (ruling round) | The gross scenario label is checked in `miniDecisions.test.tsx`. The verdict label is checked in `siteActionVerification.test.tsx`: VERIFIED and both INEFFECTIVE cases show it, INCONCLUSIVE does not, and the vocabulary scan is clean. The `ClaimLabel` unit tests also pass. The estate line carries `data-beneficiary`; the spec gives it no claim level. |
 | Forward link carries `revision_id` | met | `siteFinancials.test.tsx` "CC-R1: links forward…" (href `…/recommendation?revision_id=<FREV>`, vocabulary scan clean) |
 | New text never says "saving" or "saved" | met | asserted in the claimLabel, estateFinancials, siteFinancials and miniDecisions tests |
 | Stop: an exact-key test outside w303 breaks | not hit | The pure `test_w30*` and `test_cc_*` tests pass. The Postgres exact-key tests outside w303 were not run (tier 2 is scoped to w303). |
@@ -113,9 +113,21 @@ Non-vacuity was proven on committed code; each mutation was reverted with `git c
   - `tools/check-agent-workflow.ps1`: **passed**.
 - Not run: the production build, the full suites (lane rule: Lane T has priority), and **layout evidence**. Chrome capture is a heavy job, so it is not run here. The label and beneficiary line layouts are unverified; the coordinator schedules the capture before the Codex batch.
 
+## Ruling round (CC-R1-Q1/Q2, Architect 2026-10-27)
+
+The rulings are in `.agent/CC-R1-questions.md` and in the spec's resolutions section. The vocabulary guard is unchanged.
+
+- **Q1:** `CLAIM_LABEL.VERIFIED_SIMULATED_TECHNICAL` = "Technical result verified on test data"; the enum key is unchanged. The verdict label is now wired in `SiteActionVerification.tsx`, after the state strip. It shows for `view === "verification"` when the displayed outcome is VERIFIED or INEFFECTIVE.
+- **Q2:** the fallback is "Evidence level and beneficiary not stated", with no suffix. A new unit test runs the fallback and both rendered labels through `scanProductVocabulary` and expects `[]`.
+- **Register:** R500 now covers `scenarios, verification`.
+- **Checks:**
+  - `npx vitest run` on `claimLabel`, `siteActionVerification`, `miniDecisions`, `siteFinancials`, `estateFinancials` and `w1Vocabulary`: **6 files, 211 passed**.
+  - `npx tsc --noEmit -p .`: clean.
+  - Guards: `check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON`) passed; `check-agent-workflow.ps1` passed.
+
 ## Known deviations
 
-1. **Verdict label held** (`.agent/CC-R1-questions.md` Q1).
+1. **Resolved by the ruling round above.** This entry is kept as history: the verdict label was held at first (`.agent/CC-R1-questions.md` Q1).
    - The spec's verbatim "Technical result verified on simulated data" fails the product-vocabulary guard (`productVocabulary.json:36` forbids "simulated"). With the label wired, 5 tests in `siteActionVerification.test.tsx` fail.
    - The label is not wired. `CLAIM_LABEL` keeps the spec text, and R500 covers `scenarios` only.
    - Q2: "Claim not stated" contains the guarded word "claim"; no test fails today.

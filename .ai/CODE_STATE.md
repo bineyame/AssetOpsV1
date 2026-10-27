@@ -5987,9 +5987,9 @@ Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `.agent/build-spec-co
 - New `estate/money_invariants.double_count_violations(portfolio, financials=None)`. It is pure, takes parsed bodies, and uses `portfolio.selected_lines` as the member set. It emits violation texts prefixed `TOTAL_NOT_NULL`, `MEMBER_NOT_FOUND`, `MEMBERS_DISAGREE` or `MEMBERS_INTERSECT`. Tests and the scope-snapshot `Portfolio.ok()` helper call it. It is not called at runtime.
 - Frontend:
   - `CommercialClaimLevel`, `Beneficiary`, `CLAIM_LABEL` and `BENEFICIARY_WORDS` live in `sites/actionPresentation.tsx`.
-  - New `sites/ClaimLabel.tsx`, which renders "Claim not stated" for an unknown level or beneficiary.
+  - New `sites/ClaimLabel.tsx`, which renders "Evidence level and beneficiary not stated" for an unknown level or beneficiary (CC-R1-Q2).
   - The gross scenario label is in `MiniScenarios.tsx`.
   - The estate "Benefits:" line is in the Category cell of `EstateFinancials.tsx`. `FinancialRow.beneficiary` is optional.
   - `BridgeLinks` and `FinancialsLinks` gain an optional `recommendation`. Only the mini Financials frame wires it, producing "Open the recommendation →" with the view's `revision_id`.
-- Register rows R500 (scenarios) and R501 (financials).
-- Open: the verdict label (`VERIFIED_SIMULATED_TECHNICAL`) is not wired. The product-vocabulary guard rejects "simulated" (`.agent/CC-R1-questions.md` Q1); "Claim not stated" contains the guarded word "claim" (Q2).
+- Register rows R500 (scenarios, verification) and R501 (financials).
+- The verdict label (`VERIFIED_SIMULATED_TECHNICAL`, "Technical result verified on test data", CC-R1-Q1) shows under the Verification strip for a VERIFIED or INEFFECTIVE displayed outcome only. The vocabulary guard is unchanged.

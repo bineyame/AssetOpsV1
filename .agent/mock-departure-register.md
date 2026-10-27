@@ -514,5 +514,5 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 |---|---|---|---|---|---|---|---|---|
-| R500 | CC-R1 (commercial build spec 0.4) | scenarios (verification held, see `.agent/CC-R1-questions.md` Q1) | Gross scenario result figure | Claim level and beneficiary stated under the figure; v69 shows the figure only. | D2 improvement | Each commercial figure says what kind of claim it is and who it benefits (owner Q9). | CC-R1 | standing (owner) |
+| R500 | CC-R1 (commercial build spec 0.4) | scenarios, verification | Gross scenario result figure | Claim level and beneficiary stated under the figure; v69 shows the figure only. | D2 improvement | Each commercial figure says what kind of claim it is and who it benefits (owner Q9). | CC-R1 | standing (owner) |
 | R501 | CC-R1 (commercial build spec 0.4) | financials | Estate financial register, Category cell | Beneficiary stated on each money line; v69 has no beneficiary. | D2 improvement | Each money line says who it benefits (owner Q9). | CC-R1 | standing (owner) |

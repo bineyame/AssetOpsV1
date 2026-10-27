@@ -18,4 +18,4 @@ $env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-cc\backend;C:\Users\assef\
 - Tier 2: `test_w303_portfolio_comparison_postgres.py` and `test_w303_portfolio_fixture_postgres.py`.
 - Stop: adding `beneficiary` breaks an exact-key test outside `test_w303_*`.
 
-Open: `.agent/CC-R1-questions.md` Q1, the wording of the verdict label (not wired yet). Packet: `.agent/CC-R1-review-packet.md`.
+Wording questions `.agent/CC-R1-questions.md` Q1/Q2 are ruled and applied. Packet: `.agent/CC-R1-review-packet.md`.

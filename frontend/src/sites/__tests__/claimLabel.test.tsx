@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { ClaimLabel } from "../ClaimLabel";
 import { BENEFICIARY_WORDS, CLAIM_LABEL } from "../actionPresentation";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 
 describe("CC-R1 ClaimLabel", () => {
   it("states the claim level and who benefits, with data attributes", () => {
@@ -18,9 +19,25 @@ describe("CC-R1 ClaimLabel", () => {
     ["MODELLED_OPPORTUNITY", "NOBODY"],
     ["toString", "MINI_OPERATOR"],
     ["", ""],
-  ])("says the claim is not stated for %s / %s and never throws", (level, beneficiary) => {
+  ])("says the evidence level and beneficiary are not stated for %s / %s and never throws", (level, beneficiary) => {
     const { container } = render(<ClaimLabel level={level} beneficiary={beneficiary} />);
-    expect(container.querySelector(".claim-label")?.textContent).toBe("Claim not stated");
+    expect(container.querySelector(".claim-label")?.textContent).toBe("Evidence level and beneficiary not stated");
+  });
+
+  it("CC-R1-Q2: the fallback and the rendered labels pass the product vocabulary scan", () => {
+    for (const [level, beneficiary] of [
+      ["NOT_A_LEVEL", "NOBODY"],
+      ["MODELLED_OPPORTUNITY", "MINI_OPERATOR"],
+      ["VERIFIED_SIMULATED_TECHNICAL", "MINI_OPERATOR"],
+    ]) {
+      const { container, unmount } = render(<ClaimLabel level={level} beneficiary={beneficiary} />);
+      const p = container.querySelector(".claim-label");
+      expect(p).toHaveAttribute("data-claim-level", level);
+      expect(p).toHaveAttribute("data-beneficiary", beneficiary);
+      const { violations } = scanProductVocabulary(container, `claim label ${level}`);
+      expect(violations, describeViolations(violations)).toEqual([]);
+      unmount();
+    }
   });
 
   it("has all five levels and five beneficiaries", () => {

@@ -219,6 +219,10 @@ describe("Verification view (verification:1-3)", () => {
     expect(headline).toHaveAttribute("data-verification-outcome", "VERIFIED");
     expect(headline).toHaveAttribute("data-verification-historical-outcome", "no");
     expect(headline?.textContent).toContain("Target met within every limit");
+    // CC-R1 (CC-R1-Q1): the VERIFIED verdict carries the claim label.
+    expect(q(".claim-label[data-claim-level='VERIFIED_SIMULATED_TECHNICAL']")?.textContent).toBe(
+      "Technical result verified on test data · benefits: mini-grid operator",
+    );
     expect(q("[data-verification-row='target_reduction']")?.textContent).toMatch(/45 min.*0 min.*At least 25% lower.*Pass/);
     expect(q("[data-verification-row='below_reserve_seconds']")?.textContent).toContain("checked every five minutes");
     expect(q("[data-verification-row='source_provenance']")?.textContent).toContain("Authored test data (test-scoped example)");
@@ -289,6 +293,17 @@ describe("Verification view (verification:1-3)", () => {
       if (label === "Could not conclude") {
         expect(q("[data-verification-unknown-reasons]")?.textContent).toContain("The later window is missing required readings.");
         expect(q("[data-verification-known-failures]")?.textContent).toContain("Known failure");
+      }
+      // CC-R1 (Q-C16, CC-R1-Q1): the claim label shows for a VERIFIED or INEFFECTIVE outcome, never for INCONCLUSIVE.
+      const claim = qa(".claim-label");
+      if (typed === "INCONCLUSIVE") {
+        expect(claim).toHaveLength(0);
+      } else {
+        expect(claim).toHaveLength(1);
+        expect(claim[0]).toHaveAttribute("data-claim-level", "VERIFIED_SIMULATED_TECHNICAL");
+        expect(claim[0]).toHaveAttribute("data-beneficiary", "MINI_OPERATOR");
+        expect(claim[0].textContent).toBe("Technical result verified on test data · benefits: mini-grid operator");
+        expect(claim[0].textContent).not.toMatch(/saving|saved/i);
       }
       noVocabularyViolations(`verification:${label}`);
       cleanup();

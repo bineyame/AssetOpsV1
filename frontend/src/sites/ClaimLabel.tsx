@@ -1,6 +1,6 @@
 /**
  * CC-R1 (commercial build spec 0.4, register R500): the claim level and who benefits, stated under a commercial
- * figure. An unknown level or beneficiary says "Claim not stated" and never throws.
+ * figure. An unknown level or beneficiary says "Evidence level and beneficiary not stated" and never throws.
  */
 import { BENEFICIARY_WORDS, CLAIM_LABEL, type Beneficiary, type CommercialClaimLevel } from "./actionPresentation";
 
@@ -11,7 +11,7 @@ export function ClaimLabel({ level, beneficiary }: { level: string; beneficiary:
     : null;
   return (
     <p className="claim-label" data-claim-level={level} data-beneficiary={beneficiary}>
-      {claim !== null && who !== null ? `${claim} · benefits: ${who}` : "Claim not stated"}
+      {claim !== null && who !== null ? `${claim} · benefits: ${who}` : "Evidence level and beneficiary not stated"}
     </p>
   );
 }
