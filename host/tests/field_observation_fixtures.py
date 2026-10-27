@@ -6,6 +6,13 @@ here. Only public `DeviceObservation` fields cross: no run cause, no kernel
 state. Run as a script to regenerate the checked-in fixture:
 
     python host/tests/field_observation_fixtures.py daytime
+    python host/tests/field_observation_fixtures.py prolonged
+
+`prolonged` (TEL-05b, amendment 2 item 2) is the registered
+`kobo-mini-grid-prolonged` run over 2026-10-13T03:00Z-11:00Z at timestep 5
+under `registered-kobo-publication` v4, after the S3 dispatch then the S6
+verification demo configurations, built by the `configure()` and `draft()`
+of `host/tests/test_s6_verification_publication.py`.
 """
 
 from __future__ import annotations
@@ -28,6 +35,7 @@ from source_stages import JsonSourceStages  # noqa: E402
 from assetops_contracts.observation import exact_decimal_text  # noqa: E402
 from assetops_contracts.source_envelope import canonical_json  # noqa: E402
 
+PROLONGED_DIR = ROOT / "contract-fixtures" / "telemetry" / "kobo-prolonged-public-observations-v1"
 DAYTIME_DIR = ROOT / "contract-fixtures" / "telemetry" / "kobo-public-observations-v1"
 PUBLIC_FIELDS = ("device_id", "signal_id", "reading_class", "source_sample_time", "outcome", "reported_value",
                  "canonical_unit")
@@ -38,6 +46,36 @@ def daytime_run() -> tuple[tuple[Any, ...], Any, dict[str, Any]]:
     store, _, _ = registered.converted()
     request = registered.request()
     draft = registered.setup_service(store).create_draft_run(request)
+    observations, reporting = _execute(draft)
+    return observations, reporting, request
+
+
+def prolonged_draft() -> Any:
+    """The registered `kobo-mini-grid-prolonged` draft (in-memory store), as `test_s6_verification_publication`."""
+    import test_s6_verification_publication as s6
+
+    store, result, _ = registered.converted()
+    s6.configure(store, result)
+    run, _ = s6.draft(store)
+    return run
+
+
+def prolonged_run() -> tuple[tuple[Any, ...], Any, dict[str, Any], Any]:
+    """The prolonged draft executed with no gateway: (observations, reporting, request, draft)."""
+    import test_s6_verification_publication as s6
+
+    draft = prolonged_draft()
+    observations, reporting = _execute(draft)
+    request = {  # the fields `s6.draft()` sets, for the manifest
+        "scenario_id": s6.PROLONGED.scenario_id, "scenario_version": s6.PROLONGED.version.scenario_version,
+        "interval": {"start_time": s6.START, "end_time": s6.END}, "timestep_minutes": 5,
+        "publication_profile": {"profile_id": s6.V4.publication_profile_id,
+                                "profile_version": s6.V4.publication_profile_version},
+    }
+    return observations, reporting, request, draft
+
+
+def _execute(draft: Any) -> tuple[tuple[Any, ...], Any]:
     with tempfile.TemporaryDirectory(prefix="assetops-field-fixture-") as work:
         root = Path(work)
         port = HostLabExecution(artifacts=YamlExecutionArtifacts(root), stages=JsonSourceStages(root / "stages"),
@@ -46,7 +84,7 @@ def daytime_run() -> tuple[tuple[Any, ...], Any, dict[str, Any]]:
         assert port.run_to_end(draft).status == "COMPLETED"
         session = port._sessions[draft.run_id]
         observations = generate_observations(session.execution.boundaries, session.reporting)
-        return observations, session.reporting, request
+        return observations, session.reporting
 
 
 def public_document(observation: Any) -> dict[str, Any]:
@@ -81,7 +119,15 @@ def generate_daytime_fixture(out_dir: Path) -> dict[str, Any]:
     return write_fixture(out_dir, observations, generator="generate_daytime_fixture", request=request)
 
 
+def generate_prolonged_fixture(out_dir: Path) -> dict[str, Any]:
+    observations, _, request, _ = prolonged_run()
+    return write_fixture(out_dir, observations, generator="generate_prolonged_fixture", request=request)
+
+
 if __name__ == "__main__":
-    if sys.argv[1:] != ["daytime"]:
-        raise SystemExit("usage: field_observation_fixtures.py daytime")
-    print(json.dumps(generate_daytime_fixture(DAYTIME_DIR), indent=2))
+    generators = {"daytime": (generate_daytime_fixture, DAYTIME_DIR),
+                  "prolonged": (generate_prolonged_fixture, PROLONGED_DIR)}
+    if len(sys.argv) != 2 or sys.argv[1] not in generators:
+        raise SystemExit("usage: field_observation_fixtures.py daytime|prolonged")
+    generate, directory = generators[sys.argv[1]]
+    print(json.dumps(generate(directory), indent=2))

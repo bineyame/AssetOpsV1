@@ -1,0 +1,359 @@
+{
+  "schema": {
+    "id": "assetops.field-profile",
+    "version": 1
+  },
+  "profile_id": "gx-system-illustrative-2",
+  "profile_version": 1,
+  "status": "ILLUSTRATIVE",
+  "interface": "MODBUS_TCP",
+  "source_timestamps": "UTC_Z_REQUIRED",
+  "coverage": "ALL_EXPECTED_POLLS",
+  "state_skew_max_seconds": 2,
+  "rows": [
+    {
+      "row_id": "pv-ac-output",
+      "status": "UNPINNED",
+      "source_document": "third-party summary (aggsoft.com), Victron CCGX register list; not a vendor document",
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "role": "pv_power",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AC output bus, AC-coupled PV only",
+        "sign": "positive = power delivered to the AC bus",
+        "phase_aggregation": "EXACT_SUM_L1_L2_L3"
+      },
+      "registers": [
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 808,
+          "type": "uint16",
+          "word_order": "BIG"
+        },
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 809,
+          "type": "uint16",
+          "word_order": "BIG"
+        },
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 810,
+          "type": "uint16",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        65535
+      ],
+      "scale_exponent": 0,
+      "register_unit": "W",
+      "unit_exponent": -3,
+      "register_quantum": "1",
+      "output_resolution": "0.001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "poll_period_seconds": 300
+    },
+    {
+      "row_id": "generator-controller-status",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "generator-controller",
+      "signal_id": "status",
+      "role": "generator_state",
+      "source_unit": "state",
+      "quantity": {
+        "kind": "OPERATING_STATE",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "not applicable",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1000,
+          "type": "uint16",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "ENUM",
+      "enum_map": {
+        "0": "STOPPED",
+        "1": "STARTING",
+        "2": "RUNNING",
+        "3": "FAILED"
+      },
+      "sentinels": [
+        65535
+      ],
+      "reading_class": "STATE_SIGNAL",
+      "cadence_seconds": 300
+    },
+    {
+      "row_id": "generator-controller-ac-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "generator-controller",
+      "signal_id": "ac-power",
+      "role": "generator_power",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power delivered to the AC bus",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1002,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "residential-meter-active-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1004,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "clinic-meter-active-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1006,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "mill-meter-active-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1008,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "pv-inverter-controller-available-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "pv-inverter-controller",
+      "signal_id": "available-power",
+      "role": "pv_available_power",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AVAILABLE_AC_POWER",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power the PV could deliver",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1010,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "battery-pcs-controller-discharge-capability",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "battery-pcs-controller",
+      "signal_id": "discharge-capability",
+      "role": "pcs_discharge_capability",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "DISCHARGE_CAPABILITY",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "positive = power the PCS could discharge",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1012,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "kW",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "cadence_seconds": 300,
+      "span_seconds": 300,
+      "poll_period_seconds": 60
+    },
+    {
+      "row_id": "battery-pcs-controller-state-of-charge",
+      "status": "ILLUSTRATIVE",
+      "source_document": "AssetOps illustrative block; not a vendor register map",
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "role": "battery_soc",
+      "source_unit": "%",
+      "quantity": {
+        "kind": "STATE_OF_CHARGE",
+        "point": "AssetOps illustrative block; not a vendor register",
+        "sign": "not applicable",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 101,
+          "function": 3,
+          "address": 1014,
+          "type": "int32",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        2147483647
+      ],
+      "scale_exponent": -6,
+      "register_unit": "%",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "0.000001",
+      "reading_class": "STATE_SIGNAL",
+      "cadence_seconds": 300
+    }
+  ]
+}

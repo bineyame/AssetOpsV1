@@ -1,4 +1,8 @@
-"""TEL-03 GX-shaped emulator against the TEL-02 client, on a fake wall (Q-T40). No real time except the CLI smoke."""
+"""TEL-03 GX-shaped emulator against the TEL-02 client, on a fake wall (Q-T40). No real time except the CLI smoke.
+
+TEL-05b adds profile `-2` over the prolonged JSONL: the unit-101 illustrative block reads back exactly
+(TEL-T1-Q7), and quantization follows row status, not profile status (TEL-T1-Q5).
+"""
 
 from __future__ import annotations
 
@@ -19,13 +23,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-from field_emulators.gx_server import FaultWindow, GxEmulator, ObservationTimeline  # noqa: E402
-from field_fixtures import FakeWall, at, profile_document, row_document  # noqa: E402
+from field_emulators.gx_server import FaultWindow, GxEmulator, ObservationTimeline, presented_value  # noqa: E402
+from field_fixtures import FakeWall, at, gx2_rows, profile_document, row_document  # noqa: E402
 
 from assetops_contracts.observation import exact_decimal_text, quantize_half_even  # noqa: E402
 
 from assetops_field.aggregate import PollOutcome  # noqa: E402
 from assetops_field.clock import ReplayClock  # noqa: E402
+from assetops_field.decode import EncodeRefused  # noqa: E402
 from assetops_field.modbus_tcp import ModbusTcpClient, classify, requests_for  # noqa: E402
 from assetops_field.profile import load_profile, parse_profile  # noqa: E402
 
@@ -34,20 +39,24 @@ PROFILE = load_profile(ROOT / "field" / "profiles" / "gx-system-illustrative-1.j
 PV = next(row for row in PROFILE.rows if row.row_id == "pv-ac-output")
 SOC = next(row for row in PROFILE.rows if row.row_id == "battery-soc")
 START = at("2026-09-30T03:00:00Z")
+JSONL_2 = ROOT / "contract-fixtures" / "telemetry" / "kobo-prolonged-public-observations-v1" / "observations.jsonl"
+PROFILE_2 = load_profile(ROOT / "field" / "profiles" / "gx-system-illustrative-2.json")
+START_2 = at("2026-10-13T03:00:00Z")
 WALL0 = datetime(2026, 10, 27, 12, 0, 0, tzinfo=timezone.utc)
 
 
 class Bench:
-    def __init__(self, faults=()) -> None:
+    def __init__(self, faults=(), jsonl=JSONL, profile=PROFILE, start=START) -> None:
+        self.start = start
         self.wall = FakeWall(WALL0)
-        self.clock = ReplayClock(START, 1, WALL0, wall=self.wall)
-        self.timeline = ObservationTimeline(JSONL, PROFILE)
+        self.clock = ReplayClock(start, 1, WALL0, wall=self.wall)
+        self.timeline = ObservationTimeline(jsonl, profile)
         self.emulator = GxEmulator(self.timeline, self.clock, host="127.0.0.1", port=0, faults=faults)
         self.port = self.emulator.start()
         self.client = ModbusTcpClient("127.0.0.1", self.port, timeout_s=0.3)
 
     def at(self, source_instant: datetime) -> None:
-        self.wall.set(WALL0 + (source_instant - START))
+        self.wall.set(WALL0 + (source_instant - self.start))
         assert self.clock.now() == source_instant
 
     def poll(self, row):
@@ -68,8 +77,8 @@ class Bench:
 def bench():
     benches: list[Bench] = []
 
-    def make(faults=()) -> Bench:
-        benches.append(Bench(faults))
+    def make(faults=(), **kwargs) -> Bench:
+        benches.append(Bench(faults, **kwargs))
         return benches[-1]
 
     yield make
@@ -255,3 +264,68 @@ def test_cli_prints_ready_and_stops_at_stop_at():
     assert process.returncode == 0, process.stderr
     assert process.stdout.startswith("READY 127.0.0.1:")
     assert int(process.stdout.split(":")[1]) > 0
+
+
+# --- TEL-05b: profile -2 over the prolonged JSONL ------------------------------------------------------------
+
+
+def test_profile_2_is_the_tel05b_table():
+    document = json.loads((ROOT / "field" / "profiles" / "gx-system-illustrative-2.json").read_text(encoding="utf-8"))
+    assert document["rows"] == gx2_rows()  # the checked-in profile is the TEL-01 table, row for row
+    assert PROFILE_2.profile_id == "gx-system-illustrative-2" and PROFILE_2.status == "ILLUSTRATIVE"
+    pv, *block = PROFILE_2.rows
+    assert (pv.row_id, pv.status, pv.registers[0].unit_id) == ("pv-ac-output", "UNPINNED", 100)
+    assert all(row.status == "ILLUSTRATIVE" and row.registers[0].unit_id == 101 for row in block)
+    assert [row.registers[0].address for row in block] == list(range(1000, 1016, 2))
+    assert not any(register.address in (817, 818, 819, 842, 843) for row in PROFILE_2.rows
+                   for register in row.registers)
+
+
+def test_every_unit_101_observation_reads_back_exactly_through_profile_2(bench):
+    """TEL-T1-Q7: unit-101 rows read back as `Fraction(reported_value)` exactly, never quantized."""
+    b = bench(jsonl=JSONL_2, profile=PROFILE_2, start=START_2)
+    block = [row for row in PROFILE_2.rows if row.registers[0].unit_id == 101]
+    tally = {"REPORTED": 0, "SENTINEL": 0}
+    for row in block:
+        for o in b.timeline.observations(row.row_id):
+            t = at(o["source_sample_time"])
+            b.at(t - timedelta(seconds=row.span_seconds // 2) if row.reading_class == "INTERVAL_SIGNAL" else t)
+            results, (outcome, decoded) = b.poll(row)
+            if o["outcome"] == "REPORTED":
+                assert outcome is PollOutcome.VALUE, (row.row_id, o)
+                if row.decode == "ENUM":
+                    assert (decoded.kind, decoded.state) == ("STATE", o["reported_value"]), (row.row_id, o)
+                else:
+                    assert decoded.value == Fraction(o["reported_value"]), (row.row_id, o)
+                tally["REPORTED"] += 1
+            else:
+                assert o["outcome"] in ("NO_VALUE_AT_BOUNDARY", "NO_PRECEDING_INTERVAL"), (row.row_id, o)
+                assert (outcome, decoded.kind) == (PollOutcome.NO_VALUE, "SENTINEL"), (row.row_id, o)
+                tally["SENTINEL"] += 1
+    print(f"\nUNIT-101 READ-BACK TALLY {tally}")  # noqa
+    assert tally["REPORTED"] > 0
+    assert sum(tally.values()) == sum(len(b.timeline.observations(row.row_id)) for row in block)
+
+
+def test_quantization_follows_row_status_not_profile_status():
+    """TEL-T1-Q5: in the ILLUSTRATIVE profile -2 the UNPINNED PV row stays quantized; block rows do not."""
+    pv = next(row for row in PROFILE_2.rows if row.row_id == "pv-ac-output")
+    generator = next(row for row in PROFILE_2.rows if row.row_id == "generator-controller-ac-power")
+    assert presented_value(pv, Fraction("1.2345")) == Fraction("1.234")  # 1234.5 W, half-even to 1234 W
+    assert presented_value(pv, Fraction("1.2355")) == Fraction("1.236")
+    assert presented_value(generator, Fraction("1.2345")) == Fraction("1.2345")
+    assert presented_value(generator, Fraction(1, 3)) == Fraction(1, 3)
+
+
+def test_a_unit_101_value_finer_than_the_register_stops_with_not_a_multiple(tmp_path):
+    """TEL-T1-Q7: `NOT_A_MULTIPLE` on an illustrative row is a stop, not a reason to quantize."""
+    lines = JSONL_2.read_text(encoding="utf-8").splitlines()
+    for index, line in enumerate(lines):
+        o = json.loads(line)
+        if (o["device_id"], o["signal_id"]) == ("generator-controller", "ac-power") and o["outcome"] == "REPORTED":
+            lines[index] = json.dumps({**o, "reported_value": "1.0000005"})
+            break
+    finer = tmp_path / "observations.jsonl"
+    finer.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    with pytest.raises(EncodeRefused, match="NOT_A_MULTIPLE|not a whole multiple"):
+        ObservationTimeline(finer, PROFILE_2)
