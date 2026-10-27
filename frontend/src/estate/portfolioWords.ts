@@ -20,6 +20,29 @@ export const PORTFOLIO_PAGE_SIZE = 50;
 
 export const PRIORITY_PANEL = "Where management should act first";
 export const PRIORITY_SUBTITLE = "Selected Findings across accessible Sites; priority and confidence appear when assessed.";
+/** CC-R2 (D5, build spec "CC-R2 Frontend"): placement group labels, in the server's group order. */
+export const PLACEMENT_GROUP_LABEL = {
+  NEEDS_INVESTIGATION: "Needs investigation first",
+  ACT_NOW: "Act now",
+  COMPARE_VALUE: "Compare value",
+  UNPRICED_RISK: "Unpriced risk",
+  MONITOR: "Monitor",
+} as const;
+export const PLACEMENT_CONFIDENCE_WORDS: Record<string, string> = {
+  SUPPORTED_SOURCE_COHERENT: "Supported, coherent source",
+  LIMITED: "Limited",
+  UNKNOWN: "Unknown",
+};
+export const PLACEMENT_POLICY_SUMMARY = "How placement works";
+export const PLACEMENT_POLICY_LINES = [
+  "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+  "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+  "Monitor (checked next): a change was applied or verified.",
+  "Compare value: the Finding has a priced cost exposure.",
+  "Unpriced risk: the Finding has no price basis.",
+] as const;
+export const PLACEMENT_POLICY_FOOTER =
+  "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.";
 export const OBJECTIVES_PANEL = "Objectives across the estate";
 export const OBJECTIVES_SUBTITLE = "Operating condition, not a composite health score";
 export const OBJECTIVES_FOOTNOTE =

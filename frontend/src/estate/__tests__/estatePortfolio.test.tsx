@@ -110,11 +110,11 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, client);
     await settledScreen();
     const priority = panel("Where management should act first");
-    expect(Array.from(priority.querySelectorAll("th")).map((th) => th.textContent)).toEqual([
+    expect(Array.from(priority.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
       "Site",
       "Finding / operating mechanism",
       "Value / consequence",
-      "Priority",
+      "Placement", // CC-R2: was "Priority"
       "Confidence",
       "Action / next move",
     ]);
@@ -127,8 +127,9 @@ describe("estate Portfolio page", () => {
     expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
     expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded");
     expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
-    expect(cells[3]).toBe("Not assessed");
-    expect(cells[4]).toBe("Not assessed No reviewed confidence measure");
+    // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
+    expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
+    expect(cells[4]).toBe("Supported, coherent source Supported claim · Authored demonstration source");
     expect(cells[5]).toBe("No accepted Action Next move not recorded Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
@@ -613,5 +614,85 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(text(document.querySelector("[data-page-refusal]"))).toBe("Estate records are unavailable right now. Try again.");
     expect(text(document.querySelector("[data-estate-window]"))).toBe("Window 2026-10-06 to 2026-10-06 (UTC days)");
     view.unmount();
+  });
+});
+
+describe("CC-R2 Portfolio placement groups (D5)", () => {
+  const groupHeads = () =>
+    Array.from(document.querySelectorAll("tr.placement-group")).map((tr) => [tr.getAttribute("data-placement-group"), text(tr)]);
+
+  it("headsEachGroupOnceWithItsCountAndShowsEveryRowsReasonLine", async () => {
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now · 1"],
+      ["COMPARE_VALUE", "Compare value · 1"],
+    ]);
+    const head = priority.querySelector("tr.placement-group th") as HTMLElement;
+    expect(head.getAttribute("scope")).toBe("colgroup");
+    expect(head.getAttribute("colspan")).toBe("6");
+    // Every row: a group heading precedes it and its Placement cell has the group label and the reason line.
+    const body = Array.from(priority.querySelectorAll("tbody tr"));
+    expect(body.map((tr) => (tr.classList.contains("placement-group") ? "head" : tr.getAttribute("data-portfolio-row")?.slice(0, 8)))).toEqual([
+      "head",
+      "f2f2f2f2",
+      "head",
+      "f1f1f1f1",
+    ]);
+    const cold = priority.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-placement]") as HTMLElement;
+    expect(cold.getAttribute("data-portfolio-placement")).toBe("ACT_NOW");
+    expect(lines(cold)).toBe("Act now The episode is still open · No accepted Action; open the recommendation");
+    for (const cell of Array.from(priority.querySelectorAll("[data-portfolio-placement-reasons]"))) {
+      expect(text(cell)).not.toBe("");
+      expect(text(cell)).not.toMatch(/saving|saved/i);
+    }
+    expect(Array.from(priority.querySelectorAll("[data-portfolio-confidence]")).map((c) => c.getAttribute("data-portfolio-confidence"))).toEqual([
+      "SUPPORTED_SOURCE_COHERENT",
+      "SUPPORTED_SOURCE_COHERENT",
+    ]);
+    // R5.3: the policy text is reachable from the panel, closed by default.
+    const policy = priority.querySelector("[data-placement-policy]") as HTMLDetailsElement;
+    expect(policy.open).toBe(false);
+    expect(text(policy.querySelector("summary"))).toBe("How placement works");
+    expect(Array.from(policy.querySelectorAll("li")).map(text)).toEqual([
+      "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+      "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+      "Monitor (checked next): a change was applied or verified.",
+      "Compare value: the Finding has a priced cost exposure.",
+      "Unpriced risk: the Finding has no price basis.",
+    ]);
+    expect(text(policy.querySelector("p"))).toBe(
+      "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.",
+    );
+    expect(text(priority)).not.toMatch(/\bscore\b/i);
+  });
+
+  it("omitsTheCountWhenPlacementCountsAreNull", async () => {
+    const counts = { NEEDS_INVESTIGATION: null, ACT_NOW: null, COMPARE_VALUE: null, UNPRICED_RISK: null, MONITOR: null };
+    const base = portfolioBody();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, placement_counts: counts } }))));
+    await settledScreen();
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now"],
+      ["COMPARE_VALUE", "Compare value"],
+    ]);
+  });
+
+  it("showsAGroupSplitAcrossPagesOnce", async () => {
+    const extra = row({ finding_id: "f3f3f3f3-0000-4000-8000-000000000003", finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003" });
+    const pageTwo = portfolioBody({ rows: [extra], next_cursor: null, value_cards: [], objectives: [] });
+    const client = portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo));
+    renderAt(ENTRY, client);
+    await settledScreen();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
+    });
+    await settledScreen();
+    expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now · 1"],
+      ["COMPARE_VALUE", "Compare value · 1"],
+    ]);
   });
 });
