@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below); scoped Claude exception for `Docs/demo-sprint/commercial-capability-readiness.html` (2026-10-27; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -35,6 +35,21 @@ justification, and informs the owner. Where the Architect wants the owner to
 weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
+
+## Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27)
+
+The owner set Architect to Claude for one deliverable: an implementer-friendly,
+code-grounded version of `Docs/demo-sprint/commercial-capability-readiness.md`,
+written as `Docs/demo-sprint/commercial-capability-readiness.html` on
+`plan/commercial-capability-assessment`. The Implementer then reads it and
+sends open questions, and the Claude Architect works them in. The owner wants
+to compare this output with the Codex Architect's. Owner text verbatim:
+`.agent/owner-claude-architect-commercial-html-2026-10-27.md`.
+
+- The scope is that one HTML document. All other Architect work stays Codex.
+- The output states that Claude produced it under this exception.
+- This exception ends when the document, with the Implementer's questions
+  worked in, is delivered to the owner. Then remove this row note.
 
 ## Scoped Claude Architect Exception: v6.9 Site Mock-ups (2026-10-06)
 

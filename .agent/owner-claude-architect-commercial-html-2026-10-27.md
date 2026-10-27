@@ -1,0 +1,3 @@
+# Owner request (verbatim), 2026-10-27
+
+let the claude architect take the commercial-capability-readiness.md document and create an implementer friendly(technical approach, conceptual foundation, business rationale..etc) version  while keeping extreme commercial focus that is well illustrated and grounded on the actual current implemented code. It should have the same name as commercial-capability-readiness.html. Once done, let the implementer read it, share open  questions if any so the claude architect can incorporat them. I am trying to see the quality of the document that it produces in this specific ask versus what is produced by codex archtitect
