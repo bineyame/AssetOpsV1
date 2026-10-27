@@ -5993,3 +5993,43 @@ Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `.agent/build-spec-co
   - `BridgeLinks` and `FinancialsLinks` gain an optional `recommendation`. Only the mini Financials frame wires it, producing "Open the recommendation →" with the view's `revision_id`.
 - Register rows R500 (scenarios, verification) and R501 (financials).
 - The verdict label (`VERIFIED_SIMULATED_TECHNICAL`, "Technical result verified on test data", CC-R1-Q1) shows under the Verification strip for a VERIFIED or INEFFECTIVE displayed outcome only. The vocabulary guard is unchanged.
+
+## CC-R2 - Portfolio placement (D5) and the estate producer case (built, in_review)
+
+Lane C, branch `task/CC-R2-placement`. Spec: `.agent/build-spec-commercial-2026-10-27.md` "CC-R2". Packet: `.agent/CC-R2-review-packet.md`. Open: `.agent/CC-R2-questions.md`.
+- New pure `estate/placement.py`:
+  - `POLICY_VERSION` `estate-placement/1`, `GROUPS`, `GROUP_LABEL`, `REASON_TEXT` (20 codes; `VERIFIED_WATCH_RETURN` follows CC-R1-Q1) and `place(row, action, site_cov, line_group) -> Placement` with `.wire()`.
+  - Rules run in order: 1, 2, Monitor, Compare, Unpriced, 6.
+  - Confidence uses row facts; site coverage adds text only.
+  - `workflow_label` is imported lazily from `portfolio` (cycle).
+- Row facts:
+  - `_index_snapshot` heads gain `f.mechanism`.
+  - `postgres_estate_read._with_mechanism` runs one batched `finding.mechanism` SELECT per cold or EV window.
+  - `coverage.py` mini rows carry `mechanism`, `recurs_after_finding_id`, `revision_no` and `transition` (all `.get`).
+  - `index.select_finding_scope` adds the private `_recurs_after`, `_transition` and `_revision_no`, and a RISK flag for `index.RISK_MECHANISMS` (the Findings root `lens=risks` changes too).
+- `portfolio.py`:
+  - Rows carry `placement`, `confidence` and `confidence_reasons`; `priority` stays null.
+  - `line_groups(lines, groups)` maps a Finding revision to its money group state, from the same `compare()`.
+  - The marker is `(group_rank, at, site_code_key, site_id, finding_id, finding_revision_id)`, and `order_key` leads with `group_rank`.
+  - `PORTFOLIO_ORDER` is given verbatim.
+  - `summary.placement_counts` has five keys over `members`; it is null unless F is COMPLETE/EMPTY.
+- `scope.py`:
+  - `_MARKER_KINDS["portfolio"] = 6`.
+  - The rank is an int from 1 to 5 and never a bool.
+  - `cursor_after` and `cursor_marker` have a portfolio branch.
+  - A five-part cursor fails with 422 INVALID_CURSOR.
+- Producer: `tools/s602b_test_scoped_cases.py` case `estate` (`estate_findings`, `estate_assertions`, `pinned_app`, `_cursor_key`). The walkthrough `CASES` gains `estate`. **The `estate` case has not been run yet** (it needs an `assetops_s602b_audit_cc*` DB).
+- Frontend:
+  - `EstatePortfolio.tsx` has the Placement column, `placementRows` group headings (`tr.placement-group`, count from `placement_counts`), the confidence words and the `<details>` "How placement works".
+  - The words are in `portfolioWords.ts`.
+  - The types are `EstatePlacement` and `EstatePlacementGroup`.
+  - Register R502.
+- Rewritten by design:
+  - five-part fixtures in `test_w303_estate_cursor.py`;
+  - `test_w303_portfolio_api.py` (order, counts, marker length);
+  - `test_w301_estate_index_postgres.py:199,204` (cold RISK). Lines 548-563 are mini-grid rows and needed no change.
+- Left open:
+  - Q1, the confidence texts "claim" and "simulation";
+  - Q2, there is no EV row in the W3-03 fixture;
+  - Q3, the stale panel-bottom copy;
+  - Q4, there is no Portfolio claim in the s602b capture script.
