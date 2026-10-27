@@ -77,7 +77,7 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 
 ## Residual risk
 
-- **For the Architect:** the money is withheld by more than one gate. `withheld_reasons` also carries `AUDIT_ONLY` and `SOURCE_CLOSED`, because the S3 performance cutover is closed for the test Site ("No Performance comparison report exists"). `MIXED_OR_UNKNOWN_SOURCE` is present, `source_gate.permits_current_money` is false and the gate's state is UNKNOWN, so the source gate does withhold. But this proof does not show it as the only gate. The test was not tuned.
+- Resolved by step 6 (run C): the money is withheld by more than one gate in the API reads. `withheld_reasons` also carries `AUDIT_ONLY` and `SOURCE_CLOSED`, because the S3 performance cutover is closed for the test Site ("No Performance comparison report exists"). `MIXED_OR_UNKNOWN_SOURCE` is present, `source_gate.permits_current_money` is false and the gate's state is UNKNOWN, so the source gate does withhold. But this proof does not show it as the only gate. The test was not tuned.
 
 - Wall time is about 9 min per run.
 
@@ -87,4 +87,12 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 
 ## Step 6 (TEL-05b-Q3 addendum, section L)
 
-Added a read-only step 6 after step 5: `build_consequence_read_service(URL).read(T, S, fid, frid, finding_revision_is_latest=True, source_open=True)` on the same head. It asserts ruling items 1-6 exactly and prints `currentness` past capsys. Assertions 1-3 carry a `STOP n` label, which means the TEL-07 fallback wording applies; 4-6 carry `SOURCE-GATE DEFECT n`. Focused tests: 28 passed, 2 skipped (no database URL). Both guards pass. **Pending:** one fresh-database Postgres run of the amended test, waiting on the coordinator's go.
+Added a read-only step 6 after step 5: `build_consequence_read_service(URL).read(T, S, fid, frid, finding_revision_is_latest=True, source_open=True)` on the same head. It asserts ruling items 1-6 exactly and prints `currentness` past capsys. Assertions 1-3 carry a `STOP n` label, which means the TEL-07 fallback wording applies; 4-6 carry `SOURCE-GATE DEFECT n`. Focused tests: 28 passed, 2 skipped (no database URL). Both guards pass. Gate run C (`90ff08a9`), alone, on a freshly created `assetops_tel5b_test`, with keep-awake running and a 1200 s cap; the database was dropped afterwards: `1 passed in 554.19s`, wall 555 s; JUnit tests=1 failures=0 errors=0 skipped=0. Steps 1-5 were green again. Finding `ab0766cc-fcf1-414a-b71b-d38b24ad03b5`, revision `915ee682-1ea5-46d8-b459-418d444bb230`, head consequence `86af5146-42ad-4f54-8495-0f65cf305aa7`: PRICED, USD 0 to 40.05760.
+
+**Step 6: all six assertions pass.** `currentness`: `state CURRENT`, `reasons []`, `money_eligibility ELIGIBLE`, `source_gate {"state": "UNKNOWN", "permits_current_money": false, "reason": "MIXED_OR_UNKNOWN_SOURCE"}`, `withheld_reasons ["MIXED_OR_UNKNOWN_SOURCE"]`, `current_amount_shown false`, consequence `presented_as_current false`. The confound is resolved: with the cutover treated as open, the source gate alone withholds the amount.
+
+**Claim record wording for TEL-07 (full; steps 1-6 passed).** Amendment 2 item 6, plus the L-Q3 addition: "A money-affecting Finding (generator ran when solar and battery could have carried the load) arose from readings that travelled emulator → Modbus TCP poller → real gateway → central ledger. Values are a simulator run's public outputs (`kobo-mini-grid-prolonged`), served through an AssetOps illustrative register block; register layout not pinned to any vendor document. Source: not established. Money: not shown, by the existing source gate. On the same revision with the performance cutover treated as open, the only reason the amount is withheld is `MIXED_OR_UNKNOWN_SOURCE`. Through the API, it is also withheld as `AUDIT_ONLY`/`SOURCE_CLOSED`, because the test Site has no Performance comparison. Not claimed: any real device, any vendor register map, any money figure, any field performance." Identifiers for the record:
+- Profile `gx-system-illustrative-2` v1, sha256 `638a6edfedfa4918503f5aeebf353f7e3f8ccfc3bd1dd22e4159023d0bdcc136`.
+- JSONL sha256 `c49aa7c846b264cec552fa9fa5837703980aec3edc97c5e397996d1bb25f85b1`.
+- Commit `90ff08a9`. Environment: laptop.
+- Finding and revision as in run C. The accepted-evidence IDs are in the run C log (`%TEMP%ssetops-tel5bun4.log`). The fallback wording is not needed.
