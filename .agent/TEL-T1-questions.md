@@ -1,0 +1,10 @@
+# TEL T1 questions for the Architect (TEL-01..03)
+
+Status: open. None blocks T1. Each item names the narrow behaviour implemented so that the review can see it, and the Architect may overrule any of them; nothing here widens a spec rule.
+
+1. **Sentinel width on a mixed-width row (profile.py `_parse_sentinels`).** 0.6 says sentinels are "unsigned raw integers of the register's width", but a row may list registers of different widths. Implemented: every sentinel must fit the **narrowest** register of the row (strictest reading). No October profile mixes widths. Confirm or name the rule.
+2. **"First sentinel" with a set (decode.py `encode_sentinel`).** `ProfileRow.sentinels` is a `frozenset` by the spec interface, so declaration order is lost. Implemented: the smallest sentinel. Every October profile declares exactly one. Confirm, or make `sentinels` an ordered tuple.
+3. **Malformed Modbus answers (modbus_tcp.py `_parse_pdu`).** The 0.7 table does not name a response whose function code is neither the request's nor its exception form, or whose byte count disagrees with its own length field. Implemented: `NO_ANSWER` kind `RESET`, the connection dropped (stream framing is lost). A well-framed answer with the wrong number of words is `WORDS` and `classify` makes it `CONFIG_FAULT` (the table's "wrong word count").
+4. **Exception codes the 0.7 table does not name (05, 07, 08, 0x80+).** Implemented in `modbus_tcp.exception_outcome`: `FAILED` (no sample; the poller does not retry it because retries are only for TIMEOUT, 04, 06).
+5. **Which rows the emulator quantizes (gx_server.py `presented_value`).** The amended TEL-03 rule quantizes "GX-layout rows" and says the TEL-05b illustrative block is "never quantized". Implemented: rows with `status == "ILLUSTRATIVE"` are not quantized, all others are. Only matters from TEL-05b; confirm the discriminator.
+6. **Session reference helper.** The `field:<id>:<version>:<wall YYYYMMDDTHHMMSSZ>:<8 hex>` reference is described in TEL-01 but no interface names its builder. Not built in TEL-01; left for the TEL-04 poller, which owns session start-up.

@@ -1,0 +1,101 @@
+{
+  "schema": {
+    "id": "assetops.field-profile",
+    "version": 1
+  },
+  "profile_id": "gx-system-illustrative-1",
+  "profile_version": 1,
+  "status": "UNPINNED",
+  "interface": "MODBUS_TCP",
+  "source_timestamps": "UTC_Z_REQUIRED",
+  "coverage": "ALL_EXPECTED_POLLS",
+  "state_skew_max_seconds": 2,
+  "rows": [
+    {
+      "row_id": "pv-ac-output",
+      "status": "UNPINNED",
+      "source_document": "third-party summary (aggsoft.com), Victron CCGX register list; not a vendor document",
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "role": "pv_power",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "AC output bus, AC-coupled PV only",
+        "sign": "positive = power delivered to the AC bus",
+        "phase_aggregation": "EXACT_SUM_L1_L2_L3"
+      },
+      "registers": [
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 808,
+          "type": "uint16",
+          "word_order": "BIG"
+        },
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 809,
+          "type": "uint16",
+          "word_order": "BIG"
+        },
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 810,
+          "type": "uint16",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        65535
+      ],
+      "scale_exponent": 0,
+      "register_unit": "W",
+      "unit_exponent": -3,
+      "register_quantum": "1",
+      "output_resolution": "0.001",
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "poll_period_seconds": 300
+    },
+    {
+      "row_id": "battery-soc",
+      "status": "UNPINNED",
+      "source_document": "third-party summary (aggsoft.com), Victron CCGX register list; not a vendor document",
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "role": "battery_soc",
+      "source_unit": "%",
+      "quantity": {
+        "kind": "STATE_OF_CHARGE",
+        "point": "battery bank as reported by the system",
+        "sign": "not applicable",
+        "phase_aggregation": "SINGLE_REGISTER"
+      },
+      "registers": [
+        {
+          "unit_id": 100,
+          "function": 3,
+          "address": 843,
+          "type": "uint16",
+          "word_order": "BIG"
+        }
+      ],
+      "decode": "NUMBER",
+      "sentinels": [
+        65535
+      ],
+      "scale_exponent": 0,
+      "register_unit": "%",
+      "unit_exponent": 0,
+      "register_quantum": "1",
+      "output_resolution": "1",
+      "reading_class": "STATE_SIGNAL",
+      "cadence_seconds": 900
+    }
+  ]
+}
