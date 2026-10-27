@@ -84,3 +84,7 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 ## User-review focus
 
 `USER_REVIEW_REQUIRED` is not stated for TEL-05b; the review is by the Lane T reviewer. Owner-facing claim wording is TEL-07.
+
+## Step 6 (TEL-05b-Q3 addendum, section L)
+
+Added a read-only step 6 after step 5: `build_consequence_read_service(URL).read(T, S, fid, frid, finding_revision_is_latest=True, source_open=True)` on the same head. It asserts ruling items 1-6 exactly and prints `currentness` past capsys. Assertions 1-3 carry a `STOP n` label, which means the TEL-07 fallback wording applies; 4-6 carry `SOURCE-GATE DEFECT n`. Focused tests: 28 passed, 2 skipped (no database URL). Both guards pass. **Pending:** one fresh-database Postgres run of the amended test, waiting on the coordinator's go.

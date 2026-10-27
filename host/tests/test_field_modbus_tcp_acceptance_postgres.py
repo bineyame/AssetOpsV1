@@ -618,3 +618,38 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
             assert currentness["current_amount_shown"] is False, (fid, crid, currentness)
             assert SOURCE_WITHHELD in currentness["withheld_reasons"], (fid, crid, currentness)
             assert _current_amount_paths(answer.json()) == [], (fid, crid)
+
+    # Step 6 (TEL-05b-Q3 addendum): source-gate isolation, read-only, on the same Finding revision and head, with
+    # the performance cutover treated as open (the `test_lr01_money_eligibility_postgres.py:290-302` pattern).
+    # 1-3 failing: withheld for a reason besides the source (stop; TEL-07 fallback wording). 4-6 failing: a
+    # source-gate defect (stop; report to the Architect).
+    from decimal import Decimal
+
+    from assetops_backend.financials.composition import build_consequence_read_service
+
+    isolation = build_consequence_read_service(URL)
+    for fid, frid in pinned:
+        own = [r for r in revisions if str(r["finding_id"]) == fid and str(r["finding_revision_id"]) == frid]
+        head = max(own, key=lambda r: r["revision_no"])
+        read = isolation.read(UUID(tenant_id), UUID(site_id), UUID(fid), UUID(frid),
+                              finding_revision_is_latest=True, source_open=True)
+        assert read is not None, (fid, frid)
+        currentness, selected = read["currentness"], read["consequence"]
+        emit("TEL-05b step 6 currentness:", json.dumps({"finding_id": fid, "finding_revision_id": frid,
+                                                        "head_consequence_revision_id": str(head["id"]),
+                                                        "currentness": currentness}, default=str, sort_keys=True))
+        # 1-3: nothing but the source withholds (CURRENT, ELIGIBLE, a PRICED head with its stored amounts).
+        assert currentness["state"] == "CURRENT" and currentness["reasons"] == [], ("STOP 1", currentness)
+        assert currentness["money_eligibility"] == "ELIGIBLE", ("STOP 2", currentness)
+        assert selected is not None and str(selected["id"]) == str(head["id"]), ("STOP 3", selected, head)
+        assert selected["state"] == "PRICED" and selected["is_head"] is True, ("STOP 3", selected)
+        amount = selected["amount"]
+        assert amount["low"] is not None and amount["high"] is not None, ("STOP 3", amount)
+        assert (Decimal(amount["low"]), Decimal(amount["high"])) == (Decimal(str(head["amount_low"])),
+                                                                     Decimal(str(head["amount_high"]))), (amount, head)
+        # 4-6: the source gate alone withholds it, and nothing is shown.
+        assert currentness["source_gate"] == {"state": "UNKNOWN", "permits_current_money": False,
+                                              "reason": SOURCE_WITHHELD}, ("SOURCE-GATE DEFECT 4", currentness)
+        assert currentness["withheld_reasons"] == [SOURCE_WITHHELD], ("SOURCE-GATE DEFECT 5", currentness)
+        assert selected["presented_as_current"] is False, ("SOURCE-GATE DEFECT 6", selected)
+        assert currentness["current_amount_shown"] is False, ("SOURCE-GATE DEFECT 6", currentness)
