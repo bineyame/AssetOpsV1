@@ -36,6 +36,23 @@ weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
 
+## Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27) — ended
+
+Ended 2026-10-27: the document, with the Implementer's questions worked in, was delivered to the owner. The row is Codex again. The original record follows.
+
+The owner set Architect to Claude for one deliverable: an implementer-friendly,
+code-grounded version of `Docs/demo-sprint/commercial-capability-readiness.md`,
+written as `Docs/demo-sprint/commercial-capability-readiness.html` on
+`plan/commercial-capability-assessment`. The Implementer then reads it and
+sends open questions, and the Claude Architect works them in. The owner wants
+to compare this output with the Codex Architect's. Owner text verbatim:
+`.agent/owner-claude-architect-commercial-html-2026-10-27.md`.
+
+- The scope is that one HTML document. All other Architect work stays Codex.
+- The output states that Claude produced it under this exception.
+- This exception ends when the document, with the Implementer's questions
+  worked in, is delivered to the owner. Then remove this row note.
+
 ## Scoped Claude Architect Exception: v6.9 Site Mock-ups (2026-10-06)
 
 The owner set Architect to Claude for one piece of work: comparing the site

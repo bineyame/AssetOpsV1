@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commercial Capability Readiness</title>
+<style>
+:root{
+  --bg:#f7f6f2; --panel:#ffffff; --panel-2:#f0eee8; --fg:#1d1f23; --muted:#5b616b; --line:#d9d5cc;
+  --accent:#1f5f8b; --accent-soft:#e3eef6; --ok:#2f7a4a; --ok-soft:#e4f2e8; --warn:#9a6411; --warn-soft:#fbf0dc;
+  --bad:#a33a2c; --bad-soft:#f8e5e1; --gap:#7a4fa3; --gap-soft:#efe6f7; --code-bg:#efece4;
+  --svg-fill:#ffffff; --svg-stroke:#4a4f57; --svg-text:#1d1f23; --svg-muted:#6b717b;
+  --radius:10px; --toc-w:16rem;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15171a; --panel:#1d2024; --panel-2:#24282d; --fg:#e7e5e0; --muted:#a3a8b0; --line:#363b42;
+    --accent:#7fb6dc; --accent-soft:#1e3242; --ok:#7cc795; --ok-soft:#1d3326; --warn:#e2b25e; --warn-soft:#3a2f1a;
+    --bad:#ec8f80; --bad-soft:#3d221e; --gap:#c3a2e6; --gap-soft:#2e2440; --code-bg:#262a30;
+    --svg-fill:#1d2024; --svg-stroke:#aab0b8; --svg-text:#e7e5e0; --svg-muted:#a3a8b0;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
+a{color:var(--accent)}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:.86em;background:var(--code-bg);padding:.08em .32em;border-radius:4px;overflow-wrap:anywhere}
+h1,h2,h3,h4{line-height:1.25;margin:1.6em 0 .5em}
+h1{font-size:2rem;margin-top:.2em}
+h2{font-size:1.5rem;border-top:2px solid var(--line);padding-top:1.1em}
+h3{font-size:1.15rem}
+h4{font-size:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+p,li{max-width:76ch}
+.layout{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);gap:2.2rem;max-width:84rem;margin:0 auto;padding:1.5rem 1.25rem 4rem}
+nav.toc{position:sticky;top:1rem;align-self:start;max-height:calc(100vh - 2rem);overflow:auto;font-size:.9rem;border-right:1px solid var(--line);padding-right:1rem}
+nav.toc summary{font-weight:700;cursor:pointer;margin-bottom:.4rem}
+nav.toc ol{list-style:none;padding:0;margin:0}
+nav.toc li{margin:.18rem 0}
+nav.toc a{text-decoration:none;color:var(--fg)}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0}
+.byline{color:var(--muted);font-size:.95rem}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:.8rem 1rem;border-radius:0 var(--radius) var(--radius) 0;margin:1rem 0}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+.callout.bad{border-color:var(--bad);background:var(--bad-soft)}
+.callout.ok{border-color:var(--ok);background:var(--ok-soft)}
+.callout p{margin:.3em 0}
+.frame{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.6rem;margin:1rem 0}
+.frame div{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:.6rem .75rem}
+.frame b{display:block;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tw{overflow-x:auto;margin:1rem 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:.5rem .65rem;border-bottom:1px solid var(--line)}
+th{background:var(--panel-2);font-weight:650}
+tr:last-child td{border-bottom:0}
+.tw.wide table{min-width:52rem}
+.tw.mid table{min-width:38rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;padding:.05rem .4rem;border-radius:999px;white-space:nowrap;vertical-align:.1em}
+.t-impl{background:var(--ok-soft);color:var(--ok)}
+.t-run{background:var(--accent-soft);color:var(--accent)}
+.t-present{background:var(--warn-soft);color:var(--warn)}
+.t-insp{background:var(--panel-2);color:var(--muted);border:1px solid var(--line)}
+.t-gap{background:var(--gap-soft);color:var(--gap)}
+figure{margin:1.2rem 0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem}
+figure svg{display:block;width:100%;height:auto;max-width:100%}
+figcaption{font-size:.85rem;color:var(--muted);margin-top:.5rem}
+svg text{fill:var(--svg-text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+svg .box{fill:var(--svg-fill);stroke:var(--svg-stroke);stroke-width:1.4}
+svg .box-ok{fill:var(--ok-soft);stroke:var(--ok);stroke-width:1.4}
+svg .box-gap{fill:var(--gap-soft);stroke:var(--gap);stroke-width:1.4;stroke-dasharray:5 4}
+svg .box-warn{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.4}
+svg .box-bad{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.4}
+svg .box-acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg .ln{stroke:var(--svg-stroke);stroke-width:1.5;fill:none}
+svg .ln-gap{stroke:var(--gap);stroke-width:1.6;fill:none;stroke-dasharray:6 4}
+svg .ln-ok{stroke:var(--ok);stroke-width:2;fill:none}
+svg .muted{fill:var(--svg-muted)}
+svg .small{font-size:11px}
+svg .tiny{font-size:10px}
+svg .b{font-weight:700}
+svg .bar-a{fill:var(--accent)}
+svg .bar-b{fill:var(--warn)}
+svg .axis{stroke:var(--svg-muted);stroke-width:1}
+svg .thr{stroke:var(--bad);stroke-width:1.5;stroke-dasharray:5 3}
+.ex{background:var(--panel);border:1px dashed var(--warn);border-radius:var(--radius);padding:.8rem 1rem;margin:1rem 0}
+.ex h4{margin-top:0;color:var(--warn)}
+.ex .assume{font-size:.88rem;color:var(--muted)}
+.decision{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:.2rem 1.1rem 1rem;margin:1.5rem 0}
+ol.ac li,ul.tight li{margin:.25rem 0}
+.ruling{border:1px solid var(--line);border-radius:8px;padding:.5rem .75rem;margin:.5rem 0;background:var(--panel-2)}
+.ruling b{color:var(--accent)}
+pre{background:var(--code-bg);padding:.7rem .9rem;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.45;max-width:100%}
+.formula{font-family:ui-monospace,Consolas,monospace;background:var(--code-bg);padding:.6rem .8rem;border-radius:8px;overflow-x:auto;font-size:.88rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(18rem,1fr));gap:1rem}
+details.wire{margin:.8rem 0}
+details.wire summary{cursor:pointer;font-weight:650}
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0;padding:1rem 16px 3rem}
+  nav.toc{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);padding:0 0 .8rem;margin-bottom:1rem}
+  h1{font-size:1.6rem}
+  h2{font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+<details open>
+<summary>Contents</summary>
+<ol>
+<li><a href="#about">About this document</a></li>
+<li><a href="#glance">The five lead decisions at a glance</a></li>
+<li><a href="#corrections">Where the code differs from the .md</a></li>
+<li><a href="#foundation">Conceptual foundation</a></li>
+<li><a href="#ladder">Claim ladder and labels</a></li>
+<li><a href="#d1">D1 Mini productive-use contribution</a></li>
+<li><a href="#d2">D2 Mini supply cost and generator trial</a></li>
+<li><a href="#d3">D3 EV bounded bus charging decision</a></li>
+<li><a href="#d4">D4 Cold inventory requiring review</a></li>
+<li><a href="#d5">D5 Portfolio triage and bounded comparison</a></li>
+<li><a href="#nodouble">No double-counting</a></li>
+<li><a href="#continuity">Continuity: opportunity to reassessment</a></li>
+<li><a href="#history">Event history and performance trajectory</a></li>
+<li><a href="#data">Demo data and producers</a></li>
+<li><a href="#mock">Mock-deviation notes for new panels</a></li>
+<li><a href="#migrations">Migration slice plan</a></li>
+<li><a href="#validation">Validation on a 16 GB machine</a></li>
+<li><a href="#effort">Effort: relative size and confidence</a></li>
+<li><a href="#review">Review record</a></li>
+<li><a href="#open">Decisions still open</a></li>
+</ol>
+</details>
+</nav>
+
+<main>
+<header>
+<h1>Commercial Capability Readiness</h1>
+<p class="byline">Implementer edition of <code>Docs/demo-sprint/commercial-capability-readiness.md</code>. Revision 2, 27 October 2026: the Implementer's review (<code>.agent/implementer-questions-commercial-html-2026-10-27.md</code>) is worked in. Branch <code>plan/commercial-capability-assessment</code>, worktree HEAD <code>c975d618</code>. No product code under <code>backend</code>, <code>frontend/src</code>, <code>simulator</code> or <code>host</code> changed between the .md's inspected HEAD <code>319d8ad6</code> and this one.</p>
+<div class="callout">
+<p><b>Produced by Claude (Architect) under the owner-scoped exception</b> in <code>.ai/ROLE_CONFIG.md</code>, "Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27)". The owner's request is recorded word for word in <code>.agent/owner-claude-architect-commercial-html-2026-10-27.md</code>. All other Architect work stays with Codex. The rulings below are recorded under this exception only. Where one changes a settled boundary, it is listed in <a href="#open">Decisions still open</a> for the owner or the Codex Architect instead. The owner's settled direction is not reopened: outcome rankings, buyer choices, claim ladder, the no-double-counting rule and demo coverage.</p>
+</div>
+</header>
+
+<section id="about">
+<h2>About this document</h2>
+<p><b>Audience.</b> The implementers who will build the demo-sprint additions. Every section names the commercial decision it serves: buyer, decision, money mechanism, and the highest claim level that can honestly be shown.</p>
+<p><b>Method.</b> I checked every technical claim against the code in this worktree. Every correction in the Implementer's review was checked by me in the code before I accepted it (see <a href="#review">Review record</a>). File references are <code>path:function</code> relative to <code>backend/assetops_backend/</code> unless another root is given.</p>
+<h3>Evidence key</h3>
+<div class="tw"><table>
+<tr><th>Tag</th><th>Meaning</th></tr>
+<tr><td><span class="tag t-impl">IMPL</span></td><td>Implemented behaviour. The code path was read.</td></tr>
+<tr><td><span class="tag t-run">RUN</span></td><td>A focused non-database test covering this behaviour was run on 27 October and passed.</td></tr>
+<tr><td><span class="tag t-present">PRESENT</span></td><td>A Postgres or browser test exists but was not run here.</td></tr>
+<tr><td><span class="tag t-insp">INSPECTED</span></td><td>Code read only, with no test executed for this specific claim.</td></tr>
+<tr><td><span class="tag t-gap">GAP</span></td><td>Missing behaviour that a lead decision needs.</td></tr>
+</table></div>
+<h3>Tests run</h3>
+<p>Command, from the worktree root: <code>C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe -m pytest &lt;files&gt; -q -p no:cacheprovider</code> with <code>PYTHONPATH="backend;contracts;simulator;gateway;host;."</code>. No Postgres, browser, producer or full suite was run, and no database was created.</p>
+<div class="tw mid"><table>
+<tr><th>Batch</th><th>Files</th><th>Result</th></tr>
+<tr><td>Rules for the decisions and estate</td><td><code>test_w403_scenario_rules.py</code>, <code>test_w403_opportunity_result.py</code>, <code>test_s4_fuel_cost.py</code>, <code>test_s6_verification_rules.py</code>, <code>test_s6_verification_verdict.py</code>, <code>test_s4_finding_episode.py</code>, <code>test_w303_portfolio_reduction.py</code>, <code>test_w303_portfolio_workflow_labels.py</code>, <code>test_w207_ev_money.py</code>, <code>test_w204_cold_consequence.py</code>, <code>test_w203_cold_rules.py</code>, <code>test_w202_cold_scenario.py</code>, <code>test_w205b_ev_scenarios.py</code></td><td><b>352 passed, 2 skipped</b></td></tr>
+<tr><td>Reserve-trial rule</td><td><code>backend/tests/test_s6_action_rule.py</code></td><td><b>60 passed</b></td></tr>
+<tr><td>EV charger simulator pack</td><td><code>simulator/tests/test_ev_pack.py</code></td><td><b>78 passed</b></td></tr>
+<tr><td colspan="2"><b>Total</b> (the Implementer separately re-ran four of these files: 152 passed)</td><td><b>490 passed, 2 skipped</b></td></tr>
+</table></div>
+<p>Passing these tests shows the pure rules behave as their tests expect. It does not prove persistence, API wiring, the browser journey, or the joined Portfolio-to-Site walkthrough.</p>
+</section>
+
+<section id="glance">
+<h2>The five lead decisions at a glance</h2>
+<div class="tw wide"><table>
+<tr><th>Decision</th><th>Buyer and question</th><th>Money mechanism</th><th>Highest honest claim today</th><th>Target claim after the addition</th><th>Gap size / confidence</th></tr>
+<tr><td><a href="#d1"><b>D1</b> Mini productive-use contribution</a></td><td>Mini-grid operator: can this productive load be added profitably without weakening reserve or service?</td><td>Delivered kWh × tariff × collection fraction − delivered kWh × marginal cost − enablement and other costs</td><td>Noon-hour physical headroom, plus a <b>gross</b> tariff scenario with demand and collection <code>UNVERIFIED</code></td><td>Expected contribution, with break-even and payback</td><td>Medium / medium</td></tr>
+<tr><td><a href="#d2"><b>D2</b> Mini supply cost and generator trial</a></td><td>Operator: did the dispatch change lower supply cost per kWh of demand?</td><td>Feeder-demand kWh × change in modelled fuel cost per kWh, less intervention cost</td><td>Modelled fuel-cost exposure per Finding revision, and a separate technical trial verdict. Not joined.</td><td>Post-intervention modelled change, or a stated reason it is unavailable</td><td>Medium / medium-high</td></tr>
+<tr><td><a href="#d3"><b>D3</b> EV bus charging decision</a></td><td>Bus fleet operator: which allocation gets the bus ready for departure, and at what cost?</td><td>Feasible energy by the deadline; tariff and alternative cost; effect on other vehicles</td><td>Session energy and a gross tariff estimate. No vehicle concept in code.</td><td>Charge requirement met under modelled conditions</td><td>Medium–Large / medium-low</td></tr>
+<tr><td><a href="#d4"><b>D4</b> Cold inventory requiring review</a></td><td>Goods owner: which lots need inspection, and what declared value do they hold?</td><td>Sum of declared values of lots meeting an explicit rule. Not a loss.</td><td>Room-air excursion bounds. Consequence deliberately <code>UNPRICED</code>.</td><td>Inventory requiring review, plus a handling-time alternative</td><td>Medium / medium</td></tr>
+<tr><td><a href="#d5"><b>D5</b> Portfolio triage and comparison</a></td><td>Management: where to look first, and which opportunities are comparable?</td><td>No sum across incompatible bases</td><td>Findings in episode-time order. Priority, confidence and mechanism are always null.</td><td>Placement groups with explicit reasons; unknowns in <i>needs investigation</i></td><td>Small–Medium / medium-high</td></tr>
+</table></div>
+<div class="callout warn"><p><b>Sprint fit.</b> Labels, linked history and D5 placement fit a focused sprint. One working commercial decision fits only if its rulings are closed first. My recommendation is D2. Which decision enters the sprint is listed in <a href="#open">Decisions still open</a>.</p></div>
+</section>
+
+<section id="corrections">
+<h2>Where the code differs from the .md</h2>
+<p>These differences change what an implementer would build or claim. C12 to C14 were found or sharpened by the Implementer review and confirmed in the code.</p>
+<div class="tw wide"><table>
+<tr><th>#</th><th>The .md says</th><th>The code shows</th><th>Consequence</th></tr>
+<tr><td>C1</td><td>Estate is an entry point "with selected operating-cost evidence, <b>confidence</b> and action state".</td><td><code>estate/index.py:select_finding_scope</code> sets <code>"priority": None, "confidence": None, "confidence_reasons": []</code>. <code>estate/coverage.py</code> sets <code>"mechanism": None</code> on every mini, cold and EV row. <span class="tag t-impl">IMPL</span></td><td>No confidence or mechanism exists to triage with. D5 has to derive them.</td></tr>
+<tr><td>C2</td><td>An opportunity lens and <code>opportunity_count</code>.</td><td>Lens flags are only ever <code>["COST"]</code>, set when the consequence is <code>PRICED</code>. Portfolio rows are Findings, and no opportunity-to-Finding link exists. <span class="tag t-impl">IMPL</span></td><td>The Opportunities lens cannot show D1 opportunities. D1 reaches Portfolio through the Opportunity panel and Financials (D5 R5.5).</td></tr>
+<tr><td>C3</td><td>E03 power sharing and scenario evidence in <code>ev_scenarios/rules.py</code>.</td><td>That module stores <code>GROSS_TARIFF_CONTEXT</code> <code>{tariff_per_kwh, currency}</code> with no calculation. Power sharing exists only in <code>simulator/.../packs/ev_charger.py</code>, with no vehicle or state of charge. <span class="tag t-impl">IMPL</span> <span class="tag t-run">RUN</span></td><td>D3 needs a new allocator. The backend must not import simulator code.</td></tr>
+<tr><td>C4</td><td>"A frozen 60-minute reserve trial"; "the reserve criterion".</td><td>The target is at least a 25% reduction in candidate-avoidable generator seconds (<code>verification_rules.py:target_met</code>). The reserve is one of three guardrails, with unserved critical kWh and terminal SoC. The same UTC clock hour is enforced when the plan is frozen (<code>verification.py:freeze</code>). Comparability bands: feeder and PV within 10%, initial SoC within 2 points. <span class="tag t-impl">IMPL</span> <span class="tag t-run">RUN</span></td><td>The verdict concerns generator runtime, not litres. The terminal-SoC guardrail stops the later window "borrowing" battery energy, which is why a fuel comparison on the same windows is defensible.</td></tr>
+<tr><td>C5</td><td>"Reapply the existing fuel-cost model."</td><td><code>financials/fuel_cost.py:quantify</code> prices only one Finding revision's candidate spans, range <code>[0, 1.10 × nominal]</code>. SFC selection lives in <code>mini_depth/rules.py:_sfc_for</code>, with the SFC values from Foundation content (<code>mini_depth/inputs.py</code>). <span class="tag t-impl">IMPL</span></td><td>D2 reuses the SFC rule, multiplier and <code>select_window_price</code> on the verification windows' total generator kWh.</td></tr>
+<tr><td>C6</td><td>Continuity covers only Finding → Action.</td><td>Productive use also has persisted links: <code>mini_opportunity_scenario_link</code> and <code>mini_decision_work_link</code> (opportunity or scenario → W4 work case), in migration <code>0030</code>. <span class="tag t-impl">IMPL</span></td><td>There are two separate threads, and neither is complete.</td></tr>
+<tr><td>C7</td><td>Verification is mini-grid only.</td><td>Cold and EV domain Actions have a declared intent of exactly four success criteria (migration <code>0033</code>) but no evaluator. <span class="tag t-impl">IMPL</span></td><td>Never present a declared plan as verification.</td></tr>
+<tr><td>C8</td><td>Headroom / gross tariff scenario.</td><td>One designated noon hour per day (<code>assess_renewable_hour</code>), a 5-day study, and <code>duration_hours ≤ 1</code>. <span class="tag t-impl">IMPL</span> <span class="tag t-run">RUN</span></td><td>A schedule is at most one hour per eligible noon window.</td></tr>
+<tr><td>C9</td><td>Cold deliberately unpriced.</td><td>Correct. <code>cold_consequence.py:MISSING_ASSUMPTIONS</code> reserves <code>cold_exposure_rule</code>, <code>cold_stock_quantity</code> and <code>cold_stock_unit_value</code>. <code>ColdPolicy</code> is one <code>COLD_ROOM</code> and one probe per site (<code>postgres_assessment_store.py</code> cold inputs). <span class="tag t-impl">IMPL</span></td><td>D4 has a single-room model, so lots in other rooms are unrepresentable.</td></tr>
+<tr><td>C10</td><td>Trajectory "a gap to assess".</td><td>Correct. <code>analytics/performance_comparison.py</code> is a migration parity gate. Cold recovery is <code>CONTEXT_MISSING</code>. <span class="tag t-impl">IMPL</span></td><td>No cold recovery trend is possible yet.</td></tr>
+<tr><td>C11</td><td>No beneficiary dimension discussed.</td><td>No code carries a beneficiary. <code>estate/financials.py:_partition</code> keys on category, currency, window, period and fingerprint. <span class="tag t-impl">IMPL</span></td><td>New categories need an explicit beneficiary.</td></tr>
+<tr><td>C12</td><td>S04/M04: "battery stress" in <code>mini_depth/rules.py</code> as a risk cue.</td><td>No stress assessment or Finding exists: a search for "stress" in <code>mini_depth</code>, <code>ev_depth</code> and <code>cold_depth</code> finds nothing. The Finding mechanisms are <code>GENERATOR_SUPPORT_CANDIDATE</code>, <code>COLD_EXCURSION</code>, <code>COLD_START_FAILURE</code> and <code>EV_INTERRUPTION</code>. <span class="tag t-impl">IMPL</span></td><td>The owner's "MG-C battery stress" is an illustration with no producer. D5 uses an UNCONFIRMED generator-support Finding for MG-C instead.</td></tr>
+<tr><td>C13</td><td>Cold episode revisions and recurrence.</td><td>Cold (<code>_insert_cold_finding</code>) and EV (<code>ev_apply</code>) always write <code>recurs_after_finding_id = NULL</code> and never <code>REOPENED</code>. Only the mini matcher has recurrence. <span class="tag t-impl">IMPL</span></td><td>Cold and EV rows reach ACT_NOW only through an open episode, never through recurrence.</td></tr>
+<tr><td>C14</td><td>(Not stated.) EV depot limits as decision inputs.</td><td><code>ev_availability.selected_foundation</code> returns the raw revision dict. Limits are in <code>content.components[].properties</code> (<code>ev-site-import-limit</code>, <code>ev-charger-max-power</code>, <code>ev-connector-max-power</code>) and <code>connector_enable_schedules</code> (weekday, local times). No base-load field exists: <code>host/ev_publication.py:ev_parameters</code> forces <code>base_load_kw = 0</code> and refuses a base-load property. <span class="tag t-impl">IMPL</span></td><td>D3 needs a pinned-revision read, uses base load 0, and honours weekday schedules.</td></tr>
+</table></div>
+</section>
+
+<section id="foundation">
+<h2>Conceptual foundation</h2>
+<p>The rule for implementers: <b>extend an existing entity before inventing a new one</b>, and never let a later stage overwrite an earlier stage's stored claim. Every store below is append-only, revisioned and read at a knowledge cutoff.</p>
+<figure>
+<svg viewBox="0 0 980 360" role="img" aria-labelledby="f1t f1d">
+<title id="f1t">Commercial lifecycle and the current links between entities</title>
+<desc id="f1d">Accepted evidence feeds assessments, Findings and opportunities. Findings lead to Actions with verification plans and outcomes. Solid lines exist; dashed lines are proposed.</desc>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--svg-stroke)"/></marker></defs>
+<rect class="box-acc" x="10" y="150" width="120" height="56" rx="8"/><text x="70" y="174" text-anchor="middle" class="b small">Accepted evidence</text><text x="70" y="191" text-anchor="middle" class="tiny muted">ledger, provenance</text>
+<rect class="box" x="160" y="60" width="140" height="56" rx="8"/><text x="230" y="84" text-anchor="middle" class="b small">Renewable hour</text><text x="230" y="101" text-anchor="middle" class="tiny muted">mini_depth W4-02</text>
+<rect class="box" x="160" y="240" width="140" height="56" rx="8"/><text x="230" y="264" text-anchor="middle" class="b small">Dispatch interval</text><text x="230" y="281" text-anchor="middle" class="tiny muted">dispatch-3.1 segments</text>
+<rect class="box-ok" x="330" y="60" width="150" height="56" rx="8"/><text x="405" y="84" text-anchor="middle" class="b small">Opportunity (OPP)</text><text x="405" y="101" text-anchor="middle" class="tiny muted">5-day study revision</text>
+<rect class="box-ok" x="330" y="240" width="150" height="56" rx="8"/><text x="405" y="264" text-anchor="middle" class="b small">Finding + revision</text><text x="405" y="281" text-anchor="middle" class="tiny muted">episode, recurrence</text>
+<rect class="box-ok" x="510" y="60" width="140" height="56" rx="8"/><text x="580" y="84" text-anchor="middle" class="b small">Scenario revision</text><text x="580" y="101" text-anchor="middle" class="tiny muted">gross only today</text>
+<rect class="box-ok" x="510" y="240" width="140" height="56" rx="8"/><text x="580" y="264" text-anchor="middle" class="b small">Action (W1)</text><text x="580" y="281" text-anchor="middle" class="tiny muted">reserve-trial-1</text>
+<rect class="box-ok" x="510" y="150" width="140" height="50" rx="8"/><text x="580" y="172" text-anchor="middle" class="b small">Consequence</text><text x="580" y="188" text-anchor="middle" class="tiny muted">fuel-cost-1 per revision</text>
+<rect class="box-ok" x="680" y="60" width="130" height="56" rx="8"/><text x="745" y="84" text-anchor="middle" class="b small">W4 Work case</text><text x="745" y="101" text-anchor="middle" class="tiny muted">decision link</text>
+<rect class="box-ok" x="680" y="240" width="130" height="56" rx="8"/><text x="745" y="264" text-anchor="middle" class="b small">Plan → Outcome</text><text x="745" y="281" text-anchor="middle" class="tiny muted">VERIFIED/INEFF./INCONCL.</text>
+<rect class="box-gap" x="840" y="240" width="130" height="56" rx="8"/><text x="905" y="262" text-anchor="middle" class="b small">Modelled</text><text x="905" y="278" text-anchor="middle" class="b small">reassessment</text><text x="905" y="292" text-anchor="middle" class="tiny muted">D2 (missing)</text>
+<rect class="box-gap" x="840" y="60" width="130" height="56" rx="8"/><text x="905" y="82" text-anchor="middle" class="b small">Verification</text><text x="905" y="98" text-anchor="middle" class="tiny muted">none for productive use</text>
+<rect class="box-warn" x="680" y="150" width="290" height="50" rx="8"/><text x="825" y="172" text-anchor="middle" class="b small">Estate selection (Portfolio, Financials)</text><text x="825" y="188" text-anchor="middle" class="tiny muted">reads Findings, Actions, consequence lines; not OPP or scenarios</text>
+<path class="ln" d="M130,170 L160,92" marker-end="url(#ar)"/><path class="ln" d="M130,186 L160,264" marker-end="url(#ar)"/>
+<path class="ln" d="M300,88 L330,88" marker-end="url(#ar)"/><path class="ln" d="M300,268 L330,268" marker-end="url(#ar)"/>
+<path class="ln" d="M480,88 L510,88" marker-end="url(#ar)"/><path class="ln" d="M480,268 L510,268" marker-end="url(#ar)"/>
+<path class="ln" d="M440,240 L520,200" marker-end="url(#ar)"/>
+<path class="ln" d="M650,88 L680,88" marker-end="url(#ar)"/><path class="ln" d="M650,268 L680,268" marker-end="url(#ar)"/>
+<path class="ln-gap" d="M810,88 L840,88" marker-end="url(#ar)"/><path class="ln-gap" d="M810,268 L840,268" marker-end="url(#ar)"/>
+<path class="ln-gap" d="M650,175 C760,215 820,225 870,240" marker-end="url(#ar)"/>
+<path class="ln" d="M745,240 L745,200" marker-end="url(#ar)"/>
+<path class="ln-gap" d="M480,75 C600,20 820,20 860,150" marker-end="url(#ar)"/>
+<text x="560" y="28" class="tiny muted">D1: contribution line into Estate Financials and the Opportunity panel</text>
+<text x="10" y="340" class="small muted">Solid: persisted link exists. Dashed: proposed. Green: stored entity. Purple dashed: missing entity or stage.</text>
+</svg>
+<figcaption>Figure 1. Productive use runs Opportunity → Scenario → W4 Work case. Generator support runs Finding → Action → Plan → Outcome. Estate sees only the second, plus consequence lines.</figcaption>
+</figure>
+<div class="tw wide"><table>
+<tr><th>Domain concept</th><th>Existing entity and states</th><th>Where</th><th>Used by</th></tr>
+<tr><td>Operating fact</td><td>Accepted evidence with source class <code>REGISTERED_SIMULATION</code>, <code>AUTHORED_DEMONSTRATION</code>, <code>MIXED</code> or <code>UNKNOWN</code>. Append-only.</td><td><code>evidence/source_provenance.py</code>, <code>evidence/ledger_service.py</code>; migration <code>0005</code></td><td>All</td></tr>
+<tr><td>Problem / episode</td><td>Finding and FindingRevision. Lifecycle <code>SUPPORTED</code>, <code>UNCONFIRMED</code>, <code>NO_LONGER_SUPPORTED</code> or <code>MERGED</code>. Transition <code>REOPENED</code> and <code>recurs_after_finding_id</code> exist for mini only.</td><td><code>analytics/finding_episode.py:plan_pass</code>; <code>adapters/postgres_finding_store.py:cold_apply</code>, <code>ev_apply</code></td><td>D2, D5</td></tr>
+<tr><td>Growth opportunity</td><td><code>OPP-nnnnnn</code> with a frozen five-day revision; status and read-time currentness; <code>demand_state</code> and <code>collection_state</code> <code>UNVERIFIED</code>.</td><td><code>mini_decisions/projection.py:frozen_result</code>, <code>opportunities.py:_study</code></td><td>D1</td></tr>
+<tr><td>What-if</td><td>Scenario plus revisions. Kinds fixed by DB <code>CHECK</code>s; EV and cold also fix <code>formula_version = 'AUTHORED_ONLY/1'</code>.</td><td><code>scenario_rules.py</code>, <code>ev_scenarios/rules.py</code>, <code>cold_scenarios/rules.py</code>; migrations <code>0030</code>, <code>0032</code>, <code>0034</code></td><td>D1, D3, D4</td></tr>
+<tr><td>Money consequence</td><td>Revisioned, with <code>basis_sha256</code>. Mini <code>POTENTIAL_FUEL_COST</code>; EV <code>ESTIMATED</code>; cold <code>PRODUCT_EXPOSURE</code> always <code>UNPRICED</code> or <code>WITHHELD</code>.</td><td><code>financials/fuel_cost.py</code>, <code>ev_money.py</code>, <code>cold_consequence.py</code></td><td>D2, D5</td></tr>
+<tr><td>Intervention</td><td>W1 Action: <code>ACCEPTED</code>, <code>APPLIED</code>, <code>FAILED</code>, <code>OBSERVED</code>, and evaluator-written <code>RESOLVED</code> and <code>RESOLUTION_WITHDRAWN</code>. APPLY publishes a whole new Foundation revision (<code>sites/foundation_service.py:publish_battery_reserve</code>).</td><td><code>actions/lifecycle.py:reduce</code>, <code>actions/service.py</code></td><td>D2</td></tr>
+<tr><td>Independent check</td><td><code>verification_plan</code>, <code>verification_selection_binding</code>, <code>verification_evaluation_request</code>, <code>verification_outcome</code> (with <code>basis</code> and <code>details</code>) and <code>verification_metric</code>. Evaluation is a synchronous POST; no job or worker exists.</td><td><code>actions/verification.py</code>; <code>action_api.py</code> routes <code>.../verification/plans|evaluations|plan|outcome|history|evidence</code>; migration <code>0019</code></td><td>D2</td></tr>
+<tr><td>Work record</td><td>W4 work case. Cold and EV domain Action with declared intent.</td><td><code>work/</code>; migrations <code>0027</code>, <code>0033</code>, <code>0035</code></td><td>D1, D4</td></tr>
+<tr><td>Estate selection</td><td>One snapshot over Findings, Actions, evidence and money. Token <code>estate-selection/2</code>. Portfolio cursor: a signed five-part marker, paged in memory.</td><td><code>estate/portfolio.py:_portfolio</code>, <code>estate/financials.py:compare</code>, <code>estate/scope.py:_marker_ok</code>, <code>resume_after</code></td><td>D5</td></tr>
+</table></div>
+</section>
+
+<section id="ladder">
+<h2>Claim ladder and labels</h2>
+<p>Every money or value figure on screen carries exactly one <code>claim_level</code> and one <code>beneficiary</code>, shown next to its currency, window, basis IDs and exclusions.</p>
+<div class="tw wide"><table>
+<tr><th>Level</th><th><code>claim_level</code> enum</th><th>Screen label (final copy)</th><th>Produced by</th></tr>
+<tr><td>1. Simulated modelled opportunity</td><td><code>MODELLED_OPPORTUNITY</code></td><td>"Modelled opportunity · declared assumptions"</td><td>Mini gross scenario (exists)</td></tr>
+<tr><td>1b. Declared review scope</td><td><code>INVENTORY_REQUIRING_REVIEW</code></td><td>"Inventory requiring review · declared value · not a loss"</td><td>D4</td></tr>
+<tr><td>2. Assumption-based expected value</td><td><code>EXPECTED_VALUE</code></td><td>"Expected value · declared assumptions"</td><td>D1, D3</td></tr>
+<tr><td>3. Verified simulated technical improvement</td><td>(the existing verdict)</td><td>"Technical result verified on simulated data"</td><td><code>verification_rules.decide</code></td></tr>
+<tr><td>3a. Post-intervention modelled change</td><td><code>POST_INTERVENTION_MODELLED</code></td><td>"Modelled change after the trial · not realized savings"</td><td>D2</td></tr>
+<tr><td>4. Verified realized field value</td><td>none</td><td>"Unavailable in simulation"</td><td>None, by design</td></tr>
+</table></div>
+<p><b>Beneficiary enum (R-X.1):</b> <code>MINI_OPERATOR</code>, <code>GOODS_OWNER</code>, <code>FLEET_OPERATOR</code>, <code>CHARGING_SERVICE</code>. It is constant per category in code for the sprint; per-site declared beneficiaries are pilot work. Labels come from one frontend map, <code>CLAIM_LABEL</code>, in <code>frontend/src/sites/actionPresentation.tsx</code>, which estate imports.</p>
+<div class="grid2">
+<div class="callout ok"><p><b>Known quantity.</b> Fact from accepted simulated observations: kWh of headroom, generator kWh, °C·min.</p></div>
+<div class="callout"><p><b>Modelled economic effect.</b> Known quantity × declared demo-tenant inputs. Legitimate, provided it is labelled.</p></div>
+<div class="callout bad"><p><b>Unverified business outcome.</b> Collection, trips, spoilage, savings. Always stated as unavailable, never zero.</p></div>
+</div>
+<p><b>Exact arithmetic convention (R-X.2).</b> Products stay exact, or the request is refused with 422, as today. A division (break-even, cost per kWh, efficiency) is computed in <code>Fraction</code> and stored with <code>verification_rules.fmt</code>, which gives a decimal string when the result terminates and <code>p/q</code> otherwise. The display rounds once, to 4 significant decimals, outward for bounds. A ceiling count (payback) is an integer computed exactly.</p>
+</section>
+
+<section id="d1" class="decision">
+<h2>D1 Mini-grid productive-use contribution</h2>
+<div class="frame">
+<div><b>Buyer</b>Mini-grid operator</div>
+<div><b>Decision</b>Add this productive load in eligible hours, or not?</div>
+<div><b>Money</b>Collected revenue − supply cost − enablement</div>
+<div><b>Claim</b><code>EXPECTED_VALUE</code>, <code>MINI_OPERATOR</code></div>
+</div>
+<h3>Economic model</h3>
+<div class="formula">unit contribution  = E × tariff × collection_fraction − E × marginal_cost − other_cost_per_window   (E = proposed_kW × duration_h)
+study contribution = eligible_windows × unit contribution
+collection break-even c* = (marginal_cost + other_cost_per_window / E) / tariff
+payback windows    = ceil(enablement_cost / unit contribution)     only when unit contribution &gt; 0</div>
+<p>Supply cost accrues on unpaid energy, so c* is the fraction below which every delivered kWh loses money. A payback count is never converted to calendar time.</p>
+
+<h3>What the code does now</h3>
+<div class="tw wide"><table>
+<tr><th>Step</th><th>Behaviour</th><th>Evidence</th></tr>
+<tr><td>Headroom</td><td><code>assess_renewable_hour</code> computes headroom = capability − used − retained margin. The hour is <code>EXCLUDED</code> for non-positive headroom, a storage-charge request or a critical deficit; <code>LIMITED</code> for missing inputs; <code>CONFLICT</code> for conflicting evidence.</td><td><span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>Study</td><td><code>frozen_result</code>: <code>UNKNOWN</code>, <code>LIMITED</code> or <code>SUPPORTED</code>. <code>headroom_kw</code> is the minimum across eligible days.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Scenario</td><td><code>scenario_rules.calculate</code> returns <code>NO_CALCULATION</code> unless the kind is <code>PRODUCTIVE_LOAD</code> (the kind gate). It then gives <code>WITHHELD</code> (<code>INCOMPLETE_STUDY</code>, <code>NO_ELIGIBLE_DAY</code>, <code>HEADROOM_BELOW_LOAD</code>), <code>ENERGY_ONLY</code> (no tariff) or <code>GROSS_SCENARIO</code>. Products are exact or refused (<code>Inexact</code> → 422).</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Read gate</td><td><code>opportunities.py:_study</code> shows gross only for a compatible link (the same five pins), a <code>CURRENT</code> or <code>HISTORICAL</code> state, and a source class that is not MIXED or UNKNOWN.</td><td><span class="tag t-impl">IMPL</span>, Postgres <span class="tag t-present">PRESENT</span></td></tr>
+<tr><td>Estate</td><td>None. <code>APPLICABLE[MINI_GRID] = (OPERATING,)</code>. The <code>PRODUCTIVE_USE</code> card is <code>UNSUPPORTED</code> and <code>OpportunityPanel</code> is static.</td><td><span class="tag t-impl">IMPL</span></td></tr>
+</table></div>
+
+<h3>Technical approach</h3>
+<div class="tw wide"><table>
+<tr><th>Piece</th><th>Change</th></tr>
+<tr><td>Migration <code>0036</code></td><td>Add <code>'PRODUCTIVE_USE_CONTRIBUTION'</code> to <code>mini_scenario_revision_kind_check</code>. The <code>calculation jsonb</code> column already holds results.</td></tr>
+<tr><td>Rule refactor (R1.5)</td><td>Extract <code>scenario_rules._physical_gate(items, days) -&gt; dict | None</code>, which returns the existing WITHHELD or NO_CALCULATION envelope or None, from the body of <code>calculate()</code>. <code>calculate()</code> keeps its kind gate and calls the helper, so <code>PRODUCTIVE_LOAD</code> behaviour is byte-identical and the existing <code>test_w403_scenario_rules.py</code> must still pass unchanged. A new <code>contribution(items, days)</code> calls the same helper.</td></tr>
+<tr><td>Closed keys</td><td>Required: <code>proposed_kw</code> (kW), <code>duration_hours</code> (h, ≤ 1), <code>tariff_per_kwh</code> (<code>CCY/kWh</code>; required for this kind, R1.6), <code>collection_fraction</code> (unit <code>ratio</code>, 0 &lt; x ≤ 1), <code>marginal_cost_per_kwh</code> (<code>CCY/kWh</code>, same CCY). Optional: <code>enablement_cost</code> (unit <code>CCY</code>), <code>other_cost_per_window</code> (unit <code>CCY</code>). A currency mismatch returns 422 <code>DECISION_INPUT_INVALID</code>.</td></tr>
+<tr><td>Calculation state</td><td>Add <code>CONTRIBUTION_SCENARIO</code>. A negative unit contribution is a valid state and is stored and shown.</td></tr>
+<tr><td>API</td><td><code>GET /api/sites/{code}/financials/scenarios</code> rows and the scenario write body carry <code>contribution</code>. <code>GET /api/sites/{code}/opportunities/{id}</code> adds <code>contribution_scenario</code> under the gross read gate. <code>demand_state</code> becomes <code>DECLARED</code> when the selected compatible link is this kind. <code>collection_state</code> stays <code>UNVERIFIED</code>. No schema-version bump is needed (frontend guards <code>miniDecisionsClient.ts:isScenarioList</code> and <code>isOpportunityDetail</code> check a few keys only), but the backend exact-key constants must change: <code>ROW_KEYS</code> in <code>tests/test_w403_scenarios_postgres.py</code> and <code>OBJECT_KEYS</code> plus the key asserts in <code>tests/test_w403_opportunity_read_postgres.py</code>.</td></tr>
+</table></div>
+
+<details class="wire" open><summary>Wire shape: <code>contribution</code> (scenario row and <code>calculation.contribution</code>)</summary>
+<pre>{
+  "formula": "mini-contribution/1",
+  "claim_level": "EXPECTED_VALUE",
+  "beneficiary": "MINI_OPERATOR",
+  "currency": "USD",
+  "per_window": { "energy_kwh": "10", "collected_revenue": "2", "supply_cost": "0.3",
+                  "other_cost": "0", "unit_contribution": "1.7" },
+  "eligible_windows": 4,
+  "study_contribution": "6.8",
+  "collection_break_even": "3/25",          // fmt(): exact decimal or p/q
+  "payback": { "windows": 71, "reason": null },   // reason ∈ PAYBACK_REASONS
+  "demand_state": "DECLARED",
+  "collection_state": "UNVERIFIED"
+}
+// calculation.state ∈ NO_CALCULATION | WITHHELD | CONTRIBUTION_SCENARIO (plus the existing states for other kinds)
+// calculation.reason ∈ NO_PINNED_SELECTION | INCOMPLETE_STUDY | NO_ELIGIBLE_DAY | HEADROOM_BELOW_LOAD | null
+// PAYBACK_REASONS = NO_ENABLEMENT_COST | NO_POSITIVE_CONTRIBUTION   (then "windows": null)</pre>
+</details>
+
+<h3>Estate line field fill</h3>
+<p>One line per opportunity that has a selected compatible contribution scenario, in category <code>PRODUCTIVE_USE_CONTRIBUTION_SCENARIO</code>, added to <code>APPLICABLE[MINI_GRID]</code>. This also creates a <code>NO_LINES</code> sentinel for mini sites without a scenario. I accept that as honest ("No contribution scenario") and label it as a mock deviation, because the category is outside the mock enum.</p>
+<div class="tw wide"><table>
+<tr><th>Field</th><th>Fill</th></tr>
+<tr><td><code>line_key</code></td><td><code>mini-contribution:{opportunity_id}:{scenario_revision_id}</code></td></tr>
+<tr><td><code>overlap_group</code></td><td><code>mini-opp:{opportunity_id}</code>, so two scenarios on one opportunity become CONFLICT</td></tr>
+<tr><td><code>technical_interval_ids</code></td><td>The pinned <code>mini_revision_id</code> values of the ELIGIBLE days</td></tr>
+<tr><td><code>basis_evidence_ids</code></td><td>The union of the pinned days' <code>evidence_ids</code>. Both lists are non-empty for any ELIGIBLE line, so <code>BASIS_NOT_PROVEN</code> cannot arise.</td></tr>
+<tr><td><code>window_start/end</code></td><td>The study window from <code>projection.study_window(first_day, last_day, tz)</code>. Only studies over the same five days compare; anything else is <code>SINGLE_LINE</code> or diagnostic <code>DIFFERENT_WINDOW</code>. This is by design.</td></tr>
+<tr><td><code>period_kind</code></td><td><code>SCENARIO_WINDOW</code></td></tr>
+<tr><td><code>assumption_fingerprint</code></td><td>New <code>assumption_fingerprint_v2(category, currency, rates)</code> with payload version <code>estate-money-assumption/2</code>, over tariff, collection, marginal cost and other cost. The existing v1 function stays unchanged for existing categories.</td></tr>
+<tr><td><code>amount</code></td><td><code>{low: study_contribution, high: study_contribution, currency}</code>. A negative value is allowed.</td></tr>
+<tr><td>eligibility</td><td>Calc <code>CONTRIBUTION_SCENARIO</code> and gate CURRENT → <code>ELIGIBLE</code>. Explicit earlier cutoff → <code>HISTORICAL</code>. <code>PENDING_RECOMPUTE</code> → <code>PENDING</code>. <code>STALE_SOURCE</code> or <code>UNKNOWN</code> → <code>UNKNOWN</code>. Calc <code>WITHHELD</code>, a MIXED or UNKNOWN class, or <code>SCENARIO_BASIS_MISMATCH</code> → <code>WITHHELD</code> with that reason code.</td></tr>
+<tr><td><code>beneficiary</code> (new partition key)</td><td><code>MINI_OPERATOR</code></td></tr>
+</table></div>
+<p>The Portfolio <code>PRODUCTIVE_USE</code> card becomes state <code>SCENARIO</code> when at least one line is ELIGIBLE (display: the line amount, or "Several studies · see Financials" when there is more than one). The Portfolio <code>opportunity</code> object lists eligible lines in placement order (D5), never by largest amount.</p>
+
+<h3>Rulings</h3>
+<div class="ruling"><b>R1.1 Schedule length.</b> Keep one noon hour (≤ 1 h), labelled "per eligible noon hour". <i>Reason: more hours need W4-02 assessed for more hours, which is separate work.</i></div>
+<div class="ruling"><b>R1.2 Load beyond headroom.</b> Refuse (the existing <code>HEADROOM_BELOW_LOAD</code>). <i>Reason: pricing the excess at diesel cost needs a dispatch model.</i></div>
+<div class="ruling"><b>R1.3 Hurdle.</b> No stored hurdle; show payback windows and c*. <i>Reason: a customer hurdle is not yet available.</i></div>
+<div class="ruling"><b>R1.4 Estate.</b> Show as its own category in Financials and the Portfolio card. Never summed with operating cost.</div>
+<div class="ruling"><b>R1.5 New kind or optional keys.</b> A new kind, with the shared gate helper. <i>Reason: optional keys on <code>PRODUCTIVE_LOAD</code> would change the stored meaning of existing revisions.</i></div>
+<div class="ruling"><b>R1.6 Tariff.</b> Required for this kind.</div>
+<div class="ruling"><b>R1.7 Division.</b> c* is stored via <code>fmt</code> (exact, <code>p/q</code> if needed). Payback is an exact integer ceiling, null with <code>NO_POSITIVE_CONTRIBUTION</code> when unit contribution ≤ 0, or <code>NO_ENABLEMENT_COST</code> when no enablement cost is given. Division never triggers the <code>Inexact</code> 422; that trap stays for products only.</div>
+
+<h3>Acceptance criteria (executable)</h3>
+<ol class="ac">
+<li><b>Pure:</b> <code>contribution()</code> on the w403 fixture days with the inputs below returns <code>unit_contribution == "1.7"</code>, <code>collection_break_even == "3/25"</code> and <code>payback.windows == 71</code>. With collection 0.1, <code>unit_contribution == "-0.05"</code>, <code>payback.reason == "NO_POSITIVE_CONTRIBUTION"</code>.</li>
+<li><b>Pure:</b> every existing <code>calculate()</code> case gives an identical result after the refactor (the unchanged test file passes).</li>
+<li><b>Postgres:</b> on <code>MG-W402-001</code>, <code>GET /api/sites/MG-W402-001/opportunities/{id}</code> returns <code>contribution_scenario.study_contribution</code> equal to <code>eligible_days × 1.7</code>, with <code>demand_state == "DECLARED"</code>.</li>
+<li><b>Postgres:</b> the headroom-below-load and MIXED cases return no amount and the listed reason. The amount field is null, not "0".</li>
+<li><b>Estate:</b> <code>GET /api/estate/financials</code> has one <code>PRODUCTIVE_USE_CONTRIBUTION_SCENARIO</code> line, group state <code>SINGLE_LINE</code>, never in an <code>OPERATING</code> group. <code>estate_total</code> is null.</li>
+<li><b>Browser:</b> the Opportunity detail shows "Expected value · declared assumptions", every input with its source, c*, and the payback count.</li>
+</ol>
+
+<div class="ex">
+<h4>Worked example: the producer case (declared assumptions)</h4>
+<p class="assume">Assumed: the existing w403 fixture (<code>MG-W402-001</code>, study 6 to 10 Oct 2026, 6 Oct EXCLUDED, grain mill 10 kW × 1 h, tariff 0.25 USD/kWh), plus declared collection 0.80, marginal cost 0.03 USD/kWh and enablement 120 USD. The eligible-day count is whatever the stored result holds; 4 is shown here.</p>
+<div class="tw mid"><table>
+<tr><th>Quantity</th><th>Calculation</th><th>Result</th></tr>
+<tr><td>Assumed collected revenue</td><td>10 × 0.25 × 0.80</td><td>2.00 USD</td></tr>
+<tr><td>Supply cost (charged on all delivered energy)</td><td>10 × 0.03</td><td>0.30 USD</td></tr>
+<tr><td>Unit contribution</td><td></td><td><b>1.70 USD per eligible hour</b></td></tr>
+<tr><td>Study contribution</td><td>4 × 1.70</td><td>6.80 USD</td></tr>
+<tr><td>Collection break-even</td><td>0.03 / 0.25</td><td>0.12 (3/25)</td></tr>
+<tr><td>Payback</td><td>ceil(120 / 1.70)</td><td>71 eligible hours</td></tr>
+<tr><td>At collection 0.50</td><td>1.25 − 0.30</td><td>0.95 USD; payback 127 hours</td></tr>
+</table></div>
+</div>
+</section>
+
+<section id="d2" class="decision">
+<h2>D2 Mini supply cost and the generator-support deep walkthrough</h2>
+<div class="frame">
+<div><b>Buyer</b>Mini-grid operator (cost lead and proof of depth)</div>
+<div><b>Decision</b>Did the dispatch change lower supply cost per kWh of demand?</div>
+<div><b>Money</b>Change in modelled fuel cost per kWh of feeder demand, less intervention cost</div>
+<div><b>Claim</b>Level 3 technical, plus <code>POST_INTERVENTION_MODELLED</code></div>
+</div>
+<p>The owner's sequence: <b>operating issue → source-backed drivers and history → feasible intervention → recorded Action → independent technical verification → qualified commercial reassessment</b>.</p>
+<div class="formula">modelled fuel(w)  = SFC × generator_kWh(w)                      nominal; upper = 1.10 × nominal
+modelled cost(w)  = modelled fuel(w) × diesel price
+cost per kWh(w)   = modelled cost(w) / feeder_demand_kWh(w)
+modelled change   = cost per kWh(baseline) − cost per kWh(later)     per comparable hour; never annualized
+intervention cost  stated beside it, from the command</div>
+
+<h3>What the code does now</h3>
+<div class="tw wide"><table>
+<tr><th>Step</th><th>Behaviour</th><th>Evidence</th></tr>
+<tr><td>Issue and history</td><td><code>finding_episode.py:plan_pass</code>: recurrence (with observed OFF proof only), <code>NO_LONGER_SUPPORTED</code> ("not a repair or a saving") and <code>REOPENED</code>.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Cost exposure</td><td><code>fuel_cost.py:quantify/consequence</code> per Finding revision. <code>select_window_price</code> needs one assignment wholly containing the window, and compares <code>revision_id</code> (assignment IDs are re-issued on republish).</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Recommendation</td><td><code>reserve_trial.evaluate</code> proposes reserve − 5. The response says "The trial predicts no saving, runtime or safety change" (<code>actions/service.py</code>, recommendation body).</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Apply</td><td>APPLY publishes a whole new Foundation revision. The SFC is copied into it with the same value but a new revision ID, because <code>SfcValue.property_revision_id</code> is the Foundation revision ID.</td><td><span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>Plan and verdict</td><td><code>freeze</code>: same UTC clock hour; baseline before <code>effective_from</code>, later after it. The baseline covering revision may be the split prefix or the superseded revision. <code>_assess</code> and <code>decide</code> give <code>VERIFIED</code>, <code>INEFFECTIVE</code> or <code>INCONCLUSIVE</code>. <code>SETTLED</code> is an internal assessment state, not an outcome. <code>POST .../verification/evaluations</code> runs synchronously and records through <code>postgres_action_store.py:record_evaluation</code>.</td><td><span class="tag t-run">RUN</span>, Postgres <span class="tag t-present">PRESENT</span></td></tr>
+<tr><td>Window facts</td><td><code>window_evidence</code> computes per-slot <code>generator_power.kwh</code> but no total. The outcome stores per-window evidence-ID unions and a <code>details</code> subset (feeder, PV, unserved, below-reserve, SoC), with no slot payload.</td><td><span class="tag t-impl">IMPL</span></td></tr>
+</table></div>
+
+<h3>Technical approach</h3>
+<div class="tw wide"><table>
+<tr><th>Piece</th><th>Change</th></tr>
+<tr><td>Window replay (R2.6)</td><td>No new loader and no change to stored outcomes. Re-run <code>VerificationService._windows(plan, known_at = outcome.recorded_at)</code>. That is reproducible because <code>accepted_evidence</code> is append-only and <code>_windows</code> filters by <code>decided_at ≤ known_at</code>. Assert that each window's evidence-ID set equals <code>outcome.basis.evidence_ids[window]</code>, else <code>UNAVAILABLE / EVIDENCE_REPLAY_MISMATCH</code>. Sum the slot <code>generator_power.kwh</code>, null if any slot is unknown. Add <code>generator_kwh</code> to the <code>window_evidence</code> return value, a new key that does not enter <code>plan_sha256</code>.</td></tr>
+<tr><td>Rule module</td><td>New pure <code>financials/trial_fuel_comparison.py:compare(baseline, later, outcome, sfc_in_force, price_selections, intervention_cost)</code>, formula <code>trial-fuel-comparison/1</code>. It reuses <code>fuel_cost.MULTIPLIER</code>, <code>mini_depth/rules.py:_sfc_for</code> semantics and <code>fuel_cost.select_window_price</code>. Exact <code>Fraction</code>, stored with <code>fmt</code>.</td></tr>
+<tr><td>SFC check (R2.7)</td><td>Compare by <b>value and coverage</b>. Exactly one positive SFC must be in force over each whole window, and the values must be equal. IDs are not compared (APPLY changes them).</td></tr>
+<tr><td>Price check (R2.8)</td><td>Each window gets a <code>PRICED</code> selection, and the two <code>revision_id</code>s must be equal. The demo publication <code>backend/conversions/demo-diesel-price-publications.json</code> step v4 (1.28 USD/L from 2026-10-01) covers both producer windows with one revision.</td></tr>
+<tr><td>Migration <code>0037</code></td><td>Append-only <code>trial_cost_comparison_revision</code>: <code>id, tenant_id, site_id, action_id, verification_outcome_id, revision_no, supersedes_revision_id, formula, state, reason, result jsonb, intervention_cost jsonb, price_revision_id, basis_sha256, actor_*, idempotency_key, payload_sha256, recorded_at</code>. Unique <code>(verification_outcome_id, basis_sha256)</code>. Uses the <code>w4_append_only()</code> trigger pattern.</td></tr>
+<tr><td>Hook (R2.9)</td><td>Two triggers. (a) Inside <code>POST .../verification/evaluations</code>, after <code>record_evaluation</code> commits a VERIFIED or INEFFECTIVE outcome, in its <b>own</b> transaction: compute and insert. A failure there never rolls back the verdict and is reported as <code>commercial_reassessment: null</code> with <code>REASSESSMENT_PENDING</code>. (b) A SYSTEM command <code>POST /api/sites/{code}/actions/{id}/verification/commercial-reassessments</code>, using the existing <code>VERIFY</code> capability grant. It (re)computes for a named outcome and carries the declared intervention cost. A price republish is detected on read (<code>current_price_basis: "CHANGED"</code>) and resolved by calling (b), which appends a revision because the basis hash differs. No worker is added.</td></tr>
+<tr><td>Intervention cost (R2.10)</td><td>Carried in the command body as <code>{amount, currency, source}</code>, with 0 allowed. The automatic path (a) uses the Action's rule default <code>{amount: "0", source: "reserve-trial-1 policy change; no direct cost declared"}</code>. This needs no assumption-key migration (Q12).</td></tr>
+<tr><td>Routes (R2.11)</td><td><code>GET .../verification/outcome</code> adds <code>commercial_reassessment</code>: the latest revision for the selected outcome. <code>GET .../verification/history</code> adds <code>commercial_reassessments[]</code> (all revisions, slim).</td></tr>
+<tr><td>Views</td><td><code>SiteActionVerification.tsx</code>: a "Commercial reassessment" panel under the verdict. <code>SiteRecommendation.tsx</code> and <code>FindingConsequence.tsx</code>: forward links to the Action and outcome (the existing ID joins).</td></tr>
+</table></div>
+
+<details class="wire" open><summary>Wire shape: <code>commercial_reassessment</code></summary>
+<pre>{
+  "id": "uuid", "revision_no": 1, "formula": "trial-fuel-comparison/1",
+  "claim_level": "POST_INTERVENTION_MODELLED", "beneficiary": "MINI_OPERATOR",
+  "state": "MODELLED_IMPROVEMENT",          // REASSESSMENT_STATES
+  "reason": null,                           // REASSESSMENT_REASONS when state = UNAVAILABLE
+  "read_flags": [],                         // READ_FLAGS
+  "outcome_id": "uuid", "plan_id": "uuid", "origin_finding_revision_id": "uuid",
+  "windows": {
+    "baseline": { "generator_kwh": "40", "feeder_demand_kwh": "120",
+                  "fuel_l": {"nominal": "12", "upper": "13.2"},
+                  "cost": {"nominal": "15.36", "upper": "16.896"},
+                  "cost_per_demand_kwh": {"nominal": "0.128", "upper": "0.1408"} },
+    "later":    { "generator_kwh": "28", "feeder_demand_kwh": "126", ... }
+  },
+  "change_per_demand_kwh": { "nominal": "16/375", "upper": "88/1875" },   // fmt()
+  "intervention_cost": { "amount": "0", "currency": "USD", "source": "..." },
+  "price": { "revision_id": "uuid", "value": "1.28", "currency": "USD" },
+  "sfc": { "value_l_per_kwh": "0.3" },
+  "evidence_ids": { "baseline": ["..."], "later": ["..."] },
+  "current_price_basis": "SAME",            // SAME | CHANGED
+  "basis_sha256": "hex", "recorded_at": "iso",
+  "label": "Modelled change after the trial · not realized savings"
+}
+REASSESSMENT_STATES  = MODELLED_IMPROVEMENT | MODELLED_NO_IMPROVEMENT | UNAVAILABLE
+REASSESSMENT_REASONS = OUTCOME_INCONCLUSIVE | NOT_COMPARABLE | SOURCE_NOT_COHERENT | WINDOW_INCOMPLETE
+                     | EVIDENCE_REPLAY_MISMATCH | GENERATOR_KWH_UNKNOWN | SFC_MISSING | SFC_DIFFERS
+                     | PRICE_MISSING | PRICE_BASIS_DIFFERS | ZERO_DEMAND
+READ_FLAGS           = SUPERSEDED_BY_WITHDRAWAL | PRICE_REPUBLISHED</pre>
+</details>
+
+<figure>
+<svg viewBox="0 0 980 300" role="img" aria-labelledby="f3t">
+<title id="f3t">D2 decision tree for the post-intervention modelled reassessment</title>
+<defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--svg-stroke)"/></marker></defs>
+<rect class="box" x="20" y="20" width="170" height="48" rx="8"/><text x="105" y="40" text-anchor="middle" class="b small">Outcome final?</text><text x="105" y="56" text-anchor="middle" class="tiny muted">VERIFIED / INEFFECTIVE</text>
+<rect class="box" x="230" y="20" width="170" height="48" rx="8"/><text x="315" y="40" text-anchor="middle" class="b small">Comparable + coherent?</text><text x="315" y="56" text-anchor="middle" class="tiny muted">bands, source pair</text>
+<rect class="box" x="440" y="20" width="170" height="48" rx="8"/><text x="525" y="40" text-anchor="middle" class="b small">Replay matches?</text><text x="525" y="56" text-anchor="middle" class="tiny muted">evidence IDs, gen kWh known</text>
+<rect class="box" x="650" y="20" width="150" height="48" rx="8"/><text x="725" y="40" text-anchor="middle" class="b small">SFC value + price rev.</text><text x="725" y="56" text-anchor="middle" class="tiny muted">equal in both windows</text>
+<rect class="box-ok" x="830" y="20" width="135" height="48" rx="8"/><text x="897" y="40" text-anchor="middle" class="b small">Compute</text><text x="897" y="56" text-anchor="middle" class="tiny">cost/kWh both</text>
+<path class="ln" d="M190,44 L230,44" marker-end="url(#ar3)"/><path class="ln" d="M400,44 L440,44" marker-end="url(#ar3)"/><path class="ln" d="M610,44 L650,44" marker-end="url(#ar3)"/><path class="ln" d="M800,44 L830,44" marker-end="url(#ar3)"/>
+<path class="ln" d="M105,68 L105,150" marker-end="url(#ar3)"/><path class="ln" d="M315,68 L315,150" marker-end="url(#ar3)"/><path class="ln" d="M525,68 L525,150" marker-end="url(#ar3)"/><path class="ln" d="M725,68 L725,150" marker-end="url(#ar3)"/>
+<text x="111" y="112" class="tiny muted">no</text><text x="321" y="112" class="tiny muted">no</text><text x="531" y="112" class="tiny muted">no</text><text x="731" y="112" class="tiny muted">no</text>
+<rect class="box-bad" x="20" y="150" width="780" height="46" rx="8"/><text x="410" y="170" text-anchor="middle" class="b small">UNAVAILABLE with reason</text><text x="410" y="186" text-anchor="middle" class="tiny">OUTCOME_INCONCLUSIVE · NOT_COMPARABLE · EVIDENCE_REPLAY_MISMATCH · GENERATOR_KWH_UNKNOWN · SFC_DIFFERS · PRICE_BASIS_DIFFERS</text>
+<path class="ln" d="M897,68 L897,220" marker-end="url(#ar3)"/>
+<rect class="box-acc" x="600" y="220" width="365" height="64" rx="8"/><text x="782" y="244" text-anchor="middle" class="b small">MODELLED_IMPROVEMENT or MODELLED_NO_IMPROVEMENT</text><text x="782" y="262" text-anchor="middle" class="tiny">"Modelled change after the trial · not realized savings"</text>
+<text x="20" y="240" class="small muted">A comparable INEFFECTIVE verdict still computes and may show no improvement.</text>
+<text x="20" y="258" class="small muted">A withdrawn resolution keeps the row, flagged SUPERSEDED_BY_WITHDRAWAL.</text>
+</svg>
+<figcaption>Figure 2. The reassessment gates first on the facts the evaluator already froze, then on the two fuel-model inputs.</figcaption>
+</figure>
+
+<h3>Rulings</h3>
+<div class="ruling"><b>R2.1 Energy counted.</b> All generator kWh in each frozen window. Candidate seconds stay the technical target.</div>
+<div class="ruling"><b>R2.2 Range.</b> Show nominal (at the declared SFC) and upper (with the 1.10 allowance). Never show an "at least" lower bound.</div>
+<div class="ruling"><b>R2.3 Verdicts that compute.</b> VERIFIED and comparable INEFFECTIVE. INCONCLUSIVE gives <code>UNAVAILABLE / OUTCOME_INCONCLUSIVE</code>. A withdrawal sets the <code>SUPERSEDED_BY_WITHDRAWAL</code> read flag.</div>
+<div class="ruling"><b>R2.4 Persist.</b> Yes, in migration <code>0037</code>. This is the smallest association that holds every thread ID.</div>
+<div class="ruling"><b>R2.5 Estate.</b> Site only in the sprint. <code>VERIFIED_RECOVERY</code> stays <code>NOT_ESTABLISHED</code>.</div>
+<div class="ruling"><b>R2.12 Denominator.</b> Use feeder-demand kWh, labelled "per kWh of feeder demand". No total of all loads actually served exists. Unserved critical energy is checked separately by the guardrail. Whether this wording meets the owner's "cost per kWh served" is listed in <a href="#open">Decisions still open</a>.</div>
+<div class="ruling"><b>R2.13 Pre-split baseline.</b> Accept, as <code>freeze</code> already does. The SFC check by value makes the split prefix harmless.</div>
+
+<h3>Acceptance criteria (executable)</h3>
+<ol class="ac">
+<li><b>Pure:</b> with the inputs below (and a 1.28 price), <code>compare()</code> returns <code>change_per_demand_kwh.nominal == "16/375"</code>. Each reason in <code>REASSESSMENT_REASONS</code> has one test that triggers it alone.</li>
+<li><b>Route walk</b> (producer case <code>verified</code>, site <code>KOBO-001</code>). Each step uses only the link in the previous response:
+<ol>
+<li><code>GET /api/estate/portfolio?from=2026-10-01T00:00:00Z&amp;to=2026-11-03T00:00:00Z</code> → the KOBO-001 row with <code>links.finding</code> and <code>links.action</code>.</li>
+<li><code>links.finding</code> (<code>/sites/KOBO-001/findings/{fid}?revision_id={frid}</code>) → <code>GET /api/sites/KOBO-001/findings/{fid}/financial-consequences?revision_id={frid}</code> is <code>PRICED</code>.</li>
+<li><code>GET /api/sites/KOBO-001/findings/{fid}/recommendation?revision_id={frid}</code> shows the accepted snapshot.</li>
+<li><code>links.action</code> → <code>GET /api/sites/KOBO-001/actions/{aid}/verification/outcome</code>: <code>outcome.outcome == "VERIFIED"</code> and <code>commercial_reassessment.state == "MODELLED_IMPROVEMENT"</code>.</li>
+</ol></li>
+<li>Case <code>price_split</code> → <code>PRICE_BASIS_DIFFERS</code>. Case <code>inconclusive</code> → <code>OUTCOME_INCONCLUSIVE</code>. Case <code>target_miss</code> (comparable) → <code>MODELLED_NO_IMPROVEMENT</code> or <code>MODELLED_IMPROVEMENT</code> per its windows, never UNAVAILABLE.</li>
+<li>Calling the command after a new price publication appends <code>revision_no == 2</code>. <code>revision_no 1</code> stays readable through <code>.../history</code>.</li>
+<li>A test asserts that no frontend string under the reassessment panel contains "saving", "saved" or "realized" except inside "not realized savings".</li>
+</ol>
+
+<div class="ex">
+<h4>Worked example (declared assumptions)</h4>
+<p class="assume">Assumed: baseline 2026-10-06 08:00 UTC and later 2026-11-02 08:00 UTC (the s602b windows). Feeder 120 then 126 kWh, bands pass. Generator 40 then 28 kWh. SFC 0.3 L/kWh (the template value). Diesel 1.28 USD/L (demo step v4). Intervention cost 0.</p>
+<div class="tw mid"><table>
+<tr><th></th><th>Baseline</th><th>Later</th></tr>
+<tr><td>Modelled fuel, nominal / upper</td><td>12.0 / 13.2 L</td><td>8.4 / 9.24 L</td></tr>
+<tr><td>Modelled cost, nominal / upper</td><td>15.36 / 16.90 USD</td><td>10.75 / 11.83 USD</td></tr>
+<tr><td>Cost per kWh of feeder demand, nominal</td><td>0.1280</td><td>0.0853</td></tr>
+<tr><td colspan="3"><b>Modelled change:</b> 0.0427 USD per kWh of feeder demand nominal (16/375), 0.0469 upper, in one comparable hour. Not realized savings.</td></tr>
+</table></div>
+</div>
+</section>
+
+<section id="d3" class="decision">
+<h2>D3 EV bounded bus charging decision</h2>
+<div class="frame">
+<div><b>Buyer</b>Electric bus fleet operator</div>
+<div><b>Decision</b>Which feasible allocation gets the bus ready for departure, and at what cost?</div>
+<div><b>Money</b>Depot energy cost and alternative cost per option; effect on other vehicles</div>
+<div><b>Claim</b><code>EXPECTED_VALUE</code>, <code>FLEET_OPERATOR</code></div>
+</div>
+<div class="formula">required_battery_kWh = route_kWh + reserve_pct × capacity − initial_soc × capacity   (≥ 0)
+grid_kWh_needed      = required_battery_kWh / efficiency
+per minute m:  alloc = min(connector_kW, charger_kW, site_limit − 0 − others(m), taper_kW(soc)) if connector enabled at m, else 0
+feasible ⇔ every vehicle's delivered grid kWh by its departure ≥ its need</div>
+<p>Vehicle data is <b>declared</b>: there is no plug-in time in the backend, because session bounds are START and END/ABORT. So each vehicle declares <code>available_from</code> and <code>departure_at</code>. Depot limits come from the pinned Foundation revision. Observed sessions and unavailability are context and gates.</p>
+
+<h3>What the code does now</h3>
+<div class="tw wide"><table>
+<tr><th>Area</th><th>Behaviour</th><th>Evidence</th></tr>
+<tr><td>Money</td><td><code>ev_money.py:derive</code>: <code>ESTIMATED</code> = complete session kWh × one tariff. Otherwise <code>UNPRICED</code> or <code>WITHHELD</code>.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Scenario</td><td><code>GROSS_TARIFF_CONTEXT</code> only. <code>service.py:_authorable</code> refuses without a CURRENT selection, complete metered sessions and a Foundation, and refuses a currency different from the priced tariff.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Foundation</td><td><code>selected_foundation</code> returns the raw revision. Limits are in component properties. The enable schedule is weekly (EV-LAB-001: Tuesday 08:00 to 16:00 UTC per <code>backend/tests/fixtures/w2/ev-lab-001.yaml</code>). No base load. No by-ID read of a pinned revision (<code>postgres_assessment_store.py:foundation_revision_on</code> is cutoff-driven).</td><td><span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>Sessions and availability</td><td>Sessions carry <code>connector_asset_id</code>. Faults are FAULT/CLEAR points. Per-connector UNAVAILABLE spans exist only at read time (<code>ev_availability.py:_observations(rows, component_id, ...)</code>, <code>_classify</code>).</td><td><span class="tag t-impl">IMPL</span></td></tr>
+</table></div>
+
+<h3>Technical approach</h3>
+<div class="tw wide"><table>
+<tr><th>Piece</th><th>Change</th></tr>
+<tr><td>Migration <code>0038</code></td><td><code>ev_scenario_revision</code>: kind adds <code>'BUS_DEPARTURE_CHOICE'</code>. Formula is paired with kind (<code>GROSS_TARIFF_CONTEXT ↔ AUTHORED_ONLY/1</code>, <code>BUS_DEPARTURE_CHOICE ↔ ev-bus-departure/1</code>). A nullable <code>calculation jsonb</code> is added, null for the old kind.</td></tr>
+<tr><td>Pinned Foundation read</td><td>New store method <code>PostgresAssessmentStore.foundation_revision_by_id(tenant, site, revision_id)</code>, plus pure <code>ev_scenarios/departure.py:limits_from_foundation(content) -&gt; Limits</code>. The pure function returns site import limit, charger max, connector max by <code>component_id</code>, the asset-ID map and weekly schedules. Missing → 422 <code>EV_SCENARIO_INVALID</code>.</td></tr>
+<tr><td>Allocator</td><td>Pure <code>departure.allocate(limits, vehicles, policy, start, end)</code>. It steps minute by minute in <code>Fraction</code>, pauses outside each connector's weekly window (weekday and local times honoured), and uses a linear two-segment taper. Policies: <code>SHARED</code> (equal split among charging vehicles, re-split when one finishes) and <code>PRIORITY_TARGET</code> (target first, up to its connector limit). Plus <code>SHARED_WITH_EXTERNAL</code>: SHARED, then declared external energy taken after depot departure and before the route, with its declared <code>extra_minutes</code> reported as a service-time effect, not money. Base load is fixed at 0 (R3.5). Nothing is imported from <code>simulator/</code>.</td></tr>
+<tr><td>Authorability (R3.6)</td><td>New <code>_authorable_bus</code>: requires a CURRENT selection and a selected Foundation. Sessions are optional context. The gross-tariff currency rule does not apply, because the depot tariff is a separate declared cost.</td></tr>
+<tr><td>Observed gate (R3.2)</td><td>Reuse <code>ev_availability._observations/_classify</code> per connector <code>component_id</code> over each vehicle's <code>[available_from, departure_at)</code>. Any UNAVAILABLE span on the vehicle's connector makes options using it infeasible, with <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> and the span's evidence IDs.</td></tr>
+<tr><td>Connector mapping (R3.7)</td><td>Vehicles name <code>connector_component_id</code> (<code>"c1"</code> or <code>"c2"</code>, as in the Foundation). The service resolves it to <code>connector_asset_id</code> through the pinned revision. Unknown → 422.</td></tr>
+<tr><td>Preferred (R3.8)</td><td>The option with the lowest <b>total</b> cost across all vehicles (depot energy plus alternative), among options where every vehicle meets its requirement. Ties go to fewer external charges, then option order. Null with <code>NO_FEASIBLE_OPTION</code>.</td></tr>
+<tr><td>Views</td><td><code>EvScenarios.tsx</code>: a decision card with an option table and an allocation timeline (Figure 3).</td></tr>
+</table></div>
+
+<details class="wire" open><summary>Wire shape: EV <code>calculation</code> for <code>BUS_DEPARTURE_CHOICE</code></summary>
+<pre>{
+  "formula": "ev-bus-departure/1", "claim_level": "EXPECTED_VALUE", "beneficiary": "FLEET_OPERATOR",
+  "limits": { "foundation_revision_id": "uuid", "site_import_limit_kw": "80", "charger_max_kw": "60",
+              "connector_max_kw": {"c1": "60", "c2": "60"}, "base_load_kw": "0",
+              "schedules": [{"component_id": "c1", "weekday": "TUESDAY", "local_start": "08:00", "local_end": "16:00", "tz": "Etc/UTC"}] },
+  "tariff": { "depot_energy_per_kwh": "0.15", "currency": "USD", "source": "..." },
+  "vehicles": [{ "label": "B-07", "role": "TARGET", "connector_component_id": "c1",
+                 "available_from": "2026-10-06T10:00:00Z", "departure_at": "2026-10-06T13:00:00Z",
+                 "required_battery_kwh": "120", "required_grid_kwh": "3000/23" }],
+  "options": [{
+    "key": "SHARED", "feasible": false, "reasons": ["TARGET_RESERVE_SHORT"],
+    "vehicles": [{ "label": "B-07", "delivered_grid_kwh": "120", "departure_battery_kwh": "185.4",
+                   "requirement": "RESERVE_SHORT", "short_battery_kwh": "9.6", "met_at": null }],
+    "depot_energy_cost": "...", "alternative_cost": "0", "total_cost": "...", "extra_minutes": "0" }],
+  "preferred": { "key": "PRIORITY_TARGET", "reason": "LOWEST_TOTAL_COST_ALL_MET" },
+  "observed_context": { "selection_state": "CURRENT", "session_revision_ids": ["..."],
+                        "unavailable_spans": [{"component_id": "c2", "from": "...", "to": "...", "evidence_ids": ["..."]}] },
+  "label": "Charge requirement met under modelled conditions"
+}
+OPTION_KEYS        = SHARED | PRIORITY_TARGET | SHARED_WITH_EXTERNAL
+REQUIREMENT_STATES = MET | RESERVE_SHORT | ROUTE_SHORT
+OPTION_REASONS     = TARGET_RESERVE_SHORT | TARGET_ROUTE_SHORT | OTHER_VEHICLE_SHORT
+                   | CONNECTOR_UNAVAILABLE_OBSERVED | OUTSIDE_ENABLE_SCHEDULE | EXTERNAL_NOT_AVAILABLE
+PREFERRED_REASONS  = LOWEST_TOTAL_COST_ALL_MET | NO_FEASIBLE_OPTION</pre>
+</details>
+
+<figure>
+<svg viewBox="0 0 980 290" role="img" aria-labelledby="f4t">
+<title id="f4t">D3 power allocation under two options</title>
+<text x="20" y="22" class="b small">Option SHARED (40 kW each)</text>
+<text x="520" y="22" class="b small">Option PRIORITY_TARGET (B-07 at 60 kW)</text>
+<line class="axis" x1="60" y1="130" x2="460" y2="130"/><line class="axis" x1="60" y1="40" x2="60" y2="130"/>
+<line class="axis" x1="560" y1="130" x2="960" y2="130"/><line class="axis" x1="560" y1="40" x2="560" y2="130"/>
+<text x="54" y="44" text-anchor="end" class="tiny muted">80</text><text x="54" y="88" text-anchor="end" class="tiny muted">40</text><text x="54" y="133" text-anchor="end" class="tiny muted">0 kW</text>
+<text x="554" y="44" text-anchor="end" class="tiny muted">80</text><text x="554" y="88" text-anchor="end" class="tiny muted">40</text><text x="554" y="133" text-anchor="end" class="tiny muted">0 kW</text>
+<rect class="bar-a" x="60" y="85" width="240" height="45"/><rect class="bar-b" x="60" y="40" width="240" height="45"/>
+<rect class="bar-b" x="300" y="62" width="60" height="68"/>
+<line class="thr" x1="300" y1="35" x2="300" y2="140"/><text x="300" y="152" text-anchor="middle" class="tiny">13:00 dep.</text>
+<text x="60" y="152" class="tiny muted">10:00</text><text x="372" y="166" text-anchor="middle" class="tiny muted">~13:45</text>
+<rect class="bar-a" x="560" y="62" width="173" height="68"/><rect class="bar-b" x="560" y="40" width="173" height="22"/>
+<rect class="bar-b" x="733" y="62" width="160" height="68"/>
+<line class="thr" x1="800" y1="35" x2="800" y2="140"/><text x="800" y="152" text-anchor="middle" class="tiny">13:00 dep.</text>
+<text x="560" y="152" class="tiny muted">10:00</text><text x="733" y="166" text-anchor="middle" class="tiny muted">12:10</text><text x="893" y="166" text-anchor="middle" class="tiny muted">~14:10</text>
+<rect class="bar-a" x="60" y="182" width="14" height="10"/><text x="80" y="191" class="tiny">B-07 (target, c1)</text>
+<rect class="bar-b" x="200" y="182" width="14" height="10"/><text x="220" y="191" class="tiny">B-12 (c2)</text>
+<text x="20" y="225" class="small">SHARED: B-07 gets 120 grid kWh (110.4 into the battery) by 13:00 and needs 130.4. <tspan class="b">Reserve short by 9.6 kWh.</tspan></text>
+<text x="20" y="245" class="small">PRIORITY_TARGET: B-07 done about 12:10. B-12 gets 20 kW, then 60 kW, and meets its 15:00 need. <tspan class="b">All met.</tspan></text>
+<text x="20" y="270" class="tiny muted">1 h = 80 px. Tuesday 2026-10-06 inside the 08:00 to 16:00 enable window. Site limit 80 kW, connectors 60 kW. Vehicles declared.</text>
+</svg>
+<figcaption>Figure 3. The decision is the allocation, not the shortfall. PRIORITY_TARGET changes modelled readiness; the extra cost is only the tariff on the additional energy.</figcaption>
+</figure>
+
+<h3>Rulings</h3>
+<div class="ruling"><b>R3.1 Policies.</b> SHARED, PRIORITY_TARGET and SHARED_WITH_EXTERNAL. No optimizer.</div>
+<div class="ruling"><b>R3.2 Observed gate.</b> UNAVAILABLE spans (not raw FAULT points) make options on that connector infeasible.</div>
+<div class="ruling"><b>R3.3 Tariff.</b> A declared depot energy tariff in the decision assumptions, separate from the W2-07 gross-sales tariff.</div>
+<div class="ruling"><b>R3.4 Taper.</b> Linear two-segment.</div>
+<div class="ruling"><b>R3.5 Base load.</b> Fixed at 0, matching the simulator and the Foundation rule. Not an assumption.</div>
+<div class="ruling"><b>R3.9 Schedule.</b> Weekday schedules are honoured exactly. The producer decision date is 2026-10-06, a Tuesday.</div>
+
+<h3>Acceptance criteria (executable)</h3>
+<ol class="ac">
+<li><b>Pure:</b> with the example inputs, SHARED has <code>B-07.short_battery_kwh == "9.6"</code> and <code>feasible == false</code>. PRIORITY_TARGET is feasible with B-12 <code>MET</code>. <code>preferred.key == "PRIORITY_TARGET"</code>.</li>
+<li><b>Pure:</b> a decision dated on a Wednesday allocates 0 kW (<code>OUTSIDE_ENABLE_SCHEDULE</code>). A connector rating missing from the Foundation raises 422.</li>
+<li><b>Pure:</b> with external charge unavailable and the target not feasible on site, <code>preferred == null</code> and <code>preferred_reason == "NO_FEASIBLE_OPTION"</code>.</li>
+<li><b>Postgres:</b> on <code>EV-LAB-001</code>, <code>POST /api/sites/EV-LAB-001/ev/financials/scenarios</code> with kind <code>BUS_DEPARTURE_CHOICE</code> → 201, and the list returns the calculation. A correction appends revision 2.</li>
+<li><b>Postgres:</b> in the fault case, an UNAVAILABLE span on c2 inside B-12's window gives <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> on every option, with evidence IDs.</li>
+</ol>
+
+<div class="ex">
+<h4>Worked example (declared assumptions)</h4>
+<p class="assume">Assumed, on 2026-10-06 (Tuesday). B-07 on c1: 300 kWh usable capacity, initial 25%, available 10:00, departs 13:00; route 150 kWh plus a 15% reserve, so it needs 120 kWh into the battery (130.4 from the grid at 0.92 efficiency). B-12 on c2 needs 150 kWh into its battery (163 from the grid) by 15:00. Depot tariff 0.15 USD/kWh. External charge 0.40 USD/kWh plus 25 USD, 30 extra minutes.</p>
+<div class="tw mid"><table>
+<tr><th>Option</th><th>B-07 at 13:00</th><th>B-12 by 15:00</th><th>Total cost</th><th>Feasible</th></tr>
+<tr><td>SHARED</td><td>185.4 kWh (reserve short 9.6)</td><td>met about 13:45</td><td>(120 + 163) × 0.15 = 42.45</td><td>No</td></tr>
+<tr><td>PRIORITY_TARGET</td><td>195 kWh by about 12:10</td><td>met about 14:10</td><td>(130.4 + 163) × 0.15 = 44.01</td><td><b>Yes, preferred</b></td></tr>
+<tr><td>SHARED_WITH_EXTERNAL</td><td>met after a 9.6 kWh top-up</td><td>met</td><td>42.45 + 25 + 9.6/0.92 × 0.40 ≈ 71.62, plus 30 min</td><td>Yes, costlier</td></tr>
+</table></div>
+</div>
+</section>
+
+<section id="d4" class="decision">
+<h2>D4 Cold-chain inventory requiring review</h2>
+<div class="frame">
+<div><b>Buyer</b>Goods owner or aggregator</div>
+<div><b>Decision</b>Which lots must be inspected, and is handling now worth it?</div>
+<div><b>Money</b>Declared value of lots meeting a rule. Review scope, not loss.</div>
+<div><b>Claim</b><code>INVENTORY_REQUIRING_REVIEW</code>, <code>GOODS_OWNER</code></div>
+</div>
+<div class="formula">exposure during presence: low  = rectangles wholly inside [placed_at, removed_at)
+                          high = rectangles intersecting it
+REQUIRES_REVIEW      ⇔ exposure_low  meets rule (minutes_above ≥ M  or  degree_minutes ≥ D)
+REVIEW_UNDETERMINED  ⇔ only exposure_high meets rule
+inventory requiring review = Σ declared value (REQUIRES_REVIEW), per currency; undetermined shown separately</div>
+<p>One room per site (C9): a lot declares the site's <code>COLD_ROOM</code> asset, and any other room returns 422. There is no "not in room" state. Handling at time t ends presence at t, so the alternative review set needs no thermal model.</p>
+
+<h3>What the code does now</h3>
+<div class="tw wide"><table>
+<tr><th>Area</th><th>Behaviour</th><th>Evidence</th></tr>
+<tr><td>Excursion</td><td><code>cold.py:assess_excursion</code>: observed rectangles only. A gap over 10 minutes is not bridged (the skip in <code>_excursion</code>). Coverage floor 0.8.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Consequence</td><td><code>cold_consequence.derive</code>: <code>UNPRICED</code> or <code>WITHHELD</code>, with the reserved missing-assumption keys.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Scenario</td><td><code>STOCK_VALUE_CONTEXT</code>, no calculation.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Point read</td><td><code>cold_episode_evidence</code> stores <code>(evidence_id, use, reason)</code>, ordered by ID only. <code>PostgresFindingStore.revision_evidence</code> returns SUPPORT points with <code>source_time</code>, quality and value, in time order. The policy is in <code>assessment_revision.result</code>.</td><td><span class="tag t-impl">IMPL</span></td></tr>
+</table></div>
+
+<h3>Technical approach</h3>
+<div class="tw wide"><table>
+<tr><th>Piece</th><th>Change</th></tr>
+<tr><td>Migration <code>0039</code></td><td><code>cold_scenario_revision</code>: kind adds <code>'LOT_REVIEW_SET'</code>, formula paired with kind (<code>cold-lot-review/1</code>), plus a nullable <code>calculation jsonb</code>. Lots (≤ 50) and rules go in the assumptions.</td></tr>
+<tr><td>Curve</td><td>Pure <code>analytics/cold.py:cumulative_exposure(points, policy) -&gt; list[Step]</code>, built from the exact <code>_episodes</code> and <code>_exceedance</code> rectangles, including the &gt;10-minute skip. Input comes from <code>revision_evidence</code> SUPPORT points plus the stored policy (low, high, hysteresis, minimum).</td></tr>
+<tr><td>Rule module</td><td>Pure <code>cold_scenarios/review.py:classify(episodes, curve, lots, rules, handle_at=None)</code>.</td></tr>
+<tr><td>Gates</td><td>Not-permitted class, contradictory, coverage below 0.8, unproved claim level, or curve unavailable → every lot <code>UNKNOWN</code> with the reason. An open episode uses the proved low bound only.</td></tr>
+<tr><td>Estate (R4.2)</td><td><b>Site only in the sprint.</b> This changes my first draft's default: the Implementer pointed out the claim-level conflict and the mock-enum sentinel. The deferred line fill is given below for when it is admitted.</td></tr>
+</table></div>
+
+<details class="wire" open><summary>Wire shape: cold <code>calculation</code> for <code>LOT_REVIEW_SET</code></summary>
+<pre>{
+  "formula": "cold-lot-review/1", "claim_level": "INVENTORY_REQUIRING_REVIEW", "beneficiary": "GOODS_OWNER",
+  "room_asset_id": "uuid",
+  "episodes": [{ "finding_revision_id": "uuid", "direction": "HIGH", "open": false,
+                 "degree_minutes": {"low": "180", "high": "260"}, "minutes_above": {"low": "95", "high": "110"} }],
+  "lots": [{ "label": "L1", "product_class": "dairy", "state": "REQUIRES_REVIEW", "reason": null,
+             "presence": {"placed_at": "iso", "removed_at": null},
+             "exposure": {"degree_minutes": {"low": "180", "high": "260"}, "minutes_above": {"low": "95", "high": "110"}},
+             "rule": {"threshold_c": "4", "min_minutes": "60", "min_degree_minutes": "120"},
+             "declared_value": {"amount": "4000", "currency": "USD"} }],
+  "totals": [{ "currency": "USD", "requires_review": "4000", "undetermined": "2500" }],
+  "handling": { "handle_at": "iso", "handling_cost": {"amount": "80", "currency": "USD"},
+                "lots": [{"label": "L1", "state": "NOT_REQUIRED"}], "totals": [...] },   // or null
+  "label": "Inventory requiring review · declared value · not a loss"
+}
+LOT_STATES     = REQUIRES_REVIEW | REVIEW_UNDETERMINED | NOT_REQUIRED | NOT_PRESENT | UNKNOWN
+UNKNOWN_REASONS = SOURCE_GATE_WITHHELD | COVERAGE_INCOMPLETE | CONTRADICTORY_EVIDENCE
+                | CLAIM_LEVEL_NOT_PROVED | CURVE_UNAVAILABLE</pre>
+</details>
+
+<figure>
+<svg viewBox="0 0 980 280" role="img" aria-labelledby="f5t">
+<title id="f5t">D4 cumulative exposure, review thresholds and lot presence</title>
+<line class="axis" x1="70" y1="200" x2="940" y2="200"/><line class="axis" x1="70" y1="30" x2="70" y2="200"/>
+<text x="64" y="34" text-anchor="end" class="tiny muted">260</text><text x="64" y="120" text-anchor="end" class="tiny muted">120</text><text x="64" y="203" text-anchor="end" class="tiny muted">0 °C·min</text>
+<polyline class="ln-ok" points="70,200 160,196 250,184 340,163 430,138 520,112 610,86 700,64 760,56 820,52"/>
+<polyline class="ln" style="stroke-dasharray:3 3" points="70,200 160,193 250,176 340,150 430,120 520,90 610,62 700,42 760,34 820,30"/>
+<line class="thr" x1="70" y1="120" x2="940" y2="120"/><text x="944" y="117" class="tiny">dairy 120</text>
+<line class="thr" x1="70" y1="52" x2="940" y2="52"/><text x="944" y="49" class="tiny">veg 240</text>
+<line class="ln-gap" x1="250" y1="25" x2="250" y2="205"/><text x="250" y="20" text-anchor="middle" class="tiny">handle at min 45</text>
+<text x="830" y="70" class="tiny">low bound</text><text x="830" y="30" class="tiny">high bound</text>
+<rect class="bar-a" x="70" y="222" width="750" height="9"/><text x="72" y="244" class="tiny">L1 dairy, present throughout: REQUIRES_REVIEW (low 180 ≥ 120)</text>
+<rect class="bar-b" x="70" y="250" width="750" height="9"/><text x="72" y="272" class="tiny">L2 vegetables: REVIEW_UNDETERMINED (low 180 &lt; 240 ≤ high 260)</text>
+</svg>
+<figcaption>Figure 4. Review states come from proved (low) and possible (high) exposure above the room's 4 °C policy limit (COLD-LAB-001). Handling at minute 45 keeps both lots below their rules.</figcaption>
+</figure>
+
+<h3>Rulings</h3>
+<div class="ruling"><b>R4.1 Lots.</b> Stored in scenario assumptions for the sprint. A standing register is pilot work.</div>
+<div class="ruling"><b>R4.2 Estate.</b> Site only. Recorded in <a href="#open">Decisions still open</a> in case the owner wants the value in the executive view.</div>
+<div class="ruling"><b>R4.3 Backup-timing counterfactual.</b> Out of scope. It needs a paired simulator run.</div>
+<div class="ruling"><b>R4.4 Rule form.</b> M or D per product class. The threshold defaults to the room's <code>cold-policy-high</code>, or <code>cold-policy-low</code> for LOW excursions.</div>
+<div class="ruling"><b>R4.5 Dating.</b> The low bound counts rectangles wholly inside presence (starting no earlier than the episode's <code>start_latest</code>). The high bound counts any rectangle intersecting presence (from <code>start_earliest</code>, or <code>start_latest</code> when that is null).</div>
+<div class="ruling"><b>R4.6 <code>handle_at</code> inside a step.</b> The low bound truncates to the last observed instant ≤ <code>handle_at</code>. The high bound includes the partial rectangle up to <code>handle_at</code>. The proved value stays proved.</div>
+<div class="ruling"><b>R4.7 Other rooms.</b> 422, not a state. The one-room model is a code fact.</div>
+
+<p><b>Deferred Estate line fill (not built in the sprint).</b> Category <code>INVENTORY_REQUIRING_REVIEW</code>; <code>line_key</code> <code>cold-review:{scenario_revision_id}:{currency}</code>; <code>overlap_group</code> <code>cold-room:{room_asset_id}:{episode finding_revision_id}</code>; technical IDs are the episode revision IDs; evidence is the SUPPORT points; window is the scenario window; <code>period_kind</code> <code>OBSERVED_WINDOW</code>. It is excluded from every COMPARABLE sum by category.</p>
+
+<h3>Acceptance criteria (executable)</h3>
+<ol class="ac">
+<li><b>Pure:</b> <code>cumulative_exposure</code>'s final step equals the stored episode's <code>degree_minutes_low/high</code> and <code>duration_low/high</code> exactly, across the vector file <code>backend/tests/fixtures/w2/cold-w203-vectors.json</code>.</li>
+<li><b>Pure:</b> each of the five lot states and each UNKNOWN reason has a dedicated case. A lot placed mid-episode gets exposure strictly below the episode totals.</li>
+<li><b>Postgres:</b> on <code>COLD-LAB-001</code>, the producer's lots give the states listed in <a href="#data">Demo data</a>. <code>totals[USD].requires_review</code> equals the sum of the REQUIRES_REVIEW lots' declared values, and undetermined is reported separately.</li>
+<li><b>Browser:</b> the label reads "Inventory requiring review · declared value · not a loss", and no "at risk", "loss" or percentage appears.</li>
+</ol>
+
+<div class="ex">
+<h4>Worked example (declared assumptions)</h4>
+<p class="assume">Assumed: a COLD-LAB-001 HIGH excursion above 4 °C with degree-minutes low 180 and high 260, minutes-above low 95. Rules: dairy ≥ 60 min or ≥ 120 °C·min; vegetables ≥ 240 °C·min; root crops ≥ 400 °C·min. Lots: L1 dairy 4,000 USD, L2 vegetables 2,500 USD, L3 root crops 3,000 USD (all present throughout), and L4 1,000 USD placed after the episode. At minute 45 the low bound is 70 °C·min and minutes-above is 45.</p>
+<div class="tw mid"><table>
+<tr><th>Lot</th><th>As observed</th><th>Handled at minute 45</th></tr>
+<tr><td>L1 dairy</td><td>REQUIRES_REVIEW</td><td>NOT_REQUIRED</td></tr>
+<tr><td>L2 vegetables</td><td>REVIEW_UNDETERMINED</td><td>NOT_REQUIRED</td></tr>
+<tr><td>L3 root crops</td><td>NOT_REQUIRED</td><td>NOT_REQUIRED</td></tr>
+<tr><td>L4</td><td>NOT_PRESENT</td><td>NOT_PRESENT</td></tr>
+<tr><td><b>Requiring review</b></td><td><b>4,000 USD</b> (+2,500 undetermined)</td><td><b>0 USD</b>; handling cost 80 USD</td></tr>
+</table></div>
+</div>
+</section>
+
+<section id="d5" class="decision">
+<h2>D5 Portfolio triage and bounded comparison</h2>
+<div class="frame">
+<div><b>Buyer</b>Portfolio management</div>
+<div><b>Decision</b>Where to look first; which opportunities compare</div>
+<div><b>Money</b>No cross-basis sums</div>
+<div><b>Claim</b>Placement reasons over existing facts; no score</div>
+</div>
+
+<h3>What the code does now</h3>
+<div class="tw wide"><table>
+<tr><th>Area</th><th>Behaviour</th><th>Evidence</th></tr>
+<tr><td>Rows</td><td>Members are SUPPORTED and UNCONFIRMED Findings. <code>priority</code>, <code>confidence</code>, <code>mechanism</code> and <code>next_move</code> are null. The exact Action join and the <code>workflow_label</code> precedence exist. Cold and EV rows are always <code>_consequence("UNPRICED")</code>.</td><td><span class="tag t-run">RUN</span></td></tr>
+<tr><td>Recurrence</td><td>The mini index snapshot (<code>postgres_finding_store.py:_index_snapshot</code>) already selects <code>recurs_after_finding_id</code>, <code>revision_no</code> and <code>transition</code>. <code>estate/coverage.py</code>'s row builder drops them. Cold and EV have none (C13).</td><td><span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>Order and paging</td><td>Episode time descending, paged in memory. The cursor is a signed five-part marker (<code>_MARKER_KINDS["portfolio"] = 5</code>).</td><td><span class="tag t-impl">IMPL</span></td></tr>
+</table></div>
+
+<h3>Technical approach</h3>
+<div class="tw wide"><table>
+<tr><th>Piece</th><th>Change</th></tr>
+<tr><td>Row facts</td><td><code>estate/coverage.py</code> row builders: carry <code>mechanism</code> from <code>finding.mechanism</code> (select it where missing). For mini, also carry <code>recurs_after_finding_id</code>, <code>revision_no</code> and <code>transition</code> from the snapshot. No new query for mini.</td></tr>
+<tr><td>Rule module</td><td>Pure <code>estate/placement.py:place(row, action, site_cov) -&gt; Placement</code>, policy <code>estate-placement/1</code>. It also derives <code>confidence</code>.</td></tr>
+<tr><td>Paging (R5.4)</td><td>A six-part marker <code>[group_rank, episode_start_or_null, site_code_key, site_id, finding_id, finding_revision_id]</code>, with <code>_MARKER_KINDS["portfolio"] = 6</code> and <code>PORTFOLIO_ORDER</code> gaining <code>group_rank asc</code>. Existing five-part cursors are refused through the existing invalid-cursor path. That is acceptable because cursors are short-lived. The selection token does not include placement.</td></tr>
+<tr><td>Lenses (R5.5)</td><td><code>RISK</code> is set for <code>COLD_EXCURSION</code>, <code>COLD_START_FAILURE</code> and <code>EV_INTERRUPTION</code>. The <code>OPPORTUNITY</code> lens stays Finding-based and shows its existing honest empty state. D1 reaches Portfolio through the Opportunity panel and the PRODUCTIVE_USE card, not as Finding rows.</td></tr>
+<tr><td>Views</td><td><code>PriorityPanel</code>: grouped sections. The Priority column becomes "Placement" with its reason line. Confidence shows the derived state and reasons.</td></tr>
+</table></div>
+
+<div class="tw wide"><table>
+<tr><th>Rank</th><th>Condition (first match wins; row facts only)</th><th>Group</th><th>Reason codes</th></tr>
+<tr><td>1</td><td>Row source class MIXED or UNKNOWN; lifecycle UNCONFIRMED; consequence <code>WITHHELD</code></td><td><b>NEEDS_INVESTIGATION</b></td><td><code>EVIDENCE_SOURCE_MIXED</code>, <code>EVIDENCE_SOURCE_UNKNOWN</code>, <code>LIFECYCLE_UNCONFIRMED</code>, <code>CONSEQUENCE_WITHHELD</code></td></tr>
+<tr><td>2</td><td>(Episode open, <i>or</i> recurred, <i>or</i> reopened) <b>and</b> (no accepted Action, or Pending, Outcome pending or Resolution withdrawn)</td><td><b>ACT_NOW</b></td><td><code>EPISODE_OPEN</code>, <code>RECURRED</code>, <code>REOPENED</code> + <code>NO_ACTION_RECORDED</code>, <code>ACTION_PENDING</code>, <code>OUTCOME_PENDING</code>, <code>RESOLUTION_WITHDRAWN</code></td></tr>
+<tr><td>3</td><td>Consequence <code>PRICED</code> in an eligible line</td><td><b>COMPARE_VALUE</b></td><td><code>PRICED_COMPARABLE</code> (group COMPARABLE), <code>PRICED_SINGLE</code></td></tr>
+<tr><td>4</td><td>Unpriced mechanism</td><td><b>UNPRICED_RISK</b></td><td><code>UNPRICED_PRODUCT_EXPOSURE</code> (cold excursion), <code>UNPRICED_START_FAILURE</code>, <code>UNPRICED_SERVICE_INTERRUPTION</code> (EV), <code>UNPRICED_OTHER</code></td></tr>
+<tr><td>5</td><td>Otherwise (Verified, Applied, no recurrence)</td><td><b>MONITOR</b></td><td><code>VERIFIED_WATCH_RETURN</code>, <code>APPLIED_AWAITING_PLAN</code>, <code>NO_OPEN_SIGNAL</code></td></tr>
+</table></div>
+
+<details class="wire" open><summary>Wire shape: row <code>placement</code> and <code>confidence</code></summary>
+<pre>"placement": { "policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2,
+               "reasons": [ {"code": "RECURRED", "text": "Returned after an earlier episode (Finding 1a2b3c4d)"},
+                            {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"} ] },
+"confidence": "SUPPORTED_SOURCE_COHERENT",      // CONFIDENCE_STATES; replaces null
+"confidence_reasons": ["Supported claim", "Registered simulation source"],
+// summary.placement_counts = {"NEEDS_INVESTIGATION": n|null, ...}  (null unless finding coverage is COMPLETE)
+CONFIDENCE_STATES = SUPPORTED_SOURCE_COHERENT | LIMITED | UNKNOWN</pre>
+</details>
+
+<figure>
+<svg viewBox="0 0 980 220" role="img" aria-labelledby="f6t">
+<title id="f6t">D5 placement of the producer estate</title>
+<rect class="box-warn" x="20" y="30" width="220" height="80" rx="8"/><text x="130" y="54" text-anchor="middle" class="b small">NEEDS_INVESTIGATION</text><text x="130" y="74" text-anchor="middle" class="tiny">MG-C generator support</text><text x="130" y="90" text-anchor="middle" class="tiny muted">UNCONFIRMED basis</text>
+<rect class="box-bad" x="260" y="30" width="220" height="80" rx="8"/><text x="370" y="54" text-anchor="middle" class="b small">ACT_NOW</text><text x="370" y="74" text-anchor="middle" class="tiny">MG-B recurring generator support</text><text x="370" y="90" text-anchor="middle" class="tiny muted">recurred, no Action yet</text>
+<rect class="box-acc" x="500" y="30" width="220" height="80" rx="8"/><text x="610" y="54" text-anchor="middle" class="b small">COMPARE_VALUE</text><text x="610" y="74" text-anchor="middle" class="tiny">priced fuel exposure rows</text><text x="610" y="90" text-anchor="middle" class="tiny muted">MG-A contribution: Opportunity panel</text>
+<rect class="box" x="740" y="30" width="220" height="80" rx="8"/><text x="850" y="54" text-anchor="middle" class="b small">UNPRICED_RISK / MONITOR</text><text x="850" y="74" text-anchor="middle" class="tiny">cold excursion, EV interruption</text><text x="850" y="90" text-anchor="middle" class="tiny muted">verified trial (KOBO-001)</text>
+<text x="20" y="140" class="small">Order across groups says where to look first. It is not a value ranking, and no combined score exists.</text>
+<text x="20" y="160" class="small">Within a group, the order is the existing most-recent-first, labelled as such. Magnitude, feasibility and confidence are shown side by side.</text>
+<text x="20" y="190" class="tiny muted">The owner's MG-C "battery stress" has no producer in code (C12). An UNCONFIRMED generator-support Finding stands in for it.</text>
+</svg>
+<figcaption>Figure 5. Placement groups with explicit reasons replace the null Priority and Confidence columns.</figcaption>
+</figure>
+
+<h3>Rulings</h3>
+<div class="ruling"><b>R5.1</b> NEEDS_INVESTIGATION is shown first.</div>
+<div class="ruling"><b>R5.2</b> Beneficiary is constant per category (see the claim ladder).</div>
+<div class="ruling"><b>R5.3</b> <code>policy_version</code> on every row. The policy text is reachable from the panel.</div>
+<div class="ruling"><b>R5.6 Site-level partial coverage.</b> Row facts decide placement. A PARTIAL or UNKNOWN site is surfaced by the existing <code>evidence_prompt</code> and coverage chip, not by moving its supported rows. <i>Reason: the row's own evidence is complete; what is missing is other Findings, and those are shown as a site-level gap.</i></div>
+<div class="ruling"><b>R5.7 EV rows.</b> They go to UNPRICED_RISK as <code>UNPRICED_SERVICE_INTERRUPTION</code>, unless rank 1 or 2 applies. They are not excluded, because an interruption is a real service risk without a money basis.</div>
+<div class="ruling"><b>R5.8 Actionability.</b> Derived from Action state only. Recommendation availability is not computed per row, because that would be a live recompute per Finding. <code>NO_ACTION_RECORDED</code> says "open the recommendation".</div>
+
+<h3>Acceptance criteria (executable)</h3>
+<ol class="ac">
+<li><b>Pure:</b> one case per rank and per reason code. A row with MIXED source and a PRICED consequence lands in NEEDS_INVESTIGATION, not COMPARE_VALUE.</li>
+<li><b>Cursor:</b> <code>scope._marker_ok("portfolio", six-part)</code> passes and the five-part form fails. Paging the producer estate with <code>limit=2</code> returns every row exactly once, in group order (<code>tests/test_w303_estate_cursor.py</code> pattern).</li>
+<li><b>API:</b> on the combined estate DB, <code>GET /api/estate/portfolio</code> places MG-C as NEEDS_INVESTIGATION / <code>LIFECYCLE_UNCONFIRMED</code>, MG-B as ACT_NOW / <code>RECURRED</code>, the cold excursion as UNPRICED_RISK or ACT_NOW (if its episode is open), and KOBO-001 as MONITOR / <code>VERIFIED_WATCH_RETURN</code>.</li>
+<li><b>API:</b> <code>lens=risks</code> returns the cold and EV rows. No row has a numeric priority.</li>
+<li><b>Browser:</b> every row shows a group heading and a reason line (<code>settledScreen</code> from <code>frontend/src/test/settled</code> in <code>estatePortfolio.test.tsx</code>).</li>
+</ol>
+</section>
+
+<section id="nodouble">
+<h2>No double-counting</h2>
+<div class="callout bad"><p><b>Acceptance rule (owner, settled):</b> AssetOps must never display an aggregate financial opportunity that double-counts the same underlying benefit.</p></div>
+<figure>
+<svg viewBox="0 0 980 190" role="img" aria-labelledby="f7t">
+<title id="f7t">Estate money comparison gates</title>
+<defs><marker id="ar7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--svg-stroke)"/></marker></defs>
+<rect class="box" x="10" y="40" width="150" height="70" rx="8"/><text x="85" y="62" text-anchor="middle" class="b small">Partition</text><text x="85" y="78" text-anchor="middle" class="tiny">category, currency, window,</text><text x="85" y="92" text-anchor="middle" class="tiny">period, fingerprint, +beneficiary</text>
+<rect class="box" x="185" y="40" width="150" height="70" rx="8"/><text x="260" y="64" text-anchor="middle" class="b small">All eligible?</text><text x="260" y="80" text-anchor="middle" class="tiny">else INELIGIBLE</text>
+<rect class="box" x="360" y="40" width="170" height="70" rx="8"/><text x="445" y="64" text-anchor="middle" class="b small">Overlap test</text><text x="445" y="80" text-anchor="middle" class="tiny">key / overlap_group /</text><text x="445" y="94" text-anchor="middle" class="tiny">shared technical or cited IDs</text>
+<rect class="box" x="555" y="40" width="150" height="70" rx="8"/><text x="630" y="64" text-anchor="middle" class="b small">Proof present?</text><text x="630" y="80" text-anchor="middle" class="tiny">else BASIS_NOT_PROVEN</text>
+<rect class="box-ok" x="730" y="40" width="240" height="70" rx="8"/><text x="850" y="64" text-anchor="middle" class="b small">COMPARABLE: sum</text><text x="850" y="80" text-anchor="middle" class="tiny">within one partition only</text><text x="850" y="94" text-anchor="middle" class="tiny muted">estate_total, combined_value: null</text>
+<path class="ln" d="M160,75 L185,75" marker-end="url(#ar7)"/><path class="ln" d="M335,75 L360,75" marker-end="url(#ar7)"/><path class="ln" d="M530,75 L555,75" marker-end="url(#ar7)"/><path class="ln" d="M705,75 L730,75" marker-end="url(#ar7)"/>
+<text x="10" y="150" class="small">Overlapping lines become CONFLICT with a null amount. Different categories are never summed.</text>
+<text x="10" y="170" class="small muted">estate/financials.py: _partition, _overlaps, compare; estate/portfolio.py: summary.</text>
+</svg>
+<figcaption>Figure 6. The current gates, plus the beneficiary key to add.</figcaption>
+</figure>
+<div class="tw wide"><table>
+<tr><th>Risk</th><th>Guard</th><th>Test</th></tr>
+<tr><td>D1 contribution and fuel exposure on one site</td><td>Separate categories. <code>overlap_group</code> = opportunity, so two scenarios on one opportunity conflict.</td><td>Two contribution scenarios linked to one opportunity → CONFLICT</td></tr>
+<tr><td>D2 change vs the origin fuel exposure</td><td>Site only (R2.5)</td><td>No Estate line of that kind exists</td></tr>
+<tr><td>Merged or split Findings</td><td>Handled: MERGED revisions leave the member set; shared IDs conflict.</td><td><code>test_w303_portfolio_comparison_postgres.py</code> <span class="tag t-present">PRESENT</span></td></tr>
+<tr><td>D4 declared value read as money</td><td>Site only (R4.2)</td><td>—</td></tr>
+<tr><td>Beneficiary implicit</td><td>Add <code>beneficiary</code> to <code>_partition</code>.</td><td>Lines differing only by beneficiary never form COMPARABLE</td></tr>
+</table></div>
+<p><b>Global check (add once, pure):</b> over Portfolio and Financials bodies, <code>estate_total</code> and <code>combined_value</code> are null, and every non-null group <code>amount</code> comes from a single-category COMPARABLE partition whose members have pairwise disjoint technical and cited IDs.</p>
+</section>
+
+<section id="continuity">
+<h2>Continuity from opportunity to reassessment</h2>
+<div class="tw wide"><table>
+<tr><th>Link</th><th>Generator-support thread</th><th>Productive-use thread</th></tr>
+<tr><td>Issue → evidence</td><td>Finding revision cites intervals and evidence <span class="tag t-impl">IMPL</span></td><td>OPP pins five days and evidence <span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>→ money</td><td>fuel-cost-1 per revision <span class="tag t-impl">IMPL</span></td><td>Pinned scenario, plus contribution (D1) <span class="tag t-gap">GAP</span></td></tr>
+<tr><td>→ intervention</td><td>Action pinned to the revision <span class="tag t-impl">IMPL</span></td><td>W4 case through the decision link <span class="tag t-impl">IMPL</span></td></tr>
+<tr><td>→ check</td><td>Plan and outcome with frozen evidence IDs <span class="tag t-impl">IMPL</span></td><td>None <span class="tag t-gap">GAP</span></td></tr>
+<tr><td>→ revised estimate</td><td>D2 comparison revision <span class="tag t-gap">GAP</span></td><td>A later study is a new OPP root <span class="tag t-gap">GAP</span></td></tr>
+<tr><td>→ return</td><td><code>REOPENED</code> or recurrence; withdrawal <span class="tag t-impl">IMPL</span></td><td>Not applicable</td></tr>
+</table></div>
+<p>The smallest addition is the D2 revision. It stores the origin Finding revision, Action, plan, outcome, price revision, SFC value and both windows' evidence IDs, so the thread survives later revisions and later Portfolio selections. No opportunity entity is justified. Distinct states stay distinct: completed Work ≠ APPLIED ≠ no longer supported ≠ VERIFIED ≠ modelled change ≠ realized value.</p>
+</section>
+
+<section id="history">
+<h2>Event history and performance trajectory</h2>
+<div class="tw wide"><table>
+<tr><th>Kind</th><th>Question</th><th>What exists</th><th>Status</th></tr>
+<tr><td>Event history</td><td>What happened, how often, did it return?</td><td>Mini episodes with recurrence, reopen, merge and split. Cold and EV episodes without recurrence (C13). Incidents, maintenance, Action and verification history.</td><td><span class="tag t-impl">IMPL</span> (mini complete; cold and EV partial)</td></tr>
+<tr><td>Trajectory</td><td>Is comparable performance drifting before an incident?</td><td>Nothing (C10)</td><td><span class="tag t-gap">GAP</span>, not in the sprint</td></tr>
+</table></div>
+<p>The smallest credible trajectory, later, is mini modelled fuel intensity per comparable hour band. It reuses D2's window replay and generator-kWh total. EV throughput per available connector-hour comes second. A cold trend needs complete restart and recovery chains first.</p>
+</section>
+
+<section id="data">
+<h2>Demo data and producers</h2>
+<p>Databases are authorized <code>*_test</code> names only, in <code>assetopsv1-postgres-1</code>, one per case as the existing producers do. The tenant is <code>demo</code>. Server-issued UUIDs are not fixed; codes, idempotency keys and times are. Expected outputs are written as assertions the producer checks before capture.</p>
+<div class="tw wide"><table>
+<tr><th>Decision / case</th><th>DB</th><th>Site, dates</th><th>Inputs</th><th>Expected output</th></tr>
+<tr><td>D1 <code>contribution</code></td><td><code>assetops_cc_d1_contribution_test</code></td><td><code>MG-W402-001</code>, study 2026-10-06 to 2026-10-10 (<code>backend/tests/fixtures/w4/w403-mini-decisions.json</code>)</td><td>Existing positive case, plus a contribution scenario (key <code>cc-d1-contribution-r1</code>): 10 kW, 1 h, 0.25 USD/kWh, collection 0.8, marginal 0.03, enablement 120</td><td><code>unit_contribution "1.7"</code>; study = eligible_days × 1.7; payback 71; Estate <code>SINGLE_LINE</code></td></tr>
+<tr><td>D1 <code>negative</code></td><td>same DB</td><td>same site</td><td>(a) 30 kW against minimum headroom; (b) collection 0.1; (c) the existing <code>missing_study_days</code> variant</td><td>(a) <code>WITHHELD / HEADROOM_BELOW_LOAD</code>; (b) <code>"-0.05"</code>, <code>NO_POSITIVE_CONTRIBUTION</code>; (c) <code>WITHHELD / INCOMPLETE_STUDY</code></td></tr>
+<tr><td>D2 <code>verified</code> (new s602b case)</td><td><code>assetops_cc_d2_verified_test</code></td><td><code>KOBO-001</code>; baseline 2026-10-06 08:00Z, change effective 2026-11-02 00:00Z, later 2026-11-02 08:00Z, evaluate at 11:00Z</td><td>Authored complete windows meeting the target and guardrails. Diesel steps v1, v3 and v4 from the demo publication. SFC 0.3 from the template.</td><td><code>VERIFIED</code>; reassessment <code>MODELLED_IMPROVEMENT</code>; price revision = v4</td></tr>
+<tr><td>D2 <code>price_split</code></td><td><code>assetops_cc_d2_price_split_test</code></td><td>same</td><td>As <code>verified</code>, plus a price step valid from 2026-10-20</td><td><code>UNAVAILABLE / PRICE_BASIS_DIFFERS</code></td></tr>
+<tr><td>D2 <code>inconclusive</code>, <code>target_miss</code></td><td>the existing s602b case DBs</td><td>same</td><td>Existing cases plus the price steps</td><td><code>OUTCOME_INCONCLUSIVE</code>; a comparable result (no UNAVAILABLE)</td></tr>
+<tr><td>D3 <code>bus</code></td><td><code>assetops_cc_d3_bus_test</code></td><td><code>EV-LAB-001</code>, 2026-10-06 (Tuesday)</td><td>The w504 positive session window, plus a decision (key <code>cc-d3-bus-r1</code>) with the worked-example vehicles</td><td>SHARED infeasible by 9.6 kWh; PRIORITY_TARGET preferred</td></tr>
+<tr><td>D3 <code>fault</code></td><td><code>assetops_cc_d3_fault_test</code></td><td>same</td><td>FAULT on c2 at 10:30Z, CLEAR at 11:30Z</td><td>Every option <code>CONNECTOR_UNAVAILABLE_OBSERVED</code>; <code>preferred</code> null</td></tr>
+<tr><td>D4 <code>lots</code></td><td><code>assetops_cc_d4_lots_test</code></td><td><code>COLD-LAB-001</code>, the w502 excursion case window</td><td>The producer first reads the stored episode (<code>dm_low</code>, <code>dm_high</code>, end), then authors lots relative to it. L1: rule D = floor(dm_low/2) → REQUIRES_REVIEW. L2: D strictly between dm_low and dm_high → UNDETERMINED (skipped, and recorded, if they are equal). L3: D = dm_high + 1 → NOT_REQUIRED. L4: placed after the episode end → NOT_PRESENT. <code>handle_at</code> = start_latest + 5 min.</td><td>The states as listed; totals per currency</td></tr>
+<tr><td>D4 <code>gap</code></td><td><code>assetops_cc_d4_gap_test</code></td><td>same</td><td>The w502 probe-gap (coverage below 0.8) case</td><td>All lots <code>UNKNOWN / COVERAGE_INCOMPLETE</code></td></tr>
+<tr><td>D5 <code>estate</code></td><td><code>assetops_cc_estate_test</code></td><td>One tenant: MG-W402-001 (D1), KOBO-001 (D2 verified), MG-B (a mini site with a recurrence case from <code>tools/s4_finding_cases.py</code>), MG-C (an Indeterminate-basis UNCONFIRMED case from the same tool), COLD-LAB-001, EV-LAB-001</td><td>New orchestrator <code>tools/cc_estate_seed.py</code>. It runs the existing builders in time order into one DB, with distinct site codes.</td><td>The D5 placement assertions above</td></tr>
+</table></div>
+<p><b>Producer risk (stated, not resolved).</b> No producer combines verticals today, and install-clock conflicts between builders are unchecked. The orchestrator must assert a monotone install clock and stop with a named error on conflict. If it conflicts, D5 acceptance runs on per-vertical DBs, and the combined estate becomes a follow-up.</p>
+</section>
+
+<section id="mock">
+<h2>Mock-deviation notes for new panels</h2>
+<p>The v69 mock is the layout spec. Each new panel sits inside an existing v69 screen using its panel and table grammar, and carries a labelled <b>MOCK DEVIATION</b> entry in <code>.agent/mock-departure-register.md</code>.</p>
+<div class="tw wide"><table>
+<tr><th>Panel</th><th>Host v69 screen</th><th>Placement and layout</th><th>Deviation text</th></tr>
+<tr><td>Expected contribution</td><td><code>opportunity-finding</code>, <code>scenarios</code></td><td>Under the gross-sales card. Four stat tiles (unit contribution, study contribution, c*, payback), then an inputs table (key, value, unit, source).</td><td>"Contribution under declared demand, collection and cost; v69 shows gross only."</td></tr>
+<tr><td>Commercial reassessment</td><td><code>verification</code></td><td>Below the verdict panel. A two-column table (baseline, later) of generator kWh, feeder kWh, cost and cost per kWh; a change row; then the claim label.</td><td>"Modelled change after the trial; v69 has no money row on verification."</td></tr>
+<tr><td>Bus departure decision</td><td><code>ev-financials</code> (scenarios area)</td><td>An option table (option, B-07, other vehicles, cost, feasible) and the allocation timeline (Figure 3 style).</td><td>"Declared vehicle requirement; no fleet concept in v69."</td></tr>
+<tr><td>Lot review set</td><td><code>cold-financials</code></td><td>Lot table (lot, rule, exposure during presence, state, declared value), totals per currency, and a handling comparison row.</td><td>"Declared lots and review rule; v69 shows exposure only."</td></tr>
+<tr><td>Placement groups</td><td><code>portfolio</code></td><td>Group headings inside the existing priority table. The Priority column becomes Placement with a reason line.</td><td>"Placement groups replace v69 priority badges, which have no producer."</td></tr>
+</table></div>
+</section>
+
+<section id="migrations">
+<h2>Migration slice plan</h2>
+<div class="tw wide"><table>
+<tr><th>Revision</th><th>Change</th><th>Lands with</th></tr>
+<tr><td><code>0036_cc_mini_contribution</code> (down <code>0035_w5_ev_work</code>)</td><td>Mini kind check</td><td>D1</td></tr>
+<tr><td><code>0037_cc_trial_cost_comparison</code></td><td>New append-only table</td><td>D2</td></tr>
+<tr><td><code>0038_cc_ev_bus_departure</code></td><td>EV kind, formula pairing and <code>calculation</code></td><td>D3</td></tr>
+<tr><td><code>0039_cc_cold_lot_review</code></td><td>Cold kind, formula pairing and <code>calculation</code></td><td>D4</td></tr>
+</table></div>
+<p>There is no assumption-key migration: D2's intervention cost travels in the command (R2.10). Each migration ships with its decision slice. Only the migrations of decisions in the sprint are created, numbered in landing order, so with D2 alone the sprint adds only <code>0037</code>, renumbered as <code>0036</code>. Each migration-bearing slice pays one full backend suite (tier 4). If two decisions enter one sprint, their migrations go in one schema slice that lands first, paying one full suite. Whether the reviewers accept a combined slice is in <a href="#open">Decisions still open</a>. No numbering guard exists in <code>tools/checks/</code>; the chain is Alembic <code>down_revision</code>.</p>
+</section>
+
+<section id="validation">
+<h2>Validation on a 16 GB machine</h2>
+<div class="callout warn"><p>Run <b>one heavy job at a time</b>. Parallel agents may write code, but validation is a shared queue.</p></div>
+<div class="tw wide"><table>
+<tr><th>Tier</th><th>What</th><th>When</th></tr>
+<tr><td>0 Pure</td><td>The new modules: <code>scenario_rules.contribution</code>, <code>trial_fuel_comparison.compare</code>, <code>departure.allocate</code> and <code>limits_from_foundation</code>, <code>cold.cumulative_exposure</code> and <code>review.classify</code>, <code>placement.place</code></td><td>Every commit</td></tr>
+<tr><td>1 Focused</td><td>The 490-test non-DB set plus the new tests (about 15 s)</td><td>Every slice</td></tr>
+<tr><td>2 Postgres</td><td>Touched stores only: <code>test_w403_scenarios_postgres</code>, <code>test_w403_opportunity_read_postgres</code>, <code>test_s6_verification_evaluator_postgres</code>, <code>test_w503_ev_scenarios_postgres</code>, <code>test_w501_cold_scenarios_postgres</code>, <code>test_w303_portfolio_*_postgres</code>, <code>test_w303_estate_cursor</code></td><td>Once per slice, batched at the end</td></tr>
+<tr><td>3 Producer and capture</td><td>That slice's cases from <a href="#data">Demo data</a>, then one capture run</td><td>Once per slice, after tier 2</td></tr>
+<tr><td>4 Full</td><td>Backend and frontend suites</td><td>Migration slices and merges, machine idle</td></tr>
+</table></div>
+</section>
+
+<section id="effort">
+<h2>Effort: relative size and confidence</h2>
+<div class="tw wide"><table>
+<tr><th>Item</th><th>Size</th><th>Design uncertainty</th><th>Validation load</th><th>Confidence</th><th>Main risk</th></tr>
+<tr><td>Labels and linked history</td><td>S</td><td>Low</td><td>Medium</td><td>High</td><td>Wording drift</td></tr>
+<tr><td>D5 placement</td><td>S–M</td><td>Low (rulings closed)</td><td>Medium (cursor change)</td><td>Medium-high</td><td>Combined-estate producer</td></tr>
+<tr><td>D2 reassessment</td><td>M</td><td>Low–medium</td><td>High</td><td>Medium-high</td><td>New s602b <code>verified</code> case</td></tr>
+<tr><td>D1 contribution</td><td>M</td><td>Low (rulings closed)</td><td>Medium-high</td><td>Medium</td><td>Estate wiring and exact-key tests</td></tr>
+<tr><td>D4 lot review</td><td>M</td><td>Medium (curve equality)</td><td>Medium-high</td><td>Medium</td><td>Rebuilding the curve</td></tr>
+<tr><td>D3 bus decision</td><td>M–L</td><td>Medium (pinned read, schedules)</td><td>High</td><td>Medium-low</td><td>Allocator correctness</td></tr>
+</table></div>
+</section>
+
+<section id="review">
+<h2>Review record</h2>
+<p>The Implementer reviewed revision 1 (file <code>.agent/implementer-questions-commercial-html-2026-10-27.md</code>). I verified each correction in the code before accepting it. No correction is disputed. On one point I chose differently from the Implementer's suggestion, and say why below.</p>
+<h3>My questions Q1–Q12</h3>
+<div class="tw wide"><table>
+<tr><th>Q</th><th>Answer (verified)</th><th>Where it went</th></tr>
+<tr><td>Q1 wire versioning</td><td>No frontend bump; the backend exact-key tests must change</td><td>D1 API</td></tr>
+<tr><td>Q2 generator kWh</td><td>Not persisted, but recomputable by replay at the outcome cutoff. I chose replay, not the suggested "add to <code>details</code> at evaluate": replay leaves the frozen outcome rows untouched and also covers outcomes recorded before the change.</td><td>D2 R2.6</td></tr>
+<tr><td>Q3 SFC after APPLY</td><td>New Foundation revision, same value. Compare values.</td><td>D2 R2.7</td></tr>
+<tr><td>Q4 price across days</td><td>One open-ended assignment covers both days; compare <code>revision_id</code></td><td>D2 R2.8</td></tr>
+<tr><td>Q5 EV limits</td><td>Raw content only; no base load; no pinned read</td><td>C14; D3</td></tr>
+<tr><td>Q6 connectors</td><td><code>connector_asset_id</code>; START and END/ABORT; read-time spans</td><td>D3 R3.2, R3.7</td></tr>
+<tr><td>Q7 cold points</td><td>Rebuildable via <code>revision_evidence</code> plus the stored policy</td><td>D4 curve</td></tr>
+<tr><td>Q8 cold/EV recurrence</td><td>None stored</td><td>C13; D5</td></tr>
+<tr><td>Q9 migrations</td><td>0036 is next; no guard</td><td>Migration plan; open decision</td></tr>
+<tr><td>Q10 combined estate</td><td>No combined producer; a new orchestrator is needed</td><td>Demo data</td></tr>
+<tr><td>Q11 placement and token</td><td>Token unaffected; cursor marker must change</td><td>D5 R5.4</td></tr>
+<tr><td>Q12 intervention cost</td><td>A new assumption key would need a migration</td><td>Avoided: carried in the command (R2.10)</td></tr>
+</table></div>
+<h3>Corrections accepted</h3>
+<p>All verified in code: EV Foundation and base load (C14, D3); D2 window total via replay; D2 SFC by value; D2 producer (existing SFC template and diesel publication); D2 routes (<code>.../verification/outcome|history</code>); no evaluator job (synchronous POST); D1 kind gate (shared-helper refactor) and division rules (R1.7); D1/D5 lens path (R5.5); <code>mechanism</code> null (C1); no battery-stress source (C12); no cold/EV recurrence (C13); mini recurrence already selected (D5 row facts); cursor marker (R5.4); one cold room (C9, R4.7); curve rebuild path (D4); no EV plug-in time (D3); <code>w601_seed.py</code> is mini only; and the minor locations (<code>_sfc_for</code>, the "no saving" text, the same-hour check at freeze).</p>
+<h3>Implementer's open questions: rulings</h3>
+<div class="tw wide"><table>
+<tr><th>Decision</th><th>Question</th><th>Resolution</th></tr>
+<tr><td rowspan="4">D1</td><td>New kind or optional keys</td><td>New kind with a shared gate helper (R1.5)</td></tr>
+<tr><td>Division and non-positive payback</td><td>R1.7</td></tr>
+<tr><td>Estate IDs and window</td><td>Line field-fill table</td></tr>
+<tr><td>Tariff required?</td><td>Yes (R1.6)</td></tr>
+<tr><td rowspan="6">D2</td><td>Denominator</td><td>Feeder demand, labelled (R2.12). Wording for the owner: open decision 3.</td></tr>
+<tr><td>Hook</td><td>Own transaction after the evaluation POST, plus a SYSTEM command (R2.9)</td></tr>
+<tr><td>Republish trigger</td><td>Read flag plus the command (R2.9)</td></tr>
+<tr><td>Route</td><td><code>outcome</code> (latest) and <code>history</code> (all) (R2.11)</td></tr>
+<tr><td>Intervention cost</td><td>In the command (R2.10)</td></tr>
+<tr><td>Pre-split baseline</td><td>Accept (R2.13)</td></tr>
+<tr><td rowspan="7">D3</td><td>Base load</td><td>Fixed 0 (R3.5)</td></tr>
+<tr><td>Weekday schedule</td><td>Honoured (R3.9)</td></tr>
+<tr><td>Connector mapping</td><td>component_id → asset ID (R3.7)</td></tr>
+<tr><td>Gate source</td><td>UNAVAILABLE spans (R3.2)</td></tr>
+<tr><td><code>_authorable</code> inheritance</td><td>New <code>_authorable_bus</code> (R3.6)</td></tr>
+<tr><td><code>preferred</code></td><td>Total cost across vehicles (R3.8)</td></tr>
+<tr><td>External top-up timing</td><td>After depot departure, before the route; extra minutes reported (Allocator row)</td></tr>
+<tr><td rowspan="3">D4</td><td>NOT_IN_ROOM</td><td>Dropped; other room → 422 (R4.7)</td></tr>
+<tr><td><code>handle_at</code> in a step</td><td>R4.6</td></tr>
+<tr><td>Lot dating</td><td>R4.5</td></tr>
+<tr><td rowspan="4">D5</td><td>Opportunity lens</td><td>Panel and card only (R5.5)</td></tr>
+<tr><td>EV in the risk group</td><td>Included as service interruption (R5.7)</td></tr>
+<tr><td>Site PARTIAL</td><td>Row facts decide (R5.6)</td></tr>
+<tr><td>Paging</td><td>Six-part marker (R5.4)</td></tr>
+<tr><td rowspan="3">Cross-cutting</td><td>D4 claim level</td><td><code>INVENTORY_REQUIRING_REVIEW</code> added</td></tr>
+<tr><td><code>NO_LINES</code> sentinel</td><td>Accepted for D1, labelled as a mock deviation; D4 kept out of Estate</td></tr>
+<tr><td>Seed scope</td><td>Per-decision DBs, plus one combined estate DB for D5 (Demo data)</td></tr>
+</table></div>
+<h3>Usability gaps closed</h3>
+<p>Wire shapes and enums (D1–D5), the D1 Estate field fill (and a deferred D4 fill), producer cases with DBs, sites, times and assertions, named test seams (validation tier 0 and 2, D2 replay, D3 pinned read, D4 curve read, exact-key constants, cursor marker, <code>settledScreen</code>), the migration plan, executable acceptance criteria (route walk, pure values), final copy for the labels, and the mock-deviation table.</p>
+</section>
+
+<section id="open">
+<h2>Decisions still open</h2>
+<p>These need the owner, or the Codex Architect once this exception ends. I have not ruled on them.</p>
+<ol>
+<li><b>Which working decision enters the five-day sprint</b> (owner). Recommendation: D2, plus labels, linked history and D5 placement.</li>
+<li><b>Combined migration slice</b> (reviewers or Codex Architect): whether two decisions' migrations may land in one schema slice with one full suite.</li>
+<li><b>"Cost per kWh of feeder demand"</b> (owner): whether this wording is an acceptable demo proxy for "cost per kWh served", given that no total of all served load exists.</li>
+<li><b>D4 in the executive view</b> (owner): declared inventory requiring review stays Site-only in the sprint (R4.2), unless the owner wants it in Estate with the deferred line fill.</li>
+</ol>
+</section>
+</main>
+</div>
+</body>
+</html>
