@@ -36,6 +36,22 @@ weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
 
+## Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27) — ended
+
+Ended 2026-10-27: the document was delivered to the owner. The row is Codex again. The original record follows.
+
+The owner set Architect to Claude for one deliverable: the telemetry integration
+plan (owner prompt `.agent/owner-telemetry-integration-plan-2026-10-27.md`), with
+BeagleBone Black integration details, building on `modbustcp.html` and covering the
+Waveshare ESP32-S3-RS485-CAN. Output: `Docs/demo-sprint/telemetry-integration-plan-claude.html`
+on `plan/commercial-capability-assessment`, kept beside the Codex Architect's
+`telemetry-integration-plan.html` for comparison. Owner text verbatim:
+`.agent/owner-claude-architect-telemetry-2026-10-27.md`.
+
+- The scope is that one HTML document. All other Architect work stays Codex.
+- The output states that Claude produced it under this exception.
+- This exception ends when the document is delivered to the owner. Then remove this row note.
+
 ## Scoped Claude Architect Exception: Commercial Capability HTML (2026-10-27) — ended
 
 Ended 2026-10-27: the document, with the Implementer's questions worked in, was delivered to the owner. The row is Codex again. The original record follows.
