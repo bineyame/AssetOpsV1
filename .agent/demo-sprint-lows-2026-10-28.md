@@ -10,3 +10,6 @@
 - CC-R1 Lows: fixed in CC-R2 commit 1407a4b0.
 - TEL-05 L1: `NO_GENERATOR_STATE` is only a substring match (acceptance test line 237).
 - TEL-05 L2: no check that no Finding exists (line 240).
+
+## Regressions to investigate (not Lows)
+- site-tabs regression: `site-tabs__link` overflows to 421px at 390px on the existing Recommendation/hold pages (found by the CC-R2 capture). It passed in W1-UX-06 (9517eb8e), so it came in on main later. Outside CC-R2's diff. Possibly related to the owner-pending R453 tab wrap.
