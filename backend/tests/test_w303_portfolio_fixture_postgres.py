@@ -278,7 +278,7 @@ def _by_site(rows: list[dict]) -> dict[str, list[dict]]:
     return out
 
 
-def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
+def test_one_day_three_domain_fixture_public_roots(portfolio_fixture, monkeypatch) -> None:
     """Closure 4 B3/B4 clean fixture, read through the public roots at the one frozen clock."""
     fx = portfolio_fixture
     estate, money_api = fx.estate(), fx.money()
@@ -369,6 +369,8 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
     # COMPARABLE, so a summed group is checked); the Portfolio reader lives in the scope-snapshot module.
     from test_w303_portfolio_scope_snapshot_postgres import Portfolio
     from assetops_backend.estate.money_invariants import double_count_violations
+    from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV
+    monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, "3e" * 32)  # test-only Portfolio deployment key (r1b Q-1b-1)
     portfolio_body = Portfolio(fx.engine, fx.tenant_id).ok(**fx.window, limit=100)
     assert [g for g in financials["groups"] if g["amount"] is not None]
     assert double_count_violations(portfolio_body, financials) == []
