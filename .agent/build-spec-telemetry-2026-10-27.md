@@ -837,3 +837,21 @@ Questions: `.agent/implementer-questions-telemetry-spec-2026-10-27.md` (70, numb
 - Outcomes are compared as in Q-T40.
 - TEL-05b unit-101 (`ILLUSTRATIVE`) rows compare `arrived == Fraction(obs.reported_value)` exactly. V4 publishes at 0.000001, which is the int32 exponent −6 register resolution. `NOT_A_MULTIPLE` there is a stop, not a reason to quantize.
 - The claim record adds "source values are exact rationals from simulator-lab-publication v3". (TEL-03 claim, TEL-04, TEL-05, TEL-05b)
+
+### K. TEL-04 rulings (Architect, Claude, 2026-10-27; questions in `.agent/TEL-04-questions.md`)
+
+**TEL-04-Q1. Change.** Any `GatewayUnavailable` before START (`check_identity` or `release_previous`) → exit 4, including a missing or unreadable credential file (`ipc.py:135-143`). There is no in-process retry. Stderr gets `FIELD-POLLER gateway unavailable before start: <detail>`. There is no START and no EXIT line, and `session.json` is not written or rewritten, so the next start retries `release_previous` with the same reference. Tests: a subprocess offline run → 4, with no START, no EXIT and no `session.json`; an in-process `main()` with `release_previous` monkeypatched to raise → 4, with `session.json` unchanged. Exit code 4 now also reads "or unavailable before START". (TEL-04)
+
+**TEL-04-Q2. Change.** `GatewayUnavailable` at the final step → exit 4. Stderr gets one line, `status.json` is rewritten, and `FIELD-POLLER EXIT 4 <status>` prints with `retained_reports` = the texts still held. There is no retry. A refusal stays exit 3. (TEL-04)
+
+**TEL-04-Q3. Change.** Loop step 5 becomes `Poller.finish()`: `sleep_until(stop_at)`; if any texts are retained, `admit` them in order through the publish path (crash-hook count, `_count`, HOLD lines, clear); then `seal_and_release` and `_sealed`. On `GatewayUnavailable`, keep `retained` and raise exit 4 (Q2). Tests use `finish()` in process over `FakeLink`: retained 2 → ops `admit, seal, release_run`, with reports in order and retained cleared; admit unavailable → 4, ops `admit`, `retained_reports == 2`; nothing retained and seal unavailable → 4, ops `seal`. (TEL-04)
+
+**TEL-04-Q4. Confirmed.** An EXIT line prints if and only if START printed. Pre-START exits 2, 3 and 4 go to stderr only. Exit 9 prints nothing. Add an `exit_line is None` assertion to the exit-2 test and to the Q1 tests. (TEL-04)
+
+**TEL-04-Q5. Accepted.** Gate 7 wording, corrected: the harness reads `diagnostics` once `status.last_publish_instant` equals the pause start (the last pre-pause admission), and again ≥ 3 s of wall time later, while the status still shows that instant. For the paused sources, `last_contact_at` is unchanged and `observed_at − last_contact_at` grew by ≥ 2 s. (TEL-04 gate 7, Q-T69)
+
+**TEL-04-Dev1. Accepted (Q-T46 corrected).** The FakeCentral responder routes by path. The batch route gets `(200, receipt_text(body))`, with DROP for the first two **batch** posts. `.../diagnostics` posts get 201 `{"diagnostic_id", "received_at", "payload_sha256"}` (`gateway/tests/test_gateway_upload.py:503-506`), and any other path fails the test. Gate 6 counts batch requests only. TEL-05 uses the same diagnostics answer beside its real ingestion responder. (TEL-04, TEL-05)
+
+**TEL-04-Dev2. Accepted (harness delivery rule).** `deliver_all`: `deliver {"max_batches": 50}` until `batches.attempted == 0`, then, while `diagnostics.queue.sealed_pending_batches > 0`, sleep 1 s and repeat. It asserts at a 120 s cap. This replaces "deliver until `attempted == 0`" in TEL-04, TEL-05 and TEL-05b. (TEL-04, TEL-05, TEL-05b)
+
+**TEL-04-Dev3. Accepted.** This is the same item as TEL-04-Q5. (TEL-04)

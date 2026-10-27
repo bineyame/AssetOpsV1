@@ -46,7 +46,10 @@ from assetops_contracts.observation import quantize_half_even  # noqa: E402
 from assetops_contracts.source_envelope_v3 import parse_canonical_envelope_v3_text  # noqa: E402
 from assetops_field.aggregate import PollOutcome, Result, expected_polls  # noqa: E402
 from assetops_field.clock import ReplayClock  # noqa: E402
-from assetops_field.modbus_poller import new_session_ref, session_stamp  # noqa: E402
+from assetops_field import modbus_poller  # noqa: E402
+from assetops_field.modbus_poller import Poller, new_session_ref, session_stamp  # noqa: E402
+from assetops_gateway.ipc import GatewayUnavailable  # noqa: E402
+from field_fixtures import FakeLink  # noqa: E402
 from assetops_field.modbus_tcp import ReadResult, classify, exception_outcome  # noqa: E402
 from assetops_field.profile import FieldProfile, ProfileRow, load_profile, parse_profile  # noqa: E402
 from assetops_field.publish import GatewayPublisher  # noqa: E402
@@ -388,11 +391,117 @@ def test_replay_without_stop_at_and_a_crash_hook_off_simulated_exit_2(tmp_path: 
     no_stop = run_poller(_offline_command(tmp_path, expect, *replay), tmp_path, env=None, tick=None,
                          poller_dir=tmp_path / "state", budget=60)
     assert no_stop.returncode == 2 and "--stop-at" in no_stop.stderr and no_stop.start is None
+    assert no_stop.exit_line is None  # TEL-04-Q4: EXIT only after START
     crash = run_poller(_offline_command(tmp_path, {**expect, "source_mode": "LIVE"}, *replay,
                                         "--stop-at", "2026-09-30T07:00:00Z"),
                        tmp_path, env={"ASSETOPS_FIELD_CRASH_AFTER_ADMIT": "1"}, tick=None,
                        poller_dir=tmp_path / "state", budget=60)
     assert crash.returncode == 2 and "SIMULATED" in crash.stderr and crash.start is None
+    assert crash.exit_line is None
+
+
+OFFLINE_EXPECT = {"tenant_id": "t", "site_id": "s", "gateway_id": "g", "source_mode": "SIMULATED",
+                  "sequence_epoch": EPOCH, "row_sources": {}}
+OFFLINE_REPLAY = ("--replay-start", "2026-09-30T06:00:00Z", "--replay-rate", "120",
+                  "--replay-wall-epoch", "2026-10-27T00:00:00.000Z", "--stop-at", "2026-09-30T07:00:00Z")
+
+
+def test_gateway_unavailable_before_start_exits_4_offline(tmp_path: Path) -> None:
+    """TEL-04-Q1 (a): a missing credential file and no pipe is "gateway unavailable": exit 4, nothing written."""
+    run = run_poller(_offline_command(tmp_path, OFFLINE_EXPECT, *OFFLINE_REPLAY), tmp_path, env=None, tick=None,
+                     poller_dir=tmp_path / "state", budget=60)
+    assert run.returncode == 4, run.stderr
+    assert run.start is None and run.exit_line is None
+    assert "gateway unavailable before start" in run.stderr
+    assert not (tmp_path / "state" / "session.json").exists()
+
+
+def test_gateway_unavailable_in_release_previous_exits_4_and_keeps_the_session(tmp_path: Path, monkeypatch,
+                                                                                capsys) -> None:
+    """TEL-04-Q1 (b): session.json is untouched, so the next start retries the same previous reference."""
+    state = tmp_path / "state"
+    state.mkdir()
+    previous = (b'{"profile_sha256":"x","session_ref":"field:gx-system-illustrative-1:1:20261027T000000Z:00000000",'
+                b'"session_start":"2026-09-30T06:00:00Z"}' + bytes([10]))
+    (state / "session.json").write_bytes(previous)
+    monkeypatch.setattr(GatewayPublisher, "check_identity", lambda self: {})
+
+    def unavailable(self, previous_ref):
+        raise GatewayUnavailable("test")
+
+    monkeypatch.setattr(GatewayPublisher, "release_previous", unavailable)
+    command = _offline_command(tmp_path, OFFLINE_EXPECT, *OFFLINE_REPLAY)
+    code = modbus_poller.main(command[3:])
+    captured = capsys.readouterr()
+    assert code == 4
+    assert "FIELD-POLLER START" not in captured.out and "FIELD-POLLER EXIT" not in captured.out
+    assert "gateway unavailable before start: test" in captured.err
+    assert (state / "session.json").read_bytes() == previous
+
+
+class _NoClient:
+    def close(self) -> None:
+        pass
+
+
+def _finishing_poller(tmp_path: Path, link: FakeLink, retained: int) -> Poller:
+    profile = load_profile(PROFILE_PATH)
+    ref = new_session_ref(profile, datetime(2026, 10, 27, tzinfo=timezone.utc), token=lambda: "0a1b2c3d")
+    publisher = GatewayPublisher(link, "0" * 64, ref, {})
+    clock = ReplayClock(START, RATE, datetime(2026, 10, 27, tzinfo=timezone.utc))
+    poller = Poller(profile=profile, clock=clock, clock_document={"mode": "REPLAY"}, client=_NoClient(),
+                    publisher=publisher, state_dir=tmp_path, session_start=START, stop_at=None)
+    soc = profile.rows[1]
+    for minutes in range(retained):
+        instant = START + timedelta(minutes=15 * minutes)
+        report = build_report(profile, soc, Result("GOOD", None, Fraction(50 + minutes), instant, None))
+        poller.retained.append((report.report_key, report_text(report)))
+    return poller
+
+
+SEALED = {"batch_ids": ["b"]}
+RELEASED = {"released_batch_ids": ["b"], "released_now": 1, "delivery": {}}
+
+
+def test_finish_admits_the_retained_texts_in_order_then_seals(tmp_path: Path) -> None:
+    """TEL-04-Q3 (a)."""
+    link = FakeLink({"admit": {"admissions": [{"outcome": "ADMITTED", "message_id": "m1"},
+                                              {"outcome": "ALREADY_ADMITTED", "message_id": "m0"}]},
+                     "seal": SEALED, "release_run": RELEASED})
+    poller = _finishing_poller(tmp_path, link, 2)
+    texts = [text for _, text in poller.retained]
+    poller.finish()
+    assert link.ops == ["admit", "seal", "release_run"]
+    assert link.calls[0][1]["reports"] == texts
+    assert poller.retained == []
+    assert poller.admissions == {"ADMITTED": 1, "ALREADY_ADMITTED": 1, "HELD": 0}
+
+
+def test_finish_with_the_gateway_unavailable_at_admit_exits_4_and_keeps_the_texts(tmp_path: Path) -> None:
+    """TEL-04-Q2/Q3 (b)."""
+    link = FakeLink({"admit": GatewayUnavailable("down"), "seal": SEALED, "release_run": RELEASED})
+    poller = _finishing_poller(tmp_path, link, 2)
+    try:
+        poller.finish()
+    except modbus_poller._Stop as stop:
+        assert stop.code == 4
+    else:
+        raise AssertionError("finish() did not stop")
+    assert link.ops == ["admit"] and len(poller.retained) == 2
+    assert poller.write_status()["retained_reports"] == 2
+
+
+def test_finish_with_nothing_retained_and_the_seal_unavailable_exits_4(tmp_path: Path) -> None:
+    """TEL-04-Q2/Q3 (c)."""
+    link = FakeLink({"seal": GatewayUnavailable("down"), "release_run": RELEASED})
+    poller = _finishing_poller(tmp_path, link, 0)
+    try:
+        poller.finish()
+    except modbus_poller._Stop as stop:
+        assert stop.code == 4
+    else:
+        raise AssertionError("finish() did not stop")
+    assert link.ops == ["seal"]
 
 
 # --- the four end-to-end cases ------------------------------------------------------------------------------

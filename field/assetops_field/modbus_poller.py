@@ -7,8 +7,9 @@
         [--stop-at <Z>]
 
 Exit codes: 0 after `--stop-at` and a final seal-and-release; 2 configuration
-refused; 3 admission refused; 4 gateway unavailable at 10 consecutive publish
-instants or more than 4096 retained report texts (Q-T33). The test-only crash
+refused; 3 admission refused; 4 gateway unavailable before START, at 10
+consecutive publish instants or at the final seal, or more than 4096 retained
+report texts (Q-T33, TEL-04-Q1/Q2). An EXIT line prints if and only if START did. The test-only crash
 hook `ASSETOPS_FIELD_CRASH_AFTER_ADMIT=<n>` exits 9 right after the n-th admit,
 before its seal, and only against a SIMULATED identity (Q-T28).
 
@@ -342,12 +343,7 @@ class Poller:
         pending = self.retained + [(key, text) for _, _, key, text in built]
         try:
             if pending:
-                admissions = self.publisher.admit([text for _, text in pending])
-                self.admit_calls += 1
-                if self.crash_after_admit is not None and self.admit_calls == self.crash_after_admit:
-                    os._exit(EXIT_CRASH)
-                self.retained = []
-                self._count(pending, admissions)
+                self._admit(pending)
             sealed = self.publisher.seal_and_release()
         except GatewayUnavailable as unavailable:
             self.retained = pending
@@ -369,6 +365,15 @@ class Poller:
         self.last_publish_instant = instant
         self._sealed(sealed)
         self.write_status()
+
+    def _admit(self, pending: Sequence[tuple[str, str]]) -> None:
+        """Admit in order; count toward the crash hook; tally; clear what was retained."""
+        admissions = self.publisher.admit([text for _, text in pending])
+        self.admit_calls += 1
+        if self.crash_after_admit is not None and self.admit_calls == self.crash_after_admit:
+            os._exit(EXIT_CRASH)
+        self.retained = []
+        self._count(pending, admissions)
 
     def _sealed(self, sealed: dict[str, Any]) -> None:
         if sealed["seal_refused"] is not None:
@@ -418,10 +423,20 @@ class Poller:
                 if result is not None:
                     results.append((index, row, result))
             self.publish(instant, results)
+        self.finish()
+
+    def finish(self) -> None:
+        """Loop step 5 (TEL-04-Q2, Q3): admit what is retained, in order, then seal and release."""
         if self.stop_at is not None:
             self.clock.sleep_until(self.stop_at)
         try:
+            if self.retained:
+                self._admit(list(self.retained))
             sealed = self.publisher.seal_and_release()
+        except GatewayUnavailable as unavailable:
+            print(f"FIELD-POLLER gateway unavailable at the final seal: {unavailable}", file=sys.stderr, flush=True)
+            self.write_status()
+            raise _Stop(EXIT_UNAVAILABLE, "gateway unavailable at the final seal") from unavailable
         except GatewayRequestRefused as refused:
             self.write_status()
             raise _Stop(EXIT_ADMISSION, f"{refused.kind} at {refused.field}: {refused.detail}") from refused
@@ -500,6 +515,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         link = GatewayLink(args.gateway_address, args.ipc_credential)
         publisher = GatewayPublisher(link, args.snapshot_sha256, new_session_ref(profile, utc_now()), expected)
         publisher.check_identity()
+    except GatewayUnavailable as unavailable:
+        print(f"FIELD-POLLER gateway unavailable before start: {unavailable}", file=sys.stderr, flush=True)
+        return EXIT_UNAVAILABLE
     except ProfileRefused as refused:
         print(f"FIELD-POLLER profile refused: {refused}", file=sys.stderr, flush=True)
         return EXIT_CONFIG
@@ -517,6 +535,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         except GatewayRequestRefused as refused:
             print(f"FIELD-POLLER release_previous refused: {refused}", file=sys.stderr, flush=True)
             return EXIT_ADMISSION
+        except GatewayUnavailable as unavailable:
+            print(f"FIELD-POLLER gateway unavailable before start: {unavailable}", file=sys.stderr, flush=True)
+            return EXIT_UNAVAILABLE
 
     session_start = clock.now()
     if isinstance(clock, ReplayClock) and session_start < clock.start:
