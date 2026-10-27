@@ -583,8 +583,10 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
             finding_read = client.get(f"/api/sites/KOBO-001/findings/{fid}", params={"revision_id": frid})
             assert finding_read.status_code == 200, finding_read.text
             body = finding_read.json()
-            emit("TEL-05b finding read consequence:", json.dumps(body["consequence"], default=str, sort_keys=True))
-            assert body["consequence"]["amount"] is None and body["consequence"]["state"] != "PRICED"
+            # The Finding read (`finding_api.py:111`) carries no money section; nothing in it may be current money.
+            emit("TEL-05b finding read:", json.dumps({"finding_id": fid, "revision_id": frid,
+                                                      "source_gate": body.get("source_gate"), "keys": sorted(body)},
+                                                     default=str, sort_keys=True))
             assert _current_amount_paths(body) == []
             head = client.get(f"/api/sites/KOBO-001/findings/{fid}/financial-consequences",
                               params={"revision_id": frid})
