@@ -6,6 +6,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { forbiddenPhrases } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioStatus } from "../estateClient";
 import { EstatePortfolioPage } from "../EstatePortfolio";
@@ -101,6 +102,10 @@ describe("estate Portfolio page", () => {
     expect(text(first)).toContain("GreenHarvest · consequence recorded without a price");
     expect(text(document.querySelector("[data-portfolio-card='SERVICE_PRODUCT_RISK'] [data-portfolio-card-value]"))).toBe("Not assessed");
     expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
+    // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
+    const bottom = panel("Where management should act first").querySelector(".panel-bottom") as HTMLElement;
+    expect(bottom.querySelector("span")).toBeNull();
+    expect(within(bottom).getByRole("link", { name: "Open all Findings →" })).toBeTruthy();
   });
 
   it("rendersEveryFindingColumnAndFourLensStates", async () => {
@@ -129,12 +134,16 @@ describe("estate Portfolio page", () => {
     expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
-    expect(cells[4]).toBe("Supported, coherent source Supported claim · Authored demonstration source");
+    expect(cells[4]).toBe("Supported, coherent source Supported Finding · Prepared example data source");
     expect(cells[5]).toBe("No accepted Action Next move not recorded Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
-    expect(text(priority)).toContain("Priority and confidence are not assessed for these records.");
+    // CC-R2-Q3 ruling: the subtitle and the bottom line (no longer computed from priority).
+    expect(text(priority)).toContain(
+      "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.",
+    );
+    expect(text(priority.querySelector(".panel-bottom span"))).toBe("Placement and confidence answer different questions.");
     const lenses = within(priority).getAllByRole("button").filter((b) => b.closest("[aria-label='Finding lens']"));
     expect(lenses.map((b) => [b.textContent, b.getAttribute("aria-pressed")])).toEqual([
       ["All findings", "true"],
@@ -694,5 +703,61 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
       ["ACT_NOW", "Act now · 1"],
       ["COMPARE_VALUE", "Compare value · 1"],
     ]);
+  });
+});
+
+describe("CC-R2-Q1 placement and confidence words", () => {
+  const REASONS = [
+    "Evidence comes from mixed sources; check the source before acting",
+    "Evidence source is not resolved; check the source before acting",
+    "The latest assessment no longer confirms this Finding; check its basis",
+    "Cost is withheld because its basis is not current",
+    "The episode is still open",
+    "Returned after an earlier episode (Finding 1a2b3c4d)",
+    "Reopened after it had closed",
+    "No accepted Action; open the recommendation",
+    "Action accepted, not yet applied",
+    "Change applied; verification result pending",
+    "Earlier resolution withdrawn after new evidence",
+    "Priced cost exposure; compares with like lines in Financials",
+    "Priced cost exposure; no like line to compare with",
+    "Product temperature risk; no price basis",
+    "Backup start failure; no price basis",
+    "Charging service interruption; no price basis",
+    "No price basis for this Finding",
+    "Change verified on test data; watch for a return",
+    "Change applied; no verified result yet",
+    "No open signal",
+  ];
+  const CONFIDENCE: [string, string[]][] = [
+    ["SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"]],
+    ["LIMITED", ["Unconfirmed Finding", "Prepared example data source", "Cost basis withheld"]],
+    ["UNKNOWN", ["Supported Finding", "Mixed sources", "Site coverage incomplete; other Findings may be missing"]],
+    ["UNKNOWN", ["Unconfirmed Finding", "Source not resolved"]],
+  ];
+
+  it("everyPlacementAndConfidenceTextIsFreeOfGuardedWords", async () => {
+    const groups = ["NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "MONITOR"] as const;
+    const rows = CONFIDENCE.map(([confidence, reasons], i) =>
+      row({
+        finding_id: `f${i}f${i}f${i}f${i}-0000-4000-8000-00000000000${i}`,
+        finding_revision_id: `e${i}e${i}e${i}e${i}-0000-4000-8000-00000000000${i}`,
+        placement: {
+          policy_version: "estate-placement/1",
+          group: groups[i],
+          group_rank: i + 1,
+          reasons: REASONS.slice(i * 5, i * 5 + 5).map((t) => ({ code: `C${i}`, text: t })),
+        },
+        confidence,
+        confidence_reasons: reasons,
+      }),
+    );
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows, total_count: rows.length }))));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(priority.querySelectorAll("[data-portfolio-row]")).toHaveLength(4);
+    const shown = text(priority);
+    for (const t of [...REASONS, ...CONFIDENCE.flatMap(([, r]) => r)]) expect(shown).toContain(t);
+    expect(forbiddenPhrases(priority.textContent ?? "")).toEqual([]);
   });
 });

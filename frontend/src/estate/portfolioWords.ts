@@ -19,7 +19,14 @@ export const PORTFOLIO_SUBTITLE = "Operating decisions across the estate: cost, 
 export const PORTFOLIO_PAGE_SIZE = 50;
 
 export const PRIORITY_PANEL = "Where management should act first";
-export const PRIORITY_SUBTITLE = "Selected Findings across accessible Sites; priority and confidence appear when assessed.";
+/**
+ * CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:133`) says "ranked by consequence and urgency"; groups are not a
+ * value ranking (the placement policy footer says so).
+ */
+export const PRIORITY_SUBTITLE =
+  "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.";
+/** CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:135`) says "Priority"; the column is now "Placement". */
+export const PRIORITY_BOTTOM_LINE = "Placement and confidence answer different questions.";
 /** CC-R2 (D5, build spec "CC-R2 Frontend"): placement group labels, in the server's group order. */
 export const PLACEMENT_GROUP_LABEL = {
   NEEDS_INVESTIGATION: "Needs investigation first",

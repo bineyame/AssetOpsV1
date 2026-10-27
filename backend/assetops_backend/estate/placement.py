@@ -51,9 +51,14 @@ _MONITOR_REASON = {"Verified": "VERIFIED_WATCH_RETURN", "Applied": "APPLIED_AWAI
 #: Rule 5: the unpriced reason per stored mechanism; anything else (mini `GENERATOR_SUPPORT_CANDIDATE`, null) is OTHER.
 _UNPRICED_REASON = {"COLD_EXCURSION": "UNPRICED_PRODUCT_EXPOSURE", "COLD_START_FAILURE": "UNPRICED_START_FAILURE",
                     "EV_INTERRUPTION": "UNPRICED_SERVICE_INTERRUPTION"}
-_SOURCE_TEXT = {"REGISTERED_SIMULATION": "Registered simulation source",
-                "AUTHORED_DEMONSTRATION": "Authored demonstration source", "MIXED": "Mixed sources"}
+_SOURCE_TEXT = {"REGISTERED_SIMULATION": "Generated test data source",
+                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 _SITE_COVERED = ("CURRENT", "HISTORICAL")
+# CC-R2-Q1 ruling: customer words; `claim` and `simulation` stay guarded.
+_LIFECYCLE_TEXT = {"UNCONFIRMED": "Unconfirmed Finding", None: "Supported Finding"}
+_SOURCE_UNRESOLVED_TEXT = "Source not resolved"
+_WITHHELD_TEXT = "Cost basis withheld"
+_COVERAGE_TEXT = "Site coverage incomplete; other Findings may be missing"
 
 
 @dataclass(frozen=True)
@@ -123,12 +128,12 @@ def _confidence(row: Mapping[str, Any], src: str | None, cons: str | None,
         state = "LIMITED"
     else:
         state = "SUPPORTED_SOURCE_COHERENT"
-    reasons = ["Unconfirmed claim" if lifecycle == "UNCONFIRMED" else "Supported claim",
-               _SOURCE_TEXT.get(src or "UNKNOWN", "Source not resolved")]
+    reasons = [_LIFECYCLE_TEXT["UNCONFIRMED" if lifecycle == "UNCONFIRMED" else None],
+               _SOURCE_TEXT.get(src or "UNKNOWN", _SOURCE_UNRESOLVED_TEXT)]
     if cons == "WITHHELD":
-        reasons.append("Cost basis withheld")
+        reasons.append(_WITHHELD_TEXT)
     if (site_cov or {}).get("state") not in _SITE_COVERED:  # R5.6: text only, never a move
-        reasons.append("Site coverage incomplete; other Findings may be missing")
+        reasons.append(_COVERAGE_TEXT)
     return state, tuple(reasons)
 
 

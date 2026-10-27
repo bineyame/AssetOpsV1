@@ -294,8 +294,11 @@ def estate_assertions(spec: dict) -> dict:
                    _placed(r)) for r in rows]
         raise SystemExit("estate: placement assertions failed:\n  " + "\n  ".join(failures) + f"\nrows: {detail}")
     print(f"estate: F01 {_placed(f01)}, F03 {_placed(f03)}, F05 {_placed(f05)}; no double count")
+    key = lambda r: f"{r['finding_id']}|{r['finding_revision_id']}"  # noqa: E731 - the page's data-portfolio-row
+    # CC-R2-Q4 ruling: the capture script finds the three rows by these keys.
     return {"F01": _placed(f01), "F03": _placed(f03), "F05": _placed(f05),
-            "counts": body["summary"]["placement_counts"]}
+            "counts": body["summary"]["placement_counts"],
+            "rows": {"F01": key(f01), "F03": key(f03), "F05": key(f05)}}
 
 
 def serve(url: str, work: Path, case: str, port: int) -> None:

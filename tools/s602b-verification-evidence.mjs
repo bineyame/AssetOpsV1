@@ -267,6 +267,78 @@ async function replaySuite(label) {
   await shot(`app-change-${label}`);
 }
 
+// --- CC-R2-Q4 ruling: the estate Portfolio placement claims (case `estate`, cases.json `placement`) ---
+const GROUPS = ["NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "UNPRICED_RISK", "MONITOR"];
+const GROUP_LABEL = {
+  NEEDS_INVESTIGATION: "Needs investigation first",
+  ACT_NOW: "Act now",
+  COMPARE_VALUE: "Compare value",
+  UNPRICED_RISK: "Unpriced risk",
+  MONITOR: "Monitor",
+};
+const POLICY_LINES = [
+  "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+  "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+  "Monitor (checked next): a change was applied or verified.",
+  "Compare value: the Finding has a priced cost exposure.",
+  "Unpriced risk: the Finding has no price basis.",
+];
+const POLICY_FOOTER =
+  "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.";
+const BOTTOM_LINE = "Placement and confidence answer different questions.";
+
+async function portfolioSuite(label, c) {
+  const p = c.placement;
+  const ready = `${settled} && document.querySelector('[data-estate-root="portfolio"] [data-portfolio-row]')`;
+  const loaded = await go(`${CASES_BASE}/portfolio?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z`, ready);
+  claim(`${label} estate Portfolio loads with rows`, loaded);
+  // 1. Group headings: no repeats, GROUPS order, the three expected groups, exact label · count text.
+  const heads = await js(`[...document.querySelectorAll('tr[data-placement-group]')].map(t => [t.dataset.placementGroup, t.textContent.trim()])`);
+  const order = heads.map(([g]) => GROUPS.indexOf(g));
+  const texts = heads.every(([g, t]) => t === (p.counts === null || p.counts[g] === null ? GROUP_LABEL[g] : `${GROUP_LABEL[g]} · ${p.counts[g]}`));
+  claim(`${label} estate Portfolio: group headings once each, in group order, with label and count`,
+    new Set(heads.map(([g]) => g)).size === heads.length && order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1]))
+      && ["NEEDS_INVESTIGATION", "ACT_NOW", "MONITOR"].every((g) => heads.some(([h]) => h === g)) && texts, heads);
+  // 2-3. The three placements, the nearest heading above each row, and the reason lines.
+  const expected = { F01: "MONITOR", F03: "ACT_NOW", F05: "NEEDS_INVESTIGATION" };
+  for (const [name, group] of Object.entries(expected)) {
+    const got = await js(`(() => { const r = document.querySelector('[data-portfolio-row=' + JSON.stringify(${JSON.stringify(p.rows[name])}) + ']');
+      if (!r) return null; let h = r.previousElementSibling; while (h && !h.matches('tr[data-placement-group]')) h = h.previousElementSibling;
+      return { placement: r.querySelector('[data-portfolio-placement]')?.dataset.portfolioPlacement ?? null, heading: h?.dataset.placementGroup ?? null,
+        reasons: r.querySelector('[data-portfolio-placement-reasons]')?.textContent ?? null }; })()`);
+    const reasons = got?.reasons ?? "";
+    const reasonOk = name === "F01" ? reasons === "Change verified on test data; watch for a return"
+      : name === "F03" ? /Returned after an earlier episode \(Finding [0-9a-f]{8}\)/.test(reasons) && reasons.includes("No accepted Action; open the recommendation")
+      : reasons.includes("The latest assessment no longer confirms this Finding; check its basis");
+    claim(`${label} estate Portfolio: ${name} is ${group} under its own heading, with its reason line`,
+      got !== null && got.placement === group && got.heading === group && reasonOk, got);
+  }
+  // 4. Confidence on every row; no guarded word in the priority panel.
+  const conf = await js(`({ rows: [...document.querySelectorAll('[data-portfolio-row] [data-portfolio-confidence]')].map(e => [e.dataset.portfolioConfidence, e.textContent.trim()]),
+    count: document.querySelectorAll('[data-portfolio-row]').length, panel: document.querySelector('[data-portfolio-panel="priority"]')?.textContent ?? '' })`);
+  const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(conf.panel)).map(String);
+  claim(`${label} estate Portfolio: every row has a confidence code and text; no guarded word in the panel`,
+    conf.rows.length === conf.count && conf.count > 0 && conf.rows.every(([code, t]) => ["SUPPORTED_SOURCE_COHERENT", "LIMITED", "UNKNOWN"].includes(code) && t !== "")
+      && words.length === 0, { rows: conf.rows.length, count: conf.count, words });
+  // 5. Bottom line and the closed policy disclosure.
+  const policy = await js(`(() => { const d = document.querySelector('[data-placement-policy]');
+    return { bottom: document.querySelector('[data-portfolio-panel="priority"] .panel-bottom span')?.textContent ?? null,
+      summary: d?.querySelector('summary')?.textContent ?? null, open: d?.open ?? null }; })()`);
+  claim(`${label} estate Portfolio: bottom line and the closed "How placement works" disclosure`,
+    policy.bottom === BOTTOM_LINE && policy.summary === "How placement works" && policy.open === false, policy);
+  // 6. Layout, then 7. screenshots before and after opening the disclosure.
+  await noOverflow(label, "estate Portfolio");
+  await shot(`app-case-estate-portfolio-${label}`);
+  const opened = await js(`(() => { const d = document.querySelector('[data-placement-policy]'); d.open = true;
+    return { lines: [...d.querySelectorAll('li')].map(l => l.textContent.trim()), footer: d.querySelector('p')?.textContent.trim() ?? null }; })()`);
+  claim(`${label} estate Portfolio: the opened disclosure shows the five policy lines and the footer`,
+    JSON.stringify(opened.lines) === JSON.stringify(POLICY_LINES) && opened.footer === POLICY_FOOTER, opened);
+  await shot(`app-case-estate-portfolio-policy-${label}`);
+  const app = await headings();
+  const mock = await mockScreen(label, "portfolio", "document.querySelector('.priority-panel')");
+  comparison.push(["portfolio (priority panel)", label, mock, app]);
+}
+
 async function casesSuite(label) {
   // --- TEST-SCOPED cases (cases.json: { cases: { name: { label, action, expect, recommendation? } } }) ---
   // ASSETOPS_S602B_PART=<case> runs one case: the walkthrough serves one case database at a time.
@@ -290,6 +362,7 @@ async function casesSuite(label) {
     }
     await noOverflow(label, `case ${name}`);
     await shot(`app-case-${name}-${label}`);
+    if (c.placement) await portfolioSuite(label, c); // CC-R2-Q4: case estate only
     if (c.withdrawn_outcome) {
       // The withdrawn VERIFIED, selected explicitly: Historical, never current; the separate current state stays.
       const hist = `/sites/${SITE}/actions/${c.action}/verification?outcome_id=${c.withdrawn_outcome}`;

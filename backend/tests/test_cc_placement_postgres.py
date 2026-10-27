@@ -3,9 +3,10 @@ W1; one `demo` tenant; a `*_test` DB). Needs ASSETOPS_TEST_DATABASE_URL.
 
 CC-00 facts pinned from this fixture (recorded in `.agent/CC-R2-review-packet.md`): both selected cold Findings
 (`COLD_EXCURSION` and `COLD_START_FAILURE`) have a null stored `episode_end`, so each is ACT_NOW with
-`EPISODE_OPEN` + `NO_ACTION_RECORDED`; the EV `complete` producer selects no EV Finding, so no EV row exists here
-(the EV placement assertion is open question CC-R2-Q2); KOBO-001's W1 row is PRICED in a SINGLE_LINE group with a
-closed episode, so it is COMPARE_VALUE / `PRICED_SINGLE`.
+`EPISODE_OPEN` + `NO_ACTION_RECORDED`; the EV `complete` producer selects no EV Finding, so no EV row exists in this
+fixture (pinned as `ev == []`); KOBO-001's W1 row is PRICED in a SINGLE_LINE group with a closed episode, so it is
+COMPARE_VALUE / `PRICED_SINGLE`. The EV row is asserted on the W2-05b `interrupted` chain (CC-R2-Q2 ruling): one
+SUPPORTED `EV_INTERRUPTION` Finding with a null session end, so CC-00 records rank 2 (ACT_NOW) for it.
 """
 
 from __future__ import annotations
@@ -19,6 +20,8 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 if URL:
     from test_s1_bindings_postgres import engine, store  # noqa: F401 - the S4 mini-grid fixtures
     from test_w301_estate_golden_postgres import cold_chain, ev_chain  # noqa: F401 - the replay factories
+    from test_w206_ev_store_postgres import run_worker
+    from test_w207_ev_money_postgres import golden_tariff, money
     from test_w303_portfolio_fixture_postgres import build_portfolio_fixture
     from test_w303_portfolio_scope_snapshot_postgres import Portfolio
 
@@ -60,7 +63,7 @@ def test_cold_ev_placement_risks_lens_and_paging(request, monkeypatch, capsys) -
         assert r["episode_end"] is None and r["workflow_label"] == "Recommendation not accepted"
         assert r["placement"] == ACT_NOW_OPEN and r["lens_flags"] == ["RISK"]
         assert (r["confidence"], r["confidence_reasons"]) == (
-            "SUPPORTED_SOURCE_COHERENT", ["Supported claim", "Registered simulation source"])
+            "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
     assert kobo["placement"] == PRICED_SINGLE and kobo["lens_flags"] == ["COST"]
     assert kobo["episode_end"] is not None and kobo["consequence"]["state"] == "PRICED"
     assert body["summary"]["placement_counts"] == {"NEEDS_INVESTIGATION": 0, "ACT_NOW": 2, "COMPARE_VALUE": 1,
@@ -89,3 +92,31 @@ def test_cold_ev_placement_risks_lens_and_paging(request, monkeypatch, capsys) -
         (r["finding_id"], r["finding_revision_id"]) for r in rows]
     assert [GROUPS.index(r["placement"]["group"]) for r in paged] == sorted(
         GROUPS.index(r["placement"]["group"]) for r in paged)
+
+EV_WINDOW = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z"}
+
+
+def test_ev_interruption_placement(ev_chain) -> None:
+    """CC-R2-Q2 ruling (b): the W2-05b `interrupted` chain selects one SUPPORTED `EV_INTERRUPTION` Finding whose
+    session has no end; with no Action it is ACT_NOW / `EPISODE_OPEN` + `NO_ACTION_RECORDED` (rank 2). Stop (never
+    fake) when there is no EV row, its source is not REGISTERED_SIMULATION, or its episode end is not null."""
+    built = ev_chain("interrupted")
+    built.start_release_upload()
+    run_worker(built)
+    golden_tariff(built, currency="KES")
+    outcomes = money(built)
+    assert outcomes and all(o.succeeded for o in outcomes), [(o.error_code, o.error_detail) for o in outcomes]
+    view = Portfolio(built.engine, built.tenant_id)
+    body = view.ok(**EV_WINDOW, limit=100)
+    assert double_count_violations(body) == []
+    (row,) = body["rows"]
+    assert row["source_provenance"]["state"] == "REGISTERED_SIMULATION", row["source_provenance"]
+    assert row["episode_end"] is None
+    assert (row["domain"], row["mechanism"]) == ("EV_CHARGING", "EV_INTERRUPTION")
+    assert row["workflow_label"] == "Recommendation not accepted"
+    assert row["placement"] == ACT_NOW_OPEN and row["priority"] is None
+    assert (row["confidence"], row["confidence_reasons"]) == (
+        "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
+    risks = view.ok(**EV_WINDOW, lens="risks", limit=100)
+    assert [(r["finding_id"], r["finding_revision_id"]) for r in risks["rows"]] == [
+        (row["finding_id"], row["finding_revision_id"])]

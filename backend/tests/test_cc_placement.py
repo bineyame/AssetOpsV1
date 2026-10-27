@@ -162,18 +162,18 @@ def test_every_reason_code_is_reachable() -> None:
 
 
 @pytest.mark.parametrize("facts, cov, state, reasons", [
-    ({}, COVERED, "SUPPORTED_SOURCE_COHERENT", ["Supported claim", "Registered simulation source"]),
+    ({}, COVERED, "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"]),
     ({"src": "AUTHORED_DEMONSTRATION"}, {"state": "HISTORICAL"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported claim", "Authored demonstration source"]),
-    ({"src": "MIXED", "lifecycle": "UNCONFIRMED"}, COVERED, "UNKNOWN", ["Unconfirmed claim", "Mixed sources"]),
-    ({"src": "UNKNOWN"}, COVERED, "UNKNOWN", ["Supported claim", "Source not resolved"]),
-    ({"src": None}, COVERED, "UNKNOWN", ["Supported claim", "Source not resolved"]),
-    ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed claim", "Registered simulation source"]),
+     ["Supported Finding", "Prepared example data source"]),
+    ({"src": "MIXED", "lifecycle": "UNCONFIRMED"}, COVERED, "UNKNOWN", ["Unconfirmed Finding", "Mixed sources"]),
+    ({"src": "UNKNOWN"}, COVERED, "UNKNOWN", ["Supported Finding", "Source not resolved"]),
+    ({"src": None}, COVERED, "UNKNOWN", ["Supported Finding", "Source not resolved"]),
+    ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed Finding", "Generated test data source"]),
     ({"cons": "WITHHELD"}, {"state": "PARTIAL"}, "LIMITED",
-     ["Supported claim", "Registered simulation source", "Cost basis withheld",
+     ["Supported Finding", "Generated test data source", "Cost basis withheld",
       "Site coverage incomplete; other Findings may be missing"]),
     ({}, {"state": "UNKNOWN"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported claim", "Registered simulation source", "Site coverage incomplete; other Findings may be missing"]),
+     ["Supported Finding", "Generated test data source", "Site coverage incomplete; other Findings may be missing"]),
 ])
 def test_confidence_from_row_facts_with_site_text_only(facts, cov, state, reasons) -> None:
     p = place(row(**facts), None, cov, None)
@@ -188,6 +188,17 @@ def test_wire_shape() -> None:
         {"code": "EPISODE_OPEN", "text": "The episode is still open"},
         {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
     assert p.confidence in placement.CONFIDENCE_STATES
+
+
+def test_no_placement_or_confidence_text_uses_a_guarded_word() -> None:
+    """CC-R2-Q1 ruling: no reason, group, source, lifecycle, withheld or coverage text says claim, simulat(ed/ion)
+    or scenario (case-insensitive)."""
+    texts = [*REASON_TEXT.values(), *GROUP_LABEL.values(), *placement._SOURCE_TEXT.values(),
+             *placement._LIFECYCLE_TEXT.values(), placement._SOURCE_UNRESOLVED_TEXT, placement._WITHHELD_TEXT,
+             placement._COVERAGE_TEXT]
+    assert len(texts) == 33
+    for word in ("claim", "simulat", "scenario"):
+        assert [t for t in texts if word in t.lower()] == [], word
 
 
 def test_six_part_portfolio_marker_passes_and_five_part_fails() -> None:

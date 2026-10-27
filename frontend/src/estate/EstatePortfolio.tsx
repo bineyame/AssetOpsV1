@@ -54,6 +54,7 @@ import {
   PLACEMENT_POLICY_FOOTER,
   PLACEMENT_POLICY_LINES,
   PLACEMENT_POLICY_SUMMARY,
+  PRIORITY_BOTTOM_LINE,
   PRIORITY_PANEL,
   PRIORITY_SUBTITLE,
   PROGRESS_PANEL,
@@ -288,7 +289,6 @@ function PriorityPanel({
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
   const incomplete = body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN";
   const count = body.total_count === null ? "Unknown" : String(body.total_count);
-  const both = rows.length > 0 && rows.every((r) => r.priority !== null && r.confidence !== null);
   return (
     <section className="panel priority-panel" aria-labelledby="portfolio-priority-heading" data-portfolio-panel="priority">
       <div className="panel-head">
@@ -358,9 +358,7 @@ function PriorityPanel({
       ) : null}
       <div className="panel-bottom">
         <Link to={estateHref("/findings", window)}>Open all Findings →</Link>
-        <span>
-          {both ? "Priority and confidence answer different questions." : "Priority and confidence are not assessed for these records."}
-        </span>
+        {rows.length > 0 ? <span>{PRIORITY_BOTTOM_LINE}</span> : null}
       </div>
     </section>
   );
