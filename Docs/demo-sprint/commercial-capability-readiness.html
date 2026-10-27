@@ -179,6 +179,14 @@ details.wire summary{cursor:pointer;font-weight:650}
 
 <!-- ===================================================== 1 -->
 <section id="s1">
+<div class="callout warn"><b>Owner decisions 2026-10-27 (supersede this document where they differ).</b>
+<ul>
+<li><b>Q10 = both, Q14 = combined.</b> The sprint builds D2 (R3) and D1 (R4) after R1 and R2. Their migrations land together in one schema slice (two revisions, 0036 and 0037) with one full suite, before D2. D1 slips first if late.</li>
+<li><b>Q9, Q12, Q13, Q15, Q16, Q17 accepted as recommended.</b> The beneficiary enum also gains <code>COOLING_PROVIDER</code> for recorded cold repairs.</li>
+<li><b>Q11.</b> MG-C keeps the stand-in now; a state-of-charge stress cue is recommended for the next sprint.</li>
+<li><b>Telemetry Q5.</b> The October Modbus proof now shows a money-affecting Finding with its money figure withheld (source not established).</li>
+<li>Build briefing: <code>.agent/build-sequence-2026-10-27.md</code> and <code>.agent/build-spec-commercial-2026-10-27.md</code>.</li>
+</ul></div>
 <h2>1 AssetOps commercial mission and value thesis</h2>
 <p><b>Mission (owner, settled).</b> AssetOps helps infrastructure operators systematically improve commercial and operational performance through integrated data, explainable intelligence, actionable decisions, historical accountability and independently verifiable evidence.</p>
 <div class="principle">
@@ -1286,7 +1294,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <div class="card"><h4>Bounded demo: EV departure</h4><p>Declared buses, three feasible allocations, the preferred option and why. Shows the vertical difference without a fabricated lifecycle. Item R6, or declared illustration if R6 is not built.</p></div>
 <div class="card"><h4>Bounded demo: cold lots for a goods owner</h4><p>Lots requiring review and their declared value, with handling at minute 45 as the alternative. Item R5, or declared illustration.</p></div>
 </div>
-<p><b>Every integration class shown has executable validation.</b> Canonical simulated gateway: existing host tests. Modbus TCP: proof A against an emulator through the real gateway. Customer export: proof B1, generic CSV. Neither proof yields a Finding or money in October, by ruling (telemetry N1 and D5). Breadth across all 21 outcomes is carried by the outcome sections and honest "not available yet" states, not by 21 demonstrations.</p>
+<p><b>Every integration class shown has executable validation.</b> Canonical simulated gateway: existing host tests. Modbus TCP: proof A against an emulator through the real gateway. Customer export: proof B1, generic CSV. Owner 2026-10-27: proof A also yields a money-affecting Finding (TEL-05b), with the money figure withheld because its source is not established; proof B1 yields neither. Breadth across all 21 outcomes is carried by the outcome sections and honest "not available yet" states, not by 21 demonstrations.</p>
 </section>
 
 <section id="s10-pilot">

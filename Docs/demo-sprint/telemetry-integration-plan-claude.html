@@ -251,6 +251,14 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </header>
 
 <!-- ============================================================ -->
+<div class="callout warn"><b class="k">Owner decisions 2026-10-27 (supersede this document where they differ)</b>
+<ul class="small">
+<li><b>Q5, money-affecting Finding.</b> The October proof also shows a Finding (TEL-05b): profile <code>gx-system-illustrative-2</code> adds an AssetOps illustrative register block (generator, feeders, PV available, discharge capability, SoC) fed from a <code>kobo-mini-grid-prolonged</code> run. Source reads “not established”; the existing source gate withholds the money figure. N1 is replaced.</li>
+<li><b>Q6, BeagleBone Black.</b> TEL-08 is October scope, directly after TEL-05 (reduced stage 2, TCP only). Buy nothing except a microSD card and 5 V supply if missing.</li>
+<li><b>Q7 = (c).</b> No prospect ask yet; TEL-06 stays an illustrative-format collector.</li>
+<li><b>Q4, Q8 accepted</b> (test databases only; one hosted gateway per customer Site later). Q2 withdrawn; D1 stays (c).</li>
+<li>Build briefing: <code>.agent/build-sequence-2026-10-27.md</code> and <code>.agent/build-spec-telemetry-2026-10-27.md</code>; rulings amendment 2 in <code>.agent/telemetry-rulings-2026-10-27.md</code>. TEL-05 now lives in <code>host/tests</code>.</li>
+</ul></div>
 <h2 id="answer">0 · The plan in one page</h2>
 <div class="callout"><b class="k">Revision 3: the owner’s seven adjustments and where they are applied</b>
 <ol class="small">
@@ -1048,11 +1056,11 @@ All of them run through an instance of the existing gateway.</figcaption></figur
 <li>TEL-06’s focused tier comes second.</li>
 <li>TEL-06’s Postgres tier and TEL-07 move to 31 October if needed.</li>
 </ul>
-<p>Nothing is rushed past a stop condition. The BBB (TEL-08), RTU and any purchase are out of October scope.</p></div>
+<p>Nothing is rushed past a stop condition. RTU and any purchase beyond a microSD card and 5 V supply are out of October scope. <b>Owner 2026-10-27:</b> the BBB (TEL-08) and the Finding proof (TEL-05b) are in October scope, after TEL-05.</p></div>
 
 <!-- ============================================================ -->
 <h2 id="bbb"><span class="c-bbb">7 · BeagleBone Black integration details</span></h2>
-<div class="callout warn"><b class="k">Sequencing (revision 3)</b><p>The BBB follows <b>after</b> the laptop proof is stable (TEL-08: two consecutive green TEL-05 runs). It is not a blocker for October. Everything below is the plan for that step, unchanged in substance. Readiness claims made on the BBB name the board, OS image and kernel, Python version and commit (§10.0).</p></div>
+<div class="callout warn"><b class="k">Sequencing (revision 3)</b><p>The BBB follows <b>after</b> the laptop proof is stable (TEL-08: two consecutive green TEL-05 runs). Owner 2026-10-27: it is October scope, directly after TEL-05, as a reduced TCP-only stage 2 (build spec TEL-08). Everything below is the plan for that step, unchanged in substance. Readiness claims made on the BBB name the board, OS image and kernel, Python version and commit (§10.0).</p></div>
 <div class="callout ok"><b class="k">7.1 Verdict</b><p><b>Yes: the BBB can run the relevant subset of the existing gateway unchanged.</b> That subset is <code>assetops_gateway</code> (serve, IPC, SQLite outbox, sealing, diagnostics, HTTPS uploader) and <code>assetops_contracts</code>, plus the new poller. All of it is pure standard library apart from pyserial for RTU. It needs no backend, simulator, host, Postgres or Node. Its role is comparable to AMMP Edge (a site box that reads non-API equipment and forwards it), at prototype grade. It is <b>not</b> a pilot box for harsh sites: it has no isolation, no wide-range input, no DIN mount and no RTC battery (§9 compares alternatives).</p></div>
 
 <h3>7.2 OS image and Python version</h3>
