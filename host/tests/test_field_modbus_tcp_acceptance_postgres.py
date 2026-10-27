@@ -124,6 +124,10 @@ def test_gx_profile_1_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, ca
     from assetops_backend.evidence.ledger import GatewayPrincipal
     from assetops_gateway.credential_protection import restrict_to_current_user
 
+    def emit(*parts) -> None:  # printed past capsys, which the assess call reads (Q-T50)
+        with capsys.disabled():
+            print(*parts, flush=True)
+
     monkeypatch.setenv("DATABASE_URL", URL)
     pg_harness.fresh_database()
     basis = _snapshot()
@@ -206,16 +210,16 @@ def test_gx_profile_1_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, ca
                       "WHERE site_id = :s ORDER BY role, source_time", site_id)
     ids = {str(r["id"]) for r in rows}
     roles = Counter(r["role"] for r in rows)
-    print("TEL-05 accepted evidence:", json.dumps({"count": len(rows), "by_role": dict(roles)}))
+    emit("TEL-05 accepted evidence:", json.dumps({"count": len(rows), "by_role": dict(roles)}))
     for r in rows:
-        print("TEL-05 evidence", r["id"], r["role"], r["device_id"], r["signal_id"], r["source_time"], r["quality"])
+        emit("TEL-05 evidence", r["id"], r["role"], r["device_id"], r["signal_id"], r["source_time"], r["quality"])
     assert BOUND_ROLES <= set(roles), roles
     assert len(rows) == len(envelopes) and ids == receipt_ids
-    print("TEL-05 receipts:", json.dumps({"batches": len(receipts), "batch_ids": sorted(r.batch_id for r in receipts)}))
+    emit("TEL-05 receipts:", json.dumps({"batches": len(receipts), "batch_ids": sorted(r.batch_id for r in receipts)}))
 
     # Gate (D1(c), Q-T49): provenance UNKNOWN / NO_POSITIVE_BINDING.
     provenance = build_source_provenance(URL).resolve(UUID(tenant_id), UUID(site_id), sorted(ids))
-    print("TEL-05 provenance:", json.dumps(provenance, default=str, sort_keys=True))
+    emit("TEL-05 provenance:", json.dumps(provenance, default=str, sort_keys=True))
     assert provenance["state"] == "UNKNOWN"
     assert [reason["code"] for reason in provenance["reasons"]] == ["NO_POSITIVE_BINDING"]
 
@@ -225,7 +229,7 @@ def test_gx_profile_1_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, ca
                                  "--start", "2026-09-30T03:00:00Z", "--end", "2026-09-30T15:00:00Z",
                                  "--cohort", *field_bench.cohort_members(expect)]) == 0
     assessed = json.loads(capsys.readouterr().out)
-    print("TEL-05 assess:", json.dumps(assessed))
+    emit("TEL-05 assess:", json.dumps(assessed))
     detail = build_dispatch_read_service(URL).run(UUID(tenant_id), UUID(site_id), UUID(assessed["run_id"]))
     assert detail is not None
     cited = {str(e["evidence_id"]) for e in detail["evidence"]}
@@ -234,7 +238,7 @@ def test_gx_profile_1_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, ca
 
     # Gate (D5): no consequence row for the Site, in any consequence table.
     consequences = _consequence_rows(site_id)
-    print("TEL-05 consequence rows:", json.dumps(consequences, sort_keys=True))
+    emit("TEL-05 consequence rows:", json.dumps(consequences, sort_keys=True))
     assert consequences and not any(consequences.values()), consequences
 
 
