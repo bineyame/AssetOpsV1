@@ -42,7 +42,8 @@ USER_REVIEW_REQUIRED: no UI; Architect review of `.agent/TEL-T1-questions.md` (6
 
 **TEL-02** (`test_field_modbus_tcp` 28): FC 05/06/15/16/23 raise `WriteForbidden` with 0 bytes received; the five request frames of the gate table byte-exact with TID 1 (808 frame `… 64 03 03 28 00 03`); Figure 2b → words `(0x007B, 0xFF9C)`; Figure 2c → `EXCEPTION 02`; exceptions 01/02/03/04/06/0A/0B through `classify` to the 0.7 outcomes; TID and unit mismatch → `NO_ANSWER` and reconnect; silent server → `NO_ANSWER TIMEOUT` after `timeout_s`, exactly one frame (12 bytes) sent; TID wraps 65535 → 0; `classify` precedence across split requests; `requests_for` contiguous/split.
 
-**TEL-03** (`test_field_gx_emulator` 21 passed, 1 skipped; `host/tests/test_field_observation_fixtures.py` 1 passed):
+**TEL-03** (`test_field_gx_emulator` 22 passed after the pymodbus install; `host/tests/test_field_observation_fixtures.py` 1 passed):
+- pymodbus (Q-T7, installed by the coordinator: `pip download pymodbus==3.16.1 --no-deps` into `%TEMP%\pymodbus-3.16.1`, then installed from that file with `--no-index`): wheel `pymodbus-3.16.1-py3-none-any.whl`, SHA-256 `bb433f7417280bdea1190d95495aa6fb8e1fa8e0d720c436922b270bc378024c`. `test_pymodbus_client_reads_the_same_words` 1 passed: the pymodbus 3.16.1 `ModbusTcpClient` reads 808-810 and 843 at three instants and gets the same words as the TEL-02 client.
 - Window maxima (measured first, Q-T16): PV 50 kW (within 65.534), SoC 100 %. No range overflow.
 - Read-back over every PV and SoC observation of 2026-09-30T03:00Z-15:00Z through the TEL-02 client and profile `-1` on a fake wall: 96 REPORTED equal the register-quantized value exactly, 1 SENTINEL (PV `NO_PRECEDING_INTERVAL` at 03:00Z), 1 `EXCEPTION 0B` (SoC `DROPPED`).
 - Each `FaultWindow` kind (PAUSE, EXCEPTION 04/06/02/03, SENTINEL, WRONG_UNIT_ID, WRONG_TID) gives its 0.7 outcome through `classify`; windows are half-open; a row fault leaves the other row unchanged. Framing: unknown unit 0B, undeclared address 02, count 0/126 → 03, FC 01 → 01. `writes == 0` asserted in every emulator fixture teardown; the write test sends FC 06 by raw socket → `86 01`, `writes == 1`. CLI prints `READY 127.0.0.1:<port>` and exits 0 at `--stop-at`.
@@ -53,18 +54,18 @@ USER_REVIEW_REQUIRED: no UI; Architect review of `.agent/TEL-T1-questions.md` (6
 
 | Command | Result |
 |---|---|
-| `python -m pytest field/tests -q -p no:cacheprovider --basetemp $env:TEMP\assetops-tel\field-tests` | 145 passed, 1 skipped (pymodbus), 9.1 s |
+| `python -m pytest field/tests -q -p no:cacheprovider --basetemp $env:TEMP\assetops-tel\field-tests` | 146 passed, 0 skipped, 8.9 s (after the pymodbus install; before it: 145 passed, 1 skipped) |
 | `python -m pytest host/tests/test_field_observation_fixtures.py …` (own file) | 1 passed, 5.0 s |
 | `python -m pytest gateway/tests/test_wire_contracts.py …` | 32 passed |
 | `tools/check-architecture.ps1` with `ASSETOPS_GUARD_PYTHON` = the venv python, at c29f0897 | "Architecture check passed.", exit 0, 175 s with the next row |
 | `tools/check-agent-workflow.ps1`, at c29f0897 | "Agent workflow check passed.", exit 0 |
 | `python host/tests/field_observation_fixtures.py daytime` | wrote the fixture (294 observations) |
 
-Guard baseline before any change: `check-architecture.ps1` passed with `ASSETOPS_GUARD_PYTHON` set (without it, Rule 8 cannot find `.venv` in the worktree and reports 9 vacuity failures: an environment precondition, not a code failure). No full suite, no Postgres, no dev server.
+**`ASSETOPS_GUARD_PYTHON` is required in this worktree:** set it to `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` before running `tools/check-architecture.ps1`. Guard baseline before any change: `check-architecture.ps1` passed with `ASSETOPS_GUARD_PYTHON` set (without it, Rule 8 cannot find `.venv` in the worktree and reports 9 vacuity failures: an environment precondition, not a code failure). No full suite, no Postgres, no dev server.
 
 ## Deviations and findings
 
-1. **pymodbus 3.16.1 not installed** in the shared venv (coordinator step, Q-T7; not installed by the builder). The cross-check `test_pymodbus_client_reads_the_same_words` is written and skips via `importorskip`; it asserts version 3.16.1 when present. Wheel name/SHA not recorded. Rerun the file after install.
+1. **pymodbus (resolved).** pymodbus was missing at build time. The coordinator then installed 3.16.1 (Q-T7; wheel and SHA under TEL-03), and the cross-check passed on rerun. The builder did not install it.
 2. **The daytime run publishes exact rationals, not 0.000001-resolution values.** `registered.request()` with no overrides uses `simulator-lab-publication:3`; e.g. SoC `48347/760` at 07:45Z. The amended TEL-03 rule (quantize to the register quantum) handles it, so the gate holds; but the amendment's premise (`profiles.py:1826` resolution) does not apply to this window. Risk for TEL-04/05: the poller publishes 1 W / 1 % values, the simulator exact rationals.
 3. `.gitattributes` line is `-text` as the spec says; existing pins use `text eol=lf`. Both keep LF bytes here (no CRLF warning on the JSONL).
 4. Implementation choices awaiting Architect confirmation: `.agent/TEL-T1-questions.md` items 1-6 (mixed-width sentinel range, "first" sentinel of a set, malformed answers → `NO_ANSWER RESET`, unnamed exception codes → `FAILED`, quantization discriminator `status != ILLUSTRATIVE`, session-ref builder left to TEL-04).
