@@ -129,3 +129,54 @@ def test_money_table() -> None:
     # A historical cutoff without a selected head is missing: UNKNOWN for that Site's categories.
     assert set(money_units("mini_grid", {**SETTLED, "state": "UNKNOWN", "_windows_covered": False}, []).values()) \
         == {U}
+
+
+# --- CC-R1: the beneficiary partition key (commercial build spec 0.4, owner Q9) ---------------------------------
+
+def _tariff_line(key, tech, cited, **extra):
+    """The `test_w302_money_api._eligible` hand-built line shape (no `beneficiary` key unless given)."""
+    return {"line_key": key, "category": "GROSS_TARIFF_SCENARIO", "_currency": "KES",
+            "window_start": "2026-10-13T08:00:00Z", "window_end": "2026-10-13T09:05:00Z",
+            "period_kind": "SCENARIO_WINDOW", "assumption_fingerprint": "sha256:" + "a" * 64,
+            "technical_interval_ids": tech, "basis_evidence_ids": cited, "overlap_group": None,
+            "eligibility": "ELIGIBLE", "reason_codes": [], "amount": {"low": "1.10", "high": "2.20", "currency": "KES"},
+            **extra}
+
+
+#: The six-value key of the `_tariff_line` partition, hashed before CC-R1 (pinned; must never move).
+PINNED_TARIFF_KEY = "sha256:2de8f72abc4a5aa254105908320f614f9ad5eb2d81ea53898134047ce9b41139"
+
+
+def test_beneficiary_splits_an_otherwise_identical_partition() -> None:
+    from assetops_backend.estate.financials import compare
+    a = _tariff_line("ev_charging:a", ["t1"], ["c1"], beneficiary="CHARGING_SERVICE")
+    b = _tariff_line("ev_charging:b", ["t2"], ["c2"], beneficiary="FLEET_OPERATOR")
+    groups, _, _ = compare([a, b], {"GROSS_TARIFF_SCENARIO": True})
+    assert len(groups) == 2 and {g["state"] for g in groups} == {"SINGLE_LINE"}
+    assert "COMPARABLE" not in {g["state"] for g in groups}
+    assert len({g["group_key"] for g in groups}) == 2 and a["group_key"] != b["group_key"]
+    # The same two lines on the default beneficiary (explicit or absent) stay one COMPARABLE group.
+    same, _, _ = compare([_tariff_line("ev_charging:a", ["t1"], ["c1"], beneficiary="CHARGING_SERVICE"),
+                          _tariff_line("ev_charging:b", ["t2"], ["c2"])], {"GROSS_TARIFF_SCENARIO": True})
+    assert [g["state"] for g in same] == ["COMPARABLE"]
+
+
+def test_default_beneficiary_group_key_is_unchanged() -> None:
+    from assetops_backend.estate.evidence_money import group_key_for_partition
+    from assetops_backend.estate.financials import compare
+    six = ("GROSS_TARIFF_SCENARIO", "KES", "2026-10-13T08:00:00Z", "2026-10-13T09:05:00Z", "SCENARIO_WINDOW",
+           "sha256:" + "a" * 64)
+    assert group_key_for_partition(*six) == PINNED_TARIFF_KEY
+    assert group_key_for_partition(*six, beneficiary="CHARGING_SERVICE") == PINNED_TARIFF_KEY
+    assert group_key_for_partition(*six, beneficiary="FLEET_OPERATOR") != PINNED_TARIFF_KEY
+    groups, _, _ = compare([_tariff_line("ev_charging:a", ["t1"], ["c1"])], {"GROSS_TARIFF_SCENARIO": True})
+    assert groups[0]["group_key"] == PINNED_TARIFF_KEY
+
+
+def test_every_category_has_a_beneficiary() -> None:
+    from assetops_backend.estate.financials import APPLICABLE, BENEFICIARY_OF_CATEGORY, COLD_CATEGORY
+    categories = {c for cats in APPLICABLE.values() for c in cats} | set(COLD_CATEGORY.values())
+    assert categories <= set(BENEFICIARY_OF_CATEGORY)
+    assert set(BENEFICIARY_OF_CATEGORY.values()) <= {
+        "MINI_OPERATOR", "GOODS_OWNER", "FLEET_OPERATOR", "CHARGING_SERVICE", "COOLING_PROVIDER"}
+    assert BENEFICIARY_OF_CATEGORY["RECORDED_REPAIR"] == "COOLING_PROVIDER"

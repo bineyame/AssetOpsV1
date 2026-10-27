@@ -279,3 +279,30 @@ export function CommandRefusal({ refusal, children }: { refusal: Refusal; childr
     </div>
   );
 }
+
+/**
+ * CC-R1 (commercial build spec 0.4): the claim level and beneficiary stated under a commercial figure. Server-
+ * provided on the new D1/D2 bodies; for the existing mini gross scenario and verification verdict the view derives
+ * them. `ClaimLevel` is taken by `siteAnalyticsClient.ts`, hence `CommercialClaimLevel`.
+ */
+export type CommercialClaimLevel =
+  | "MODELLED_OPPORTUNITY"
+  | "INVENTORY_REQUIRING_REVIEW"
+  | "EXPECTED_VALUE"
+  | "VERIFIED_SIMULATED_TECHNICAL"
+  | "POST_INTERVENTION_MODELLED";
+export type Beneficiary = "MINI_OPERATOR" | "GOODS_OWNER" | "FLEET_OPERATOR" | "CHARGING_SERVICE" | "COOLING_PROVIDER";
+export const CLAIM_LABEL: Record<CommercialClaimLevel, string> = {
+  MODELLED_OPPORTUNITY: "Modelled opportunity · declared assumptions",
+  INVENTORY_REQUIRING_REVIEW: "Inventory requiring review · declared value · not a loss",
+  EXPECTED_VALUE: "Expected value · declared assumptions",
+  VERIFIED_SIMULATED_TECHNICAL: "Technical result verified on test data",
+  POST_INTERVENTION_MODELLED: "Modelled change after the trial · not realized savings",
+};
+export const BENEFICIARY_WORDS: Record<Beneficiary, string> = {
+  MINI_OPERATOR: "mini-grid operator",
+  GOODS_OWNER: "goods owner",
+  FLEET_OPERATOR: "fleet operator",
+  CHARGING_SERVICE: "charging service",
+  COOLING_PROVIDER: "cooling provider",
+};

@@ -214,6 +214,34 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+describe("CC-R1 estate Financials beneficiary line", () => {
+  it("states who each line benefits inside the category cell, with no new column", async () => {
+    const rows = [
+      { ...MINI_LINE, beneficiary: "MINI_OPERATOR" },
+      { ...COLD_LINE, beneficiary: "GOODS_OWNER" },
+      { ...EV_LINE, beneficiary: "CHARGING_SERVICE" },
+    ];
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body({ rows }))));
+    await settledScreen();
+    expect(headers(panelTitled(REGISTER_PANEL))).toEqual(["Site", "Category", "Window / quantity", "Value", "Basis / limit", "Source"]);
+    const shown = registerRows().map((r) => cells(r)[1].querySelector(".line-beneficiary"));
+    expect(shown.map((s) => s?.getAttribute("data-beneficiary"))).toEqual(
+      expect.arrayContaining(["MINI_OPERATOR", "GOODS_OWNER", "CHARGING_SERVICE"]),
+    );
+    const texts = shown.filter((s) => s !== null).map((s) => s?.textContent);
+    expect(texts).toEqual(
+      expect.arrayContaining(["Benefits: mini-grid operator", "Benefits: goods owner", "Benefits: charging service"]),
+    );
+    for (const t of texts) expect(t).not.toMatch(/saving|saved/i);
+  });
+
+  it("shows no beneficiary line when the row carries none", async () => {
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body())));
+    await settledScreen();
+    expect(main().querySelector(".line-beneficiary")).toBeNull();
+  });
+});
+
 describe("W3-02 estate Financials root", () => {
   it("rendersMockFinancialPanelsAndUnpricedRows", async () => {
     renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body())));

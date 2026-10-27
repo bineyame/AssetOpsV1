@@ -31,6 +31,7 @@ import {
   reasonText,
 } from "./estateFinancialsWords";
 import { EstateDateBar, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
+import { BENEFICIARY_WORDS, type Beneficiary } from "../sites/actionPresentation";
 import "./estateEvidence.css";
 import "./estateFinancials.css";
 
@@ -181,7 +182,15 @@ function RegisterRow({ row, asOf }: { row: FinancialRow; asOf: string }) {
           {siteLabel(row)}
         </Link>
       </td>
-      <td>{categoryLabel(row.category)}</td>
+      <td>
+        {categoryLabel(row.category)}
+        {/* CC-R1 / R501: who the line benefits, a second line in the category cell (no new column). */}
+        {row.beneficiary !== undefined && Object.prototype.hasOwnProperty.call(BENEFICIARY_WORDS, row.beneficiary) ? (
+          <span className="line-beneficiary" data-beneficiary={row.beneficiary}>
+            Benefits: {BENEFICIARY_WORDS[row.beneficiary as Beneficiary]}
+          </span>
+        ) : null}
+      </td>
       <td data-estate-money-window>
         {window === null && quantity === null ? (
           WINDOW_QUANTITY_UNKNOWN

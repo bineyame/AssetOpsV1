@@ -128,6 +128,8 @@ export interface FinancialRow {
   site_code: string;
   site_name: string;
   category: FinancialCategory;
+  /** CC-R1 (owner Q9): who the line benefits; one constant per category, server-provided. */
+  beneficiary?: string;
   finding_id: string | null;
   finding_revision_id: string | null;
   consequence_revision_id: string;
