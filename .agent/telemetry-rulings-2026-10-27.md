@@ -339,3 +339,9 @@ TEL-00's stop condition applies: "any ruling contradicts a card: revise the card
 - **D2: Sites for the October proofs.** Recommended: **the authorised `*_test` database only**, with one Kobo-derived Site per proof created by the tests, and no product demo-database Site in October. This keeps within the test-database authorisation and keeps emulated evidence away from demo screens.
 - **N1 (new): what 30 October can show.** Recommended: **accept** that the telemetry path shows accepted evidence, a provenance read and fault outcomes, but **no Finding and no money**. The GX profile binds no generator role, so dispatch records `NO_GENERATOR_STATE`. Adding generator rows to an unpinned, third-party layout to get a Finding on screen would trade credibility for visuals, against the owner's stated priority.
 - **Unchanged:** D7 (no hardware spend; choose O1 after TEL-05), D8 and D9 as in §14. D3 (EV normaliser placement) remains an Architect ruling that is not needed before proof C.
+
+## Amendment after owner answers (2026-10-27)
+Source: `.agent/architect-reply-owner-q2-q3-2026-10-27.md`.
+- **Q2 withdrawn.** Provenance is already displayed (`SiteEvidence.tsx:73-81`, `sourceProvenance.tsx:90-110`). TEL-07 stays terminal + claim record, with no screen code; the runbook may cite the existing Evidence labels.
+- **D1 stays (c)** for October. D5(d) is unchanged and is enforced by policy and review, since the ledger would accept such a publication (`postgres_evidence_ledger.py:395-397`).
+- **TEL-09 amended.** The emulated-interface class may be a positive, money-eligible test class only when it binds one registered run ID, its identity digest and the profile SHA-256, and a test proves the read-back values equal the run's values. Otherwise it is UNKNOWN. Ladder: simulation R0, emulated read R2. Fold this into telemetry HTML §10.1/§14 at its next revision.
