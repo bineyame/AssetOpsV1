@@ -398,3 +398,18 @@ Registered Kobo values carry resolution `0.000001` in their canonical unit (`bac
 ### Correction to D4: identity carries no snapshot SHA
 
 `GatewayService.identity` returns tenant, site, gateway, source mode, permitted sources and epoch only (`gateway/assetops_gateway/service.py:407-418`). The poller checks those against its expected identity, and the snapshot is enforced by passing `snapshot_sha256` on every `admit`; any refusal stops the poller.
+
+## Amendment 3 after the Implementer's pre-flight questions (2026-10-27)
+
+Architect: Claude. Questions: `.agent/implementer-questions-telemetry-spec-2026-10-27.md` (70). Answers with code references: `.agent/build-spec-telemetry-2026-10-27.md`, "Implementer questions and resolutions". The rulings below change earlier text in this file; where they differ, this amendment governs.
+
+1. **D10, expected poll instants (Q-T27).** The expected polls of an interval `[start, end)` are `start + (k + ½) × poll_period`, `k = 0 … N−1` (was `start + k × poll_period`). `poll_period_seconds` must be even. Reason: a poll on a span edge reads the neighbouring interval's value under any clock offset between poller and device, and the mean is then silently wrong yet `GOOD`. The coverage table is unchanged.
+2. **D4, state reads (Q-T20, Q-T27).** `source_time` is the boundary `B`. The first read is sent at `B + ⌈skew/2⌉` and any retry by `B + skew`. A read that cannot be sent in that window is not sent, and there is no sample. The skew stays in source time and is not scaled by the replay rate, and bench profiles do not raise it. Cross-machine replay (TEL-08) runs at rate 12 and gates on NTP offsets within ±50 ms. The emulator presents each state observation from 1 s before its sample time.
+3. **D6, retries (Q-T21).** The poller owns the single retry for timeout, 04 and 06; the Modbus client never retries. A retry is sent only inside the attempt window.
+4. **D4 item 6, run reference (Q-T34).** `lab_run_ref = "field:<profile_id>:<profile_version>:<wall start YYYYMMDDTHHMMSSZ>:<8 hex random>"`, so a restart cannot repeat a reference. On start the adapter seals, then releases the previous reference, before any new admission (Q-T28: `seal` groups unbatched envelopes of every run, and `release_run` skips mixed batches, `gateway/assetops_gateway/service.py:996-1044`, `:1383-1410`).
+5. **Holds (Q-T32).** `HELD` admissions are counted and logged and never stop the adapter. Only a whole-request `GatewayRequestRefused` stops it. This refines the D4 correction "any refusal stops the poller".
+6. **Emulator (Q-T37).** The GX-shaped emulator is a stdlib Modbus TCP server in `field/tests/field_emulators/gx_server.py`. pymodbus 3.16.1 is kept as an independent conformance client. Claim records say so.
+7. **TEL-08 fault (Q-T57).** The uplink fault is `serve_tls` stopped for 5 wall minutes, not an Ethernet pull: the pull also cut the poller's device link, so no backlog could form.
+8. **Amendment 2 item 5, price seeding (Q-T52).** "The existing seeding the S4 Postgres tests use" is `publish_assumption.main(["fixture", "--site", "KOBO-001", "--file", "backend/conversions/demo-diesel-price-publications.json"])` with no `--step` (all four steps; `--step v4` alone refuses `PRIOR_STEP_NOT_PUBLISHED`).
+9. **TEL-05b path (Q-T54).** The Finding is produced by `process-jobs` then `match-findings` (the default selection the matcher reads), not by an explicit `assess`.
+10. **TEL-05 resolver (Q-T49).** "The resolver named in the card" is `build_source_provenance(URL).resolve(tenant_id, site_id, evidence_ids)`; the expected result is `state UNKNOWN` with reason codes exactly `["NO_POSITIVE_BINDING"]`.

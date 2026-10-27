@@ -8,3 +8,5 @@ tools/run-backend-suite-in-container.sh text eol=lf
 backend/tests/fixtures/w4/w401-work.json text eol=lf
 # W4-03: byte-pinned mini-decisions fixture (replay test compares exact bytes)
 backend/tests/fixtures/w4/w403-mini-decisions.json text eol=lf
+# TEL-03: byte-pinned telemetry observation fixtures (freshness tests compare exact bytes)
+contract-fixtures/telemetry/** -text

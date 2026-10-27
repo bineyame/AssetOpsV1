@@ -9,7 +9,7 @@ This is the index. Builders are briefed from the lane specs, which carry, for ev
 
 Each spec ends with "Implementer questions and resolutions" (Lane C: 51 answered 2026-10-27, spec revision 2; Lane C takes mock-register IDs R500-R519). An Implementer reviews both specs before the first code; the Architect answers there, and builders read the answered spec.
 
-## 1. PYTHONPATH per lane (also at the top of each spec and each first task file)
+## 1. PYTHONPATH per lane (also at the top of each spec and in the TEL-00 packet)
 
 Lane T, worktree `C:\Users\assef\Bineyame\AssetOpsV1-tel`:
 ```
@@ -26,12 +26,12 @@ Python for both: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.
 | # | Task | Scope | Main files | Acceptance gate | Stop | Est. |
 |---|---|---|---|---|---|---|
 | 1 | TEL-00 | Pre-flight, card corrections, port table | none | "no open questions" | ruling contradicts spec | 0.25 d |
-| 2 | TEL-01 | Profile, decode, clock, aggregate, report, publish; the two checks | `field/assetops_field/*`, `field/tests/*`, two `.ps1` | vectors; D10 cases; round trip; checks green | a check needs an existing rule changed | 0.75 d |
+| 2 | TEL-01 | Profile, decode, clock, aggregate, report, publish; the two checks | `field/assetops_field/*`, `field/tests/*`, two `.ps1` | vectors; D10 cases; round trip; checks green | a check needs an existing rule changed | 1.0 d |
 | 3 | TEL-02 | Read-only Modbus TCP client | `modbus_tcp.py` | writes refused before any byte; exception map | any write FC needed | 0.5 d |
-| 4 | TEL-03 | GX-shaped emulator, profile `-1`, pinned daytime JSONL | `field/tests/emulators/gx_server.py`, `field/profiles/gx-system-illustrative-1.json`, `host/tests/field_observation_fixtures.py` | every value reads back (at register resolution); writes 0; freshness | private value needed; range overflow | 0.75 d |
-| 5 | TEL-04 | Poller CLI, focused E2E through a real gateway | `modbus_poller.py`, `host/tests/test_field_modbus_tcp_proof.py` | card list incl. pause → no report; restart → no stranded batch | gateway change needed; unexpected hold | 0.75 d |
+| 4 | TEL-03 | GX-shaped emulator, profile `-1`, pinned daytime JSONL | `field/tests/field_emulators/gx_server.py` (stdlib server; pymodbus only as cross-check client), `field/profiles/gx-system-illustrative-1.json`, `host/tests/field_observation_fixtures.py` | every value reads back (at register resolution); writes 0; freshness | private value needed; range overflow | 0.75 d |
+| 5 | TEL-04 | Poller CLI, focused E2E through a real gateway | `modbus_poller.py`, `host/tests/test_field_modbus_tcp_proof.py` | card list incl. pause → no report; restart → no stranded batch | gateway change needed; unexpected hold | 1.0 d |
 | 6 | TEL-05 | Postgres acceptance, profile `-1` (heavy, alone, twice) | `host/tests/test_field_modbus_tcp_acceptance_postgres.py` | COMPLETED; evidence per role; UNKNOWN; assess completes; no consequence | central refusal; non-UNKNOWN provenance | 0.5 d |
-| 7 | TEL-08 | BeagleBone Black stage 2 (TCP), real `serve_tls` (owner Q6) | `host/tests/field_bench.py` | TEL-05 gates on the board; uplink pull drains | Linux needs code change; no NTP; board unreachable | 0.75 d + owner 30 min |
+| 7 | TEL-08 | BeagleBone Black stage 2 (TCP), real `serve_tls` (owner Q6) | `host/tests/field_bench.py` | TEL-05 gates on the board; serve_tls stopped 5 min, backlog drains; NTP offset ≤50 ms; replay rate 12 | Linux needs code change; no NTP; board unreachable | 0.75 d + owner 30 min |
 | 8 | TEL-05b | Money-affecting Finding, money withheld (owner Q5) | profile `-2`, prolonged JSONL, second Postgres test | Finding cites only field IDs; UNKNOWN; `current_amount_shown` false with `MIXED_OR_UNKNOWN_SOURCE` | no Finding; any current amount shown | 0.75 d |
 | 9 | TEL-07 | Claim records and terminal runbook | `.agent/TEL-*-review-packet.md`, `.agent/TEL-demo-runbook-2026-10-30.md` | reviewer reruns from runbook | demo DB or UI needed | 0.25 d |
 | 10 | TEL-06a/b | Illustrative CSV collector (owner Q7 = c) | `export_csv.py`, CSV profile and fixture | card list | vendor naming requested | 0.75 d |
@@ -58,13 +58,13 @@ EV and cold decisions appear as labelled declared illustrations (owner Q13); col
 | When | Lane T | Lane C |
 |---|---|---|
 | Tue 27 Oct | TEL-00, TEL-01 | CC-00, CC-R1 |
-| Wed 28 Oct | TEL-02, TEL-03; review T1 (TEL-01..03); merge TEL-01 group first | CC-R1 review and merge (after TEL-01 group, merging `main` first) |
+| Wed 28 Oct | TEL-02, TEL-03; review T1 (TEL-01..03); merge TEL-01 group first (if TEL-03 slips, merge TEL-01+02 alone) | CC-R1 review and merge (after TEL-01 group, merging `main` first) |
 | Thu 29 Oct | TEL-04 (am); TEL-05 twice (pm, alone); review T2; TEL-05b focused parts (evening) | CC-R2 build; tier 0-1 only while TEL-05 runs |
 | Fri 30 Oct | TEL-08 (am); TEL-05b Postgres twice (pm); TEL-07; review T3 | CC-R2 tier 2-3 in queue gaps; review |
 | Sat 31 Oct | TEL-06a/b; Codex batched review of Lane T | CC-M (full suites, Lane C now has priority); CC-D2 starts |
 | Sun 1 - Tue 3 Nov | — | CC-D2 review and merge; CC-D1; Codex batched review of Lane C |
 
-**Checkpoint 29 Oct 12:00.** TEL-01..03 merged; TEL-04 green; owner board actions done; CC-R1 merged. If TEL-04 is not green, TEL-05b's focused work stops and the builder stays on TEL-04/05.
+**Checkpoint 29 Oct 12:00.** TEL-01..03 merged; TEL-04 green by 15:00 (moved per telemetry Q&A); owner board actions done; CC-R1 merged. If TEL-04 is not green, TEL-05b's focused work stops and the builder stays on TEL-04/05.
 
 **Checkpoint 29 Oct 20:00.** TEL-05 green on two consecutive runs. If not, 30 Oct morning finishes TEL-05 and the slip rules below apply in order.
 

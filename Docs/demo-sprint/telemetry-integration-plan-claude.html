@@ -258,6 +258,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <li><b>Q7 = (c).</b> No prospect ask yet; TEL-06 stays an illustrative-format collector.</li>
 <li><b>Q4, Q8 accepted</b> (test databases only; one hosted gateway per customer Site later). Q2 withdrawn; D1 stays (c).</li>
 <li>Build briefing: <code>.agent/build-sequence-2026-10-27.md</code> and <code>.agent/build-spec-telemetry-2026-10-27.md</code>; rulings amendment 2 in <code>.agent/telemetry-rulings-2026-10-27.md</code>. TEL-05 now lives in <code>host/tests</code>.</li>
+<li><b>Implementer pre-flight (70 questions), answered 2026-10-27.</b> The build spec governs where it differs from the §10 cards: interval polls sit at mid-period; state reads go at boundary + 1 s; the poller owns retries; the emulator is a stdlib server cross-checked with the pymodbus 3.16.1 client; the TEL-08 fault stops <code>serve_tls</code> (no cable pull) and runs at replay rate 12; TEL-05b uses <code>process-jobs</code> then <code>match-findings</code>. Rulings amendment 3 in <code>.agent/telemetry-rulings-2026-10-27.md</code>.</li>
 </ul></div>
 <h2 id="answer">0 · The plan in one page</h2>
 <div class="callout"><b class="k">Revision 3: the owner’s seven adjustments and where they are applied</b>
