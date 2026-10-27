@@ -45,9 +45,9 @@ Owner, verbatim (`.agent/owner-default-architect-claude-2026-10-27.md`): "let th
 - Reviewer independence is unchanged: a fresh reviewer instance reviews Architect-led work, never the author.
 - Rulings that earlier documents addressed to "the Codex Architect" now go to the Architect (Claude).
 
-## Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27)
+## Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27) — ended
 
-Reopened again 2026-10-27 by the owner for revision 3 (adjustments plus bounded implementation tasks; owner text verbatim: `.agent/owner-telemetry-plan-feedback-2026-10-27.md`). Ends when revision 3 is delivered. Earlier: revision 2 delivered to the owner. Reopened 2026-10-27 by the owner for one revision of the same document (owner text verbatim: `.agent/owner-claude-architect-telemetry-revision-2026-10-27.md`). Ends when the revised document is delivered to the owner. First delivery ended the original scope; the original record follows.
+Ended 2026-10-27: revision 3 delivered; superseded by "Architect Is Claude By Default". Reopened again 2026-10-27 by the owner for revision 3 (adjustments plus bounded implementation tasks; owner text verbatim: `.agent/owner-telemetry-plan-feedback-2026-10-27.md`). Ends when revision 3 is delivered. Earlier: revision 2 delivered to the owner. Reopened 2026-10-27 by the owner for one revision of the same document (owner text verbatim: `.agent/owner-claude-architect-telemetry-revision-2026-10-27.md`). Ends when the revised document is delivered to the owner. First delivery ended the original scope; the original record follows.
 
 The owner set Architect to Claude for one deliverable: the telemetry integration
 plan (owner prompt `.agent/owner-telemetry-integration-plan-2026-10-27.md`), with

@@ -211,16 +211,19 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
     <li><a href="#arch">4 · Recommended architecture</a></li>
     <li><a href="#profiles">5 · Ranked profiles P1–P6</a></li>
     <li><a href="#proofs"><span class="sw" style="background:var(--cloud)"></span>6 · Integration proofs</a></li>
-    <li class="sub"><a href="#proofB">6.1 B · cloud / export</a></li>
-    <li class="sub"><a href="#proofA">6.2 A · Modbus TCP on BBB</a></li>
-    <li class="sub"><a href="#together">6.5 How the tracks fit</a></li>
+    <li class="sub"><a href="#proofA">6.1 A · Modbus TCP</a></li>
+    <li class="sub"><a href="#dcac">6.1.1 Battery DC/AC ruling</a></li>
+    <li class="sub"><a href="#proofB">6.2 B · cloud / export</a></li>
+    <li class="sub"><a href="#dcac">6.1.1 Battery DC/AC ruling</a></li>
+    <li class="sub"><a href="#together">6.5 October scope</a></li>
     <li><a href="#bbb"><span class="sw" style="background:var(--bbb)"></span>7 · BeagleBone Black</a></li>
     <li class="sub"><a href="#bbb-stack">7.3 Deployment stack</a></li>
     <li class="sub"><a href="#bench">7.9 Bench rehearsal</a></li>
     <li><a href="#esp"><span class="sw" style="background:var(--esp)"></span>8 · Waveshare ESP32-S3-RS485-CAN</a></li>
     <li><a href="#hw">9 · Low-cost hardware shortlist</a></li>
-    <li><a href="#slices">10 · Implementation slices</a></li>
-    <li><a href="#faults"><span class="sw" style="background:var(--bad)"></span>11 · Fault-injection matrix</a></li>
+    <li><a href="#slices">10 · Implementation tasks</a></li>
+    <li class="sub"><a href="#tasks-oct">10.2 October task cards</a></li>
+    <li><a href="#faults"><span class="sw" style="background:var(--bad)"></span>11 · Fault matrix and freshness</a></li>
     <li><a href="#gaps">12 · Pilot-readiness gaps</a></li>
     <li><a href="#exec">13 · Bounded execution plan</a></li>
     <li><a href="#rec">14 · Recommendations and owner decisions</a></li>
@@ -233,68 +236,81 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <header class="hero">
   <button class="themebtn" id="themebtn" type="button">Toggle theme</button>
   <div class="meta">AssetOps Hardware Integration Pack · extends <code>modbustcp.html</code> · 27 October 2026</div>
-  <h1>Telemetry integration plan: customer data first, physical hardware early</h1>
-  <p class="lede">The plan covers mini-grid, EV and cold-chain sites. It identifies what customers already run and the few integration patterns that cover most of it. It defines proofs that exercise the real adapter, the real gateway and the standard ingestion path. Two tracks run side by side. The <b>customer’s own cloud or export</b> is the most likely first source of real pilot data. A <b>BeagleBone Black and ESP32 edge</b> shows early, on real hardware, that we can also reach equipment that has no cloud.</p>
-  <div class="byline">Produced by Claude (Architect) under the owner-scoped exception in <code>.ai/ROLE_CONFIG.md</code>, “Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27)”. First version at <code>eb05c39d</code>. <b>Revision 2</b> under the reopened exception (<code>67a3ab09</code>; owner text in <code>.agent/owner-claude-architect-telemetry-revision-2026-10-27.md</code>) gives customer cloud and export integration its commercial weight and keeps physical hardware early. It is a companion to the Codex Architect’s <code>telemetry-integration-plan.html</code> for comparison. It is a plan only: no adapter has been built.</div>
+  <h1>Telemetry integration plan: verified integration credibility, customer data and hardware</h1>
+  <p class="lede">The plan covers mini-grid, EV and cold-chain sites. Two tracks share one gateway boundary. The <b>customer’s own cloud or export</b> is the most likely first source of real pilot data. The <b>edge</b> (a poller on a laptop, then a BeagleBone Black and ESP32) proves we can also read equipment that has no cloud. The October scope is small on purpose: <b>one complete Modbus TCP proof</b> into accepted evidence, and <b>one minimal export collector</b>. A task list follows that an implementer can pick up directly.</p>
+  <div class="byline">Produced by Claude (Architect) under the owner-scoped exception in <code>.ai/ROLE_CONFIG.md</code>, “Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27)”. First version at <code>eb05c39d</code>. Revision 2 under <code>67a3ab09</code> (customer data first, hardware early). <b>Revision 3</b> under <code>dd4d56e9</code> applies the owner’s seven adjustments and adds implementation tasks (owner text: <code>.agent/owner-telemetry-plan-feedback-2026-10-27.md</code>). It is a companion to the Codex Architect’s <code>telemetry-integration-plan.html</code>. It is a plan only: no adapter has been built.</div>
   <div class="tags">
-    <span class="tag c-cloud">P1 cloud API / export · first</span>
-    <span class="tag c-mb">P2 Modbus TCP · hardware early</span>
+    <span class="tag c-mb">P2 Modbus TCP · October proof</span>
+    <span class="tag c-cloud">P1 cloud API / export · minimal collector</span>
     <span class="tag c-ocpp">P3 CSMS export / OCPP</span>
     <span class="tag c-rtu">P4 Modbus RTU / RS-485</span>
     <span class="tag c-mqtt">P5 MQTT</span>
-    <span class="tag c-bbb">P6 edge: BBB + ESP32</span>
+    <span class="tag c-bbb">P6 edge: BBB, ESP32, MCU later</span>
   </div>
-  <p class="meta">How to read the evidence. Repository facts were read in this worktree (<code>AssetOpsV1-demo-plan</code>, branch <code>plan/commercial-capability-assessment</code>, <code>eb05c39d</code> on top of main <code>8ae689bb</code>) and checked by focused tests (§1). External claims carry <span class="chip s-fact">fact</span> (stated on a page that was fetched), <span class="chip s-inf">inference</span> (my reasoning, or a search summary or community post I did not treat as authoritative) or <span class="chip s-unv">unverified</span>, each with a confidence of H, M or L. Prices are approximate as of October 2026, in the seller’s currency.</p>
+  <p class="meta">How to read the evidence. Repository facts were read in this worktree (<code>AssetOpsV1-demo-plan</code>, branch <code>plan/commercial-capability-assessment</code>) and checked by focused tests (§1). External claims carry <span class="chip s-fact">fact</span> (stated on a page that was fetched), <span class="chip s-inf">inference</span> (my reasoning, or a search summary or community post not treated as authoritative) or <span class="chip s-unv">unverified</span>, each with a confidence of H, M or L. Prices are approximate as of October 2026.</p>
 </header>
 
 <!-- ============================================================ -->
 <h2 id="answer">0 · The plan in one page</h2>
+<div class="callout"><b class="k">Revision 3: the owner’s seven adjustments and where they are applied</b>
+<ol class="small">
+<li>October scope is <b>one complete Modbus TCP proof</b> (emulator → real poller → real gateway → accepted evidence) <b>plus a minimal export collector</b>. The BBB follows once the laptop proof is stable and does not block October (§6, §10, §13).</li>
+<li><b>No Victron VRM compatibility claim.</b> The October export format is labelled <em>generic, illustrative</em>. A vendor profile exists only once a genuine sample or published schema is obtained (§6.2).</li>
+<li><b>A standalone MCU edge stays a future option.</b> The invariant is equivalent security, provenance and reliable delivery, not reuse of the Python gateway (§8.7).</li>
+<li><b>No “identical readings” stale heuristic.</b> Freshness and quality come from defensible indicators (§11.1).</li>
+<li><b>The battery DC/AC mismatch is resolved before any financial finding from GX telemetry.</b> The proposal is a ruling candidate for the Architect (§6.1.1).</li>
+<li><b>Readiness claims are precise</b> about the tested interface, format, model and environment (§10.0).</li>
+<li><b>No kit purchase now.</b> The minimum next component is named once the first physical test objective is selected (§9).</li>
+</ol></div>
 <div class="k2">
-  <div class="card"><h4>What customers actually have</h4><p>Most target customers already pay for a vendor or operator cloud that holds their data. AMMP, the closest comparable business, leads with cloud-to-cloud integrations that need “no extra hardware and no site-level configuration”, and keeps its edge box for “non-API equipment” <span class="chip s-fact">fact</span>. Mini-grid inverter makers (Victron VRM, SMA, Huawei, SolarEdge, Sungrow, Solarman/Deye, Growatt) all run clouds with APIs or downloads. Operator CSMSs such as Monta export charges as CSV or Excel. Logger clouds such as Monnit have an API. The equipment underneath (a Victron GX on Modbus TCP, RS-485 meters and refrigeration controllers) is what we need for sites, or measurements, that no cloud covers.</p></div>
-  <div class="card"><h4>Two tracks, one gateway</h4><p><b>Customer-data track (P1, P3):</b> a collector reads the customer’s export file or pulls their cloud API, and feeds a <b>hosted instance of the existing gateway</b>. This is the shortest route to <em>real pilot data</em>: no site visit, no LAN access, no hardware. <b>Hardware track (P2, P4, P6):</b> a read-only poller on a BeagleBone, with an ESP32-S3 RS-485/CAN bridge where needed. This gives <em>credibility</em>, and covers what clouds miss. Both emit the same DeviceReport into the same IPC <code>admit</code>. Outbox, sealing, TLS upload, provenance and analytics are shared.</p></div>
-  <div class="card"><h4>Proofs, in this order</h4><p><b>B</b> customer cloud or export collector: first a VRM-shaped installation export into the Kobo mini-grid roles, then a live API pull when a customer gives a token. <b>A</b> Modbus TCP from a Victron-GX-shaped emulator into the same roles, rehearsed on the BeagleBone. <b>C</b> EV: CSMS charge export first, real OCPP 1.6J traffic second. <b>D</b> Modbus RTU, virtual first, then a ~$13 probe for an R3 claim on our own bench.</p></div>
-  <div class="card"><h4>Before 30 October (about three working days, one heavy job at a time)</h4><p>Build the <b>shared core</b> once (profile, exact scaling, interval means, IPC publish). Then a <b>thin export collector</b> (proof B1), then the <b>GX emulator and Modbus TCP poller</b> (proof A). Both run end to end on the laptop, into two bench Sites from the same Kobo foundation. Then <b>rehearse A on the BeagleBone</b>. Order the ~$100 hardware kit now. The owner decisions needed first are <b>D1</b> (how emulated and customer-supplied evidence is labelled) and <b>D2</b> (the two bench Sites), in §14.</p></div>
+  <div class="card"><h4>What customers actually have</h4><p>Most target customers already pay for a vendor or operator cloud that holds their data. AMMP, the closest comparable business, leads with cloud-to-cloud integrations that need “no extra hardware and no site-level configuration”, and keeps its edge box for “non-API equipment” <span class="chip s-fact">fact</span>. Inverter makers (Victron VRM, SMA, Huawei, SolarEdge and others) run clouds with APIs or downloads. CSMSs such as Monta export charges as CSV or Excel. Logger clouds such as Monnit have an API. The equipment underneath, such as a Victron GX on Modbus TCP or RS-485 meters and controllers, is what we read where no cloud reaches.</p></div>
+  <div class="card"><h4>Two tracks, one gateway boundary</h4><p><b>Customer-data track (P1, P3):</b> a collector reads the customer’s export or pulls their API, and feeds a hosted instance of the existing gateway. It is the shortest route to real pilot data. <b>Edge track (P2, P4, P6):</b> a read-only poller on a laptop, then a BeagleBone, with an ESP32 RS-485/CAN bridge where needed. It gives verified integration credibility and covers what clouds miss. Both emit the same DeviceReport into the same IPC <code>admit</code>. Outbox, sealing, TLS upload, provenance and analytics are shared.</p></div>
+  <div class="card"><h4>October scope (bounded)</h4><p><b>Proof A, complete, on the laptop:</b> a GX-shaped Modbus TCP emulator, the real poller, a real gateway process, real TLS upload and the real central ledger in an authorised test database. It ends in accepted evidence IDs, a provenance read and fault outcomes. <b>Proof B1, minimal:</b> a generic, illustrative interval-CSV collector through the same gateway path. Nothing else is in scope: no BBB as a gate, no RTU, no purchase.</p></div>
+  <div class="card"><h4>Rulings needed before task TEL-01</h4><p><b>D4</b>: scaling, aggregation and the new <code>field/</code> module root (the Architect). <b>D1</b>: October evidence shows provenance UNKNOWN with a caption (owner). <b>D5</b>: the GX battery binding, which keeps <code>battery_power</code> unbound (the Architect). <b>D6</b>: the freshness indicator set, and <b>D10</b>: the interval coverage rule (the Architect). The full list is in §10.1 and §14.</p></div>
 </div>
 
 <div class="callout"><b class="k">What each track is for</b>
 <div class="tw"><table>
 <thead><tr><th></th><th>Customer conversations</th><th>Pilot data</th><th>Credibility</th></tr></thead>
 <tbody>
-<tr><td><b>Cloud / export track</b></td><td>“Send us last month’s export, or grant a read-only token, and we will show you Findings on your own data.” It is cheap for the customer to say yes.</td><td><b>The most likely first real data.</b> A real export file is an R3 claim for that format within days, with no hardware.</td><td>It shows we work with what they already pay for. Its limits are honest: coarse intervals (5–15 min), vendor quotas, delays.</td></tr>
-<tr><td><b>Hardware track</b></td><td>“For the sites or measurements your cloud does not cover, here is our edge reading a controller over Modbus.”</td><td>Sites without a cloud, sub-interval data, cold rooms, meters.</td><td><b>The strongest proof that we are not only a dashboard:</b> a real board, real protocol, the real gateway. Its role is like AMMP Edge’s.</td></tr>
+<tr><td><b>Cloud / export track</b></td><td>“Send us one recent export, or grant a read-only token. We will map that format and show Findings on your own data.”</td><td><b>The most likely first real data</b>, once a genuine export exists for a named vendor and version</td><td>We work with what they already pay for. Limits stated: coarse intervals, vendor quotas, delays.</td></tr>
+<tr><td><b>Edge track</b></td><td>“For sites or measurements your cloud does not cover, our edge reads the controller over Modbus, read-only.”</td><td>Sites without a cloud, sub-interval data, cold rooms, meters</td><td><b>Verified integration</b>: real protocol, real poller, real gateway and accepted evidence. That is what the October proof shows.</td></tr>
 </tbody></table></div></div>
 
 <div class="callout ok"><b class="k">Bottom line on hardware</b>
-<p>The <b>BeagleBone Black can run the whole existing gateway</b>. The gateway and contracts use only the standard library. The current Debian 13.7 IoT image for the BBB ships Python 3.13.5, which satisfies the gateway’s <code>requires-python &gt;=3.12</code>, whereas Debian 12 ships 3.11 and does not. The BBB fills the same <em>role</em> as AMMP Edge for a prototype. The <b>Waveshare ESP32-S3-RS485-CAN</b> ($18.99–19.99 on Waveshare’s page, with isolated RS-485 and CAN and a 7–36 V input, all confirmed) is a good <b>field-side bus bridge</b>. It has <b>no Ethernet</b>, only Wi-Fi, so it should feed the Linux gateway and not replace it. A bench kit of about <b>US$100</b> on top of the BBB enables every hardware test in this plan (§9).</p></div>
+<p>The <b>BeagleBone Black can run the whole existing gateway</b>. It is pure standard library, and the Debian 13.7 IoT image ships Python 3.13.5, which meets <code>requires-python &gt;=3.12</code>; Debian 12 does not. It comes <b>after</b> the laptop proof is stable. The <b>Waveshare ESP32-S3-RS485-CAN</b> ($18.99–19.99, with isolated RS-485 and CAN and a 7–36 V input, all confirmed; no Ethernet) is the preferred future field-side bridge. A <b>standalone MCU edge</b> stays a future option if it meets the same invariants (§8.7). <b>Nothing is bought now</b> (§9).</p></div>
 
 <figure>
 <div class="scroll">
 <svg class="fig" viewBox="0 0 1000 176" role="img" aria-labelledby="fsumt" style="min-width:760px">
 <title id="fsumt">Readiness ladder: where each proof stops, and what moves it up</title>
-<text x="10" y="20" class="lane">EVIDENCE READINESS (PACK DOC 02 PART C)</text>
+<text x="10" y="20" class="lane">EVIDENCE READINESS (PACK DOC 02 PART C) · CLAIMS NAME INTERFACE, FORMAT, MODEL, ENVIRONMENT</text>
 <g>
 <rect x="10" y="34" width="180" height="40" rx="8" class="bx soft"/><text x="100" y="52" class="t tb" text-anchor="middle">R0 domain simulated</text><text x="100" y="67" class="tm" text-anchor="middle">today, all verticals</text>
 <rect x="205" y="34" width="180" height="40" rx="8" class="bx"/><text x="295" y="52" class="t tb" text-anchor="middle">R1 interface emulated</text><text x="295" y="67" class="tm" text-anchor="middle">fixture or mock only</text>
 <rect x="400" y="34" width="180" height="40" rx="8" class="bx hl"/><text x="490" y="52" class="t tb" text-anchor="middle">R2 adapter lab-tested</text><text x="490" y="67" class="tm" text-anchor="middle">real adapter + gateway</text>
-<rect x="595" y="34" width="180" height="40" rx="8" class="bx dash"/><text x="685" y="52" class="t tb" text-anchor="middle">R3 device/API validated</text><text x="685" y="67" class="tm" text-anchor="middle">real file, key or hardware</text>
+<rect x="595" y="34" width="180" height="40" rx="8" class="bx dash"/><text x="685" y="52" class="t tb" text-anchor="middle">R3 device/API validated</text><text x="685" y="67" class="tm" text-anchor="middle">genuine file, key or device</text>
 <rect x="790" y="34" width="200" height="40" rx="8" class="bx dash"/><text x="890" y="52" class="t tb" text-anchor="middle">R4 site validated</text><text x="890" y="67" class="tm" text-anchor="middle">needs a pilot site</text>
 <path d="M190 54h13M385 54h13M580 54h13M775 54h13" class="ln a"/>
 </g>
-<text x="10" y="100" class="t ts tb c-cloud">Customer data</text>
-<g class="pill cloud"><rect x="205" y="88" width="180" height="20" rx="10"/><text x="295" y="102" text-anchor="middle">B1 by 30 Oct (synthetic file)</text></g>
-<g class="pill cloud"><rect x="400" y="88" width="180" height="20" rx="10"/><text x="490" y="102" text-anchor="middle">B1 with a real sample file</text></g>
-<g class="pill cloud"><rect x="595" y="88" width="180" height="20" rx="10"/><text x="685" y="102" text-anchor="middle">first prospect export / token</text></g>
-<g class="pill cloud"><rect x="790" y="88" width="200" height="20" rx="10"/><text x="890" y="102" text-anchor="middle">earliest path to R4</text></g>
-<text x="10" y="128" class="t ts tb c-mb">Hardware</text>
-<g class="pill mb"><rect x="400" y="116" width="180" height="20" rx="10"/><text x="490" y="130" text-anchor="middle">A by 30 Oct, on the BBB</text></g>
-<g class="pill rtu"><rect x="595" y="116" width="180" height="20" rx="10"/><text x="685" y="130" text-anchor="middle">D with the ~$100 kit</text></g>
+<text x="10" y="100" class="t ts tb c-mb">Edge</text>
+<g class="pill mb"><rect x="400" y="88" width="180" height="20" rx="10"/><text x="490" y="102" text-anchor="middle">A: emulator, laptop · Oct</text></g>
+<g class="pill bbb"><rect x="595" y="88" width="180" height="20" rx="10"/><text x="685" y="102" text-anchor="middle">a named device + model</text></g>
+<text x="10" y="128" class="t ts tb c-cloud">Customer data</text>
+<g class="pill cloud"><rect x="400" y="116" width="180" height="20" rx="10"/><text x="490" y="130" text-anchor="middle">B1: generic CSV only · Oct</text></g>
+<g class="pill cloud"><rect x="595" y="116" width="180" height="20" rx="10"/><text x="685" y="130" text-anchor="middle">a genuine vendor export</text></g>
+<g class="pill cloud"><rect x="790" y="116" width="200" height="20" rx="10"/><text x="890" y="130" text-anchor="middle">earliest path to R4</text></g>
 <text x="10" y="156" class="t ts tb c-ocpp">EV</text>
-<g class="pill ocpp"><rect x="205" y="144" width="180" height="20" rx="10"/><text x="295" y="158" text-anchor="middle">C1 CSMS export fixture</text></g>
-<g class="pill ocpp"><rect x="400" y="144" width="180" height="20" rx="10"/><text x="490" y="158" text-anchor="middle">C2 real OCPP traffic</text></g>
-<g class="pill ocpp"><rect x="595" y="144" width="180" height="20" rx="10"/><text x="685" y="158" text-anchor="middle">operator’s real export</text></g>
+<g class="pill ocpp"><rect x="400" y="144" width="180" height="20" rx="10"/><text x="490" y="158" text-anchor="middle">C2: real OCPP traffic · later</text></g>
+<g class="pill ocpp"><rect x="595" y="144" width="180" height="20" rx="10"/><text x="685" y="158" text-anchor="middle">an operator’s genuine export</text></g>
 </svg>
 </div>
-<figcaption><b>Figure 0.</b> The customer-data track reaches R3 as soon as a prospect sends one real export or grants a read-only key. That makes it the earliest route to pilot evidence. The hardware track reaches R2 on the BeagleBone by 30 October, and R3 on our own bench with the ~$100 kit (proof D), without waiting for any customer.</figcaption>
+<figcaption><b>Figure 0.</b> Each claim is scoped to what was tested. October gives two R2 claims:
+<ul>
+<li>Modbus TCP against a GX-shaped emulator with an unpinned, third-party register layout, on a Windows laptop;</li>
+<li>a generic, illustrative CSV format.</li>
+</ul>
+Neither says “Victron”, “VRM” or “BBB”. R3 needs a genuine export for a named vendor and version, or a named device model and firmware on our bench.</figcaption>
 </figure>
 
 <!-- ============================================================ -->
@@ -356,7 +372,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <li><b>The market leader says so.</b> AMMP’s default is cloud-to-cloud with “no extra hardware and no site-level configuration”. Its edge box is the exception, for “non-API equipment” <span class="chip s-fact">fact</span> H.</li>
 <li><b>The equipment makers already run the clouds.</b> Of the inverter and battery brands AMMP lists, every one checked in §2 has a cloud with an API or a download: Victron VRM, SMA, SolarEdge, Huawei, Sungrow, Solarman/Deye, Growatt <span class="chip s-fact">fact</span>/<span class="chip s-inf">inf</span> M–H. EV operators’ CSMSs export charges (Monta, fact) or expose session APIs (Monta, AMPECO). Cold-chain logger clouds expose APIs (Monnit), and USB loggers produce files (Fridge-tag).</li>
 <li><b>It is the cheapest “yes” for a customer.</b> An export emailed today, or a read-only token, needs no site visit, no OT network access, no IT approval for a device on the LAN and no installer. Hardware at a pilot site needs all four <span class="chip s-inf">inference</span> H.</li>
-<li><b>It reaches real data first.</b> One genuine export is an R3 claim for that format. Our own hardware bench reaches R3 only for the probes we buy (§6, Figure 0).</li>
+<li><b>It reaches real data first.</b> One genuine export is an R3 claim for <em>that vendor, export type and version</em> only. Our own bench reaches R3 only for a named device model and firmware (§6, Figure 0).</li>
 </ol>
 <p><b>Its limits are why the hardware track still matters.</b> Clouds give 5–15 minute aggregates under tight quotas (SolarEdge 300 requests/day; Monnit about 1 data call per 10 minutes; SMA Live “not allowed for constant monitoring”). They miss cold-room controllers, feeder meters and gensets that have no cloud. They also make AssetOps depend on another vendor’s availability. Customers with older or mixed equipment have no cloud at all.</p></div>
 <h3>The vendor interfaces that matter, verified where possible</h3>
@@ -366,7 +382,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <tr><td><b>Victron GX Modbus TCP</b><br><a href="https://www.victronenergy.com/live/ccgx:modbustcp_faq">FAQ</a></td><td>Disabled by default; enabled in Settings → Services → Modbus TCP. The Unit ID selects the device: <code>com.victronenergy.system</code> = <b>100</b>. FC3 and FC4 both read. FC6/FC16 write, but configuration settings cannot be changed. A multi-register read must not span non-existent registers. Register list: an Excel sheet in Whitepapers. The open-source server is <a href="https://github.com/victronenergy/dbus_modbustcp">victronenergy/dbus_modbustcp</a> (MIT), whose repo holds <code>CCGX-Modbus-TCP-register-list.xlsx</code>.</td><td>The best single P2 target. The customer must enable Modbus TCP, which is a site-survey item. Pin the register list to a commit of <code>dbus_modbustcp</code>. Read in contiguous blocks only.</td><td><span class="chip s-fact">fact</span> H</td></tr>
 <tr><td>Victron system registers (Unit 100)</td><td>808–810 PV on AC output L1–L3 (W); 817–819 AC consumption L1–L3 (W); 820–822 grid L1–L3 (W, signed); 840 battery voltage ×0.1 V; 841 battery current ×0.1 A signed; 842 battery power (W, signed); 843 SoC (%); 844 battery state (0 idle, 1 charging, 2 discharging).</td><td>Enough for PV, consumption, battery power and SoC. <b>Pin against Victron’s own sheet before use</b>: these numbers came from a third-party page.</td><td><span class="chip s-inf">third-party</span> M · <a href="https://www.aggsoft.com/modbus-data-logging/victron.htm">aggsoft.com</a></td></tr>
 <tr><td><b>Victron VRM API</b></td><td>The official docs render client-side and could not be read. Community threads report the header <code>X-Authorization: Token &lt;token&gt;</code> for personal access tokens, <code>/installations/{id}/stats</code>, undocumented rate limits and 429 (VRM error 1429).</td><td>Viable P1 source, but build the mock from the official schema once it is read in a browser.</td><td><span class="chip s-inf">inference</span> M</td></tr>
-<tr><td>Victron VRM <b>download / export</b></td><td>A Victron Community Manager states that every VRM datapoint can be downloaded from the advanced page (cloud download button). Users report CSV/XLS downloads, and timeouts on long ranges, which Victron later said were improved. Public <b>demo installations</b> can be browsed through the API by signing in as the demo user.</td><td>A real vendor-format sample may be obtainable <b>without a customer</b>. Try it first (time-boxed) to pin proof B1’s column profile. Otherwise ask the first prospect for one export.</td><td><span class="chip s-inf">community</span> M · <a href="https://communityarchive.victronenergy.com/questions/212832/vrm-data-history-download.html">VRM download thread</a>, <a href="https://community.victronenergy.com/t/demo-vrm-installation/24537">demo thread</a></td></tr>
+<tr><td>Victron VRM <b>download / export</b></td><td>A Victron Community Manager states that every VRM datapoint can be downloaded from the advanced page (cloud download button). Users report CSV/XLS downloads, and timeouts on long ranges, which Victron later said were improved. Public <b>demo installations</b> can be browsed through the API by signing in as the demo user.</td><td>A VRM profile is built <b>only from a genuine sample or published schema</b>, perhaps via the public demo installations or from the first prospect. Until then nothing in AssetOps is labelled VRM-compatible (owner adjustment 2).</td><td><span class="chip s-inf">community</span> M · <a href="https://communityarchive.victronenergy.com/questions/212832/vrm-data-history-download.html">VRM download thread</a>, <a href="https://community.victronenergy.com/t/demo-vrm-installation/24537">demo thread</a></td></tr>
 <tr><td><b>SMA</b> <a href="https://developer.sma.de/sma-apis">developer.sma.de</a></td><td>Monitoring, GridControl, Live and SmartHome APIs, each with sandbox and production. Live is “not allowed for constant monitoring”. Requests per credential are limited per 5-minute window from 1 July 2025.</td><td>Use Monitoring, not Live. Plan for 5-minute granularity and per-credential budgets.</td><td><span class="chip s-fact">fact</span> H</td></tr>
 <tr><td><b>SolarEdge</b> monitoring API</td><td>An API key from site admin. A <b>300 requests/day</b> limit. Home Assistant polls every 15 minutes.</td><td>About 3 calls per 15 minutes: bulk interval endpoints only, and the cursor must survive restarts.</td><td><span class="chip s-fact">fact</span> H (via <a href="https://www.home-assistant.io/integrations/solaredge/">HA docs</a>)</td></tr>
 <tr><td>Huawei FusionSolar Northbound</td><td>Login session, per-interface per-minute quotas, account created by the installer.</td><td>Needs the installer’s cooperation, which is a commercial step, not a technical one.</td><td><span class="chip s-inf">inference</span> M</td></tr>
@@ -430,7 +446,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <text x="420" y="144" class="tm" text-anchor="middle">vendor profile → DeviceReport</text>
 <text x="420" y="160" class="tm tmono" text-anchor="middle">runs beside a hosted gateway</text>
 
-<text x="12" y="228" class="t tb c-mb">② EXISTING SITE CONTROLLER · P2, P5 · hardware shown early on the BBB</text>
+<text x="12" y="228" class="t tb c-mb">② EXISTING SITE CONTROLLER · P2, P5 · October proof on the laptop, then the BBB</text>
 <rect x="12" y="238" width="250" height="116" rx="10" class="bx mb"/>
 <text x="137" y="260" class="t tb" text-anchor="middle">Customer controller on site LAN</text>
 <text x="137" y="280" class="tm" text-anchor="middle">Victron GX (Modbus TCP :502)</text>
@@ -527,7 +543,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </svg>
 
 </div>
-<figcaption><b>Figure 1.</b> Three acquisition paths. Path ① carries the most commercial weight: it is where most customers’ data already lives, and it needs nothing installed on site. It puts a <em>hosted</em> gateway instance beside the backend, so export files and API pulls get sequence, outbox, receipts and per-Site credentials instead of a backend-side shortcut. Paths ② and ③ use the same poller and profile code on different boxes. The ESP32 is a bus bridge on the field side. It never holds an AssetOps credential and never talks to the cloud.</figcaption>
+<figcaption><b>Figure 1.</b> Three acquisition paths. Path ① carries the most commercial weight: it is where most customers’ data already lives, and it needs nothing installed on site. It puts a <em>hosted</em> gateway instance beside the backend, so export files and API pulls get sequence, outbox, receipts and per-Site credentials instead of a backend-side shortcut. Paths ② and ③ use the same poller and profile code on different boxes. In the near-term design the ESP32 is a field-side bridge that holds no AssetOps credential. A standalone MCU edge that uploads directly stays a future option, if it meets the same security, provenance and delivery invariants (§8.7).</figcaption>
 </figure>
 
 <h3>Why a hosted gateway, not a backend importer, for cloud and export data</h3>
@@ -539,7 +555,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <tr><td>Holds and diagnostics</td><td><code>mapping_hold</code>, <code>GatewayDiagnosticsV1</code>, contact age. API staleness shows up as source contact age.</td><td>Would need equivalents</td></tr>
 <tr><td>Cost</td><td>One small process per Site connector (stdlib, SQLite), able to run many per VM</td><td>Less runtime, more new code</td></tr>
 </tbody></table></div>
-<p class="meta">This affects the EV design, which names a backend-side <code>ocpp16j_ev_adapter.py</code> (<code>.agent/W2-technical-design-ev.md:145</code>). I recommend a gateway-side normalizer instead, for the reasons above. That is decision D3 in §14 and belongs to the Codex Architect’s EV authority, so it is not ruled here.</p>
+<p class="meta">This affects the EV design, which names a backend-side <code>ocpp16j_ev_adapter.py</code> (<code>.agent/W2-technical-design-ev.md:145</code>). I recommend a gateway-side normalizer instead, for the reasons above. That is decision D3 in §14, for the Architect; the EV design it would amend was written by the Architect.</p>
 
 <h3>Adapter anatomy, shared by every path</h3>
 <ol class="steps">
@@ -568,7 +584,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <text x="659.0" y="49" class="hmt" text-anchor="middle">4</text>
 <rect x="708" y="34" width="118" height="22" rx="3" style="fill:var(--cloud);opacity:0.26"/>
 <text x="767.0" y="49" class="hmt" text-anchor="middle">5</text>
-<text x="838" y="49" class="t tb">22/25</text><text x="898" y="49" class="tm">implement first (thin)</text>
+<text x="838" y="49" class="t tb">22/25</text><text x="898" y="49" class="tm">minimal collector in October</text>
 <text x="10" y="92" class="t tb">P2</text><text x="44" y="92" class="t ts">Modbus TCP via existing controller</text>
 <rect x="300" y="78" width="70" height="22" rx="3" style="fill:var(--mb);opacity:1.0"/>
 <text x="335.0" y="93" class="hmt" text-anchor="middle" style="fill:var(--surface)">3</text>
@@ -580,7 +596,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <text x="659.0" y="93" class="hmt" text-anchor="middle">4</text>
 <rect x="708" y="78" width="70" height="22" rx="3" style="fill:var(--mb);opacity:0.26"/>
 <text x="743.0" y="93" class="hmt" text-anchor="middle">3</text>
-<text x="790" y="93" class="t tb">20/25</text><text x="850" y="93" class="tm">implement now: hardware early</text>
+<text x="790" y="93" class="t tb">20/25</text><text x="850" y="93" class="tm">complete proof in October</text>
 <text x="10" y="136" class="t tb">P3</text><text x="44" y="136" class="t ts">CSMS export / API, then OCPP</text>
 <rect x="300" y="122" width="94" height="22" rx="3" style="fill:var(--ocpp);opacity:1.0"/>
 <text x="347.0" y="137" class="hmt" text-anchor="middle" style="fill:var(--surface)">4</text>
@@ -604,7 +620,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <text x="599.0" y="181" class="hmt" text-anchor="middle">3</text>
 <rect x="636" y="166" width="70" height="22" rx="3" style="fill:var(--rtu);opacity:0.26"/>
 <text x="671.0" y="181" class="hmt" text-anchor="middle">3</text>
-<text x="718" y="181" class="t tb">17/25</text><text x="778" y="181" class="tm">emulate next, kit → R3</text>
+<text x="718" y="181" class="t tb">17/25</text><text x="778" y="181" class="tm">after the physical objective</text>
 <text x="10" y="224" class="t tb">P6</text><text x="44" y="224" class="t ts">Low-cost AssetOps edge gateway</text>
 <rect x="300" y="210" width="70" height="22" rx="3" style="fill:var(--bbb);opacity:1.0"/>
 <text x="335.0" y="225" class="hmt" text-anchor="middle" style="fill:var(--surface)">3</text>
@@ -634,120 +650,44 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <rect x="446" y="306" width="16" height="14" rx="3" style="fill:var(--muted);opacity:0.6"/><text x="468" y="318" class="t ts">3. Reuse of main</text>
 <rect x="664" y="306" width="16" height="14" rx="3" style="fill:var(--muted);opacity:0.42"/><text x="686" y="318" class="t ts">4. Low effort</text>
 <rect x="882" y="306" width="16" height="14" rx="3" style="fill:var(--muted);opacity:0.26"/><text x="904" y="318" class="t ts">5. Low deployment cost</text>
-<text x="10" y="344" class="tm">Segments in order 1→5; a longer bar is better. Scores are the Architect’s judgement from §2–3 (inference, medium confidence). P2 is built alongside P1 for credibility, not because it scores higher.</text>
+<text x="10" y="344" class="tm">Segments in order 1→5; a longer bar is better. Scores are the Architect’s judgement from §2–3 (inference, medium confidence). P2 is the complete October proof for credibility, not because it scores higher.</text>
 </svg>
 </div>
-<figcaption><b>Figure 2.</b> The profiles do not deserve equal investment. <b>P1 ranks first</b>: it is the most likely first path to real customer data, and it reuses everything right of the seam with nothing installed on site. <b>P2 is built at the same time</b>, as the hardware track. It is the only profile we can prove end to end at wire fidelity on a real board without a customer, and its code is what P4 and P6 reuse.</figcaption>
+<figcaption><b>Figure 2.</b> The profiles do not deserve equal investment. <b>P1 ranks first</b>: it is the most likely first path to real customer data, and it reuses everything right of the seam with nothing installed on site. <b>P2 is the complete October proof</b> (owner adjustment 1). It is the only profile we can prove end to end at wire fidelity on a real board without a customer, and its code is what P4 and P6 reuse.</figcaption>
 </figure>
 <div class="tw"><table>
 <thead><tr><th>Rank</th><th>Profile</th><th>Verdict</th><th>Why</th><th>What “done” means</th></tr></thead>
 <tbody>
-<tr><td>1</td><td>P1 Customer cloud API / export</td><td><span class="chip s-now">implement first (thin)</span></td><td>This is what customers already have (§2 callout). Vendors differ only in file columns, auth, quota and mapping. Its limits are coarse intervals and vendor dependence, and the UI must state them.</td><td>Before 30 Oct: proof B1, an export collector through a hosted gateway. After: B2, live API pulls per customer.</td></tr>
-<tr><td>2</td><td>P2 Modbus TCP through existing controllers</td><td><span class="chip s-now">implement now: hardware early</span></td><td>Victron GX is a documented target with an open-source server and a published register list. The same client reaches RS-485 devices behind any TCP-to-RTU bridge, including the ESP32. It is the credibility proof and covers sites without clouds.</td><td>Proof A at R2 on the laptop <b>and on the BBB</b> by 30 Oct</td></tr>
+<tr><td>1</td><td>P1 Customer cloud API / export</td><td><span class="chip s-now">minimal in October</span></td><td>This is what customers already have (§2 callout). Vendors differ only in file columns, auth, quota and mapping. Its limits are coarse intervals and vendor dependence, and the UI must state them.</td><td>October: proof B1, a <b>minimal</b> collector for a generic, illustrative CSV through the gateway. After: a vendor profile from a genuine sample, then B2 live API pulls.</td></tr>
+<tr><td>2</td><td>P2 Modbus TCP through existing controllers</td><td><span class="chip s-now">complete proof in October</span></td><td>Victron GX is a documented target with an open-source server and a published register list. The same client reaches RS-485 devices behind any TCP-to-RTU bridge, including the ESP32. It is the credibility proof and covers sites without clouds.</td><td>Proof A <b>complete</b> at R2 on the laptop in October (emulator, unpinned third-party layout); BBB after it is stable</td></tr>
 <tr><td>3</td><td>P3 CSMS export / API, then OCPP</td><td><span class="chip s-next">export next</span></td><td>An operator can produce a charge export in minutes (Monta: CSV/Excel, fact). The EV v4 contract and tables exist on main. Raw OCPP is needed only when no export or API is good enough.</td><td>C1 export collector at R2; C2 real OCPP traffic at R2</td></tr>
-<tr><td>4</td><td>P4 Modbus RTU and simple sensors</td><td><span class="chip s-next">emulate next, kit → R3</span></td><td>Shares P2’s profile and builder and adds a serial transport and CRC. It is the cold-chain entry point where no logger cloud exists, and the cheapest R3 claim on our own bench.</td><td>Proof D on a virtual serial pair, then a ~$13 RS-485 probe</td></tr>
+<tr><td>4</td><td>P4 Modbus RTU and simple sensors</td><td><span class="chip s-next">after the physical objective</span></td><td>Shares P2’s profile and builder and adds a serial transport and CRC. It is the cold-chain entry point where no logger cloud exists, and the cheapest R3 claim on our own bench.</td><td>Proof D on a virtual serial pair, then a ~$13 RS-485 probe</td></tr>
 <tr><td>5</td><td>P6 Low-cost AssetOps edge gateway</td><td><span class="chip s-next">vehicle</span></td><td>Not an adapter: it is where P2 and P4 run when the customer has no suitable box. BBB plus ESP32 bridge for prototypes; an industrial CM4 box for pilots.</td><td>BBB bench rehearsal (§7.9)</td></tr>
 <tr><td>6</td><td>P5 Existing MQTT broker</td><td><span class="chip s-defer">defer</span></td><td>No evidence yet that target customers run brokers we may subscribe to. The architecture already chose HTTPS (<code>production-shaped-mvp.md:35</code>). <code>modbustcp.html</code> Option A remains the design when a customer needs it, for example a LoRaWAN network server.</td><td>Nothing now</td></tr>
 </tbody></table></div>
 
 <!-- ============================================================ -->
-<h2 id="proofs"><span class="c-cloud">6 · Integration proofs (deliverable 4: minimal executable baseline)</span></h2>
-<div class="callout bad"><b class="k">What counts as a proof</b><p>A proof exercises <b>the real adapter</b> against a protocol-wire emulator, a real protocol library, a vendor-format file or a schema-faithful API mock. It runs through <b>the real gateway process</b> (snapshot, IPC admit, outbox, sealing, TLS upload) into <b>the standard central ingestion</b>, and ends in accepted evidence that the existing assessments read. Injecting simulator truth, canonical envelopes or accepted rows does not count. Emulators and synthetic files read only the public <code>DeviceObservation</code> projection, as <code>host/gateway_publication.py</code> does today.</p></div>
+<h2 id="proofs"><span class="c-mb">6 · Integration proofs (deliverable 4: minimal executable baseline)</span></h2>
+<div class="callout bad"><b class="k">What counts as a proof</b><p>A proof exercises <b>the real adapter</b> against a protocol-wire emulator, a real protocol library, a defined file format or a schema-faithful API mock. It runs through <b>the real gateway process</b> (snapshot, IPC admit, outbox, sealing, TLS upload) into <b>the standard central ingestion</b>, and ends in accepted evidence that the existing assessments read. Injecting simulator truth, canonical envelopes or accepted rows does not count. Emulators and fixtures read only the public <code>DeviceObservation</code> projection, as <code>host/gateway_publication.py</code> does today. The priority is verified integration credibility, not the number of protocols.</p></div>
 <div class="tw"><table>
-<thead><tr><th>Order</th><th>Proof</th><th>Track</th><th>Purpose</th><th>When</th></tr></thead>
+<thead><tr><th>Order</th><th>Proof</th><th>Commercial rank</th><th>October scope</th><th>Later</th></tr></thead>
 <tbody>
-<tr><td>1</td><td><a href="#proofB">B · customer cloud / export</a></td><td class="c-cloud"><b>customer data</b></td><td>The most likely first real pilot data; the customer conversation opener</td><td>B1 before 30 Oct; B2 per customer</td></tr>
-<tr><td>2</td><td><a href="#proofA">A · Modbus TCP on the BBB</a></td><td class="c-bbb"><b>hardware</b></td><td>Credibility on real hardware; sites without a cloud</td><td>Before 30 Oct, laptop then BBB</td></tr>
-<tr><td>3</td><td><a href="#proofC">C · CSMS export, then OCPP</a></td><td class="c-ocpp">customer data (EV)</td><td>EV prospects</td><td>After outreach starts</td></tr>
-<tr><td>4</td><td><a href="#proofD">D · Modbus RTU, virtual then kit</a></td><td class="c-rtu">hardware</td><td>Cold rooms and meters; R3 on our own bench</td><td>Week after 30 Oct, when the kit arrives</td></tr>
+<tr><td>1</td><td><a href="#proofA">A · Modbus TCP</a></td><td class="c-mb">P2, rank 2</td><td><b>Complete</b>: emulator → poller → gateway → accepted evidence in an authorised test database, with fault cases (TEL-01 to TEL-05)</td><td>BBB repeat (TEL-08); a real GX</td></tr>
+<tr><td>2</td><td><a href="#proofB">B · cloud / export</a></td><td class="c-cloud">P1, rank 1</td><td><b>Minimal</b>: generic illustrative CSV collector through the gateway (TEL-06)</td><td>Vendor profile from a genuine sample; live API</td></tr>
+<tr><td>3</td><td><a href="#proofC">C · CSMS export, then OCPP</a></td><td class="c-ocpp">P3</td><td>—</td><td>After outreach starts</td></tr>
+<tr><td>4</td><td><a href="#proofD">D · Modbus RTU</a></td><td class="c-rtu">P4</td><td>—</td><td>After the first physical objective is chosen (§9)</td></tr>
 </tbody></table></div>
+<p class="meta">A is built first because it is the only proof that exercises a real protocol end to end without a customer. B1 is built minimally next to it, so the customer-data path is shown to run through the same gateway. P1 keeps its commercial rank (§5).</p>
 
-<h3 id="proofB"><span class="c-cloud">6.1 Proof B · the customer’s cloud export or API (P1): most likely first real data</span></h3>
-<figure><div class="scroll"><svg class="fig" viewBox="0 0 1116 290" role="img" aria-labelledby="fpb" style="min-width:860px">
-<title id="fpb">Proof B data flow: customer cloud export or API into a hosted gateway</title>
-<text x="10" y="28" class="lane">CUSTOMER SOURCE / FIXTURE</text>
-<rect x="10" y="40" width="196" height="170" rx="10" class="bx dash cloud"/>
-<text x="108.0" y="64" class="t tb" text-anchor="middle">Export file or cloud API</text>
-<text x="108.0" y="88" class="tm" text-anchor="middle">B1: VRM-shaped installation</text>
-<text x="108.0" y="105" class="tm" text-anchor="middle">export (CSV/XLSX), synthetic</text>
-<text x="108.0" y="122" class="tm" text-anchor="middle">from public observations, then</text>
-<text x="108.0" y="139" class="tm" text-anchor="middle">a real sample (demo or prospect)</text>
-<text x="108.0" y="156" class="tm" text-anchor="middle">B2: VRM / iMonnit-shaped HTTPS</text>
-<text x="108.0" y="173" class="tm" text-anchor="middle">mock, later the customer token</text>
-<line x1="208" y1="125.0" x2="233" y2="125.0" class="ln a "/>
-<text x="220.5" y="228" class="tm tmono ts" text-anchor="middle">file / HTTPS API</text>
-<text x="235" y="28" class="lane">COLLECTOR (NEW)</text>
-<rect x="235" y="40" width="196" height="170" rx="10" class="bx dash cloud"/>
-<text x="333.0" y="64" class="t tb" text-anchor="middle">Export / API collector</text>
-<text x="333.0" y="88" class="tm" text-anchor="middle">pinned column profile + SHA-256</text>
-<text x="333.0" y="105" class="tm" text-anchor="middle">header → device/signal, unit</text>
-<text x="333.0" y="122" class="tm" text-anchor="middle">declared timezone rule</text>
-<text x="333.0" y="139" class="tm" text-anchor="middle">energy per interval → mean kW</text>
-<text x="333.0" y="156" class="tm" text-anchor="middle">stable report_key per row</text>
-<text x="333.0" y="173" class="tm" text-anchor="middle">raw file / body + SHA-256</text>
-<line x1="433" y1="125.0" x2="458" y2="125.0" class="ln a "/>
-<text x="445.5" y="243" class="tm tmono ts" text-anchor="middle">DeviceReport V1 · IPC</text>
-<text x="460" y="28" class="lane">HOSTED GATEWAY (MAIN)</text>
-<rect x="460" y="40" width="196" height="170" rx="10" class="bx hl"/>
-<text x="558.0" y="64" class="t tb" text-anchor="middle">assetops_gateway serve</text>
-<text x="558.0" y="88" class="tm" text-anchor="middle">hosted, one per customer Site</text>
-<text x="558.0" y="105" class="tm" text-anchor="middle">bench-cloud Site snapshot</text>
-<text x="558.0" y="122" class="tm" text-anchor="middle">same holds and outbox</text>
-<text x="558.0" y="139" class="tm" text-anchor="middle">Batch V2, own credential</text>
-<text x="558.0" y="156" class="tm" text-anchor="middle">contact age = data freshness</text>
-<line x1="658" y1="125.0" x2="683" y2="125.0" class="ln a httpsc"/>
-<text x="670.5" y="228" class="tm tmono ts" text-anchor="middle">HTTPS Batch V2</text>
-<text x="685" y="28" class="lane">CENTRAL INGEST (MAIN)</text>
-<rect x="685" y="40" width="196" height="170" rx="10" class="bx hl"/>
-<text x="783.0" y="64" class="t tb" text-anchor="middle">/api/ingestion/batches</text>
-<text x="783.0" y="88" class="tm" text-anchor="middle">unchanged</text>
-<text x="783.0" y="105" class="tm" text-anchor="middle">principal = hosted gateway</text>
-<text x="783.0" y="122" class="tm" text-anchor="middle">claims = registration</text>
-<text x="783.0" y="139" class="tm" text-anchor="middle">Receipt V2</text>
-<line x1="883" y1="125.0" x2="908" y2="125.0" class="ln a "/>
-<text x="895.5" y="243" class="tm tmono ts" text-anchor="middle">AcceptedEvidence</text>
-<text x="910" y="28" class="lane">EVIDENCE → FINDINGS</text>
-<rect x="910" y="40" width="196" height="170" rx="10" class="bx soft"/>
-<text x="1008.0" y="64" class="t tb" text-anchor="middle">Kobo-role evidence</text>
-<text x="1008.0" y="88" class="tm" text-anchor="middle">same roles as proof A</text>
-<text x="1008.0" y="105" class="tm" text-anchor="middle">pv_power, battery_*, ...</text>
-<text x="1008.0" y="122" class="tm" text-anchor="middle">assess_dispatch → Findings</text>
-<text x="1008.0" y="139" class="tm" text-anchor="middle">provenance: D1 class</text>
-<text x="1008.0" y="156" class="tm" text-anchor="middle">R3 on a real export</text>
-<rect x="10" y="252" width="1096" height="30" rx="8" class="note"/>
-<text x="558" y="272" class="t ts" text-anchor="middle">No customer data is needed to build it; one real export turns the same code into real pilot evidence.</text>
-</svg></div><figcaption><b>Figure 3.</b> Proof B in two steps. <b>B1</b>, before 30 October, is a thin export collector. It feeds the same Kobo roles as proof A, so the two tracks can be compared on one foundation. <b>B2</b>, after outreach starts, is a live API pull with a customer’s read-only token. Both run through a hosted instance of the existing gateway.</figcaption></figure>
-<div class="tw"><table><tbody>
-<tr><th style="width:190px">Real-world configuration</th><td>A Victron ESS mini-grid already on VRM. The operator downloads an installation export for a period, or creates a read-only access token for us. The same pattern serves SMA, SolarEdge, Huawei and other inverter clouds, a CSMS export (proof C1) and a cold-chain logger cloud (Monnit).</td></tr>
-<tr><th>Source interface</th><td><b>B1:</b> the VRM installation download (CSV/XLSX). A Victron Community Manager says every datapoint can be downloaded (community post, M). The column names, units, interval and timezone are <b>not documented</b> publicly, so they are pinned from a real sample. <b>B2:</b> the VRM API, <code>X-Authorization: Token …</code>, <code>/installations/{id}/stats</code> (community posts, M), or iMonnit with <code>APIKeyID</code>/<code>APISecretKey</code> (fact, H).</td></tr>
-<tr><th>Fixture / mock</th><td><b>B1:</b> a synthetic VRM-shaped file generated from the <em>public</em> observations of a registered Kobo run. That is fidelity (a), R1, until it is replaced by a real sample, which makes it fidelity (b), R2. A real sample may be obtainable without a customer: the public VRM demo installations are browsable via the API as the demo user (community thread, M). Time-box that to one hour; a free VRM account would need a GX device, which we do not have. Otherwise ask the first prospect. <b>B2:</b> an HTTPS mock built from the official reference once it has been read in a browser.</td></tr>
-<tr><th>Real adapter code</th><td><code>assetops_field.export</code>, about 0.5 day on top of the shared core:
-<ul>
-<li>a CLI ingests one file (a watched folder comes later);</li>
-<li>a pinned column profile maps each header to <code>(device_id, signal_id)</code>, with unit, scale, interval length and a <b>declared timezone rule</b>;</li>
-<li>energy per interval (kWh) becomes an exact mean kW over the interval;</li>
-<li><code>report_key</code> is built from format, Site, column and interval start, so a re-sent or overlapping export deduplicates;</li>
-<li>the whole file is refused if the headers do not match the profile (schema drift), never part-imported;</li>
-<li>the raw file’s SHA-256 is captured.</li>
-</ul>
-<b>B2</b> adds <code>assetops_field.cloud</code>: a persisted cursor, an owner-only token file, backoff with Retry-After, and raw-body capture.</td></tr>
-<tr><th>Reused unchanged</th><td>The shared core (S1). A complete gateway process as the hosted instance (on the laptop for the bench), registered with its own credential. Central ingestion, <code>assess_dispatch</code>, Findings and the Kobo bindings.</td></tr>
-<tr><th>Essential measurements</th><td>Whatever the export carries per interval: PV, consumption, battery SoC and power, and genset if present. Usually 5–15 minute resolution (vendor-dependent, unverified for VRM). Missing columns stay missing: no feeder split unless there are meters.</td></tr>
-<tr><th>Expected business findings</th><td>Kobo dispatch Findings on the customer’s own data, at the export’s granularity. A side-by-side with proof A on the second bench Site shows what the edge adds: sub-interval detail, devices the cloud does not see, and independence from the vendor cloud.</td></tr>
-<tr><th>Key fault tests</th><td>The same file uploaded twice is absorbed. Overlapping files are absorbed by <code>report_key</code>. Local timestamps and a DST change are handled by the declared rule or refused with <code>INVALID_TIMING</code>. Renamed columns refuse the file. A W column where kW is bound gives <code>UNIT_INCOMPATIBLE</code> if the profile is wrong. Blank cells become UNAVAILABLE. A truncated file is refused. Future rows are held. For B2 also: 429 with backoff, a revoked token (contact age grows), stale pages, and a 24 h API outage stated as a gap.</td></tr>
-<tr><th>Unverified until a real sample or customer</th><td>VRM export columns, units, interval and timezone. Whether values are energy or mean power. API granularity and rate limits. Each prospect’s licence tier (Monnit Premiere/Enterprise, SMA paid API).</td></tr>
-<tr><th>Indicative cost / complexity</th><td>B1: about 0.5 builder-day after S1, no hardware. B2: about 1.5 days for the framework and the first vendor, then 0.5–1 day per vendor. Hosted cost: one small process per customer Site. <b>For the customer: one file or one token.</b></td></tr>
-</tbody></table></div>
-
-<h3 id="proofA"><span class="c-mb">6.2 Proof A · hardware track: Modbus TCP from a Victron-GX-shaped controller, rehearsed on the BeagleBone (P2)</span></h3>
+<h3 id="proofA"><span class="c-mb">6.1 Proof A · edge track: a complete Modbus TCP proof on the laptop (P2)</span></h3>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1116 290" role="img" aria-labelledby="fpa" style="min-width:860px">
 <title id="fpa">Proof A data flow: GX-shaped Modbus TCP emulator to Kobo evidence</title>
 <text x="10" y="28" class="lane">EMULATOR / FIXTURE</text>
 <rect x="10" y="40" width="196" height="170" rx="10" class="bx dash mb"/>
-<text x="108.0" y="64" class="t tb" text-anchor="middle">Victron-GX-shaped server</text>
+<text x="108.0" y="64" class="t tb" text-anchor="middle">GX-shaped server (unpinned)</text>
 <text x="108.0" y="88" class="tm" text-anchor="middle">pymodbus 3.16 server :5020</text>
 <text x="108.0" y="105" class="tm" text-anchor="middle">Unit 100 system registers</text>
-<text x="108.0" y="122" class="tm" text-anchor="middle">808–810, 817–819, 842–844</text>
+<text x="108.0" y="122" class="tm" text-anchor="middle">808–810, 817–819, 843</text>
 <text x="108.0" y="139" class="tm" text-anchor="middle">values = public DeviceObservation</text>
 <text x="108.0" y="156" class="tm" text-anchor="middle">of a registered Kobo run, inverse-</text>
 <text x="108.0" y="173" class="tm" text-anchor="middle">scaled; fault switches</text>
@@ -789,28 +729,115 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <rect x="910" y="40" width="196" height="170" rx="10" class="bx soft"/>
 <text x="1008.0" y="64" class="t tb" text-anchor="middle">Kobo-role evidence</text>
 <text x="1008.0" y="88" class="tm" text-anchor="middle">accepted_evidence rows</text>
-<text x="1008.0" y="105" class="tm" text-anchor="middle">pv_power, battery_power,</text>
-<text x="1008.0" y="122" class="tm" text-anchor="middle">battery_soc, generator_*</text>
+<text x="1008.0" y="105" class="tm" text-anchor="middle">pv_power, battery_soc,</text>
+<text x="1008.0" y="122" class="tm" text-anchor="middle">no battery_power (D5)</text>
 <text x="1008.0" y="139" class="tm" text-anchor="middle">assess_dispatch → Findings</text>
 <text x="1008.0" y="156" class="tm" text-anchor="middle">provenance: D1 class</text>
 <text x="1008.0" y="173" class="tm" text-anchor="middle">(UNKNOWN until D1)</text>
 <rect x="10" y="252" width="1080" height="30" rx="8" class="note"/>
 <text x="550" y="272" class="t ts" text-anchor="middle">The emulator reads only public observations; no private truth, scenario cause or canonical record is injected anywhere.</text>
-</svg></div><figcaption><b>Figure 4.</b> Proof A. Every box right of the adapter is on main today. It feeds the bench-edge Site, from the same Kobo foundation as proof B1’s bench-cloud Site.</figcaption></figure>
+</svg></div><figcaption><b>Figure 3.</b> Proof A. Every box right of the poller is on main today and runs unchanged. In October it ends in a real authorised test database: accepted evidence IDs, a provenance read and fault outcomes. The BeagleBone repeats it later (TEL-08), once the laptop proof is stable.</figcaption></figure>
+<div class="callout warn"><b class="k">What October’s A may and may not claim</b><p>It may claim: <em>“R2 · Modbus TCP (FC 03/04, read-only client) · pymodbus 3.16.1 emulator serving profile <code>gx-system-illustrative/1</code> (register layout from a third-party summary, unpinned) · poller and gateway at commit &lt;sha&gt; · Windows 11 laptop, Python &lt;version&gt;”</em>. It may <b>not</b> claim Victron GX, Cerbo or VRM compatibility. That needs the profile pinned to Victron’s own register sheet and a read against a real GX of a named firmware.</p></div>
 <div class="tw"><table><tbody>
-<tr><th style="width:190px">Real-world configuration</th><td>Victron ESS (Multi/Quattro, MPPT, battery) with a Cerbo GX on the site LAN. Modbus TCP is enabled by the customer, and our edge box sits on the same LAN.</td></tr>
-<tr><th>Source interface</th><td>Modbus TCP, Unit 100 (system service), FC3 reads in contiguous blocks. Registers are pinned to <code>CCGX-Modbus-TCP-register-list.xlsx</code> at a named commit of <code>victronenergy/dbus_modbustcp</code>. Candidates (third-party, to re-pin): 808–810, 817–819, 842, 843, 844.</td></tr>
-<tr><th>Emulator</th><td><code>pymodbus</code> 3.16.1 server (dev/test dependency only) on <code>:5020</code>. The datastore is filled from the public observations of a registered Kobo run by inverse scaling through the same profile. Fault switches: exception 02 on one block, sentinel, frozen register, sign flip, wrong Unit ID, server pause, word-order swap. A write counter must stay at 0.</td></tr>
-<tr><th>Real adapter code</th><td>New package <code>field/assetops_field/</code> (a new module root, registered in <code>tools/checks/module-roots.ps1</code> and the dependency-direction check). It holds a stdlib Modbus TCP client (about 150 lines, following <code>modbustcp.html</code> recipe A), the profile loader with schema and SHA-256, the exact-decimal scaler, the interval-mean aggregator and the IPC caller via <code>assetops_gateway.ipc.GatewayLink</code>. It does not import the backend or the simulator.</td></tr>
-<tr><th>Reused unchanged</th><td><code>assetops_gateway</code> (serve, snapshot, admit, outbox, uploader, diagnostics), <code>assetops_contracts.gateway_report</code>, central <code>/api/ingestion/batches</code>, <code>serve_tls</code>, the provisioning CLI, <code>assess_dispatch</code>, Findings and the Kobo bindings (<code>backend/conversions/kobo-001-bindings.json</code>).</td></tr>
-<tr><th>Essential measurements</th><td>PV AC power (sum L1–L3), battery power, battery SoC, battery state. Generator power and status only if the site’s genset is GX-connected. Feeder <code>active-power</code> needs separate meters; GX consumption 817–819 is a site total, not per feeder.</td></tr>
-<tr><th>Expected business findings</th><td>The Kobo dispatch assessment reproduces on emulated-interface evidence. The same roles feed the same Findings as the simulator path. Acceptance compares Finding <em>types and evidence links</em>, not exact numbers, because poll instants differ.</td></tr>
-<tr><th>Key fault tests</th><td>6 h WAN cut (gateway down-link only) with the emulator still polled, then byte-identical replay. A duplicate poll (same <code>report_key</code>) is absorbed. W reported where kW is bound gives <code>UNIT_INCOMPATIBLE</code> if the profile is wrong. Sentinel and exception 02 give <code>UNAVAILABLE / NO_MEASUREMENT</code>. A frozen register gives a stale flag (proposed: N identical polls). Wrong Unit ID gives exception 0A/0B, then UNAVAILABLE. A poll during a clock step is refused by the time guard. A write attempt raises before the socket and the emulator counts 0 writes. Provenance shows the D1 class.</td></tr>
-<tr><th>Unverified until a real site</th><td>The register list version on the customer’s GX firmware. Which services are attached (genset, tank sensor). Signs and phase mapping. GX response time under load. Whether site IT lets us onto the LAN.</td></tr>
-<tr><th>Indicative cost / complexity</th><td>About 1.5 builder-days to R2 on the laptop and BBB including tests, on top of the shared core. No purchase is needed: the BBB is owned. A pilot deployment needs an edge box (§9), LAN access and the customer enabling Modbus TCP, which is <b>more than proof B asks of a customer</b>. That is why A is the credibility proof and B the first-data proof.</td></tr>
+<tr><th style="width:190px">Real-world configuration</th><td>A Victron ESS with a GX device on the site LAN, Modbus TCP enabled by the customer, and our edge on the same LAN. This is the target, not the October claim.</td></tr>
+<tr><th>Source interface</th><td>Modbus TCP, Unit ID 100 (system service per Victron’s FAQ, fact H), FC3 reads in contiguous blocks. The register numbers in the October profile come from a third-party page (808–810 PV on output, 817–819 consumption, 843 SoC) and are labelled <b>unpinned</b>.</td></tr>
+<tr><th>Emulator</th><td>A pymodbus 3.16.1 server (dev/test extra only). Its datastore is filled from the pinned public-observation JSONL of a registered Kobo run, by inverse scaling through the same profile. Fault switches: exception 02, sentinel 0x7FFF, server pause, wrong Unit ID (exception 0B), sign flip and word-order swap. A write counter must stay at 0.</td></tr>
+<tr><th>Real adapter code</th><td><code>field/assetops_field/</code>: <code>modbus_tcp.py</code> (stdlib client with the FC allowlist), <code>modbus_poller.py</code> (cadence, interval means, freshness indicators, IPC publish). Task cards TEL-01 to TEL-05 are in §10.</td></tr>
+<tr><th>Reused unchanged</th><td><code>assetops_gateway</code> (serve, snapshot, admit, outbox, uploader), <code>assetops_contracts.gateway_report</code>, <code>/api/ingestion/batches</code>, <code>serve_tls</code>, the provisioning CLI, <code>assess_dispatch</code> and the Kobo bindings.</td></tr>
+<tr><th>Essential measurements</th><td>PV power (interval mean of L1–L3), consumption (site total, not per feeder) and battery SoC (state). <b>Battery power is deliberately not bound</b> until the D5 ruling (§6.1.1).</td></tr>
+<tr><th>Expected outcome</th><td>Accepted evidence for the bound roles, provenance UNKNOWN with a caption (D1), and a dispatch assessment that runs on the window. <b>No financial result</b> from this path until the gate in §6.1.1 is met.</td></tr>
+<tr><th>Key fault tests</th><td>A 6 h uplink cut while polling continues, then byte-identical replay. A duplicate poll (same <code>report_key</code>) is absorbed. The same key with other content is held <code>CONFLICTING_REPORT</code>. A wrong profile unit gives <code>UNIT_INCOMPATIBLE</code>. Sentinel or exception 02 gives <code>UNAVAILABLE / NO_MEASUREMENT</code>. Server pause or wrong Unit ID gives <code>UNAVAILABLE</code> and a growing contact age. A write attempt raises before the socket and the emulator counts 0 writes. The freshness indicators follow §11.1; there is <b>no identical-readings rule</b>.</td></tr>
+<tr><th>Unverified until a real site</th><td>The register sheet version on the customer’s GX firmware, the attached services, signs and phase mapping, GX response time and site IT policy.</td></tr>
+<tr><th>Indicative cost</th><td>About 2.5 builder-days for TEL-01 to TEL-05. No purchase. The BBB repeat (TEL-08) is about 0.5 day later.</td></tr>
 </tbody></table></div>
-<div class="callout warn"><b class="k">Semantic trap found while mapping</b><p>The Kobo binding is <code>battery-pcs-controller / ac-power</code>. GX register 842 is <b>DC battery power</b>. Using it under an AC role would be a plausible but wrong number. The profile must either bind a DC role or read the inverter’s AC output from the VE.Bus service. This is decision D5 in §14, and the kind of mismatch a pinned profile exists to surface.</p></div>
 
+<h4 id="dcac">6.1.1 Battery DC/AC role: proposed resolution and financial gate (ruling candidate for the Architect)</h4>
+<div class="gate" style="border-left-color:var(--warn)"><h4>Facts</h4><p>The role <code>battery_power</code> is “Battery converter power”: asset type <code>POWER_CONVERSION_SYSTEM</code>, kW, optional (<code>backend/assetops_backend/sites/binding_roles.py:101</code>). Kobo binds it to <code>battery-pcs-controller / ac-power</code>. <code>dispatch-2</code> infers battery discharge from observed <code>battery_power</code> (<code>analytics/performance_comparison.py:49</code>). <code>fuel-cost-1</code> money is built on <code>generator-dispatch-interval</code> Findings (<code>financials/fuel_cost.py</code>). GX register 842 is <b>DC</b> battery power (third-party, M). A DC value under this role can therefore shift dispatch classification and, through it, money.</p></div>
+<div class="gate" style="border-left-color:var(--accent)"><h4>Proposal</h4><p><b>(1)</b> No DC quantity is ever bound to <code>battery_power</code>. <b>(2)</b> On a GX profile, <code>battery_power</code> stays <b>unbound</b>. That is allowed because the role is optional; dispatch then runs on SoC and capability and states the limitation. Binding it later needs an AC-side converter measurement pinned from Victron’s sheet, with its sign convention written in the profile. <b>(3)</b> A DC reading, if wanted, gets its own new role (for example <code>battery_dc_power</code>) that no analysis consumes until ruled. <b>(4)</b> No DC-to-AC efficiency conversion; it would invent data.</p></div>
+<div class="gate"><h4>Financial gate</h4><p>A money result whose Findings used edge or cloud telemetry is accepted only when all of these hold:</p>
+<ul>
+<li>(a) every role it uses has a profile row stating its physical quantity (AC or DC), measurement point, sign convention, phase aggregation and source document;</li>
+<li>(b) a profile-vs-role test passes;</li>
+<li>(c) sign and magnitude were checked against an independent reading on a named device model and firmware (R3);</li>
+<li>(d) provenance is a positive class, not UNKNOWN.</li>
+</ul>
+<p>Until then, Findings may show, and the money is shown as not available with the reason.</p></div>
+
+
+<h3 id="proofB"><span class="c-cloud">6.2 Proof B · the customer’s cloud export or API (P1): most likely first real data</span></h3>
+<figure><div class="scroll"><svg class="fig" viewBox="0 0 1116 290" role="img" aria-labelledby="fpb" style="min-width:860px">
+<title id="fpb">Proof B data flow: customer cloud export or API into a hosted gateway</title>
+<text x="10" y="28" class="lane">CUSTOMER SOURCE / FIXTURE</text>
+<rect x="10" y="40" width="196" height="170" rx="10" class="bx dash cloud"/>
+<text x="108.0" y="64" class="t tb" text-anchor="middle">Export file or cloud API</text>
+<text x="108.0" y="88" class="tm" text-anchor="middle">B1: generic interval CSV</text>
+<text x="108.0" y="105" class="tm" text-anchor="middle">assetops-generic-interval-csv/1</text>
+<text x="108.0" y="122" class="tm" text-anchor="middle">(illustrative, ours) from public</text>
+<text x="108.0" y="139" class="tm" text-anchor="middle">observations · no vendor claim</text>
+<text x="108.0" y="156" class="tm" text-anchor="middle">B1-v: vendor profile only from a</text>
+<text x="108.0" y="173" class="tm" text-anchor="middle">genuine sample · B2: live API</text>
+<line x1="208" y1="125.0" x2="233" y2="125.0" class="ln a "/>
+<text x="220.5" y="228" class="tm tmono ts" text-anchor="middle">file / HTTPS API</text>
+<text x="235" y="28" class="lane">COLLECTOR (NEW)</text>
+<rect x="235" y="40" width="196" height="170" rx="10" class="bx dash cloud"/>
+<text x="333.0" y="64" class="t tb" text-anchor="middle">Export / API collector</text>
+<text x="333.0" y="88" class="tm" text-anchor="middle">pinned column profile + SHA-256</text>
+<text x="333.0" y="105" class="tm" text-anchor="middle">header → device/signal, unit</text>
+<text x="333.0" y="122" class="tm" text-anchor="middle">declared timezone rule</text>
+<text x="333.0" y="139" class="tm" text-anchor="middle">UTC only; blank = unavailable</text>
+<text x="333.0" y="156" class="tm" text-anchor="middle">stable report_key per row</text>
+<text x="333.0" y="173" class="tm" text-anchor="middle">raw file / body + SHA-256</text>
+<line x1="433" y1="125.0" x2="458" y2="125.0" class="ln a "/>
+<text x="445.5" y="243" class="tm tmono ts" text-anchor="middle">DeviceReport V1 · IPC</text>
+<text x="460" y="28" class="lane">HOSTED GATEWAY (MAIN)</text>
+<rect x="460" y="40" width="196" height="170" rx="10" class="bx hl"/>
+<text x="558.0" y="64" class="t tb" text-anchor="middle">assetops_gateway serve</text>
+<text x="558.0" y="88" class="tm" text-anchor="middle">laptop now; hosted later</text>
+<text x="558.0" y="105" class="tm" text-anchor="middle">its own test Site snapshot</text>
+<text x="558.0" y="122" class="tm" text-anchor="middle">same holds and outbox</text>
+<text x="558.0" y="139" class="tm" text-anchor="middle">Batch V2, own credential</text>
+<text x="558.0" y="156" class="tm" text-anchor="middle">contact age = data freshness</text>
+<line x1="658" y1="125.0" x2="683" y2="125.0" class="ln a httpsc"/>
+<text x="670.5" y="228" class="tm tmono ts" text-anchor="middle">HTTPS Batch V2</text>
+<text x="685" y="28" class="lane">CENTRAL INGEST (MAIN)</text>
+<rect x="685" y="40" width="196" height="170" rx="10" class="bx hl"/>
+<text x="783.0" y="64" class="t tb" text-anchor="middle">/api/ingestion/batches</text>
+<text x="783.0" y="88" class="tm" text-anchor="middle">unchanged</text>
+<text x="783.0" y="105" class="tm" text-anchor="middle">principal = hosted gateway</text>
+<text x="783.0" y="122" class="tm" text-anchor="middle">claims = registration</text>
+<text x="783.0" y="139" class="tm" text-anchor="middle">Receipt V2</text>
+<line x1="883" y1="125.0" x2="908" y2="125.0" class="ln a "/>
+<text x="895.5" y="243" class="tm tmono ts" text-anchor="middle">AcceptedEvidence</text>
+<text x="910" y="28" class="lane">EVIDENCE → FINDINGS</text>
+<rect x="910" y="40" width="196" height="170" rx="10" class="bx soft"/>
+<text x="1008.0" y="64" class="t tb" text-anchor="middle">Kobo-role evidence</text>
+<text x="1008.0" y="88" class="tm" text-anchor="middle">same Kobo roles as proof A</text>
+<text x="1008.0" y="105" class="tm" text-anchor="middle">pv_power, battery_soc, …</text>
+<text x="1008.0" y="122" class="tm" text-anchor="middle">assess_dispatch → Findings</text>
+<text x="1008.0" y="139" class="tm" text-anchor="middle">provenance: D1 class</text>
+<text x="1008.0" y="156" class="tm" text-anchor="middle">R3 only on a genuine export</text>
+<rect x="10" y="252" width="1096" height="30" rx="8" class="note"/>
+<text x="558" y="272" class="t ts" text-anchor="middle">No customer data is needed to build it; one real export turns the same code into real pilot evidence.</text>
+</svg></div><figcaption><b>Figure 4.</b> Proof B in steps.
+<ul>
+<li><b>B1</b> (October, minimal) is a collector for a <b>generic, illustrative</b> interval CSV defined by us. It is not a vendor format.</li>
+<li><b>B1-v</b> adds a vendor profile, built only from a genuine export sample or a published schema.</li>
+<li><b>B2</b> is a live API pull with a customer’s read-only token.</li>
+</ul>
+All of them run through an instance of the existing gateway.</figcaption></figure>
+<div class="callout warn"><b class="k">What October’s B1 may and may not claim</b><p>It may claim: <em>“R2 · generic interval CSV <code>assetops-generic-interval-csv/1</code> (illustrative, defined by AssetOps) · collector + gateway · Windows laptop”</em>. It may <b>not</b> claim Victron VRM, SMA or any vendor compatibility. Revision 2’s “VRM-shaped” file is withdrawn (owner adjustment 2).</p></div>
+<div class="tw"><table><tbody>
+<tr><th style="width:190px">Real-world configuration</th><td>A mini-grid whose operator can download interval data from their monitoring cloud (for example Victron VRM, where a Victron Community Manager says every datapoint can be downloaded: community post, M). Or a CSMS charge export (proof C), or a cold-chain logger cloud.</td></tr>
+<tr><th>Source interface</th><td><b>B1:</b> <code>assetops-generic-interval-csv/1</code>. One header row of <code>interval_start_utc, interval_end_utc, &lt;device_id&gt;/&lt;signal_id&gt; [&lt;unit&gt;] …</code>, ISO-8601 UTC with <code>Z</code>, decimal point, blank meaning not available. It is documented in the profile file itself. <b>B1-v:</b> a vendor profile pinned to a dated genuine sample. <b>B2:</b> a vendor API, for example iMonnit <code>APIKeyID</code>/<code>APISecretKey</code> (fact, H).</td></tr>
+<tr><th>Fixture</th><td>A CSV generated from the <em>public</em> observations of a registered Kobo run (the same pinned JSONL as proof A, TEL-03), checked in under <code>contract-fixtures/telemetry/generic-interval-csv-v1/</code> with its SHA-256.</td></tr>
+<tr><th>Real adapter code</th><td><code>field/assetops_field/export_csv.py</code>, a CLI over one file. The profile maps each header to <code>(device_id, signal_id)</code>, unit and reading class. <code>report_key</code> is built from format, Site, column and interval start, so a re-sent or overlapping file deduplicates. A whole file whose headers do not match the profile is refused before any admission. The raw file SHA-256 is recorded.</td></tr>
+<tr><th>Reused unchanged</th><td>The TEL-01 shared core, a real gateway process, central ingestion and the Kobo bindings.</td></tr>
+<tr><th>Essential measurements</th><td>Interval means for the Kobo roles the file carries: <code>pv_power</code>, <code>feeder_demand</code>, <code>generator_power</code>, plus <code>battery_soc</code> as state. <code>battery_power</code> is not carried (§6.1.1).</td></tr>
+<tr><th>Expected outcome</th><td>Accepted evidence for those roles, provenance read UNKNOWN (D1), and an assessment that runs on the window. The demonstration is the <em>path</em>; Findings on simulator-derived values are not customer insight.</td></tr>
+<tr><th>Key fault tests</th><td>The same file twice gives the same message IDs and no new sequence. A renamed header refuses the file (0 admissions). A timestamp without <code>Z</code> is refused <code>INVALID_TIMING</code>. A blank cell becomes UNAVAILABLE. A header unit W where kW is bound gives <code>UNIT_INCOMPATIBLE</code>. A row after the gateway’s now gives <code>SOURCE_TIME_IN_FUTURE</code>.</td></tr>
+<tr><th>Unverified</th><td>Every vendor export format, including VRM’s columns, units, interval and timezone. That is the work of B1-v once a genuine sample exists.</td></tr>
+<tr><th>Indicative cost</th><td>B1: about 0.5 builder-day after TEL-01. B1-v: about 0.5 day per genuine sample. B2: about 1.5 days for the framework and the first vendor.</td></tr>
+</tbody></table></div>
 
 <h3 id="proofC"><span class="c-ocpp">6.3 Proof C · EV depots: CSMS export first, OCPP traffic second (P3)</span></h3>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1116 290" role="img" aria-labelledby="fpc" style="min-width:860px">
@@ -818,9 +845,9 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <text x="10" y="28" class="lane">CUSTOMER SOURCE / FIXTURE</text>
 <rect x="10" y="40" width="196" height="170" rx="10" class="bx dash ocpp"/>
 <text x="108.0" y="64" class="t tb" text-anchor="middle">CSMS export, then OCPP</text>
-<text x="108.0" y="88" class="tm" text-anchor="middle">C1: Monta-shaped charge export</text>
-<text x="108.0" y="105" class="tm" text-anchor="middle">(CSV/Excel), synthetic until a</text>
-<text x="108.0" y="122" class="tm" text-anchor="middle">real sample; columns unpinned</text>
+<text x="108.0" y="88" class="tm" text-anchor="middle">C1: generic charge CSV</text>
+<text x="108.0" y="105" class="tm" text-anchor="middle">(illustrative); a CSMS profile</text>
+<text x="108.0" y="122" class="tm" text-anchor="middle">only from a genuine sample</text>
 <text x="108.0" y="139" class="tm" text-anchor="middle">C2: ocpp 2.1.0 ChargePoint sim</text>
 <text x="108.0" y="156" class="tm" text-anchor="middle">+ recording CSMS stub</text>
 <text x="108.0" y="173" class="tm" text-anchor="middle">(real OCPP-J frames)</text>
@@ -870,7 +897,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <div class="tw"><table><tbody>
 <tr><th style="width:190px">Real-world configuration</th><td>A depot with two DC chargers on an operator CSMS. AssetOps receives the CSMS charge export (C1), the CSMS session API, or a frame log (C2). It never terminates OCPP.</td></tr>
 <tr><th>Source interface</th><td><b>C1:</b> Monta Hub data exports, “download the results as CSV or Excel”, covering charges <span class="chip s-fact">fact</span> H. The column list is not published, so it is pinned from a sample. Other CSMSs expose session APIs (AMPECO, Monta public API). <b>C2:</b> OCPP 1.6J <code>StartTransaction</code>, <code>StopTransaction</code>, <code>MeterValues</code>, <code>StatusNotification</code>.</td></tr>
-<tr><th>Fixture / emulator</th><td><b>C1:</b> a synthetic Monta-shaped charge export from public observations of a registered EV run (R1 until a real sample). <b>C2:</b> the <code>ocpp</code> 2.1.0 library runs a scripted ChargePoint against a recording CSMS stub over a real WebSocket. Raw fixtures go in <code>contract-fixtures/w2/ev/vendor-ocpp16j/</code>.</td></tr>
+<tr><th>Fixture / emulator</th><td><b>C1:</b> a generic, illustrative charge CSV defined by AssetOps, generated from public observations of a registered EV run. A Monta (or other CSMS) profile exists only once a genuine export sample is obtained, and only then may it be named. <b>C2:</b> the <code>ocpp</code> 2.1.0 library runs a scripted ChargePoint against a recording CSMS stub over a real WebSocket. Raw fixtures go in <code>contract-fixtures/w2/ev/vendor-ocpp16j/</code>.</td></tr>
 <tr><th>Real adapter code</th><td><b>C1</b> <code>assetops_field.csms_export</code> (it reuses B1’s file collector):
 <ul>
 <li>each completed charge becomes <code>EV_SESSION_START</code>, one <code>INTERVAL_DELTA</code> kWh over [start, end) and <code>EV_SESSION_END</code> or <code>_ABORT</code>;</li>
@@ -885,7 +912,7 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <tr><th>Cost / complexity</th><td>C1: about 0.75 day after B1. C2: about 2 days. No hardware.</td></tr>
 </tbody></table></div>
 
-<h3 id="proofD"><span class="c-rtu">6.4 Proof D · hardware track: Modbus RTU over RS-485, virtual first, then the kit (P4)</span></h3>
+<h3 id="proofD"><span class="c-rtu">6.4 Proof D · edge track: Modbus RTU over RS-485, virtual first, then one chosen component (P4)</span></h3>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1116 290" role="img" aria-labelledby="fpd" style="min-width:860px">
 <title id="fpd">Proof D data flow: Modbus RTU on a virtual serial pair to cold evidence</title>
 <text x="10" y="28" class="lane">EMULATOR / FIXTURE</text>
@@ -952,27 +979,27 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 </tbody></table></div>
 
 
-<h3 id="together">6.5 How the two tracks fit together before 30 October</h3>
+<h3 id="together">6.5 October scope: how the two proofs fit</h3>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1100 380" role="img" aria-labelledby="ftog" style="min-width:860px">
 <title id="ftog">Two tracks before 30 October: export collector and Modbus TCP hardware rehearsal share one core and one evidence path</title>
-<text x="10" y="22" class="lane">SAME KOBO FOUNDATION, TWO BENCH SITES, ONE SHARED CORE</text>
+<text x="10" y="22" class="lane">OCTOBER: SAME KOBO FOUNDATION, TWO TEST SITES, ONE SHARED CORE, ONE LAPTOP</text>
 <rect x="10" y="38" width="250" height="120" rx="10" class="bx dash cloud"/>
-<text x="135" y="60" class="t tb c-cloud" text-anchor="middle">Customer-data track (B1)</text>
-<text x="135" y="82" class="tm" text-anchor="middle">VRM-shaped export file</text>
+<text x="135" y="60" class="t tb c-cloud" text-anchor="middle">Customer-data track (B1, minimal)</text>
+<text x="135" y="82" class="tm" text-anchor="middle">generic illustrative CSV</text>
 <text x="135" y="98" class="tm" text-anchor="middle">→ export collector</text>
-<text x="135" y="114" class="tm" text-anchor="middle">runs on the laptop as the</text>
-<text x="135" y="130" class="tm" text-anchor="middle">“hosted” side</text>
+<text x="135" y="114" class="tm" text-anchor="middle">no vendor claim</text>
+<text x="135" y="130" class="tm" text-anchor="middle">(vendor profile later)</text>
 <text x="135" y="148" class="tm" text-anchor="middle">for: conversations, pilot data</text>
 <rect x="10" y="210" width="250" height="140" rx="10" class="bx dash bbb"/>
-<text x="135" y="232" class="t tb c-bbb" text-anchor="middle">Hardware track (A)</text>
+<text x="135" y="232" class="t tb c-bbb" text-anchor="middle">Edge track (A, complete)</text>
 <text x="135" y="254" class="tm" text-anchor="middle">GX-shaped Modbus TCP emulator</text>
-<text x="135" y="270" class="tm" text-anchor="middle">(laptop) → read-only poller</text>
-<text x="135" y="286" class="tm" text-anchor="middle">on the BeagleBone</text>
-<text x="135" y="302" class="tm" text-anchor="middle">then the ESP32 bridge + probe</text>
+<text x="135" y="270" class="tm" text-anchor="middle">→ read-only poller → gateway</text>
+<text x="135" y="286" class="tm" text-anchor="middle">on the laptop in October</text>
+<text x="135" y="302" class="tm" text-anchor="middle">BBB after it is stable</text>
 <text x="135" y="322" class="tm" text-anchor="middle">for: credibility, sites</text>
 <text x="135" y="338" class="tm" text-anchor="middle">without a cloud</text>
 <rect x="300" y="110" width="210" height="160" rx="10" class="bx dash"/>
-<text x="405" y="134" class="t tb" text-anchor="middle">Shared core (S1)</text>
+<text x="405" y="134" class="t tb" text-anchor="middle">Shared core (TEL-01)</text>
 <text x="405" y="156" class="tm" text-anchor="middle">pinned profile + SHA-256</text>
 <text x="405" y="172" class="tm" text-anchor="middle">exact decimal scaling</text>
 <text x="405" y="188" class="tm" text-anchor="middle">interval means, coverage</text>
@@ -983,50 +1010,49 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 <path d="M260 98 H280 V150 H298" class="ln a cloudc"/>
 <path d="M260 280 H280 V230 H298" class="ln a bbbc"/>
 <rect x="550" y="38" width="220" height="100" rx="10" class="bx hl"/>
-<text x="660" y="60" class="t tb" text-anchor="middle">Gateway: bench-cloud</text>
-<text x="660" y="80" class="tm" text-anchor="middle">laptop, stands in for the</text>
-<text x="660" y="96" class="tm" text-anchor="middle">hosted instance (R3, D8)</text>
+<text x="660" y="60" class="t tb" text-anchor="middle">Gateway process 2 (B1)</text>
+<text x="660" y="80" class="tm" text-anchor="middle">laptop; later the</text>
+<text x="660" y="96" class="tm" text-anchor="middle">hosted instance (D8)</text>
 <text x="660" y="116" class="tm" text-anchor="middle">own credential</text>
 <rect x="550" y="240" width="220" height="100" rx="10" class="bx bbb"/>
-<text x="660" y="262" class="t tb" text-anchor="middle">Gateway: bench-edge</text>
-<text x="660" y="282" class="tm" text-anchor="middle">on the BeagleBone</text>
-<text x="660" y="298" class="tm" text-anchor="middle">Debian 13.7, Python 3.13</text>
+<text x="660" y="262" class="t tb" text-anchor="middle">Gateway process 1 (A)</text>
+<text x="660" y="282" class="tm" text-anchor="middle">on the laptop in October</text>
+<text x="660" y="298" class="tm" text-anchor="middle">later: BBB (TEL-08)</text>
 <text x="660" y="318" class="tm" text-anchor="middle">own credential</text>
 <path d="M510 160 H530 V88 H548" class="ln a"/>
 <path d="M510 220 H530 V290 H548" class="ln a"/>
 <text x="530" y="200" class="tm" text-anchor="middle">IPC</text>
 <rect x="810" y="110" width="280" height="160" rx="10" class="bx hl"/>
 <text x="950" y="134" class="t tb" text-anchor="middle">Central (unchanged)</text>
-<text x="950" y="156" class="tm tmono" text-anchor="middle">serve_tls :8443</text>
-<text x="950" y="174" class="tm" text-anchor="middle">accepted evidence per bench Site</text>
-<text x="950" y="190" class="tm" text-anchor="middle">assess_dispatch per Site</text>
+<text x="950" y="156" class="tm tmono" text-anchor="middle">serve_tls · authorised test DB</text>
+<text x="950" y="174" class="tm" text-anchor="middle">accepted evidence IDs per Site</text>
+<text x="950" y="190" class="tm" text-anchor="middle">provenance read · assess_dispatch</text>
 <text x="950" y="210" class="t ts tb" text-anchor="middle">Side-by-side demo:</text>
-<text x="950" y="228" class="tm" text-anchor="middle">same roles, same Finding types,</text>
-<text x="950" y="244" class="tm" text-anchor="middle">export interval vs edge sub-interval</text>
+<text x="950" y="228" class="tm" text-anchor="middle">same roles by two routes,</text>
+<text x="950" y="244" class="tm" text-anchor="middle">no money until §6.1.1 gate</text>
 <text x="950" y="260" class="tm" text-anchor="middle">gaps stated, never filled</text>
 <path d="M770 88 H790 V160 H808" class="ln a httpsc"/>
 <path d="M770 290 H790 V220 H808" class="ln a httpsc"/>
 <g class="pill https"><rect x="760" y="180" width="60" height="18" rx="9"/><text x="790" y="193" text-anchor="middle">HTTPS</text></g>
 </svg>
-</div><figcaption><b>Figure 6b.</b> One shared core, two bench Sites from the same Kobo foundation (decision D2), and two gateways: the laptop stands in for the hosted instance, and the BeagleBone is the edge. The demo shows the same roles and Finding types arriving by two routes. It also states what each route cannot see.</figcaption></figure>
+</div><figcaption><b>Figure 6b.</b> One shared core (TEL-01) and two collectors, each into its own gateway process and its own Site in the authorised test database. The October demo shows the same roles arriving by two routes, and states what each cannot see. The BeagleBone appears only after the laptop proof is stable.</figcaption></figure>
 <div class="k2">
-<div class="card"><h4 class="c-cloud">What the export track proves</h4><p>We can take <b>the data the customer already has</b>, with nothing installed, and turn it into accepted evidence and Findings through the same gateway and provenance path as any device. This is the offer for the first meeting. It needs one file or a read-only token.</p></div>
-<div class="card"><h4 class="c-bbb">What the hardware track proves</h4><p>We are not only a dashboard over someone else’s cloud. A real board runs our gateway and reads a controller over a real protocol, read-only, with an outbox that survives outages. This is the answer to “what about the sites, or the cold rooms, with no cloud?” and the step to R3 with the ~$100 kit.</p></div>
+<div class="card"><h4 class="c-mb">What proof A proves in October</h4><p>Verified integration: a real read-only Modbus client, a real wire, the real gateway with its outbox and TLS, and the real central ledger, ending in accepted evidence. Faults are injected at the emulator, and the outcomes are observable as holds, UNAVAILABLE reports, contact age and byte-identical retries.</p></div>
+<div class="card"><h4 class="c-cloud">What proof B1 proves in October</h4><p>A customer-style file enters the <em>same</em> gateway and evidence path, with deduplication, schema-drift refusal and timing rules. It proves the path, not any vendor’s format.</p></div>
 </div>
 <div class="callout warn"><b class="k">What fits in about three working days on this machine</b>
-<p>One builder runs one heavy job at a time: the bench runs and test suites are sequential. The budget is about 3.5 builder-days of work in about 3 days, so it fits only with these cuts:</p>
+<p>TEL-00 to TEL-06 total about 3–3.5 builder-days. They run one heavy job at a time: Postgres tests run alone, and end-to-end tests run one file at a time.</p>
+<p><b>Order of protection:</b></p>
 <ul>
-<li>a thin shared core (no watched folder);</li>
-<li>one export format (VRM-shaped);</li>
-<li>a CLI rather than a service for B1;</li>
-<li>fault coverage limited to the rows marked for 30 October in §11;</li>
-<li>no RTU work.</li>
+<li>TEL-01 to TEL-05 (proof A complete) come first.</li>
+<li>TEL-06’s focused tier comes second.</li>
+<li>TEL-06’s Postgres tier and TEL-07 move to 31 October if needed.</li>
 </ul>
-<p>The owner works in parallel on tasks that do not load the machine: flashing the BBB, ordering the kit, trying for a real VRM sample, and asking prospects for exports.</p>
-<p><b>If something slips:</b> the 12-hour BBB soak and the measurement table move to 31 October. The BBB stage-2 rehearsal itself and B1 stay in. Neither track is dropped.</p></div>
+<p>Nothing is rushed past a stop condition. The BBB (TEL-08), RTU and any purchase are out of October scope.</p></div>
 
 <!-- ============================================================ -->
 <h2 id="bbb"><span class="c-bbb">7 · BeagleBone Black integration details</span></h2>
+<div class="callout warn"><b class="k">Sequencing (revision 3)</b><p>The BBB follows <b>after</b> the laptop proof is stable (TEL-08: two consecutive green TEL-05 runs). It is not a blocker for October. Everything below is the plan for that step, unchanged in substance. Readiness claims made on the BBB name the board, OS image and kernel, Python version and commit (§10.0).</p></div>
 <div class="callout ok"><b class="k">7.1 Verdict</b><p><b>Yes: the BBB can run the relevant subset of the existing gateway unchanged.</b> That subset is <code>assetops_gateway</code> (serve, IPC, SQLite outbox, sealing, diagnostics, HTTPS uploader) and <code>assetops_contracts</code>, plus the new poller. All of it is pure standard library apart from pyserial for RTU. It needs no backend, simulator, host, Postgres or Node. Its role is comparable to AMMP Edge (a site box that reads non-API equipment and forwards it), at prototype grade. It is <b>not</b> a pilot box for harsh sites: it has no isolation, no wide-range input, no DIN mount and no RTC battery (§9 compares alternatives).</p></div>
 
 <h3>7.2 OS image and Python version</h3>
@@ -1265,7 +1291,7 @@ WantedBy=multi-user.target</code></pre>
 <path d="M960 174 V184 H271 V230 H262" class="ln a httpsc"/>
 <g class="pill https"><rect x="640" y="177" width="110" height="18" rx="9"/><text x="695" y="190" text-anchor="middle">HTTPS :8443</text></g>
 <rect x="580" y="348" width="510" height="102" rx="14" class="bx dash esp"/>
-<text x="594" y="372" class="t tb c-esp">Stage 3 · first hardware (≈$100 kit)</text>
+<text x="594" y="372" class="t tb c-esp">Stage 3 · first physical objective (O2/O3, §9)</text>
 <text x="594" y="394" class="tm">an XY-MD02 probe and an SDM-class meter on one RS-485 pair, 120 Ω at both ends,</text>
 <text x="594" y="412" class="tm">to an isolated USB-RS485 adapter on the BBB (/dev/ttyUSB0), or to the ESP32-S3-RS485-CAN</text>
 <text x="594" y="430" class="tm">as an RTU→TCP bridge over Wi-Fi; the poller@kobo-gx code reads it unchanged</text>
@@ -1273,7 +1299,7 @@ WantedBy=multi-user.target</code></pre>
 </svg>
 </div><figcaption><b>Figure 8.</b> Three stages with the same configuration files. Stage 1 is the integration test. Stage 2 moves only the poller and gateway to the BBB. Stage 3 replaces the virtual serial path with a real RS-485 pair.</figcaption></figure>
 <ol class="steps">
-<li><b>Backend on the laptop.</b> Start Postgres (container) with an authorised <code>*_test</code> database and migrate. Import the <b>bench-edge</b> and <b>bench-cloud</b> Sites from the Kobo foundation (D2), each with its own SIMULATED gateway (until D1) and sources. The laptop gateway for bench-cloud runs proof B1 in stage 1; this rehearsal moves only bench-edge to the BBB. Bind the Kobo binding set and pin its snapshot.</li>
+<li><b>Backend on the laptop.</b> Start Postgres (container) with an authorised <code>*_test</code> database and migrate. Use the same authorised <code>*_test</code> database and Kobo-derived test Site as TEL-05 (decision D2), with its SIMULATED gateway (until D1) and sources. Only the poller and gateway move to the BBB.</li>
 <li><b>TLS.</b> Create a local CA and a server certificate whose SAN lists the laptop’s LAN IP and <code>192.168.7.1</code>. Run <code>python -m assetops_backend.serve_tls --cert … --key … --host 0.0.0.0 --port 8443</code> with no reverse proxy (G7).</li>
 <li><b>Credential.</b> <code>python -m assetops_backend.evidence.provision_gateway issue --site &lt;bench&gt; --gateway &lt;bench-gw&gt; --enable-source … --credential-out var/gateway/upload-credential</code>. Copy the versioned file to the BBB out of band.</li>
 <li><b>Observations.</b> Run a registered Kobo simulation and export its <b>public</b> DeviceObservation series. This is the only input the emulator gets.</li>
@@ -1287,7 +1313,7 @@ WantedBy=multi-user.target</code></pre>
 <li><b>Verify centrally.</b> <code>GET /api/sites/{bench}/evidence</code> and records show accepted rows. <code>GET /api/sites/{bench}/gateway-health</code> shows CURRENT. Run <code>assess_dispatch assess --cohort GATEWAY:SOURCE:EPOCH</code> for the window, then <code>match-findings</code>. The provenance resolver shows UNKNOWN until D1.</li>
 <li><b>Fault rehearsal on the board.</b> Unplug the uplink for 6 h and check the drain. Pull power 10 times during admission and upload. Step the clock with chrony offline and confirm that nothing is published. Fill a test partition to the disk WARN and STOP thresholds.</li>
 <li><b>Record measurements</b> (§7.7) into a dated bench report and an R-level entry in the compatibility catalogue (pack doc 05), marked R2.</li>
-<li><b>Stage 3 (when the kit arrives).</b> Wire an XY-MD02 probe on an RS-485 pair with 120 Ω at both ends to the isolated USB adapter, and switch the cold profile’s port to <code>/dev/ttyUSB0</code>. Then repeat through the ESP32 bridge with the TCP poller (Unit ID = RTU address). That is an R3 claim for that probe model only.</li>
+<li><b>Stage 3 (only after the owner selects objective O2 or O3 and its minimum component is bought, §9).</b> Wire an XY-MD02 probe on an RS-485 pair with 120 Ω at both ends to the isolated USB adapter, and switch the cold profile’s port to <code>/dev/ttyUSB0</code>. Then repeat through the ESP32 bridge with the TCP poller (Unit ID = RTU address). That is an R3 claim for that probe model, adapter and environment only (§10.0).</li>
 </ol>
 
 <!-- ============================================================ -->
@@ -1366,14 +1392,14 @@ WantedBy=multi-user.target</code></pre>
 <text x="1025" y="344" class="tm" text-anchor="middle">unchanged</text>
 <path d="M920 368 H958" class="ln a httpsc"/>
 <rect x="960" y="60" width="130" height="200" rx="10" class="bx bad dash"/>
-<text x="1025" y="84" class="t tb" text-anchor="middle" style="fill:var(--bad)">Not allowed</text>
-<text x="1025" y="108" class="tm" text-anchor="middle">ESP → cloud</text>
-<text x="1025" y="124" class="tm" text-anchor="middle">directly</text>
-<text x="1025" y="148" class="tm" text-anchor="middle">bypasses IPC</text>
-<text x="1025" y="164" class="tm" text-anchor="middle">admission, outbox,</text>
-<text x="1025" y="180" class="tm" text-anchor="middle">sequence, receipts</text>
-<text x="1025" y="204" class="tm" text-anchor="middle">and puts a cloud</text>
-<text x="1025" y="220" class="tm" text-anchor="middle">credential on an MCU</text>
+<text x="1025" y="84" class="t tb" text-anchor="middle" style="fill:var(--bad)">Not near-term</text>
+<text x="1025" y="108" class="tm" text-anchor="middle">ESP → cloud direct</text>
+<text x="1025" y="124" class="tm" text-anchor="middle">(standalone MCU)</text>
+<text x="1025" y="148" class="tm" text-anchor="middle">future option only</text>
+<text x="1025" y="164" class="tm" text-anchor="middle">with equivalent</text>
+<text x="1025" y="180" class="tm" text-anchor="middle">security, provenance,</text>
+<text x="1025" y="204" class="tm" text-anchor="middle">durable delivery</text>
+<text x="1025" y="220" class="tm" text-anchor="middle">(§8.7)</text>
 <path d="M600 52 C 760 30, 900 30, 958 80" class="ln d badc"/><path d="M944 64 l14 14 M958 64 l-14 14" class="redx"/>
 </svg>
 </div><figcaption><b>Figure 9.</b> The board sits on the field side. Role 1 makes RS-485 devices look like Modbus TCP devices to the proof-A poller, which costs no new AssetOps adapter code. Role 2 runs acquisition firmware that publishes only to a local broker on the Linux edge. In neither role does it talk to AssetOps central.</figcaption></figure>
@@ -1386,7 +1412,7 @@ WantedBy=multi-user.target</code></pre>
 <tr><td>Provenance</td><td>Raw RTU-over-TCP frames captured by the poller</td><td>Raw capture must happen on the ESP or be lost</td></tr>
 <tr><td>When it wins</td><td>Meters, probes, controllers with a register map</td><td>CAN BMS frames, door contacts and 1-Wire probes, where logic sits next to the bus</td></tr>
 </tbody></table></div>
-<div class="callout bad"><b class="k">The one forbidden topology</b><p>An ESP that posts readings straight to AssetOps, or to any cloud, skips IPC admission, snapshot checks, the outbox, sequence and receipts. It also puts a credential on a microcontroller that has no owner-only file protection. Running the gateway itself on an ESP32 is not realistic: it needs Python 3.12+, SQLite WAL and TLS with the existing contracts.</p></div>
+<div class="callout warn"><b class="k">Not in the near-term design, and why</b><p>An ESP that posts readings straight to AssetOps <em>today</em> would skip what the gateway provides: mapping checks, a durable outbox, sequence, sealed batches, receipts and protected credentials. The near-term design therefore keeps it as a bridge. This is <b>not a permanent rule</b>: §8.7 keeps a standalone MCU edge open as a future option if it provides equivalent guarantees. Porting the Python gateway to an MCU is not the requirement.</p></div>
 
 <h3>8.3 Firmware options</h3>
 <div class="tw"><table>
@@ -1415,9 +1441,33 @@ WantedBy=multi-user.target</code></pre>
 <h3>8.6 How it compares</h3>
 <p>See the cost and capability chart in §9 (Figure 10). In short: the ESP32 board is the cheapest <em>isolated</em> RS-485 and CAN field interface found. The BBB is the cheapest box that runs the real gateway. The Seeed EdgeBox-ESP-100 adds Ethernet, 4G and isolated I/O to an ESP32-S3 (price unverified). Commercial gateways (Teltonika RUT956 around $275, Moxa MGate MB3170) are proven Modbus bridges, but at about ten times the price and still need our Linux gateway behind them.</p>
 
+<h3 id="mcu">8.7 Future option: a standalone MCU edge (owner adjustment 3)</h3>
+<p>The invariant is <b>equivalent security, provenance and reliable delivery</b>, not reuse of the Python gateway. A firmware edge, for example on an ESP32-S3 with a TLS stack, could upload directly once it meets each row below and passes the same central acceptance tests. None of this is planned for October or the first pilot.</p>
+<div class="tw"><table>
+<thead><tr><th>Invariant</th><th>Python gateway today</th><th>What an MCU edge must show instead</th></tr></thead>
+<tbody>
+<tr><td>Authenticated identity and scope</td><td>Per-gateway bearer <code>aog1.*</code>, owner-only file, rotation</td><td>Per-device credential in protected storage (for example flash encryption with secure boot), rotation, revocation honoured</td></tr>
+<tr><td>Transport security</td><td>TLS 1.2+, server certificate and hostname verified</td><td>The same, with a pinned CA bundle and correct time before connecting</td></tr>
+<tr><td>Mapping and admission</td><td>Pinned snapshot verified locally; holds without a sequence</td><td>Either the same local checks, or a documented central admission path that refuses unmapped or unit-incompatible reports with the same outcomes</td></tr>
+<tr><td>Durable, ordered delivery</td><td>SQLite WAL outbox, sequence epoch, sealed Batch V2, byte-identical retry, receipts</td><td>A power-loss-safe outbox in flash, monotonic sequence across reboots, sealed batches in the existing Batch V2 contract, byte-identical retry and receipt verification</td></tr>
+<tr><td>Provenance and time</td><td>source_time, published_at, diagnostics, contact age</td><td>The same envelope fields, an RTC or NTP discipline with offset reported, and diagnostics in <code>GatewayDiagnosticsV1</code></td></tr>
+<tr><td>Read-only OT</td><td>FC allowlist in the client</td><td>The same allowlist in firmware, with a negative test</td></tr>
+</tbody></table></div>
+<p class="meta">Acceptance would be the existing central ingestion tests plus a power-cut and replay suite run against the device. Until then the ESP32 board is a bridge only.</p>
+
+
 <!-- ============================================================ -->
 <h2 id="hw">9 · Low-cost hardware shortlist (deliverable 4)</h2>
-<p><b>Buy nothing for proofs B1 and A.</b> B1 needs only the laptop. A needs the laptop and the BBB you already own, plus a microSD card and a 5 V supply if you do not have them. The kit below is staged so that each purchase unlocks a named test.</p>
+<div class="callout warn"><b class="k">Revision 3: no purchase now (owner adjustment 7)</b><p>October needs nothing: proofs A and B1 run on the laptop. The table below is <b>reference only</b>. After the laptop proof is stable, the owner selects the <b>first physical test objective</b>, and only the minimum component for it is bought.</p></div>
+<div class="tw"><table>
+<thead><tr><th>First physical objective (choose one)</th><th>What it proves, precisely</th><th>Minimum next component</th><th class="num">Approx.</th></tr></thead>
+<tbody>
+<tr><td><b>O1</b> · The laptop-proven poller and gateway run on the BBB (TEL-08)</td><td>R2 on “BeagleBone Black · Debian 13.7 IoT · kernel 6.12 · Python 3.13.5 · commit &lt;sha&gt;”, against the same emulator</td><td>None, if a microSD card and a 5 V supply are on hand; otherwise those two</td><td class="num">$0–16</td></tr>
+<tr><td><b>O2</b> · One real Modbus RTU device on a real RS-485 wire</td><td>R3 for one named probe model, through one named USB-RS485 adapter, on the laptop or the BBB</td><td>An isolated USB-RS485 adapter <b>and</b> one RS-485 probe (the device is part of the objective)</td><td class="num">≈$40</td></tr>
+<tr><td><b>O3</b> · The Wi-Fi RS-485 bridge with the proof-A poller unchanged</td><td>R3 for probe-through-bridge, with named firmware</td><td>The O2 probe plus the Waveshare ESP32-S3-RS485-CAN</td><td class="num">≈$40</td></tr>
+</tbody></table></div>
+<p class="meta">Recommendation: <b>O1 first</b>. It costs nothing or nearly nothing and turns the October proof into an on-board result. Purchases for O2 or O3 follow the owner’s choice.</p>
+<h3>Reference: staged components (not to be purchased now)</h3>
 <div class="tw"><table>
 <thead><tr><th>Stage</th><th>Item</th><th class="num">Approx. price</th><th>Source / kind</th><th>Test it enables</th></tr></thead>
 <tbody>
@@ -1433,7 +1483,7 @@ WantedBy=multi-user.target</code></pre>
 <tr><td rowspan="2">Alternatives</td><td>Waveshare USB TO RS485 (B), <b>non-isolated</b></td><td class="num">$7.99</td><td><a href="https://www.waveshare.com/usb-to-rs485-b.htm">waveshare.com</a> <span class="chip s-fact">fact</span> H</td><td>Bench only</td></tr>
 <tr><td>Waveshare RS485 TO ETH (B), wired Modbus gateway (the (C) variant is isolated)</td><td class="num">$19.99–22.99</td><td><a href="https://www.waveshare.com/rs485-to-eth-b.htm">waveshare.com</a> <span class="chip s-fact">fact</span> H</td><td>Wired TCP-to-RTU bridge when Wi-Fi is unsuitable</td></tr>
 </tbody></table></div>
-<div class="callout"><b class="k">Totals (approximate)</b><p>Stage 0: about <b>$16</b>. Stage 0+1: about <b>$60</b>. Stage 0+1+2: about <b>$100</b>, which enables every bench test in §11. Stage 3 adds about $55 plus an electrician. A pilot edge for one cold room (BBB-class or industrial Linux box, ESP32 bridge, probe, door switch, supply) costs <b>about $200–450 in hardware</b>, depending on the Linux box (inference, M).</p></div>
+<div class="callout"><b class="k">Reference totals (approximate; nothing approved)</b><p>Stage 0: about <b>$16</b>. Stage 0+1: about <b>$60</b>. Stage 0+1+2: about <b>$100</b>. Stage 3 adds about $55 plus an electrician. A pilot edge for one cold room (BBB-class or industrial Linux box, ESP32 bridge, probe, door switch, supply) costs <b>about $200–450 in hardware</b>, depending on the Linux box (inference, M).</p></div>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1160 460" role="img" aria-labelledby="fhw" style="min-width:880px">
 <title id="fhw">Hardware cost and capability comparison</title>
 <text x="10" y="24" class="lane">DEVICE</text><text x="250" y="24" class="lane">APPROX. UNIT PRICE (USD; AUD×0.65 inferred)</text>
@@ -1538,30 +1588,203 @@ WantedBy=multi-user.target</code></pre>
 </tbody></table></div>
 
 <!-- ============================================================ -->
-<h2 id="slices">10 · Concrete implementation slices (deliverable 5)</h2>
-<p>These are slices for the Planner to turn into packets after owner review. Each ends in accepted evidence observable through the ordinary path, a pinned fixture or manifest, negative controls, and a dated R-level entry. Estimates are builder-days for one Sonnet- or Opus-class builder, and are inference. Before 30 October the total is about 3.5 days, which is why §6.5 lists cuts.</p>
+<h2 id="slices">10 · Implementation tasks (deliverable 5, revision 3)</h2>
+<p>These task cards are bounded to the October scope: proof A complete, plus a minimal B1. An implementer can pick them up directly once the rulings in §10.1 exist. Every path below was checked in this worktree. Where a file is <b>new</b>, it says so. Estimates are builder-days and are inference.</p>
+
+<h3 id="claims">10.0 Readiness claim record (owner adjustment 6)</h3>
+<p>Every task that ends in a claim writes one record into its review packet. The record names exactly what was tested, and nothing broader.</p>
 <div class="tw"><table>
-<thead><tr><th>#</th><th>Track</th><th>Slice</th><th>Code components</th><th>Emulator / fixture</th><th>Integration tests</th><th>Acceptance criteria</th><th class="num">Days</th></tr></thead>
+<thead><tr><th>Field</th><th>Example for TEL-05</th></tr></thead>
 <tbody>
-<tr><td colspan="8"><b>Before 30 October</b> (sequential, one heavy job at a time)</td></tr>
-<tr><td>S0</td><td>both</td><td>Two bench Sites and TLS</td><td>No product code. A runbook: import <b>bench-cloud</b> and <b>bench-edge</b> Sites from the Kobo foundation (D2), register two gateways and their sources, issue two credentials, create a cert with SAN</td><td>—</td><td>Smoke: a test Batch V2 round trip to <code>serve_tls</code> from each gateway</td><td>Receipt 200 for each; gateway-health CURRENT for each Site</td><td class="num">0.25</td></tr>
-<tr><td>S1</td><td>both</td><td>Shared core (thin)</td><td><code>field/assetops_field/</code>: <code>profile.py</code> (schema, SHA-256), <code>decode.py</code> (exact scale; int16/32 and float32 for Modbus), <code>aggregate.py</code> (interval mean, coverage, energy→mean kW), <code>publish.py</code> (IPC <code>admit_texts</code>), raw capture. Module-root and dependency checks updated.</td><td>Decoder vectors from <code>modbustcp.html</code></td><td>Unit tests</td><td>The aggregator never interpolates; reports parse as DeviceReport V1</td><td class="num">0.75</td></tr>
-<tr><td>S2</td><td class="c-cloud">cloud</td><td>Proof B1 export collector</td><td><code>assetops_field.export</code> CLI, column profile <code>vrm-installation-export/&lt;sample date&gt;</code>, timezone rule, schema-drift refusal</td><td>Synthetic VRM-shaped CSV from public observations; a real sample if one is obtained (one-hour attempt)</td><td>Collector → gateway process → <code>fake_central.py</code>, then <code>serve_tls</code> + test DB into bench-cloud</td><td>Accepted Kobo-role rows; re-upload absorbed; renamed column refuses the file; local-time rows handled by the declared rule</td><td class="num">0.5</td></tr>
-<tr><td>S3</td><td class="c-bbb">hardware</td><td>Modbus TCP client and GX emulator</td><td><code>modbus_tcp.py</code> (stdlib, FC allowlist); <code>emulators/modbus_gx/</code> (pymodbus 3.16.1 dev extra, fault switches, write counter)</td><td>Profile <code>victron-gx-system/&lt;sheet version&gt;</code> pinned to a <code>dbus_modbustcp</code> commit</td><td>Emulator → poller → gateway → <code>fake_central.py</code></td><td>Write FCs raise before the socket; the emulator sees 0 writes; values round-trip exactly</td><td class="num">1</td></tr>
-<tr><td>S4</td><td>both</td><td>Both tracks end to end on the laptop</td><td>Admin activate CLI</td><td>As S2 and S3</td><td>Sequential runs into the two bench Sites; <code>assess_dispatch</code> on each</td><td>Findings on both Sites; holds with the expected kinds for the 30-October fault rows; byte-identical replay after an uplink cut</td><td class="num">0.5</td></tr>
-<tr><td>S5</td><td class="c-bbb">hardware</td><td>BBB rehearsal</td><td>systemd units, install script, nftables, chrony; poller and bench-edge gateway on the BBB</td><td>Laptop emulator over the USB gadget link</td><td>Bench steps 7–12 (§7.9)</td><td>Accepted bench-edge evidence uploaded from the BBB; power-cut recovery clean 3/3 (10/10 and the 12 h soak may move to 31 Oct)</td><td class="num">0.5</td></tr>
-<tr><td colspan="8"><b>After outreach begins</b> (order set by the first prospects, §13)</td></tr>
-<tr><td>S6</td><td>both</td><td>Labelling gate (after D1)</td><td>Snapshot and publication accept the chosen classes (emulated interface; customer-supplied file); resolver truth table extended; migrations if CHECKs change</td><td>—</td><td><b>Full suite</b> (schema/plumbing)</td><td>Proof evidence resolves to its class, never REGISTERED_SIMULATION or real-attested</td><td class="num">1–1.5</td></tr>
-<tr><td>S7</td><td class="c-rtu">hardware</td><td>Proof D: RTU, then the kit</td><td><code>modbus_rtu.py</code> (CRC-16, framing, pyserial extra), cold profile rows, clock probe (G5)</td><td>pymodbus RTU on a socat pty or com0com; then XY-MD02 on isolated USB-RS485</td><td>CRC, timeout and address faults; cold bench Site end to end</td><td>R2 virtual; R3 for the probe model with hardware</td><td class="num">1</td></tr>
-<tr><td>S8</td><td class="c-ocpp">cloud (EV)</td><td>Proof C1: CSMS charge export</td><td><code>csms_export.py</code> on the S2 collector</td><td>Synthetic Monta-shaped export; then an operator sample</td><td>Duplicate row, open charge, unknown connector, unit mix-up</td><td>EV v4 accepted sessions and energy; EV assessments run</td><td class="num">0.75</td></tr>
-<tr><td>S9</td><td class="c-cloud">cloud</td><td>Proof B2: live API pull</td><td><code>assetops_field.cloud</code> framework + first vendor module (VRM or iMonnit, by prospect)</td><td>HTTPS mock from the official reference</td><td>429, revoked token, stale page, 24 h outage</td><td>Evidence through a hosted gateway; R3 with a customer token</td><td class="num">1.5</td></tr>
-<tr><td>S10</td><td class="c-ocpp">EV</td><td>Proof C2: OCPP 1.6J traffic</td><td><code>ocpp16j.py</code> (gateway side, pending D3)</td><td><code>ocpp</code> 2.1.0 ChargePoint + recording CSMS stub</td><td>Duplicate stop, reset, bad time, unknown connector, bad unit</td><td>Each EV design refusal code exercised</td><td class="num">2</td></tr>
-<tr><td>S11</td><td>both</td><td>IPC op scoping (G8)</td><td>Per-credential op allowlist in <code>ipc.py</code></td><td>—</td><td>Gateway process tests</td><td>A collector or poller key cannot call <code>activate</code>, <code>release_run</code>, <code>deliver</code>, <code>inject_fault</code></td><td class="num">0.5</td></tr>
-<tr><td>S12</td><td class="c-esp">hardware</td><td>ESP32 bridge firmware</td><td>ESP-IDF + esp-modbus TCP-to-RTU bridge, pinned toolchain</td><td>Real board + XY-MD02</td><td>S3 poller against the bridge; 0A/0B on unplug</td><td>R3 for probe-through-bridge; no change in AssetOps code</td><td class="num">1.5</td></tr>
+<tr><td>R-level</td><td>R2 (adapter lab-tested)</td></tr>
+<tr><td>Interface</td><td>Modbus TCP, client FC 03/04 only, Unit ID 100, TCP port 5020 on 127.0.0.1</td></tr>
+<tr><td>Format / profile</td><td><code>gx-system-illustrative/1</code>, SHA-256 &lt;hex&gt;, register layout from a third-party summary, <b>unpinned</b></td></tr>
+<tr><td>Source model / firmware</td><td>Emulator: pymodbus 3.16.1 server in <code>field/tests/emulators/gx_server.py</code>. <b>No real device.</b></td></tr>
+<tr><td>Data origin and clock</td><td>Public observations of registered Kobo run &lt;run id&gt;. Virtual-clock replay of 2026-09-30 03:00–15:00Z.</td></tr>
+<tr><td>Environment</td><td>Windows 11 laptop, Python &lt;x.y.z&gt; (<code>AssetOpsV1-plan2/.venv</code>), commit &lt;sha&gt;, Postgres &lt;version&gt; in <code>assetopsv1-postgres-1</code>, database <code>*_test</code></td></tr>
+<tr><td>Evidence</td><td>Accepted evidence IDs, receipt IDs, provenance read result, test node IDs and pass counts</td></tr>
+<tr><td>Not claimed</td><td>Victron GX, Cerbo or VRM compatibility; BBB; real wire faults; any financial result</td></tr>
 </tbody></table></div>
 
+<h3 id="rulings">10.1 Rulings needed before the first task</h3>
+<div class="tw"><table>
+<thead><tr><th>Ruling</th><th>From</th><th>Blocks</th><th>Proposed answer</th></tr></thead>
+<tbody>
+<tr><td><b>D4</b> New <code>field/</code> module root; scaling, interval aggregation and timezone rules in the pinned adapter profile; dependency rule “field imports <code>assetops_contracts</code> and <code>assetops_gateway.ipc</code> only”</td><td>Architect</td><td>TEL-01 (first task)</td><td>Yes as proposed (R2, R4)</td></tr>
+<tr><td><b>D1</b> October evidence carries no publication, so provenance reads UNKNOWN, and every demo screen says “emulated interface” or “illustrative format”</td><td>Owner</td><td>TEL-05, TEL-06 acceptance</td><td>Option (c) for October</td></tr>
+<tr><td><b>D5</b> GX profile leaves <code>battery_power</code> unbound; financial gate as in §6.1.1</td><td>Architect</td><td>TEL-03 profile rows</td><td>§6.1.1</td></tr>
+<tr><td><b>D6</b> Freshness and quality indicator set (§11.1); no identical-readings rule</td><td>Architect</td><td>TEL-04</td><td>§11.1</td></tr>
+<tr><td><b>D10</b> Coverage rule for interval means: the minimum share of expected polls for an interval to be GOOD</td><td>Architect</td><td>TEL-01 aggregator</td><td>All expected polls answered → GOOD; otherwise UNAVAILABLE <code>NO_COMPLETED_INTERVAL</code>. No partial means in October.</td></tr>
+</tbody></table></div>
+<p class="meta">The builder does a pre-flight read of all task cards first and batches every question into one request (project rule), before writing code.</p>
+
+<figure><div class="scroll">
+<svg class="fig" viewBox="0 0 1100 250" role="img" aria-labelledby="fdag" style="min-width:860px">
+<title id="fdag">October task dependency order</title>
+<text x="10" y="20" class="lane">OCTOBER (SEQUENTIAL ON ONE MACHINE)</text><text x="900" y="20" class="lane">AFTER</text>
+<rect x="10" y="40" width="120" height="56" rx="8" class="bx hl"/><text x="70" y="62" class="t tb" text-anchor="middle">TEL-00</text><text x="70" y="80" class="tm" text-anchor="middle">rulings, pre-flight</text>
+<rect x="160" y="40" width="120" height="56" rx="8" class="bx"/><text x="220" y="62" class="t tb" text-anchor="middle">TEL-01</text><text x="220" y="80" class="tm" text-anchor="middle">shared core</text>
+<rect x="310" y="40" width="120" height="56" rx="8" class="bx mb"/><text x="370" y="62" class="t tb" text-anchor="middle">TEL-02</text><text x="370" y="80" class="tm" text-anchor="middle">Modbus TCP client</text>
+<rect x="460" y="40" width="120" height="56" rx="8" class="bx mb"/><text x="520" y="62" class="t tb" text-anchor="middle">TEL-03</text><text x="520" y="80" class="tm" text-anchor="middle">emulator + profile</text>
+<rect x="610" y="40" width="120" height="56" rx="8" class="bx mb"/><text x="670" y="62" class="t tb" text-anchor="middle">TEL-04</text><text x="670" y="80" class="tm" text-anchor="middle">poller, focused E2E</text>
+<rect x="760" y="40" width="120" height="56" rx="8" class="bx mb"/><text x="820" y="62" class="t tb" text-anchor="middle">TEL-05</text><text x="820" y="80" class="tm" text-anchor="middle">Postgres acceptance</text>
+<rect x="460" y="130" width="120" height="56" rx="8" class="bx cloud"/><text x="520" y="152" class="t tb" text-anchor="middle">TEL-06a</text><text x="520" y="170" class="tm" text-anchor="middle">CSV collector</text>
+<rect x="760" y="130" width="120" height="56" rx="8" class="bx dash cloud"/><text x="820" y="152" class="t tb" text-anchor="middle">TEL-06b</text><text x="820" y="170" class="tm" text-anchor="middle">CSV in Postgres</text>
+<rect x="610" y="190" width="270" height="44" rx="8" class="bx dash"/><text x="745" y="217" class="t ts" text-anchor="middle">TEL-07 claim records + demo runbook</text>
+<rect x="910" y="40" width="180" height="40" rx="8" class="bx dash bbb"/><text x="1000" y="65" class="t ts" text-anchor="middle">TEL-08 BBB repeat (O1)</text>
+<rect x="910" y="90" width="180" height="40" rx="8" class="bx dash"/><text x="1000" y="115" class="t ts" text-anchor="middle">TEL-09 labelling gate</text>
+<rect x="910" y="140" width="180" height="40" rx="8" class="bx dash cloud"/><text x="1000" y="165" class="t ts" text-anchor="middle">TEL-10 genuine sample</text>
+<rect x="910" y="190" width="180" height="40" rx="8" class="bx dash rtu"/><text x="1000" y="215" class="t ts" text-anchor="middle">TEL-11 physical O2/O3</text>
+<path d="M130 68H158M280 68H308M430 68H458M580 68H608M730 68H758" class="ln a"/>
+<path d="M220 96V158H458" class="ln a cloudc"/><path d="M670 96V118H580" class="ln"/>
+<path d="M580 158H758" class="ln a cloudc"/><path d="M820 96V128" class="ln a d"/>
+<path d="M880 68H908" class="ln a d"/>
+<text x="700" y="114" class="tm">E2E harness</text>
+</svg></div>
+<figcaption><b>Figure 13.</b> Task order. TEL-06a can start after TEL-01, but it runs its end-to-end test with TEL-04’s harness, so it is scheduled after TEL-04. The dashed boxes move to 31 October or later if time runs out.</figcaption></figure>
+
+<div class="callout"><b class="k">Test discipline on this 16 GB machine</b><p><b>Focused</b> unit tests (<code>field/tests</code>) may run together with the gateway files in §1. <b>End-to-end</b> tests spawn a real gateway process and a TLS server, so run one file at a time. <b>Postgres</b> tests (<code>ASSETOPS_TEST_DATABASE_URL</code>, authorised <code>*_test</code> database in <code>assetopsv1-postgres-1</code>) run <b>alone</b>, with no other suite, dev server or emulator outside the test. Full suites only for TEL-09 (schema), and only when the machine is idle. Command form: <code>PYTHONPATH="backend;contracts;simulator;gateway;host;field;." &lt;plan2 venv python&gt; -m pytest &lt;file&gt; -q -p no:cacheprovider</code>.</p></div>
+
+<h3 id="tasks-oct">10.2 October task cards</h3>
+
+<div class="gate" style="border-left-color:var(--accent)"><h4>TEL-00 · Rulings and pre-flight (no code) · 0.25 d</h4>
+<p><b>Goal:</b> the rulings in §10.1 exist in writing, and the builder’s pre-flight questions are answered in one batch.</p>
+<p><b>Inputs:</b> this document, §10.1.</p>
+<p><b>Done when:</b> D1, D4, D5, D6 and D10 are recorded (owner file for D1; the Architect’s ruling for the rest), and the builder has posted “no open questions”.</p>
+<p><b>Stop:</b> any ruling contradicts a card. Revise the card first; do not build around it.</p></div>
+
+<div class="gate" style="border-left-color:var(--muted)"><h4>TEL-01 · Shared core: profile, decode, aggregate, report, publish · 0.75 d</h4>
+<p><b>Goal:</b> a dependency-free package that turns raw source values into DeviceReport V1 text and hands it to the gateway over IPC.</p>
+<p><b>Creates (new):</b> <code>field/pyproject.toml</code> (<code>requires-python &gt;=3.12</code>, <code>dependencies = []</code>, extras <code>dev = ["pytest", "pymodbus==3.16.1"]</code>, <code>serial = ["pyserial"]</code>), and <code>field/assetops_field/</code> with:</p>
+<ul>
+<li><code>__init__.py</code>;</li>
+<li><code>profile.py</code>: JSON schema, canonical SHA-256, status field <code>PINNED|UNPINNED|ILLUSTRATIVE</code>;</li>
+<li><code>decode.py</code>: exact integer × 10^e to canonical decimal, int16/int32/uint, word order, sentinels;</li>
+<li><code>aggregate.py</code>: interval means with the D10 coverage rule;</li>
+<li><code>report.py</code>: builds <code>DeviceReport</code> via <code>assetops_contracts.gateway_report.device_report_text</code>;</li>
+<li><code>publish.py</code>: <code>assetops_gateway.ipc.GatewayLink</code>, op <code>admit</code> with <code>reports</code>.</li>
+</ul>
+<p>Tests are <code>field/tests/test_decode.py</code>, <code>test_aggregate.py</code> and <code>test_profile.py</code>. <b>Extends:</b> <code>tools/checks/module-roots.ps1</code> (adds <code>field</code>, <code>field/assetops_field</code>) and <code>tools/checks/dependency-direction.ps1</code> (the field import rule; nothing in backend, gateway, simulator or host product code imports <code>assetops_field</code>).</p>
+<p><b>Inputs:</b> decoder vectors from <code>modbustcp.html</code>: <code>FF9C</code> int16 ×0.1 = −10; <code>7FFF</code> sentinel = UNAVAILABLE; <code>0001 86A0</code> uint32 ×0.001 = 100; <code>86A0 0001</code> CDAB = 100.</p>
+<p><b>Tests:</b> focused only. Also run <code>gateway/tests/test_wire_contracts.py</code> (the contract is unchanged), and both <code>.ps1</code> checks.</p>
+<p><b>Done when:</b></p>
+<ul>
+<li>all vectors pass;</li>
+<li>an interval missing one expected poll yields <code>UNAVAILABLE / NO_COMPLETED_INTERVAL</code>, and no value is interpolated;</li>
+<li>every report text round-trips through <code>parse_device_report_text</code>;</li>
+<li>the profile SHA is stable across key order;</li>
+<li>both checks are green.</li>
+</ul>
+<p><b>Stop:</b> the dependency check cannot express the field rule without loosening an existing gateway or host rule; or an exact-decimal helper would duplicate <code>assetops_contracts.observation.exact_decimal_text</code> with different semantics (reuse it, or ask).</p></div>
+
+<div class="gate" style="border-left-color:var(--mb)"><h4>TEL-02 · Read-only Modbus TCP client · 0.5 d · after TEL-01</h4>
+<p><b>Goal:</b> a stdlib client that can only read.</p>
+<p><b>Creates:</b> <code>field/assetops_field/modbus_tcp.py</code> and <code>field/tests/test_modbus_tcp.py</code>. The tests use a tiny in-test socket server, with no pymodbus.</p>
+<p><b>Done when:</b></p>
+<ul>
+<li>FC 05, 06, 15, 16 and 23 raise before any byte is sent: the test server records <b>0 bytes</b>;</li>
+<li>FC 01–04 frames match the <code>modbustcp.html</code> Figure 2a bytes;</li>
+<li>exception responses 01/02/03/04/06/0A/0B map to the outcomes in the <code>modbustcp.html</code> table;</li>
+<li>a transaction-ID or Unit ID mismatch raises;</li>
+<li>a timeout retries once, then reports UNAVAILABLE.</li>
+</ul>
+<p><b>Stop:</b> any need for a write function code for any reason.</p></div>
+
+<div class="gate" style="border-left-color:var(--mb)"><h4>TEL-03 · GX-shaped emulator and illustrative profile · 0.75 d · after TEL-02</h4>
+<p><b>Goal:</b> a real Modbus TCP server whose values come only from public observations.</p>
+<p><b>Creates:</b></p>
+<ul>
+<li><code>field/tests/emulators/gx_server.py</code>: pymodbus 3.16.1, Unit ID 100, fault switches, write counter, and a virtual clock shared with the poller.</li>
+<li><code>field/profiles/gx-system-illustrative-1.json</code>: status <code>UNPINNED</code>, source “third-party summary (aggsoft.com)”. Rows: PV 808–810, consumption 817–819 (mapped to the bench Site roles per D2 only if those roles exist; otherwise omitted), SoC 843. <b>No 842.</b></li>
+<li><code>field/tests/test_gx_emulator.py</code>.</li>
+</ul>
+<p><b>Inputs:</b> public observations obtained exactly as <code>host/tests/test_registered_gateway_publication.py</code> does: the registered Kobo draft from <code>backend/tests/test_s2_registered_basis.py</code>, then <code>generate_observations(session.execution.boundaries, session.reporting)</code>.</p>
+<p><b>Done when:</b> the TEL-02 client reads every bound value back, and through the profile it equals the observation’s published value exactly. Each fault switch produces its documented response. After the suite, the write counter is 0.</p>
+<p><b>Stop:</b> any value the emulator needs is not in the public observation (that would mean private truth). Or pymodbus 3.16.1 will not install in the plan2 venv: fall back to the TEL-02 in-test server and record the deviation. That fallback is allowed.</p></div>
+
+<div class="gate" style="border-left-color:var(--mb)"><h4>TEL-04 · Poller and focused end-to-end through a real gateway process · 0.75 d · after TEL-03</h4>
+<p><b>Goal:</b> emulator → poller → real <code>python -m assetops_gateway serve</code> → TLS upload → receipts, with no database.</p>
+<p><b>Creates:</b> <code>field/assetops_field/modbus_poller.py</code> (CLI; cadence; aggregation; the D6 freshness indicators; raw frame capture with SHA-256) and <code>host/tests/test_field_modbus_tcp_proof.py</code>. <b>Reuses:</b></p>
+<ul>
+<li><code>host/tests/gateway_process.py</code> (<code>GatewayProcess</code>, <code>write_config</code>, <code>provisioning_from_snapshot</code>);</li>
+<li><code>gateway/tests/fake_central.py</code> (<code>FakeCentral</code>, <code>CERT</code>, <code>receipt_text</code>);</li>
+<li>the Kobo registered basis’s <code>snapshot_canonical</code>.</li>
+</ul>
+<p><b>Tests:</b> this file alone.</p>
+<p><b>Done when:</b></p>
+<ul>
+<li>every admitted envelope is acknowledged with a 200 receipt;</li>
+<li>sentinel and exception 02 produce <code>UNAVAILABLE / NO_MEASUREMENT</code> envelopes, not holds;</li>
+<li>a profile unit edited to W produces <code>UNIT_INCOMPATIBLE</code> holds with no sequence allocated;</li>
+<li>a repeated poll reuses the same message ID;</li>
+<li>the same key with other content is held <code>CONFLICTING_REPORT</code>;</li>
+<li>an uplink failure (<code>FakeCentral</code> DROP), then recovery, posts <b>byte-identical</b> bodies, and <code>FakeCentral</code> records them;</li>
+<li>a paused emulator raises <code>last_device_contact_by_source</code> age in diagnostics;</li>
+<li>the emulator write counter is 0;</li>
+<li>the gateway refuses nothing in the snapshot (activation succeeds unchanged).</li>
+</ul>
+<p><b>Stop:</b> activation is refused, any change to <code>gateway/</code> or <code>backend/</code> product code seems necessary, or a hold kind other than the expected one appears. Report it with the gateway’s hold row; do not work around it.</p></div>
+
+<div class="gate" style="border-left-color:var(--mb)"><h4>TEL-05 · Postgres acceptance: accepted evidence, provenance, assessment · 0.5 d · after TEL-04 · run ALONE</h4>
+<p><b>Goal:</b> the same chain into the real central ledger.</p>
+<p><b>Creates:</b> <code>backend/tests/test_field_modbus_tcp_acceptance_postgres.py</code>, skipped without <code>ASSETOPS_TEST_DATABASE_URL</code> as in <code>test_s2_site_evidence_postgres.py</code>. It uses <code>backend/tests/pg_harness.py</code>, imports and binds Kobo in the test database like the S1/S2 Postgres tests, registers a SIMULATED gateway, issues a credential with <code>provision_gateway</code>, and serves the app over TLS with <code>serve_tls</code> and the test certificate.</p>
+<p><b>Tests:</b> this file alone, nothing else running.</p>
+<p><b>Done when:</b></p>
+<ul>
+<li>the receipt is COMPLETED;</li>
+<li><code>GET /api/sites/{site}/evidence/records</code> lists accepted evidence for every bound role in the profile, and the test prints the IDs;</li>
+<li><code>SourceProvenanceResolver(ProvenanceReadsOn(…))</code> over those IDs returns <code>UNKNOWN</code> with reason <code>NO_POSITIVE_BINDING</code> (D1);</li>
+<li><code>python -m assetops_backend.analytics.assess_dispatch assess --tenant-id … --site-id … --start 2026-09-30T03:00:00Z --end 2026-09-30T15:00:00Z --cohort GATEWAY:SOURCE:EPOCH</code> completes, citing only those IDs;</li>
+<li>no consequence or money row exists for the window (gate §6.1.1);</li>
+<li>it is green on two consecutive runs.</li>
+</ul>
+<p><b>Stop:</b> <code>serve_tls</code> or the import needs schema or fixtures the test database does not have. A non-UNKNOWN provenance result (a publication got attached). Any 4xx from ingestion. Report with the refusal row.</p></div>
+
+<div class="gate" style="border-left-color:var(--cloud)"><h4>TEL-06 · Minimal generic CSV collector (B1) · 0.5 d (+0.25 d Postgres) · after TEL-04</h4>
+<p><b>Goal:</b> a customer-style file enters the same gateway path, with no vendor claim.</p>
+<p><b>Creates:</b></p>
+<ul>
+<li><code>field/assetops_field/export_csv.py</code>;</li>
+<li><code>field/profiles/generic-interval-csv-illustrative-1.json</code> (status <code>ILLUSTRATIVE</code>);</li>
+<li><code>contract-fixtures/telemetry/generic-interval-csv-v1/kobo-window.csv</code> plus a <code>manifest.json</code> with SHA-256 and the generating command;</li>
+<li><code>field/tests/test_export_csv.py</code>;</li>
+<li><b>TEL-06a:</b> <code>host/tests/test_field_export_csv_proof.py</code>, focused, with <code>GatewayProcess</code> and <code>FakeCentral</code>;</li>
+<li><b>TEL-06b</b> (optional in October): one Postgres test, added to the TEL-05 file as a second test with its own Site.</li>
+</ul>
+<p><b>Done when:</b></p>
+<ul>
+<li>the same file admitted twice gives identical message IDs and no new sequence;</li>
+<li>a renamed header refuses the whole file with 0 IPC admissions, and the refusal names the profile SHA;</li>
+<li>a timestamp without <code>Z</code> is refused <code>INVALID_TIMING</code>;</li>
+<li>a blank cell becomes UNAVAILABLE;</li>
+<li>a header unit W produces <code>UNIT_INCOMPATIBLE</code> holds;</li>
+<li>for TEL-06b, accepted IDs are listed, provenance is <code>UNKNOWN</code>, and no money row exists;</li>
+<li>nothing in the code, profile, fixture or UI text names a vendor.</li>
+</ul>
+<p><b>Stop:</b> any request to name a vendor format before a genuine sample exists (owner adjustment 2).</p></div>
+
+<div class="gate" style="border-left-color:var(--muted)"><h4>TEL-07 · Claim records and demo runbook · 0.25 d · after TEL-05 (and TEL-06)</h4>
+<p><b>Goal:</b> the October result can be shown without overclaiming.</p>
+<p><b>Creates:</b> the review packet <code>.agent/TEL-05-review-packet.md</code> (and TEL-06), with the §10.0 records filled in. Also a runbook of exact commands for a live demo against the authorised test database: <code>serve_tls</code>, gateway, poller, CSV ingest, then evidence and provenance reads.</p>
+<p><b>Done when:</b> a reviewer can rerun the demo from the runbook alone. Every claim names interface, format, model and environment. The “Not claimed” line is present.</p>
+<p><b>Stop:</b> the demo would need the product demo database or a UI change. That is out of scope; ask.</p></div>
+
+<h3>10.3 After October (not detailed until October closes)</h3>
+<div class="tw"><table>
+<thead><tr><th>Task</th><th>Start condition</th><th>Gate</th></tr></thead>
+<tbody>
+<tr><td><b>TEL-08</b> BBB repeat (objective O1)</td><td>TEL-05 green twice; owner picks O1</td><td>The same TEL-04 and TEL-05 acceptance with the poller and gateway on the BBB (§7.9 steps 7–12), and a BBB claim record</td></tr>
+<tr><td><b>TEL-09</b> Labelling gate (D1 option a)</td><td>Architect contract ruling</td><td><b>Full suite</b> on an idle machine; October IDs re-resolve to the new class</td></tr>
+<tr><td><b>TEL-10</b> Vendor profile from a genuine sample</td><td>A real export (VRM via demo or prospect, or a CSMS)</td><td>Profile status <code>PINNED</code> with sample date; R3 only for that vendor, export type and version</td></tr>
+<tr><td><b>TEL-11</b> First physical bus test (O2 or O3)</td><td>Owner selects the objective; minimum component bought (§9)</td><td>R3 for the named model through the named interface</td></tr>
+<tr><td><b>TEL-12</b> Battery AC binding</td><td>D5 ruling and a pinned VE.Bus AC register</td><td>The financial gate in §6.1.1</td></tr>
+<tr><td><b>TEL-13</b> IPC op scoping (G8), measured clock offset (G5)</td><td>Before any pilot</td><td>Gateway process tests</td></tr>
+</tbody></table></div>
+<p class="meta">Proofs C (EV) and B2 (live API) wait for a prospect, as in §13.</p>
+
+
 <!-- ============================================================ -->
-<h2 id="faults"><span style="color:var(--bad)">11 · Fault-injection test matrix</span></h2>
+<h2 id="faults"><span style="color:var(--bad)">11 · Fault-injection test matrix and freshness</span></h2>
 <figure><div class="scroll"><svg class="fig" viewBox="0 0 1000 720" role="img" aria-labelledby="fmt" style="min-width:820px">
 <title id="fmt">Fault-injection test matrix: faults by proof and the kind of test that covers each</title>
 <text x="397.0" y="56" class="t tb ts" text-anchor="middle">B · Cloud / export</text>
@@ -1657,7 +1880,7 @@ WantedBy=multi-user.target</code></pre>
 <text x="799.0" y="300" class="hmt" text-anchor="middle">n/a</text>
 <rect x="869" y="283" width="128" height="24" rx="5" class="hm0"/>
 <text x="933.0" y="300" class="hmt" text-anchor="middle">n/a</text>
-<text x="10" y="330" class="tm tmono">F08</text><text x="62" y="330" class="t ts">Stale but plausible (frozen value)</text>
+<text x="10" y="330" class="tm tmono">F08</text><text x="62" y="330" class="t ts">Freshness: contact age, source lag</text>
 <rect x="333" y="313" width="128" height="24" rx="5" class="hm3"/>
 <text x="397.0" y="330" class="hmt" text-anchor="middle">E</text>
 <rect x="467" y="313" width="128" height="24" rx="5" class="hm3"/>
@@ -1768,7 +1991,7 @@ WantedBy=multi-user.target</code></pre>
 <text x="392" y="638" class="t ts"><tspan class="tb">gate D1</tspan> needs decision D1</text>
 <rect x="670" y="624" width="44" height="20" rx="4" class="hm0"/>
 <text x="722" y="638" class="t ts"><tspan class="tb">n/a</tspan> not applicable</text>
-<text x="10" y="666" class="t ts"><tspan style="fill:var(--accent);font-weight:700">◆</tspan> row is in scope before 30 October for B1 and A; the others follow with S6–S12.</text>
+<text x="10" y="666" class="t ts"><tspan style="fill:var(--accent);font-weight:700">◆</tspan> row is in scope before 30 October for B1 and A; the others follow after October (§10.3).</text>
 </svg></div><figcaption><b>Figure 11.</b> Which test covers each fault in each proof, with the customer-data proof first. Rows marked ◆ are the reduced scope that fits before 30 October. “M” cells rely on behaviour already on main and tested today; the 189 gateway tests run in §1 include the outbox, retry, receipts and holds. Every “E” cell is a new integration test in which the fault is injected <b>at the emulator, mock or export file</b>, never by editing evidence downstream. The PRV row cannot pass until decision D1, because emulated evidence would otherwise read UNKNOWN.</figcaption></figure>
 <div class="tw"><table>
 <thead><tr><th>Fault</th><th>How it is injected</th><th>Expected outcome</th></tr></thead>
@@ -1779,11 +2002,25 @@ WantedBy=multi-user.target</code></pre>
 <tr><td>SCH Export schema drift</td><td>Rename or reorder a column, or change a unit in the header</td><td>The whole file is refused with a profile mismatch, and nothing is part-imported. The raw file is kept for review.</td></tr>
 <tr><td>F03 Export timezone</td><td>Local timestamps across a DST change</td><td>Converted only by the profile’s declared Site timezone rule; an ambiguous hour is refused, never guessed</td></tr>
 <tr><td>F05 Counter reset</td><td>Drop the kWh register to near 0</td><td>A new epoch or <code>EV_COUNTER_RESET</code>; never a negative or huge delta</td></tr>
-<tr><td>F08 Stale but plausible</td><td>Freeze a register, or repeat an API page</td><td>A stale flag after N identical samples (a proposed rule needing an Architect ruling); never presented as fresh</td></tr>
+<tr><td>F08 Freshness</td><td>Pause the emulator; serve rows or pages whose own timestamps lag; withhold a heartbeat the profile documents</td><td>Indicators from §11.1 only. <b>Identical consecutive values are never, on their own, a quality downgrade or a rejection</b> (owner adjustment 4).</td></tr>
 <tr><td>F09 Identity</td><td>Wrong Unit ID, a foreign site ID in the API payload, connector 3</td><td>Exception 0A/0B to UNAVAILABLE; snapshot refusal; <code>EV_CONNECTOR_MISMATCH</code></td></tr>
 <tr><td>CRC / framing</td><td>Flip bits on the pty stream</td><td>Retry once, then UNAVAILABLE; a bad frame is never published; the error is counted in health</td></tr>
 <tr><td>Crash / power loss</td><td>Kill the gateway at test hooks (<code>_hit</code> points exist) and pull power on the BBB</td><td>No duplicate sequence, no lost committed admission, receipts reconcile</td></tr>
 </tbody></table></div>
+
+<h3 id="fresh">11.1 Freshness and quality indicators (ruling candidate D6 for the Architect)</h3>
+<p>Revision 2 proposed flagging a value as stale after N identical polls. That rule is <b>withdrawn</b>. A steady SoC, a stopped generator or a cold room holding temperature legitimately repeat values, so the rule would penalise correct data. Freshness is instead judged from indicators that have a physical or protocol basis.</p>
+<div class="tw"><table>
+<thead><tr><th>Indicator</th><th>Basis</th><th>Applies to</th><th>Exists on main?</th></tr></thead>
+<tbody>
+<tr><td><b>Transport outcome per read</b>: answered, exception (01/02/04/06/0A/0B), timeout, CRC failure</td><td>The protocol itself</td><td>Modbus TCP and RTU</td><td>No: new in the poller. Its result is the report’s <code>quality</code> / <code>unavailable_reason</code>, which exists.</td></tr>
+<tr><td><b>Source contact age</b>: time since the last successful contact per source</td><td>The gateway’s own record</td><td>Every source</td><td><span class="chip s-impl">yes</span> <code>last_device_contact_by_source</code> in <code>GatewayDiagnosticsV1</code></td></tr>
+<tr><td><b>Source-time lag</b>: admission or receipt time minus the source’s own timestamp, against the declared cadence</td><td>The two-clock rule (<code>source_time</code> versus <code>received_at</code>)</td><td>Sources with their own timestamps: exports, APIs, OCPP</td><td><span class="chip s-impl">fields yes</span>; the cadence comparison is new</td></tr>
+<tr><td><b>Interval coverage</b>: the share of expected samples present</td><td>The D10 coverage rule</td><td>Interval means</td><td>No: new in the aggregator; the output uses the existing <code>NO_COMPLETED_INTERVAL</code></td></tr>
+<tr><td><b>Device-published status</b>: an update counter, heartbeat or “data valid” register, <em>only if the pinned map documents one</em></td><td>The vendor’s own semantics</td><td>Devices whose map has one</td><td>No; per profile. None is claimed for the GX until it is pinned.</td></tr>
+<tr><td><b>Vendor quality flags</b>: estimated, missing or replaced markers in an export or API</td><td>The vendor’s own semantics</td><td>Exports and APIs that publish them</td><td>No; per profile</td></tr>
+</tbody></table></div>
+<p class="meta">Identical-value runs may appear as an informational count in raw-capture diagnostics for a human to look at. They never change quality, holds or analytics.</p>
 
 <!-- ============================================================ -->
 <h2 id="gaps">12 · Pilot-readiness gaps (deliverable 6)</h2>
@@ -1808,97 +2045,100 @@ WantedBy=multi-user.target</code></pre>
 <h2 id="exec">13 · Bounded execution plan (deliverable 7)</h2>
 <figure>
 <div class="scroll">
-<svg class="fig" viewBox="0 0 1100 340" role="img" aria-labelledby="fex" style="min-width:860px">
-<title id="fex">Execution timeline: both tracks before 30 October, then by prospect</title>
-<text x="10" y="20" class="lane">BEFORE 30 OCTOBER (≈3 WORKING DAYS, ONE HEAVY JOB AT A TIME)</text>
-<text x="660" y="20" class="lane">AFTER OUTREACH BEGINS</text>
-<line x1="645" y1="28" x2="645" y2="330" class="ln d"/>
+<svg class="fig" viewBox="0 0 1100 330" role="img" aria-labelledby="fex" style="min-width:860px">
+<title id="fex">Execution timeline: complete Modbus TCP proof and minimal export collector in October, then BBB and the rest</title>
+<text x="10" y="20" class="lane">OCTOBER (≈3 WORKING DAYS, ONE HEAVY JOB AT A TIME, LAPTOP ONLY)</text>
+<text x="660" y="20" class="lane">AFTER OCTOBER</text>
+<line x1="645" y1="28" x2="645" y2="320" class="ln d"/>
 <g class="tm"><text x="130" y="44" text-anchor="middle">Tue 27 (pm)</text><text x="330" y="44" text-anchor="middle">Wed 28</text><text x="530" y="44" text-anchor="middle">Thu 29</text></g>
 <text x="10" y="70" class="t ts tb">Builder</text>
-<rect x="70" y="54" width="120" height="30" rx="7" class="bx"/><text x="130" y="74" class="t ts" text-anchor="middle">S0 · S1 core</text>
-<rect x="200" y="54" width="90" height="30" rx="7" class="bx"/><text x="245" y="74" class="t ts" text-anchor="middle">S1 finish</text>
-<rect x="296" y="54" width="130" height="30" rx="7" class="bx cloud"/><text x="361" y="74" class="t ts" text-anchor="middle">S2 B1 export</text>
-<rect x="432" y="54" width="90" height="30" rx="7" class="bx mb"/><text x="477" y="74" class="t ts" text-anchor="middle">S3 Modbus</text>
-<rect x="528" y="54" width="110" height="30" rx="7" class="bx mb"/><text x="583" y="74" class="t ts" text-anchor="middle">S3 · S4 E2E</text>
-<rect x="528" y="92" width="110" height="30" rx="7" class="bx bbb"/><text x="583" y="112" class="t ts" text-anchor="middle">S5 BBB rehearsal</text>
+<rect x="70" y="54" width="70" height="30" rx="7" class="bx hl"/><text x="105" y="74" class="t ts" text-anchor="middle">TEL-00</text>
+<rect x="146" y="54" width="144" height="30" rx="7" class="bx"/><text x="218" y="74" class="t ts" text-anchor="middle">TEL-01 shared core</text>
+<rect x="296" y="54" width="70" height="30" rx="7" class="bx mb"/><text x="331" y="74" class="t ts" text-anchor="middle">TEL-02</text>
+<rect x="372" y="54" width="90" height="30" rx="7" class="bx mb"/><text x="417" y="74" class="t ts" text-anchor="middle">TEL-03</text>
+<rect x="468" y="54" width="80" height="30" rx="7" class="bx mb"/><text x="508" y="74" class="t ts" text-anchor="middle">TEL-04</text>
+<rect x="554" y="54" width="84" height="30" rx="7" class="bx mb"/><text x="596" y="74" class="t ts" text-anchor="middle">TEL-05 (alone)</text>
+<rect x="468" y="92" width="170" height="30" rx="7" class="bx cloud"/><text x="553" y="112" class="t ts" text-anchor="middle">TEL-06a CSV collector</text>
 <text x="10" y="148" class="t ts tb">Owner</text>
-<rect x="70" y="132" width="220" height="30" rx="7" class="bx hl"/><text x="180" y="152" class="t ts" text-anchor="middle">D1 · D2 · D7 · flash BBB</text>
-<rect x="296" y="132" width="342" height="30" rx="7" class="bx dash cloud"/><text x="467" y="152" class="t ts" text-anchor="middle">try VRM demo sample (1 h) · order kit · ask prospects for an export</text>
-<text x="10" y="186" class="t ts tb">Slip</text>
-<rect x="430" y="170" width="208" height="30" rx="7" class="bx dash bbb"/><text x="534" y="190" class="t ts" text-anchor="middle">12 h soak + measurements → 31 Oct</text>
-<rect x="20" y="214" width="618" height="112" rx="8" class="note g"/>
-<text x="32" y="236" class="t ts tb">Demo story on 30 Oct (honest labels, R1–R2):</text>
-<text x="32" y="256" class="t ts">1. “Give us your VRM export (or a read-only token) and you see Findings like these on your own data.”</text>
-<text x="32" y="274" class="t ts">2. “For what your cloud cannot see, our read-only edge on a BeagleBone reads the site controller over Modbus</text>
-<text x="32" y="292" class="t ts">   through the same gateway, outbox and TLS upload, into the same evidence and Findings.”</text>
-<text x="32" y="312" class="t ts">Not claimed: any customer’s data, device or API. Synthetic file and emulator values come from a simulator run.</text>
-<rect x="660" y="54" width="210" height="30" rx="7" class="bx"/><text x="765" y="74" class="t ts" text-anchor="middle">S6 labelling gate (full suite)</text>
-<rect x="880" y="54" width="210" height="30" rx="7" class="bx rtu"/><text x="985" y="74" class="t ts" text-anchor="middle">S7 RTU + kit → R3 probe</text>
-<rect x="660" y="92" width="210" height="30" rx="7" class="bx cloud"/><text x="765" y="112" class="t ts" text-anchor="middle">B1 on a prospect’s file → R3</text>
-<rect x="880" y="92" width="210" height="30" rx="7" class="bx cloud"/><text x="985" y="112" class="t ts" text-anchor="middle">S9 B2 live API (by prospect)</text>
-<rect x="660" y="130" width="210" height="30" rx="7" class="bx ocpp"/><text x="765" y="150" class="t ts" text-anchor="middle">S8 C1 CSMS export (EV)</text>
-<rect x="880" y="130" width="210" height="30" rx="7" class="bx ocpp"/><text x="985" y="150" class="t ts" text-anchor="middle">S10 C2 OCPP traffic</text>
-<rect x="660" y="168" width="210" height="30" rx="7" class="bx"/><text x="765" y="188" class="t ts" text-anchor="middle">S11 IPC op scoping</text>
-<rect x="880" y="168" width="210" height="30" rx="7" class="bx esp"/><text x="985" y="188" class="t ts" text-anchor="middle">S12 ESP32 bridge firmware</text>
-<rect x="660" y="214" width="430" height="112" rx="8" class="note"/>
-<text x="672" y="236" class="t ts tb">Week 1: S6 and S7 always (hardware stays early).</text>
-<text x="672" y="256" class="t ts">Then the first serious prospect picks the next customer-data step:</text>
-<text x="672" y="274" class="t ts">a mini-grid on VRM → B1 on their file, then B2; an EV depot → C1;</text>
-<text x="672" y="292" class="t ts">a cold room with a logger cloud → B2 (iMonnit); none → D on site.</text>
-<text x="672" y="312" class="t ts">No P5 MQTT, OCPP 2.0.1 or CAN BMS without a named customer.</text>
+<rect x="70" y="132" width="220" height="30" rx="7" class="bx hl"/><text x="180" y="152" class="t ts" text-anchor="middle">D1 · D2 (owner rulings)</text>
+<rect x="296" y="132" width="342" height="30" rx="7" class="bx dash cloud"/><text x="467" y="152" class="t ts" text-anchor="middle">ask prospects for one genuine export · no purchases</text>
+<text x="10" y="186" class="t ts tb">May slip</text>
+<rect x="430" y="170" width="208" height="30" rx="7" class="bx dash"/><text x="534" y="190" class="t ts" text-anchor="middle">TEL-06b, TEL-07 → 31 Oct</text>
+<rect x="20" y="214" width="618" height="102" rx="8" class="note g"/>
+<text x="32" y="236" class="t ts tb">What can be shown on 30 October (precise claims, §10.0):</text>
+<text x="32" y="256" class="t ts">1. R2 Modbus TCP: our read-only poller reads a GX-shaped emulator (unpinned layout) through the real gateway,</text>
+<text x="32" y="274" class="t ts">   TLS upload and ledger into accepted evidence, with fault outcomes. Laptop, test database.</text>
+<text x="32" y="292" class="t ts">2. R2 generic illustrative CSV through the same path. No vendor, device, BBB or financial claim.</text>
+<text x="32" y="310" class="t ts">Values come from a simulator run; provenance reads UNKNOWN with a caption (D1).</text>
+<rect x="660" y="54" width="210" height="30" rx="7" class="bx bbb"/><text x="765" y="74" class="t ts" text-anchor="middle">TEL-08 BBB repeat (O1)</text>
+<rect x="880" y="54" width="210" height="30" rx="7" class="bx"/><text x="985" y="74" class="t ts" text-anchor="middle">TEL-09 labelling gate</text>
+<rect x="660" y="92" width="210" height="30" rx="7" class="bx cloud"/><text x="765" y="112" class="t ts" text-anchor="middle">TEL-10 genuine sample → R3</text>
+<rect x="880" y="92" width="210" height="30" rx="7" class="bx rtu"/><text x="985" y="112" class="t ts" text-anchor="middle">TEL-11 physical O2/O3</text>
+<rect x="660" y="130" width="210" height="30" rx="7" class="bx ocpp"/><text x="765" y="150" class="t ts" text-anchor="middle">C1/C2 EV (by prospect)</text>
+<rect x="880" y="130" width="210" height="30" rx="7" class="bx cloud"/><text x="985" y="150" class="t ts" text-anchor="middle">B2 live API (by prospect)</text>
+<rect x="660" y="168" width="210" height="30" rx="7" class="bx"/><text x="765" y="188" class="t ts" text-anchor="middle">TEL-12 battery AC binding</text>
+<rect x="880" y="168" width="210" height="30" rx="7" class="bx"/><text x="985" y="188" class="t ts" text-anchor="middle">TEL-13 IPC scope, clock</text>
+<rect x="660" y="214" width="430" height="102" rx="8" class="note"/>
+<text x="672" y="236" class="t ts tb">First: TEL-08, once TEL-05 is green twice.</text>
+<text x="672" y="256" class="t ts">The owner then picks the first physical objective (§9: O1, O2, O3)</text>
+<text x="672" y="274" class="t ts">and only its minimum component is bought.</text>
+<text x="672" y="292" class="t ts">Customer-data steps follow genuine samples, not guesses.</text>
+<text x="672" y="310" class="t ts">No MCU edge, MQTT, OCPP 2.0.1 or CAN BMS without a need.</text>
 </svg>
 </div>
-<figcaption><b>Figure 12.</b> Both tracks before the 30th, built on one shared core. The builder’s lane is sequential because the machine runs one heavy job at a time. The owner’s lane is light work in parallel. If the plan slips, only the BBB soak moves; neither proof is dropped.</figcaption>
+<figcaption><b>Figure 12.</b> October is bounded to proof A complete and B1 minimal, on the laptop. Proof A is protected first; TEL-06b and TEL-07 are the first to move. The BeagleBone follows once the laptop proof is green twice, and it is not an October gate.</figcaption>
 </figure>
 <div class="tw"><table>
-<thead><tr><th>Before 30 October: must</th><th>Before 30 October: should</th><th>After outreach begins</th><th>Not until a customer asks</th></tr></thead>
+<thead><tr><th>October: must</th><th>October: should</th><th>After October</th><th>Not until there is a need</th></tr></thead>
 <tbody><tr>
-<td>D1, D2 decided · S0 · S1 · <b>S2 B1 export collector</b> · <b>S3 Modbus TCP + GX emulator</b> · S4 both end to end on the laptop (◆ rows of §11)</td>
-<td><b>S5 BBB rehearsal</b> with bench-edge evidence uploaded from the board · order the kit · one-hour attempt at a real VRM sample · prospects asked for an export or token</td>
-<td>S6 labelling gate · S7 RTU + kit (R3) · B1 on a prospect’s file (R3) · S8 C1 or S9 B2 by prospect · S10 · S11 · S12</td>
-<td>MQTT ingress (P5) · OCPP 2.0.1 · CAN BMS · fleet APIs · raw-capture retention service · industrial box selection</td>
+<td>TEL-00 rulings · TEL-01 · TEL-02 · TEL-03 · TEL-04 · <b>TEL-05 accepted evidence in the test database</b></td>
+<td>TEL-06a CSV collector (focused) · TEL-06b in Postgres · TEL-07 claim records and runbook</td>
+<td>TEL-08 BBB (O1) · owner picks the first physical objective, then buys only its minimum component · TEL-09 · TEL-10 genuine sample · TEL-11 · TEL-12 · TEL-13 · C and B2 by prospect</td>
+<td>Standalone MCU edge (§8.7) · MQTT ingress (P5) · OCPP 2.0.1 · CAN BMS · fleet APIs · any kit beyond the chosen objective</td>
 </tr></tbody></table></div>
 
 <!-- ============================================================ -->
 <h2 id="rec">14 · Prioritised plan, architectural recommendations and decisions</h2>
 <h3>The prioritised plan</h3>
 <ol class="steps">
-<li><b>Customer data first: proof B1 now</b> (P1, a thin export collector through a hosted gateway). Most customers’ data already sits in a vendor or operator cloud (§2 callout). One export or one read-only token is the cheapest yes we can ask for, and the fastest route to real pilot evidence.</li>
-<li><b>Physical hardware early, alongside: proof A now</b> (P2, Modbus TCP through a GX-shaped controller), rehearsed on the BeagleBone with Debian 13.7 IoT (Python 3.13) before 30 October. It is the credibility proof, and it builds the code every edge path reuses.</li>
-<li><b>Week 1 after the 30th: the hardware stays early.</b> Proof D (RTU) with the ~$100 kit for an R3 claim on our own bench, and the labelling gate (S6).</li>
-<li><b>Then by prospect, on the customer-data track:</b> B1 on a prospect’s real file, then B2 live API (mini-grid on VRM, cold-chain logger cloud). C1 CSMS charge export for EV depots, with C2 raw OCPP only if needed.</li>
-<li><b>Defer</b> MQTT (P5), OCPP 2.0.1, CAN BMS and fleet APIs until a customer needs them.</li>
+<li><b>October: proof A complete</b> (TEL-01 to TEL-05). A GX-shaped Modbus TCP emulator, the real read-only poller, the real gateway, TLS upload and the real central ledger in an authorised test database. It ends in accepted evidence IDs, a provenance read and fault outcomes. The priority is verified integration credibility.</li>
+<li><b>October: proof B1 minimal</b> (TEL-06). A generic, illustrative CSV collector through the same path, with no vendor claim. The customer-data path keeps its commercial rank (P1 first, §5).</li>
+<li><b>Next: the BBB repeat</b> (TEL-08) once TEL-05 is green twice. Then the owner selects the first physical objective, and only its minimum component is bought (§9).</li>
+<li><b>Then by genuine sample or prospect:</b> a pinned vendor export profile (TEL-10), live API pulls (B2), EV via CSMS export (C1) and OCPP traffic (C2). The battery AC binding (TEL-12) comes before any financial result from GX telemetry.</li>
+<li><b>Future option, not planned:</b> a standalone MCU edge that meets the §8.7 invariants. Defer MQTT (P5), OCPP 2.0.1, CAN BMS and fleet APIs.</li>
 </ol>
 
 <h3>Architectural recommendations</h3>
 <div class="tw"><table>
 <thead><tr><th>#</th><th>Recommendation</th><th>Reason</th></tr></thead>
 <tbody>
-<tr><td>R0</td><td>Lead every customer conversation with the <b>customer-data path</b> (file or token). Offer the <b>edge</b> for sites and measurements the cloud does not cover. Build both on one shared core.</td><td>The market evidence in §2 gives commercial weight to cloud and export. The hardware track gives credibility and coverage. Building them together costs about 0.5 day more than either alone.</td></tr>
-<tr><td>R1</td><td>Every source enters through DeviceReport and gateway IPC <code>admit</code>. No adapter or collector writes envelopes, batches or ledger rows.</td><td>It keeps admission, provenance, the outbox and HTTPS intact. The MVP pilot gate (<code>production-shaped-mvp.md:121</code>) requires backend and analytics to stay unchanged.</td></tr>
-<tr><td>R2</td><td>Adapters and collectors run as separate processes in a new <code>field/</code> module root, as second IPC clients. The gateway stays dependency-free.</td><td><code>service.py</code> is transport-agnostic by design. <code>gateway/pyproject.toml</code> has <code>dependencies = []</code>.</td></tr>
-<tr><td>R3</td><td>Cloud APIs <b>and export files</b> go through a <b>hosted gateway instance</b> per customer Site, not a backend importer.</td><td>It reuses identity, sequence, receipts and credentials (§4).</td></tr>
-<tr><td>R4</td><td>Scaling, interval aggregation and timezone rules live in the <b>pinned adapter profile</b> for now. Its SHA-256 is recorded with the raw capture. A LINEAR snapshot conversion is considered only when a pilot needs auditable scale in the accepted-as basis.</td><td>Today’s snapshot supports only IDENTITY, ENUM and IDENTITY_KWH (§1).</td></tr>
-<tr><td>R5</td><td>Evidence gets a provenance class that says how it arrived: emulated interface, or customer-supplied export. Real devices later get LIVE plus <code>ATTESTED_REAL_SOURCE</code>. Never label emulator output LIVE.</td><td>G2 and G3: the honest default is UNKNOWN, which is true but useless for a demo.</td></tr>
-<tr><td>R6</td><td>The ESP32 is a field-side bridge (role 1) and never a cloud client.</td><td>§8.2</td></tr>
-<tr><td>R7</td><td>Before any pilot: measured clock offset (G5), IPC op scoping (G8), a ledger archive/rotation design (G6), and a schema-drift refusal for every export profile.</td><td>These are the gaps between a SIMULATED-only gateway and a field box or hosted collector.</td></tr>
-<tr><td>R8</td><td>Pin every external interface to a document or sample and a version: the GX register sheet at a <code>dbus_modbustcp</code> commit, export samples by date, API reference dates, OCPP version. Record each in the compatibility catalogue with an R-level.</td><td>The pack’s “no invented register address” rule. Register numbers and export columns in this plan are not yet pinned.</td></tr>
+<tr><td>R0</td><td>Lead customer conversations with the <b>customer-data path</b> (file or token). Prove integration credibility with the <b>edge path</b>. Build both on one shared core and one gateway boundary.</td><td>§2 gives commercial weight to cloud and export; the owner sets credibility as the October priority.</td></tr>
+<tr><td>R1</td><td>Every source enters through DeviceReport and gateway IPC <code>admit</code>. No adapter or collector writes envelopes, batches or ledger rows.</td><td>It keeps admission, provenance, the outbox and HTTPS intact; MVP pilot gate (<code>production-shaped-mvp.md:121</code>).</td></tr>
+<tr><td>R2</td><td>Adapters and collectors run as separate processes in a new <code>field/</code> module root, as IPC clients. The gateway stays dependency-free.</td><td><code>gateway/pyproject.toml</code> has <code>dependencies = []</code>.</td></tr>
+<tr><td>R3</td><td>Cloud APIs and export files go through a gateway instance per customer Site (hosted later), not a backend importer.</td><td>It reuses identity, sequence, receipts and credentials (§4).</td></tr>
+<tr><td>R4</td><td>Scaling, interval aggregation, coverage and timezone rules live in the pinned adapter profile, with its SHA-256 recorded.</td><td>The snapshot supports only IDENTITY, ENUM and IDENTITY_KWH (§1).</td></tr>
+<tr><td>R5</td><td>A provenance class per arrival route later (emulated interface, customer export); LIVE with <code>ATTESTED_REAL_SOURCE</code> for real devices. Never label emulator output LIVE.</td><td>G2, G3</td></tr>
+<tr><td>R6</td><td>Near term, the ESP32 is a field-side bridge. A standalone MCU edge is allowed later if it meets the §8.7 invariants. The invariant is equivalent security, provenance and reliable delivery, not reuse of the Python gateway.</td><td>Owner adjustment 3</td></tr>
+<tr><td>R7</td><td>Freshness and quality come from transport outcomes, contact age, source-time lag, coverage, and documented device or vendor status. Never from identical readings alone.</td><td>Owner adjustment 4 (§11.1)</td></tr>
+<tr><td>R8</td><td>Every claim uses the §10.0 record: interface, format or profile with SHA and status, model and firmware (or emulator), data origin and clock, environment, and what is not claimed.</td><td>Owner adjustment 6</td></tr>
+<tr><td>R9</td><td>No DC quantity under <code>battery_power</code>. No financial result from edge or cloud telemetry until the §6.1.1 gate holds.</td><td>Owner adjustment 5</td></tr>
 </tbody></table></div>
 
 <h3>Decisions needed</h3>
-<div class="callout warn"><b class="k">Who decides</b><p>Under <code>.ai/ROLE_CONFIG.md</code>, this Claude exception covers only this document. Architect rulings stay with the Codex Architect, and product and spend choices are the owner’s. Each decision below names who it belongs to and gives a recommendation, not a ruling.</p></div>
+<div class="callout warn"><b class="k">Who decides</b><p>Claude is now the default Architect (<code>.ai/ROLE_CONFIG.md</code>, “Architect Is Claude By Default”, 2026-10-27). This document is still a plan under the scoped revision; it does not record rulings. Each decision below names who decides and gives a recommendation. “The Architect” means the active Architect role.</p></div>
 <div class="tw"><table>
-<thead><tr><th>#</th><th>Decision</th><th>Options</th><th>Recommendation</th><th>Owner of decision</th><th>Needed by</th></tr></thead>
+<thead><tr><th>#</th><th>Decision</th><th>Recommendation</th><th>Decides</th><th>Needed by</th></tr></thead>
 <tbody>
-<tr><td>D1</td><td>How emulated-interface and customer-supplied evidence is labelled</td><td>(a) A new publication source class per arrival route, for example <code>EMULATED_INTERFACE</code> (emulator ID, version, profile SHA) and <code>CUSTOMER_EXPORT</code> (file SHA, profile version). (b) A new gateway mode <code>EMULATED</code> plus classes, which changes CHECKs in migrations 0001/0005, contracts and the gateway ledger. (c) Accept UNKNOWN with an explicit caption.</td><td><b>(c) for the 30 October demo, then (a) as S6.</b> The bench values are simulator projections, so a SIMULATED gateway is truthful for both bench Sites. A real customer file before S6 lands is shown as UNKNOWN with a caption, never as attested.</td><td><b>Owner</b> (claim honesty), then the Codex Architect for the contract</td><td>27 Oct</td></tr>
-<tr><td>D2</td><td>Bench Site identity</td><td>Two new bench Sites (bench-cloud, bench-edge) from the Kobo foundation; one shared bench Site; or reuse KOBO-001</td><td><b>Two bench Sites.</b> One snapshot cannot bind the same <code>(device, signal)</code> twice (<code>snapshot.py</code>, “bound twice”), the side-by-side comparison needs both routes, and demo cohorts stay clean.</td><td><b>Owner</b></td><td>27 Oct</td></tr>
-<tr><td>D3</td><td>EV normaliser placement</td><td>Backend-side, as the EV design names it, or gateway-side emitting DeviceReport V2 (for both C1 and C2)</td><td>Gateway-side (§4)</td><td>Codex Architect</td><td>Before S8</td></tr>
-<tr><td>D4</td><td>Where scaling and timezone rules live</td><td>Adapter profile, or a new LINEAR snapshot conversion</td><td>Adapter profile now (R4)</td><td>Codex Architect</td><td>Before S1</td></tr>
-<tr><td>D5</td><td>Battery power semantics for GX and VRM sites</td><td>Bind DC battery power to a DC role, or use inverter AC output for <code>battery-pcs-controller / ac-power</code></td><td>AC output for the existing role; add a DC role only when an analysis needs it. Apply the same rule to export columns.</td><td>Codex Architect</td><td>Before S2/S3</td></tr>
-<tr><td>D6</td><td>Stale-but-plausible rule (F08)</td><td>N identical samples, or a time window, per signal class</td><td>A per-profile N with a documented default</td><td>Codex Architect</td><td>Before S9</td></tr>
-<tr><td>D7</td><td>Hardware spend</td><td>Stage 0 about $16; stages 1–2 about $85 more</td><td><b>Approve stages 0–2 now</b>, so proof D runs the week after the 30th</td><td><b>Owner</b></td><td>27–28 Oct</td></tr>
-<tr><td>D8</td><td>Hosted collectors for cloud and export data</td><td>A hosted gateway per customer Site (small process cost), or a backend importer</td><td>Hosted gateway (R3). The laptop stands in for it on the bench.</td><td><b>Owner</b> (operating cost) and the Codex Architect</td><td>Before the first real customer file</td></tr>
-<tr><td>D9</td><td>What to ask prospects for, and the first post-30 October customer-data step</td><td>Ask for an export sample, a read-only token, or a site visit</td><td><b>Ask every prospect for one recent export (or a read-only token) first.</b> Offer the edge for what it cannot cover. Then the prospect’s vertical picks B1/B2, C1 or D (§13).</td><td><b>Owner</b></td><td>When outreach starts</td></tr>
+<tr><td>D1</td><td>Labelling of October evidence</td><td>No publication. Provenance reads UNKNOWN, and every demo surface says “emulated interface” or “illustrative format”. A class per arrival route later (TEL-09).</td><td><b>Owner</b>, then the Architect for TEL-09</td><td>TEL-05</td></tr>
+<tr><td>D2</td><td>Sites for the October proofs</td><td>The authorised test database only: one Kobo-derived Site per proof, created by the tests. No product demo-database Site in October.</td><td><b>Owner</b></td><td>TEL-05</td></tr>
+<tr><td>D3</td><td>EV normaliser placement</td><td>Gateway side (§4)</td><td>The Architect</td><td>Before C</td></tr>
+<tr><td>D4</td><td>New <code>field/</code> module root, its dependency rule, and profile-held scaling, aggregation and timezone rules</td><td>As in R2 and R4</td><td>The Architect</td><td><b>TEL-01</b></td></tr>
+<tr><td>D5</td><td>Battery DC/AC</td><td>§6.1.1: <code>battery_power</code> unbound on GX profiles; a separate DC role if needed; the financial gate (a)–(d)</td><td>The Architect (ruling candidate)</td><td>TEL-03</td></tr>
+<tr><td>D6</td><td>Freshness and quality indicator set</td><td>§11.1; the identical-readings rule is withdrawn</td><td>The Architect (ruling candidate)</td><td>TEL-04</td></tr>
+<tr><td>D7</td><td>Hardware spend</td><td><b>Nothing now.</b> After TEL-05, pick the first physical objective (O1 recommended, $0–16), then buy only its minimum component.</td><td><b>Owner</b></td><td>After TEL-05</td></tr>
+<tr><td>D8</td><td>Hosted collectors for customer data</td><td>A gateway instance per customer Site (R3), from the first genuine customer file</td><td><b>Owner</b> (cost) and the Architect</td><td>Before TEL-10</td></tr>
+<tr><td>D9</td><td>What to ask prospects for</td><td>One recent genuine export, or a read-only token; the edge for what it cannot cover</td><td><b>Owner</b></td><td>When outreach starts</td></tr>
+<tr><td>D10</td><td>Interval coverage rule</td><td>All expected polls answered → GOOD; otherwise UNAVAILABLE <code>NO_COMPLETED_INTERVAL</code>; no partial means in October</td><td>The Architect</td><td><b>TEL-01</b></td></tr>
 </tbody></table></div>
 
 <!-- ============================================================ -->
@@ -1925,9 +2165,9 @@ WantedBy=multi-user.target</code></pre>
 <li>BBB eMMC endurance. BBB price at Mouser, Newark and Amazon (Digi-Key showed $122.21, high against the historical about $60).</li>
 <li>Waveshare isolation voltage, PSRAM size and operating temperature. Its Amazon and AliExpress prices. The EdgeBox-ESP-100 and reComputer store prices. Eastron SDM120 official PDF and a USD price.</li>
 <li>VRM export columns, units, interval and timezone; whether the public VRM demo allows data download; the Monta export column list; whether one session-long INTERVAL_DELTA passes the V4 rules.</li>
-<li>Whether accepted evidence from a non-run batch reaches the dispatch assessment through the default job selection or needs an explicit <code>assess</code>. The CLI supports both; confirm in S3.</li>
+<li>Whether accepted evidence from a non-run batch reaches the dispatch assessment through the default job selection or needs an explicit <code>assess</code>. The CLI supports both; TEL-05 uses the explicit <code>assess</code>.</li>
 </ul>
-<p class="foot">Telemetry Integration Plan · produced by Claude as Architect under the owner-scoped exception of 2026-10-27 (<code>.ai/ROLE_CONFIG.md</code>, commit <code>eb05c39d</code>; revision 2 under the reopened exception, <code>67a3ab09</code>), for comparison with the Codex Architect’s <code>telemetry-integration-plan.html</code>. A plan only: no adapter, emulator or configuration in it exists in the repository. Code facts are as of 27 October 2026. Prices are approximate as of October 2026.</p>
+<p class="foot">Telemetry Integration Plan · produced by Claude as Architect under the owner-scoped exception of 2026-10-27 (<code>.ai/ROLE_CONFIG.md</code>, commit <code>eb05c39d</code>; revision 2 under <code>67a3ab09</code>; revision 3 under <code>dd4d56e9</code>), for comparison with the Codex Architect’s <code>telemetry-integration-plan.html</code>. A plan only: no adapter, emulator or configuration in it exists in the repository. Code facts are as of 27 October 2026. Prices are approximate as of October 2026.</p>
 </main>
 </div>
 <script>
