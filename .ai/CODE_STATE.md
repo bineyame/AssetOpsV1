@@ -6028,7 +6028,7 @@ Lane C, branch `task/CC-R2-placement`. Spec: `.agent/build-spec-commercial-2026-
   - five-part fixtures in `test_w303_estate_cursor.py`;
   - `test_w303_portfolio_api.py` (order, counts, marker length);
   - `test_w301_estate_index_postgres.py:199,204` (cold RISK). Lines 548-563 are mini-grid rows and needed no change.
-- Left open:
+- Ruled and applied (`4e986966`; CC-R2-Q1..Q4):
   - Q1, the confidence texts "claim" and "simulation";
   - Q2, there is no EV row in the W3-03 fixture;
   - Q3, the stale panel-bottom copy;

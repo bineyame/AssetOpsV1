@@ -2,7 +2,8 @@
 
 Task `tasks/CC-R2-placement.md`. Branch `task/CC-R2-placement`, branched from CC-R1 head `71aa1fea`. The contract is
 `.agent/build-spec-commercial-2026-10-27.md` "CC-R2", with CC-R1-Q1/Q2 and Appendix C D5 as amended. Owner Q11:
-the MG-C stand-in is kept. Open questions are in `.agent/CC-R2-questions.md`.
+the MG-C stand-in is kept. Questions Q1-Q4 are **ruled** (Architect, 2026-10-28, `.agent/CC-R2-questions.md`
+"Rulings") and applied in `4e986966`.
 
 PYTHONPATH (PowerShell):
 ```
@@ -20,7 +21,13 @@ $env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-cc2\backend;C:\Users\assef
   - L5: negatives showing that the cold and EV Financials frames have no "Open the recommendation" link.
 - `0bcb7f16`: the backend, the tests and the s602b `estate` case.
 - `41f1507a`: the frontend and register R502.
-- The next commit: the task file, `.ai` and this packet.
+- `39a669a4`: the task file, `.ai` and this packet.
+- `4e986966`: the Q1-Q4 rulings.
+  - Q1: the confidence words become "Supported Finding", "Unconfirmed Finding", "Generated test data source" and "Prepared example data source". Both new guarded-word tests were proven to fail on a planted word and then reverted.
+  - Q2: `test_ev_interruption_placement` (expects ACT_NOW).
+  - Q3: the subtitle and `PRIORITY_BOTTOM_LINE`, with MOCK DEVIATION comments.
+  - Q4: `estate_assertions` returns `rows` keys, and `portfolioSuite` is added to `s602b-verification-evidence.mjs`.
+- Packet update: this text.
 
 ## CC-00 facts (pinned from code)
 
@@ -91,14 +98,15 @@ These come from a tier-2 probe on `assetops_cc2_test`, `build_portfolio_fixture`
 | A six-part marker passes and a five-part marker fails | Met (pure `_marker_ok` and the signed-cursor mutations). |
 | Producer 1, the s602b `estate` assertions | **Built, not run.** The brief allows DB runs only on `*_test`; s602b refuses `*_test`, and the coordinator has since paused DB runs. This is owed. |
 | Producer 2: cold pinned, `lens=risks`, `limit=2` paging, invariant | Met on tier 2. |
-| Producer 2: EV row UNPRICED_RISK | **Open (Q2)**: the fixture has no EV row. Pure coverage only. |
+| Producer 2: EV row (ruled Q2: the `interrupted` chain gives ACT_NOW) | **Written, not run** (DB hold): `test_cc_placement_postgres.py::test_ev_interruption_placement`. |
 | Browser: group headings and reason lines (`settledScreen`) | Met. There are 3 new tests in `estatePortfolio.test.tsx`. |
 | Stop conditions | None hit on tier 2. The producer-1 Stops are asserted in the tool but not yet run. |
 | Register row for the new panel | R502 added. |
 
 ## Checks run
 
-- Tier 1, backend: every non-Postgres `test_w30*`, `test_cc_*`, `test_s4_finding*` and `test_w40*` file. Result: **440 passed, 15 skipped**.
+- After the rulings: tier 1 backend **441 passed, 15 skipped**; frontend `src/estate` **5 files, 64 passed**; `tsc` clean; both guards passed.
+- Tier 1, backend (before the rulings): every non-Postgres `test_w30*`, `test_cc_*`, `test_s4_finding*` and `test_w40*` file. Result: **440 passed, 15 skipped**.
   - A Postgres module collected without a URL raises a `NameError`. That is pre-existing (e.g. `test_w301_w1_money_snapshot_helpers_postgres.py`) and untouched.
 - Tier 2, one run on my own DB:
   - Command: `ASSETOPS_TEST_DATABASE_URL=.../assetops_cc2_test pytest tests/test_cc_placement_postgres.py tests/test_w301_estate_index_postgres.py tests/test_w303_portfolio_fixture_postgres.py tests/test_w303_portfolio_comparison_postgres.py`.
@@ -121,19 +129,20 @@ These come from a tier-2 probe on `assetops_cc2_test`, `build_portfolio_fixture`
 
 - The `estate` case sets a random Portfolio cursor key in its own process when none is set (`_cursor_key`). This follows the post-W6 `start_apis.ps1` pattern, because the route returns 503 without a key. It is never a committed value.
 - `line_groups` takes the first group per Finding revision. A mini revision has exactly one line today, so the choice never matters.
-- The panel-bottom copy and the subtitle are unchanged and are now partly stale (Q3).
 
 ## Residual risk
 
 - Producer 1 has not been run. The F05 runtime control (120 from 10-21) and the price publication could change F01's verdict or a row's source class. The tool asserts this and exits non-zero, but nobody has seen it pass.
-- The confidence texts contain the guarded "claim" and "simulation" (Q1). No scan covers the Confidence cell.
+- The ruled texts change `confidence_reasons` in the earlier tier-2 run. `test_cc_placement_postgres.py` has not been re-run with them (DB hold).
 
 ## Owed evidence
 
+- A tier-2 re-run of `test_cc_placement_postgres.py` (both tests, including the new EV test) on `assetops_cc2_test`.
+
 - s602b `estate` build plus assertions on `assetops_s602b_audit_cc_estate` (walkthrough `prepare`), once the DB pause lifts.
-- Tier-3 capture of the estate Portfolio page (group headings, reason lines, `noOverflow` on the 6-column table with heading rows). It needs a Portfolio claim in `s602b-verification-evidence.mjs` (Q4). **layout evidence: not run** (no browser runs allowed). The group-heading row layout and the Placement column width (9%) are unverified.
+- Tier-3 capture of the estate Portfolio page (group headings, reason lines, `noOverflow` on the 6-column table with heading rows). The `portfolioSuite` claims are now in `s602b-verification-evidence.mjs` (Q4). Run the ruling's prepare, capture and drop steps; the coordinator runs the capture. **layout evidence: not run** (no browser runs allowed). The group-heading row layout and the Placement column width (9%) are unverified.
 
 ## User-review focus
 
 `USER_REVIEW_REQUIRED`: the merge needs a fresh Claude review ACCEPT. The owner sees R502 and the placement groups in
-the walkthrough. Q1 to Q3 need Architect rulings, and Q4 needs a coordinator decision.
+the walkthrough. All four questions are ruled.
