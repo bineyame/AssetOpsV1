@@ -48,6 +48,8 @@ export interface BridgeLinks {
   portfolio?: string;
   /** post-W6 W1-b Q22 / R199: the Site's Dispatch Analysis at one UTC day, optionally one proved interval revision. */
   dispatchAnalysis?: (day: string, intervalRevisionId: string | null) => string;
+  /** CC-R1: the Finding version's recommendation (mini-grid only; absent elsewhere, so no link shows). */
+  recommendation?: (findingId: string, revisionId: string) => string;
 }
 
 /**
@@ -917,6 +919,14 @@ export function FindingBridge({
             <Link to={links.assumptions()} data-financials-history-link>
               Every recorded fuel cost version
             </Link>
+            {links.recommendation ? (
+              <>
+                {" · "}
+                <Link to={links.recommendation(findingId, rev)} data-financials-recommendation-link>
+                  Open the recommendation →
+                </Link>
+              </>
+            ) : null}
           </p>
           <ExactReferences
             name="financials-consequence"

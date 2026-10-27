@@ -36,6 +36,7 @@ if URL:
     from assetops_backend.estate import coverage, evidence_money, financials, index, portfolio
     from assetops_backend.estate.portfolio import EstatePortfolioService
     from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
+    from assetops_backend.estate.money_invariants import double_count_violations
 
 MEMBERS = ("SUPPORTED", "UNCONFIRMED")
 
@@ -66,7 +67,10 @@ class Portfolio:
     def ok(self, **params) -> dict:
         response = self.get(**params)
         assert response.status_code == 200, response.text
-        return response.json()
+        body = response.json()
+        # CC-R1: every persisted Portfolio body read here satisfies the no-double-count invariant.
+        assert double_count_violations(body) == [], double_count_violations(body)
+        return body
 
 
 @pytest.fixture(autouse=True)

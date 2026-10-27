@@ -71,6 +71,8 @@ export interface FinancialsLinks {
   portfolio?: string;
   /** post-W6 W1-b Q22: the Site's Dispatch Analysis at one UTC day (no revision unless proved interval). */
   dispatchAnalysis?: (day: string, intervalRevisionId: string | null) => string;
+  /** CC-R1: the Finding version's recommendation (`Open the recommendation →`; mini-grid only). */
+  recommendation?: (findingId: string, revisionId: string) => string;
   /** post-W6 W1-b Q24 / R201: the Site's Financials overview (`Return to financial overview`). */
   overview?: string;
 }

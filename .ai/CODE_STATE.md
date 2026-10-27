@@ -5978,3 +5978,18 @@ Branch `task/post-W6-final-fix` from main `739c0d7a`. Rulings `.agent/post-W6-fi
 - L3: one sentence `STALE_BASIS_COPY` for the withheld tariff state on Site and estate pinned reads (`ev_site_reads.py`; `STALE_AS_OF_COPY` aliases it). L4/L5: `coldTabSearch` applies the EV valid-window gate (complete, ordered, at most 31 days, UTC; cutoff kept alone) and the cold Financials > Scenarios tab row uses it. L6: `siteZoneDisplayLabel`/`SITE_ZONE_UNAVAILABLE_LABEL` ("UTC (Site time zone unavailable)") on mini Scenarios and Work fields, Finding history header, mini Evidence Measured/Sent/Received headers. L8: dead mini Performance 422 branch removed. L9: `EV_WINDOW_NOT_UTC_TEXT` for an ordered non-UTC Action window. L11: `KeyValueValue` (V69Layout) makes an overflowing `dd code` focusable (tabindex 0, role group, "Full value: ..." name) with a CSS focus ring.
 - Register housekeeping done per `.agent/post-W6-register-reconciliation.md`: 117 stale D3 rows closed with merge shas (19 are split parents pointing at their child), 60 planned rows now `standing (owner)`, R224 duplicate of R207, counts refreshed; R328 and R374 stay open. Backlog (j) added to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
 - Open: backlog (j) items (L1, L2, L7, L10 probes, L11 duplicate 760 px rule, Reload/Retry convergence).
+
+## CC-R1 - links, claim labels, beneficiary key, no-double-count check (built, in_review)
+
+Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `.agent/build-spec-commercial-2026-10-27.md` sections 0.4 and CC-R1. Packet: `.agent/CC-R1-review-packet.md`.
+- `estate/financials.py`: `BENEFICIARY_OF_CATEGORY` (owner Q9; five categories, including `PRODUCTIVE_USE_CONTRIBUTION_SCENARIO` for D1 and `RECORDED_REPAIR` -> `COOLING_PROVIDER`). `_line` emits a public `beneficiary` after `category`. `_beneficiary(line)` falls back to the category default, so hand-built test lines work. `_partition` has seven elements, and `compare()` unpacks seven.
+- `estate/evidence_money.group_key_for_partition(..., *, beneficiary=None)` adds `beneficiary` to the hashed payload only when it differs from the category default. Default keys are byte-identical: a pinned value is asserted in `test_w303_portfolio_reduction.py`. The map is imported lazily because `financials` imports `evidence_money`.
+- New `estate/money_invariants.double_count_violations(portfolio, financials=None)`. It is pure, takes parsed bodies, and uses `portfolio.selected_lines` as the member set. It emits violation texts prefixed `TOTAL_NOT_NULL`, `MEMBER_NOT_FOUND`, `MEMBERS_DISAGREE` or `MEMBERS_INTERSECT`. Tests and the scope-snapshot `Portfolio.ok()` helper call it. It is not called at runtime.
+- Frontend:
+  - `CommercialClaimLevel`, `Beneficiary`, `CLAIM_LABEL` and `BENEFICIARY_WORDS` live in `sites/actionPresentation.tsx`.
+  - New `sites/ClaimLabel.tsx`, which renders "Evidence level and beneficiary not stated" for an unknown level or beneficiary (CC-R1-Q2).
+  - The gross scenario label is in `MiniScenarios.tsx`.
+  - The estate "Benefits:" line is in the Category cell of `EstateFinancials.tsx`. `FinancialRow.beneficiary` is optional.
+  - `BridgeLinks` and `FinancialsLinks` gain an optional `recommendation`. Only the mini Financials frame wires it, producing "Open the recommendation →" with the view's `revision_id`.
+- Register rows R500 (scenarios, verification) and R501 (financials).
+- The verdict label (`VERIFIED_SIMULATED_TECHNICAL`, "Technical result verified on test data", CC-R1-Q1) shows under the Verification strip for a VERIFIED or INEFFECTIVE displayed outcome only. The vocabulary guard is unchanged.

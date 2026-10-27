@@ -527,6 +527,17 @@ describe("Site > Financials > Overview: the Finding bridge", () => {
     expect(violations, describeViolations(violations)).toEqual([]);
   });
 
+  it("CC-R1: links forward to the same Finding version's recommendation", async () => {
+    const { container } = mount(fake(), `/sites/KOBO-001/financials?finding_id=${FINDING}&revision_id=${FREV}`);
+    await settledScreen();
+    const link = container.querySelector("[data-financials-recommendation-link]");
+    expect(link).toHaveTextContent("Open the recommendation →");
+    expect(link).toHaveAttribute("href", `/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${FREV}`);
+    expect(link?.textContent ?? "").not.toMatch(/saving|saved/i);
+    const { violations } = scanProductVocabulary(container, "financials bridge forward link");
+    expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
   it("pins the selected version into the address when the link named none", async () => {
     mount(fake(), `/sites/KOBO-001/financials?finding_id=${FINDING}`);
     await settledScreen();
