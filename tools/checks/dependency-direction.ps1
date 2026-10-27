@@ -103,7 +103,9 @@ function Invoke-DependencyDirectionCheck {
         @{ Root = "simulator"; Extensions = @(".py") },
         @{ Root = "contracts"; Extensions = @(".py") },
         @{ Root = "gateway";   Extensions = @(".py") },
-        @{ Root = "frontend/src"; Extensions = @(".ts", ".tsx", ".js", ".jsx") }
+        @{ Root = "frontend/src"; Extensions = @(".ts", ".tsx", ".js", ".jsx") },
+        # TEL-01 (ruling D4): the field adapters, tests included.
+        @{ Root = "field";     Extensions = @(".py") }
     )
 
     foreach ($tree in $mayNotImportHost) {
@@ -237,6 +239,96 @@ function Invoke-DependencyDirectionCheck {
             if ($line -match $hostGatewayImport) {
                 $failures.Add(("The product imports the gateway at $($module.Path):${lineNumber}: " +
                     "$($line.Trim()). Only the Lab host composes it.")) | Out-Null
+            }
+        }
+    }
+
+    # --- The field adapters are IPC clients -------------------------------------
+    #
+    # TEL-01, ruling D4 (amendment 2 item 2). `field/` holds read-only device
+    # adapters that run as separate processes and reach an unchanged gateway only
+    # through its authenticated channel (`assetops_gateway.ipc`). A field module
+    # that imported the backend, the simulator, the composition leaf or any other
+    # gateway module could write the outbox in-process or read private truth.
+    # pymodbus is a test-only conformance client. Only `field/` itself and
+    # `host/tests` may import `assetops_field`: backend (tests included),
+    # gateway, simulator, contracts and non-test host modules may not. A field
+    # import of the composition leaf is caught by `$mayNotImportHost` above.
+    $fieldMayNotImport = @(
+        '^\s*(?:from|import)\s+[^\s]*assetops_backend',
+        '^\s*(?:from|import)\s+[^\s]*assetops_simulator',
+        '^\s*(?:from|import)\s+(?:backend|simulator|host)(?:\.|\s|$)',
+        'import_module\(\s*["''](?:assetops_backend|assetops_simulator|backend\.|simulator\.|host\.)'
+    )
+    $fieldPymodbus = @(
+        '^\s*(?:from|import)\s+pymodbus',
+        'import_module\(\s*["'']pymodbus'
+    )
+    $fieldGatewayModule = 'import_module\(\s*["'']assetops_gateway(?:\.(?<module>\w+))?["'']'
+
+    $fieldModules = @(Get-ScannedModules -Root "field" -Extensions @(".py"))
+    $fieldTestModules = @(Get-ScannedModules -Root "field/tests" -Extensions @(".py") -IncludeTests)
+    if ($fieldModules.Count -eq 0) {
+        $failures.Add(("No non-test module was scanned under field/, so the field " +
+            "adapter boundary check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    $fieldChannelImports = 0
+    foreach ($scan in @(
+            @{ Modules = $fieldModules; Pymodbus = $true },
+            @{ Modules = $fieldTestModules; Pymodbus = $false })) {
+        foreach ($module in $scan.Modules) {
+            $lineNumber = 0
+            foreach ($line in $module.Lines) {
+                $lineNumber++
+                $banned = @($fieldMayNotImport)
+                if ($scan.Pymodbus) { $banned += $fieldPymodbus }
+                foreach ($pattern in $banned) {
+                    if ($line -match $pattern) {
+                        $failures.Add(("Banned import in a field adapter at $($module.Path):${lineNumber}: " +
+                            "$($line.Trim()). field/ may import the standard library, the contracts and " +
+                            "assetops_gateway.ipc only (tests may also import pymodbus).")) | Out-Null
+                        break
+                    }
+                }
+                if ($line -match $hostGatewayImport -or $line -match $fieldGatewayModule) {
+                    if ($Matches['module'] -eq 'ipc') {
+                        if ($scan.Pymodbus) { $fieldChannelImports++ }
+                    }
+                    else {
+                        $failures.Add(("A field adapter imports the gateway beyond its channel at " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()). field/ may import " +
+                            "assetops_gateway.ipc only.")) | Out-Null
+                    }
+                }
+            }
+        }
+    }
+    if ($fieldModules.Count -gt 0 -and $fieldChannelImports -eq 0) {
+        $failures.Add(("No non-test field module imports assetops_gateway.ipc, so the field " +
+            "channel check is not observing the publisher. Update the check, do not delete it.")) | Out-Null
+    }
+
+    $intoField = @(
+        '^\s*(?:from|import)\s+assetops_field',
+        'import_module\(\s*["'']assetops_field'
+    )
+    $mayNotImportField = @()
+    $mayNotImportField += @(Get-ScannedModules -Root "backend" -Extensions @(".py") -IncludeTests)
+    foreach ($root in @("gateway", "simulator", "contracts")) {
+        $mayNotImportField += @(Get-ScannedModules -Root $root -Extensions @(".py") -IncludeTests)
+    }
+    $mayNotImportField += @(Get-ScannedModules -Root "host" -Extensions @(".py") |
+        Where-Object { $_.Path -notlike "host/tests/*" })
+    foreach ($module in $mayNotImportField) {
+        $lineNumber = 0
+        foreach ($line in $module.Lines) {
+            $lineNumber++
+            foreach ($pattern in $intoField) {
+                if ($line -match $pattern) {
+                    $failures.Add(("Banned import of the field adapters at $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()). Only field/ itself and host/tests may import assetops_field.")) | Out-Null
+                    break
+                }
             }
         }
     }
