@@ -29,7 +29,12 @@ function Invoke-ModuleRootsCheck {
         # dependency rule that it imports the contracts only is about a tree
         # that exists.
         "gateway",
-        "gateway/assetops_gateway"
+        "gateway/assetops_gateway",
+        # TEL-01 (ruling D4): the field adapters. Required so the rules that
+        # field/ imports the channel only, and that nothing imports it, are
+        # about a tree that exists.
+        "field",
+        "field/assetops_field"
     )
 
     foreach ($directory in $requiredDirectories) {
@@ -51,7 +56,9 @@ function Invoke-ModuleRootsCheck {
         "simulator/pyproject.toml",
         "host/execution_adapter.py",
         "gateway/pyproject.toml",
-        "gateway/assetops_gateway/__init__.py"
+        "gateway/assetops_gateway/__init__.py",
+        "field/pyproject.toml",
+        "field/assetops_field/__init__.py"
     )
 
     foreach ($file in $requiredFiles) {

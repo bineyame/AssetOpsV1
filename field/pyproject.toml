@@ -1,0 +1,24 @@
+[project]
+name = "assetops-field"
+version = "0.0.0"
+description = "AssetOps field adapters: read-only Modbus TCP poller and export collector, IPC clients of an unchanged gateway."
+requires-python = ">=3.12"
+# The standard library, the neutral contracts and the gateway's channel module
+# (`assetops_gateway.ipc`) only. Never the backend, the simulator, `host/`, any
+# other gateway module or pymodbus; `tools/checks/dependency-direction.ps1`
+# fails the build if a non-test field module imports one (ruling D4).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pymodbus==3.16.1"]
+serial = ["pyserial"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["assetops_field*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
