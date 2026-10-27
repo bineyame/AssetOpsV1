@@ -351,6 +351,18 @@ def _expected_run_2(profile, timeline: ObservationTimeline, start: datetime, sto
     return reports, dict(counters)
 
 
+def _print_capture_for_mismatch(poller_dir: Path, keys: set) -> None:
+    """Print the raw-capture lines for each missing or extra key (and every skip), so a timing skip is told
+    apart from a value defect at once."""
+    instants = {k[2] for k in keys}
+    print(f"RAW-CAPTURE DIAGNOSTIC: {len(keys)} missing or extra keys, instants {sorted(instants)[:10]}")
+    for path in sorted(poller_dir.glob("raw-*.jsonl")):
+        for text in path.read_text(encoding="utf-8").splitlines():
+            line = json.loads(text)
+            if line["scheduled_at"] in instants or line["at"] in instants or "SKIP" in line["outcome"]:
+                print({k: line.get(k) for k in ("at", "wall_at", "scheduled_at", "row_id", "outcome")})
+
+
 def _arrived_2(profile, envelopes) -> dict[tuple[str, str, str], tuple]:
     """`tel4.arrived`, keeping an ENUM row's state text as text."""
     enum_signals = {(row.device_id, row.signal_id) for row in profile.rows if row.decode == "ENUM"}
@@ -492,7 +504,10 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
     # TEL-T1-Q7: unit-101 rows exactly as the source published them; the PV row at its register resolution.
     timeline = ObservationTimeline(JSONL_2, profile)
     expected, counters = _expected_run_2(profile, timeline, START_2, STOP_2)
-    assert _arrived_2(profile, envelopes) == expected
+    arrived = _arrived_2(profile, envelopes)
+    if arrived != expected:  # TEL-05b-Q4 diagnostic: print only; nothing is tolerated
+        _print_capture_for_mismatch(poller_dir, set(expected) ^ set(arrived))
+    assert arrived == expected
     good = sum(1 for v in expected.values() if v[0] == "GOOD")
     assert _assert_exact_against_the_source(profile, timeline, envelopes) == good > 0
     assert run.exit_line[1]["counters"] == counters

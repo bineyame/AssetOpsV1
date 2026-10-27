@@ -96,3 +96,10 @@ Added a read-only step 6 after step 5: `build_consequence_read_service(URL).read
 - JSONL sha256 `c49aa7c846b264cec552fa9fa5837703980aec3edc97c5e397996d1bb25f85b1`.
 - Commit `90ff08a9`. Environment: laptop.
 - Finding and revision as in run C. The accepted-evidence IDs are in the run C log (`%TEMP%ssetops-tel5bun4.log`). The fallback wording is not needed.
+
+## Fix round: Q4 warm-up connect (H1)
+- `ModbusTcpClient.open()` added (`field/assetops_field/modbus_tcp.py`); `main()` builds the client and calls `open()` before `clock.sleep_until(session_start)`; failure prints `FIELD-POLLER warm connect failed: ...` and continues (`modbus_poller.py`).
+- Oracle unchanged (zero SKIPPED_LATE, exact). Test now prints raw-capture lines (`at`, `wall_at`, `scheduled_at`, `row_id`, `outcome`) for missing/extra keys and any skip before the assertion; print only.
+- Units: `test_open_warms_the_connection_before_the_first_read`, `test_open_against_a_closed_port_returns_false_and_the_read_reconnects_lazily` (field/tests/test_field_modbus_tcp.py).
+- Run: `field/tests` 152 passed; both guards pass. NOT RUN (held by coordinator): TEL-04 proof file, TEL-05b Postgres. Margin evidence (SoC vs generator-status wall_at delta, max delta, counters) pending the Postgres run; any SKIPPED_LATE is a stop.
+- Residual risk: H1 closure unverified until the fresh-DB run.

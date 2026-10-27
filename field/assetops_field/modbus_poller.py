@@ -544,9 +544,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         session_start = clock.start
     _write_json(session_path, {"session_ref": publisher.session_ref, "session_start": instant_z(session_start),
                                "profile_sha256": profile.sha256})
+    client = ModbusTcpClient(args.host, args.port, timeout_s=args.read_timeout_s)
+    if not client.open():  # TEL-05b-Q4: the persistent connection is opened before the first scheduled read
+        print("FIELD-POLLER warm connect failed: could not connect to " f"{args.host}:{args.port}",
+              file=sys.stderr, flush=True)
     clock.sleep_until(session_start)
     poller = Poller(profile=profile, clock=clock, clock_document=clock_document,
-                    client=ModbusTcpClient(args.host, args.port, timeout_s=args.read_timeout_s),
+                    client=client,
                     publisher=publisher, state_dir=args.state_dir, session_start=session_start, stop_at=stop_at,
                     crash_after_admit=crash_after_admit)
     _emit("FIELD-POLLER START " + canonical_json({
