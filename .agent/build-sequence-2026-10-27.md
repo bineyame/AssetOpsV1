@@ -7,7 +7,7 @@ This is the index. Builders are briefed from the lane specs, which carry, for ev
 - **Lane T (telemetry):** `.agent/build-spec-telemetry-2026-10-27.md`
 - **Lane C (commercial):** `.agent/build-spec-commercial-2026-10-27.md`
 
-Each spec ends with "Implementer questions and resolutions". An Implementer reviews both specs before the first code; the Architect answers there, and builders read the answered spec.
+Each spec ends with "Implementer questions and resolutions" (Lane C: 51 answered 2026-10-27, spec revision 2; Lane C takes mock-register IDs R500-R519). An Implementer reviews both specs before the first code; the Architect answers there, and builders read the answered spec.
 
 ## 1. PYTHONPATH per lane (also at the top of each spec and each first task file)
 
@@ -46,10 +46,10 @@ TEL-05b's focused parts (profile `-2`, prolonged JSONL, emulator unit 101) are l
 |---|---|---|---|---|---|---|
 | 1 | CC-00 | Pre-flight | none | "no open questions" | — | 0.25 d |
 | 2 | CC-R1 | Links, claim labels, beneficiary key (owner Q9), no-double-count check | `estate/financials.py`, `estate/money_invariants.py`, `actionPresentation.tsx`, `ClaimLabel.tsx` | beneficiary partitions; invariant `[]` on existing bodies; labels render | exact-key test outside w303 breaks | 1 d |
-| 3 | CC-R2 | Placement (D5), combined estate producer; MG-C stand-in (owner Q11) | `estate/placement.py`, `coverage.py`, `portfolio.py`, `scope.py`, `tools/cc_estate_seed.py` | Appendix C D5 criteria | needs a fact not on the row | 1.5 d |
-| 4 | CC-M | Combined schema slice, two revisions 0036 + 0037 (owner Q14); one full suite | `backend/migrations/versions/0036_*`, `0037_*` | up/down/up; trigger; full suites | existing migration needs editing | 0.5 d + suite |
-| 5 | CC-D2 | Post-trial reassessment (owner Q10, Q12 wording) | `financials/trial_fuel_comparison.py`, store, routes, `SiteActionVerification.tsx`, s602b cases | 16/375; each reason; route walk; revision 2 | `plan_sha256` would change | 1.5 d |
-| 6 | CC-D1 | Productive-use contribution (owner Q10) | `scenario_rules.py`, opportunity reads, estate line, `MiniScenarios.tsx`, w403 cases | 1.7, 3/25, 71; estate SINGLE_LINE | an existing `calculate()` case changes | 1.5 d |
+| 3 | CC-R2 | Placement (D5); s602b case `estate` (MG-B/MG-C stand-ins on KOBO-001) plus the W3-03 fixture for cold/EV; MG-C stand-in (owner Q11) | `estate/placement.py`, `coverage.py`, `index.py`, `portfolio.py`, `scope.py`, `tools/s602b_test_scoped_cases.py` | Appendix C D5 criteria (as amended) | needs a fact not on the row | 1.5 d |
+| 4 | CC-M | Combined schema slice, two revisions 0036 + 0037 (owner Q14); head literal in ~22 tests; one full suite | `backend/migrations/versions/0036_*`, `0037_*` | up/down/up; trigger; full suites | existing migration needs editing | 0.5 d + suite |
+| 5 | CC-D2 | Post-trial reassessment (owner Q10, Q12 wording) | `financials/trial_fuel_comparison.py`, store, routes, `SiteActionVerification.tsx`, s602b cases | 1/24; each reason; route walk; revision 2; guard probe | `plan_sha256` would change | 1.75 d |
+| 6 | CC-D1 | Productive-use contribution (owner Q10) | `scenario_rules.py`, opportunity reads, estate line, `MiniScenarios.tsx`, w403 cases | 1.7, 0.12, 71; estate SINGLE_LINE | an existing `calculate()` case changes | 1.75 d |
 
 EV and cold decisions appear as labelled declared illustrations (owner Q13); cold lots stay Site-only (Q15); the planning vocabulary is adopted (Q16); AI stays out of the demo (Q17). None of these needs a build task in this sprint. The battery-stress approximation is recommended for the next sprint (commercial spec, "Next sprint").
 
@@ -83,7 +83,7 @@ Lane T (TEL-05 is protected and never slips; nothing is rushed past a stop condi
 
 Lane C (no fixed date; R1 is protected):
 1. CC-D1 (to the next sprint; CC-M then carries only the trial table, numbered 0036).
-2. CC-R2's combined estate, to per-vertical databases if the producer hits `INSTALL_CLOCK_CONFLICT` (pre-decided fallback).
+2. (Withdrawn 2026-10-27, spec revision 2: there is no combined estate producer; D5 runs on the s602b `estate` case and the W3-03 fixture.)
 3. CC-D2's `price_split` producer case, after the `verified` route walk is accepted.
 
 ## 6. Merge order and reviews

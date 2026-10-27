@@ -504,13 +504,13 @@ details.wire summary{cursor:pointer;font-weight:650}
 <rect class="box-ok" x="286" y="40" width="125" height="80" rx="8"/><text x="348" y="62" text-anchor="middle" class="b small">Cost exposure</text><text x="348" y="80" text-anchor="middle" class="tiny">fuel-cost bound</text><text x="348" y="93" text-anchor="middle" class="tiny">per revision</text><text x="348" y="110" text-anchor="middle" class="tiny muted">modelled</text>
 <rect class="box-ok" x="424" y="40" width="125" height="80" rx="8"/><text x="486" y="62" text-anchor="middle" class="b small">Intervention</text><text x="486" y="80" text-anchor="middle" class="tiny">reserve − 5 points</text><text x="486" y="93" text-anchor="middle" class="tiny">accepted, applied</text><text x="486" y="110" text-anchor="middle" class="tiny muted">recorded</text>
 <rect class="box-ok" x="562" y="40" width="125" height="80" rx="8"/><text x="624" y="62" text-anchor="middle" class="b small">Technical check</text><text x="624" y="80" text-anchor="middle" class="tiny">≥ 25% fewer seconds,</text><text x="624" y="93" text-anchor="middle" class="tiny">guardrails hold</text><text x="624" y="110" text-anchor="middle" class="tiny muted">verified (simulated)</text>
-<rect class="box-gap" x="700" y="40" width="125" height="80" rx="8"/><text x="762" y="62" text-anchor="middle" class="b small">Reassessment</text><text x="762" y="80" text-anchor="middle" class="tiny">0.128 → 0.0853</text><text x="762" y="93" text-anchor="middle" class="tiny">USD/kWh demand</text><text x="762" y="110" text-anchor="middle" class="tiny muted">post-trial modelled</text>
+<rect class="box-gap" x="700" y="40" width="125" height="80" rx="8"/><text x="762" y="62" text-anchor="middle" class="b small">Reassessment</text><text x="762" y="80" text-anchor="middle" class="tiny">0.125 → 0.0833</text><text x="762" y="93" text-anchor="middle" class="tiny">USD/kWh demand</text><text x="762" y="110" text-anchor="middle" class="tiny muted">post-trial modelled</text>
 <rect class="box-gap" x="838" y="40" width="132" height="80" rx="8"/><text x="904" y="62" text-anchor="middle" class="b small">Portfolio and learning</text><text x="904" y="80" text-anchor="middle" class="tiny">monitor for return;</text><text x="904" y="93" text-anchor="middle" class="tiny">track record</text><text x="904" y="110" text-anchor="middle" class="tiny muted">realized: unavailable</text>
 <path class="ln" d="M135,80 L148,80" marker-end="url(#m37)"/><path class="ln" d="M273,80 L286,80" marker-end="url(#m37)"/><path class="ln" d="M411,80 L424,80" marker-end="url(#m37)"/><path class="ln" d="M549,80 L562,80" marker-end="url(#m37)"/><path class="ln" d="M687,80 L700,80" marker-end="url(#m37)"/><path class="ln" d="M825,80 L838,80" marker-end="url(#m37)"/>
 <text x="10" y="160" class="small">Commercial question first: is avoidable generator running raising this site's supply cost, and does the policy change lower it without weakening service?</text>
 <text x="10" y="180" class="small">The verdict concerns generator runtime. Only the reassessment, on the same windows, SFC and price revision, says anything about cost, and only as a modelled change in one comparable hour.</text>
 <text x="10" y="200" class="small">The terminal state-of-charge guardrail stops the later window borrowing battery energy, which makes the fuel comparison defensible (Appendix A, C4).</text>
-<text x="10" y="232" class="tiny muted">Worked figures from the D2 specification (Appendix C): generator 40 → 28 kWh, feeder demand 120 → 126 kWh, SFC 0.3 L/kWh, diesel 1.28 USD/L, intervention cost 0. Declared assumptions.</text>
+<text x="10" y="232" class="tiny muted">Worked figures from the D2 specification (Appendix C): generator 40 → 28 kWh, feeder demand 120 → 126 kWh, SFC 0.3 L/kWh, diesel 1.25 USD/L, intervention cost 0. Declared assumptions.</text>
 </svg></div>
 <figcaption>Figure 3.4. Green: exists and runs on simulated evidence. Purple dashed: the reassessment and learning stages are missing.</figcaption>
 </figure>
@@ -1443,13 +1443,13 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><td>3a. Post-intervention modelled change</td><td><code>POST_INTERVENTION_MODELLED</code></td><td>"Modelled change after the trial · not realized savings"</td><td>D2</td></tr>
 <tr><td>4. Verified realized field value</td><td>none</td><td>"Unavailable in simulation"</td><td>None, by design</td></tr>
 </table></div>
-<p><b>Beneficiary enum (R-X.1):</b> <code>MINI_OPERATOR</code>, <code>GOODS_OWNER</code>, <code>FLEET_OPERATOR</code>, <code>CHARGING_SERVICE</code>. It is constant per category in code for the sprint; per-site declared beneficiaries are pilot work. Labels come from one frontend map, <code>CLAIM_LABEL</code>, in <code>frontend/src/sites/actionPresentation.tsx</code>, which estate imports.</p>
+<p><b>Beneficiary enum (R-X.1):</b> <code>MINI_OPERATOR</code>, <code>GOODS_OWNER</code>, <code>FLEET_OPERATOR</code>, <code>CHARGING_SERVICE</code>, <code>COOLING_PROVIDER</code> (cold repair). <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i> It is constant per category in code for the sprint; per-site declared beneficiaries are pilot work. Labels come from one frontend map, <code>CLAIM_LABEL</code>, in <code>frontend/src/sites/actionPresentation.tsx</code>, which estate imports.</p>
 <div class="grid2">
 <div class="callout ok"><p><b>Known quantity.</b> Fact from accepted simulated observations: kWh of headroom, generator kWh, °C·min.</p></div>
 <div class="callout"><p><b>Modelled economic effect.</b> Known quantity × declared demo-tenant inputs. Legitimate, provided it is labelled.</p></div>
 <div class="callout bad"><p><b>Unverified business outcome.</b> Collection, trips, spoilage, savings. Always stated as unavailable, never zero.</p></div>
 </div>
-<p><b>Exact arithmetic convention (R-X.2).</b> Products stay exact, or the request is refused with 422, as today. A division (break-even, cost per kWh, efficiency) is computed in <code>Fraction</code> and stored with <code>verification_rules.fmt</code>, which gives a decimal string when the result terminates and <code>p/q</code> otherwise. The display rounds once, to 4 significant decimals, outward for bounds. A ceiling count (payback) is an integer computed exactly.</p>
+<p><b>Exact arithmetic convention (R-X.2).</b> Products stay exact, or the request is refused with 422, as today. A division (break-even, cost per kWh, efficiency) is computed in <code>Fraction</code> and stored with <code>verification_rules.fmt</code>, which gives a decimal string when the result terminates and <code>p/q</code> otherwise. The display rounds once, to 4 decimal places for per-kWh rates and 2 for currency; an upper value rounds up. A ceiling count (payback) is an integer computed exactly.</p>
 </section>
 
 </section>
@@ -1502,7 +1502,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
                   "other_cost": "0", "unit_contribution": "1.7" },
   "eligible_windows": 4,
   "study_contribution": "6.8",
-  "collection_break_even": "3/25",          // fmt(): exact decimal or p/q
+  "collection_break_even": "0.12",          // fmt(): exact decimal or p/q
   "payback": { "windows": 71, "reason": null },   // reason ∈ PAYBACK_REASONS
   "demand_state": "DECLARED",
   "collection_state": "UNVERIFIED"
@@ -1527,7 +1527,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
 <tr><td>eligibility</td><td>Calc <code>CONTRIBUTION_SCENARIO</code> and gate CURRENT → <code>ELIGIBLE</code>. Explicit earlier cutoff → <code>HISTORICAL</code>. <code>PENDING_RECOMPUTE</code> → <code>PENDING</code>. <code>STALE_SOURCE</code> or <code>UNKNOWN</code> → <code>UNKNOWN</code>. Calc <code>WITHHELD</code>, a MIXED or UNKNOWN class, or <code>SCENARIO_BASIS_MISMATCH</code> → <code>WITHHELD</code> with that reason code.</td></tr>
 <tr><td><code>beneficiary</code> (new partition key)</td><td><code>MINI_OPERATOR</code></td></tr>
 </table></div>
-<p>The Portfolio <code>PRODUCTIVE_USE</code> card becomes state <code>SCENARIO</code> when at least one line is ELIGIBLE (display: the line amount, or "Several studies · see Financials" when there is more than one). The Portfolio <code>opportunity</code> object lists eligible lines in placement order (D5), never by largest amount.</p>
+<p>The Portfolio <code>PRODUCTIVE_USE</code> card becomes state <code>SCENARIO</code> when at least one line is ELIGIBLE (display: the line amount, or "Several studies · see Financials" when there is more than one). The Portfolio <code>opportunity</code> object points to Financials, where lines follow the Financials order, never by largest amount. <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></p>
 
 <h4>Rulings</h4>
 <div class="ruling"><b>R1.1 Schedule length.</b> Keep one noon hour (≤ 1 h), labelled "per eligible noon hour". <i>Reason: more hours need W4-02 assessed for more hours, which is separate work.</i></div>
@@ -1540,7 +1540,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
 
 <h4>Acceptance criteria (executable)</h4>
 <ol class="ac">
-<li><b>Pure:</b> <code>contribution()</code> on the w403 fixture days with the inputs below returns <code>unit_contribution == "1.7"</code>, <code>collection_break_even == "3/25"</code> and <code>payback.windows == 71</code>. With collection 0.1, <code>unit_contribution == "-0.05"</code>, <code>payback.reason == "NO_POSITIVE_CONTRIBUTION"</code>.</li>
+<li><b>Pure:</b> <code>contribution()</code> on the w403 fixture days with the inputs below returns <code>unit_contribution == "1.7"</code>, <code>collection_break_even == "0.12"</code> and <code>payback.windows == 71</code>. With collection 0.1, <code>unit_contribution == "-0.05"</code>, <code>payback.reason == "NO_POSITIVE_CONTRIBUTION"</code>.</li>
 <li><b>Pure:</b> every existing <code>calculate()</code> case gives an identical result after the refactor (the unchanged test file passes).</li>
 <li><b>Postgres:</b> on <code>MG-W402-001</code>, <code>GET /api/sites/MG-W402-001/opportunities/{id}</code> returns <code>contribution_scenario.study_contribution</code> equal to <code>eligible_days × 1.7</code>, with <code>demand_state == "DECLARED"</code>.</li>
 <li><b>Postgres:</b> the headroom-below-load and MIXED cases return no amount and the listed reason. The amount field is null, not "0".</li>
@@ -1557,7 +1557,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
 <tr><td>Supply cost (charged on all delivered energy)</td><td>10 × 0.03</td><td>0.30 USD</td></tr>
 <tr><td>Unit contribution</td><td></td><td><b>1.70 USD per eligible hour</b></td></tr>
 <tr><td>Study contribution</td><td>4 × 1.70</td><td>6.80 USD</td></tr>
-<tr><td>Collection break-even</td><td>0.03 / 0.25</td><td>0.12 (3/25)</td></tr>
+<tr><td>Collection break-even</td><td>0.03 / 0.25</td><td>0.12</td></tr>
 <tr><td>Payback</td><td>ceil(120 / 1.70)</td><td>71 eligible hours</td></tr>
 <tr><td>At collection 0.50</td><td>1.25 − 0.30</td><td>0.95 USD; payback 127 hours</td></tr>
 </table></div>
@@ -1569,7 +1569,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
 <div class="frame">
 <div><b>Buyer</b>Mini-grid operator (cost lead and proof of depth)</div>
 <div><b>Decision</b>Did the dispatch change lower supply cost per kWh of demand?</div>
-<div><b>Money</b>Change in modelled fuel cost per kWh of feeder demand, less intervention cost</div>
+<div><b>Money</b>Change in modelled fuel cost per kWh of feeder demand; intervention cost stated beside it</div>
 <div><b>Claim</b>Level 3 technical, plus <code>POST_INTERVENTION_MODELLED</code></div>
 </div>
 <p>The owner's sequence: <b>operating issue → source-backed drivers and history → feasible intervention → recorded Action → independent technical verification → qualified commercial reassessment</b>.</p>
@@ -1596,9 +1596,9 @@ intervention cost  stated beside it, from the command</div>
 <tr><td>Window replay (R2.6)</td><td>No new loader and no change to stored outcomes. Re-run <code>VerificationService._windows(plan, known_at = outcome.recorded_at)</code>. That is reproducible because <code>accepted_evidence</code> is append-only and <code>_windows</code> filters by <code>decided_at ≤ known_at</code>. Assert that each window's evidence-ID set equals <code>outcome.basis.evidence_ids[window]</code>, else <code>UNAVAILABLE / EVIDENCE_REPLAY_MISMATCH</code>. Sum the slot <code>generator_power.kwh</code>, null if any slot is unknown. Add <code>generator_kwh</code> to the <code>window_evidence</code> return value, a new key that does not enter <code>plan_sha256</code>.</td></tr>
 <tr><td>Rule module</td><td>New pure <code>financials/trial_fuel_comparison.py:compare(baseline, later, outcome, sfc_in_force, price_selections, intervention_cost)</code>, formula <code>trial-fuel-comparison/1</code>. It reuses <code>fuel_cost.MULTIPLIER</code>, <code>mini_depth/rules.py:_sfc_for</code> semantics and <code>fuel_cost.select_window_price</code>. Exact <code>Fraction</code>, stored with <code>fmt</code>.</td></tr>
 <tr><td>SFC check (R2.7)</td><td>Compare by <b>value and coverage</b>. Exactly one positive SFC must be in force over each whole window, and the values must be equal. IDs are not compared (APPLY changes them).</td></tr>
-<tr><td>Price check (R2.8)</td><td>Each window gets a <code>PRICED</code> selection, and the two <code>revision_id</code>s must be equal. The demo publication <code>backend/conversions/demo-diesel-price-publications.json</code> step v4 (1.28 USD/L from 2026-10-01) covers both producer windows with one revision.</td></tr>
+<tr><td>Price check (R2.8)</td><td>Each window gets a <code>PRICED</code> selection, and the two <code>revision_id</code>s must be equal. The demo publication <code>backend/conversions/demo-diesel-price-publications.json</code> step v1 (1.25 USD/L, open-ended) covers both producer windows with one revision; v4 (1.28 USD/L) ends 2026-11-01, so publishing v1 to v4 puts the two windows on different revisions (the <code>price_split</code> case). <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></td></tr>
 <tr><td>Migration <code>0037</code></td><td>Append-only <code>trial_cost_comparison_revision</code>: <code>id, tenant_id, site_id, action_id, verification_outcome_id, revision_no, supersedes_revision_id, formula, state, reason, result jsonb, intervention_cost jsonb, price_revision_id, basis_sha256, actor_*, idempotency_key, payload_sha256, recorded_at</code>. Unique <code>(verification_outcome_id, basis_sha256)</code>. Uses the <code>w4_append_only()</code> trigger pattern.</td></tr>
-<tr><td>Hook (R2.9)</td><td>Two triggers. (a) Inside <code>POST .../verification/evaluations</code>, after <code>record_evaluation</code> commits a VERIFIED or INEFFECTIVE outcome, in its <b>own</b> transaction: compute and insert. A failure there never rolls back the verdict and is reported as <code>commercial_reassessment: null</code> with <code>REASSESSMENT_PENDING</code>. (b) A SYSTEM command <code>POST /api/sites/{code}/actions/{id}/verification/commercial-reassessments</code>, using the existing <code>VERIFY</code> capability grant. It (re)computes for a named outcome and carries the declared intervention cost. A price republish is detected on read (<code>current_price_basis: "CHANGED"</code>) and resolved by calling (b), which appends a revision because the basis hash differs. No worker is added.</td></tr>
+<tr><td>Hook (R2.9)</td><td>Two triggers. (a) Inside <code>POST .../verification/evaluations</code>, after <code>record_evaluation</code> commits a new VERIFIED, INEFFECTIVE or INCONCLUSIVE outcome, in its <b>own</b> transaction: compute and insert (INCONCLUSIVE records UNAVAILABLE / OUTCOME_INCONCLUSIVE). A failure there never rolls back the verdict and is reported as <code>commercial_reassessment: null</code> with <code>commercial_reassessment_status: "NOT_RECORDED"</code>. <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i> (b) A SYSTEM command <code>POST /api/sites/{code}/actions/{id}/verification/commercial-reassessments</code>, using the existing <code>VERIFY</code> capability grant. It (re)computes for a named outcome and carries the declared intervention cost. A price republish is detected on read (<code>current_price_basis: "CHANGED"</code>) and resolved by calling (b), which appends a revision because the basis hash differs. No worker is added.</td></tr>
 <tr><td>Intervention cost (R2.10)</td><td>Carried in the command body as <code>{amount, currency, source}</code>, with 0 allowed. The automatic path (a) uses the Action's rule default <code>{amount: "0", source: "reserve-trial-1 policy change; no direct cost declared"}</code>. This needs no assumption-key migration (Q12).</td></tr>
 <tr><td>Routes (R2.11)</td><td><code>GET .../verification/outcome</code> adds <code>commercial_reassessment</code>: the latest revision for the selected outcome. <code>GET .../verification/history</code> adds <code>commercial_reassessments[]</code> (all revisions, slim).</td></tr>
 <tr><td>Views</td><td><code>SiteActionVerification.tsx</code>: a "Commercial reassessment" panel under the verdict. <code>SiteRecommendation.tsx</code> and <code>FindingConsequence.tsx</code>: forward links to the Action and outcome (the existing ID joins).</td></tr>
@@ -1615,13 +1615,13 @@ intervention cost  stated beside it, from the command</div>
   "windows": {
     "baseline": { "generator_kwh": "40", "feeder_demand_kwh": "120",
                   "fuel_l": {"nominal": "12", "upper": "13.2"},
-                  "cost": {"nominal": "15.36", "upper": "16.896"},
-                  "cost_per_demand_kwh": {"nominal": "0.128", "upper": "0.1408"} },
+                  "cost": {"nominal": "15", "upper": "16.5"},
+                  "cost_per_demand_kwh": {"nominal": "0.125", "upper": "0.1375"} },
     "later":    { "generator_kwh": "28", "feeder_demand_kwh": "126", ... }
   },
-  "change_per_demand_kwh": { "nominal": "16/375", "upper": "88/1875" },   // fmt()
+  "change_per_demand_kwh": { "nominal": "1/24", "upper": "11/240" },   // fmt()
   "intervention_cost": { "amount": "0", "currency": "USD", "source": "..." },
-  "price": { "revision_id": "uuid", "value": "1.28", "currency": "USD" },
+  "price": { "revision_id": "uuid", "value": "1.25", "currency": "USD" },
   "sfc": { "value_l_per_kwh": "0.3" },
   "evidence_ids": { "baseline": ["..."], "later": ["..."] },
   "current_price_basis": "SAME",            // SAME | CHANGED
@@ -1667,7 +1667,7 @@ READ_FLAGS           = SUPERSEDED_BY_WITHDRAWAL | PRICE_REPUBLISHED</pre>
 
 <h4>Acceptance criteria (executable)</h4>
 <ol class="ac">
-<li><b>Pure:</b> with the inputs below (and a 1.28 price), <code>compare()</code> returns <code>change_per_demand_kwh.nominal == "16/375"</code>. Each reason in <code>REASSESSMENT_REASONS</code> has one test that triggers it alone.</li>
+<li><b>Pure:</b> with the inputs below (and a 1.25 price), <code>compare()</code> returns <code>change_per_demand_kwh.nominal == "1/24"</code>. Each reason in <code>REASSESSMENT_REASONS</code> has one test that triggers it alone.</li>
 <li><b>Route walk</b> (producer case <code>verified</code>, site <code>KOBO-001</code>). Each step uses only the link in the previous response:
 <ol>
 <li><code>GET /api/estate/portfolio?from=2026-10-01T00:00:00Z&amp;to=2026-11-03T00:00:00Z</code> → the KOBO-001 row with <code>links.finding</code> and <code>links.action</code>.</li>
@@ -1682,13 +1682,13 @@ READ_FLAGS           = SUPERSEDED_BY_WITHDRAWAL | PRICE_REPUBLISHED</pre>
 
 <div class="ex">
 <h5>Worked example (declared assumptions)</h5>
-<p class="assume">Assumed: baseline 2026-10-06 08:00 UTC and later 2026-11-02 08:00 UTC (the s602b windows). Feeder 120 then 126 kWh, bands pass. Generator 40 then 28 kWh. SFC 0.3 L/kWh (the template value). Diesel 1.28 USD/L (demo step v4). Intervention cost 0.</p>
+<p class="assume">Assumed: baseline 2026-10-06 08:00 UTC and later 2026-11-02 08:00 UTC (the s602b windows). Feeder 120 then 126 kWh, bands pass. Generator 40 then 28 kWh. SFC 0.3 L/kWh (the template value). Diesel 1.25 USD/L (demo step v1, which covers both windows). Intervention cost 0. <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></p>
 <div class="tw mid"><table>
 <tr><th></th><th>Baseline</th><th>Later</th></tr>
 <tr><td>Modelled fuel, nominal / upper</td><td>12.0 / 13.2 L</td><td>8.4 / 9.24 L</td></tr>
-<tr><td>Modelled cost, nominal / upper</td><td>15.36 / 16.90 USD</td><td>10.75 / 11.83 USD</td></tr>
-<tr><td>Cost per kWh of feeder demand, nominal</td><td>0.1280</td><td>0.0853</td></tr>
-<tr><td colspan="3"><b>Modelled change:</b> 0.0427 USD per kWh of feeder demand nominal (16/375), 0.0469 upper, in one comparable hour. Not realized savings.</td></tr>
+<tr><td>Modelled cost, nominal / upper</td><td>15.00 / 16.50 USD</td><td>10.50 / 11.55 USD</td></tr>
+<tr><td>Cost per kWh of feeder demand, nominal</td><td>0.1250</td><td>0.0833</td></tr>
+<tr><td colspan="3"><b>Modelled change:</b> 0.0417 USD per kWh of feeder demand nominal (1/24), 0.0459 upper (11/240, rounded up), in one comparable hour. Not realized savings.</td></tr>
 </table></div>
 </div>
 </section>
@@ -1949,7 +1949,7 @@ UNKNOWN_REASONS = SOURCE_GATE_WITHHELD | COVERAGE_INCOMPLETE | CONTRADICTORY_EVI
 <tr><td>2</td><td>(Episode open, <i>or</i> recurred, <i>or</i> reopened) <b>and</b> (no accepted Action, or Pending, Outcome pending or Resolution withdrawn)</td><td><b>ACT_NOW</b></td><td><code>EPISODE_OPEN</code>, <code>RECURRED</code>, <code>REOPENED</code> + <code>NO_ACTION_RECORDED</code>, <code>ACTION_PENDING</code>, <code>OUTCOME_PENDING</code>, <code>RESOLUTION_WITHDRAWN</code></td></tr>
 <tr><td>3</td><td>Consequence <code>PRICED</code> in an eligible line</td><td><b>COMPARE_VALUE</b></td><td><code>PRICED_COMPARABLE</code> (group COMPARABLE), <code>PRICED_SINGLE</code></td></tr>
 <tr><td>4</td><td>Unpriced mechanism</td><td><b>UNPRICED_RISK</b></td><td><code>UNPRICED_PRODUCT_EXPOSURE</code> (cold excursion), <code>UNPRICED_START_FAILURE</code>, <code>UNPRICED_SERVICE_INTERRUPTION</code> (EV), <code>UNPRICED_OTHER</code></td></tr>
-<tr><td>5</td><td>Otherwise (Verified, Applied, no recurrence)</td><td><b>MONITOR</b></td><td><code>VERIFIED_WATCH_RETURN</code>, <code>APPLIED_AWAITING_PLAN</code>, <code>NO_OPEN_SIGNAL</code></td></tr>
+<tr><td>5</td><td>Verified or Applied (checked after rank 2 and before rank 3), or no consequence <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></td><td><b>MONITOR</b></td><td><code>VERIFIED_WATCH_RETURN</code>, <code>APPLIED_AWAITING_PLAN</code>, <code>NO_OPEN_SIGNAL</code></td></tr>
 </table></div>
 
 <details class="wire" open><summary>Wire shape: row <code>placement</code> and <code>confidence</code></summary>
@@ -1988,7 +1988,7 @@ CONFIDENCE_STATES = SUPPORTED_SOURCE_COHERENT | LIMITED | UNKNOWN</pre>
 <ol class="ac">
 <li><b>Pure:</b> one case per rank and per reason code. A row with MIXED source and a PRICED consequence lands in NEEDS_INVESTIGATION, not COMPARE_VALUE.</li>
 <li><b>Cursor:</b> <code>scope._marker_ok("portfolio", six-part)</code> passes and the five-part form fails. Paging the producer estate with <code>limit=2</code> returns every row exactly once, in group order (<code>tests/test_w303_estate_cursor.py</code> pattern).</li>
-<li><b>API:</b> on the combined estate DB, <code>GET /api/estate/portfolio</code> places MG-C as NEEDS_INVESTIGATION / <code>LIFECYCLE_UNCONFIRMED</code>, MG-B as ACT_NOW / <code>RECURRED</code>, the cold excursion as UNPRICED_RISK or ACT_NOW (if its episode is open), and KOBO-001 as MONITOR / <code>VERIFIED_WATCH_RETURN</code>.</li>
+<li><b>API:</b> on the combined estate DB, <code>GET /api/estate/portfolio</code> on the s602b <code>estate</code> case places the MG-C stand-in (KOBO-001 F05, UNCONFIRMED) as NEEDS_INVESTIGATION / <code>LIFECYCLE_UNCONFIRMED</code>, the MG-B stand-in (KOBO-001 F03 recurrence) as ACT_NOW / <code>RECURRED</code> and the verified KOBO-001 F01 row as MONITOR / <code>VERIFIED_WATCH_RETURN</code>; on the W3-03 portfolio fixture the cold excursion has the one placement its fixed episode end implies, and <code>lens=risks</code> returns the cold and EV rows. <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></li>
 <li><b>API:</b> <code>lens=risks</code> returns the cold and EV rows. No row has a numeric priority.</li>
 <li><b>Browser:</b> every row shows a group heading and a reason line (<code>settledScreen</code> from <code>frontend/src/test/settled</code> in <code>estatePortfolio.test.tsx</code>).</li>
 </ol>
@@ -2054,14 +2054,14 @@ CONFIDENCE_STATES = SUPPORTED_SOURCE_COHERENT | LIMITED | UNKNOWN</pre>
 <tr><th>Decision / case</th><th>DB</th><th>Site, dates</th><th>Inputs</th><th>Expected output</th></tr>
 <tr><td>D1 <code>contribution</code></td><td><code>assetops_cc_d1_contribution_test</code></td><td><code>MG-W402-001</code>, study 2026-10-06 to 2026-10-10 (<code>backend/tests/fixtures/w4/w403-mini-decisions.json</code>)</td><td>Existing positive case, plus a contribution scenario (key <code>cc-d1-contribution-r1</code>): 10 kW, 1 h, 0.25 USD/kWh, collection 0.8, marginal 0.03, enablement 120</td><td><code>unit_contribution "1.7"</code>; study = eligible_days × 1.7; payback 71; Estate <code>SINGLE_LINE</code></td></tr>
 <tr><td>D1 <code>negative</code></td><td>same DB</td><td>same site</td><td>(a) 30 kW against minimum headroom; (b) collection 0.1; (c) the existing <code>missing_study_days</code> variant</td><td>(a) <code>WITHHELD / HEADROOM_BELOW_LOAD</code>; (b) <code>"-0.05"</code>, <code>NO_POSITIVE_CONTRIBUTION</code>; (c) <code>WITHHELD / INCOMPLETE_STUDY</code></td></tr>
-<tr><td>D2 <code>verified</code> (new s602b case)</td><td><code>assetops_cc_d2_verified_test</code></td><td><code>KOBO-001</code>; baseline 2026-10-06 08:00Z, change effective 2026-11-02 00:00Z, later 2026-11-02 08:00Z, evaluate at 11:00Z</td><td>Authored complete windows meeting the target and guardrails. Diesel steps v1, v3 and v4 from the demo publication. SFC 0.3 from the template.</td><td><code>VERIFIED</code>; reassessment <code>MODELLED_IMPROVEMENT</code>; price revision = v4</td></tr>
-<tr><td>D2 <code>price_split</code></td><td><code>assetops_cc_d2_price_split_test</code></td><td>same</td><td>As <code>verified</code>, plus a price step valid from 2026-10-20</td><td><code>UNAVAILABLE / PRICE_BASIS_DIFFERS</code></td></tr>
-<tr><td>D2 <code>inconclusive</code>, <code>target_miss</code></td><td>the existing s602b case DBs</td><td>same</td><td>Existing cases plus the price steps</td><td><code>OUTCOME_INCONCLUSIVE</code>; a comparable result (no UNAVAILABLE)</td></tr>
+<tr><td>D2 <code>verified</code> (new s602b case)</td><td><code>assetops_s602b_audit_cc_verified</code></td><td><code>KOBO-001</code>; baseline 2026-10-06 08:00Z, change effective 2026-11-02 00:00Z, later 2026-11-02 08:00Z, evaluate at 11:00Z</td><td>Authored complete windows (generator 40 / 28 kW, loads 60 / 63 kW) meeting the target and guardrails. Diesel step v1 only. SFC from the template.</td><td><code>VERIFIED</code>; reassessment <code>MODELLED_IMPROVEMENT</code>; price revision = v1</td></tr>
+<tr><td>D2 <code>price_split</code></td><td><code>assetops_s602b_audit_cc_price_split</code></td><td>same</td><td>As <code>verified</code>, but diesel steps v1 to v4 (baseline on v4, later on v1); no new step</td><td><code>UNAVAILABLE / PRICE_BASIS_DIFFERS</code></td></tr>
+<tr><td>D2 <code>inconclusive</code>, <code>target_miss</code></td><td>the existing s602b case DBs</td><td>same</td><td>Existing cases plus diesel step v1</td><td><code>OUTCOME_INCONCLUSIVE</code>; <code>target_miss</code> <code>MODELLED_NO_IMPROVEMENT</code> (change 0)</td></tr>
 <tr><td>D3 <code>bus</code></td><td><code>assetops_cc_d3_bus_test</code></td><td><code>EV-LAB-001</code>, 2026-10-06 (Tuesday)</td><td>The w504 positive session window, plus a decision (key <code>cc-d3-bus-r1</code>) with the worked-example vehicles</td><td>SHARED infeasible by 9.6 kWh; PRIORITY_TARGET preferred</td></tr>
 <tr><td>D3 <code>fault</code></td><td><code>assetops_cc_d3_fault_test</code></td><td>same</td><td>FAULT on c2 at 10:30Z, CLEAR at 11:30Z</td><td>Every option <code>CONNECTOR_UNAVAILABLE_OBSERVED</code>; <code>preferred</code> null</td></tr>
 <tr><td>D4 <code>lots</code></td><td><code>assetops_cc_d4_lots_test</code></td><td><code>COLD-LAB-001</code>, the w502 excursion case window</td><td>The producer first reads the stored episode (<code>dm_low</code>, <code>dm_high</code>, end), then authors lots relative to it. L1: rule D = floor(dm_low/2) → REQUIRES_REVIEW. L2: D strictly between dm_low and dm_high → UNDETERMINED (skipped, and recorded, if they are equal). L3: D = dm_high + 1 → NOT_REQUIRED. L4: placed after the episode end → NOT_PRESENT. <code>handle_at</code> = start_latest + 5 min.</td><td>The states as listed; totals per currency</td></tr>
 <tr><td>D4 <code>gap</code></td><td><code>assetops_cc_d4_gap_test</code></td><td>same</td><td>The w502 probe-gap (coverage below 0.8) case</td><td>All lots <code>UNKNOWN / COVERAGE_INCOMPLETE</code></td></tr>
-<tr><td>D5 <code>estate</code></td><td><code>assetops_cc_estate_test</code></td><td>One tenant: MG-W402-001 (D1), KOBO-001 (D2 verified), MG-B (a mini site with a recurrence case from <code>tools/s4_finding_cases.py</code>), MG-C (an Indeterminate-basis UNCONFIRMED case from the same tool), COLD-LAB-001, EV-LAB-001</td><td>New orchestrator <code>tools/cc_estate_seed.py</code>. It runs the existing builders in time order into one DB, with distinct site codes.</td><td>The D5 placement assertions above</td></tr>
+<tr><td>D5 <code>estate</code></td><td><code>assetops_s602b_audit_cc_estate</code>; W3-03 <code>build_portfolio_fixture</code> (a <code>*_test</code> DB)</td><td>KOBO-001 only: F01 verified (as <code>verified</code>), F03 recurrence (MG-B stand-in), F05 through its UNCONFIRMED step (MG-C stand-in). Cold and EV: the existing W3-03 fixture.</td><td>New s602b case <code>estate</code>; no combined orchestrator (no builder takes a site code; <code>s4_finding_cases</code> has no MG-B/MG-C). <i>(Amended 2026-10-27 by the Architect, build spec revision 2.)</i></td><td>The D5 placement assertions above</td></tr>
 </table></div>
 <p><b>Producer risk (stated, not resolved).</b> No producer combines verticals today, and install-clock conflicts between builders are unchecked. The orchestrator must assert a monotone install clock and stop with a named error on conflict. If it conflicts, D5 acceptance runs on per-vertical DBs, and the combined estate becomes a follow-up.</p>
 </section>
