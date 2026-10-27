@@ -285,7 +285,8 @@ def expected_value(timeline: ObservationTimeline, row: ProfileRow, instant: date
                               row.output_resolution)
 
 
-def expected_run(profile: FieldProfile, session_start: datetime, stop_at: datetime, faults=()):
+def expected_run(profile: FieldProfile, session_start: datetime, stop_at: datetime, faults=(),
+                 replay_start: datetime = START):
     """({(device, signal, source_time): (quality, reason, interval_start, value)}, counters)."""
     timeline = ObservationTimeline(JSONL, load_profile(PROFILE_PATH))
     reports: dict[tuple[str, str, str], tuple] = {}
@@ -295,7 +296,7 @@ def expected_run(profile: FieldProfile, session_start: datetime, stop_at: dateti
         cadence = timedelta(seconds=row.cadence_seconds)
         if row.reading_class == "INTERVAL_SIGNAL":
             span = timedelta(seconds=row.span_seconds)
-            end = START + cadence
+            end = replay_start + cadence
             while end <= stop_at:
                 if end > session_start:
                     polls = [p for p in expected_polls(row, end - span) if p >= session_start]
@@ -312,7 +313,7 @@ def expected_run(profile: FieldProfile, session_start: datetime, stop_at: dateti
                         reports[key(end)] = ("UNAVAILABLE", "NO_MEASUREMENT", start, None)
                 end += cadence
         else:
-            boundary = START
+            boundary = replay_start
             while boundary <= stop_at:
                 if boundary >= session_start:
                     read_at = boundary + timedelta(seconds=1)  # B + ceil(skew / 2)
