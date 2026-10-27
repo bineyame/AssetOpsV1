@@ -38,7 +38,7 @@ a decision request and still goes to the owner.
 
 ## Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27) — ended
 
-Ended 2026-10-27: the document was delivered to the owner. The row is Codex again. The original record follows.
+Ended 2026-10-27: revision 2 delivered to the owner; the row is Codex again. Reopened 2026-10-27 by the owner for one revision of the same document (owner text verbatim: `.agent/owner-claude-architect-telemetry-revision-2026-10-27.md`). Ends when the revised document is delivered to the owner. First delivery ended the original scope; the original record follows.
 
 The owner set Architect to Claude for one deliverable: the telemetry integration
 plan (owner prompt `.agent/owner-telemetry-integration-plan-2026-10-27.md`), with
