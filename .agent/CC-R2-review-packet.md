@@ -153,3 +153,18 @@ the walkthrough. All four questions are ruled.
 - F3: `MECHANISM_WORDS`/`mechanismWords` in `frontend/src/estate/portfolioWords.ts` (MOCK DEVIATION comment); GENERATOR_SUPPORT_CANDIDATE reads "Possible extended generator support" (Architect re-ruling: "candidate" is a guarded word). New test `showsCustomerMechanismWordsNotRawCodes` (fails on raw codes); `.mjs` claim 4 adds the raw-code token check.
 - F4: reason text "No end is recorded for this episode" in `placement.py` and the test literals.
 - Checks: backend tier 1 (30 non-Postgres files) 441 passed, 15 skipped; `src/estate` 5 files, 65 passed; `tsc` clean; both guards passed. Tier 2, producer, capture: not run (hold).
+
+## Heavy evidence run (2026-10-28, after the DB hold lifted, at `b9f88ed4`)
+
+1. **Tier 2:** `test_cc_placement_postgres.py` on `assetops_cc2_test` took 93.5 s. Result: **1 passed, 1 failed**.
+   - The W3-03 fixture test passed. That includes the F2 read-time pin path, which goes through `Portfolio`.
+   - `test_ev_interruption_placement` stopped at the ruling's Stop: `episode_end` is `2026-10-06T08:16:00Z`, not
+     null. The source is REGISTERED_SIMULATION. The test is unchanged. See `.agent/CC-R2-questions.md` CC-R2-Q5.
+2. **Producer:** `s602b_verification_walkthrough.py --db assetops_s602b_audit_cc --work var/s602b_cc prepare`, run
+   unmodified, with code from `b9f88ed4`.
+   - The replay was VERIFIED, and the four existing cases built.
+   - Case `estate` failed: freeze 409 `VERIFICATION_FOUNDATION_NOT_COMPARABLE`. A diagnostic copy with the F05
+     steps skipped gave 201, so the cause is F05's backdated runtime control. This is the spec Stop. See CC-R2-Q6.
+   - The DBs and the work folder were removed with the tool's `drop`.
+3. **Capture: not run.** `prepare` did not finish, so no `cases.json` exists. **layout evidence: not run** (blocked
+   by Q6). No Vite or API process was started.

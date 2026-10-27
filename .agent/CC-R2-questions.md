@@ -198,3 +198,48 @@ inside its own scroller, and the page never scrolls sideways. This is the same r
 
 If Chrome is unavailable, record `layout evidence: not run`. The slice merges on review ACCEPT, and the capture runs
 before the Lane C Codex batch review.
+
+## CC-R2-Q5 The Q2 EV row has a recorded end, so the ruling's Stop condition fired
+
+The tier-2 run was on `assetops_cc2_test` at `b9f88ed4`, on 2026-10-28. `test_ev_interruption_placement` failed.
+
+- The source is `REGISTERED_SIMULATION`. That assertion passed.
+- The Portfolio row's `episode_end` is `2026-10-06T08:16:00Z`, not null.
+
+So the EV row in the estate read has a recorded session end. The Q2 premise ("its session `end_at` is null") does
+not hold for the estate projection. That projection (`postgres_estate_read._ev_window`) takes `end_at` from the
+selected `ev_session_revision`.
+
+The ruling's Stop applies: "episode_end is not null → report; never fake". The test is unchanged, and the
+expectation was not weakened.
+
+With a recorded end and no Action, rule 2 does not fire. The row would then be UNPRICED_RISK /
+`UNPRICED_SERVICE_INTERRUPTION`, which is the original spec value, but only if its consequence state is present. I
+did not confirm which group the row actually got: the assertion stopped before the placement check.
+
+**Needs:** the ruled expectation, either UNPRICED_RISK / `UNPRICED_SERVICE_INTERRUPTION` with `episode_end` not
+null, or another producer. The other test in the module, the W3-03 fixture test, passed.
+
+## CC-R2-Q6 The spec Stop fired: F05's steps stop the F01 trial from reaching VERIFIED
+
+I ran the walkthrough `prepare` on `assetops_s602b_audit_cc*` at `b9f88ed4`, on 2026-10-28.
+
+- The replay and the four existing cases built: target_miss, guardrail, inconclusive and withdrawn.
+- Case `estate` failed. In `ev.bound_plan`, `freeze` returned **409 `VERIFICATION_FOUNDATION_NOT_COMPARABLE`**.
+  The message was: "Each window must lie wholly under one covering FoundationRevision: the old one for the baseline
+  and the applied change's new one for the later window, with no policy change inside either."
+  - baseline 10-06 is under `542d291e…`;
+  - later 11-02 is under the new `bde0174e…`.
+- The diagnostic was a scratch copy of the same steps on `assetops_s602b_audit_cc_diag`, dropped afterwards. With the
+  S4 F05 steps skipped, the same freeze returns **201**.
+
+So the cause is F05's backdated `runtime` control: value 120, effective 2026-10-21, decided 10-30T15:10. It splits
+the Foundation before the F01 Action is applied, so the baseline no longer lies under the revision that the applied
+change replaced. This is the spec's Stop: "the F03/F05 steps stop the F01 verdict from being VERIFIED (report the
+case)". F03 alone does not block it.
+
+- **Not done:** no case file was written, `prepare` exited 1, and so capture could not run. The DBs and the work
+  folder were removed with the tool's own `drop`.
+- **Needs:** an Architect ruling on the MG-C stand-in's build order or steps. For example, run the F05 steps after
+  the F01 VERIFIED evaluation. That changes the Foundation after the trial, so its effect on the Portfolio read and
+  on the F01 placement needs checking. Alternatively, choose another UNCONFIRMED producer.
