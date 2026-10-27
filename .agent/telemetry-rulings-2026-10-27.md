@@ -345,3 +345,56 @@ Source: `.agent/architect-reply-owner-q2-q3-2026-10-27.md`.
 - **Q2 withdrawn.** Provenance is already displayed (`SiteEvidence.tsx:73-81`, `sourceProvenance.tsx:90-110`). TEL-07 stays terminal + claim record, with no screen code; the runbook may cite the existing Evidence labels.
 - **D1 stays (c)** for October. D5(d) is unchanged and is enforced by policy and review, since the ledger would accept such a publication (`postgres_evidence_ledger.py:395-397`).
 - **TEL-09 amended.** The emulated-interface class may be a positive, money-eligible test class only when it binds one registered run ID, its identity digest and the profile SHA-256, and a test proves the read-back values equal the run's values. Otherwise it is UNKNOWN. Ladder: simulation R0, emulated read R2. Fold this into telemetry HTML §10.1/§14 at its next revision.
+
+## Amendment 2 after owner answers to questions 4-17 (2026-10-27)
+
+Architect: Claude (`.ai/ROLE_CONFIG.md` line 9). Owner answers, verbatim: `.agent/owner-answers-open-questions-2-2026-10-27.md`. Implementer adjustments folded in: `.agent/implementer-parallel-confirmation-2026-10-27.md`. Build briefing: `.agent/build-sequence-2026-10-27.md` (index) with `.agent/build-spec-telemetry-2026-10-27.md` and `.agent/build-spec-commercial-2026-10-27.md`. Where this amendment and an earlier section disagree, this amendment wins.
+
+### N1 replaced (owner Q5): a money-affecting Finding is shown; its money figure is not
+
+The owner rejected N1 ("money qualification can be shown later but money affecting findings should still be shown").
+
+**Ruling.** October adds one Finding proof, **TEL-05b**, beside TEL-05. TEL-05 itself is unchanged (profile `gx-system-illustrative-1`, no Finding, as before).
+
+1. **Second profile, `field/profiles/gx-system-illustrative-2.json`, profile status `ILLUSTRATIVE`.**
+   - Unit ID 100 keeps the `-1` PV row (808-810, PV on AC output; row status `UNPINNED`, source "third-party summary"). Register 843 is omitted from `-2`: at 1 % resolution it could move SoC across the dispatch reserve headroom.
+   - Unit ID 101 is an **illustrative extension block**: holding registers that are AssetOps-defined, not Victron registers, int32 at exponent −6 so values are exact. Row status `ILLUSTRATIVE`, source "AssetOps illustrative block; not a vendor register map". It carries exactly the roles `dispatch-3.2` reads and the Kobo snapshot already binds: `generator_state` (integer code with a declared enum map to STOPPED, STARTING, RUNNING, FAILED), `generator_power`, `feeder_demand` once per Kobo feeder asset (`residential-meter`, `clinic-meter`, `mill-meter`), `pv_available_power`, `pcs_discharge_capability` and `battery_soc`. Addresses are in the telemetry build spec.
+   - No row claims to be a GX register. No site-total consumption (817-819), no 842, no new role. D5 points 1-5 still hold; point 5 is satisfied because each feeder row is one feeder asset, not a site total.
+   - The profile-level status is the weakest row status (`ILLUSTRATIVE`), and it is printed in every raw capture and claim record.
+2. **Values.** The emulator serves only the public observations of the registered Kobo run of scenario `kobo-mini-grid-prolonged` over 2026-10-13T03:00Z-11:00Z, built exactly as `host/tests/test_s6_verification_publication.py` `configure()` and `draft()` build it (that scenario gives the Candidate Finding in `host/tests/test_t028_dispatch_finding.py`), pinned as JSONL under `contract-fixtures/telemetry/kobo-prolonged-public-observations-v1/` with a manifest. The generator and freshness test live in `host/tests`, as for the `-1` JSONL. Each published interval mean is held constant across its span, so the poller's exact mean reproduces it; the claim record says so. The TEL-03 representability stop applies to every new row.
+3. **Decode.** TEL-01's decoder gains one declared decode kind, `enum` (integer code to state text, exact map in the profile, unmapped code = configuration fault per D6). No other decode change.
+4. **Provenance and money.** Nothing changes. No publication is attached (D5(d)), so the Finding's evidence resolves UNKNOWN / `NO_POSITIVE_BINDING`. The existing gates already withhold any current amount for UNKNOWN, checked in code:
+   - `evidence/provenance_read.py:30-39`: only `AUTHORED_DEMONSTRATION` and `REGISTERED_SIMULATION` permit current money; anything else gives `MIXED_OR_UNKNOWN_SOURCE`.
+   - `financials/consequence_read.py:228-241`: `presented_as_current` requires `gate["permits_current_money"]`; `withheld_reasons` (`:373-385`) adds the source reason.
+   - The same gate is used by `finding_api.py`, `finding_index_api.py`, `site_overview/money_state.py`, `estate/financials.py` and `estate/coverage.py`; the UI renders UNKNOWN as "Source unverified" with "No current cost is shown" (`frontend/src/sites/sourceProvenance.tsx:101-104`).
+   No field-source special case is added anywhere (protected seam 5).
+5. **TEL-05b acceptance (replaces TEL-05's "no consequence or money row" for this test only).** A dispatch Finding exists for the window and cites only TEL-05b's accepted evidence IDs; provenance for those IDs is UNKNOWN / `NO_POSITIVE_BINDING`; for every consequence revision that exists, the consequence read has `current_amount_shown == false` and `MIXED_OR_UNKNOWN_SOURCE` in `withheld_reasons`; no read in (4) shows a current amount. If no consequence is produced because the test Site has no price timeline, the test seeds price only through the existing seeding the S4 Postgres tests use (no new code) so that the withholding is shown by the source gate, not by a missing price.
+6. **What the claim record must say (TEL-07).** "A money-affecting Finding (generator ran when solar and battery could have carried the load) arose from readings that travelled emulator → Modbus TCP poller → real gateway → central ledger. Values are a simulator run's public outputs (`kobo-mini-grid-prolonged`), served through an AssetOps illustrative register block; register layout not pinned to any vendor document. Source: not established. Money: not shown, by the existing source gate. Not claimed: any real device, any vendor register map, any money figure, any field performance." It names the profile ID, version and SHA-256, the JSONL SHA-256, the commit, the environment (laptop or BBB) and the accepted-evidence and Finding IDs.
+7. **Later money qualification** stays TEL-09 (emulated-interface class with run, digest, profile SHA and read-back equality test) or the pilot real-source class. Neither is October scope.
+
+### D7 changed (owner Q6): the BeagleBone Black step is October scope, right after TEL-05
+
+TEL-08 now follows TEL-05 directly; its card is in the build sequence. No purchase, except a microSD card (8 GB or larger) and a 5 V 2 A barrel supply if the owner does not already have them (about $16); the coordinator flags this to the owner. October TEL-08 is a reduced stage 2, TCP only, as specified in `.agent/build-spec-telemetry-2026-10-27.md` (microSD boot, source copy, no systemd units, one uplink-pull fault); RTU, socat, eMMC flashing, systemd hardening, the 6 h drain and the power-pull and disk-fill rehearsals stay after October.
+
+### D9 changed (owner Q7 = c): no prospect ask yet
+
+TEL-06 stays an illustrative-format collector. TEL-10 has no start date.
+
+### Accepted as recommended (Q4, Q8)
+
+D2: authorised `*_test` databases only; a fixed telemetry database, if needed, is `assetops_tel_*_test`. D8: one hosted gateway per customer Site, when a customer file exists.
+
+### Implementer adjustments, folded in
+
+1. **TEL-01 `module-roots.ps1`:** required directories `field`, `field/assetops_field`; required files `field/pyproject.toml`, `field/assetops_field/__init__.py` (restating D4; these are required-root entries, not only forbid rules).
+2. **D4 reverse rule scope:** the "no `assetops_field`" rule applies to `host/` **non-test** modules only. `host/tests/*` may import `assetops_field`. The new section must not alter the existing host-gateway counts (`dependency-direction.ps1` about lines 225-231) or the `host/tests/*` exclusion at line 476. `backend/` stays forbidden, tests included (feasibility §2.4).
+3. **Ports, fixed in TEL-00:** Modbus emulator 5020; `serve_tls` 8443 for the runbook and TEL-08. Tests use the ports `host/tests/gateway_process.py` and `fake_central.py` already choose; TEL-00 records them and confirms none is 5173 or 8000 (the commercial dev servers). RTU port 7000 is unused in October.
+4. **PYTHONPATH** goes in each lane's first task file (lines in the build sequence), not only in planning documents.
+
+### TEL-03 representability amended (found while writing the build spec)
+
+Registered Kobo values carry resolution `0.000001` in their canonical unit (`backend/assetops_backend/runs/profiles.py:1826`). GX-layout registers (uint16 in W or %) cannot hold that, so the TEL-03 stop "do not round in the emulator" would fire on the first value. Ruling: for GX-layout rows the emulator models the device's register resolution and presents `quantize_half_even(value, register_quantum)`; equality is tested against that quantized value, and the claim record says so. The stop now fires only on range overflow, or on a row whose `output_resolution` is finer than its register quantum. The illustrative block (int32, exponent −6) is never quantized.
+
+### Correction to D4: identity carries no snapshot SHA
+
+`GatewayService.identity` returns tenant, site, gateway, source mode, permitted sources and epoch only (`gateway/assetops_gateway/service.py:407-418`). The poller checks those against its expected identity, and the snapshot is enforced by passing `snapshot_sha256` on every `admit`; any refusal stops the poller.
