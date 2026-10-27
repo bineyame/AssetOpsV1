@@ -1,4 +1,4 @@
-# TEL-05b review packet: Finding proof, profile `-2` (phase 1 of 2)
+# TEL-05b review packet: Finding proof, profile `-2`
 
 PowerShell:
 ```
@@ -8,7 +8,7 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 
 - Task: TEL-05b, `.agent/build-spec-telemetry-2026-10-27.md` § TEL-05b, sections J (TEL-T1-Q5, Q7) and K (Dev2); rulings amendment 2 (N1 replaced) and amendment 3 items 8-9.
 - Branch `task/TEL-05b-finding-money-withheld`, from TEL-05 head `5c2f134f`. Build commit `a8aaaf5d`.
-- Phase 1 status: everything built; focused non-DB tests and guards green. **The Postgres test has not been run** (heavy-job slot held by the TEL-05 reviewer). Phase 2 = two runs, each on a fresh database.
+- Status: built and accepted locally. The Postgres gate is green twice, each run on a freshly created `assetops_tel5b_test` (revision `e02462a2`, which includes main `048b5828` merged in as `3e37dca3`).
 - Builder questions `.agent/TEL-05b-questions.md`, ruled in spec section L (2026-10-28) and applied in the second commit: Q1 index parameters confirmed (a CURRENT 200 must have rows; only 200/409-closed pass); Q2 zero consequence revisions is a STOP.
 
 ## Outcome delivered
@@ -46,13 +46,12 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 | Profile `-2` per table, row statuses, sentinels, spans/cadences/period 60 | Met (table test, loader, freshness vs V4) |
 | enum texts are labels of the snapshot status binding | Met (freshness test) |
 | JSONL pinned with manifest, freshness test | Met |
-| Unit-101 values exact, `NOT_A_MULTIPLE` a stop (J Q7) | Met offline (emulator tests). The end-to-end exact comparison is coded but **not yet run** |
-| Quantization on row status (T1-Q5) | Met |
-| Dispatch Finding cites only this test's accepted IDs | Coded, **not run** |
-| Provenance UNKNOWN / `NO_POSITIVE_BINDING` | Coded, **not run** |
-| Every consequence read `current_amount_shown false` + `MIXED_OR_UNKNOWN_SOURCE`; no current amount in Finding read or index | Coded per section L, **not run** |
-| L-Q2: ≥1 consequence revision per gated (fid, frid), ≥1 PRICED with amounts (else STOP with recompute output and price rows); each read's selected revision `presented_as_current false`, own `source_provenance.state UNKNOWN` | Coded, **not run** |
-| Green twice, each on a fresh database | **Not run** (phase 2) |
+| Unit-101 values exact, `NOT_A_MULTIPLE` a stop (J Q7) | Met: emulator tests, plus an end-to-end exact comparison of all 802 GOOD reports in both runs |
+| Dispatch Finding cites only this test's accepted IDs | Met: one Finding per run, anchored 2026-10-13T05:05Z, window status CURRENT, citations a subset of the 802 accepted IDs |
+| Provenance UNKNOWN / `NO_POSITIVE_BINDING` | Met (Finding revision, and each consequence revision UNKNOWN) |
+| Every consequence read `current_amount_shown false` + `MIXED_OR_UNKNOWN_SOURCE`; no current amount in Finding read or index | Met: head and pinned reads both false; withheld `["AUDIT_ONLY","SOURCE_CLOSED","MIXED_OR_UNKNOWN_SOURCE"]`; index 409 `PERFORMANCE_CUTOVER_CLOSED` with rows null (L-Q1 (b)); the scan of the Finding read is empty |
+| L-Q2: a PRICED revision with amounts exists, is withheld, provenance UNKNOWN | Met: one revision PRICED, USD 0 to 40.05760 (v4 price), `presented_as_current false` |
+| Green twice, each on a fresh database | Met (below) |
 
 ## Checks run (revision `a8aaaf5d`)
 
@@ -63,7 +62,12 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
   - `presented_value` made to quantize every row: the Q5 test and the `NOT_A_MULTIPLE` test both fail.
   - Enum label `RUNNING` changed to `RUN` in the profile: the freshness test and the table test fail.
   - One JSONL value byte changed: the freshness test fails.
-- Not run: the Postgres test (phase 2), and the TEL-04 end-to-end file (heavy; unchanged).
+- Postgres gate, alone on an idle laptop, with `tools/keep-awake-during-tests.ps1` running and a 1200 s cap per run (expected about 9 min). Command, from the worktree: `python -m pytest host/tests/test_field_modbus_tcp_acceptance_postgres.py -k profile_2 -q -s -p no:cacheprovider --basetemp %TEMP%ssetops-tel5b\<run> --junitxml <run>.xml`, with `ASSETOPS_TEST_DATABASE_URL=.../assetops_tel5b_test` on 127.0.0.1:55432. The database was dropped and recreated before each run and dropped at the end; no other database was touched.
+  - Attempt 0 (`3e37dca3`), failed on a test defect, wall 543 s. Every gate passed up to step 5; the test then read `body["consequence"]` from the Finding read, which has no money section (only `/financials` does). Fix `e02462a2`: the Finding read is gated by the current-amount scan.
+  - Gate run A (`e02462a2`): `1 passed in 542.57s`, wall 544 s; JUnit tests=1 failures=0 errors=0 skipped=0. Finding `c5e8c777-6870-4708-ae57-6c291a17fd34`, revision `163570fa-001e-4110-bcc7-6f561e0504cc`, consequence `047d301e-199c-41a0-bc87-62fc7e610a93`.
+  - Gate run B (`e02462a2`): `1 passed in 542.07s`, wall 543 s; JUnit tests=1 failures=0 errors=0 skipped=0. Finding `6d1209f7-9a6d-4574-9a26-489a94ea408b`, revision `1d14f590-fc3e-4fdb-86cc-192d4d72891b`, consequence `d82666f0-4f4c-416e-9144-9913409fb92c`.
+  - Each run: 802 accepted readings (battery_soc 97, feeder_demand 288, generator_power 96, generator_state 97, pcs_discharge_capability 96, pv_available_power 96, pv_power 32) in 578 batches, all receipts COMPLETED with no refusals. `process-jobs`: one job, DONE. Profile `-2` sha256 `638a6edfedfa4918503f5aeebf353f7e3f8ccfc3bd1dd22e4159023d0bdcc136`.
+- Not run: the TEL-04 end-to-end file (heavy; unchanged).
 
 ## Known deviations
 
@@ -73,8 +77,9 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 
 ## Residual risk
 
-- The S3 performance cutover gate, `process-jobs` job creation under the real UTC clock, and the matcher's window statuses are untested until phase 2. The spec's stop applies: no Finding means report, no tuning.
-- Wall time per run is about 8 min of replay plus setup and delivery.
+- **For the Architect:** the money is withheld by more than one gate. `withheld_reasons` also carries `AUDIT_ONLY` and `SOURCE_CLOSED`, because the S3 performance cutover is closed for the test Site ("No Performance comparison report exists"). `MIXED_OR_UNKNOWN_SOURCE` is present, `source_gate.permits_current_money` is false and the gate's state is UNKNOWN, so the source gate does withhold. But this proof does not show it as the only gate. The test was not tuned.
+
+- Wall time is about 9 min per run.
 
 ## User-review focus
 
