@@ -547,10 +547,19 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
     # Step 4: the consequence runner, exit 0.
     recomputed = cli(recompute_consequences, ["run", "--tenant", "demo", "--site", "KOBO-001"])
     emit("TEL-05b recompute:", recomputed.strip().replace("\n", " | "))
-    revisions = _site_rows("SELECT id, finding_id, finding_revision_id, state, price_state FROM "
+    revisions = _site_rows("SELECT id, finding_id, finding_revision_id, revision_no, state, price_state, "
+                           "price_reason, price_revision_id, amount_low, amount_high, currency FROM "
                            "financial_consequence_revision WHERE site_id = :s ORDER BY finding_id, revision_no",
                            site_id)
     emit("TEL-05b consequence revisions:", json.dumps(revisions, default=str))
+    # TEL-05b-Q2: zero consequence revisions, or none PRICED with amounts, is a STOP (the withholding must be
+    # shown on a recorded figure by the source gate, not by a missing amount). Report, do not tune.
+    stop_report = f"recompute output: {recomputed.strip()!r}; consequence revisions: {revisions}"
+    for fid, frid in pinned:
+        own = [r for r in revisions if str(r["finding_id"]) == fid and str(r["finding_revision_id"]) == frid]
+        assert own, f"STOP (TEL-05b-Q2): no consequence revision for Finding {fid} revision {frid}; {stop_report}"
+    assert any(r["state"] == "PRICED" and r["amount_low"] is not None and r["amount_high"] is not None
+               for r in revisions), f"STOP (TEL-05b-Q2): no PRICED consequence revision with amounts; {stop_report}"
 
     # Step 5: API reads through the production composition; no current amount anywhere.
     with TestClient(backend_main.create_app()) as client:
@@ -558,9 +567,11 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
             "domain": "mini-grid-dispatch", "from": "2026-10-13T00:00:00Z", "to": "2026-10-14T00:00:00Z"})
         emit("TEL-05b finding index:", index.status_code, json.dumps(index.json(), default=str, sort_keys=True))
         index_body = index.json()
-        assert index.status_code in (200, 409), index_body
+        assert index.status_code in (200, 409), index_body  # TEL-05b-Q1: any other status fails
         if index.status_code == 200:
             index_rows = index_body.get("rows") or []
+            if index_body.get("status") == "CURRENT":
+                assert index_rows, "a CURRENT index page is empty although the 2026-10-13 Finding is in the window"
             assert all(r["amount"]["state"] == "UNAVAILABLE" for r in index_rows), index_rows
         else:
             assert index_body["detail"]["code"] == "PERFORMANCE_CUTOVER_CLOSED"
@@ -586,12 +597,22 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
                                       str(revision["id"]), pinned_read))
         for fid, frid, crid, answer in consequence_reads:
             assert answer.status_code == 200, (fid, frid, crid, answer.text)
-            currentness = answer.json()["currentness"]
+            read = answer.json()
+            currentness = read["currentness"]
+            selected = read["consequence"]
             emit("TEL-05b consequence read:", json.dumps({
                 "finding_id": fid, "finding_revision_id": frid, "consequence_revision_id": crid,
                 "current_amount_shown": currentness["current_amount_shown"],
-                "withheld_reasons": currentness["withheld_reasons"], "source_gate": currentness["source_gate"]},
-                default=str, sort_keys=True))
+                "withheld_reasons": currentness["withheld_reasons"], "source_gate": currentness["source_gate"],
+                "consequence": None if selected is None else {
+                    k: selected.get(k) for k in ("id", "state", "amount", "presented_as_current")},
+                "consequence_provenance_state": None if selected is None
+                else (selected.get("source_provenance") or {}).get("state")}, default=str, sort_keys=True))
+            # TEL-05b-Q2 (3), (4): a selected revision exists, is not presented as current, and its own
+            # source provenance is UNKNOWN.
+            assert selected is not None, (fid, frid, crid, read["consequence_selection"])
+            assert selected["presented_as_current"] is False, (fid, crid, selected)
+            assert selected["source_provenance"]["state"] == "UNKNOWN", (fid, crid, selected["source_provenance"])
             assert currentness["current_amount_shown"] is False, (fid, crid, currentness)
             assert SOURCE_WITHHELD in currentness["withheld_reasons"], (fid, crid, currentness)
             assert _current_amount_paths(answer.json()) == [], (fid, crid)

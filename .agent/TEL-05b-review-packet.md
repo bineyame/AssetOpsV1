@@ -9,7 +9,7 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 - Task: TEL-05b, `.agent/build-spec-telemetry-2026-10-27.md` § TEL-05b, sections J (TEL-T1-Q5, Q7) and K (Dev2); rulings amendment 2 (N1 replaced) and amendment 3 items 8-9.
 - Branch `task/TEL-05b-finding-money-withheld`, from TEL-05 head `5c2f134f`. Build commit `a8aaaf5d`.
 - Phase 1 status: everything built; focused non-DB tests and guards green. **The Postgres test has not been run** (heavy-job slot held by the TEL-05 reviewer). Phase 2 = two runs, each on a fresh database.
-- Open builder questions: `.agent/TEL-05b-questions.md` (Q1 index parameters, Q2 zero consequence revisions, Q3 confirm). Built to the literal spec meanwhile.
+- Builder questions `.agent/TEL-05b-questions.md`, ruled in spec section L (2026-10-28) and applied in the second commit: Q1 index parameters confirmed (a CURRENT 200 must have rows; only 200/409-closed pass); Q2 zero consequence revisions is a STOP.
 
 ## Outcome delivered
 
@@ -50,7 +50,8 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 | Quantization on row status (T1-Q5) | Met |
 | Dispatch Finding cites only this test's accepted IDs | Coded, **not run** |
 | Provenance UNKNOWN / `NO_POSITIVE_BINDING` | Coded, **not run** |
-| Every consequence read `current_amount_shown false` + `MIXED_OR_UNKNOWN_SOURCE`; no current amount in Finding read or index | Coded, **not run**; see Q1, Q2 |
+| Every consequence read `current_amount_shown false` + `MIXED_OR_UNKNOWN_SOURCE`; no current amount in Finding read or index | Coded per section L, **not run** |
+| L-Q2: ≥1 consequence revision per gated (fid, frid), ≥1 PRICED with amounts (else STOP with recompute output and price rows); each read's selected revision `presented_as_current false`, own `source_provenance.state UNKNOWN` | Coded, **not run** |
 | Green twice, each on a fresh database | **Not run** (phase 2) |
 
 ## Checks run (revision `a8aaaf5d`)
@@ -67,7 +68,8 @@ $env:ASSETOPS_GUARD_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scr
 ## Known deviations
 
 - The `-2` oracle and arrival helpers (`_expected_run_2`, `_arrived_2`) are local to the TEL-05 file. They reuse `tel4.oracle_outcome` and `expected_polls`. `tel4.expected_run`/`arrived` are bound to `-1` and parse values as `Fraction`, which fails on ENUM text. They were not changed, so the TEL-05/TEL-04 code under review stays as reviewed.
-- Finding-index parameters added (Q1).
+- Finding-index parameters added (Q1, confirmed in section L).
+- L-Q2 (1) is applied to every gated Finding (Q3), not only one; a second Finding with no consequence would stop the test for the Architect.
 
 ## Residual risk
 
