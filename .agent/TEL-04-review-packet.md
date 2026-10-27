@@ -9,13 +9,19 @@ Interpreter `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` 
 
 - Task: TEL-04 only (build spec TEL-04; Q-T1..Q-T70; section J incl. TEL-T1-Q6 and Q7; rulings 2026-10-27).
 - Branch `task/TEL-04-poller` from T1 head 3bbce526. Build commit `346909a0`. No Postgres, no full suite.
-- Questions left open (uncovered, not decided in code): `.agent/TEL-04-questions.md` (Q1-Q4; Q5 confirms a gate-7 reading).
+- Questions: `.agent/TEL-04-questions.md`, ruled by the Architect (spec section K). Q1-Q4 are applied in `6c915075`. Q5 and Dev1-3 are accepted as built.
 
 ## Files changed
 
 - `field/assetops_field/modbus_poller.py` (new): CLI, `new_session_ref`, `session_stamp`, the lazy merged schedule, `Poller`.
 - `host/tests/field_bench.py` (new, stdlib): `expect_identity_from_snapshot`, `cohort_members`. TEL-08 subcommands not added.
-- `host/tests/test_field_modbus_tcp_proof.py` (new): 4 E2E tests, the `new_session_ref` unit test and one exit-2 subprocess test.
+- `host/tests/test_field_modbus_tcp_proof.py` (new) holds 11 tests:
+  - 4 E2E tests;
+  - the `new_session_ref` unit test;
+  - one exit-2 subprocess test;
+  - 2 Q1 tests;
+  - 3 Q3 `finish()` tests over FakeLink.
+- `.agent/TEL-04-questions.md` and `.agent/build-spec-telemetry-2026-10-27.md`: the Architect's rulings, committed as delivered.
 - No change to gateway, backend, contracts, simulator, host product modules, the guards or other field modules.
 
 ## What landed
@@ -50,6 +56,9 @@ Interpreter `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` 
 | 11 first GOOD | Clean run: START `session_start == 06:00:00Z`, and PV 06:15Z is GOOD with `interval_start 06:00Z`. |
 | 12 restart -> no stranded batch | `test_restart`: the crash run exits 9 with no EXIT line and leaves unbatched outbox rows (> 0, asserted). The restart exits 0. START `previous_ref ==` the killed `session_ref`, and the new ref differs. The first PV interval after restart is `NO_COMPLETED_INTERVAL` with span start `E-900 < session_start`, and the next one is GOOD. After the gateway is killed, SQLite read-only shows (STAGED batches, unbatched STAGED/READY outbox) == (0, 0). Mutation proof below. |
 | Q7 values | Every arrived report equals the oracle exactly. GOOD values use `quantize_half_even(presented_value(row, obs), output_resolution)`, compared as Fractions, plus the independent `abs(arrived - obs) <= q/2` bound on every GOOD report (count > 0 asserted). |
+| Ruling Q1 | `test_gateway_unavailable_before_start_exits_4_offline`: a missing credential and no pipe give exit 4, with no START, no EXIT, no `session.json`, and stderr `gateway unavailable before start`. `test_gateway_unavailable_in_release_previous_...`: in-process `main()` returns 4, prints no START or EXIT, and leaves `session.json` byte-identical. |
+| Ruling Q2/Q3 | `Poller.finish()`: (a) 2 retained texts give ops `admit, seal, release_run`, with reports in order, `retained == []`, and ADMITTED 1 / ALREADY_ADMITTED 1. (b) Admit unavailable gives `_Stop(4)`, ops `[admit]`, and `retained_reports == 2`. (c) Nothing retained and seal unavailable gives `_Stop(4)` and ops `[seal]`. |
+| Ruling Q4 | `exit_line is None` is asserted for both exit-2 runs and for both Q1 tests. |
 | Q6 | `test_session_ref_format_with_an_injected_token`: `field:gx-system-illustrative-1:1:20261027T090807Z:0a1b2c3d`. Bad tokens are refused. |
 
 **Mutation proofs** (on committed `346909a0`, then `git checkout --`; the tree was clean after each):
@@ -60,10 +69,11 @@ Interpreter `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` 
 
 | Command (cwd worktree, basetemp `%TEMP%\assetops-tel4\<name>`) | Result |
 |---|---|
-| `pytest host/tests/test_field_modbus_tcp_proof.py -q -p no:cacheprovider --durations=0` (final, `346909a0`) | **6 passed in 228 s** (clean 70.9 s, faults 66.5 s, restart 66.3 s, unit W 21.2 s, exit-2 1.0 s, session ref <1 s) |
-| `pytest field/tests -q -p no:cacheprovider` | 146 passed in 9.0 s |
-| `tools/check-architecture.ps1` | Architecture check passed (exit 0) |
-| `tools/check-agent-workflow.ps1` | Agent workflow check passed (exit 0) |
+| `pytest host/tests/test_field_modbus_tcp_proof.py -q -p no:cacheprovider` (final, `6c915075`) | **11 passed in 232.7 s** |
+| same file at `346909a0`, `--durations=0` | 6 passed in 228 s (clean 70.9 s, faults 66.5 s, restart 66.3 s, unit W 21.2 s) |
+| `pytest field/tests -q -p no:cacheprovider` (`6c915075`) | 146 passed in 9.7 s |
+| `tools/check-architecture.ps1` (`6c915075`) | Architecture check passed (exit 0) |
+| `tools/check-agent-workflow.ps1` (`6c915075`) | Agent workflow check passed (exit 0) |
 | the 2 mutation runs above | each 1 failed as intended; reverted |
 
 ## Known deviations and interpretations
@@ -78,7 +88,7 @@ Interpreter `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` 
 5. **`Poll.at` for state** is `clock.now()` read just before `client.read()`. That read includes a reconnect after a NO_ANSWER, because the TEL-02 client has no pre-`sendall` hook.
 6. **Raw capture:** one line per request. A `SKIPPED_LATE` line has `request_hex: null`.
 7. **Test placement.** The Q6 unit test and the exit-2 test are in the proof file, because the module map names no new `field/tests` file. `expect_identity.source_mode` is taken from snapshot `gateway.mode`.
-8. **Not handled (Q1-Q4):** `GatewayUnavailable` before START or at the final seal (exit 1 with a traceback), retained texts at stop, and no EXIT line on exit 2.
+8. Q1-Q4 are resolved by the rulings and applied: unavailable before START exits 4; `finish()` admits the retained texts and then seals, exiting 4 with an EXIT line if the gateway is unavailable; an EXIT line prints if and only if START did.
 
 ## Residual risk
 
@@ -87,4 +97,4 @@ Interpreter `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` 
 
 ## User-review focus
 
-Q1-Q5 in `.agent/TEL-04-questions.md`; deviations 1-2 (harness responder and deliver loop); gate 7's read point.
+`Poller.finish()` and the pre-START exit-4 paths (`6c915075`); the remaining gates as before.
