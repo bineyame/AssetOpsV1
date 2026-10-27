@@ -98,7 +98,7 @@ def test_rule_2_signals_in_order_with_recurrence_text() -> None:
     assert [(x.code, x.text) for x in p.reasons] == [
         ("RECURRED", "Returned after an earlier episode (Finding 1a2b3c4d)"),
         ("REOPENED", "Reopened after it had closed"),
-        ("EPISODE_OPEN", "The episode is still open"),
+        ("EPISODE_OPEN", "No end is recorded for this episode"),
         ("NO_ACTION_RECORDED", "No accepted Action; open the recommendation")]
     assert placed(row(recurs=OTHER), None) == ("ACT_NOW", ["RECURRED", "NO_ACTION_RECORDED"])
     assert placed(row(transition="REOPENED"), "Pending") == ("ACT_NOW", ["REOPENED", "ACTION_PENDING"])
@@ -185,7 +185,7 @@ def test_wire_shape() -> None:
     p = place(row(end=OPEN, recurs=OTHER), None, COVERED, None)
     assert p.wire() == {"policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2, "reasons": [
         {"code": "RECURRED", "text": "Returned after an earlier episode (Finding 1a2b3c4d)"},
-        {"code": "EPISODE_OPEN", "text": "The episode is still open"},
+        {"code": "EPISODE_OPEN", "text": "No end is recorded for this episode"},
         {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
     assert p.confidence in placement.CONFIDENCE_STATES
 

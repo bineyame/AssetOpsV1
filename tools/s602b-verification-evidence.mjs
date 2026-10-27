@@ -290,7 +290,7 @@ const BOTTOM_LINE = "Placement and confidence answer different questions.";
 async function portfolioSuite(label, c) {
   const p = c.placement;
   const ready = `${settled} && document.querySelector('[data-estate-root="portfolio"] [data-portfolio-row]')`;
-  const loaded = await go(`${CASES_BASE}/portfolio?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z`, ready);
+  const loaded = await go(`${CASES_BASE}/portfolio?from=2026-10-03T00:00:00Z&to=2026-11-03T00:00:00Z`, ready);
   claim(`${label} estate Portfolio loads with rows`, loaded);
   // 1. Group headings: no repeats, GROUPS order, the three expected groups, exact label · count text.
   const heads = await js(`[...document.querySelectorAll('tr[data-placement-group]')].map(t => [t.dataset.placementGroup, t.textContent.trim()])`);
@@ -319,7 +319,7 @@ async function portfolioSuite(label, c) {
   const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(conf.panel)).map(String);
   claim(`${label} estate Portfolio: every row has a confidence code and text; no guarded word in the panel`,
     conf.rows.length === conf.count && conf.count > 0 && conf.rows.every(([code, t]) => ["SUPPORTED_SOURCE_COHERENT", "LIMITED", "UNKNOWN"].includes(code) && t !== "")
-      && words.length === 0, { rows: conf.rows.length, count: conf.count, words });
+      && words.length === 0 && !/[A-Z]+_[A-Z_]+/.test(conf.panel), { rows: conf.rows.length, count: conf.count, words });
   // 5. Bottom line and the closed policy disclosure.
   const policy = await js(`(() => { const d = document.querySelector('[data-placement-policy]');
     return { bottom: document.querySelector('[data-portfolio-panel="priority"] .panel-bottom span')?.textContent ?? null,

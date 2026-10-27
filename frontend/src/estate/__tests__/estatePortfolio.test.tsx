@@ -10,6 +10,7 @@ import { forbiddenPhrases } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioStatus } from "../estateClient";
 import { EstatePortfolioPage } from "../EstatePortfolio";
+import { mechanismWords } from "../portfolioWords";
 import {
   COLD_ROW,
   coverageSite,
@@ -89,6 +90,21 @@ describe("estate Portfolio page", () => {
     expect(text(rows[0])).toContain("Unpriced");
   });
 
+  it("showsCustomerMechanismWordsNotRawCodes", async () => {
+    expect(mechanismWords("GENERATOR_SUPPORT_CANDIDATE")).toBe("Possible extended generator support");
+    expect(mechanismWords("COLD_EXCURSION")).toBe("Chamber temperature above policy");
+    expect(mechanismWords("COLD_START_FAILURE")).toBe("Automatic start failed");
+    expect(mechanismWords("EV_INTERRUPTION")).toBe("Charging session interrupted");
+    expect(mechanismWords(null)).toBe("Mechanism not recorded");
+    expect(mechanismWords("SOMETHING_NEW")).toBe("Mechanism not recorded");
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(text(priority)).toContain("Possible extended generator support");
+    expect(text(priority)).toContain("Chamber temperature above policy");
+    expect(text(priority)).not.toMatch(/[A-Z]+_[A-Z_]+/);
+  });
+
   it("rendersUnpricedCardAndEmptyRisksLensNotAssessed", async () => {
     const cards = portfolioBody().value_cards.map((c) =>
       c.key === "OPERATING_COST"
@@ -130,7 +146,7 @@ describe("estate Portfolio page", () => {
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
-    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded");
+    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support");
     expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
@@ -435,8 +451,8 @@ describe("estate Portfolio page", () => {
     const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
     expect(new Set(labels).size).toBe(2);
     expect(labels).toEqual([
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded",
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Mechanism not recorded",
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support",
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Possible extended generator support",
     ]);
     expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     expectV69Panels("portfolio");
@@ -651,7 +667,7 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     ]);
     const cold = priority.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-placement]") as HTMLElement;
     expect(cold.getAttribute("data-portfolio-placement")).toBe("ACT_NOW");
-    expect(lines(cold)).toBe("Act now The episode is still open · No accepted Action; open the recommendation");
+    expect(lines(cold)).toBe("Act now No end is recorded for this episode · No accepted Action; open the recommendation");
     for (const cell of Array.from(priority.querySelectorAll("[data-portfolio-placement-reasons]"))) {
       expect(text(cell)).not.toBe("");
       expect(text(cell)).not.toMatch(/saving|saved/i);
@@ -712,7 +728,7 @@ describe("CC-R2-Q1 placement and confidence words", () => {
     "Evidence source is not resolved; check the source before acting",
     "The latest assessment no longer confirms this Finding; check its basis",
     "Cost is withheld because its basis is not current",
-    "The episode is still open",
+    "No end is recorded for this episode",
     "Returned after an earlier episode (Finding 1a2b3c4d)",
     "Reopened after it had closed",
     "No accepted Action; open the recommendation",

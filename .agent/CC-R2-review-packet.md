@@ -146,3 +146,10 @@ These come from a tier-2 probe on `assetops_cc2_test`, `build_portfolio_fixture`
 
 `USER_REVIEW_REQUIRED`: the merge needs a fresh Claude review ACCEPT. The owner sees R502 and the placement groups in
 the walkthrough. All four questions are ruled.
+
+## Fix round: Architect rulings CC-R2-F1..F4 (applied)
+- F1: estate window `from=2026-10-03..to=2026-11-03` (31 days) in `tools/s602b_test_scoped_cases.py` and `s602b-verification-evidence.mjs`.
+- F2: `pinned_app` wraps `read` on `PostgresEstateRead` and `PostgresEvidenceMoneyRead` so `read_at == pinned_at` (`_pin_read_clock`); no product change. `serve` banner: "Action clock and estate read time pinned at <pinned_at>". Not run against a DB (hold).
+- F3: `MECHANISM_WORDS`/`mechanismWords` in `frontend/src/estate/portfolioWords.ts` (MOCK DEVIATION comment); GENERATOR_SUPPORT_CANDIDATE reads "Possible extended generator support" (Architect re-ruling: "candidate" is a guarded word). New test `showsCustomerMechanismWordsNotRawCodes` (fails on raw codes); `.mjs` claim 4 adds the raw-code token check.
+- F4: reason text "No end is recorded for this episode" in `placement.py` and the test literals.
+- Checks: backend tier 1 (30 non-Postgres files) 441 passed, 15 skipped; `src/estate` 5 files, 65 passed; `tsc` clean; both guards passed. Tier 2, producer, capture: not run (hold).

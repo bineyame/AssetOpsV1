@@ -188,3 +188,19 @@ export function exclusionLineLabel(lineKey: string, body: Pick<EstatePortfolioBo
   if (line !== undefined && line.site_name.trim() !== "") return line.site_name;
   return LINE_DOMAIN_WORD[lineKey.split(":")[0]] ?? "Consequence line";
 }
+
+export const MECHANISM_NOT_RECORDED = "Mechanism not recorded";
+/**
+ * CC-R2-F3 ruling. MOCK DEVIATION: v69 `#/portfolio` shows instance text such as "Automatic start failed; cooling
+ * interrupted" and "30 min candidate; charging trade-off remains". The wire carries only the mechanism code, so these
+ * generic words drop the figures and effects the row does not carry. Null or any other code falls back.
+ */
+export const MECHANISM_WORDS: Record<string, string> = {
+  GENERATOR_SUPPORT_CANDIDATE: "Possible extended generator support",
+  COLD_EXCURSION: "Chamber temperature above policy",
+  COLD_START_FAILURE: "Automatic start failed",
+  EV_INTERRUPTION: "Charging session interrupted",
+};
+export function mechanismWords(code: string | null | undefined): string {
+  return (code != null && Object.prototype.hasOwnProperty.call(MECHANISM_WORDS, code) && MECHANISM_WORDS[code]) || MECHANISM_NOT_RECORDED;
+}

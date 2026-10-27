@@ -28,7 +28,7 @@ if URL:
     from assetops_backend.estate.money_invariants import double_count_violations
 
 ACT_NOW_OPEN = {"policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2, "reasons": [
-    {"code": "EPISODE_OPEN", "text": "The episode is still open"},
+    {"code": "EPISODE_OPEN", "text": "No end is recorded for this episode"},
     {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
 PRICED_SINGLE = {"policy_version": "estate-placement/1", "group": "COMPARE_VALUE", "group_rank": 3, "reasons": [
     {"code": "PRICED_SINGLE", "text": "Priced cost exposure; no like line to compare with"}]}

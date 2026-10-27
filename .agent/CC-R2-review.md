@@ -166,3 +166,77 @@ No other findings:
    - If Chrome is unavailable, record `layout evidence: not run` with that precondition. Never record it as a pass.
 4. **Rulings.** An Architect ruling on the M2 text, the new window literal (H1), and the H2 approach (pin the read
    time, or run after `pinned_at`).
+
+## Architect rulings (Claude, 2026-10-28)
+
+Produced by the Architect (Claude) under the 2026-10-27 default binding. Each finding was checked in code at
+`27d7c525`. All four are confirmed. The rulings are also recorded as CC-R2-F1..F4 in the build spec "Implementer
+questions and resolutions".
+
+**F1 (H1, window): confirmed.** `scope.py:21,121` refuses a span over `MAX_DAYS = 31`, and 10-01..11-03 is 33
+days. The new literal is `from=2026-10-03T00:00:00Z&to=2026-11-03T00:00:00Z`, which is exactly 31 days and is
+accepted. It holds F01 (10-06), F02 (10-08), F03 (10-11) and F05 (10-21), and every `site_import` is earlier than
+`to`. Change it in `tools/s602b_test_scoped_cases.py:51` (`ESTATE_PORTFOLIO`) and
+`tools/s602b-verification-evidence.mjs:293`. The spec Producer 1 literal is amended to match.
+
+**F2 (H2, read clock): confirmed.** `PostgresEstateRead.read` takes `SELECT now()` as `read_at`, and that value is
+the cutoff `k` (`index.py:193-197`). The rows carry fake times from 2026-10-29 to 11-02. Ruling: pin the read time
+the same way as the Action clock. The pin lives in `pinned_app` in `tools/s602b_test_scoped_cases.py`, so it
+covers both `estate_assertions` (build) and `serve`. No product module changes, and no environment flag or
+production switch is added. In `pinned_app`, for both `PostgresEstateRead` and `PostgresEvidenceMoneyRead` (the
+subclass overrides `read`, so each class is wrapped), replace `read` with a wrapper. The wrapper calls the original
+`read` with `work'`, where `work'(snap)` sets `snap.read_at = pinned` and then returns `work(snap)`. Everything
+else stays unchanged: the transaction, READ ONLY, the refusals and the cursor (`k = read_at` when `known_at` is
+absent). The served page is then not historical, because `k == read_at`. Rows written at real `now()` (the price
+publication) come earlier than `pinned` and stay visible. Record the pin in the packet and in the `serve` banner
+line: "Action clock and estate read time pinned at <pinned_at>". Not chosen: "run only after `pinned_at`". It
+would leave the case unreproducible later, because further rows are not ruled out.
+
+**F3 (M1, mechanism words): confirmed.** `EstatePortfolio.tsx:199` renders `row.mechanism` raw. No frontend label
+map exists for these codes. Add one map, `MECHANISM_WORDS`, in `frontend/src/estate/` (beside
+`estateEvidenceWords.ts`, or inside it). The fallback is "Mechanism not recorded" for null or any other value. The
+words:
+
+| Code | Customer words |
+|---|---|
+| `GENERATOR_SUPPORT_CANDIDATE` | Possible extended generator support |
+| `COLD_EXCURSION` | Chamber temperature above policy |
+| `COLD_START_FAILURE` | Automatic start failed |
+| `EV_INTERRUPTION` | Charging session interrupted |
+
+These reuse the existing product phrases where they exist: "Automatic start failed" is from `cold_depth.py:144`,
+and the others come from the v69 `#/portfolio` row titles and mechanisms. Mark it MOCK DEVIATION in a comment:
+v69 shows instance text such as "Automatic start failed; cooling interrupted" and "30 min candidate; charging
+trade-off remains". The wire carries only the code, so the generic words drop the figures and the effects that the
+row does not carry. Tests:
+- Set the KOBO fixture `mechanism` to `GENERATOR_SUPPORT_CANDIDATE` (`portfolioFixtures.ts:45`).
+- Assert the four words and the fallback in `estatePortfolio.test.tsx`.
+- Assert that no `/[A-Z]+_[A-Z_]+/` token appears in the priority panel text.
+- Add the same token check to the `portfolioSuite` claim 4 in the `.mjs` file.
+
+**F4 (M2, "still open"): confirmed.** `postgres_finding_store.py:672-673` stores only `start` for a start failure.
+The W2-05b `interrupted` session has `abort_at` with `end_at` null. A null `episode_end` therefore means "no
+recorded end", not "open". Ruling: this is a text change only. The code `EPISODE_OPEN`, rule 2 and every placement
+stay unchanged, so the CC-00 ranks and the Q2 assertions keep their groups. `REASON_TEXT["EPISODE_OPEN"]` becomes
+**"No end is recorded for this episode"**. The new text is true for all three cases: an open excursion, a point
+start failure and an aborted session. No data change. Update the literal in the spec reason table and in:
+- `placement.py:26`
+- `test_cc_placement.py:101,188`
+- `test_cc_placement_postgres.py:31`
+- `portfolioFixtures.ts:105`
+- `estatePortfolio.test.tsx:654,715`
+
+The permanent ACT_NOW for a start failure with no Action is intended: the work is open until an Action is
+accepted. L1 stays as the spec has it for now and goes to the post-W6 UI/UX pass.
+
+**F3 amendment (2026-10-28).** The first label for `GENERATOR_SUPPORT_CANDIDATE` failed the vocabulary guard,
+because "candidate" is a forbidden phrase. The label is now "Possible extended generator support": "Possible"
+keeps the unconfirmed sense. All five strings below were checked with `forbiddenPhrases` under both the `t028` and
+`w1` sets, and each returned `[]`:
+- "Possible extended generator support"
+- "Chamber temperature above policy"
+- "Automatic start failed"
+- "Charging session interrupted"
+- "Mechanism not recorded"
+
+F4's "No end is recorded for this episode" also returned `[]`. The guard is unchanged.

@@ -23,7 +23,7 @@ REASON_TEXT = {
     "EVIDENCE_SOURCE_UNKNOWN": "Evidence source is not resolved; check the source before acting",
     "LIFECYCLE_UNCONFIRMED": "The latest assessment no longer confirms this Finding; check its basis",
     "CONSEQUENCE_WITHHELD": "Cost is withheld because its basis is not current",
-    "EPISODE_OPEN": "The episode is still open",
+    "EPISODE_OPEN": "No end is recorded for this episode",
     "RECURRED": "Returned after an earlier episode ({other})",
     "REOPENED": "Reopened after it had closed",
     "NO_ACTION_RECORDED": "No accepted Action; open the recommendation",

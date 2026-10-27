@@ -48,7 +48,7 @@ LABELS = {
               "Finding on one Site - authored complete windows",
 }
 #: CC-R2: the Portfolio read the `estate` case asserts (build spec CC-R2 "Producer" 1).
-ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z"
+ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-03T00:00:00Z&to=2026-11-03T00:00:00Z"
 
 
 class Patch:
@@ -222,6 +222,28 @@ def _cursor_key() -> None:
     os.environ.setdefault(PORTFOLIO_CURSOR_KEY_ENV, secrets.token_hex(32))
 
 
+def _pin_read_clock(pinned) -> None:
+    """CC-R2-F2: the estate read time (the cursor cutoff `k`) is pinned like the Action clock, so `read_at == pinned_at`.
+    Wraps `read` on both classes (the subclass overrides it); the wrapper only sets `snap.read_at` before `work`."""
+    from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
+    from assetops_backend.estate.adapters.postgres_evidence_money_read import PostgresEvidenceMoneyRead
+
+    for cls in (PostgresEstateRead, PostgresEvidenceMoneyRead):
+        original = cls.read
+        if getattr(original, "_cc_r2_pinned", False):
+            continue
+
+        def read(self, work, _original=original):
+            def pinned_work(snap):
+                snap.read_at = pinned
+                return work(snap)
+
+            return _original(self, pinned_work)
+
+        read._cc_r2_pinned = True
+        cls.read = read
+
+
 def pinned_app(spec: dict):
     """`host/lab_app.py` with the case's window fakes and its Action clock pinned at `pinned_at` (as `serve`)."""
     pinned = datetime.fromisoformat(spec["pinned_at"])
@@ -236,6 +258,7 @@ def pinned_app(spec: dict):
         return real(*args, **kwargs)
 
     main.build_action_service = pinned_service
+    _pin_read_clock(pinned)
     sys.path.insert(0, str(Path.cwd().parents[1] / "host"))
     import lab_app
 
@@ -309,7 +332,7 @@ def serve(url: str, work: Path, case: str, port: int) -> None:
     app = pinned_app(spec)
     import uvicorn
 
-    print(f"TEST-SCOPED case {case} served on 127.0.0.1:{port}, Action clock pinned at {pinned.isoformat()}",
+    print(f"TEST-SCOPED case {case} served on 127.0.0.1:{port}, Action clock and estate read time pinned at {pinned.isoformat()}",
           flush=True)
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
 

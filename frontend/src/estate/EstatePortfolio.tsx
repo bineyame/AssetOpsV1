@@ -56,6 +56,7 @@ import {
   PLACEMENT_POLICY_SUMMARY,
   PRIORITY_BOTTOM_LINE,
   PRIORITY_PANEL,
+  mechanismWords,
   PRIORITY_SUBTITLE,
   PROGRESS_PANEL,
   PROGRESS_REFERENCE,
@@ -196,7 +197,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           <strong>{row.title}</strong>
         )}
         <small>
-          Finding {row.site_code} · {row.finding_id} · {row.mechanism ?? "Mechanism not recorded"}
+          Finding {row.site_code} · {row.finding_id} · {mechanismWords(row.mechanism)}
         </small>
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>

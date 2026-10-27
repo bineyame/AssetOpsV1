@@ -42,7 +42,7 @@ export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow 
     finding_revision_id: "e1e1e1e1-0000-4000-8000-000000000001",
     finding_label: "Extended generator support",
     title: "Extended generator support",
-    mechanism: null,
+    mechanism: "GENERATOR_SUPPORT_CANDIDATE",
     episode_start: "2026-10-06T14:20:00Z",
     episode_end: "2026-10-06T15:20:00Z",
     lifecycle: "SUPPORTED",
@@ -102,7 +102,7 @@ export const COLD_ROW = row({
     group: "ACT_NOW",
     group_rank: 2,
     reasons: [
-      { code: "EPISODE_OPEN", text: "The episode is still open" },
+      { code: "EPISODE_OPEN", text: "No end is recorded for this episode" },
       { code: "NO_ACTION_RECORDED", text: "No accepted Action; open the recommendation" },
     ],
   },
