@@ -844,6 +844,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(panelTitled("Assumptions in use"))).toContain("Not declared");
     expect(screen.getByRole("link", { name: "Review assumptions" }).getAttribute("href")).toBe(`/sites/COLD-001/financials/assumptions${Q}`);
     expect(text(panelTitled("Not included"))).toContain("Chamber temperature alone does not establish spoilage or stock loss.");
+    // CC-R1 L5: the cold Financials frame passes no recommendation link, so no forward link renders.
+    expect(document.querySelector("[data-financials-recommendation-link]")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Open the recommendation/ })).toBeNull();
     expect(text(main())).not.toMatch(/\bUSD\b|\$/);
   });
 

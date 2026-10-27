@@ -477,6 +477,9 @@ describe("W2-07 EV Site routes", () => {
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
     expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "Scenario", "Metered with complete coverage", "Energy ↗"]);
     expect(bridge.querySelector('[data-disclosure="ev-site-basis-details"]')?.textContent).toContain("KES 8.331000");
+    // CC-R1 L5: the EV Financials frame passes no recommendation link, so no forward link renders.
+    expect(document.querySelector("[data-financials-recommendation-link]")).toBeNull();
+    expect(screen.queryByRole("link", { name: /Open the recommendation/ })).toBeNull();
     const assumptionsPanel = panelTitled("Assumptions in use");
     expect(assumptionsPanel.textContent).toContain("0.2777 KES/kWh · Authored estimate");
     expect(assumptionsPanel.textContent).not.toContain("AUTHORED_ESTIMATE");

@@ -42,6 +42,7 @@ The fixture facts were surveyed by reading code; nothing was observed live. They
 - **Frontend**:
   - The claim vocabulary and the `ClaimLabel` component.
   - The `MODELLED_OPPORTUNITY` + `MINI_OPERATOR` label under the gross scenario.
+  - The `VERIFIED_SIMULATED_TECHNICAL` + `MINI_OPERATOR` label under a VERIFIED or INEFFECTIVE verdict ("Technical result verified on test data", ruling CC-R1-Q1).
   - The estate "Benefits: …" line inside the Category cell (no new column).
   - "Open the recommendation →" on the mini Financials bridge, carrying the view's `revision_id`. The cold and EV frames do not pass it.
 
@@ -144,4 +145,4 @@ The rulings are in `.agent/CC-R1-questions.md` and in the spec's resolutions sec
 
 ## User-review focus
 
-`USER_REVIEW_REQUIRED`: the merge needs a fresh Claude review ACCEPT, and the owner sees R500 and R501 in the walkthrough. Q1 needs an Architect ruling before the verdict label can land; it can follow in CC-R2 or a small fix round.
+`USER_REVIEW_REQUIRED`: the merge needs a fresh Claude review ACCEPT, and the owner sees R500 and R501 in the walkthrough. Q1 and Q2 were ruled by the Architect and applied in `c1151a6d`; the verdict label has landed.
