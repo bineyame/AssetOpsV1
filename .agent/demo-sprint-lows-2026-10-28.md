@@ -8,3 +8,5 @@
 - TEL-04 L3: the inner deliver loop in the proof has no deadline (`proof:182`).
 - TEL-04 L4: the CONFIG_FAULT, unavailable-limit and SEAL_REFUSED exits are untested.
 - CC-R1 Lows: fixed in CC-R2 commit 1407a4b0.
+- TEL-05 L1: `NO_GENERATOR_STATE` is only a substring match (acceptance test line 237).
+- TEL-05 L2: no check that no Finding exists (line 240).
