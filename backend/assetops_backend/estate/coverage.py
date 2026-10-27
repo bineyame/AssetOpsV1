@@ -149,8 +149,11 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         cited |= set(consequence.pop("_cited", ()))
         rows.append({"finding_id": str(h["finding_id"]), "finding_revision_id": frid,
                      "episode_start": h["episode_start"], "title": h.get("title"), "lifecycle": h.get("lifecycle"),
-                     # W3-03 closure 4 B1/B2: the selected revision's stored end; no stored mechanism field exists.
-                     "episode_end": h.get("episode_end"), "mechanism": None,
+                     # W3-03 closure 4 B1/B2: the selected revision's stored end. CC-R2: the stored mechanism and
+                     # the recurrence facts placement reads, all `.get` so fake snapshots need no new keys.
+                     "episode_end": h.get("episode_end"), "mechanism": h.get("mechanism"),
+                     "recurs_after_finding_id": h.get("recurs_after_finding_id"),
+                     "revision_no": h.get("revision_no"), "transition": h.get("transition"),
                      "consequence": consequence,
                      "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
@@ -260,7 +263,7 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
             consequences.add(row["consequence_revision_id"])
         rows.append({"finding_id": row["finding_id"], "finding_revision_id": row["finding_revision_id"],
                      "episode_start": row["episode_start"], "title": row["title"], "lifecycle": row["lifecycle"],
-                     "episode_end": row["episode_end"], "mechanism": None,  # W3-03 closure 4 B1/B2
+                     "episode_end": row["episode_end"], "mechanism": row.get("mechanism"),  # CC-R2 (Q-C8)
                      "consequence": _consequence("UNPRICED", row.get("consequence_revision_id")),
                      "source_provenance": row["source_provenance"]})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),

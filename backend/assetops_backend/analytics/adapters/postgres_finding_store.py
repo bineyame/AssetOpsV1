@@ -537,7 +537,7 @@ class PostgresFindingStore:
             "r.transition, r.lifecycle, r.claim_level, r.title, r.matcher_version, r.model_version, "
             "r.assessment_revision_id, r.analytic_run_id, r.window_assessment_revision_id, r.episode_start, "
             "r.episode_end, r.limitations, r.created_at AS revision_created_at, f.domain, f.analytic_id, "
-            "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, "
+            "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, f.mechanism, "
             "(SELECT m.canonical_finding_id FROM finding_merge m WHERE m.tenant_id = f.tenant_id "
             f"AND m.superseded_finding_id = f.id{by('m.created_at')}) AS merged_into_finding_id "
             "FROM finding_revision r JOIN finding f ON f.id = r.finding_id "

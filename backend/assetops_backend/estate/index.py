@@ -22,6 +22,8 @@ from assetops_backend.estate.scope import (
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
 LENS_FLAG = {"cost": "COST", "risks": "RISK", "opportunities": "OPPORTUNITY"}
+# CC-R2 (build spec CC-R2 "Lens", Appendix C R5.5): the stored mechanisms that set the RISK lens flag.
+RISK_MECHANISMS = ("COLD_EXCURSION", "COLD_START_FAILURE", "EV_INTERRUPTION")
 Admit = Callable[[str], bool]
 
 
@@ -101,8 +103,9 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                                                           list[dict[str, Any]]]:
     """W3-03 closure 4 B1/B2: every authorized Site's `(site, domain, cov)` and every selected Finding row (all
     lifecycle heads) before lens/state filtering, sorting and paging, on the caller's one snapshot and `scope`.
-    Private keys carry the Portfolio row facts (`_domain` stored Site type, `_episode_end`, `_mechanism`); the
-    Findings root strips them with every other private key."""
+    Private keys carry the Portfolio row facts (`_domain` stored Site type, `_episode_end`, `_mechanism`, and
+    CC-R2's `_recurs_after`, `_transition`, `_revision_no`); the Findings root strips them with every other
+    private key."""
     per_site, recorders = [], {}
     for site in scope["sites"]:
         domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
@@ -116,7 +119,9 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
         code = site["site_code"]
         rec = recorders[str(site["site_id"])]
         for r in cov["rows"]:
-            flags = ["COST"] if r["consequence"]["state"] == "PRICED" else []
+            # CC-R2 (R5.5): RISK for the cold and EV risk mechanisms; a row may carry both flags.
+            flags = ((["COST"] if r["consequence"]["state"] == "PRICED" else [])
+                     + (["RISK"] if r.get("mechanism") in RISK_MECHANISMS else []))
             fid, frid = r["finding_id"], r["finding_revision_id"]
             rows.append({
                 "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
@@ -127,7 +132,10 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "status": cov["state"],
                 "links": _finding_links(code, domain, fid, frid, rec, scope["k"]),
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
-                "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism")})
+                "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism"),
+                # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
+                "_recurs_after": r.get("recurs_after_finding_id"), "_transition": r.get("transition"),
+                "_revision_no": r.get("revision_no")})
     return per_site, rows
 
 

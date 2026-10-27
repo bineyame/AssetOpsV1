@@ -209,7 +209,7 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
     c = client(world)
     one = get(c, {**WINDOW, "limit": 1}).json()
     assert one["schema_version"] == "estate-portfolio-1" and one["status"] == "CURRENT"
-    assert one["lens"] == "all" and one["order"].startswith("episode_start desc nulls last")
+    assert one["lens"] == "all" and one["order"].startswith("group_rank asc, episode_start desc nulls last")  # CC-R2
     assert one["coverage"]["state"] == "COMPLETE" and one["scope"]["covered_site_count"] == 2
     assert (one["coverage"]["finding_state"], one["coverage"]["evidence_state"],
             one["coverage"]["money_state"]) == ("COMPLETE", "COMPLETE", "COMPLETE")
@@ -226,7 +226,9 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
         payload = _payload(cursor)
         assert payload["v"] == 1 and payload["kind"] == "portfolio" and payload["lens"] == "all"
         assert payload["state_filter"] is None and payload["page_one_mode"] == "live"
-        assert len(payload["after"]) == 5 and payload["selection_token"] == one["selection_token"]
+        # CC-R2: the six-part marker; every fake-world row investigates first (group_rank 1).
+        assert len(payload["after"]) == 6 and payload["after"][0] == 1
+        assert payload["selection_token"] == one["selection_token"]
     # D0+2 ties: COLD-1 (cold-1) before KOBO 001 (kobo 001); the null episode is last.
     assert order == [FINDING[2], FINDING[4], FINDING[1], FINDING[3]]
     two = _payload(get(c, {**WINDOW, "limit": 1}).json()["next_cursor"])
@@ -392,7 +394,10 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert one["summary"] == {"finding_count": 4, "priority_site_count": None, "opportunity_count": 0,
                               "evidence_gap_site_count": 0, "accepted_action_count": 0,
                               "verified_resolution_count": 0, "combined_value": None,
-                              "combined_value_state": "NOT_COMPARABLE"}
+                              "combined_value_state": "NOT_COMPARABLE",
+                              # CC-R2: the fake world's rows carry no source class, so all four investigate first.
+                              "placement_counts": {"NEEDS_INVESTIGATION": 4, "ACT_NOW": 0, "COMPARE_VALUE": 0,
+                                                   "UNPRICED_RISK": 0, "MONITOR": 0}}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]
@@ -422,6 +427,9 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     empty = get(c, WINDOW).json()
     assert empty["status"] == "EMPTY_SCOPE" and empty["objectives"] == [] and empty["footer"] is None
     assert empty["summary"]["finding_count"] == 0 and empty["summary"]["accepted_action_count"] == 0
+    # CC-R2: an EMPTY finding state gives zero placement counts, never nulls.
+    assert empty["summary"]["placement_counts"] == dict.fromkeys(
+        ("NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "UNPRICED_RISK", "MONITOR"), 0)
     assert empty["scope_disclosure"] == {"sites": [], "exclusions": []}
 
 

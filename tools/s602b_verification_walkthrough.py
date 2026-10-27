@@ -53,7 +53,7 @@ PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
 API_PORT, WEB_PORT = 8966, 5466
 MARKER = ".s602b-walkthrough-work"
 SITE = "KOBO-001"
-CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn")
+CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn", "estate")  # estate: CC-R2 D5 placement
 CASES_TOOL = REPO / "tools" / "s602b_test_scoped_cases.py"
 
 # The public replay: the replay test's own helpers, without its pytest database fixture.

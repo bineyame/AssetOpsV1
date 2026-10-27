@@ -196,14 +196,19 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
         assert set(row["source_provenance"]) == ESTATE_KEYS and row["source_provenance"]["basis_sha256"]
         assert row["consequence"]["state"] == "UNPRICED" and row["consequence"]["amount"] is None
         assert row["consequence"]["amount_low"] is None and row["consequence"]["amount_high"] is None
-        assert row["lens_flags"] == [] and row["priority"] is None and row["confidence"] is None
+        # CC-R2 (R5.5): a cold mechanism sets the RISK flag (this assertion was `== []` before CC-R2).
+        assert row["lens_flags"] == ["RISK"] and row["priority"] is None and row["confidence"] is None
         assert row["finding_label"] == f"Finding {row['finding_id'][:8]}" and row["status"] == "CURRENT"
     order = [(-datetime.fromisoformat(r["episode_start"].replace("Z", "+00:00")).timestamp(), r["finding_id"])
              for r in body["rows"]]
     assert order == sorted(order)
-    for lens in ("cost", "risks", "opportunities"):  # cold is unpriced; no stored risk/opportunity kind
+    for lens in ("cost", "opportunities"):  # cold is unpriced; no stored opportunity kind
         empty = estate.ok("findings", **day, lens=lens)
         assert empty["rows"] == [] and empty["total_count"] == 0 and empty["summary"]["basis_count"] == 0
+    # CC-R2 (R5.5): the risks lens now returns every cold row (it was empty before CC-R2).
+    risks = estate.ok("findings", **day, lens="risks")
+    assert [r["finding_id"] for r in risks["rows"]] == [r["finding_id"] for r in body["rows"]]
+    assert risks["total_count"] == len(body["rows"])
     scope = estate.ok("scope", **day)
     assert scope["sites"] == [{"site_id": str(built.site_id), "site_code": scope["sites"][0]["site_code"],
                                "site_name": scope["sites"][0]["site_name"], "coverage_state": "CURRENT"}]
