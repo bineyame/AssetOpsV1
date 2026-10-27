@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below); scoped Claude exception for revision 3 of `Docs/demo-sprint/telemetry-integration-plan-claude.html` (2026-10-27; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Claude (owner, 2026-10-27; see "Architect Is Claude By Default" below). Earlier Codex binding and Claude exceptions are history below. | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -35,6 +35,15 @@ justification, and informs the owner. Where the Architect wants the owner to
 weigh in, it says so, giving its decision and justification, and the owner may
 confirm or overrule. Owner acceptance of a slice (USER_REVIEW_REQUIRED) is not
 a decision request and still goes to the owner.
+
+## Architect Is Claude By Default (2026-10-27)
+
+Owner, verbatim (`.agent/owner-default-architect-claude-2026-10-27.md`): "let the default architect be claude instead of codex".
+
+- A fresh `assetops-architect` Claude subagent does Architect work: rulings, feature maps, plans and assessments. No exception record is needed for Architect work from now on.
+- Planner stays Codex and Reviewer keeps its own binding below; only the Architect row changed.
+- Reviewer independence is unchanged: a fresh reviewer instance reviews Architect-led work, never the author.
+- Rulings that earlier documents addressed to "the Codex Architect" now go to the Architect (Claude).
 
 ## Scoped Claude Architect Exception: Telemetry Integration Plan HTML (2026-10-27)
 
