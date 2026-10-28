@@ -7,6 +7,7 @@ not the checked-in profile (its content is an open question, see
 
 from __future__ import annotations
 
+import hashlib
 import sys
 from fractions import Fraction
 from pathlib import Path
@@ -147,6 +148,9 @@ def test_collect_admits_every_report_in_file_order_then_seals_and_releases(tmp_p
     assert link.calls[2][1] == {"lab_run_ref": REF}
     assert result["report_count"] == 4 and len(result["admissions"]) == 4
     assert result["profile_sha256"] == PROFILE.sha256
+    assert result["file_sha256"] == hashlib.sha256(GOOD_FILE.encode("utf-8")).hexdigest()
+    assert result["session_ref"] == REF
+    assert set(result) == {"profile_sha256", "file_sha256", "session_ref", "report_count", "admissions", "sealed"}
     assert result["sealed"]["batch_ids"] == ["b1"]
 
 
@@ -224,6 +228,18 @@ def test_unsorted_rows_are_refused(tmp_path):
 def test_invalid_value_cells_are_refused(tmp_path, cell):
     refused = _refused(tmp_path, HEADER + f'\n2026-09-30T06:15:00Z,"{cell}",1\n')
     assert (refused.code, refused.field) == ("INVALID_VALUE", "rows[0].pv_power")
+
+
+@pytest.mark.parametrize("content", [
+    HEADER + "\n2026-09-30T06:15:00Z,1\n",                                  # too few cells
+    HEADER + "\n2026-09-30T06:15:00Z,1,1,1\n",                              # too many cells
+    HEADER + "\n2026-09-30T06:15:00Z,1,1\n\n2026-09-30T06:30:00Z,1,1\n",    # blank line inside
+    HEADER + "\n2026-09-30T06:15:00Z,1,1\n\n",                              # blank line after the last row
+])
+def test_invalid_value_a_row_whose_cell_count_differs_from_the_header(tmp_path, content):
+    refused = _refused(tmp_path, content)
+    assert refused.code == "INVALID_VALUE" and refused.field in ("rows[0]", "rows[1]")
+    assert "cells where the header has 3" in refused.detail
 
 
 def test_invalid_value_not_a_multiple_of_the_row_resolution(tmp_path):

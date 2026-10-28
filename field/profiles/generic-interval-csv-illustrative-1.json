@@ -1,0 +1,103 @@
+{
+  "schema": {
+    "id": "assetops.field-profile",
+    "version": 1
+  },
+  "profile_id": "generic-interval-csv-illustrative-1",
+  "profile_version": 1,
+  "status": "ILLUSTRATIVE",
+  "interface": "EXPORT_CSV",
+  "source_timestamps": "UTC_Z_REQUIRED",
+  "coverage": "ALL_EXPECTED_POLLS",
+  "state_skew_max_seconds": 2,
+  "rows": [
+    {
+      "row_id": "pv-ac-power",
+      "status": "ILLUSTRATIVE",
+      "source_document": "assetops-generic-interval-csv/1, an illustrative format defined by AssetOps; not a vendor format",
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "role": "pv_power",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "PV inverter AC output, as exported",
+        "sign": "positive = power delivered to the AC bus",
+        "phase_aggregation": "AS_EXPORTED"
+      },
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "output_resolution": "0.001",
+      "csv": {
+        "column": "pv_ac_power"
+      }
+    },
+    {
+      "row_id": "clinic-feeder",
+      "status": "ILLUSTRATIVE",
+      "source_document": "assetops-generic-interval-csv/1, an illustrative format defined by AssetOps; not a vendor format",
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "clinic feeder meter, as exported",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "AS_EXPORTED"
+      },
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "output_resolution": "0.001",
+      "csv": {
+        "column": "clinic_feeder_power"
+      }
+    },
+    {
+      "row_id": "mill-feeder",
+      "status": "ILLUSTRATIVE",
+      "source_document": "assetops-generic-interval-csv/1, an illustrative format defined by AssetOps; not a vendor format",
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "mill feeder meter, as exported",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "AS_EXPORTED"
+      },
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "output_resolution": "0.001",
+      "csv": {
+        "column": "mill_feeder_power"
+      }
+    },
+    {
+      "row_id": "residential-feeder",
+      "status": "ILLUSTRATIVE",
+      "source_document": "assetops-generic-interval-csv/1, an illustrative format defined by AssetOps; not a vendor format",
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "quantity": {
+        "kind": "AC_POWER",
+        "point": "residential feeder meter, as exported",
+        "sign": "positive = power drawn by the feeder",
+        "phase_aggregation": "AS_EXPORTED"
+      },
+      "reading_class": "INTERVAL_SIGNAL",
+      "span_seconds": 900,
+      "cadence_seconds": 900,
+      "output_resolution": "0.001",
+      "csv": {
+        "column": "residential_feeder_power"
+      }
+    }
+  ]
+}

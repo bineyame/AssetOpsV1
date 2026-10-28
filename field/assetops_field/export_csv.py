@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import csv
 import dataclasses
+import hashlib
 import io
 import re
 from datetime import datetime, timedelta, timezone
@@ -77,8 +78,7 @@ class CsvCollector:
 
     # --- whole-file validation -------------------------------------------------------------------------
 
-    def _text(self, path: Path) -> str:
-        data = path.read_bytes()
+    def _text(self, data: bytes) -> str:
         if data.startswith(_BOM):
             raise self._refuse("ENCODING", "file", "a UTF-8 byte order mark is not accepted")
         try:
@@ -133,7 +133,10 @@ class CsvCollector:
 
     def reports(self, path: Path) -> list[DeviceReport]:
         """Validate the whole file, then build one report per cell; raises `CsvRefused`; no IPC."""
-        lines = list(csv.reader(io.StringIO(self._text(path), newline="")))
+        return self._reports(path.read_bytes())
+
+    def _reports(self, data: bytes) -> list[DeviceReport]:
+        lines = list(csv.reader(io.StringIO(self._text(data), newline="")))
         if not lines:
             raise self._refuse("EMPTY_FILE", "file", "the file has no header and no data rows")
         columns = self._header(lines[0])
@@ -146,7 +149,7 @@ class CsvCollector:
         for index, cells in enumerate(lines[1:]):
             path_text = f"rows[{index}]"
             if len(cells) != len(columns) + 1:
-                # Provisional code, see .agent/TEL-06-questions.md Q6.
+                # TEL-06-Q6: a blank line, inside the file or after the last row, lands here too.
                 raise self._refuse("INVALID_VALUE", path_text,
                                    f"{len(cells)} cells where the header has {len(columns) + 1}")
             end = self._timestamp(cells[0], f"{path_text}.{TIMESTAMP_COLUMN}")
@@ -171,10 +174,15 @@ class CsvCollector:
     # --- publishing ------------------------------------------------------------------------------------
 
     def collect(self, path: Path) -> dict[str, Any]:
-        """`reports()`, then one admission in file order, then `seal_and_release` (Q-T65)."""
-        texts = [report_text(report) for report in self.reports(path)]
+        """`reports()`, then one admission in file order, then `seal_and_release` (Q-T65, TEL-06-Q7).
+
+        The caller owns the session: it builds the publisher's reference and calls
+        `publisher.release_previous` before the first `collect` of a new session (TEL-06-Q5).
+        """
+        data = path.read_bytes()
+        texts = [report_text(report) for report in self._reports(data)]
         admissions = self.publisher.admit(texts)
         sealed = self.publisher.seal_and_release()
-        # Return keys are provisional, see .agent/TEL-06-questions.md Q7.
-        return {"profile_sha256": self.profile.sha256, "report_count": len(texts), "admissions": admissions,
+        return {"profile_sha256": self.profile.sha256, "file_sha256": hashlib.sha256(data).hexdigest(),
+                "session_ref": self.publisher.session_ref, "report_count": len(texts), "admissions": admissions,
                 "sealed": sealed}
