@@ -141,6 +141,7 @@ details.q[open] summary{margin-bottom:6px}
 <li><a href="#gaps">9 Residual gaps and pilot data requests</a></li>
 <li><a href="#decisions">10 Owner decisions</a></li>
 <li><a href="#record">11 Verification record</a></li>
+<li><a href="#questions">12 Implementer questions and resolutions</a></li>
 </ol>
 </details>
 </nav>
@@ -151,6 +152,7 @@ details.q[open] summary{margin-bottom:6px}
 <p class="lede">How AssetOps grounds its mini-grid, EV bus depot and cold-chain demo in real public data before any customer export exists, without ever presenting a modelled reading as a field observation.</p>
 <p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Authority: the owner's request, word for word in <code>.agent/owner-demo-data-strategy-2026-10-28.md</code>; brief <code>.agent/architect-request-demo-data-strategy.md</code>. This is a plan only. Nothing here is built, and nothing should be built until the plan is reviewed (owner §6).</p>
 <p class="meta"><b>Revision 2, 28 October 2026.</b> Applies the owner's answers to OD-1 to OD-8, word for word in <code>.agent/owner-answers-demo-data-2026-10-28.md</code>. The changes are summarised in the box "Owner decisions 2026-10-28" below and carried into §1.3, §3.4, §4.2, §5, §7, §8 and §10. References to the retired demo-sprint Markdown files were replaced by inline facts or by links to the HTML documents.</p>
+<p class="meta"><b>Revision 3, 28 October 2026.</b> Answers the demo-data implementer's 30 pre-flight questions (<code>.agent/implementer-questions-demo-data-2026-10-28.md</code>), each checked against the code at <code>bf63b4c6</code>. The answers are in the new §12, numbered to match. The main change: every run path today holds the whole window in memory, so 91 days needs a streaming long-run path (new card DD-05b), and that decision is made here instead of waiting for a probe. Cards DD-02 to DD-13, §3.4, §5.2, §5.3 (new §5.4), the sequence and the effort are revised to match. The backlog grows from 12.25 to 17.5 builder-days.</p>
 <p class="meta">Evidence marks: <span class="f f-fact">FACT</span> read on the source page, in its data dictionary or in a small sample (sample reads were made by research subagents into the scratchpad); <span class="f f-inf">INFERENCE</span> the Architect's judgement; <span class="f f-unv">UNVERIFIED</span> searched for and not confirmed. Code claims cite <code>file:line</code> at the branch head.</p>
 </header>
 
@@ -187,10 +189,10 @@ details.q[open] summary{margin-bottom:6px}
 <ol>
 <li><b>One origin vocabulary.</b> Every series carries one of six origins: observed, derived, modelled, declared, synthetic or fault-injected (§1). The vocabulary lives in a dataset manifest, not in the product schema. It reaches the screen through the existing basis and claim-record copy.</li>
 <li><b>A distinct source label, no new money class.</b> Reconstructed histories are published as <code>REGISTERED_SIMULATION</code> where a single registered run can carry them, or as <code>AUTHORED_DEMONSTRATION</code> under a fixture spec that names its reference basis. When the run or fixture is pinned to a registered dataset pack, the server adds a reference-inputs attribute and the screen reads "Simulated with real public inputs" (owner OD-2). Money rules are those of the underlying class. Neither claims field reality. Raw replay through the field path gets no publication and reads <code>UNKNOWN</code>, as TEL-05 and TEL-06 already assert (§1.3, §7).</li>
-<li><b>Three engine extensions are on the critical path.</b> A series forcing input for the mini-grid pack, an ambient series for the cold pack and a many-session EV pack. They are needed because the current scenario contracts cannot carry 13 weeks of real inputs (§3.4, code facts in §11).</li>
-<li><b>91-day (13-week) histories.</b> The run limit becomes a step budget sized by measurement, and the offset limit no longer caps a scenario at one week (owner OD-4, card DD-05a). Seven baseline weeks, the first three free of injected faults, then six post-intervention weeks (§4).</li>
+<li><b>Four engine extensions are on the critical path.</b> A series forcing input for the mini-grid runs, an ambient series for the cold pack, a many-session EV pack, and (revision 3) a streaming long-run host path that all three use. They are needed because the current scenario contracts cannot carry 13 weeks of real inputs, and because every current run path keeps the whole window in memory (§3.4, §5.4, code facts in §11).</li>
+<li><b>91-day (13-week) histories.</b> The run limit becomes a step budget, the offset limit no longer caps a scenario at one week (owner OD-4, card DD-05a), and long runs stream with flat memory (DD-05b). Seven baseline weeks, the first three free of injected faults, then six post-intervention weeks (§4).</li>
 <li><b>TEL-10 is re-timed, not cancelled.</b> It stays the only route to an R3 vendor claim and moves to the first pilot export. TEL-06 is reused unchanged with new profiles (§7).</li>
-<li><b>A sequenced backlog of 15 tasks (DD-00 to DD-13, plus DD-05a).</b> It starts in Lane T after TEL-07 and in Lane C after CC-D1, and does not touch either lane's open files (§8).</li>
+<li><b>A sequenced backlog of 16 tasks (DD-00 to DD-13, plus DD-05a and DD-05b).</b> It starts in Lane T after TEL-07 and in Lane C after CC-D1, and does not touch either lane's open files (§8).</li>
 </ol>
 
 <figure>
@@ -376,12 +378,14 @@ details.q[open] summary{margin-bottom:6px}
 <thead><tr><th>Limit</th><th>Evidence</th><th>Effect on a 91-day real-input history</th><th>Fix in backlog</th></tr></thead>
 <tbody>
 <tr><td>A generic scenario has at most 200 timeline entries</td><td><code>scenarios/parsing.py:274,609</code></td><td>Hourly irradiance plus three loads for 91 days is about 8,700 values. They cannot be written as timeline entries, and should not be: the limit keeps a scenario's timeline readable on screen and its document bounded. <b>Kept.</b> The series travels as one pinned reference, and 13 weeks of faults and interventions need about ten entries</td><td>DD-05 series forcing (one entry)</td></tr>
-<tr><td>Every timeline entry starts, and every window ends, within 10,000 minutes (one week)</td><td><code>scenarios/parsing.py:291,665,1509-1519</code>; the comment calls a later offset "a typo rather than an intention"</td><td>A fault on day 29 is at 40,320 minutes. <b>Revision 1 missed this: even the 56-day plan could not place its faults.</b> The guard protects against typos; on long histories it blocks real intentions</td><td>DD-05a: the offset ceiling follows the run interval ceiling, and the typo guard moves to run creation (an entry outside the run's interval is refused)</td></tr>
+<tr><td>Every timeline entry starts, and every window ends, within 10,000 minutes (one week)</td><td><code>scenarios/parsing.py:291,665,1509-1519</code>; the comment calls a later offset "a typo rather than an intention"</td><td>A fault on day 29 is at 40,320 minutes. <b>Revision 1 missed this: even the 56-day plan could not place its faults.</b> The guard protects against typos; on long histories it blocks real intentions</td><td>DD-05a: the offset ceiling and the run interval ceiling become one shared calendar bound. The typo guard already exists at run creation: an entry outside the run's interval is refused as <code>INTERVAL_INVALID</code> (<code>runs/service.py:1035-1070</code>). No new refusal code (§12 Q3)</td></tr>
 <tr><td>The shipped Kobo forcing window ends early</td><td><code>packs/minigrid.py:517</code>, <code>kernel/execute.py:796</code>: a run past the end of its forcing stops with <code>FORCING_NOT_AVAILABLE</code>. A two-day <code>kobo-mini-grid-prolonged</code> run at 5-minute steps stopped after 95 steps (475 minutes) for this reason</td><td>Mini-grid runs cannot exceed the forcing they are given</td><td>DD-05</td></tr>
 <tr><td>The cold pack and scenario take one constant ambient</td><td><code>scenarios/cold_parsing.py:29,86</code>; <code>packs/cold.py:177,213</code></td><td>No diurnal ambient, so no realistic day/night compressor duty</td><td>DD-06 <code>cold-thermal/2</code></td></tr>
 <tr><td>The EV scenario window is fixed to one hour, with at most two plug-ins</td><td><code>scenarios/ev_parsing.py:32,188-189,213-214</code>; <code>packs/ev_charger.py:44,211</code></td><td>No multi-day depot history is possible</td><td>DD-07 <code>ev-charger/2</code></td></tr>
 <tr><td>Several runs never form one coherent source</td><td><code>source_provenance.py</code>, <code>MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS</code></td><td>Day-by-day segments would read <code>MIXED</code> and lose money</td><td>One run per history (or one authored fixture)</td></tr>
-<tr><td>A run is at most 100,000 minutes</td><td><code>runs/parsing.py:142-147,427-431</code>; the comment says it exists "so a request cannot ask for a run nothing could walk"</td><td>91 days is 131,040 minutes and is refused. The guard protects the worker from a run too long or too large to finish, but it counts minutes, while cost follows steps and outputs: a 91-day mini run at 5-minute steps is 26,208 steps, a quarter of the 1-minute, 100,000-step run already allowed</td><td>DD-05a: a step budget replaces the minute cap as the cost guard</td></tr>
+<tr><td>A run is at most 100,000 minutes</td><td><code>runs/parsing.py:142-147,427-431</code>; the comment says it exists "so a request cannot ask for a run nothing could walk"</td><td>91 days is 131,040 minutes and is refused. The guard protects the worker from a run too long or too large to finish, but it counts minutes, while cost follows steps and outputs: a 91-day mini run at 5-minute steps is 26,208 steps, a quarter of the 1-minute, 100,000-step run already allowed</td><td>DD-05a: a step budget replaces the minute cap as the cost guard (100,000 steps on the whole-window paths, as today; 131,040 on the long-run path)</td></tr>
+<tr><td>Every run path keeps the whole window in memory and writes it as one document</td><td><span class="f f-fact">FACT</span> (rev 3) Cold: <code>packs/cold.py:425-465</code> keeps every <code>ColdTransition</code>; <code>host/cold_publication.py:209-223</code> renders every minute again as a dict; <code>host/lab_execution.py:2397-2420</code> hashes the whole list and writes it into a YAML artifact (<code>:1925-1941</code>, <code>yaml.safe_dump</code>). EV: <code>packs/ev_charger.py:412-431</code> keeps one document per minute; the schema-7 artifact holds every public report (<code>:1943-1952</code>) and asserts 61 boundaries (<code>host/ev_lab.py:295-298</code>). Mini: <code>kernel/execute.py:1926</code> appends every boundary; the history is captured whole (<code>host/lab_history.py</code>). The shared staging hard-codes 61 boundaries (<code>lab_execution.py:2549</code>)</td><td>Two-day cold is 65 MB peak. At about 15 KB per step (<span class="f f-inf">INF</span>), the pack alone would need about 2 GB at 91 days, before the dicts, the digest text and the YAML. <b>This is not a 91-or-56-day question: the whole-window paths fail well before 56 days</b></td><td>DD-05b streaming long-run path (§5.4), used by DD-05, DD-06 and DD-07. v1 paths unchanged</td></tr>
+<tr><td>The kernel scans every forcing input at every step</td><td><code>kernel/execute.py:1280-1296</code></td><td>Expanding about 8,700 hourly values into forcing inputs costs about 228 million overlap checks over 26,208 steps</td><td>DD-05: an indexed series exposure, one lookup per column per step (§5.4)</td></tr>
 <tr><td>Sites have no location</td><td>No latitude or zone field found; displays are UTC (<code>actions/site_index.py:35</code>)</td><td>Real weather must be tied to a declared point</td><td>Location lives in the dataset manifest (DD-02), not the schema</td></tr>
 <tr><td>The CSV collector carries interval signals only, and never resamples</td><td><code>field/assetops_field/export_csv.py:1-22</code>; build spec TEL-06-Q1</td><td>SoC (a state signal) cannot be replayed by CSV; spans must match exactly</td><td>DD-11 prepares span-exact files</td></tr>
 </tbody></table></div>
@@ -394,7 +398,7 @@ details.q[open] summary{margin-bottom:6px}
 <thead><tr><th>Rank</th><th>Site</th><th>Commercial value (outcomes)</th><th>Demonstration credibility</th><th>Feeds</th><th>Engine work needed</th></tr></thead>
 <tbody>
 <tr><td>1</td><td><code>MG-REF-TK1</code> Turkana hybrid</td><td>High: MG-2 generator support and cost per kWh, MG-1 productive use, MG-5 reliability</td><td>High: real irradiance and temperature; measured load shapes</td><td>CC-D2 reassessment, CC-D1 contribution, D5 Estate</td><td>DD-05</td></tr>
-<tr><td>2</td><td><code>CC-REF-SN1</code> Senegal market cold room</td><td>High: CC-1 inventory requiring review, CC-6 interruptions, CC-3 cooling cost</td><td>High: measured Senegal ambient and door behaviour</td><td>D4 lots, D5 Estate</td><td>DD-06 (or constant-ambient fallback)</td></tr>
+<tr><td>2</td><td><code>CC-REF-SN1</code> Senegal market cold room</td><td>High: CC-1 inventory requiring review, CC-6 interruptions, CC-3 cooling cost</td><td>High: measured Senegal ambient and door behaviour</td><td>D4 lots, D5 Estate</td><td>DD-06 and DD-05b</td></tr>
 <tr><td>3</td><td><code>EV-REF-NB1</code> Nairobi bus depot</td><td>High: EV-1 departure readiness, EV-2 energy cost per km, EV-3 charger productivity</td><td>Medium: no African depot data; inputs are templates and a real tariff</td><td>D3 bus decision, D5 Estate</td><td>DD-07</td></tr>
 <tr><td>4</td><td><code>MG-REF-ND1</code> Niger Delta riverine</td><td>Medium: MG-4 battery capital, and a control case where generator use is explained by weather, not by a fault</td><td>High: real rainy-season irradiance</td><td>Portfolio contrast, false-positive control</td><td>DD-05</td></tr>
 <tr><td>5 (optional)</td><td>EV-C Nairobi e-boda hub</td><td>Low for the current commercial model (EV is framed as bus)</td><td>High for duty (E5 is African)</td><td>Pilot conversations with two-wheeler operators</td><td>DD-07</td></tr>
@@ -516,7 +520,7 @@ details.q[open] summary{margin-bottom:6px}
   "window": {"source_start": "2025-07-28T00:00:00Z", "source_end": "2025-10-27T00:00:00Z",
              "shift_days": 364, "demo_start": "2026-07-27T00:00:00Z", "demo_end": "2026-10-26T00:00:00Z"},
   "sources": [{"id": "M1", "url": "https://power.larc.nasa.gov/api/temporal/hourly/point?...",
-               "licence": "…as read in DD-01…", "attribution": "…", "committed": true, "retrieved_at": "…", "raw_sha256": "…",
+               "licence": "…as read in DD-01…", "attribution": "…", "committed": true, "raw_sha256": "…",
                "excerpt": "inputs/nasa-power-hourly.csv", "excerpt_sha256": "…"}],
   "signals": [{"target": "pv-array/plane-of-array-irradiance", "unit": "W/m2", "origin": "DERIVED",
                "inputs": ["M1:ALLSKY_SFC_SW_DWN"], "transform": "poa-isotropic/1",
@@ -527,7 +531,7 @@ details.q[open] summary{margin-bottom:6px}
   "seed": 20260727,
   "calibration": [{"check": "kwh-per-user-month", "band": ["5", "9"], "basis": "M8"}]
 }</code></pre>
-<p>The coordinates and licence fields above are placeholders; DD-01 fixes them.</p>
+<p>The coordinates and licence fields above are placeholders; DD-01 fixes them. Revision 3: retrieval times live in <code>fetch-log.json</code> beside the manifest, never in it, so a refetch of identical bytes keeps the manifest SHA (§12 Q30). Key sets and signatures are fixed in §12 Q14.</p>
 <div class="callout" id="licence"><b class="k">Licence posture for test and demo (owner OD-5, 2026-10-28)</b>
 <ul>
 <li><b>Use:</b> any publicly downloadable dataset may be used for internal tests and for demos, including sources with no formal licence (E1 Caltech ACN, E2 ZTBus, E7 Dundee), as long as its stated terms of use are followed.</li>
@@ -541,15 +545,32 @@ details.q[open] summary{margin-bottom:6px}
 <div class="tw"><table>
 <thead><tr><th>Vertical</th><th>Engine</th><th>Preferred provenance</th><th>Fallback if the engine task slips</th></tr></thead>
 <tbody>
-<tr><td>Mini-grid</td><td>Kobo model with a series forcing input (DD-05), one 91-day run, 5-minute physics step</td><td><code>REGISTERED_SIMULATION</code></td><td>A producer drives the Kobo laws offline and publishes an authored fixture (<code>AUTHORED_DEMONSTRATION</code>, spec <code>ref-mg-ref-tk1@1</code>). G1 must then show the same results as the registered path on the one window both can run</td></tr>
-<tr><td>Cold</td><td><code>cold-thermal/2</code> with an hourly ambient forcing (DD-06), one-minute step, one run</td><td><code>REGISTERED_SIMULATION</code></td><td><code>cold-thermal/1</code> with a constant ambient equal to the window's mean daily maximum, declared as an approximation; available today</td></tr>
-<tr><td>EV</td><td><code>ev-charger/2</code>: N connectors, unbounded sessions, any window (DD-07)</td><td><code>REGISTERED_SIMULATION</code></td><td>None that is honest at 91 days. EV stays on the existing one-hour D3 windows until DD-07 lands</td></tr>
+<tr><td>Mini-grid</td><td><code>mini-grid</code> v5 with a series forcing input (DD-05), one 91-day run on the long-run path (DD-05b), 5-minute physics step</td><td><code>REGISTERED_SIMULATION</code></td><td>If DD-05b slips: a producer drives the kernel directly with the boundary sink (DD-05), streams the reports, and publishes weekly batches as an authored fixture (<code>AUTHORED_DEMONSTRATION</code>, spec <code>ref-mg-ref-tk1</code> v1), about 1.5 d. Findings and money work; there is no Lab run for it. G1 must show the same results as the registered path on a 2-day window</td></tr>
+<tr><td>Cold</td><td><code>cold-thermal/2</code> with an hourly ambient series (DD-06), one-minute step, one run on the long-run path (DD-05b)</td><td><code>REGISTERED_SIMULATION</code></td><td>No honest 91-day fallback without DD-05b: cold analytics read evidence by run (<code>postgres_evidence_ledger.py:1042</code>), so an authored fixture would lose the cold assessment, and the whole-window v1 path cannot hold 91 days. Cold then stays on its existing two-day registered windows, and the screen says "longer history not available yet"</td></tr>
+<tr><td>EV</td><td><code>ev-charger/2</code>: N connectors, unbounded sessions, any window (DD-07), on the long-run path</td><td><code>REGISTERED_SIMULATION</code></td><td>None that is honest at 91 days. EV stays on the existing one-hour windows until DD-07 lands</td></tr>
 </tbody></table></div>
-<p>Each new pack version keeps its predecessor byte-identical. <code>cold-thermal/1</code> and <code>ev-charger/1</code> digests must not change; the two-day public digests quoted in DD-06 and DD-07 are the regression oracle.</p>
+<p>Each new pack version keeps its predecessor byte-identical. <code>cold-thermal/1</code> and <code>ev-charger/1</code> digests must not change. The regression oracles are named in DD-06 and DD-07 (revision 3: the rev-2 prefixes <code>ef31f2dc…</code> and <code>948e8f14…</code> are withdrawn because they exist nowhere in the repository).</p>
 
 <h3>5.3 Volumes and run cost</h3>
 <p><span class="f f-inf">INFERENCE</span> extrapolated from measured two-day pack runs (cold: 2,880 steps, 4.3 to 5.3 s, 65.1 MB peak; EV: 0.9 s, 38.4 MB peak), not observed: a 91-day cold run is about 131,040 steps and 185,000 observations, roughly 3.5 to 4.5 minutes of pack time; EV about 445,000 public records, about one and a half minutes; mini-grid at a 5-minute step about 26,000 steps. Peak memory is not known: it depends on whether a pack keeps all outputs until the end, and the two-day peaks say nothing about that. This laptop has 16 GB and recently had runs killed for low memory, so nothing at 91 days is built on an estimate.</p>
-<div class="callout warn" id="budget"><b class="k">Run budget for 91 days (owner OD-4)</b><p><b>Measure first.</b> DD-05a drives each pack directly, without the backend or Postgres, for 7, 28, 56 and 91 days, each in a fresh process, and records wall time and peak working set. <b>Budget:</b> one producer process at most 1.5 GB peak and 15 minutes of pack time; a whole producer (pack, gateway, ingestion, assessment) at most 30 minutes, measured in DD-08. <b>Machine rules:</b> one heavy job at a time on the existing queue, never beside a full suite, keep-awake script on. <b>If 91 days breaks the budget:</b> first remedy is streaming, with pack output written to disk in weekly chunks and published as weekly batches of the same single run, which keeps one run identity (<span class="f f-inf">INF</span>: the resolver's multiple-runs rule is about runs, not batches; DD-05a confirms this before relying on it). Second remedy, that vertical alone stays at 56 days and says so on screen.</p></div>
+<div class="callout warn" id="budget"><b class="k">Run budget for 91 days (owner OD-4; revised in revision 3)</b><p><b>Streaming is decided, not a remedy.</b> The code shows every run path keeps the whole window (§3.4), so a 91-day whole-window probe would only reproduce the low-memory kills this laptop has already had. DD-05a probes 2 and 7 days on the v1 paths to record the per-step slope. DD-05b builds the streaming long-run path of §5.4 and measures it at 7, 28 and 91 days. <b>Budget:</b> one process at most 1.5 GB peak (hard stop), target at most 0.75 GB, and memory flat with window length (7-day and 91-day peaks within 20%); pack phase at most 15 minutes; a whole producer (pack, gateway, ingestion, assessment) at most 30 minutes, measured in DD-08. <b>Machine rules:</b> one heavy job at a time on the existing queue, never beside a full suite, keep-awake script on, and a 2× wall-time cap enforced by the producer, which stops the host subprocess it started. <b>Multiple batches, one run:</b> <span class="f f-fact">FACT</span> a registered run already publishes one record per sealed batch (<code>evidence/publication.py:208-230</code>), and the multiple-runs rule groups by run, not batch (<code>source_provenance.py:194-205</code>). DD-05b's acceptance proves it on a weekly-released run. <b>Fallback:</b> §5.2, per vertical. The rev-2 fallback "stay at 56 days" is withdrawn: the whole-window paths cannot hold 56 days either.</p></div>
+
+<h3 id="streaming">5.4 Streaming and memory design for 91 days (revision 3)</h3>
+<p>One design, used by cold-thermal/2, ev-charger/2 and series-forced mini runs. v1 code paths, artifacts and digests stay byte-identical. Cards DD-05b, DD-05, DD-06 and DD-07 implement it.</p>
+<div class="tw"><table>
+<thead><tr><th>Layer</th><th>Today</th><th>Long-run path</th></tr></thead>
+<tbody>
+<tr><td>Pack stepping</td><td><code>run_window</code> returns every step (<code>cold.py:441-465</code>, <code>ev_charger.py:412-431</code>)</td><td><code>iter_window(...)</code>, a generator that yields one transition (cold) or one boundary document with its events (EV) at a time. v1 <code>run_window</code> becomes <code>tuple(iter_window(...))</code> wrapped in its existing class, so v1 output is unchanged. <code>ColdRun.state_at</code> and <code>EvRun.content_digest</code> stay v1-only; nothing in the long-run path calls them</td></tr>
+<tr><td>Kernel (mini)</td><td><code>world.boundaries.append</code> per step (<code>execute.py:1926</code>)</td><td><code>Execution(inputs, model, boundary_sink=None)</code>. With a sink, each <code>BoundaryState</code> goes to the sink and is not kept, and the world keeps only what carry-forward needs. Without a sink, behaviour is unchanged</td></tr>
+<tr><td>Series forcing (mini)</td><td>Every forcing input scanned every step (<code>execute.py:1280-1296</code>)</td><td>A <code>ForcingSeries</code> per column: <code>(series_id, address, state_key, parameter_id, canonical_unit, dimension, start_offset, cadence_minutes, values)</code>. The exposure phase looks up index <code>(offset - start_offset) // cadence_minutes</code>. Cadence must be a whole multiple of the timestep and aligned to the run start, so a step sees exactly one value per column. That exposure joins <code>exposed_by_address</code> before the existing overlap check, so a timeline WINDOW on the same address is refused as <code>FORCING_VALUE_AMBIGUOUS</code>, unchanged. The exposure's <code>event_id</code> is the scenario's <code>series_id</code>. The FORCING_NOT_AVAILABLE pre-check (<code>execute.py:785-800</code>) counts a series column as a declared window</td></tr>
+<tr><td>Private records and content digest</td><td>Whole list, then <code>canonical_json</code>, then YAML (<code>lab_execution.py:2397-2420</code>)</td><td>Each record's canonical JSON is written as one line of <code>var/executions/&lt;run_id&gt;.private.jsonl</code> and fed to an incremental SHA-256 framed as <code>["&lt;profile&gt;",[</code> r1 <code>,</code> r2 … <code>]]</code>. Because <code>canonical_json</code> is compact with sorted keys (<code>contracts/assetops_contracts/source_envelope.py:1076-1080</code>), the digest equals <code>sha256(canonical_json([profile, records]))</code> byte for byte</td></tr>
+<tr><td>Observation transform</td><td>Whole-window, then sorted (<code>observation/transform.py:388-427</code>, <code>:535</code>)</td><td><code>iter_cold_observations</code> and <code>iter_ev_public_records</code>: same output as v1 for any window, emitted in order. They carry only cross-step state: the last start attempt per generator channel (cold ADD), open sessions and the current 5-minute slot (EV). A week boundary (Monday 00:00Z) is slot-aligned</td></tr>
+<tr><td>Reports and series digest</td><td>In memory, then inlined in the schema-7 artifact</td><td>One report text per line of <code>&lt;run_id&gt;.reports.jsonl</code>, folded into the series digest with the same framing. Held (delayed) reports are kept in memory for the schedule, which is small</td></tr>
+<tr><td>Artifact</td><td>Schema 6 (cold) or 7 (EV) YAML holding everything</td><td><b>Schema 8, <code>long-run/1</code></b>, one schema for all three: a small YAML head (the projection fields, <code>boundaries_total</code> from the run's own window, the two digests, <code>reported_count</code>, and <code>sidecars: {private: {path, sha256, lines}, reports: {path, sha256, lines}}</code>). Sidecars are written as <code>.partial</code> and renamed before the head. A run without a head reads INTERRUPTED (existing rule). The Lab history and report views for schema 8 show the existing "not available" state; no step history is kept for long runs</td></tr>
+<tr><td>Release</td><td>All groups in one <code>publish_in_boundary_order</code> call (<code>lab_execution.py:2944-2990</code>)</td><td>Pass 1 executes and writes everything, so nothing is published before the world is complete, as today. Pass 2 reads <code>reports.jsonl</code> line by line and calls <code>publish_in_boundary_order</code> once per week (10,080 one-minute or 2,016 five-minute boundaries) with that week's groups in order. This is the stepped release the existing code already guarantees equal to a whole-run release (<code>:2954-2967</code>). A restart resumes pass 2 from <code>schedule.admitted_through</code>. The admission chunk of 1,024 is unchanged (<code>host/gateway_publication.py:42</code>)</td></tr>
+<tr><td>Where the inputs live</td><td>Constants in the scenario document</td><td>A canonical CSV per pack version, <code>contract-fixtures/demo-data/&lt;pack_id&gt;/forcing/v&lt;pack_version&gt;/series.csv</code>: header <code>offset_minutes,&lt;column&gt;...</code>, LF, exact decimal strings, SHA-256 over the file bytes. The scenario carries one reference object (§12 Q7). The server registry <code>backend/assetops_backend/reference_packs.py</code> maps a manifest SHA-256 to the pack and its series SHA; the host re-reads and verifies the file at execution, as it re-reads Foundation revisions</td></tr>
+</tbody></table></div>
+<p>What stays in memory during a 91-day run: the current state, the transform's carried state, the held reports, two hash objects and counters. <span class="f f-inf">INFERENCE</span> That should be well under 0.75 GB. DD-05b measures it, and its stop rule fires if memory grows with window length.</p>
 
 <h2 id="validation">6 Integration and validation</h2>
 
@@ -619,7 +640,7 @@ details.q[open] summary{margin-bottom:6px}
 </div>
 
 <h2 id="backlog">8 Implementation backlog</h2>
-<p>Fifteen tasks, written as build-spec cards (DD-05a added in revision 2). Sizes are builder-days. "Lane T" means the telemetry builder after TEL-07; "Lane C" means the commercial builder after CC-D1; "Lane D" is a third, data lane the coordinator may open if the owner approves (OD-6). Postgres steps join the existing heavy-job queue. Every task ends with a fresh Claude review, never by its builder.</p>
+<p>Sixteen tasks, written as build-spec cards (DD-05a added in revision 2, DD-05b in revision 3; revision 3 also folds the §12 answers into each card, so a builder reads one card). Sizes are builder-days. "Lane T" means the telemetry builder after TEL-07; "Lane C" means the commercial builder after CC-D1; "Lane D" is the third, data lane the owner approved (OD-6). The TEL §0.2 and CC §0.2 file bans govern TEL and CC tasks; the files each DD card lists are that card's allowance (§12 Q8, Q22). Postgres steps join the existing heavy-job queue. Every task ends with a fresh Claude review, never by its builder.</p>
 <figure>
 <div class="scroll">
 <svg class="fig" viewBox="0 0 1000 360" role="img" aria-labelledby="f3t">
@@ -633,127 +654,139 @@ details.q[open] summary{margin-bottom:6px}
 <rect class="bx der" x="530" y="34" width="90" height="40" rx="7"/><text class="t tb" x="540" y="58">DD-03</text>
 <rect class="bx obs" x="860" y="34" width="120" height="40" rx="7"/><text class="t tb" x="870" y="58">DD-11 replay</text>
 <rect class="bx" x="640" y="34" width="90" height="40" rx="7" style="stroke:var(--ok);stroke-width:2"/><text class="t tb" x="650" y="58">DD-04</text>
-<rect class="bx mod" x="70" y="144" width="112" height="40" rx="7"/><text class="t tb" x="78" y="168">DD-05a limits</text>
-<rect class="bx mod" x="200" y="144" width="110" height="40" rx="7"/><text class="t tb" x="210" y="168">DD-06 cold/2</text>
-<rect class="bx mod" x="330" y="144" width="110" height="40" rx="7"/><text class="t tb" x="340" y="168">DD-05 mini</text>
-<rect class="bx mod" x="460" y="144" width="110" height="40" rx="7"/><text class="t tb" x="470" y="168">DD-07 EV/2</text>
+<rect class="bx mod" x="70" y="144" width="92" height="40" rx="7"/><text class="t tb" x="76" y="168">DD-05a</text>
+<rect class="bx mod" x="172" y="144" width="92" height="40" rx="7"/><text class="t tb" x="178" y="168">DD-06 cold</text>
+<rect class="bx mod" x="274" y="144" width="92" height="40" rx="7" style="stroke-width:2"/><text class="t tb" x="280" y="168">DD-05b long</text>
+<rect class="bx mod" x="376" y="144" width="92" height="40" rx="7"/><text class="t tb" x="382" y="168">DD-05 mini</text>
+<rect class="bx mod" x="478" y="144" width="92" height="40" rx="7"/><text class="t tb" x="484" y="168">DD-07 EV</text>
 <rect class="bx hl" x="640" y="114" width="100" height="36" rx="7"/><text class="t tb" x="650" y="137">DD-09 cold</text>
 <rect class="bx hl" x="640" y="160" width="100" height="36" rx="7"/><text class="t tb" x="650" y="183">DD-08 mini</text>
 <rect class="bx hl" x="640" y="206" width="100" height="36" rx="7"/><text class="t tb" x="650" y="229">DD-10 EV</text>
 <rect class="bx dec" x="790" y="264" width="90" height="40" rx="7"/><text class="t tb" x="800" y="288">DD-12</text>
 <rect class="bx dec" x="890" y="264" width="90" height="40" rx="7"/><text class="t tb" x="900" y="288">DD-13</text>
 <path class="ln a" d="M180 54H196"/><path class="ln a" d="M290 54H306"/><path class="ln a" d="M400 54H416"/><path class="ln a" d="M510 54H526"/><path class="ln a" d="M620 54H636"/>
-<path class="ln a" d="M730 54H856"/>
-<path class="ln a" d="M465 74L255 140"/><path class="ln a" d="M465 74L385 140"/><path class="ln a" d="M465 74L515 140"/>
-<path class="ln a" d="M310 164C470 110 560 128 636 132"/><path class="ln a" d="M440 164C540 176 600 178 636 178"/><path class="ln a" d="M570 164C600 200 610 224 636 224"/>
+<path class="ln a" d="M465 74L218 140"/><path class="ln a" d="M465 74L422 140"/><path class="ln a" d="M465 74L524 140"/>
+<path class="ln a" d="M162 164H168"/><path class="ln a" d="M264 164H270"/><path class="ln a" d="M366 164H372"/><path class="ln a" d="M468 164H474"/>
+<path class="ln a" d="M320 144C380 96 560 108 636 128"/><path class="ln a" d="M422 184C500 204 600 190 636 180"/><path class="ln a" d="M570 170C600 200 610 222 636 224"/>
 <path class="ln a" d="M685 74V110"/>
-<path class="ln a" d="M182 164H196"/><path class="ln a" d="M126 184C150 214 370 214 385 188"/><path class="ln a" d="M126 184C160 226 500 226 515 188"/>
-<path class="ln a" d="M180 284H786"/><path class="ln a" d="M740 178C770 200 800 240 830 260"/><path class="ln a" d="M880 284H886"/>
-<text class="tm" x="200" y="330">DD-00 to DD-04 and DD-11 are light (no simulator or schema change). DD-05a, DD-05 to DD-07 change limits or engines and run full suites when the machine is idle.</text>
+<path class="ln a" d="M740 172C800 150 900 110 920 78"/>
+<path class="ln a" d="M180 284H786"/><path class="ln a" d="M740 224C780 240 860 250 930 260"/><path class="ln a" d="M880 284H886"/>
+<text class="tm" x="70" y="330">Lane D runs in the order shown, one builder. DD-05b (long-run path) is proven on cold before the mini-grid and EV engines use it. DD-11 waits for DD-08's site and binding.</text>
 </svg>
 </div>
-<figcaption><b>Figure 3.</b> Dependencies. DD-05a (limits and measured budget) precedes the three engine tasks. DD-08 is the first producer because it measures run cost for the others and feeds the CC-D2 and CC-D1 story.</figcaption>
+<figcaption><b>Figure 3.</b> Dependencies (revised in revision 3). DD-05a sets the limits. DD-06 gives the long-run path its first streaming pack, and DD-05b builds that path. DD-05 and DD-07 add the mini-grid and EV engines on it. Each producer follows its engine, and DD-13 needs all three producers and DD-12.</figcaption>
 </figure>
 
 <div class="task t"><h3>DD-00 · Rulings and pre-flight (no code) · 0.25 d · Lane T</h3>
 <dl class="kv"><dt>Goal</dt><dd>The owner decisions in §10 are recorded, and the builder posts all questions in one batch before any code.</dd>
-<dt>Files</dt><dd><code>.agent/DD-00-questions.md</code>, Architect answers appended to this document's next revision.</dd>
-<dt>Done when</dt><dd>OD-1 to OD-8 were answered on 2026-10-28 (box in §0); the builder confirms each card matches them and writes "no open questions".</dd>
+<dt>Files</dt><dd><code>.agent/implementer-questions-demo-data-2026-10-28.md</code> is the pre-flight batch (revision 3, §12 Q29). Later questions are appended to it, not to a new file.</dd>
+<dt>Done when</dt><dd>OD-1 to OD-8 were answered on 2026-10-28 (box in §0) and the 30 questions are answered in §12. The builder confirms each card matches and appends "no open questions" to that file.</dd>
 <dt>Stop</dt><dd>Any answer contradicts a card. Revise the card first.</dd></dl></div>
 
 <div class="task t"><h3>DD-01 · Source verification and pinned excerpts · 0.75 d · Lane T</h3>
 <dl class="kv"><dt>Goal</dt><dd>Close every <span class="f f-unv">UNVERIFIED</span> mark this plan depends on, and pin the excerpts.</dd>
-<dt>Files</dt><dd><code>tools/demo_data/fetch.py</code> (stdlib <code>urllib</code> only, one function per source, no network in tests); <code>contract-fixtures/demo-data/&lt;pack&gt;/inputs/*.csv</code>; <code>tools/demo_data/tests/test_fetch_parse.py</code> on saved response bytes.</dd>
-<dt>Work</dt><dd>Write a one-paragraph terms note per source (licence or terms of use, required attribution, any non-commercial clause, committed or cached) for every source used, including NASA POWER, PVGIS, ACN, ZTBus, Dundee and the EPRA gazette; add <code>.cache/demo-data/</code> to <code>.gitignore</code>; read the M4 Nyabiheke span and columns; read the C1 door sheet's columns; fix the reference coordinates; find an outage time series for Senegal or record "declared assumption".</dd>
+<dt>Files</dt><dd><code>tools/demo_data/__init__.py</code>, <code>tools/demo_data/fetch.py</code> (stdlib <code>urllib</code> only, one function per source, no network in tests); <code>contract-fixtures/demo-data/&lt;pack&gt;/inputs/*.csv</code> and <code>fetch-log.json</code> (retrieval times, not hashed; §12 Q30); <code>tools/demo_data/tests/conftest.py</code> and <code>test_fetch_parse.py</code> on saved response bytes; one line each in <code>.gitignore</code> (<code>.cache/demo-data/</code>) and <code>.gitattributes</code> (<code>contract-fixtures/demo-data/** -text</code>, §12 Q16).</dd>
+<dt>Work</dt><dd>Write a one-paragraph terms note per source (licence or terms of use, required attribution, any non-commercial clause, committed or cached) for every source used, including NASA POWER, PVGIS, ACN, ZTBus, Dundee and the EPRA gazette. Read the M4 Nyabiheke span and columns, and whether its loads are metered. Read the C1 door sheet's columns. Fix the reference coordinates. Find an outage time series for Senegal or record "declared assumption". Save one PVGIS hourly response for DD-03 (§12 Q17).</dd>
 <dt>Acceptance</dt><dd>Each excerpt has a SHA-256 in its manifest and parses to the expected columns; no excerpt over 2 MB; no raw file from a source without an open licence is committed (it is cached and refetched, with <code>"committed": false</code> and its SHA-256 in the manifest).</dd>
-<dt>Stop</dt><dd>A source's terms forbid commercial use or require written permission: do not use it, even as statistics, and tell the Architect. M4 has under 30 days of usable data: fall back to M3 and say so.</dd></dl></div>
+<dt>Stop</dt><dd>A source's terms contain a non-commercial clause or state that written permission is required: do not use it, even as statistics, and tell the Architect. A source with no stated licence is used for test and demo with attribution, cached and not committed (§12 Q28). M4 has under 30 days of usable data: fall back to M3 and say so.</dd></dl></div>
 
 <div class="task t"><h3>DD-02 · Dataset-pack manifest and validator · 0.5 d · Lane T</h3>
-<dl class="kv"><dt>Goal</dt><dd>The manifest of §5.1 as a strict, pure loader.</dd>
+<dl class="kv"><dt>Goal</dt><dd>The manifest of §5.1 as a strict, pure loader. Signatures, key sets and encoding are fixed in §12 Q14, and the origin rule in Q15.</dd>
 <dt>Files</dt><dd><code>tools/demo_data/manifest.py</code>, <code>tools/demo_data/tests/test_manifest.py</code>.</dd>
-<dt>Acceptance</dt><dd>Refuses an unknown key, a non-UTC instant, a shift not a multiple of 7 days, an origin outside the six, a signal whose origin is stronger than its weakest input, an excerpt whose SHA-256 differs, and a fault without a seed. Canonical JSON round-trips byte for byte.</dd>
+<dt>Acceptance</dt><dd>Refuses an unknown key at any level, a non-UTC instant, a shift not a multiple of 7 days, an origin outside <code>ORIGINS</code>, an OBSERVED or DERIVED signal with an input that is not OBSERVED or DERIVED, an excerpt whose SHA-256 differs, and faults or SYNTHETIC signals without a seed. Canonical JSON round-trips byte for byte. <code>manifest_sha256</code> is unchanged when only <code>fetch-log.json</code> changes.</dd>
 <dt>Stop</dt><dd>The loader would need a backend import. It must stay in <code>tools/</code> with stdlib plus <code>assetops_contracts</code>.</dd></dl></div>
 
 <div class="task t"><h3>DD-03 · Transforms library · 0.75 d · Lane T</h3>
-<dl class="kv"><dt>Goal</dt><dd>The named, versioned transforms of §6.1, pure and exact.</dd>
-<dt>Files</dt><dd><code>tools/demo_data/transforms.py</code>, tests beside it.</dd>
-<dt>Acceptance</dt><dd><code>poa-isotropic/1</code> reproduces PVGIS <code>G(i)</code> within ±10% on daily sums for one saved response; <code>wh-per-hour-to-w-mean/1</code>, <code>degf-to-degc/1</code>, <code>vi-to-w/1</code> exact; <code>shift-weeks/1</code> preserves weekday; <code>resample-days/1</code> is seed-deterministic; gap rule fills at most 2 hours and flags the cells.</dd>
-<dt>Stop</dt><dd>A transform needs floats in the output path. Use <code>Fraction</code> or refuse.</dd></dl></div>
+<dl class="kv"><dt>Goal</dt><dd>The named, versioned transforms of §6.1, pure, with a float-free output path.</dd>
+<dt>Files</dt><dd><code>tools/demo_data/transforms.py</code>, <code>tools/demo_data/tests/test_transforms.py</code>.</dd>
+<dt>Acceptance</dt><dd><code>poa-isotropic/1</code> (Erbs decomposition of GHI, then the isotropic sky model with albedo 0.2) reproduces PVGIS <code>G(i)</code> within ±10% on daily sums over the saved response of §12 Q17. <code>wh-per-hour-to-w-mean/1</code>, <code>degf-to-degc/1</code> and <code>vi-to-w/1</code> are exact in <code>Fraction</code>. <code>shift-weeks/1</code> preserves the weekday. <code>resample-days/1</code> is seed-deterministic. The gap rule fills at most 2 hours and flags the cells.</dd>
+<dt>Stop</dt><dd>A unit or time transform needs floats. Use <code>Fraction</code> or refuse. Only transcendental geometry (<code>poa-isotropic/1</code>) may use a documented float intermediate, rounded once half-even to the declared resolution (§12 Q17).</dd></dl></div>
 
 <div class="task t"><h3>DD-04 · Validation gates library · 0.5 d · Lane T</h3>
-<dl class="kv"><dt>Goal</dt><dd>G1 physics and calibration checks and G2 pipeline checks of §6.3 as pure functions over pack output and accepted rows.</dd>
-<dt>Files</dt><dd><code>tools/demo_data/validate.py</code>, tests with deliberately broken series.</dd>
-<dt>Acceptance</dt><dd>Each check fails on its broken fixture and passes on the KOBO two-day public observations (<code>contract-fixtures/telemetry/kobo-public-observations-v1</code>).</dd>
+<dl class="kv"><dt>Goal</dt><dd>G1 physics and calibration checks and G2 pipeline checks of §6.3, as pure functions over plain step rows and report texts (§12 Q9).</dd>
+<dt>Files</dt><dd><code>tools/demo_data/validate.py</code> (row dataclasses <code>MiniStepRow</code>, <code>ColdStepRow</code>, <code>EvStepRow</code>, gate functions, <code>GateResult</code>), <code>tools/demo_data/tests/test_validate.py</code>. The adapters from pack boundaries to rows belong to the producers (DD-08 to DD-10), not here.</dd>
+<dt>Acceptance</dt><dd>Each G1 check passes on a hand-built, exact 12-step row fixture and fails on its deliberately broken copy. The G2 shape check passes on <code>contract-fixtures/telemetry/kobo-public-observations-v1</code> (the 12-hour fixture; rev 2's "two-day" wording was wrong).</dd>
 <dt>Stop</dt><dd>A check would duplicate an analytics rule. Call the rule; never reimplement it.</dd></dl></div>
 
-<div class="task x"><h3>DD-05a · Long-run limits and measured budget · 0.75 d · Lane D (full suite)</h3>
-<dl class="kv"><dt>Goal</dt><dd>91-day runs become possible without raising the risk the old limits guarded against, and their cost is known before any producer is built (owner OD-4).</dd>
-<dt>Files</dt><dd><code>tools/demo_data/probe_run_cost.py</code> (stdlib only; peak working set via <code>ctypes</code> <code>GetProcessMemoryInfo</code> plus <code>tracemalloc</code>); <code>backend/assetops_backend/runs/parsing.py</code>; <code>backend/assetops_backend/scenarios/parsing.py</code>; the run-creation path that loads the scenario; their tests.</dd>
-<dt>Work, in order</dt><dd>(1) Probe: drive the cold and EV packs directly for 7, 28, 56 and 91 days at a 1-minute step, each in a fresh process on an idle machine; record wall time and peak memory in <code>.agent/DD-05a-run-cost.md</code>. The mini pack is probed in DD-05, once it can run past its forcing. (2) Limits: <code>MAX_INTERVAL_MINUTES</code> becomes 527,040 (366 days, a calendar sanity bound); a new <code>MAX_RUN_STEPS</code> (interval ÷ timestep) is the cost guard, set to the largest step count whose probed peak is at most half the 1.5 GB budget, and never below 131,040; refusals keep the code <code>INTERVAL_INVALID</code> and name the step count. <code>MAX_OFFSET_MINUTES</code> follows <code>MAX_INTERVAL_MINUTES</code>. At run creation, a scenario entry that starts at or after the run's end, or a window that ends after it, is refused as <code>SCENARIO_ENTRY_OUTSIDE_INTERVAL</code>. <code>MAX_TIMELINE_ENTRIES</code> stays 200.</dd>
-<dt>Acceptance</dt><dd>Every run request valid today stays valid (each has at most 100,000 steps); a 91-day request at a 1-minute step is accepted; a request over <code>MAX_RUN_STEPS</code> is refused with the step count named; an entry at minute 70,560 parses; an entry outside a run's interval is refused at run creation; all existing scenario and run digests unchanged; the probe report shows 91-day cold and EV peaks and wall times.</dd>
-<dt>Stop</dt><dd>The probe shows a 91-day cold or EV pack run over 1.5 GB or 15 minutes: report the numbers; the Architect sizes the streaming remedy of §5.3 or holds that vertical at 56 days. Any shipped scenario or fixture trips the new outside-interval refusal: report it, do not loosen the rule. Contract or schema change needed for the step budget: stop.</dd></dl></div>
+<div class="task x"><h3>DD-05a · Long-run limits and baseline probe · 0.75 d · Lane D (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>91-day runs become possible without raising the risk the old limits guarded against (owner OD-4), and the whole-window cost slope is on record.</dd>
+<dt>Files</dt><dd><code>tools/demo_data/probe_run_cost.py</code> (stdlib only; peak working set via <code>ctypes</code> <code>GetProcessMemoryInfo</code>); <code>backend/assetops_backend/document_bounds.py</code>; <code>backend/assetops_backend/runs/parsing.py</code>; <code>backend/assetops_backend/scenarios/parsing.py</code>; <code>backend/assetops_backend/runs/service.py</code> (the step check at freeze); their tests.</dd>
+<dt>Work, in order</dt><dd>(1) <b>Baseline probe</b>, evidence only, not a gate: in a fresh process each, drive the cold v1 pack <code>run_window</code> with no forcings, and the EV v1 pack <code>run_window</code> with the complete-case forcing placed at the window start, for 2 and 7 days at a one-minute step. Then, for 2 days, add the v1 cold host stages (<code>cold_minute_records</code>, <code>cold_content_digest</code>, <code>yaml.safe_dump</code> of the private document). Record wall time and peak working set, with no <code>tracemalloc</code> in timed runs, in <code>.agent/DD-05a-run-cost.md</code>, with the per-step slope. (2) <b>Limits</b> (§12 Q4, Q5): <code>document_bounds.MAX_SIMULATED_MINUTES = 527_040</code> (366 days); <code>runs/parsing.MAX_INTERVAL_MINUTES</code> and <code>scenarios/parsing.MAX_OFFSET_MINUTES</code> both equal it (WINDOW durations and ends follow, as they share the constant today). New <code>runs/parsing.MAX_LONG_RUN_STEPS = 131_040</code>, checked at parse. New <code>MAX_WHOLE_WINDOW_STEPS = 100_000</code>, checked at freeze in <code>runs/service.py</code> for every scenario not on the long-run path (until DD-05b, that is every scenario). Both refuse <code>INTERVAL_INVALID</code> with "The run covers {steps} steps of {timestep} minutes, above the limit of {limit} steps." <code>MAX_TIMELINE_ENTRIES</code> stays 200. <b>No new refusal code</b> (§12 Q3).</dd>
+<dt>Acceptance</dt><dd>Every run request valid today stays valid. A generic 91-day request at a 5-minute step (26,208 steps) is accepted. At a one-minute step (131,040 steps) it is refused at freeze, naming the step count. A request over 131,040 steps is refused at parse. An entry at minute 70,560 parses. A new test proves the existing <code>INTERVAL_INVALID</code> refusal on a 91-day interval, for an entry at 131,040 and a window ending at 131,041. All existing scenario and run digests are unchanged, and the probe report exists.</dd>
+<dt>Stop</dt><dd>Any shipped scenario or fixture changes its outcome. A contract or schema change would be needed for the step budget.</dd></dl></div>
 
-<div class="task x"><h3>DD-05 · Mini-grid series forcing · 1.5 d · Lane D, after DD-05a (full suite)</h3>
-<dl class="kv"><dt>Goal</dt><dd>A Kobo model profile version that reads plane-of-array irradiance and per-load demand from a pinned series referenced by SHA-256, so one 91-day run is possible.</dd>
-<dt>Files</dt><dd><code>backend/assetops_backend/runs/profiles.py</code> (new model profile version), <code>backend/assetops_backend/scenarios/parsing.py</code> (a <code>forcing_series</code> reference, counted as one timeline entry), <code>simulator/assetops_simulator/packs/mini_grid.py</code>, the kernel forcing exposure, tests.</dd>
-<dt>Acceptance</dt><dd>Existing Kobo scenario digests are unchanged; a series equal to an existing step forcing gives the identical public digest; a 91-day run completes within the DD-05a budget and passes G1; the mini pack's 91-day wall time and peak memory are added to the DD-05a report; the run identity digest changes when one series byte changes, and so does the manifest SHA that DD-12's label reads.</dd>
-<dt>Stop</dt><dd>The change needs a contract revision beyond one optional scenario key, or any existing digest moves. Stop and send the Architect the diff. Then the authored-fixture fallback of §5.2 applies.</dd></dl></div>
-
-<div class="task x"><h3>DD-06 · cold-thermal/2 ambient series · 0.75 d · Lane D, after DD-05a</h3>
-<dl class="kv"><dt>Goal</dt><dd>Hourly ambient as forcing, leaving v1 byte-identical.</dd>
-<dt>Files</dt><dd><code>simulator/assetops_simulator/packs/cold.py</code> (new profile constant and an <code>AMBIENT_SET</code> forcing kind for v2 only), <code>backend/assetops_backend/scenarios/cold_parsing.py</code>, tests.</dd>
-<dt>Acceptance</dt><dd>The v1 two-day digest <code>ef31f2dc…</code> is unchanged; a v2 run with a constant ambient series equals v1; the energy residual stays exactly 0.</dd>
+<div class="task x"><h3>DD-06 · cold-thermal/2: ambient series and streaming iterator · 1.25 d · Lane D, after DD-05a</h3>
+<dl class="kv"><dt>Goal</dt><dd>Hourly ambient as forcing and a streaming pack and transform (§5.4), leaving v1 byte-identical.</dd>
+<dt>Files</dt><dd><code>simulator/assetops_simulator/packs/cold.py</code> (<code>MODEL_PROFILE_V2</code>, <code>iter_window</code>, <code>AMBIENT_SET</code> for v2 only; v1 <code>run_window</code> materialises <code>iter_window</code>); <code>simulator/assetops_simulator/observation/transform.py</code> (<code>iter_cold_observations</code>); <code>backend/assetops_backend/scenarios/cold_parsing.py</code> (<code>cold-scenario/2</code>: Site code from the document, limited to COLD-LAB-001 and the reference registry; window from the document; an <code>ambient_series</code> reference object, §12 Q7); <code>host/cold_publication.py</code> (v2 input verification and series read only); tests, including the new <code>host/tests/test_cold_v1_digests.py</code>.</dd>
+<dt>Work</dt><dd>Commit 1, on main's code: pin each W2-02 cold case's <code>content_digest</code> and <code>observation_series_digest</code> as constants in <code>test_cold_v1_digests.py</code> (§12 Q10). Then build v2.</dd>
+<dt>Acceptance</dt><dd>The pinned v1 digests and <code>backend/tests/fixtures/w2/cold-w203-vectors.json</code> (<code>host/tests/test_w203_cold_vectors.py</code>) are unchanged. <code>run_window</code> equals the materialised <code>iter_window</code>. <code>iter_cold_observations</code> equals <code>cold_observations</code> on every W2-02 case. v2 with a constant ambient series equal to v1's ambient gives v1's records. The residual stays exactly 0.</dd>
 <dt>Stop</dt><dd>Any v1 digest changes.</dd></dl></div>
 
-<div class="task x"><h3>DD-07 · ev-charger/2 · 1.5 d · Lane D, after DD-05a (full suite)</h3>
-<dl class="kv"><dt>Goal</dt><dd>N declared connectors, unbounded sessions with scoped IDs, any window up to the DD-05a step budget. A 91-day depot is about 550 overnight sessions plus top-ups; session state is held per open session, never as a list of every past session.</dd>
-<dt>Files</dt><dd><code>simulator/assetops_simulator/packs/ev_charger.py</code> (new class beside v1), <code>backend/assetops_backend/scenarios/ev_parsing.py</code> (v2 schema), EV observation and publication profiles, tests.</dd>
-<dt>Acceptance</dt><dd>The v1 digest <code>948e8f14…</code> and the <code>ev-interrupted</code> replay are unchanged; v2 with two connectors and the v1 forcing equals v1's public records; a 91-day, three-connector run passes G1 within the DD-05a budget; the D3 SHARED infeasibility (9.6 kWh) reproduces on a v2 window.</dd>
+<div class="task x"><h3>DD-05b · Long-run host path · 2.5 d · Lane D, after DD-06 (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>The streaming execution, artifact and release path of §5.4, proven on cold-thermal/2 over 91 days, with flat memory. Every v1 path is unchanged.</dd>
+<dt>Files</dt><dd><code>host/long_run.py</code> (new: pass 1, schema-8 head, pass 2, resume); <code>host/lab_execution.py</code> (dispatch to <code>long_run</code> for long-run profiles only, plus a <code>write_long</code>/<code>read_long</code> pair on <code>YamlExecutionArtifacts</code>; <code>_stage_registered_v2_reports</code> and the schema 6 and 7 writers untouched); <code>host/publication_schedule.py</code> (<code>world_boundaries_completed</code> from the run, schema 8 only); <code>backend/assetops_backend/runs/service.py</code> (cold v2 freeze branch: profile <code>cold-thermal/2</code>, window from the document, <code>MAX_LONG_RUN_STEPS</code>); <code>backend/assetops_backend/simulator_lab_api.py</code> (schema 8 reads the head only; the history and report views return their existing "not available" state); <code>tools/demo_data/probe_run_cost.py</code> (<code>long</code> subcommand); tests.</dd>
+<dt>Acceptance</dt><dd>(a) On a 2-day window with the v1 profile label substituted in the digest framing, the long-run path's private records, report texts, content digest and series digest equal the v1 path's. (b) A 91-day cold v2 run, pass 1 with a counting fake gateway for pass 2, fresh process each, at 7, 28 and 91 days: peak at most 0.75 GB, 7-day and 91-day peaks within 20%, pack phase at most 15 minutes. Numbers appended to <code>.agent/DD-05a-run-cost.md</code>. (c) A Postgres test of a weekly-released 7-day cold v2 run resolves to exactly one <code>REGISTERED_SIMULATION</code> run with no <code>MIXED</code> reason. (d) A process killed in pass 2 resumes from <code>admitted_through</code> with no duplicate admission. (e) The Lab run page for a schema-8 run shows the existing no-history state; check it in code and in a test.</dd>
+<dt>Stop</dt><dd>Memory grows with window length (more than 20% between 7 and 91 days): report the numbers and the Architect rules. The resolver reads weekly batches of one run as more than one source. Any schema 6 or 7 artifact or v1 digest changes. The Lab run page has no honest no-history state for schema 8: stop; do not add UI.</dd></dl></div>
+
+<div class="task x"><h3>DD-05 · Mini-grid series forcing and kernel boundary sink · 2.5 d · Lane D, after DD-05b (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>One 91-day Kobo-sized run whose irradiance and per-load demand come from a pinned series (§5.4), on the long-run path. No pack file and no model profile change: <code>mini_grid.py</code> and <code>minigrid.py</code> read exposures, which the kernel supplies (§12 Q11). Rev 2's "new model profile version" is withdrawn.</dd>
+<dt>Files</dt><dd><code>contracts/assetops_contracts/world_inputs.py</code> (optional <code>ForcingSeries</code> input; when absent, inputs and digests are byte-identical); <code>simulator/assetops_simulator/kernel/execute.py</code> (indexed series exposure, the <code>:785</code> pre-check, optional <code>boundary_sink</code>); <code>simulator/assetops_simulator/observation/transform.py</code> (<code>iter_observations</code>, a streaming form of <code>generate_observations</code>, <code>:224-262</code>, which carries only the previous offset); <code>backend/assetops_backend/scenarios/parsing.py</code> (the <code>forcing_series</code> key, counted as one timeline entry); <code>backend/assetops_backend/runs/parsing.py</code> and <code>runs/service.py</code> (freeze checks, §12 Q6); <code>backend/assetops_backend/reference_packs.py</code> (new registry, §12 Q7); <code>host/execution_adapter.py</code> (builds <code>ForcingSeries</code> from the verified file); <code>host/long_run.py</code> (generic adapter: kernel <code>Execution</code> with the sink); tests.</dd>
+<dt>Acceptance</dt><dd>Existing Kobo scenario and run digests are unchanged. A series equal to an existing step forcing gives the identical public observation series digest; private digests may differ only in exposure <code>event_id</code>. Per-step exposure work does not depend on series length (test with a 2,184-value series). Through the sink, the trajectory content digest equals <code>trajectory().content_digest</code> on a 2-day window. A 91-day, 5-minute run meets the DD-05b budget and passes G1. The run identity digest changes when one series byte changes, through <code>scenario_sha256</code>. Numbers are added to the run-cost report.</dd>
+<dt>Stop</dt><dd>A contract change beyond the optional <code>ForcingSeries</code> input and the scenario key. Any existing digest moves. The trajectory digest cannot be computed incrementally through the sink: report it. In each case, send the Architect the diff; the authored fallback of §5.2 applies.</dd></dl></div>
+
+<div class="task x"><h3>DD-07 · ev-charger/2 · 2.0 d · Lane D, after DD-05 (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>N declared connectors, unbounded sessions with scoped IDs, any window up to <code>MAX_LONG_RUN_STEPS</code>, streaming (§5.4). Session state is held per open session, never as a list of every past session.</dd>
+<dt>Files</dt><dd><code>simulator/assetops_simulator/packs/ev_charger.py</code> (new class beside v1, <code>iter_window</code>); <code>simulator/assetops_simulator/observation/transform.py</code> (<code>iter_ev_public_records</code>); <code>backend/assetops_backend/scenarios/ev_parsing.py</code> (<code>ev-scenario/2</code> with a <code>session_series</code> reference object; the session rows exceed the document limits, so they live in a pinned CSV like other series); <code>host/ev_publication.py</code> (v2 verification only); <code>backend/assetops_backend/runs/service.py</code> (EV v2 freeze branch); <code>host/long_run.py</code> (EV adapter); EV observation and publication profiles; tests. The schema-7 61-boundary assertion (<code>host/ev_lab.py:295-298</code>) stays; v2 runs write schema 8.</dd>
+<dt>Acceptance</dt><dd><code>PINNED_COMPLETE_DIGEST = "6fc2f2a8…"</code> (<code>simulator/tests/test_ev_pack.py:490</code>, <code>host/tests/test_ev_lab_execution.py:56</code>) is unchanged. <code>backend/tests/fixtures/w2/ev-w206-vectors.json</code>, which includes the <code>interrupted</code> case (<code>host/tests/test_w206_ev_vectors.py</code>), is unchanged. v2 with two connectors and the v1 forcing gives v1's public records. A 91-day, three-connector run passes G1 within the DD-05b budget, with flat memory. Rev 2's D3 "9.6 kWh" item is withdrawn: it is the worked example in <code>commercial-capability-readiness.html</code> Appendix C D3, not code (§12 Q10, Q19).</dd>
 <dt>Stop</dt><dd>EV analytics would need a schema change to read more than two connectors. Stop and report; that is an Architect ruling.</dd></dl></div>
 
 <div class="task c"><h3>DD-08 · MG-REF-TK1 history producer · 1.0 d · Lane D, after DD-05</h3>
 <dl class="kv"><dt>Goal</dt><dd>The rank-1 site of §4.3 over 91 days, end to end, plus the whole-producer cost measurement of §5.3 (gateway, ingestion, assessment).</dd>
-<dt>Files</dt><dd><code>backend/conversions/mg-ref-tk1-bindings.json</code>, <code>backend/tests/fixtures/ref/mg-ref-tk1.yaml</code>, <code>tools/demo_data/build_minigrid.py</code>, <code>tools/demo_data_walkthrough.py</code> (producer CLI on the existing walkthrough pattern), <code>assetops_ref_mg_tk1_test</code> database.</dd>
-<dt>Acceptance</dt><dd>G1, G2 and G3 pass; weeks 1-3 raise no reserve Finding; F-MG1 gives generator-support episodes in weeks 5-7; after day 50 the reserve trial evaluates on comparable windows; the overlap group shows no sum; two runs give the same public digest; wall time, peak memory and database rows per stage recorded beside the DD-05a report.</dd>
-<dt>Stop</dt><dd>The producer breaks the §5.3 budget (pack process over 1.5 GB, or the whole producer over 30 minutes): stop and report; the streaming remedy is an Architect decision. Any Finding outside the declared set.</dd></dl></div>
+<dt>Files</dt><dd><code>backend/conversions/mg-ref-tk1-bindings.json</code>; <code>backend/tests/fixtures/ref/mg-ref-tk1.yaml</code> (new directory, mirroring <code>s1/</code>); <code>backend/assetops_backend/sites/reference_sites.py</code> (new: one installer on the <code>install_ev_lab</code> pattern, <code>sites/ev_lab.py:52</code>, with a closed registry of the four reference codes and a <code>python -m</code> entry); <code>tools/demo_data/build_minigrid.py</code> (manifest to scenario document and series CSV, parameterised by manifest; also the boundary-to-<code>MiniStepRow</code> adapter for G1); <code>tools/dd_reference_walkthrough.py</code> (the producer CLI, HTTP-driven through subprocess servers on the <code>tools/s402b_fuel_cost_walkthrough.py</code> pattern, with subcommands <code>mg-tk1</code>, <code>mg-nd1</code>, <code>cc-sn1</code>, <code>ev-nb1</code>, <code>all</code>, <code>drop</code>); database <code>assetops_dd_ref_mg_tk1_test</code>. Rev 2's <code>tools/demo_data_walkthrough.py</code> name is withdrawn (§12 Q12).</dd>
+<dt>Acceptance</dt><dd>G1, G2 and G3 pass. Weeks 1-3 raise no reserve Finding. F-MG1 gives generator-support episodes in weeks 5-7. After day 50 the reserve trial evaluates on comparable windows. The overlap group shows no sum. Determinism: two runs of the first 7 days give identical digests; the 91-day run is made once (§12 Q26). Wall time, peak memory and database rows per stage are recorded beside the DD-05a report.</dd>
+<dt>Stop</dt><dd>The producer breaks the §5.3 budget: report it. The producer stops its host subprocess at 2× (60 minutes) and reports (§12 Q24). Any Finding outside the declared set.</dd></dl></div>
 
-<div class="task c"><h3>DD-09 · CC-REF-SN1 history producer · 0.75 d · Lane D</h3>
-<dl class="kv"><dt>Goal</dt><dd>The cold site of §4.3. It can start before DD-06 on the constant-ambient fallback and be rerun on v2.</dd>
-<dt>Files</dt><dd><code>backend/conversions/cc-ref-sn1-bindings.json</code>, foundation fixture, <code>tools/demo_data/build_cold.py</code>.</dd>
-<dt>Acceptance</dt><dd>F-CC1 yields an excursion episode; D4 lots authored relative to it give REQUIRES_REVIEW, UNDETERMINED, NOT_REQUIRED and NOT_PRESENT as D4 specifies; F-CC4 gives <code>COVERAGE_INCOMPLETE</code>; no spoilage figure anywhere.</dd>
-<dt>Stop</dt><dd>D4 has not merged: build the history only and leave the lots for later.</dd></dl></div>
+<div class="task c"><h3>DD-09 · CC-REF-SN1 history producer · 0.75 d · Lane D, after DD-05b</h3>
+<dl class="kv"><dt>Goal</dt><dd>The cold site of §4.3 over 91 days on cold-thermal/2. Rev 2's "start before DD-06 on the constant-ambient fallback" is withdrawn: v1 cannot run 91 days.</dd>
+<dt>Files</dt><dd><code>backend/conversions/cc-ref-sn1-bindings.json</code>, <code>backend/tests/fixtures/ref/cc-ref-sn1.yaml</code>, <code>tools/demo_data/build_cold.py</code>, the <code>cc-sn1</code> subcommand, <code>assetops_dd_ref_cc_sn1_test</code>.</dd>
+<dt>Acceptance</dt><dd>F-CC1 yields an excursion episode; F-CC4 gives <code>COVERAGE_INCOMPLETE</code>; no spoilage figure anywhere. D4 lots are deferred, because D4 is specified (Appendix C) but not scheduled in any build spec (§12 Q19).</dd>
+<dt>Stop</dt><dd>Any Finding outside the declared set.</dd></dl></div>
 
 <div class="task c"><h3>DD-10 · EV-REF-NB1 history producer · 0.75 d · Lane D, after DD-07</h3>
 <dl class="kv"><dt>Goal</dt><dd>The depot site of §4.3.</dd>
-<dt>Acceptance</dt><dd>F-EV1 produces <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> on both fault nights; F-EV2 shows peak-band energy before day 50 and off-peak after; ACN calibration KS ≤ 0.15; D3 decision reproduces a departure shortfall on a fault night.</dd>
-<dt>Stop</dt><dd>D3 has not merged: build the history only.</dd></dl></div>
+<dt>Files</dt><dd><code>backend/conversions/ev-ref-nb1-bindings.json</code>, <code>backend/tests/fixtures/ref/ev-ref-nb1.yaml</code>, <code>tools/demo_data/build_ev.py</code>, the <code>ev-nb1</code> subcommand, <code>assetops_dd_ref_ev_nb1_test</code>.</dd>
+<dt>Acceptance</dt><dd>F-EV1 produces <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> on both fault nights. F-EV2 shows peak-band energy before day 50 and off-peak energy after. ACN calibration KS is at most 0.15. The D3 decision is deferred, because D3 is not scheduled (§12 Q19).</dd>
+<dt>Stop</dt><dd>Any Finding outside the declared set.</dd></dl></div>
 
-<div class="task t"><h3>DD-11 · Track P reference replay · 0.75 d · Lane T, after TEL-07</h3>
+<div class="task t"><h3>DD-11 · Track P reference replay · 0.75 d · Lane T, after TEL-07, TEL-05b and DD-08</h3>
 <dl class="kv"><dt>Goal</dt><dd>The observed MG-REF-TK1 inputs travel the field path, as §7 describes.</dd>
-<dt>Files</dt><dd><code>field/profiles/generic-interval-csv-reference-1.json</code>; a generator in <code>host/tests/field_observation_fixtures.py</code> for the CSV and JSONL; <code>contract-fixtures/telemetry/reference-mg-tk1-v1/</code> with a manifest; one Postgres test on the TEL-06b pattern.</dd>
+<dt>Files</dt><dd><code>field/profiles/generic-interval-csv-reference-1.json</code> (span and cadence 3600 s); one appended generator function in <code>host/tests/field_observation_fixtures.py</code> for the CSV and JSONL; <code>contract-fixtures/telemetry/reference-mg-tk1-v1/</code> with a manifest; one Postgres test on the TEL-06b pattern against DD-08's site and binding (§12 Q20, Q21).</dd>
+<dt>Signals</dt><dd>Plane-of-array irradiance, role <code>pv_irradiance</code> (<code>sites/binding_roles.py:100</code>), W/m2, <code>output_resolution</code> "0.1". Feeder demand (<code>feeder_demand</code>, kW, "0.001") only if DD-01 confirms that M4 is metered. 91 days × 24 rows = 2,184 rows, about 9 admission chunks.</dd>
 <dt>Acceptance</dt><dd>All cells admitted and accepted; values equal at resolution; provenance <code>UNKNOWN</code> with reasons exactly <code>["NO_POSITIVE_BINDING"]</code>; zero consequence rows. Optional: one BeagleBone rerun of the JSONL at rate 12.</dd>
 <dt>Stop</dt><dd>Any publication would be attached, or a modelled series is put on the field path.</dd></dl></div>
 
-<div class="task c"><h3>DD-12 · "Simulated with real public inputs" label and "inputs from" · 1.0 d · Lane C, after CC-D1</h3>
-<dl class="kv"><dt>Goal</dt><dd>Owner OD-2: a reference site's evidence carries its own source label, "Simulated with real public inputs", and names its input sources and their origins in plain language. The backend adds the optional <code>reference_inputs</code> object of §1.3 to the provenance read block, derived from the run's pinned manifest SHA or the authored fixture spec and a server registry of reference packs, never from free text. Money is untouched.</dd>
-<dt>Files</dt><dd><code>backend/assetops_backend/evidence/provenance_read.py</code> (the read block only), a reference-pack registry beside <code>evidence/composition.py</code>, <code>frontend/src/sites/sourceProvenance.tsx</code>, <code>frontend/src/ui/productWords.ts</code>, and their tests.</dd>
-<dt>Acceptance</dt><dd><code>permits_current_money</code> and every money gate are byte-unchanged, and a test proves a reference run and a plain run of the same class get the same money result; a run whose manifest SHA is not registered gets no attribute and reads "Simulated". Copy reads, for example, "Simulated with real public inputs. Weather measured by NASA POWER near this location, shifted from 2025. Loads modelled from published rural Kenya profiles." No screen uses "observed" for a modelled value. MOCK DEVIATION noted against v6.9 if the panel grows.</dd>
-<dt>Stop</dt><dd>The attribute would need a stored column, a migration, or a change to a money gate. Report; do not add one.</dd></dl></div>
+<div class="task c"><h3>DD-12 · "Simulated with real public inputs" label and "inputs from" · 1.5 d · Lane C, after CC-D1</h3>
+<dl class="kv"><dt>Goal</dt><dd>Owner OD-2: a reference site's evidence carries its own source label, "Simulated with real public inputs", and names its input sources and their origins in plain language. The public provenance DTO gains the optional <code>reference_inputs</code> object of §1.3. It is derived from the run's scenario <code>forcing_series</code>, <code>ambient_series</code> or <code>session_series</code> manifest SHA, or from the authored fixture spec, through <code>reference_packs.py</code>, never from free text. Money is untouched.</dd>
+<dt>Files</dt><dd><code>backend/assetops_backend/evidence/reference_inputs.py</code> (new: resolver-result run IDs or fixture IDs to scenario, to manifest SHA, to registry entry); <code>evidence/public_provenance.py</code> (<code>public_dto</code> attaches the object); <code>estate/placement.py</code> (<code>_SOURCE_TEXT</code> variant when present); <code>frontend/src/ui/productWords.ts</code> (one <code>sourceLabel(provenance)</code> helper); <code>frontend/src/sites/sourceProvenance.tsx</code> (label plus "inputs from"); <code>verificationWords.ts</code>, <code>coldAssessmentWords.ts</code>, <code>ColdAssessmentViews.tsx</code>, <code>EvAssessmentViews.tsx</code>, <code>EvSiteViews.tsx</code> and <code>frontend/src/work/globalWorkParts.tsx</code> routed through the helper; tests. <code>evidence/source_provenance.py</code> and <code>provenance_read.py</code> stay byte-unchanged, which honours CC §0.2 (§12 Q8).</dd>
+<dt>Acceptance</dt><dd><code>permits_current_money</code> and every money gate are byte-unchanged, and a test proves a reference run and a plain run of the same class get the same money result. A run whose manifest SHA is not registered gets no attribute and reads as today. Every surface that names the source class shows the label for a reference run. Copy reads, for example, "Simulated with real public inputs. Weather measured by NASA POWER near this location, shifted from 2025. Loads modelled from published rural Kenya profiles." No screen uses "observed" for a modelled value. MOCK DEVIATION noted against v6.9 if the panel grows.</dd>
+<dt>Stop</dt><dd>The attribute would need a stored column, a migration, a change to <code>source_provenance.py</code>, or a change to a money gate. Report; do not add one.</dd></dl></div>
 
-<div class="task c"><h3>DD-13 · Portfolio producer and demo runbook · 0.75 d · Lane C</h3>
-<dl class="kv"><dt>Goal</dt><dd>The four reference sites in one demo tenant for Estate triage and comparison, with a monotone install clock (the D5 producer risk).</dd>
-<dt>Acceptance</dt><dd>Estate places all four; no estate-wide total; overlap groups listed; a runbook rebuilds everything from manifests in one command and checks every public digest.</dd>
+<div class="task c"><h3>DD-13 · Portfolio producer and demo runbook · 1.0 d · Lane C, after DD-08, DD-09, DD-10 and DD-12</h3>
+<dl class="kv"><dt>Goal</dt><dd>The four reference sites in one demo tenant for Estate triage and comparison, with a monotone install clock (Appendix C D5 producer risk). It adds MG-REF-ND1: its pack and its run through DD-08's parameterised producer.</dd>
+<dt>Install clock</dt><dd>One clock object in <code>dd_reference_walkthrough.py all</code>, starting at <code>2026-07-20T00:00:00Z</code> and advancing one second per install action, in the fixed order MG-REF-TK1, MG-REF-ND1, CC-REF-SN1, EV-REF-NB1. Each installer receives it as the <code>clock</code> argument. The orchestrator asserts each instant is strictly later than the last and stops with <code>INSTALL_CLOCK_CONFLICT</code> otherwise (§12 Q27).</dd>
+<dt>Acceptance</dt><dd>Estate places all four; no estate-wide total; overlap groups listed; a runbook rebuilds everything from manifests in one command and checks every public digest against the per-site runs.</dd>
 <dt>Stop</dt><dd>An install-clock conflict between producers: run per-vertical databases and report.</dd></dl></div>
 
-<h3>Sequence against the current lanes</h3>
+<h3>Sequence against the current lanes (revised in revision 3)</h3>
 <div class="tw"><table>
-<thead><tr><th>Window</th><th>Lane T</th><th>Lane C</th><th>Lane D (if opened)</th></tr></thead>
+<thead><tr><th>Window</th><th>Lane T</th><th>Lane C</th><th>Lane D (opened, OD-6)</th></tr></thead>
 <tbody>
 <tr><td>to 30 Oct</td><td>TEL-08, TEL-05b, TEL-07 (unchanged)</td><td>CC-R2, CC-M (unchanged)</td><td>—</td></tr>
-<tr><td>31 Oct to 3 Nov</td><td>DD-00, DD-01, DD-02, DD-03, DD-04 (light, no Postgres)</td><td>CC-D2, CC-D1 (unchanged)</td><td>DD-05a probe step only (pack-level, no Postgres, machine idle)</td></tr>
-<tr><td>Next sprint</td><td>DD-11</td><td>DD-12, DD-13</td><td>DD-05a limits → DD-06; DD-05 → DD-08; DD-09; DD-07 → DD-10</td></tr>
+<tr><td>31 Oct to 3 Nov</td><td>DD-00, DD-01, DD-02, DD-03, DD-04 (light, no Postgres)</td><td>CC-D2, CC-D1 (unchanged)</td><td>DD-05a probe step only (about 5 minutes of pack runs, not beside a full suite)</td></tr>
+<tr><td>Next sprint</td><td>DD-11 once DD-08 has merged</td><td>DD-12, then DD-13 once the producers exist</td><td>DD-05a limits → DD-06 → DD-05b → DD-09 → DD-05 → DD-08 → DD-07 → DD-10 (11.5 builder-days)</td></tr>
 </tbody></table></div>
-<p>Lane D opens at the start of the next sprint (OD-6, accepted). If it could not, Lane T would take DD-05a to DD-10 after DD-11, in that order, and the EV site moves last. None of these tasks touches <code>financials/trial_fuel_comparison.py</code>, the s602b cases, <code>scenario_rules.py</code> or the w403 cases, which CC-D2 and CC-D1 own.</p>
+<p><b>Why cold goes first in Lane D (revision 3).</b> The long-run path is the riskiest new piece. Cold is the smallest engine to prove it on (no kernel, one site, one series), so DD-05b is proven before the larger mini-grid work. MG-REF-TK1 is still rank 1 by value; it lands about 2.5 builder-days later than in revision 2. <b>Effort:</b> the backlog is 17.5 builder-days (revision 2: 12.25). The increase is DD-05b (+2.5), DD-05 (+1.0), DD-06 (+0.5), DD-07 (+0.5), DD-12 (+0.5) and DD-13 (+0.25). Lane D is 11.5 days (revision 2: 7.0), which is more than one sprint, so EV-REF-NB1 (DD-07, DD-10) most likely lands in the sprint after. If Lane D could not open, Lane T would take the Lane D order after DD-04. None of these tasks touches <code>financials/trial_fuel_comparison.py</code>, the s602b cases, <code>scenario_rules.py</code> or the w403 cases, which CC-D2 and CC-D1 own.</p>
+<p><b>Suites (§12 Q25).</b> DD-05a, DD-05b and DD-05 each run the full backend, host and simulator suites, because they change parsers, the host path and the kernel. DD-06 runs a scoped regression. DD-07 runs one full suite that covers DD-06 and DD-07 together. That is four full suites in Lane D, each with the machine idle.</p>
 
 <h2 id="gaps">9 Residual gaps and pilot data requests</h2>
 <p>These cannot be credibly validated without an operator's data, and the demo must say "not available yet" for each.</p>
@@ -781,7 +814,7 @@ details.q[open] summary{margin-bottom:6px}
 <div class="dec"><h3>OD-2 · How reference-grounded histories are labelled</h3>
 <p><b>Owner, 2026-10-28:</b> "it is important to preserve proper source labels, it could share the money rules".</p>
 <p><b>Example:</b> a generator-cost Finding at MG-REF-TK1 carries the label "Simulated with real public inputs", distinct from the plain "Simulated" of KOBO-001, and its money is computed exactly as KOBO-001's would be.</p>
-<p><b>Decision (revised):</b> option A of §1.3. The label is a server-derived <code>reference_inputs</code> attribute of the existing positive class, present only when the run or fixture is pinned to a registered dataset-pack manifest. The money gate reads the class only, so the money rules are shared by construction. Cost: about 0.5 builder-day, folded into DD-12 (now 1.0 d). <b>Rejected:</b> a new positive class (option B), at 3 to 4 builder-days with three CHECK migrations and an audit recapture, which would buy the same label with a weaker proof.</p></div>
+<p><b>Decision (revised):</b> option A of §1.3. The label is a server-derived <code>reference_inputs</code> attribute of the existing positive class, present only when the run or fixture is pinned to a registered dataset-pack manifest. The money gate reads the class only, so the money rules are shared by construction. Cost: about 0.5 builder-day, folded into DD-12 (1.0 d in revision 2; 1.5 d in revision 3, because the label must reach every surface that names the source class, §12 Q8). <b>Rejected:</b> a new positive class (option B), at 3 to 4 builder-days with three CHECK migrations and an audit recapture, which would buy the same label with a weaker proof.</p></div>
 <div class="dec"><h3>OD-3 · Site naming</h3>
 <p><b>Example:</b> "Turkana hybrid (reference)", not the name of the operator whose public site size it resembles.</p>
 <p><b>Recommendation:</b> place and type names only, with "reference" in the display name. <b>Rationale:</b> naming a real operator would imply their data, which the demo does not have.</p>
@@ -789,7 +822,7 @@ details.q[open] summary{margin-bottom:6px}
 <div class="dec"><h3>OD-4 · History length</h3>
 <p><b>Owner, 2026-10-28:</b> "current run limits should not impose unrealistic constraint on possible real world reference. I don't see why a 90 should not work".</p>
 <p><b>Example:</b> the Turkana history runs from 27 July to 26 October 2026: three clean weeks, four weeks with the reserve fault, the intervention on 14 September, then six weeks after it.</p>
-<p><b>Decision (revised):</b> 91 days (13 whole weeks, so weekdays line up). What each limit protects, and what changes: the <b>100,000-minute run limit</b> protects the worker from a run that cannot finish, but counts minutes rather than steps, so it is replaced by a step budget sized by measurement, with a 366-day calendar bound kept. The <b>10,000-minute offset limit</b> catches typos, but would have blocked faults placed after the first week even at 56 days; it now follows the run bound, and an entry outside its run is refused at run creation. The <b>200-entry timeline limit</b> keeps a scenario readable on screen; it stays, because real series travel as one pinned reference. All of this is DD-05a, which measures memory and time on this 16 GB laptop before any producer runs (§5.3). <b>Fallback:</b> if one vertical cannot meet the budget even with streaming, it alone stays at 56 days and says so.</p></div>
+<p><b>Decision (revised):</b> 91 days (13 whole weeks, so weekdays line up). What each limit protects, and what changes: the <b>100,000-minute run limit</b> protects the worker from a run that cannot finish, but counts minutes rather than steps, so it is replaced by a step budget sized by measurement, with a 366-day calendar bound kept. The <b>10,000-minute offset limit</b> catches typos, but would have blocked faults placed after the first week even at 56 days; it now follows the run bound, and an entry outside its run is refused at run creation. The <b>200-entry timeline limit</b> keeps a scenario readable on screen; it stays, because real series travel as one pinned reference. The limits are DD-05a. <b>Revision 3:</b> every current run path keeps the whole window in memory, so 91 days also needs the streaming long-run path (DD-05b, §5.4), measured on this 16 GB laptop before any producer runs. <b>Fallback:</b> per vertical, in §5.2. The rev-2 fallback "stay at 56 days" is withdrawn, because the whole-window paths cannot hold 56 days either.</p></div>
 <div class="dec"><h3>OD-5 · Licence posture</h3>
 <p><b>Example:</b> the NREL load workbook (CC-BY) is excerpted into the repository with attribution; Caltech ACN sessions are not, and only fitted dwell and energy quantiles are committed.</p>
 <p><b>Owner, 2026-10-28:</b> "this is for test and demo purposes, not production, consider reasonable license aspects in that context".</p>
@@ -822,6 +855,15 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>Kobo forces irradiance and per-load demand</td><td><code>runs/profiles.py:987-1030</code></td></tr>
 <tr><td>Mini-grid, cold and EV binding roles</td><td><code>sites/binding_roles.py:85-215</code></td></tr>
 <tr><td>KOBO-001 sizing</td><td><code>backend/tests/fixtures/s1/kobo-001.yaml</code></td></tr>
+<tr><td>(rev 3) Cold and EV runs are fixed-shape: request equals the document, one-minute step, registered Site only</td><td><code>runs/service.py:522-575</code>, <code>:640-651</code>; <code>host/ev_lab.py:295-298</code>; <code>host/cold_lab.py:86-102</code></td></tr>
+<tr><td>(rev 3) Whole-window memory and YAML artifacts on every run path</td><td><code>packs/cold.py:425-465</code>; <code>packs/ev_charger.py:412-431</code>; <code>kernel/execute.py:1926</code>; <code>host/cold_publication.py:209-223</code>; <code>host/lab_execution.py:1904-1952</code>, <code>:2397-2420</code>, <code>:2549</code></td></tr>
+<tr><td>(rev 3) Release is stepped-equivalent; admission chunk 1,024</td><td><code>host/lab_execution.py:2944-2990</code>; <code>host/gateway_publication.py:42</code>; <code>gateway/assetops_gateway/service.py:126</code></td></tr>
+<tr><td>(rev 3) One publication record per sealed batch; the multiple-runs rule groups by run</td><td><code>evidence/publication.py:208-230</code>; <code>evidence/source_provenance.py:194-205</code></td></tr>
+<tr><td>(rev 3) Run creation already refuses an entry outside the interval as <code>INTERVAL_INVALID</code></td><td><code>runs/service.py:1035-1070</code>; <code>runs/refusals.py:61-63</code></td></tr>
+<tr><td>(rev 3) <code>runs/parsing.py</code> imports <code>scenarios</code>; both import <code>document_bounds</code></td><td><code>runs/parsing.py:55,88-104</code>; <code>scenarios/parsing.py:122</code></td></tr>
+<tr><td>(rev 3) EV regression oracles; cold vectors</td><td><code>simulator/tests/test_ev_pack.py:490</code>; <code>host/tests/test_ev_lab_execution.py:56</code>; <code>backend/tests/fixtures/w2/ev-w206-vectors.json</code>; <code>backend/tests/fixtures/w2/cold-w203-vectors.json</code></td></tr>
+<tr><td>(rev 3) Cold and EV replay reads are keyed by run</td><td><code>evidence/adapters/postgres_evidence_ledger.py:1042-1075</code></td></tr>
+<tr><td>(rev 3) Irradiance role exists; Estate source texts</td><td><code>sites/binding_roles.py:100</code>; <code>estate/placement.py:54-55</code></td></tr>
 </tbody></table></div>
 <h3>What could not be verified</h3>
 <ul>
@@ -829,12 +871,252 @@ details.q[open] summary{margin-bottom:6px}
 <li>Nyabiheke time span and columns; PATH door-sheet columns; Kenya nano-grid columns.</li>
 <li>Any access route to Renewvia data; any public African genset, SoC, PAYG, charger-fault, spoilage or outage time series.</li>
 <li>The September 2026 EPRA gazette text.</li>
-<li>Run memory and time at 91 days (DD-05a measures pack cost; DD-08 measures the whole producer).</li>
+<li>Run memory and time at 91 days. DD-05a records the whole-window slope; DD-05b measures the long-run path; DD-08 measures the whole producer.</li>
 <li>The data-sharing terms of Renewvia and the Innovation Lab are inferred from how such data is normally held and from the Lab's published reports; no agreement text was read.</li>
 </ul>
 <p>The calibration tolerances in §6.3 marked <span class="f f-inf">INFERENCE</span> are the Architect's proposals, to be confirmed in DD-00.</p>
 
-<p class="foot">Demo Data Strategy, revision 2, 28 October 2026 (revision 1 the same day; revision 2 applies the owner's OD-1 to OD-8 answers). Produced by the Architect (Claude). Dataset research was done by three research subagents under the Architect's brief and checked against each other; the Architect did not re-fetch every source. This document is a plan; no code, test, database or suite was changed or run for it.</p>
+<h2 id="questions">12 Implementer questions and resolutions</h2>
+<p>The demo-data implementer's pre-flight batch (<code>.agent/implementer-questions-demo-data-2026-10-28.md</code>, 30 questions, read against <code>bf63b4c6</code>) is answered here, numbered to match. The Architect (Claude) checked each one against the code. "Verified" says what the code shows, "Decision" is binding, and "Card" names the card body that now carries it. All 30 are resolved. One item needs the owner (end of section).</p>
+
+<h3 id="q-a">A. Blockers</h3>
+
+<div class="dec"><h3>Q1 · The whole-window artifact path is missing from DD-05a, DD-06 and DD-07</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> Correct. Cold and EV runs are fixed-shape (<code>runs/service.py:522-575</code>, <code>:640-651</code>), the EV artifact asserts 61 boundaries (<code>host/ev_lab.py:295-298</code>), and the shared staging hard-codes 61 (<code>host/lab_execution.py:2549</code>).</p>
+<p><b>Decision:</b> v1 paths stay byte-identical; nothing widens the 61-boundary assertion. Long runs use a new artifact, <b>schema 8, <code>long-run/1</code></b>, one schema for cold v2, EV v2 and series-forced mini runs (§5.4). That is decided here, not by the builder. The host, run-service and Lab API edits are in scope and are now listed per card: <code>host/long_run.py</code>, <code>host/lab_execution.py</code> (dispatch, plus <code>write_long</code>/<code>read_long</code> only), <code>host/publication_schedule.py</code>, <code>runs/service.py</code> (new v2 freeze branches beside the v1 profile checks) and <code>simulator_lab_api.py</code> (DD-05b); <code>host/cold_publication.py</code> (DD-06); <code>host/ev_publication.py</code> (DD-07). The v1 equality checks on <code>COLD_MODEL_PROFILE</code> and <code>EV_MODEL_PROFILE</code> are not edited.</p>
+<p><b>Card:</b> DD-05b (new), DD-06, DD-07.</p></div>
+
+<div class="dec"><h3>Q2 · The packs keep every step in memory</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> Correct, and it goes further than the packs. The cold host renders every minute again as a dict (<code>host/cold_publication.py:209-223</code>), hashes the whole list, and <code>yaml.safe_dump</code>s it into the artifact (<code>host/lab_execution.py:1925-1941</code>, <code>:2397-2420</code>). The EV artifact inlines every public report (<code>:1943-1952</code>). The mini history is captured whole (<code>host/lab_history.py</code>).</p>
+<p><b>Decision:</b> streaming is pre-ruled now. <code>run_window</code> gets a generator twin, <code>iter_window</code>, and v1 <code>run_window</code> materialises it, so v1 is unchanged. <code>ColdRun.state_at</code> and <code>EvRun.content_digest</code> stay v1-only. The long-run path computes the content digest incrementally with identical bytes, using the compact canonical framing (§5.4). The kernel gains an optional <code>boundary_sink</code>. The observation transforms get streaming twins. The reports and private records go to JSONL sidecars, and release is weekly through the existing stepped-equivalent release. DD-05a no longer probes 91 days on the whole-window path.</p>
+<p><b>Card:</b> §5.3, §5.4, DD-05a, DD-05b, DD-05, DD-06, DD-07.</p></div>
+
+<div class="dec"><h3>Q3 · A new refusal code duplicates INTERVAL_INVALID</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> Run creation already refuses an entry at or after the end, or a window past it, as <code>INTERVAL_INVALID</code> (<code>runs/service.py:1035-1070</code>), and <code>refusals.py:61-63</code> documents this. The kernel's <code>ENTRY_OUTSIDE_INTERVAL</code> is a second line of defence.</p>
+<p><b>Decision:</b> add nothing. <code>SCENARIO_ENTRY_OUTSIDE_INTERVAL</code> is withdrawn. DD-05a adds one test that proves the existing refusal on a 91-day interval (an entry at 131,040, and a window ending at 131,041). No refusal catalogue or frontend change.</p>
+<p><b>Card:</b> DD-05a, §3.4.</p></div>
+
+<div class="dec"><h3>Q4 · Where the shared ceiling lives</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> <code>runs/parsing.py</code> imports <code>scenarios</code> (<code>:88-104</code>), so importing from <code>runs</code> inside <code>scenarios</code> would create a cycle. Both import <code>document_bounds</code> (<code>runs/parsing.py:55</code>, <code>scenarios/parsing.py:122</code>), whose docstring says it exists so that a shared rule is not reached through one domain's package.</p>
+<p><b>Decision:</b> <code>document_bounds.MAX_SIMULATED_MINUTES = 527_040</code>. <code>MAX_INTERVAL_MINUTES</code> and <code>MAX_OFFSET_MINUTES</code> are aliases of it. WINDOW durations and <code>offset + duration</code> already use <code>MAX_OFFSET_MINUTES</code> (<code>scenarios/parsing.py:1509-1519</code>), so they follow it without further change.</p>
+<p><b>Card:</b> DD-05a.</p></div>
+
+<div class="dec"><h3>Q5 · The budget formula contradicts its floor</h3>
+<p><b>Verified:</b> Correct. The rev-2 rule could conflict between 0.75 and 1.5 GB.</p>
+<p><b>Decision:</b> the formula is withdrawn. With streaming, memory no longer scales with steps, so the step budget guards only wall time, and it is two fixed constants. <code>MAX_LONG_RUN_STEPS = 131_040</code> is global and checked at parse. <code>MAX_WHOLE_WINDOW_STEPS = 100_000</code> is checked at freeze for every scenario not on the long-run path, which keeps today's effective ceiling there. The memory budget is a measured acceptance on the long-run path: at most 1.5 GB is a hard stop, at most 0.75 GB is the target, and memory must be flat (DD-05b). It is not per profile.</p>
+<p><b>Card:</b> DD-05a, DD-05b, §5.3.</p></div>
+
+<div class="dec"><h3>Q6 · A forcing series has no engine shape, and the cost is quadratic</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> The kernel scans every forcing input at every step and overlap-checks them (<code>kernel/execute.py:1280-1310</code>). Timeline entries are capped at 200 (<code>scenarios/parsing.py:274</code>).</p>
+<p><b>Decision:</b> the series is never expanded into forcing inputs. Its shape is <code>ForcingSeries</code>, an optional input in <code>contracts/assetops_contracts/world_inputs.py</code>, one per column: <code>(series_id, address, state_key, parameter_id, canonical_unit, dimension, start_offset, cadence_minutes, values: tuple[Fraction, ...])</code>. Lifecycle:</p>
+<ul>
+<li><b>Parser:</b> reads one reference object as one timeline entry.</li>
+<li><b>Run freeze</b> (<code>runs/service.py</code>):
+<ul>
+<li>verifies the manifest is registered and the series SHA matches;</li>
+<li>checks that the series covers <code>[0, interval)</code> exactly, that <code>cadence_minutes</code> is a whole multiple of the timestep and aligned to offset 0 (otherwise <code>INTERVAL_INVALID</code>);</li>
+<li>validates each column as it would validate one WINDOW forcing on that address.</li>
+</ul></li>
+<li><b>Host</b> (<code>execution_adapter.py</code>): builds the tuples from the verified file.</li>
+<li><b>Kernel:</b>
+<ul>
+<li>looks up index <code>(offset - start_offset) // cadence</code>, at most one exposure per column per step;</li>
+<li>appends that exposure to <code>exposed_by_address</code> before the existing overlap check, so a WINDOW on the same address fails as <code>FORCING_VALUE_AMBIGUOUS</code>, unchanged;</li>
+<li>uses <code>event_id = series_id</code>;</li>
+<li>counts series columns as declared windows in the <code>:785-800</code> pre-check.</li>
+</ul></li>
+</ul>
+<p>Per-step cost is proportional to the number of columns, not to the series length.</p>
+<p><b>Card:</b> DD-05, §5.4.</p></div>
+
+<div class="dec"><h3>Q7 · Where the series lives, and how the manifest SHA reaches a run</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Bytes:</b> <code>contract-fixtures/demo-data/&lt;pack_id&gt;/forcing/v&lt;pack_version&gt;/series.csv</code>, canonical: a header <code>offset_minutes,&lt;column&gt;...</code>, LF line ends, exact decimal strings. The SHA-256 is taken over the file bytes.</li>
+<li><b>Scenario reference object:</b> <code>{series_id, pack_id, pack_version, manifest_sha256, series_sha256, cadence_minutes, columns: [{column, address, state_key, parameter_id, unit}]}</code>. The key is <code>forcing_series</code> in a generic scenario, <code>ambient_series</code> in <code>cold-scenario/2</code> (one column, ambient °C) and <code>session_series</code> in <code>ev-scenario/2</code>, whose columns DD-07 fixes.</li>
+<li><b>Registry:</b> <code>backend/assetops_backend/reference_packs.py</code>, a closed tuple of <code>(pack_id, pack_version, manifest_sha256, series_sha256)</code> literals, with a reader that re-hashes the files.</li>
+<li><b>Run identity:</b> no new run field. <code>scenario_sha256</code> covers the reference object, and the run identity digest covers <code>scenario_sha256</code>, so both SHAs are in the identity. The host re-reads and re-verifies the file at execution.</li>
+<li><b>DD-12:</b> resolves run, then scenario, then manifest SHA, then registry. For an authored fallback, the fixture spec in <code>build_authored_fixture_specs</code> records <code>manifest_sha256</code> beside its fixture ID and version (<code>evidence/publication.py:184-205</code>).</li>
+</ul>
+<p><b>Card:</b> DD-05, DD-06, DD-07, DD-12, §5.4.</p></div>
+
+<div class="dec"><h3>Q8 · DD-12 against the Lane C restrictions in CC §0.2</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> CC §0.2 forbids "the source classes in <code>evidence/source_provenance.py</code>". The public DTO is built in <code>evidence/public_provenance.py</code> (<code>public_dto</code>, <code>:109</code>). The class texts also appear in <code>estate/placement.py:54-55</code> and in eight frontend files.</p>
+<p><b>Decision:</b> DD-12 touches no source class. <code>source_provenance.py</code> and <code>provenance_read.py</code> stay byte-unchanged, so CC §0.2 holds as written and needs no amendment. The attribute is built in <code>public_provenance.py</code> from a new <code>evidence/reference_inputs.py</code>. The label appears on every surface that names the source class, through one <code>sourceLabel</code> helper. The file list and the MOCK DEVIATION footprint are widened accordingly, and DD-12 grows from 1.0 to 1.5 d. This card's file list is the Lane C allowance for DD-12; the coordinator notes it in the CC spec at merge.</p>
+<p><b>Card:</b> DD-12.</p></div>
+
+<h3 id="q-b">B. References</h3>
+
+<div class="dec"><h3>Q9 · DD-04's fixture, and G1 on rounded observations</h3>
+<p><b>Verified:</b> Correct. <code>kobo-public-observations-v1</code> is the 12-hour fixture, and public interval means cannot give exact balances.</p>
+<p><b>Decision:</b> G1 runs over the pack's private step data, given as plain row dataclasses (<code>MiniStepRow</code>, <code>ColdStepRow</code>, <code>EvStepRow</code>, Fractions). G2 runs over produced report texts against accepted rows. DD-04's fixtures are a hand-built, exact 12-step row set and its broken copies, plus <code>kobo-public-observations-v1</code> for the G2 shape check. The adapters from <code>BoundaryState</code> and the pack records to rows live in the producers, so DD-04 stays pure and needs no kernel run.</p>
+<p><b>Card:</b> DD-04, DD-08.</p></div>
+
+<div class="dec"><h3>Q10 · Digests that do not exist, ev-interrupted, and D3's 9.6 kWh</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> <code>ef31f2dc…</code> and <code>948e8f14…</code> appear only in this document. They are withdrawn as fabricated prefixes, an error in revision 2. EV has a pinned full digest, <code>6fc2f2a87966c869d1476cd05f0e3ac4e24d6e137cfce5780fafb46a14adab2c</code> (<code>simulator/tests/test_ev_pack.py:490</code>, <code>host/tests/test_ev_lab_execution.py:56</code>). The <code>interrupted</code> case is pinned in <code>backend/tests/fixtures/w2/ev-w206-vectors.json</code>, checked by <code>host/tests/test_w206_ev_vectors.py</code> and produced from <code>backend/tests/test_w205b_ev_scenarios.py:90</code>. Cold has public-report vectors (<code>cold-w203-vectors.json</code>, <code>host/tests/test_w203_cold_vectors.py</code>) but no pinned <code>content_digest</code>. "9.6 kWh" is the D3 worked example in <code>commercial-capability-readiness.html</code> Appendix C (<code>:1745</code>, <code>:1795</code>), not code.</p>
+<p><b>Decision:</b> DD-06's first commit computes each W2-02 cold case's <code>content_digest</code> and series digest on main's code and pins them in <code>host/tests/test_cold_v1_digests.py</code>. DD-07 uses the EV oracles above. The 9.6 kWh item is removed from DD-07.</p>
+<p><b>Card:</b> DD-06, DD-07, §5.2.</p></div>
+
+<div class="dec"><h3>Q11 · mini_grid.py or minigrid.py, and the model profile version</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> Both read forcing through <code>context.exposures_of(address)</code> (<code>minigrid.py:505-522</code>). The newest model profile is <code>mini-grid</code> v5 (<code>runs/profiles.py:1338</code>).</p>
+<p><b>Decision:</b> neither pack file changes. The kernel supplies series exposures in the same shape, so no new model profile version is needed and rev 2's "new model profile version" is withdrawn. Series runs name <code>mini-grid</code> v5 and a 5-minute step. The builder records in its packet which <code>mini-grid</code> version each existing Kobo scenario names, read from the scenario files, because it does not affect this change.</p>
+<p><b>Card:</b> DD-05.</p></div>
+
+<div class="dec"><h3>Q12 · Fixture paths, binding loaders, and how producers run</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Paths:</b> create <code>backend/tests/fixtures/ref/</code>, mirroring <code>s1/</code>. Bindings go in <code>backend/conversions/&lt;code&gt;-bindings.json</code>.</li>
+<li><b>Installer:</b> a reference site gets its own installer, not a branch in <code>demo_configuration.py</code> or <code>w402_demo.py</code>. It is <code>backend/assetops_backend/sites/reference_sites.py</code>, on the <code>install_ev_lab</code> pattern (<code>sites/ev_lab.py:52</code>), with a closed registry of the four codes and a <code>python -m</code> entry.</li>
+<li><b>Producers:</b> drive the HTTP API through subprocess servers on the <code>tools/s402b_fuel_cost_walkthrough.py</code> pattern, and make registered runs. The CLI is <code>tools/dd_reference_walkthrough.py</code>; the name <code>tools/demo_data_walkthrough.py</code> is withdrawn.</li>
+<li><b>Offline driving:</b> "drives the Kobo laws offline" now names only the §5.2 mini fallback, which streams the kernel with the sink.</li>
+</ul>
+<p><b>Card:</b> DD-08 to DD-10, §5.2.</p></div>
+
+<div class="dec"><h3>Q13 · Placement, interpreter and guards</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Tests:</b> run with <code>.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider tools/demo_data/tests</code>. A <code>tools/demo_data/tests/conftest.py</code> puts <code>contracts/</code> and <code>simulator/</code> on <code>sys.path</code>, the same pattern as <code>host/conftest.py</code>; no <code>PYTHONPATH</code> is needed.</li>
+<li><b>Guards:</b> the suite is not added to <code>check-all.ps1</code>, which runs guards. It is each DD slice's scoped regression.</li>
+<li><b>Dependency direction:</b> it is intended that <code>dependency-direction.ps1</code> does not scan <code>tools/</code>. Producers may import the simulator, and the backend never imports <code>tools/</code>.</li>
+</ul>
+<p><b>Card:</b> DD-01.</p></div>
+
+<h3 id="q-c">C. Shapes and signatures</h3>
+
+<div class="dec"><h3>Q14 · Signatures, key sets and encoding</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Loader functions:</b>
+<ul>
+<li><code>load_manifest(path: Path) -&gt; Manifest</code></li>
+<li><code>validate_manifest(document: Mapping[str, Any], *, root: Path) -&gt; Manifest</code></li>
+<li><code>canonical_manifest_bytes(m: Manifest) -&gt; bytes</code>, which is canonical JSON plus one final LF</li>
+<li><code>manifest_sha256(path: Path) -&gt; str</code></li>
+</ul></li>
+<li><b>Transforms:</b>
+<ul>
+<li><code>Series = tuple[tuple[datetime, Fraction | None], ...]</code>, with interval-end stamps</li>
+<li><code>TRANSFORMS: dict[str, Callable[..., Series]]</code></li>
+<li><code>apply(transform_id: str, inputs: Mapping[str, Series], **params) -&gt; Series</code></li>
+</ul></li>
+<li><b>Gates:</b> <code>GateResult(gate: str, check: str, passed: bool, failures: tuple[str, ...])</code>. Each gate is a function over an iterable of rows, for example <code>g1_mini_balance(rows: Iterable[MiniStepRow]) -&gt; GateResult</code>.</li>
+<li><b>Closed key sets</b> (an unknown key is refused at every level):
+<ul>
+<li>top level: <code>schema, pack_id, pack_version, site_code, location, window, sources, signals, faults, interventions, seed, calibration, overlap_groups</code></li>
+<li>location: <code>lat, lon, basis</code></li>
+<li>window: <code>source_start, source_end, shift_days, demo_start, demo_end</code></li>
+<li>source: <code>id, title, url, licence, attribution, committed, raw_sha256, excerpt, excerpt_sha256</code> (the last two are null when <code>committed</code> is false)</li>
+<li>signal: <code>target, unit, origin, inputs, transform, cadence_seconds, gaps</code></li>
+<li>fault: <code>id, kind, at, end, value, unit, origin</code> (<code>end</code> may be null)</li>
+<li>intervention: <code>id, kind, at, value, unit</code></li>
+<li>calibration: <code>check, band, basis</code></li>
+<li><code>overlap_groups</code>: a list of lists of fault or intervention IDs</li>
+</ul></li>
+<li><b>Encoding:</b> quantities and coordinates are decimal strings. <code>pack_version</code>, <code>seed</code>, <code>shift_days</code> and <code>cadence_seconds</code> are integers. <code>committed</code> is a boolean. Instants are <code>YYYY-MM-DDTHH:MM:SSZ</code>. Canonical form is sorted keys with no whitespace (the <code>source_envelope.canonical_json</code> rule). <code>retrieved_at</code> is not in the manifest (Q30).</li>
+</ul>
+<p><b>Card:</b> DD-02.</p></div>
+
+<div class="dec"><h3>Q15 · The origin order</h3>
+<p><b>Verified:</b> the six origins are defined only in §1.1. No product enum exists, by design.</p>
+<p><b>Decision:</b> <code>ORIGINS = ("OBSERVED", "DERIVED", "MODELLED", "DECLARED", "SYNTHETIC", "FAULT_INJECTED")</code> lives only in <code>tools/demo_data/manifest.py</code>. The "stronger than its weakest input" check applies only to the two measurement-grade origins:</p>
+<ul>
+<li>an OBSERVED signal has exactly one source input and a null or unit-only transform;</li>
+<li>a DERIVED signal may have only OBSERVED or DERIVED inputs.</li>
+</ul>
+<p>MODELLED and SYNTHETIC signals may take any inputs but must list them. DECLARED inputs are parameters and are never series inputs. This matches §1.1, where a modelled series keeps "modelled" with a fault-injected cause.</p>
+<p><b>Card:</b> DD-02.</p></div>
+
+<div class="dec"><h3>Q16 · .gitattributes and SHA-256 on Windows</h3>
+<p><b>Decision:</b> yes. DD-01 adds the one line <code>contract-fixtures/demo-data/** -text</code>. TEL's "one additive line" allowance (TEL §0.2) governs TEL tasks only, and this is DD-01's own allowance, so there is no clash.</p>
+<p><b>Card:</b> DD-01.</p></div>
+
+<div class="dec"><h3>Q17 · Float-free output and the poa-isotropic test</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Saved response:</b> DD-01 saves one PVGIS hourly <code>seriescalc</code> response for the MG-REF-TK1 point: slope 10°, azimuth 0 (equator-facing), 2023-09-01 to 2023-09-14, with components. PVGIS hourly data does not reach 2025.</li>
+<li><b>Transform:</b> <code>poa-isotropic/1</code> is Erbs decomposition of GHI, then the isotropic sky model with albedo 0.2.</li>
+<li><b>Test:</b> applying it to that response's GHI must match <code>G(i)</code> within ±10% on daily sums.</li>
+<li><b>Floats:</b> a documented float intermediate is allowed only for transcendental geometry. It is rounded once, half-even, to 0.1 W/m2, and becomes a <code>Fraction</code>. Unit and time transforms stay exact.</li>
+</ul>
+<p><b>Card:</b> DD-01, DD-03.</p></div>
+
+<div class="dec"><h3>Q18 · How the probe measures</h3>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Separate runs:</b> yes. Timed runs use <code>GetProcessMemoryInfo</code> only. <code>tracemalloc</code> runs separately, and only to locate a peak above 0.75 GB.</li>
+<li><b>Entry points:</b> DD-05a's baseline drives the v1 packs' <code>run_window</code> directly, plus the v1 cold host stages, for 2 days. DD-05b's budget-setting numbers drive the real long-run entry in <code>host/long_run.py</code>: pack, streaming transform, sidecars and digests. Pass 2 uses a counting fake gateway. That entry includes the observation and report building, which the implementer rightly expects to dominate memory.</li>
+<li><b>Whole producer:</b> the Postgres pipeline is measured in DD-08 and DD-09.</li>
+</ul>
+<p><b>Card:</b> DD-05a, DD-05b.</p></div>
+
+<div class="dec"><h3>Q19 · D3 and D4 are not in any merged spec</h3>
+<p><b>Verified:</b> <span class="f f-fact">FACT</span> D3 and D4 are specified only in <code>commercial-capability-readiness.html</code> Appendix C (headings near <code>:1697</code> and <code>:1815</code>). The CC build spec schedules D1, D2 and D5 only.</p>
+<p><b>Decision:</b> the stop rule is the expected state for the whole next sprint. DD-09 builds the history only (excursion, <code>COVERAGE_INCOMPLETE</code>, no spoilage), and DD-10 builds the history only (F-EV1, F-EV2, KS). The lot and decision acceptance items are deferred until D3 or D4 is scheduled.</p>
+<p><b>Card:</b> DD-07, DD-09, DD-10.</p></div>
+
+<div class="dec"><h3>Q20 · DD-11's undeclared dependency on DD-08</h3>
+<p><b>Decision:</b> DD-11 waits for DD-08's site, binding and installer. No temporary site: it would be a second, throwaway reference site. DD-11 also waits for TEL-05b to merge, because it appends one generator function to <code>host/tests/field_observation_fixtures.py</code>. It now starts after TEL-07, TEL-05b and DD-08.</p>
+<p><b>Card:</b> DD-11, sequence table.</p></div>
+
+<div class="dec"><h3>Q21 · CSV collector constraints at 91 days</h3>
+<p><b>Verified:</b> <code>export_csv.py</code> has no file-size or row limit (it reads the whole file). Admission chunks are 1,024 (<code>host/gateway_publication.py:42</code>). A <code>pv_irradiance</code> role exists (<code>sites/binding_roles.py:100</code>).</p>
+<p><b>Decision:</b></p>
+<ul>
+<li><b>Profile:</b> <code>generic-interval-csv-reference-1</code>, with span and cadence 3600 s.</li>
+<li><b>Rows:</b> 2,184, about 9 chunks, which is within the existing limits.</li>
+<li><b>Signals:</b> plane-of-array irradiance in W/m2 with <code>output_resolution</code> "0.1", DERIVED by a documented transform of observed GHI and not modelled. Feeder demand in kW with resolution "0.001" is added only if DD-01 confirms M4 is metered.</li>
+<li><b>Ambient:</b> it has no mini-grid role, so it is not replayed.</li>
+<li><b>Values:</b> come from DD-03 at those resolutions.</li>
+</ul>
+<p><b>Card:</b> DD-11.</p></div>
+
+<h3 id="q-d">D. Sequencing, lanes and machine</h3>
+
+<div class="dec"><h3>Q22 · The Lane T file ban</h3>
+<p><b>Decision:</b> TEL §0.2 governs TEL tasks. Each DD card's file list is that card's allowance. DD-01 to DD-04 add <code>tools/demo_data/**</code> (a new package directory, not <code>tools/*.py</code>), <code>contract-fixtures/demo-data/**</code>, and one line each in <code>.gitignore</code> and <code>.gitattributes</code>. DD-11 adds a new <code>field/profiles/</code> file, a new <code>contract-fixtures/telemetry/</code> directory and an appended test helper. The work is done in the same Lane T worktree (<code>AssetOpsV1-tel</code>) after TEL-07 merges. The coordinator notes this in the TEL spec.</p>
+<p><b>Card:</b> §8 introduction, DD-11.</p></div>
+
+<div class="dec"><h3>Q23 · The heavy-job queue on 31 Oct to 3 Nov</h3>
+<p><b>Decision:</b> the probe now shrinks to 2-day and 7-day v1 runs: four pack runs and one 2-day host-stage run, about 5 minutes in total. It needs no exclusive window, only "not beside a full suite", with keep-awake on and a 2× cap (10 minutes). There is no 91-day probe before DD-05b. DD-05b's 7, 28 and 91-day measurements (about 20 minutes) take a queue slot in the next sprint, held by Lane D.</p>
+<p><b>Card:</b> DD-05a, sequence table.</p></div>
+
+<div class="dec"><h3>Q24 · Worker, and what stops a stuck run</h3>
+<p><b>Decision:</b> producers start their own backend, host and gateway subprocesses against their own <code>*_test</code> database, so a 91-day run never shares the developer's worker. No host timeout is added. The producer enforces the 2× wall-time cap (30 minutes for the pack phase, 60 for the whole producer) by stopping the subprocess it started, and it reports. A killed run reads INTERRUPTED (existing rule), or, if pass 1 completed, resumes pass 2 (DD-05b).</p>
+<p><b>Card:</b> §5.3, DD-05b, DD-08.</p></div>
+
+<div class="dec"><h3>Q25 · Full suites</h3>
+<p><b>Decision:</b> this follows the tiered suite policy, which takes precedence over the per-slice line in <code>backend/TESTING.md</code>. DD-05a, DD-05b and DD-05 each run the full real-Postgres backend, host and simulator suites with the JUnit zero-skip check, because they change parsers, the host path and the kernel. DD-06 runs a scoped regression: the simulator, the host cold tests, and the backend cold scenario and run tests. DD-07 runs one full suite covering DD-06 and DD-07. That is four full suites, each with the machine idle.</p>
+<p><b>Card:</b> sequence section.</p></div>
+
+<div class="dec"><h3>Q26 · Two-run determinism at 91 days</h3>
+<p><b>Decision:</b> determinism is checked as two runs of the first 7 days with identical digests. The 91-day run is made once per producer, so the budget is per run. DD-13's runbook later rebuilds every site and checks its digests against the per-site runs, which gives the 91-day repeat without doubling DD-08.</p>
+<p><b>Card:</b> DD-08, DD-13.</p></div>
+
+<div class="dec"><h3>Q27 · The monotone install clock</h3>
+<p><b>Verified:</b> the risk is in Appendix C D5 (<code>commercial-capability-readiness.html:2066</code>). Installers take a <code>clock</code> argument (<code>sites/ev_lab.py:52</code>).</p>
+<p><b>Decision:</b> one clock in <code>dd_reference_walkthrough.py all</code>, starting at <code>2026-07-20T00:00:00Z</code>, one week before the history, and advancing one second per install action. The fixed order is MG-REF-TK1, MG-REF-ND1, CC-REF-SN1, EV-REF-NB1. The orchestrator asserts strictly increasing instants and stops with <code>INSTALL_CLOCK_CONFLICT</code> otherwise. DD-13 now depends on DD-08, DD-09, DD-10 and DD-12, so it has no acceptance before the producers exist. It also adds the MG-REF-ND1 run, which had no card, and grows from 0.75 to 1.0 d.</p>
+<p><b>Card:</b> DD-13.</p></div>
+
+<h3 id="q-e">E. Smaller points</h3>
+
+<div class="dec"><h3>Q28 · No stated licence</h3>
+<p><b>Decision:</b> a source with no stated licence (ZTBus and Dundee, if DD-01 confirms none) is used for test and demo with attribution (OD-5). It is cached and not committed; only fitted statistics are committed. DD-01's stop applies only to an explicit non-commercial clause or an explicit written-permission requirement.</p>
+<p><b>Card:</b> DD-01.</p></div>
+
+<div class="dec"><h3>Q29 · The DD-00 file</h3>
+<p><b>Decision:</b> DD-00 reuses <code>.agent/implementer-questions-demo-data-2026-10-28.md</code>. After reading this revision, the builder appends "no open questions", or new questions, to it.</p>
+<p><b>Card:</b> DD-00.</p></div>
+
+<div class="dec"><h3>Q30 · Which manifest bytes are hashed</h3>
+<p><b>Decision:</b> <code>manifest_sha256</code> is the SHA-256 of <code>canonical_manifest_bytes</code>. <code>retrieved_at</code> moves out of the manifest into <code>contract-fixtures/demo-data/&lt;pack&gt;/fetch-log.json</code>, which is never hashed and never part of identity. A refetch that returns the same bytes leaves the SHA, and therefore the label, unchanged. Different bytes change <code>raw_sha256</code> and correctly change the label.</p>
+<p><b>Card:</b> DD-01, DD-02, §5.1 example (its <code>retrieved_at</code> field is superseded).</p></div>
+
+<div class="callout warn"><b class="k">Effort, sequence and the one owner question</b>
+<p><b>Effort:</b> 12.25 to 17.5 builder-days. Lane D grows from 7.0 to 11.5 days, Lane C from 1.75 to 2.5, and Lane T is unchanged. <b>Sequence:</b> Lane D runs DD-05a, DD-06, DD-05b, DD-09, DD-05, DD-08, DD-07, DD-10. Cold proves the long-run path first, so MG-REF-TK1 lands about 2.5 days later than in revision 2. DD-11 waits for DD-08. DD-13 waits for all three producers.</p>
+<p><b>Feasibility, plainly:</b> no vertical can reach 91 days, or 56, on today's whole-window run paths. All three can reach 91 days on the new streaming long-run path. That path is new code beside the old (about 2.5 days plus about 1.5 days of streaming work in the engine cards), not a rewrite of what exists. If the long-run path slips, the honest fallbacks are in §5.2: mini 91 days as an authored fixture with no Lab run; cold and EV on their current short windows, saying "longer history not available yet".</p>
+<p><b>Owner question:</b> Lane D is now more than one sprint, so EV-REF-NB1 at 91 days most likely lands the sprint after next. Should the demo go ahead with mini-grid and cold at 91 days, and EV on its existing one-hour windows until DD-07 and DD-10 land? The alternative is to hold the demo for EV. The Architect recommends going ahead.</p></div>
+
+<p class="foot">Demo Data Strategy, revision 3, 28 October 2026 (revision 1 the same day; revision 2 applies the owner's OD-1 to OD-8 answers; revision 3 answers the implementer's 30 pre-flight questions, §12). Produced by the Architect (Claude). Dataset research was done by three research subagents under the Architect's brief and checked against each other; the Architect did not re-fetch every source. This document is a plan; no code, test, database or suite was changed or run for it.</p>
 </main>
 </div>
 <script>
