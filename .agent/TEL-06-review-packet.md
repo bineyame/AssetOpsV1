@@ -56,7 +56,7 @@ TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`: the illustrative generic 
 - No heavy job was run, no Postgres was run, and no server was started.
 
 ## Guards
-`toolseck-architecture.ps1` → "Architecture check passed."; `toolseck-agent-workflow.ps1` → "Agent workflow check passed." (run directly, no policy override, ASSETOPS_GUARD_PYTHON set to the plan2 venv). Vendor-name grep: exit 1 (no match).
+`tools/check-architecture.ps1` → "Architecture check passed."; `tools/check-agent-workflow.ps1` → "Agent workflow check passed." (run directly, no policy override, ASSETOPS_GUARD_PYTHON set to the plan2 venv). Vendor-name grep: exit 1 (no match).
 
 ## Known deviations
 - Q6: a row whose cell count is wrong raises `INVALID_VALUE` provisionally.
