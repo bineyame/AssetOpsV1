@@ -42,7 +42,8 @@ if URL:
     from assetops_backend.work.domain_action_index import DomainActionReadService, parse_index_request
     from assetops_backend.work.domain_intent import DomainIntentService
 
-HEAD = "0035_w5_ev_work"
+HEAD = "0037_cc_trial_cost_comparison"  # CC-M: the sole head sits above the 0035 migration under test
+MIGRATION = "0035_w5_ev_work"
 PARENT = "0034_w5_ev_scenarios"
 GRANDPARENT = "0033_w5_cold_work"
 REFUSED = "Downgrade of 0035_w5_ev_work refused: EV domain Action rows exist."
@@ -121,7 +122,7 @@ def test_sole_head_chain_and_named_checks(ev) -> None:
 
     script = ScriptDirectory.from_config(_alembic())
     assert script.get_heads() == [HEAD] and head(ev.engine) == HEAD
-    assert script.get_revision(HEAD).down_revision == PARENT
+    assert script.get_revision(MIGRATION).down_revision == PARENT
     assert script.get_revision(PARENT).down_revision == GRANDPARENT  # W5-03b's 0034 -> 0033 chain is retained
     # Readiness ruling 3: the generated cold-only CHECK is gone; one named CHECK admits both domains.
     assert domain_checks(ev.engine) == {
