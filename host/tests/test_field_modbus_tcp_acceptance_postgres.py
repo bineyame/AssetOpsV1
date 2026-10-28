@@ -15,6 +15,11 @@ whose provenance is UNKNOWN / NO_POSITIVE_BINDING; the price timeline is
 seeded by the S4 CLI, consequences are recomputed, and every read through the
 production app withholds the current amount with `MIXED_OR_UNKNOWN_SOURCE`.
 
+TEL-06b (ruling M Q4): the illustrative `assetops-generic-interval-csv/1`
+fixture, collected in process through the same gateway and central path on
+its own fresh database, lands as accepted evidence with provenance UNKNOWN and
+no consequence row.
+
 Skipped without `ASSETOPS_TEST_DATABASE_URL`.
 """
 
@@ -668,3 +673,113 @@ def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monke
         assert currentness["withheld_reasons"] == [SOURCE_WITHHELD], ("SOURCE-GATE DEFECT 5", currentness)
         assert selected["presented_as_current"] is False, ("SOURCE-GATE DEFECT 6", selected)
         assert currentness["current_amount_shown"] is False, ("SOURCE-GATE DEFECT 6", currentness)
+
+
+# --- TEL-06b: the illustrative generic interval CSV as accepted evidence (ruling M Q4) -------------------------
+
+
+@pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+def test_generic_csv_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, capsys) -> None:
+    """KOBO-001 on its own fresh `*_test` database; one in-process collect of the pinned CSV fixture."""
+    import pg_harness
+    import test_field_export_csv_proof as tel6a
+    from assetops_backend.evidence.composition import build_source_provenance
+    from assetops_backend.evidence.ledger import GatewayPrincipal
+    from assetops_gateway.credential_protection import restrict_to_current_user
+    from assetops_gateway.ipc import GatewayLink
+
+    from assetops_field.export_csv import CsvCollector
+    from assetops_field.modbus_poller import new_session_ref
+    from assetops_field.publish import GatewayPublisher
+
+    def emit(*parts) -> None:
+        with capsys.disabled():
+            print(*parts, flush=True)
+
+    monkeypatch.setenv("DATABASE_URL", URL)
+    pg_harness.fresh_database()
+    basis = _snapshot()
+    snapshot_text = basis.snapshot_canonical
+    snapshot_sha256 = hashlib.sha256(snapshot_text.encode("utf-8")).hexdigest()
+    doc = json.loads(snapshot_text)
+    tenant_id, site_id = doc["tenant_id"], doc["site"]["site_id"]
+    principal = GatewayPrincipal(tenant_id=UUID(tenant_id), site_id=UUID(site_id),
+                                 gateway_id=UUID(doc["gateway"]["gateway_id"]), mode=doc["gateway"]["mode"])
+    profile = load_profile(tel6a.PROFILE_PATH)
+    oracle, raw = tel6a._oracle(profile)
+
+    receipts: list = []
+    central = _central(principal, receipts)
+    state = tmp_path / "gateway"
+    config = write_config(state, provisioning_from_snapshot(snapshot_text, epoch=EPOCH))
+    token = f"aog1.{secrets.token_hex(16)}.{secrets.token_urlsafe(32)}"
+    (state / "upload.credential").write_text(token, encoding="ascii")
+    restrict_to_current_user(state / "upload.credential")
+    document = json.loads(config.read_text(encoding="utf-8"))
+    document["upload"] = {"server_url": central.url, "upload_credential_file": "upload.credential",
+                          "ca_file": str(CERT), "interval_seconds": 3600}
+    config.write_text(json.dumps(document), encoding="utf-8")
+    process = GatewayProcess(config)
+    try:
+        assert process.ready, process.first_line
+        activated = process.link.call("activate", {"snapshot_text": snapshot_text, "claimed": claimed_references(basis)})
+        assert activated == {"snapshot_sha256": snapshot_sha256}
+        expect = field_bench.expect_identity_from_snapshot(
+            snapshot_text, json.loads(tel6a.PROFILE_PATH.read_text(encoding="utf-8")), EPOCH)
+        publisher = GatewayPublisher(GatewayLink(document["address"], state / "gateway.credential"), snapshot_sha256,
+                                     new_session_ref(profile, datetime.now(timezone.utc)), expect)
+        publisher.check_identity()
+        result = CsvCollector(profile, publisher).collect(tel6a.FIXTURE)
+        emit("TEL-06b collect:", json.dumps({k: result[k] for k in
+             ("profile_sha256", "file_sha256", "session_ref", "report_count")}))
+        assert {a["outcome"] for a in result["admissions"]} == {"ADMITTED"}
+        assert result["report_count"] == tel6a.CELLS
+        _deliver_all(process.link)
+        with sqlite3.connect(f"file:{process.database.as_posix()}?mode=ro", uri=True) as db:
+            envelopes = [tel4.parse_canonical_envelope_v3_text(t) for (t,) in db.execute(
+                "SELECT envelope_text FROM envelope_outbox ORDER BY source_id, sequence")]
+    finally:
+        process.kill()
+        central.close()
+
+    # The 06a step 1 exact-value oracle on the envelopes.
+    arrived = {(e.device_id, e.signal_id, e.source_time): e for e in envelopes}
+    assert len(envelopes) == len(arrived) == tel6a.CELLS and set(arrived) == set(oracle)
+    for key, value in oracle.items():
+        e = arrived[key]
+        assert e.unit == "kW", e
+        if value is None:
+            assert (e.quality, e.unavailable_reason, e.value) == ("UNAVAILABLE", "NO_MEASUREMENT", None), e
+        else:
+            assert e.quality == "GOOD" and Fraction(e.value) == value, (e, value)
+            assert abs(Fraction(e.value) - raw[key]) <= tel6a.RESOLUTION / 2, e
+
+    # Receipts COMPLETED, nothing refused by central (a refusal is a stop; print it).
+    refused = [(r.batch_id, d.message_id, d.decision, d.rejection) for r in receipts for d in r.dispositions
+               if d.decision not in ("ACCEPTED", "DUPLICATE")]
+    assert receipts and all(r.status == "COMPLETED" for r in receipts), [(r.batch_id, r.status) for r in receipts]
+    assert refused == [], refused
+    receipt_ids = {d.evidence_id for r in receipts for d in r.dispositions if d.decision == "ACCEPTED"}
+
+    # Accepted evidence: one row per envelope, the receipts' IDs, by role.
+    rows = _site_rows("SELECT id, role, device_id, signal_id, source_time, quality FROM accepted_evidence "
+                      "WHERE site_id = :s ORDER BY role, source_time", site_id)
+    ids = {str(r["id"]) for r in rows}
+    roles = Counter(r["role"] for r in rows)
+    emit("TEL-06b accepted evidence:", json.dumps({"count": len(rows), "by_role": dict(roles)}))
+    for r in rows:
+        emit("TEL-06b evidence", r["id"], r["role"], r["device_id"], r["signal_id"], r["source_time"], r["quality"])
+    assert len(rows) == len(envelopes) == tel6a.CELLS and ids == {str(i) for i in receipt_ids}
+    assert roles == Counter({"pv_power": 49, "feeder_demand": 147}), roles
+    emit("TEL-06b receipts:", json.dumps({"batches": len(receipts), "batch_ids": sorted(r.batch_id for r in receipts)}))
+
+    # Provenance UNKNOWN / NO_POSITIVE_BINDING (D1(c), Q-T49).
+    provenance = build_source_provenance(URL).resolve(UUID(tenant_id), UUID(site_id), sorted(ids))
+    emit("TEL-06b provenance:", json.dumps(provenance, default=str, sort_keys=True))
+    assert provenance["state"] == "UNKNOWN"
+    assert [reason["code"] for reason in provenance["reasons"]] == ["NO_POSITIVE_BINDING"]
+
+    # No consequence row for the Site, in any consequence table (D5).
+    consequences = _consequence_rows(site_id)
+    emit("TEL-06b consequence rows:", json.dumps(consequences, sort_keys=True))
+    assert consequences and not any(consequences.values()), consequences

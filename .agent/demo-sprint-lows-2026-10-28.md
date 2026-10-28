@@ -14,3 +14,5 @@
 ## Regressions to investigate (not Lows)
 - site-tabs regression: `site-tabs__link` overflows to 421px at 390px on the existing Recommendation/hold pages (found by the CC-R2 capture). It passed in W1-UX-06 (9517eb8e), so it came in on main later. Outside CC-R2's diff. Possibly related to the owner-pending R453 tab wrap.
 - TEL-05b Lows (4): see `.agent/TEL-05b-rereview.md`. The main one: the warm-connect failure line omits the error the ruling asks for.
+- TEL-06 L1: stale 'open question Q1' docstring at `field/tests/test_field_export_csv.py:3-5`.
+- CC-M Lows (3): see `.agent/CC-M-review.md`.
