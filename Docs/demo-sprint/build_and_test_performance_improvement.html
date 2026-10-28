@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build and Test Performance</title>
+<meta name="description" content="A measured analysis of where AssetOps build and test time and memory go, why the full backend gate took about five hours on 28 October, and a ranked, phased plan to cut a full gate to about 20 minutes and a slice check to under 10 minutes. Recommendation only; nothing is implemented.">
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface2:#efede7; --ink:#1d1f24; --muted:#5d6370; --line:#c9cbd1;
+  --accent:#2f5bd3; --accent-soft:#e3e9fb;
+  --bad:#c2352b; --ok:#2b8a3e; --warn:#b26a00;
+  /* chart series, validated (dataviz validate_palette.js, light and dark both pass) */
+  --c1:#c2352b; --c2:#2f5bd3; --c3:#b26a00; --c4:#008a7e; --cn:#b9bcc4; --cn2:#d9dbe0;
+  --mono:"Cascadia Code","JetBrains Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+  --sans:"Segoe UI","Inter",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171b; --surface:#1e2127; --surface2:#262a31; --ink:#e7e8ea; --muted:#a3a9b5; --line:#3a3f48;
+    --accent:#7d9cff; --accent-soft:#25304d;
+    --bad:#ff7a6e; --ok:#5cc46f; --warn:#f0a23a;
+    --c1:#d9574c; --c2:#6d8cf2; --c3:#c27c1c; --c4:#24a89c; --cn:#5a606b; --cn2:#434852;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171b; --surface:#1e2127; --surface2:#262a31; --ink:#e7e8ea; --muted:#a3a9b5; --line:#3a3f48;
+  --accent:#7d9cff; --accent-soft:#25304d;
+  --bad:#ff7a6e; --ok:#5cc46f; --warn:#f0a23a;
+  --c1:#d9574c; --c2:#6d8cf2; --c3:#c27c1c; --c4:#24a89c; --cn:#5a606b; --cn2:#434852;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+a{color:var(--accent);overflow-wrap:anywhere}
+code,pre,.mono{font-family:var(--mono)}
+code{font-size:.86em;background:var(--surface2);padding:.08em .35em;border-radius:5px;overflow-wrap:anywhere}
+pre{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.5;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+h1,h2,h3,h4{line-height:1.25;margin:1.6em 0 .5em}
+h1{font-size:2.3rem;margin:0 0 .3em;letter-spacing:-.01em}
+h2{font-size:1.6rem;padding-top:.4em;border-top:1px solid var(--line);margin-top:2.4em}
+h3{font-size:1.16rem}
+p,li{max-width:78ch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:0;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2);font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border-radius:6px}
+.tw table{min-width:720px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);max-width:1260px;margin:0 auto;padding:0 16px}
+@media (min-width:1120px){.layout{grid-template-columns:236px minmax(0,1fr);gap:40px}}
+nav.toc{font-size:14px}
+@media (min-width:1120px){nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:28px 0}}
+nav.toc ol{list-style:none;padding:0;margin:0}
+nav.toc li{margin:2px 0}
+nav.toc a{display:block;padding:4px 8px;border-radius:6px;color:var(--muted);text-decoration:none}
+nav.toc a:hover{background:var(--surface2);color:var(--ink)}
+@media (max-width:1119px){nav.toc{margin:16px 0}nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}}
+main{min-width:0;padding:28px 0 80px}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 26px;margin-bottom:10px;position:relative}
+.hero p.lede{font-size:1.08rem;color:var(--muted);margin:.2em 0 1em}
+.meta{font-size:13px;color:var(--muted)}
+.themebtn{position:absolute;top:16px;right:16px;font:13px var(--sans);background:var(--surface2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.callout{border:1px solid var(--line);border-left:5px solid var(--accent);background:var(--surface);border-radius:var(--r);padding:12px 16px;margin:16px 0}
+.callout.warn{border-left-color:var(--warn)}.callout.bad{border-left-color:var(--bad)}.callout.ok{border-left-color:var(--ok)}
+.callout > :first-child{margin-top:0}.callout > :last-child{margin-bottom:0}
+.callout b.k{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card h4{margin:0 0 6px;font-size:1rem}
+.card p,.card li{margin:.3em 0;font-size:14.3px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.stat .big{font-size:1.9rem;font-weight:700;line-height:1.1;margin:0}
+.stat .from{font-size:13px;color:var(--muted);margin:0 0 4px}
+.stat .meta{margin:.3em 0 0}
+figure{margin:20px 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll svg{min-width:640px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:8px}
+figcaption b{color:var(--ink)}
+svg.fig{width:100%;height:auto;display:block}
+.t{fill:var(--ink);font:12.5px var(--sans)}
+.tb{font-weight:650}
+.tm{fill:var(--muted);font:11.5px var(--sans)}
+.ts{font-size:11px}
+.gridl{stroke:var(--line);stroke-width:1}
+.axis{stroke:var(--muted);stroke-width:1.2}
+.ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.ln.a{marker-end:url(#arw)}
+.mk{fill:var(--muted)}
+.bx{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.bx.soft{fill:var(--surface2)}
+.bx.c1{stroke:var(--c1);stroke-width:2}.bx.c4{stroke:var(--c4);stroke-width:2}.bx.c2{stroke:var(--c2);stroke-width:2}
+.k1{fill:var(--c1)}.k2{fill:var(--c2)}.k3{fill:var(--c3)}.k4{fill:var(--c4)}.kn{fill:var(--cn)}.kn2{fill:var(--cn2)}
+.ka{fill:var(--accent)}.kbad{fill:var(--bad)}
+.seg{stroke:var(--surface);stroke-width:2}
+svg .hov:hover{opacity:.82}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted);margin:8px 0}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+details.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin:10px 0}
+details.q summary{cursor:pointer;font-weight:650}
+details.q[open] summary{margin-bottom:6px}
+.tag{display:inline-block;font:700 11px/1 var(--sans);padding:4px 6px;border-radius:5px;white-space:nowrap}
+.tag.m{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
+.tag.e{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
+.tag.u{background:color-mix(in srgb,var(--bad) 13%,var(--surface));color:var(--bad)}
+.dec{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:var(--r);padding:12px 16px;margin:12px 0}
+.dec h3{margin:.1em 0 .4em;font-size:1.05rem}
+.dec p{margin:.35em 0}
+.phase{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c4);border-radius:var(--r);padding:12px 16px;margin:14px 0}
+.phase h3{margin:.1em 0 .4em;font-size:1.06rem}
+.phase ul{margin:.3em 0;padding-left:20px}
+.foot{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:3em;padding-top:1em}
+@media (max-width:600px){h1{font-size:1.7rem}h2{font-size:1.32rem}.hero{padding:22px 16px}.themebtn{position:static;margin-bottom:10px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+</defs></svg>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+<details open><summary class="meta" style="cursor:pointer">Contents</summary>
+<ol>
+<li><a href="#short">0 In short</a></li>
+<li><a href="#today">1 What it costs today</a></li>
+<li><a href="#where">2 Where the time goes</a></li>
+<li><a href="#memory">3 Where the memory goes</a></li>
+<li><a href="#causes">4 Root causes</a></li>
+<li><a href="#recs">5 Ranked recommendations</a></li>
+<li><a href="#plan">6 Phased plan and proof</a></li>
+<li><a href="#policy">7 Proposed testing policy</a></li>
+<li><a href="#risks">8 Risks</a></li>
+<li><a href="#decisions">9 Decisions for the owner</a></li>
+<li><a href="#unmeasured">10 Not measured</a></li>
+<li><a href="#sources">11 Sources and method</a></li>
+</ol>
+</details>
+</nav>
+<main>
+<header class="hero">
+<button class="themebtn" id="themebtn" type="button">Light / dark</button>
+<h1>Build and Test Performance</h1>
+<p class="lede">Why a full AssetOps test run now takes hours and runs the machine out of memory, and a ranked plan to bring a full check down to about 20 minutes and an everyday check to under 10, without dropping a single test.</p>
+<p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Owner request, word for word: <code>.agent/owner-build-test-performance-2026-10-28.md</code> and <code>.agent/owner-test-pipeline-review-2026-10-28.md</code>. Code read at main <code>e234bcd2</code>.</p>
+<div class="callout warn"><b class="k">Status</b><p><b>Recommendation only. Nothing has been implemented.</b> No code, test, configuration or CI file was changed. The only things run were small timed samples (one test file at a time) and reads of earlier test reports. Every "after" number is an <span class="tag e">estimate</span>, and section 6 says how each one will be checked. Measured numbers are marked <span class="tag m">measured</span>.</p></div>
+</header>
+
+<h2 id="short">0 In short</h2>
+<p>The test suite is not slow because there are too many tests. <b>Two thirds of the tests take less than a tenth of a second each.</b> Nearly all the time goes to about 550 tests. Each of them rebuilds a complete simulated site from nothing before it checks one thing: it creates a database, installs the site, starts a real gateway program and replays a day of readings into it. Then it throws all of that away. The next test builds the same site again. About 15 different site set-ups are rebuilt more than 900 times in one run.</p>
+<p>The memory problem follows from this. Each rebuild starts extra Python programs and opens about 20 database connections, so running several tests side by side does not fit in the memory the laptop has free. On 28 October the suite therefore had to run in pieces, almost one test at a time. That took about five hours.</p>
+<div class="callout ok"><b class="k">What we propose</b>
+<p><b>Build each site set-up once, then hand every test its own instant copy.</b> PostgreSQL can copy a whole database in about a second, and the test tools already use this for the empty database. We extend it to the built sites: build each one once, save it as a template, and give each test a fresh copy. Each test still gets its own private database, so tests stay independent.</p>
+<p>Around that change: run full suites only inside Docker, where memory has a fixed ceiling. Use a separate test database server tuned for speed instead of safety. Put the few deliberately slow tests in their own tier. Run only the tests a change can affect on everyday slices. Make two small settings changes on the frontend.</p></div>
+<div class="grid">
+<div class="stat"><p class="from">Full backend gate: about 5 h on 28 Oct (62 min at best)</p><p class="big">≈ 20 min</p><p class="meta"><span class="tag e">estimate</span> after phases 1–3</p></div>
+<div class="stat"><p class="from">Everyday slice check: tens of minutes</p><p class="big">&lt; 10 min</p><p class="meta"><span class="tag e">estimate</span> with test-impact selection</p></div>
+<div class="stat"><p class="from">Run killed for lack of memory: 2 of 2 whole-suite tries</p><p class="big">0 kills</p><p class="meta"><span class="tag e">target</span>: tests stay in a capped Docker VM, about 1.5 GB of headroom left</p></div>
+<div class="stat"><p class="from">Tests run</p><p class="big">4138 → 4138</p><p class="meta">Same tests, same pass list. Coverage is kept, not traded away</p></div>
+</div>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 300" role="img" aria-labelledby="f0t f0d">
+<title id="f0t">Full backend gate wall time, today and after each phase</title>
+<desc id="f0d">Horizontal bars in minutes: 297 as run on 28 October; 62 best container run; about 50 after phase 1; about 25 after phase 2; about 20 after phase 3; everyday slice check under 10.</desc>
+<line class="gridl" x1="250" y1="20" x2="250" y2="262"/><line class="gridl" x1="370" y1="20" x2="370" y2="262"/><line class="gridl" x1="490" y1="20" x2="490" y2="262"/><line class="gridl" x1="610" y1="20" x2="610" y2="262"/><line class="gridl" x1="730" y1="20" x2="730" y2="262"/>
+<text class="tm" x="250" y="280" text-anchor="middle">0</text><text class="tm" x="370" y="280" text-anchor="middle">75</text><text class="tm" x="490" y="280" text-anchor="middle">150</text><text class="tm" x="610" y="280" text-anchor="middle">225</text><text class="tm" x="730" y="280" text-anchor="middle">300 min</text>
+<g class="hov"><title>297 min (17,799 s): five pieces, almost serial, 28 Oct CC-M gate (measured)</title><rect class="k1" x="250" y="28" width="475" height="24" rx="4"/></g>
+<text class="t" x="240" y="45" text-anchor="end">As run on 28 Oct (host, in pieces)</text><text class="t tb" x="718" y="45" text-anchor="end" style="fill:var(--surface)">≈ 297 min</text>
+<g class="hov"><title>62 min (3,724 s), container runner, 4 workers, 26 Oct (measured; other runs 49–78 min)</title><rect class="k1" x="250" y="66" width="99" height="24" rx="4"/></g>
+<text class="t" x="240" y="83" text-anchor="end">Best measured (Docker, 4 workers)</text><text class="t tb" x="357" y="83">62 min</text>
+<g class="hov"><title>About 50 min (estimate): fast test database, slow tier split, container only</title><rect class="k4" x="250" y="104" width="80" height="24" rx="4"/></g>
+<text class="t" x="240" y="121" text-anchor="end">After phase 1: quick wins</text><text class="t tb" x="338" y="121">≈ 50 min (est.)</text>
+<g class="hov"><title>About 25 min (estimate): build once, copy many</title><rect class="k4" x="250" y="142" width="40" height="24" rx="4"/></g>
+<text class="t" x="240" y="159" text-anchor="end">After phase 2: build once, copy many</text><text class="t tb" x="298" y="159">≈ 25 min (est.)</text>
+<g class="hov"><title>About 20 min (estimate): set-ups kept between runs</title><rect class="k4" x="250" y="180" width="32" height="24" rx="4"/></g>
+<text class="t" x="240" y="197" text-anchor="end">After phase 3: set-ups kept between runs</text><text class="t tb" x="290" y="197">≈ 20 min (est.)</text>
+<g class="hov"><title>Under 10 min (estimate): only tests a change can affect, plus frontend and guards</title><rect class="k2" x="250" y="218" width="14" height="24" rx="4"/></g>
+<text class="t" x="240" y="235" text-anchor="end">Everyday slice check</text><text class="t tb" x="272" y="235">&lt; 10 min (est.)</text>
+</svg></div>
+<figcaption><b>The full gate drops by about 15 times compared with what it took on 28 October, and by about 3 times compared with the best run so far.</b> Red bars are measured. Green and blue bars are estimates, to be confirmed at the end of each phase (section 6). Hover a bar for its source.</figcaption>
+</figure>
+
+<h2 id="today">1 What it costs today</h2>
+<p>AssetOps has three kinds of automatic checks: the <b>backend tests</b> (Python, 4138 tests, most of them against a real PostgreSQL database in Docker), the <b>frontend tests</b> (about 3,400 screen tests in 141 files, run by the tool <i>vitest</i> inside a simulated browser), and the <b>build</b> (type check plus bundling). There are also guard scripts and browser screenshot audits.</p>
+<div class="tw"><table>
+<thead><tr><th>Job</th><th class="n">Size</th><th class="n">Time</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Backend, full gate on the host, in five pieces (28 Oct, CC-M)</td><td class="n">4138 tests</td><td class="n">17,799 s ≈ 4.9 h</td><td><span class="tag m">measured</span> CC-M packet: 382 + 1643 + 1419 + 6583 + 7772 s</td></tr>
+<tr><td>Backend, whole suite on the host, two tries</td><td class="n">4138</td><td class="n">killed at 29% and 80%</td><td><span class="tag m">measured</span> stopped by Claude Code's low-memory process killer</td></tr>
+<tr><td>Backend, full suite in the Docker runner, 4 workers (26 Oct)</td><td class="n">4065</td><td class="n">3,724 s = 62 min</td><td><span class="tag m">measured</span> <code>var/test-results/OPS-03/20261026-…</code>; earlier runs 49 and 78 min</td></tr>
+<tr><td>Same run: the sum of every test's own time</td><td class="n">4065</td><td class="n">14,382 s = 4.0 h</td><td><span class="tag m">measured</span> from its JUnit report; 4 workers keep 97% busy</td></tr>
+<tr><td>One telemetry acceptance test (TEL)</td><td class="n">1</td><td class="n">9–12 min</td><td>coordinator handoff; it replays at 60× real time</td></tr>
+<tr><td>Frontend, full suite</td><td class="n">≈ 3,400 tests</td><td class="n">200–345 s</td><td><span class="tag m">measured</span> recent packets</td></tr>
+<tr><td>Type check (<code>tsc</code>), cold / incremental</td><td class="n">—</td><td class="n">29.7 s / 5.6 s</td><td><span class="tag m">measured</span> today</td></tr>
+<tr><td>Frontend production build (<code>vite build</code>)</td><td class="n">—</td><td class="n">9.8 s</td><td><span class="tag m">measured</span> today</td></tr>
+<tr><td>Collecting the backend tests (finding and importing them)</td><td class="n">4135</td><td class="n">4–20 s</td><td><span class="tag m">measured</span> warm / cold disk</td></tr>
+</tbody></table></div>
+<div class="callout"><b class="k">What this says</b><p>The build is not the problem: type check and bundling take under 40 seconds together. Neither is the frontend: a few minutes, and it improves with one setting (section 5). <b>The problem is the backend suite.</b> It holds about 4 hours of work. Four workers in parallel turn that into an hour. When memory forces the run down to one worker, it takes most of a working day.</p></div>
+
+<h2 id="where">2 Where the time goes</h2>
+<h3>2.1 A few tests carry nearly all the time</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 300" role="img" aria-labelledby="f1t f1d">
+<title id="f1t">Share of tests and share of time by test duration</title>
+<desc id="f1d">For six duration bands, two bars: share of the 4065 tests and share of the 14,382 seconds. Tests under 0.1 s are 59 percent of tests and 0.2 percent of time. Tests of 20 to 60 s are 4.7 percent of tests and 41.7 percent of time.</desc>
+<line class="axis" x1="70" y1="240" x2="740" y2="240"/>
+<line class="gridl" x1="70" y1="40" x2="740" y2="40"/><line class="gridl" x1="70" y1="106" x2="740" y2="106"/><line class="gridl" x1="70" y1="173" x2="740" y2="173"/>
+<text class="tm" x="62" y="244" text-anchor="end">0%</text><text class="tm" x="62" y="177" text-anchor="end">20%</text><text class="tm" x="62" y="110" text-anchor="end">40%</text><text class="tm" x="62" y="44" text-anchor="end">60%</text>
+<!-- scale: 1% = 3.333 px -->
+<g class="hov"><title>Under 0.1 s: 2,415 tests (59.4%), 27 s (0.2%)</title><rect class="kn" x="88" y="42" width="34" height="198" rx="4"/><rect class="k1" x="126" y="238" width="34" height="2" rx="1"/></g>
+<g class="hov"><title>0.1–1 s: 651 tests (16.0%), 311 s (2.2%)</title><rect class="kn" x="198" y="187" width="34" height="53" rx="4"/><rect class="k1" x="236" y="233" width="34" height="7" rx="3"/></g>
+<g class="hov"><title>1–5 s: 444 tests (10.9%), 986 s (6.9%)</title><rect class="kn" x="308" y="204" width="34" height="36" rx="4"/><rect class="k1" x="346" y="217" width="34" height="23" rx="4"/></g>
+<g class="hov"><title>5–20 s: 328 tests (8.1%), 3,907 s (27.2%)</title><rect class="kn" x="418" y="213" width="34" height="27" rx="4"/><rect class="k1" x="456" y="149" width="34" height="91" rx="4"/></g>
+<g class="hov"><title>20–60 s: 191 tests (4.7%), 5,994 s (41.7%)</title><rect class="kn" x="528" y="224" width="34" height="16" rx="4"/><rect class="k1" x="566" y="101" width="34" height="139" rx="4"/></g>
+<g class="hov"><title>60 s and over: 36 tests (0.9%), 3,158 s (22.0%)</title><rect class="kn" x="638" y="237" width="34" height="3" rx="1"/><rect class="k1" x="676" y="167" width="34" height="73" rx="4"/></g>
+<text class="t" x="124" y="258" text-anchor="middle">&lt; 0.1 s</text><text class="t" x="234" y="258" text-anchor="middle">0.1–1 s</text><text class="t" x="344" y="258" text-anchor="middle">1–5 s</text><text class="t" x="454" y="258" text-anchor="middle">5–20 s</text><text class="t" x="564" y="258" text-anchor="middle">20–60 s</text><text class="t" x="674" y="258" text-anchor="middle">≥ 60 s</text>
+<text class="t tb" x="105" y="36" text-anchor="middle">59%</text><text class="t tb" x="583" y="95" text-anchor="middle">42%</text><text class="t tb" x="473" y="143" text-anchor="middle">27%</text><text class="t tb" x="693" y="161" text-anchor="middle">22%</text>
+<text class="tm" x="404" y="284" text-anchor="middle">How long one test takes</text>
+</svg></div>
+<div class="legend"><span><i class="sw" style="background:var(--cn)"></i>share of the 4065 tests</span><span><i class="sw" style="background:var(--c1)"></i>share of the 14,382 s of test time</span></div>
+<figcaption><b>555 tests (14%) take 91% of the time; 2,415 tests (59%) take 0.2%.</b> The 400 slowest tests alone take 83%. Source: JUnit report of the 26 October Docker run, <span class="tag m">measured</span>.</figcaption>
+</figure>
+
+<h3>2.2 Which tests they are</h3>
+<p>We grouped every test by what its file does. The slow group is the tests that build a <b>replay chain</b>: a simulated cold room, EV charger or mini-grid site whose readings are replayed through a real gateway into the evidence store.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 196" role="img" aria-labelledby="f2t f2d">
+<title id="f2t">Test count versus test time by family</title>
+<desc id="f2d">Two stacked bars. Count: no-database tests 2744, replay-chain 909, other database 378, timing 34. Time: replay-chain 70 percent, other database 22.9, no-database 4.0, timing 3.1.</desc>
+<text class="t tb" x="12" y="52">Tests</text><text class="t tb" x="12" y="126">Time</text>
+<!-- width 640 from x=96; count: chain 909 (22.4%)=143, pg 378 (9.3%)=60, timing 34 (0.8%)=5, nodb 2744 (67.5%)=432 -->
+<g class="hov"><title>Replay-chain tests: 909 of 4065 (22.4%)</title><rect class="k1 seg" x="96" y="32" width="143" height="30" rx="4"/></g>
+<g class="hov"><title>Other database tests: 378 (9.3%)</title><rect class="k2 seg" x="239" y="32" width="60" height="30"/></g>
+<g class="hov"><title>Deliberate-wait timing tests: 34 (0.8%)</title><rect class="k3 seg" x="299" y="32" width="5" height="30"/></g>
+<g class="hov"><title>No-database tests: 2744 (67.5%)</title><rect class="k4 seg" x="304" y="32" width="432" height="30" rx="4"/></g>
+<text class="t" x="167" y="52" text-anchor="middle" style="fill:var(--surface)">909</text><text class="t" x="520" y="52" text-anchor="middle" style="fill:var(--surface)">2744 tests</text>
+<!-- time: chain 70.0%=448, pg 22.9%=147, timing 3.1%=20, nodb 4.0%=26 -->
+<g class="hov"><title>Replay-chain tests: 10,068 s (70.0%)</title><rect class="k1 seg" x="96" y="106" width="448" height="30" rx="4"/></g>
+<g class="hov"><title>Other database tests: 3,295 s (22.9%)</title><rect class="k2 seg" x="544" y="106" width="147" height="30"/></g>
+<g class="hov"><title>Timing tests: 450 s (3.1%)</title><rect class="k3 seg" x="691" y="106" width="20" height="30"/></g>
+<g class="hov"><title>No-database tests: 569 s (4.0%)</title><rect class="k4 seg" x="711" y="106" width="26" height="30" rx="4"/></g>
+<text class="t" x="320" y="126" text-anchor="middle" style="fill:var(--surface)">70% of the time</text><text class="t" x="617" y="126" text-anchor="middle" style="fill:var(--surface)">23%</text>
+<text class="tm" x="96" y="160">0%</text><text class="tm" x="736" y="160" text-anchor="end">100%</text>
+</svg></div>
+<div class="legend"><span><i class="sw" style="background:var(--c1)"></i>replay-chain tests (100 files)</span><span><i class="sw" style="background:var(--c2)"></i>other database tests</span><span><i class="sw" style="background:var(--c3)"></i>deliberate-wait timing tests</span><span><i class="sw" style="background:var(--c4)"></i>tests with no database</span></div>
+<figcaption><b>Replay-chain tests are 22% of the tests and 70% of the time.</b> Groups come from the file names and the fixtures each file uses. <span class="tag m">measured</span> from the 26 October JUnit report.</figcaption>
+</figure>
+
+<h3>2.3 Inside one slow test: almost all of it is set-up</h3>
+<p>We ran one portfolio test by itself and timed it, and profiled a second one.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 210" role="img" aria-labelledby="f3t f3d">
+<title id="f3t">Anatomy of one portfolio test</title>
+<desc id="f3d">Set-up 65.7 seconds, the actual check 4.3 seconds. Inside set-up: about 15,000 database statements, about 430 evidence uploads, three gateway programs, 22 database connections.</desc>
+<!-- 70 s total -> 640 px : 9.14 px/s -->
+<g class="hov"><title>Build the site set-up: 65.7 s (94%)</title><rect class="k1 seg" x="96" y="40" width="600" height="34" rx="4"/></g>
+<g class="hov"><title>The actual check: 4.3 s (6%)</title><rect class="k4 seg" x="696" y="40" width="40" height="34" rx="4"/></g>
+<text class="t tb" x="396" y="62" text-anchor="middle" style="fill:var(--surface)">Build the world: 65.7 s</text>
+<text class="t tb" x="716" y="96" text-anchor="middle">check 4.3 s</text>
+<text class="t" x="12" y="62">One test</text>
+<text class="t tb" x="96" y="128">Inside the 65.7 s set-up (profiled)</text>
+<text class="t" x="110" y="150">• new empty database from the template, cold-room site installed, credentials issued</text>
+<text class="t" x="110" y="168">• 3 real gateway programs started (each one is 2 Windows processes), 22 database connections open</text>
+<text class="t" x="110" y="186">• a day of readings replayed: about 15,000 SQL statements and 430 evidence uploads, each statement a round trip into Docker</text>
+</svg></div>
+<figcaption><b>94% of this test is spent building the site; 6% is the check.</b> <code>test_w303_portfolio_fixture_postgres.py</code>, run by itself on the host today: set-up 65.69 s, call 4.27 s; peak 7 Python processes, 252 MB, 22 database sessions. The statement and upload counts come from profiling <code>test_w303_portfolio_scope_snapshot_postgres.py</code> (set-up 148 s with the profiler on, check 7 s). <span class="tag m">measured</span></figcaption>
+</figure>
+<p>The clearest sign of repeated work is <code>test_w206_ev_reads_postgres.py</code>. It has 23 tests, and <b>every one of them takes 25 to 30 seconds</b>. That includes <code>test_non_ascii_limit_is_422_ev_limit_invalid</code>, which only checks that a bad page-size value is refused. It still spends 26 seconds first rebuilding a full EV charging site. The cold-room file <code>test_w203_cold_replay_postgres.py</code> shows the same pattern: 14 tests at 16 to 20 seconds each.</p>
+
+<h3>2.4 The same few set-ups, built hundreds of times</h3>
+<p>The replay fixtures are built from a small set of named cases. Cold room: <i>normal, excursion, backup-failed, late-reading, missing-probe, contradictory</i>. EV: <i>complete, interrupted, fault, missing-meter, late-record, contradictory</i>. On top of those: the four-site portfolio and the mini-grid power estate. That makes roughly <b>15–25 distinct set-ups</b>. They are fixed: the clock is frozen and the IDs are pinned, so each build of a case comes out the same. Yet they are rebuilt for each of the 909 replay-chain tests, and in the 26 October run that cost about 10,000 seconds.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 250" role="img" aria-labelledby="f4t f4d">
+<title id="f4t">Build per test today versus build once and copy</title>
+<desc id="f4d">Today each test creates a database, installs a site, starts gateways and replays, then checks and discards. Proposed: each set-up is built once into a template; each test gets a one-second copy and runs its check.</desc>
+<text class="t tb" x="16" y="26">Today: every test builds its own world</text>
+<rect class="bx c1" x="16" y="38" width="150" height="40" rx="6"/><text class="t" x="91" y="62" text-anchor="middle">Test A: build 26–66 s</text>
+<rect class="bx" x="170" y="38" width="60" height="40" rx="6"/><text class="t" x="200" y="62" text-anchor="middle">check</text>
+<rect class="bx c1" x="250" y="38" width="150" height="40" rx="6"/><text class="t" x="325" y="62" text-anchor="middle">Test B: same build again</text>
+<rect class="bx" x="404" y="38" width="60" height="40" rx="6"/><text class="t" x="434" y="62" text-anchor="middle">check</text>
+<rect class="bx c1" x="484" y="38" width="150" height="40" rx="6"/><text class="t" x="559" y="62" text-anchor="middle">Test C: same build again</text>
+<rect class="bx" x="638" y="38" width="60" height="40" rx="6"/><text class="t" x="668" y="62" text-anchor="middle">check</text>
+<text class="tm" x="16" y="98">… repeated for the 909 replay-chain tests: about 10,000 s of the 14,382 s</text>
+<text class="t tb" x="16" y="136">Proposed: build each set-up once, give each test a private copy</text>
+<rect class="bx c4" x="16" y="150" width="150" height="40" rx="6"/><text class="t" x="91" y="168" text-anchor="middle">Build "EV complete"</text><text class="tm" x="91" y="183" text-anchor="middle">once per run, or reused</text>
+<path class="ln a" d="M166,170 H226"/>
+<rect class="bx soft" x="230" y="150" width="118" height="40" rx="6"/><text class="t" x="289" y="168" text-anchor="middle">saved template</text><text class="tm" x="289" y="183" text-anchor="middle">database + files</text>
+<path class="ln a" d="M348,162 H392"/><path class="ln a" d="M348,170 C370,170 370,214 392,214"/><path class="ln a" d="M348,178 C366,178 372,120 392,118"/>
+<rect class="bx" x="396" y="100" width="120" height="34" rx="6"/><text class="t" x="456" y="122" text-anchor="middle">copy ≈1 s → A</text>
+<rect class="bx" x="396" y="146" width="120" height="34" rx="6"/><text class="t" x="456" y="168" text-anchor="middle">copy ≈1 s → B</text>
+<rect class="bx" x="396" y="196" width="120" height="34" rx="6"/><text class="t" x="456" y="218" text-anchor="middle">copy ≈1 s → C</text>
+<rect class="bx" x="520" y="100" width="60" height="34" rx="6"/><text class="t" x="550" y="122" text-anchor="middle">check</text>
+<rect class="bx" x="520" y="146" width="60" height="34" rx="6"/><text class="t" x="550" y="168" text-anchor="middle">check</text>
+<rect class="bx" x="520" y="196" width="60" height="34" rx="6"/><text class="t" x="550" y="218" text-anchor="middle">check</text>
+<text class="tm" x="596" y="160">each test still has its</text><text class="tm" x="596" y="175">own private database;</text><text class="tm" x="596" y="190">nothing is shared live</text>
+</svg></div>
+<figcaption><b>The copy step already exists and is fast.</b> Today every database test module starts from a copy of an empty migrated template. Building that template took 11.6 s once; each copy took about 1.2 s (<code>test_s1_foundation_postgres.py</code>, <span class="tag m">measured</span>). The proposal saves templates at a later point too: after a site has been built.</figcaption>
+</figure>
+
+<h3>2.5 Smaller, real costs</h3>
+<ul>
+<li><b>Every database statement from Windows is a trip into Docker.</b> We measured 1.95 ms per round trip and 29.5 ms per new connection from the host <span class="tag m">measured</span>, against about 0.17 ms inside Docker's own network (OPS-01 record). One portfolio set-up issues about 15,000 statements, so on the host that is about 30 s of waiting on the network alone. The Docker test runner already avoids this, but the 28 October gate did not use it.</li>
+<li><b>The test database server is set up for safety, not speed.</b> It writes every change safely to disk (<code>fsync=on</code>, <code>full_page_writes=on</code>) and shares one server with the development databases. The earlier timing notes record disk-sync stalls of 22–25 s in a single step under load. They also show the same full run taking anywhere from 49 to 78 minutes.</li>
+<li><b>Deliberate waits.</b> A few tests wait on a real clock on purpose. Schedule health waits 120 s for a job to go stale. The tick-cost test runs 140–180 s, and the hung-stage test 137 s. Together that is about 450 s, 3% of the total. The TEL acceptance tests replay a field device at 60× real time, so each one takes 9–12 minutes.</li>
+<li><b>Frontend set-up overhead.</b> Each frontend test file starts its own simulated browser in a separate process. We sampled the 16 largest files (960 tests). In the default mode (<i>forks</i>) that took 92.7 s, with 152 s of browser start-up summed across workers. With <i>threads</i> it took 55.7 s, with 38 s of start-up <span class="tag m">measured</span>. All 960 tests passed both ways.</li>
+</ul>
+
+<h2 id="memory">3 Where the memory goes</h2>
+<p>The laptop has 16 GB. When idle, about 13.2 GB is already in use (Windows services 1.5 GB, Claude 1.4 GB, Chrome 1.1 GB, memory compression 1.1 GB, the Docker VM 0.9 GB, other programs about 7.2 GB). That leaves <b>about 2.8 GB free</b>. Claude Code stops background jobs when free memory runs low, and it stopped both whole-suite runs.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 260" role="img" aria-labelledby="f5t f5d">
+<title id="f5t">Memory budget: idle, a host run today, and the proposed run</title>
+<desc id="f5d">Three bars to 16 GB. Idle: 13.2 GB used, 2.8 free. Host run with 4 workers: an estimated 2.2 to 3.5 GB of test memory added, which is at or over the free memory. Proposed: Chrome closed, tests inside a Docker VM capped at about 3 GB, leaving about 1.5 GB or more free.</desc>
+<!-- 16 GB -> 600px from x=150: 37.5 px/GB -->
+<line class="gridl" x1="150" y1="20" x2="150" y2="214"/><line class="gridl" x1="300" y1="20" x2="300" y2="214"/><line class="gridl" x1="450" y1="20" x2="450" y2="214"/><line class="gridl" x1="600" y1="20" x2="600" y2="214"/><line class="gridl" x1="750" y1="20" x2="750" y2="214"/>
+<text class="tm" x="150" y="230" text-anchor="middle">0</text><text class="tm" x="300" y="230" text-anchor="middle">4</text><text class="tm" x="450" y="230" text-anchor="middle">8</text><text class="tm" x="600" y="230" text-anchor="middle">12</text><text class="tm" x="750" y="230" text-anchor="middle">16 GB</text>
+<text class="t" x="140" y="50" text-anchor="end">Idle</text>
+<g class="hov"><title>Windows and other programs, about 8.7 GB</title><rect class="kn seg" x="150" y="32" width="326" height="28" rx="4"/></g>
+<g class="hov"><title>Claude 1.4 GB, Chrome 1.1 GB, memory compression 1.1 GB</title><rect class="kn2 seg" x="476" y="32" width="135" height="28"/></g>
+<g class="hov"><title>Docker VM (Postgres) 0.9 GB idle</title><rect class="k2 seg" x="611" y="32" width="34" height="28"/></g>
+<text class="t" x="698" y="51" text-anchor="middle">2.8 GB free</text>
+<text class="t" x="140" y="110" text-anchor="end">Host run, 4 workers</text>
+<rect class="kn seg" x="150" y="92" width="326" height="28" rx="4"/><rect class="kn2 seg" x="476" y="92" width="135" height="28"/><rect class="k2 seg" x="611" y="92" width="34" height="28"/>
+<g class="hov"><title>Estimate: 4 test workers about 1.0–1.6 GB, gateway programs about 0.4 GB, Docker VM growth 0.5–1.5 GB: 2.2–3.5 GB total</title><rect class="k1 seg" x="645" y="92" width="105" height="28"/></g>
+<text class="t tb" x="697" y="140" text-anchor="middle" style="fill:var(--bad)">0 free: the job is stopped</text>
+<text class="t" x="140" y="180" text-anchor="end">Proposed run</text>
+<rect class="kn seg" x="150" y="162" width="326" height="28" rx="4"/>
+<g class="hov"><title>Claude and memory compression 2.5 GB (Chrome closed during full runs)</title><rect class="kn2 seg" x="476" y="162" width="94" height="28"/></g>
+<g class="hov"><title>Docker VM including all tests, capped at about 3 GB (estimate; to be set from the measured peak)</title><rect class="k4 seg" x="570" y="162" width="113" height="28"/></g>
+<text class="t" x="716" y="181" text-anchor="middle">≥ 1.5 GB free</text>
+</svg></div>
+<div class="legend"><span><i class="sw" style="background:var(--cn)"></i>Windows and other programs</span><span><i class="sw" style="background:var(--cn2)"></i>Claude, Chrome, compression</span><span><i class="sw" style="background:var(--c2)"></i>Docker VM, idle</span><span><i class="sw" style="background:var(--c1)"></i>test run on Windows (estimate)</span><span><i class="sw" style="background:var(--c4)"></i>test run inside the capped VM (estimate)</span></div>
+<figcaption><b>A host run needs about as much memory as the laptop has free, or more, so it gets stopped.</b> Idle figures are from the coordinator handoff. The per-worker figure (252 MB for one heavy test, 7 processes) and the 151 MB after loading the tests were <span class="tag m">measured</span> today. The totals for a four-worker run are <span class="tag e">estimates</span>: no one has yet sampled memory across a whole run (section 10).</figcaption>
+</figure>
+<p>Two other facts matter here. First, the Docker VM is already capped at 4 GB (<code>%USERPROFILE%\.wslconfig</code>: <code>memory=4GB</code>), so a run inside Docker cannot grow beyond that. A run on Windows is not capped at all. Second, building a site starts three gateway programs and opens about 22 database connections, and every one of the 909 replay-chain tests does this. Building once and copying cuts both kinds of load roughly in proportion to the time it saves.</p>
+
+<h2 id="causes">4 Root causes</h2>
+<ol>
+<li><b>Each test rebuilds its world (about 70% of the time).</b> The replay fixtures are function-scoped: each test calls <code>pg_harness.fresh_database()</code>, then installs the site, provisions credentials, starts <code>python -m assetops_gateway serve</code>, and replays and uploads a day of readings (<code>backend/tests/test_w202_cold_replay_postgres.py</code> and <code>test_w205b_ev_replay_postgres.py</code>, class <code>Chain</code>; <code>test_w303_portfolio_fixture_postgres.py:build_portfolio_fixture</code>). These fixtures were written one slice at a time, and the suite has grown from 2,128 tests to 4,138. Each new slice added more tests that rebuild the same few sites.</li>
+<li><b>Too little memory leads to serial runs, which take hours.</b> Each test worker, with its gateway programs and database connections, needs a few hundred MB, and only about 2.8 GB is free. Runs on Windows were stopped, so the gate fell back to one worker in pieces: 4 hours of work run end to end, plus the network cost below.</li>
+<li><b>The host path pays a network toll.</b> 1.95 ms per statement and 29.5 ms per connection through Docker Desktop's port forward, about 11 times the in-Docker cost. A faster runner already exists (<code>tools/run-backend-suite-in-container.ps1</code>, the default in <code>.ai/ROLE_CONFIG.md</code>), but the 28 October gate ran on the host.</li>
+<li><b>A database server tuned for safety.</b> Tests do not need data to survive a crash. Synced writes cause the slow, unpredictable stalls, and they make timings vary from 49 to 78 minutes, which hides real regressions.</li>
+<li><b>A few tests use the real clock as their subject.</b> They are slow on purpose, and they also tend to be the flaky ones under load. Each run, 3% of the time goes on them, and so does a share of the reruns.</li>
+<li><b>Everything runs on every change.</b> Most slices touch one area, but the merge gate and the "safety net" both run all 4,138 tests. Nothing yet works out which tests a change can affect.</li>
+</ol>
+<div class="callout bad"><b class="k">A hazard found while measuring (not about speed, but it wastes runs)</b><p>The shared virtual environment <code>AssetOpsV1-plan2\.venv</code> points its installed AssetOps packages at the <b>stale <code>AssetOPsV1</code> checkout</b>: <code>assetops_backend.__file__</code> resolves there. Any run without the right <code>PYTHONPATH</code> tests old code, or fails to import. Our first sample failed that way: <code>No module named 'assetops_backend.cold_replay'</code>. Recommendation R9 fixes this.</p></div>
+
+<h2 id="recs">5 Ranked recommendations</h2>
+<p>The list is ranked by time saved per unit of effort and risk. "Confidence" says what each change does to how much the tests prove. A builder-day is one builder's working day.</p>
+<div class="tw"><table>
+<thead><tr><th>#</th><th>Change, in plain words</th><th>Runtime effect <span class="tag e">est.</span></th><th>Peak memory effect <span class="tag e">est.</span></th><th class="n">Effort</th><th>Risk</th><th>Confidence / coverage</th></tr></thead>
+<tbody>
+<tr><td>R1</td><td><b>Build once, copy many.</b> The first time a run needs a replay set-up (for example "EV complete"), build it, then save its database as a PostgreSQL template and its working files (run store, gateway state) as a folder. Every later test gets its own ~1 s copy of both. A test that keeps uploading gets a gateway restarted on its copy. The tests that check the replay itself still build live.</td><td>Full run 62 → about 25 min. Replay-chain time ≈10,000 s → ≈3,000 s</td><td>Fewer gateway programs and connections at any moment; roughly −40% worker memory</td><td class="n">4 d</td><td>Medium</td><td>Same tests and assertions. Each test still has a private database. Verified by an identical pass list. A small set of "build-live" tests keeps the replay path itself under test.</td></tr>
+<tr><td>R2</td><td><b>Full runs only inside Docker.</b> Make the existing Docker runner the only path for full and merge runs. Use the host only for focused files.</td><td>Removes the ~11× network toll; host gate 5 h → about 1 h even before R1</td><td>Tests move into the capped VM; Windows-side growth bounded</td><td class="n">0.5 d</td><td>Low</td><td>No change; same node IDs (OPS-03 proved this)</td></tr>
+<tr><td>R3</td><td><b>A separate test database server tuned for speed.</b> A second PostgreSQL container used only for tests, with crash-safety writes turned off (<code>fsync</code>, <code>full_page_writes</code>, <code>synchronous_commit</code> off). The development databases stay on the current server, untouched.</td><td>About −10–25% and far less run-to-run variance (to be measured)</td><td>About +150–250 MB inside the VM for the second server</td><td class="n">0.5 d</td><td>Low</td><td>No change to what is proven. Crash safety of throw-away test data is not a product behaviour.</td></tr>
+<tr><td>R4</td><td><b>Test-impact selection for slices.</b> A small script reads which files a change touches and selects the test files whose imports reach them. Some changes always trigger the full run: migrations, conftest, scenario and fixture data, shared plumbing.</td><td>Slice check: tens of minutes → about 3–8 min</td><td>Smaller runs, lower peak</td><td class="n">1.5 d</td><td>Medium</td><td>A slice runs fewer tests. Anything missed is caught by the merge gate and the nightly full run.</td></tr>
+<tr><td>R5</td><td><b>A "slow" tier.</b> Mark the timing tests and the TEL acceptance tests <code>slow</code>. Slices and ordinary merges skip them. Schema and plumbing merges, the nightly run and milestones include them.</td><td>Saves about 8 min of CPU per run, plus 9–12 min per TEL test; fewer load-related reruns</td><td>Small</td><td class="n">0.5 d</td><td>Low</td><td>The slow tier still runs on a fixed schedule, so timing regressions are found a day later at worst</td></tr>
+<tr><td>R6</td><td><b>Keep built set-ups between runs.</b> Name each saved template by a fingerprint of everything that shapes it: migrations, product source, scenario files, fixture code. The next run reuses it if nothing has changed. Old ones are swept.</td><td>A further −3 to −5 min on a full run; large savings on repeated slice checks</td><td>More disk in the VM (≈15 MB per set-up, ≈0.4 GB in all); no RAM cost</td><td class="n">1 d</td><td>Medium</td><td>The fingerprint must be complete; when unsure it rebuilds</td></tr>
+<tr><td>R7</td><td><b>Frontend: run test files in threads.</b> Switch vitest from <i>forks</i> to <i>threads</i>. Optionally try the lighter simulated browser <i>happy-dom</i> later. For slices, run only the frontend tests related to the changed files.</td><td>Full frontend −40% (sample: 92.7 → 55.7 s); about 200–345 → 120–200 s</td><td>One process instead of one per worker; lower peak</td><td class="n">0.25 d</td><td>Low</td><td>The same 960 tests passed both ways in the sample; the full suite must match too</td></tr>
+<tr><td>R8</td><td><b>Virtual time for the clock-bound tests.</b> TEL acceptance: drive the device emulator and the poller from one step-by-step clock instead of 60× real time. Schedule and stale tests: use the product's injectable clock where it already exists.</td><td>TEL test 9–12 → about 1–2 min; timing tier ≈450 → ≈100 s</td><td>Small</td><td class="n">2.5 d</td><td>Medium</td><td>Keep one real-time TEL run per milestone so real timing is still proven</td></tr>
+<tr><td>R9</td><td><b>Fix the stale package links.</b> Add one wrapper command that sets <code>PYTHONPATH</code> for the current worktree, checks where <code>assetops_backend</code> imports from, and refuses to run if it is the wrong checkout.</td><td>Prevents wasted or misleading runs</td><td>—</td><td class="n">0.25 d</td><td>Low</td><td>Raises confidence: a run cannot silently test old code</td></tr>
+<tr><td>R10</td><td><b>Memory guard rails.</b> Set the Docker VM cap from a measured peak (expected about 3–3.5 GB instead of 4 GB). Choose the worker count from the memory actually free when the run starts (2–4). Close Chrome for full runs. Add a memory sampler to the runner.</td><td>Stops memory kills; a little slower when memory is short</td><td>Keeps about 1.5 GB or more free</td><td class="n">0.5 d</td><td>Low</td><td>No change</td></tr>
+<tr><td>R11</td><td><b>Screenshot audits by change.</b> Recapture only the screens a change touches, and replace fixed sleeps with "page settled" waits. Run the full 1,414-pair recapture only at a milestone.</td><td>Not measured today; likely tens of minutes per capture round</td><td>One browser instead of repeated launches</td><td class="n">1 d</td><td>Low</td><td>The full recapture keeps its milestone role</td></tr>
+</tbody></table></div>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 250" role="img" aria-labelledby="f6t f6d">
+<title id="f6t">Test time today and after, by family</title>
+<desc id="f6d">Paired bars in thousands of CPU seconds. Replay-chain 10.1 to about 3.1; other database 3.3 to about 2.0; timing 0.45 to about 0.1; no database 0.57 to 0.57.</desc>
+<!-- 11k s -> 560 px from x=180: 50.9 px per 1000 s -->
+<line class="gridl" x1="180" y1="16" x2="180" y2="214"/><line class="gridl" x1="282" y1="16" x2="282" y2="214"/><line class="gridl" x1="384" y1="16" x2="384" y2="214"/><line class="gridl" x1="485" y1="16" x2="485" y2="214"/><line class="gridl" x1="587" y1="16" x2="587" y2="214"/><line class="gridl" x1="689" y1="16" x2="689" y2="214"/>
+<text class="tm" x="180" y="230" text-anchor="middle">0</text><text class="tm" x="282" y="230" text-anchor="middle">2,000</text><text class="tm" x="384" y="230" text-anchor="middle">4,000</text><text class="tm" x="485" y="230" text-anchor="middle">6,000</text><text class="tm" x="587" y="230" text-anchor="middle">8,000</text><text class="tm" x="689" y="230" text-anchor="middle">10,000 s</text>
+<text class="t" x="170" y="40" text-anchor="end">Replay-chain</text>
+<g class="hov"><title>Today 10,068 s (measured)</title><rect class="k1" x="180" y="24" width="512" height="16" rx="4"/></g>
+<g class="hov"><title>After R1 about 3,100 s (estimate: 80% of the build share removed, about 750 s of one-off builds added)</title><rect class="k4" x="180" y="43" width="158" height="16" rx="4"/></g>
+<text class="t" x="170" y="92" text-anchor="end">Other database</text>
+<g class="hov"><title>Today 3,295 s (measured)</title><rect class="k1" x="180" y="76" width="168" height="16" rx="4"/></g>
+<g class="hov"><title>After about 2,000 s (estimate: same technique on the mini-grid case fixtures, fast server)</title><rect class="k4" x="180" y="95" width="102" height="16" rx="4"/></g>
+<text class="t" x="170" y="144" text-anchor="end">Timing (slow tier)</text>
+<g class="hov"><title>Today 450 s (measured)</title><rect class="k1" x="180" y="128" width="23" height="16" rx="4"/></g>
+<g class="hov"><title>After about 100 s (estimate, R8)</title><rect class="k4" x="180" y="147" width="5" height="16" rx="2"/></g>
+<text class="t" x="170" y="196" text-anchor="end">No database</text>
+<g class="hov"><title>Today 569 s (measured)</title><rect class="k1" x="180" y="180" width="29" height="16" rx="4"/></g>
+<g class="hov"><title>After 569 s (unchanged)</title><rect class="k4" x="180" y="199" width="29" height="16" rx="4"/></g>
+<text class="t tb" x="700" y="37">10,068</text><text class="t tb" x="346" y="56">≈3,100</text><text class="t tb" x="356" y="89">3,295</text><text class="t tb" x="290" y="108">≈2,000</text>
+</svg></div>
+<div class="legend"><span><i class="sw" style="background:var(--c1)"></i>today, summed test time (measured)</span><span><i class="sw" style="background:var(--c4)"></i>after phases 1–4 (estimate)</span></div>
+<figcaption><b>Summed test time falls from about 14,400 s to about 5,800 s.</b> Four workers then finish in about 25 minutes, and reused set-ups (R6) bring that to about 20. How the estimate is built: the samples show set-up is 85–95% of each heavy test (94% portfolio; a constant 25–30 s floor in the EV reads file). We assume only 80% of that is removed, and add the one-off builds back in (about 25 set-ups × 30 s). <span class="tag e">estimate</span></figcaption>
+</figure>
+
+<h2 id="plan">6 Phased plan and how each phase is proven</h2>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 236" role="img" aria-labelledby="f7t f7d">
+<title id="f7t">Phased rollout over builder-days</title>
+<desc id="f7d">Phase 0 measurement half a day; phase 1 quick wins 1.5 days; phase 2 build once copy many 4 days; phase 3 reuse and impact selection 2.5 days; phase 4 virtual time 2.5 days, which can run in a second lane alongside phase 3.</desc>
+<!-- 0..11 days, x 190..740 = 50 px/day -->
+<line class="gridl" x1="190" y1="14" x2="190" y2="200"/><line class="gridl" x1="290" y1="14" x2="290" y2="200"/><line class="gridl" x1="390" y1="14" x2="390" y2="200"/><line class="gridl" x1="490" y1="14" x2="490" y2="200"/><line class="gridl" x1="590" y1="14" x2="590" y2="200"/><line class="gridl" x1="690" y1="14" x2="690" y2="200"/>
+<text class="tm" x="190" y="216" text-anchor="middle">day 0</text><text class="tm" x="290" y="216" text-anchor="middle">2</text><text class="tm" x="390" y="216" text-anchor="middle">4</text><text class="tm" x="490" y="216" text-anchor="middle">6</text><text class="tm" x="590" y="216" text-anchor="middle">8</text><text class="tm" x="690" y="216" text-anchor="middle">10</text>
+<text class="t" x="180" y="36" text-anchor="end">0 Measure baseline</text><rect class="k2" x="190" y="22" width="25" height="20" rx="4"/>
+<text class="t" x="180" y="72" text-anchor="end">1 Quick wins (R2,3,5,7,9,10)</text><rect class="k4" x="215" y="58" width="75" height="20" rx="4"/><text class="tm" x="296" y="72">full ≈ 50 min</text>
+<text class="t" x="180" y="108" text-anchor="end">2 Build once, copy many (R1)</text><rect class="k4" x="290" y="94" width="200" height="20" rx="4"/><text class="tm" x="496" y="108">full ≈ 25 min</text>
+<text class="t" x="180" y="144" text-anchor="end">3 Reuse + impact selection (R6,4)</text><rect class="k4" x="490" y="130" width="125" height="20" rx="4"/><text class="tm" x="621" y="144">full ≈ 20, slice &lt; 10</text>
+<text class="t" x="180" y="180" text-anchor="end">4 Virtual time (R8), 2nd lane</text><rect class="k3" x="490" y="166" width="125" height="20" rx="4"/><text class="tm" x="621" y="180">TEL ≈ 1–2 min</text>
+</svg></div>
+<figcaption><b>About 11 builder-days in all; the first gains arrive on day 2.</b> Phase 4 can run alongside phase 3 in a second lane, which brings the calendar to about 8.5 days. R11 (screenshot audits) can be added to any phase. Every phase ends with a fresh Claude review, never by its builder. <span class="tag e">estimate</span></figcaption>
+</figure>
+<div class="phase"><h3>Phase 0: measure the baseline (0.5 day)</h3>
+<ul><li>Add a memory sampler to the Docker runner. Every 5 seconds it records free Windows memory, the Docker VM size, worker sizes and the database connection count, alongside the connection sampler that already exists.</li>
+<li>Record each test's set-up and check time separately (<code>--durations=0</code> to a file). That turns the 85–95% set-up share from three samples into a measured number for every file.</li>
+<li>Then do one full Docker run on a quiet machine as the baseline.</li></ul>
+<p class="meta"><b>Proof:</b> the baseline report (time, peak memory, peak connections, pass list) is saved under <code>var/test-results/</code>. It is the yardstick for every later phase.</p></div>
+<div class="phase"><h3>Phase 1: quick wins (1.5 days): R2, R3, R5, R7, R9, R10</h3>
+<ul><li>Full runs only in Docker; a separate fast test database server; a <code>slow</code> tier; vitest threads; the worktree-safe run command; memory guard rails.</li></ul>
+<p class="meta"><b>Proof:</b> two back-to-back full runs. The same collected test IDs as the baseline (a diff of <code>--collect-only</code> output). The same pass list from JUnit. Zero skips, and the slow tier run separately with its results recorded. The frontend gives the same pass count under threads.</p></div>
+<div class="phase"><h3>Phase 2: build once, copy many (4 days): R1</h3>
+<ul><li>Add a <code>snapshot</code>/<code>restore</code> pair to <code>pg_harness</code>: database template plus file folder, and a gateway restart when a test needs one.</li>
+<li>Convert the replay families in order of payoff: EV reads and money (w206, w207), portfolio (w303), opportunities and work (w403), cold replay (w202, w203), estate (w301, w302), depth and intent (w5xx), then the mini-grid case fixtures.</li>
+<li>Keep a named set of build-live tests that still check the replay itself.</li></ul>
+<p class="meta"><b>Proof:</b> after each family, compare that family's files old against new: same IDs, same pass list, and a stored-row fingerprint (row counts per table) of copy versus fresh build. At the end, two full runs with the same IDs and pass list as the baseline.</p></div>
+<div class="phase"><h3>Phase 3: reuse between runs and test-impact selection (2.5 days): R6, R4</h3>
+<ul><li>Name saved set-ups by fingerprint and keep them between runs (database names end in <code>_test</code>, as the rules require). Sweep the stale ones.</li>
+<li>Add the <code>tools</code> script that maps changed files to affected test files, with an always-full list (migrations, conftest, pg_harness, scenario and fixture data, <code>main.py</code>/composition, guard scripts).</li></ul>
+<p class="meta"><b>Proof:</b> a change in a set-up's inputs must trigger a rebuild (a deliberate test of this). The selection script is checked against the last 10 merged slices: for each one, every failure the full suite found must sit inside the selected set.</p></div>
+<div class="phase"><h3>Phase 4: virtual time (2.5 days, second lane): R8</h3>
+<ul><li>A stepped clock shared by the TEL device emulator and poller. Use the injectable clock in the schedule and stale tests where the product already supports one.</li></ul>
+<p class="meta"><b>Proof:</b> the same observations arrive, with the same counts and fingerprints, under virtual time and under one real-time run. The real-time TEL run stays in the milestone tier.</p></div>
+
+<h2 id="policy">7 Proposed testing policy (replaces the tiered rule once phases 1–3 land)</h2>
+<div class="tw"><table>
+<thead><tr><th>When</th><th>What runs</th><th>Where</th><th class="n">Target time <span class="tag e">est.</span></th></tr></thead>
+<tbody>
+<tr><td>While building a phase</td><td>Focused files for the area changed (unchanged)</td><td>Host or Docker</td><td class="n">seconds to minutes</td></tr>
+<tr><td>Every slice, before review</td><td>Backend tests selected by impact (fast tier), frontend tests related to the change plus a type check, check-all</td><td>Docker for the backend</td><td class="n">&lt; 10 min</td></tr>
+<tr><td>Every merge to main</td><td>Full backend fast tier, full frontend, build, check-all</td><td>Docker</td><td class="n">≈ 20–25 min</td></tr>
+<tr><td>Merges that touch schema or shared plumbing</td><td>As above plus the slow tier</td><td>Docker</td><td class="n">≈ 30 min</td></tr>
+<tr><td>Nightly, or every 2–3 merges when the machine is idle (safety net)</td><td>Everything, including the slow tier and one real-time TEL run, with memory sampling</td><td>Docker</td><td class="n">≈ 35–45 min</td></tr>
+<tr><td>Milestones</td><td>The above plus the full screenshot recapture</td><td>Docker plus browser</td><td class="n">unchanged</td></tr>
+</tbody></table></div>
+<p>The existing rules stay in force: one heavy job at a time, a cap of twice the expected time, a zero-skip JUnit proof, test databases only under <code>*_test</code> and <code>&lt;prefix&gt;_audit*</code>, and processes stopped by PID only. Full suites on the Windows host are no longer used, except for one file at a time.</p>
+
+<h2 id="risks">8 Risks</h2>
+<div class="tw"><table>
+<thead><tr><th>Risk</th><th>Why it matters</th><th>How it is controlled</th></tr></thead>
+<tbody>
+<tr><td>A copied set-up hides a bug that only shows when the site is built fresh</td><td>Tests would pass on a copy that differs from a live build</td><td>Build-live tests stay; each family is checked copy against fresh build by row fingerprint; the nightly run can run with copies turned off</td></tr>
+<tr><td>Some values in a set-up depend on the real clock (for example, the time evidence was received)</td><td>A test that compares against "now" might behave differently on an older copy</td><td>Phase 2 lists every test that reads the real clock; those either keep building live or freeze the clock; the pass list must be identical</td></tr>
+<tr><td>A saved set-up kept between runs goes stale</td><td>Tests would run against an outdated world</td><td>The fingerprint covers migrations, source, scenario and fixture files; when in doubt it rebuilds; one nightly run can rebuild everything</td></tr>
+<tr><td>Impact selection misses a dependency (data files, strings looked up at run time)</td><td>A slice passes, then the merge gate fails</td><td>The always-full list; the merge gate and nightly run stay complete; the check against past slices in phase 3</td></tr>
+<tr><td>Turning off crash safety on the test server</td><td>A Docker crash could corrupt test databases</td><td>Only throw-away test data, on its own server; the development databases are untouched</td></tr>
+<tr><td>The slow tier runs less often</td><td>A timing regression is found up to a day later</td><td>It runs at every schema or plumbing merge and nightly</td></tr>
+<tr><td>A lower Docker memory cap</td><td>Other Docker work (owner demo databases) shares the VM</td><td>The cap is set from a measured peak plus headroom; it is the owner's decision (D5)</td></tr>
+<tr><td>The frontend runs in threads</td><td>Tests that leak global state could interfere with each other</td><td>Each file still gets its own environment under threads; the full pass count must match; easy to switch back</td></tr>
+</tbody></table></div>
+
+<h2 id="decisions">9 Decisions for the owner</h2>
+<p>Nothing starts until you approve. The Architect's recommendation for each decision is given with it.</p>
+<div class="dec"><h3>D1. Approve the plan and its order (phases 0 → 1 → 2 → 3, with 4 in a second lane)</h3><p>Recommended: yes. About 11 builder-days in all (about 8.5 calendar days with two lanes). The plan goes ahead of the data lane, as your 28 October instruction says.</p></div>
+<div class="dec"><h3>D2. Allow test fixtures to be rewritten to "build once, copy many" (R1)</h3><p>This touches about 100 test files and <code>pg_harness</code>. It changes no product code and no assertion. Proof is an identical test list and pass list. Recommended: yes. This is the change that turns hours into minutes.</p></div>
+<div class="dec"><h3>D3. Allow a second, test-only PostgreSQL server with crash safety turned off (R3)</h3><p>The current rule says "server-wide settings are never changed by the tests". This would not change the existing server; it adds a new one used only by tests. Recommended: yes.</p></div>
+<div class="dec"><h3>D4. Adopt the revised testing policy in section 7</h3><p>Slices run only the tests the change can affect. Merges run the full fast tier. The slow tier runs at schema and plumbing merges and nightly. Recommended: yes, once phases 1–3 have passed their proofs. Until then the current tiered rule stays.</p></div>
+<div class="dec"><h3>D5. Memory settings on your machine</h3><p>(a) Lower the Docker VM cap from 4 GB to the measured peak plus headroom (expected 3–3.5 GB). (b) Close Chrome during full runs. (c) Whether to set <code>CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1</code>. These are your settings, and agents will not change them. Recommended: (a) and (b) yes. (c) not needed once runs stay inside Docker; leave it off so the machine stays protected.</p></div>
+<div class="dec"><h3>D6. Frontend in threads now, and a later happy-dom trial</h3><p>Recommended: threads now (measured −40% on the sample). happy-dom only as a separate trial, because some browser behaviour differs from jsdom.</p></div>
+<div class="dec"><h3>D7. Whether phase 4 (virtual time) and R11 (screenshot audits by change) are funded now or deferred</h3><p>Recommended: phase 4 now in the second lane, since TEL-08 will add more acceptance runs. R11 at the next audit round.</p></div>
+
+<h2 id="unmeasured">10 What could not be measured</h2>
+<ul>
+<li><b>Peak memory of a whole run.</b> No sampler exists yet, and a full run was outside this brief. The per-worker and total figures in section 3 are built from single-test samples. Phase 0 measures it.</li>
+<li><b>The real saving from R1.</b> It is estimated from three samples and the JUnit timings. The set-up share for every file is measured in phase 0, and the saving itself in phase 2.</li>
+<li><b>The gain from a speed-tuned database server (R3).</b> It needs a second server, which is a configuration change.</li>
+<li><b>Memory growth of a long-running worker</b> over hundreds of tests (engines or caches left behind).</li>
+<li><b>The guard script <code>tools/check-all.ps1</code>.</b> It was not timed, because it starts PowerShell with an execution-policy override, which this brief forbids running.</li>
+<li><b>The 1,414-pair screenshot recapture.</b> No timing is recorded in the packets, so R11's saving is not quantified.</li>
+<li><b>One unexplained outlier.</b> <code>test_w302_money_comparability_postgres.py::test_w302_money_persisted_ev_different_currency</code> is reported as passing alone in 3,933 s (over an hour) during the CC-M gate. That is far beyond its peers and needs its own look; it may be a connection wait or the machine sleeping.</li>
+<li><b>The TEL acceptance timing</b> (9–12 min) is taken from the handoff and was not re-run.</li>
+</ul>
+
+<h2 id="sources">11 Sources and method</h2>
+<details class="q"><summary>What was read, run and measured</summary>
+<ul>
+<li><b>Reports read:</b> JUnit and console logs of the three Docker runs in <code>AssetOpsV1-plan2/var/test-results/OPS-03/</code> (23, 25 and 26 Oct; 49, 78 and 62 min); the CC-M packet timing tables (<code>AssetOpsV1-ccm/.agent/CC-M-review-packet.md</code>); <code>backend/TESTING.md</code> Timing; <code>.agent/coordinator-handoff.md</code>; memory notes on the tiered policy.</li>
+<li><b>Code read:</b> <code>backend/tests/conftest.py</code>, <code>pg_harness.py</code>, <code>test_w202_cold_replay_postgres.py</code> (class <code>Chain</code>), <code>test_w303_portfolio_fixture_postgres.py</code>, <code>host/tests/gateway_process.py</code>, <code>host/tests/test_field_modbus_tcp_acceptance_postgres.py</code> (<code>RATE = 60</code>), <code>field/assetops_field/clock.py</code>, <code>frontend/vite.config.ts</code> (jsdom, default pool), <code>tools/run-backend-suite-in-container.ps1</code> (4 workers), <code>tools/w1-fidelity-evidence.mjs</code>.</li>
+<li><b>Samples run today, one at a time on a quiet machine:</b> backend collection (4135 tests, 4–20 s, 151 MB); <code>test_s1_foundation_postgres.py</code> (template 11.6 s, copy ≈1.2 s); <code>test_w303_portfolio_fixture_postgres.py</code> (set-up 65.7 s, check 4.3 s, 252 MB, 7 processes, 22 sessions); one profiled w303 test (≈15,000 statements, ≈430 uploads); round trip 1.95 ms and connect 29.5 ms from the host; gateway process ≈30 MB; vitest 16 files forks 92.7 s versus threads 55.7 s; <code>tsc</code> 29.7 s cold and 5.6 s incremental; <code>vite build</code> 9.8 s. Postgres settings read: <code>fsync=on</code>, <code>full_page_writes=on</code>, <code>shared_buffers=128MB</code>, <code>max_connections=200</code>; WSL cap 4 GB, 8 processors.</li>
+<li><b>Grouping method:</b> a test counts as "replay-chain" when its file uses one of the replay or case fixtures (<code>chain</code>, <code>cold_chain</code>, <code>ev_chain</code>, <code>build_portfolio_fixture</code>, <code>power_estate</code>, <code>mixed_replay</code>, <code>two_ev_sites</code>, <code>CaseRunner</code>): 100 files.</li>
+<li><b>Housekeeping:</b> sample runs used <code>assetops_test</code> as the admin base and the harness dropped its own run databases. No process started for this work was left running.</li>
+<li>Chart colours were checked with the dataviz palette validator for colour-blind separation and contrast in both light and dark.</li>
+</ul></details>
+<p class="foot">Build and Test Performance, 28 October 2026. Produced by the Architect (Claude) at the owner's request. Recommendation only. Nothing was implemented, and no product code, test, configuration or CI file was changed.</p>
+</main>
+</div>
+<script>
+(function(){
+"use strict";
+var b=document.getElementById("themebtn");
+try{var t=localStorage.getItem("ao-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+b.addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");var n=cur==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("ao-theme",n);}catch(e){}});
+})();
+</script>
+</body>
+</html>
