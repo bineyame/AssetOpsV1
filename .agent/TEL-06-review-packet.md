@@ -60,10 +60,23 @@ TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`, as amended by section M (
   - Forcing the report unit to `kW` failed 06a step 4: `('ALREADY_ADMITTED', None, None)` came back where `('HELD', 'UNIT_INCOMPATIBLE', 'unit')` was expected.
 - Guards: `tools/check-architecture.ps1` → "Architecture check passed."; `tools/check-agent-workflow.ps1` → "Agent workflow check passed." Both were run directly with no policy override, and `ASSETOPS_GUARD_PYTHON` was set to the plan2 venv.
 
-## Held heavy run (needs the coordinator's go)
-Run 06b alone against `assetops_tel_test`, and only that test, twice in a row (M Q4):
-`<python> -m pytest host/tests/test_field_modbus_tcp_acceptance_postgres.py -k test_generic_csv_lands_as_accepted_evidence -q -s -p no:cacheprovider --basetemp "$env:TEMP\assetops-tel\tel06b"`
-The two existing tests in that file are not rerun.
+## 06b Postgres gate (run on the coordinator's go, 2026-10-28, at `5c6bb33e`)
+The test ran alone on an idle laptop, with `tools/keep-awake-during-tests.ps1` running and a 300 s cap per run.
+- Command: `python -m pytest host/tests/test_field_modbus_tcp_acceptance_postgres.py -k test_generic_csv_lands_as_accepted_evidence -q -s -p no:cacheprovider --junitxml <run>.xml`.
+- Database: `ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:…@127.0.0.1:55432/assetops_tel6b_test`. Before each run, `assetops_tel6b_test` was dropped and created in `assetopsv1-postgres-1`; `fresh_database()` then reset it, and the database was dropped after each run. No other database was touched, and afterwards no `tel6b` database exists.
+- The two existing tests in the file were deselected.
+
+| Run | Result | Wall time | JUnit |
+|---|---|---|---|
+| A | `1 passed, 2 deselected in 10.74s` | 12 s | tests=1, failures=0, errors=0, skipped=0 |
+| B | `1 passed, 2 deselected in 10.81s` | 13 s | tests=1, failures=0, errors=0, skipped=0 |
+
+Gate evidence (both runs):
+- 196 accepted evidence rows, `{"feeder_demand": 147, "pv_power": 49}`, with an ID set equal to the receipts' ACCEPTED IDs. Every ID is printed in the run log. There were 4 batches, all receipts were COMPLETED, and none was refused. The four UNAVAILABLE envelopes were accepted.
+- The exact-value oracle holds.
+- Provenance is `UNKNOWN` with reasons `["NO_POSITIVE_BINDING"]`.
+- Every consequence table shows 0 rows for the Site.
+- Run A batch IDs: `31d03538…`, `57ff2261…`, `69ed038b…`, `8d1c36cb…`. Session `field:generic-interval-csv-illustrative-1:1:20261028T005613Z:6c8b5634`. File SHA-256 `8c886ba8…`, profile SHA-256 `1496bd9a…`.
 
 ## Known deviations
 None from section M. The plan card's `SOURCE_TIME_IN_FUTURE` case is out of scope by M Q3.
