@@ -1,459 +1,62 @@
-# Coordinator handoff (2026-10-09, S2 complete; pre-S3 startup)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Current state (2026-10-13, supersedes everything below)
-- **UPDATE 2026-10-17 (latest, 35):** Owner REJECTED W1 for mockup drift (`.agent/owner-W1-walkthrough-verdict-2026-10-17.md`); rule `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`, memory `mockup-is-layout-spec`). W1 rework F1 MERGED (`af1aa23e`: guard `expectV69Panels`, shared V69 CSS/components, Sites/Foundation/Readiness/SLD). In flight (check branches/handoffs): F2 `task/W1-F2-overview` (review3, resuming; merge of main was mid-conflict in ui/* when dispatched), F3 `task/W1-F3-findings-money` (review), F4 `task/W1-F4-actions-work` (review4), then F5 (health/asset + all-26 capture audit, F1 carries in packet). W2: designs merged (`.agent/architect-W2-design.md`, `.agent/W2-technical-design-cold.md`, `-ev.md`), packets W2-00/W2-01 on main; W2-00 building on `task/W2-00-source-events` (review2) after `D-2026-10-17-w2-00-answers`. Owner away today; keep-awake to ~00:45. Usage limit reached at this point.
-- **UPDATE 2026-10-17 (34):** W1 build complete on main `18504811`: all feature slices incl. S4-08; W1-UX-01..07 (shared plain-language layer, five area slices, closeout with real 390 px evidence guard, full v69 left menu with "Not available yet" entries per owner decision `.agent/owner-rail-decision-2026-10-17.md` and `D-2026-10-17-w1-rail`). Backend 2590 passed, frontend 1931 passed. Owner folder `C:UsersssefBineyameAssetOpsV1` is detached at `18504811`. NEXT: owner walks `.agent/W1-UX-combined-owner-walkthrough.md` (17 parts, 14 owner notes); record verdict verbatim; W1 closes only on that acceptance. Backlog: flakes (siteFoundationChange heading, schedule-health 1 s, schedule-tick 8 s), W1-UX-07 guard Lows, S6-02a N1/R2/R3 carries.
-- **UPDATE 2026-10-16 (33):** All planned W1 feature slices are merged to main (`3e6dbc88`): S4-04, S6-01b, S5-02, S4-05b, S3-02a, S3-02b, S6-02a, S6-03, S6-02b, S7-01a, S7-01b (combined-main full suite 2557 passed). Owner direction (verbatim `.agent/owner-walkthrough-policy-2026-10-16.md`, memory `walkthroughs-deferred-to-w1-end`): UI slices merge on fresh review ACCEPT; ONE combined owner walkthrough after the W1-conclusion mockup-fidelity and UI/UX pass; W1 complete only after it. Remaining W1: (1) W1-UX-01..05 (umbrella `tasks/W1-UX-mockup-fidelity.md`, rulings `D-2026-10-16-w1-ux`, `-w1-ux-disclosure`); W1-UX-01 building in `AssetOpsV1-review4` (`task/W1-UX-01`), then 02-05 (UX-05 or the last to merge writes the combined walkthrough doc from the 26-screen map). (2) S4-08 assumption consequence history (`assumptions:3`, W1 core) - Codex Planner packet on `plan/S4-08-assumption-history` in `AssetOpsV1-review3`. Known flakes (backlog): `siteFoundationChange.test.tsx` heading, `test_s4_schedule_health_postgres.py` 1 s threshold. Run full backend suites one at a time (Postgres 100-connection limit); keep-awake running. Scratch helpers: `close_nodes.js`, `merge_loading.py` (settled.ts LOADING union), `fixpath.py` in the session scratchpad.
-- **UPDATE 2026-10-16 (32):** Owner accepted S4-04 and S6-01b walkthroughs (verbatim `.agent/owner-S404-S601b-acceptance-2026-10-16.md`; W1-conclusion task widened to user-focused copy + engaging visuals with dig-deeper for advanced users, backlog). Owner away until 11:00 2026-10-16 (owner-absent rule). Main: S4-04 merged `97851c68`, ruling `D-2026-10-16-s602a-cutoff` (F2/F3/F7) merged, S6-01b merged `1f003f47` (registry resolves I-S6-01/I-S6-01b and Action UI nodes; S6-01 umbrella done). Active: S6-02a phase 2 (F1-F8 fixes then evaluator) by a Claude implementer in `AssetOpsV1-review4` (brief `.agent/S6-02a-phase-2-brief.md`, main `e39a3c20` merged in); next a fresh slice review, then merge (non-UI). Planning: S5-02 Codex Planner on `plan/S5-02-refine` in `AssetOpsV1-gap-planning`. Keep-awake NOT running (system note after a low-memory kill: restart only on owner request); Modern Standby events 506/507 recur, so runs are slow (frontend suite 18-66 min, timeouts that pass in isolation). Main checkout `AssetOpsV1` is detached; `AssetOpsV1-review3` (S6-01b) and `AssetOpsV1-review` (S4-04) are free to reuse.
-- **UPDATE 2026-10-15 (31):** End of owner-absence window. Full list of delegated decisions and status: `.agent/owner-autonomy-2026-10-15.md` (committed on main and on `task/S5-01-site-overview`). Main `101051b5`+ has OPS-01, S4-06, S4-07 merged and A-finding-index resolved (next-work now ranks `I-finding-index` first, 5.7% notice band). Branches and worktrees:
-  - `task/S5-01-site-overview` (main checkout `AssetOpsV1`): contains all of LR-01 (head `e8d555bc`) + S5-01; both reviewed; owner walkthroughs `.agent/LR-01-owner-walkthrough.md` then `.agent/S5-01-owner-walkthrough.md`. Merge order after acceptance: `task/LR-01-late-reading-series-and-money-limit` then `task/S5-01-site-overview`.
-  - `task/S6-01a-action-store-read` (worktree `AssetOpsV1-review`): slice review + reopen review ACCEPT; non-UI; merge after LR-01 with migration re-chain (its 0014 -> after LR-01's 0015; four head pins) and one quiet full suite (JUnit).
-  - `task/S6-01b-action-ui` (worktree `AssetOpsV1-review3`): stacked on S6-01a; slice review ACCEPT; reopen change round in progress; owner walkthrough `.agent/S6-01b-owner-walkthrough.md`; merge after S6-01a and owner acceptance.
-  - `task/S4-05a-provenance-binding-resolver` (worktree `AssetOpsV1-review4` history; branch exists): slice review ACCEPT + fix round; non-UI; merge after S6-01a with migration re-chain and one quiet full suite.
-  - `task/OPS-02-writer-guard-ast` (worktree `AssetOpsV1-review2`): review ACCEPT after fix round; merge LAST (absorb LR-01/S6-01a/S4-05a rule-8 entries into its policy arrays, rerun probe corpus).
-  - Not started: S4-05b (needs S4-05a merged; amends S5-01 money read), S4-04 (Site Finding index, now unblocked by A-finding-index).
-  - Lessons: limit to one build + one reviewer at a time (100% CPU made full runs exceed the 20-minute cap); review worktrees use the main venv with PYTHONPATH override and `npm.cmd ci` (not a junction); `test_runs_api.py` needs gitignored `var/sites/*.yaml` (copy in for full runs; backlog item to commit a fixture); never `taskkill` all powershell.exe.
-- **UPDATE 2026-10-15 (30):** Owner away 12:20-22:00 with Architect delegation (`.agent/owner-autonomy-2026-10-15.md` lists every delegated decision; work order `D-2026-10-15-owner-absence-work-order`). Keep-awake running 12 h; 30-min heartbeat cron (session-only). Worktrees: main checkout = `task/S5-01-site-overview` (stacked on LR-01; phase 1 building); `../AssetOpsV1-review` = `task/LR-01-late-reading-series-and-money-limit` (slice review ACCEPT `87019e52`; Sonnet fix round running per `.agent/LR-01-fix-brief.md`: Architect deviation rulings `.agent/architect-LR-01-deviations-answers.md` + review Lows; has its own npm ci); `../AssetOpsV1-gap-planning` and `../AssetOpsV1-plan2` planning worktrees. Main `d5af28bf` carries implementation-ready reviewed packets: S5-01, S6-01a (non-UI) / S6-01b (UI), S4-05a (non-UI) / S4-05b (UI), S4-06, S4-07, OPS-02 (non-UI). LR-01 and S5-01 merges held for the owner walkthrough at 22:00 (LR-01 walkthrough `.agent/LR-01-owner-walkthrough.md`). Build order after S5-01: S6-01a, S4-05a, S4-06, S4-07, OPS-02 (one Postgres-heavy build at a time). Review worktrees: use main venv python with PYTHONPATH override; `npm.cmd ci` in worktree frontend (junction breaks jest-dom).
-- **UPDATE 2026-10-15 (29):** OPS-01 merged to main `39f58a5e` (review `.agent/OPS-01-review.md` ACCEPT; L1-L3 carries). Normal full suite: `pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder` ~8 min (`backend/TESTING.md`); start `tools/keep-awake-during-tests.ps1`, cap runs at 2x, Monitor long runs (memory `long-runs-keep-awake-and-cap`; the PC slept overnight 2026-10-15 and lost ~4 h). Next-work `15a` stop_owner 0.20%; owner chose late readings (`.agent/owner-next-work-2026-10-15.md`). Codex Planner writing the packet on `plan/late-reading-series` (gap-planning worktree; brief `.agent/planner-late-reading-brief.md`, log `.agent/planner-late-reading-log.txt`). Then plan review (fresh Claude), Architect batch questions, build.
-- **UPDATE 2026-10-14 (28):** S4-02d merged to main `00677d37` (slice review `.agent/S4-02d-review.md` ACCEPT, R-1..R-3 Low carries; backlog "S4-02d carries"; registry resolves `I-analytic-finding-worker-schedule`); plan/test-suite-speed merged `1c7595de`; guards 9/9. Schedule install gate CLOSED for demo/walkthrough/pilot. **Active: OPS-01** on `task/OPS-01-backend-test-speed` (owner instruction `.agent/owner-process-speed-2026-10-14.md`; next-work `14n` STOP active_task). Phase-1 implementer running (brief `.agent/OPS-01-phase-1-brief.md`). Then by ranking: `I-late-reading-series-and-money-limit` before S5-01 (owner walkthrough). Apply memory `turnaround-speed-rules`.
-- **UPDATE 2026-10-14 (27):** main `0d137768`: plan/S4-02c-architect merged (F1 ruling, S4-02c registry closeout, S4-02d packet: plan review RETURN -> Codex fix rounds 1-2 -> N1 checked; storage ratified `D-2026-10-14-s402d-schedule-storage-and-install-gate`). Guards 9/9; next-work `14m` select `I-analytic-finding-worker-schedule` (8.28% notice vs `I-action-store`, no owner stop). **Active: S4-02d** on `task/S4-02d-analytic-finding-worker-schedule` (main directory); fresh Claude implementer phase 1; ports 8924/8925/5424/5425, scratch DBs `assetops_s402d_*_test`. Non-UI. Install gate: never on an owner-visible host before the late-reading node lands. Queue after: `I-late-reading-series-and-money-limit` (M) also gates S5-01.
-- **UPDATE 2026-10-14 (26):** S4-02c merged to main `68106bac` (reviews ACCEPT; non-UI). Slice review F1: gateway-sequenced late reading -> S3 INDETERMINATE, revised Finding SUPPORTED but truncated, consequence CURRENT PRICED too low (7.5625 vs 15.8125). Architect `D-2026-10-14-s402c-late-sequence-and-s5-money` (`.agent/architect-S4-02c-answers.md`): new nodes `I-late-reading-series-and-money-limit` (M) and `I-analytic-finding-worker-schedule` (S) gate `I-site-overview-read`/S5-01 and the real pilot; S4-02c acceptance unchanged. On `plan/S4-02c-architect` (gap-planning worktree, not yet merged): rulings + S4-02c registry closeout (`56324b09`, review `.agent/S4-02c-architect-closeout-review.md` ACCEPT w/ carries, L1/L2 applied `3e1c40b4`), S4-02d worker-schedule packet. next-work `14j` select `I-analytic-finding-worker-schedule` 2.198 vs `I-action-store` 2.016 (**8.28% ranking notice**, no owner stop). **NOW:** fresh plan review of S4-02d -> merge plan branch -> check-all on main -> activate S4-02d. Residual: S4-02b Finding money panel can show run-1 7.5625 as current until the late-reading node lands.
-- **UPDATE 2026-10-14 (25):** Owner back; owner-absent rule confirmed (memory). main `f9d6d1a5`: plan/A-S5-overview merged (A-S5-overview, A-action-lifecycle, follow-on nodes, S4-02c packet: plan review RETURN -> Codex fix round `0b49c5bf` -> re-review ACCEPT `05fe1e53`). Guards 9/9; next-work `14h` 0.20% contest -> owner confirmed S4-02c (`.agent/owner-next-work-2026-10-14b.md`). **Active: S4-02c** on `task/S4-02c-evidence-consequence-work` (main directory); fresh Claude implementer; ports 8914/8915/5414/5415, scratch DBs `assetops_s402c_*_test`. Non-UI, no owner walkthrough unless new owner copy appears. Pending Architect batch: R1 scheduling process-jobs/match-findings (optional). Note: Planner = codex exec (memory).
-- **UPDATE 2026-10-14 (24):** On `plan/A-S5-overview` (gap-planning worktree, HEAD `3fe91819`, not yet merged): A-S5-overview resolved + follow-on nodes (`7affc6a1`, review `.agent/A-S5-overview-review.md` ACCEPT w/ carries, L1/L3 fixed); A-action-lifecycle resolved under owner delegation in the 0.54% contest (`09a5a40d`, review `.agent/A-action-lifecycle-review.md` ACCEPT w/ carries, M1 fixed); Architect chose S4-02c (evidence-acceptance consequence work, 0.20% contest) as next; Codex Planner wrote `tasks/S4-02c-evidence-consequence-work.md` (non-UI, USER_REVIEW_REQUIRED false). Carries in backlog sections "A-S5-overview review carries" and "A-action-lifecycle review carries". **Standing check (review L2):** W1 exit_requires / real_pilot_requires are not checker-enforced; verify `I-stored-demo-provenance` manually at W1 exit and before any pilot. Owner to confirm the standing owner-absent rule (build+review, hold UI merges for owner walkthrough). **NOW:** fresh Claude plan review of S4-02c -> merge plan branch to main, check-all on main -> activate S4-02c (fresh Claude implementer).
-- **UPDATE 2026-10-14 (23):** **Owner autonomy window 08:40-~10:40** (`.agent/owner-autonomy-2026-10-14.md`): owner-decision points go to the Codex Architect. main `2f5ac495`: S4-02b merged `a6c6a849`; Architect batch merged `26c1d760` (D-2026-10-14-s402-post-review-follow-ons); S4-02 registry closeout merged (review `.agent/S4-02-closeout-review.md` ACCEPT w/ carries; L1/L2/I2 applied `4fa004b2`; M1 three follow-ons lack nodes, Q2 sizing can flip the selection). next-work `14b` select A-S5-overview 9.50% (pending M1). **NOW:** Codex Architect on `plan/A-S5-overview` (gap-planning worktree): register follow-on nodes, rerun next-work (`14c`), decide next selection under delegation, record A-S5-overview if next, owner-absent checkpoint rule. Then Planner refinement of the selected packet. This handoff edit is uncommitted on main.
-- **UPDATE 2026-10-14 (22):** Owner: "The walkthrough was completed successfuly" -> S4-02 checkpoint passed, recorded conditional, items 1-8 left as built (`.agent/owner-S4-02b-acceptance-2026-10-14.md`). Closeout commit on the task branch, merge to main. **Next:** S4-02 registry closeout (Sonnet, `closeout/S4-02-registry`) -> fresh review -> merge; Codex Architect batch on `plan/S4-02-architect-batch` (gap-planning worktree): S4-02a L2, S4-02b Q2/Q11/Q12; then rerun guards + next-work. Owner DBs `assetops_s402bwalk`/`_s402bempty` can be dropped.
-- **UPDATE 2026-10-14 (21):** Sonnet fix round 1 `6abb3f5c`/`68823f30` (H1, L1-L4; evidence 90/90 on visible text); fresh re-review `.agent/S4-02b-fix-rereview.md` ACCEPT `29ae2abb` (info I1-I5). Walkthrough decision items 7-8 added (kept-for-record figures; price per litre under audit-only). **NOW: waiting on owner S4-02 checkpoint walkthrough** `.agent/S4-02b-owner-walkthrough.md` (DBs `assetops_s402bwalk`/`_s402bempty` prepared, ports 8872/8873/5372/5373). Then closeout: status done, merge, S4-02 registry closeout per `.agent/S4-02b-review.md` notes (assumptions:3#a waits on Architect Q12), Architect batch (S4-02a L2; S4-02b Q2, Q11, Q12), rerun guards + next-work.
-- **UPDATE 2026-10-14 (20):** Slice review `.agent/S4-02b-review.md` ACCEPT w/ carries (`4eb53e6`) but **H1 must be fixed before owner checkpoint/merge**: Financials table shows stored amount under AUDIT_ONLY/STALE headlines (evidence claims vacuous). L1-L4 (L3 demo label fails open), L5 carry. Q11 acceptable after L3 (Architect/Planner batch: record authorship at ingestion); Q12 Architect batch (decides `assumptions:3#a`). Registry closeout notes in the review. **NOW:** Sonnet fix round 1 (H1, L1-L4, walkthrough steps 5-6) -> fresh Claude re-review -> owner S4-02 checkpoint.
-- **UPDATE 2026-10-14 (19):** S4-02b phase 2b built `dbaba10`..`c0be402`; task `in_review`. Packet `.agent/S4-02b-review-packet.md`, walkthrough `.agent/S4-02b-owner-walkthrough.md` (owner DBs `assetops_s402bwalk`/`_s402bempty` prepared, pre-v4; ports 8872/8873/5372/5373; tool `tools/s402b_fuel_cost_walkthrough.py`), questions `.agent/S4-02b-questions-3.md` Q10-Q15. Backend 2049, frontend 1476, evidence 90/90, guards 9/9. Architect batch now: S4-02a L2, S4-02b Q2 (evidence enqueue), Q11 (demo label from spec Site+day vs stored authorship), Q12 (Site-level consequence list). **NOW:** fresh Claude slice review -> `.agent/S4-02b-review.md`. Then owner S4-02 checkpoint walkthrough.
-- **UPDATE 2026-10-14 (18):** Phase 2a review `.agent/S4-02b-phase-2a-review.md` ACCEPT w/ carries (`3793e4d`): M1 closed S3 source gate still presents amount as current (fix first in 2b), M2 HISTORICAL untested, L1-L4 tests/wording. Branch must not merge without 2b. **Architect batch (pending, send together):** S4-02a L2 SUCCESSION-at-start refusal; S4-02b Q2 evidence acceptance enqueues no consequence work. Ops/Planner: Q6 scheduled recompute runner. **NOW:** fresh Claude implementer on phase 2b (backend carries, UI, layout evidence, walkthrough tool + `.agent/S4-02b-owner-walkthrough.md`, review packet, status in_review). Owner ports 8872/8873/5372/5373. Then slice review -> owner S4-02 checkpoint.
-- **UPDATE 2026-10-14 (17):** S4-02b phase 2a built `5d400d6`..`7c21931` (handoff `.agent/S4-02b-phase-2a-handoff.md`, questions `.agent/S4-02b-questions-2.md` Q1-Q9; full backend 2037 passed; guards 9/9). Phase-1 carries landed; recompute worker/CLI, consequence read + route, bridge replaced; owner demo case P01-power (15.82 USD at v1 -> 16.20 after v4) via `tools/s402b_power_cases.py`. Deviation: S4-02a UI words new bridge states wrongly until 2b (do not show it over a 2a DB). **NOW:** fresh Claude review -> `.agent/S4-02b-phase-2a-review.md`. Then 2b (UI + layout evidence + walkthrough).
-- **UPDATE 2026-10-14 (16):** Phase 1 review `.agent/S4-02b-phase-1-review.md` ACCEPT w/ carries (`c4d8383`): M1 basis digest uses raw assignment IDs (fix first in 2a), M2 Q9 wording wrong (F01-gateway has power but 1/3 coverage), L1 0011 work CHECK vs zero-width episode, L2 reviewer field in pinned parameter, L3-L7. Owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`: add a labelled authored demo case with back-to-back 5-min power means (new versioned spec) + backlog item "analysis input data for simulated and real Sites". **NOW:** fresh Claude implementer on phase 2a (read + recompute + fixtures + demo case, carries first).
-- **UPDATE 2026-10-14 (15):** S4-02b phase 1 built (`7cbdef7`, `5b4be01`, `8eb4ee9`, `bc88a0e`; handoff `.agent/S4-02b-phase-1-handoff.md`, questions Q1-Q10 `.agent/S4-02b-questions-1.md`; full backend 2014 passed, guards 9/9; migration 0011 head; price fixture v4 CORRECTION 1.28 over Oct 2026). **Key issue Q9:** ordinary S4 Findings carry no generator power means, so every Finding is QUANTITY_UNAVAILABLE; a positive amount needs a power-mean producer or the walkthrough says none qualified (owner checkpoint impact). **NOW:** fresh Claude review of phase 1 running -> `.agent/S4-02b-phase-1-review.md`. Then phase 2a (fresh implementer). Scratch DB `assetops_s402b_test` kept.
-- **UPDATE 2026-10-14 (14):** Owner chose **S4-02b** (`.agent/owner-next-work-2026-10-14.md`). **Active: S4-02b** on `task/S4-02b-fuel-consequence` (main directory, from main `14ad5ef`). Fresh Claude implementer building phase 1 (`fuel-cost-1` and consequence store), handoff expected `.agent/S4-02b-phase-1-handoff.md`, questions `.agent/S4-02b-questions-1.md`. Implementer ports 8902/8903/5402/5403, scratch DBs `assetops_s402b_*`. Next: fresh review of phase 1 -> phase 2a -> review -> 2b -> slice review -> S4-02 owner checkpoint walkthrough (suggest ports 8872/8873/5372/5373) -> merge -> S4-02 closeout -> rerun guards + next-work. Architect batch still holds S4-02a L2.
-- **UPDATE 2026-10-14 (13):** main `14ad5ef`: S4-02a merged `2592c82`; registry closeout merged (Sonnet `6392b86`, fresh review `.agent/S4-02a-closeout-review.md` ACCEPT w/ carries `6b2a284`, L1/I1-I3 applied by coordinator `2284053`). Guards 9/9 on main; next-work `.agent/next-work-2026-10-14a.json` stop_owner **I-financial-store (S4-02b) 2.229 vs A-S5-overview 2.148 (3.63%)**, tie-break recommends A-S5-overview. **NOW: waiting on owner choice.** If S4-02b: create `task/S4-02b-fuel-consequence` from main, Status active, fresh Claude implementer (carry L5, C3 v4 step, owner version-1 carry). If A-S5-overview: Codex Architect decision on a plan branch (cold, tight brief), batch the S4-02a L2 question with it. This handoff edit is uncommitted on main; commit it on the next branch.
-- **UPDATE 2026-10-14 (12):** PC restarted again after `ac6ae92`; no work lost (no file written after the handoff; worktrees clean). Owner walked S4-02a and **accepted conditionally** (`.agent/owner-S4-02a-acceptance-2026-10-14.md`): 390 px tab wrap ok for now; version 1 history vs schedule a minor carry. Closeout commit on the task branch (status done, review outcome, README row, ACTIVE_CONTEXT, backlog "S4-02a carries (2026-10-14)"), then merge to main. **Next:** registry closeout `closeout/S4-02a-registry` (I-S4-02a resolved; store/read/UI node evidence; `G-assumptions-human-edit` evidence; `G-foundation-financial-assumptions` stays open with corrected review trigger) -> fresh Claude review -> merge -> rerun guards + next-work (owner contest if ≤5%). Walkthrough DBs `assetops_s402awalk`/`_s402aempty` can be dropped (keep the tool for S4-02b).
-- **UPDATE 2026-10-14 (11):** S4-02a built (phase 1 `28668d9`..`4e694bb`, review `.agent/S4-02a-phase-1-review.md` ACCEPT w/ carries; phase 2 `408e9e6`..`f9ce2e5`), slice review `.agent/S4-02a-review.md` ACCEPT w/ carries -> Sonnet fix round `778875d`/`fc8e03f` (M1, L1, L3, L4, L6) -> re-review `.agent/S4-02a-fix-rereview.md` ACCEPT `3781195`. Walkthrough updated with review owner items `4ffae29`. **NOW: waiting on owner walkthrough** `.agent/S4-02a-owner-walkthrough.md` (DBs `assetops_s402awalk`/`_s402aempty` from `assetops_s4cases`, ports 8870/8871/5370/5371). Owner items: disabled-edit wording, "Not calculated", 390 px tab wrap (L2), version-1 history vs schedule. Carries for S4-02b: L5 (cutoff replacement times, "Show later versions" replaces), C3 v4 Finding-window correction step; Architect batch: L2 phase-1 SUCCESSION-at-start refusal. Then closeout: status done, registry closeout (I-S4-02a, store/read/UI nodes, `G-assumptions-human-edit` evidence; keep `G-foundation-financial-assumptions` open unless the owner accepts the link), merge, rerun guards + next-work (owner contest if ≤5%). Kept scratch DBs `assetops_s402a_evwalk`/`_evempty`, stray `assetops_s402a_test`.
-- **UPDATE 2026-10-13 (10):** S4-02 plan merged to main `58bb8ef` (guards 9/9; next-work `13n` identical to reviewed `13m`). Owner chose **S4-02a** (`.agent/owner-next-work-2026-10-13e.md`, 2.20% contest). **Active: S4-02a** on `task/S4-02a-site-assumptions` (main directory, activated `ec74ac6`); fresh Claude implementer building phase 1 (store/SYSTEM publication), handoff expected `.agent/S4-02a-phase-1-handoff.md`, questions (if any) `.agent/S4-02a-questions-1.md`. Implementer ports 8900/8901/5400/5401, scratch DBs `assetops_s402a_*`. Next: fresh Claude review of phase 1 -> phase 2 (fresh implementer) -> review -> owner walkthrough (suggest ports 8870/8871/5370/5371) -> merge -> rerun guards + next-work.
-- **UPDATE 2026-10-13 (9):** A-S4-financial merged `2c87037`. Owner chose S4-02 money (`.agent/owner-next-work-2026-10-13d.md`, contest 3.63%). `plan/S4-02-refine`: Codex Planner (cold, ~118k tokens; cold tight briefs are far cheaper than resuming) split S4-02 into `tasks/S4-02a-site-assumptions.md` (USER_REVIEW_REQUIRED true) and `tasks/S4-02b-fuel-consequence.md` (S4-02 owner checkpoint); `S4-02-bounded-financials.md` is the closeout pointer. Plan review `.agent/S4-02-plan-review.md` ACCEPT with carries -> Sonnet fix round + Codex Architect `.agent/architect-S4-02-answers.md` (Q1 1.10 conditional multiplier; C4 fail-closed containment; DECISIONS addendum) -> re-review `.agent/S4-02-plan-fix-rereview.md` ACCEPT; R1-R5 applied by coordinator `949e3f3`. The split changed next-work: stop_owner **I-financial-assumption-store (S4-02a) 2.182 vs A-S5-overview 2.134 (2.20%)** -> re-ask owner after merge (earlier choice does not carry over automatically). If S4-02a: create `task/S4-02a-site-assumptions` from main, set Status active, dispatch a fresh Claude implementer (phase 1 store/publication), owner walkthrough after review.
-- **UPDATE 2026-10-13 (8):** A-S4-financial resolved on `plan/A-S4-financial`: Codex Architect (resumed session `01a11a84…`, gpt-6-sol, ~5M tokens: the resumed session is large; consider a cold, tight brief next time) wrote `D-2026-10-13-s4-bounded-financial-basis` (`7faa206`; S4-02 splits into two M slices, S4-02a assumptions/history + unpriced bridge, then S4-02b fuel-cost-1 consequence/repricing/UI; `G-readiness-commissioning` missing_kind -> contract). Fresh Claude review `.agent/A-S4-financial-review.md` ACCEPT `efceff4` (carries M1, M2, L1-L7 in backlog "A-S4-financial carries" and the S4-02 outline). Merged to main next. Then rerun guards + next-work on main: expected stop_owner **I-financial-store 2.229 vs A-S5-overview 2.148 (3.63%)**; put it to the owner (tie-break recommends A-S5-overview). If I-financial-store wins: the Codex Planner refines/splits S4-02 on a plan branch first (no implementer before refinement).
-- **UPDATE 2026-10-13 (7):** G-02 merged to main `8f711d8` (owner accepted conditionally, `.agent/owner-G-02-acceptance-2026-10-13.md`; 390 px SLD caption "ok for now"; closeout `5e958ca`; decision D-2026-10-13-g02-visible-placement-and-state-boundary). Registry closeout `closeout/G-02-registry` resolves I-G-02 (`00e7504`; fresh review `.agent/G-02-closeout-review.md` ACCEPT `0863251`), merged next. Next-work `.agent/next-work-2026-10-13h.json`: stop_owner, same contest as 13e; **owner re-chose A-S4-financial** (`.agent/owner-next-work-2026-10-13c.md`). Owner instruction (verbatim) "pay attetion to the priortization workflow": every merge or checkpoint changes inputs, so rerun guards + report and stop for the owner on a ≤5% contest even if asked before; never assume the next slice after a user-review checkpoint. **G-03/G-04/G-05 deferred** (D-2026-10-13-g-gap-packet-activation): their prerequisites are now closed, but ready core candidates are waiting (A-S4-financial owner-chosen; 6 eligible); G-05's owning UI is unbuilt. Re-check at each free slot; otherwise W1-exit backfill review. **Next:** A-S4-financial, an Architect decision on a planning branch (no implementer), then S4-02. Refresh `.ai/ACTIVE_CONTEXT.md` (still says G-02 in_review; review carry K2) when it is activated.
-- **UPDATE 2026-10-13 (6):** PC restarted unexpectedly between 18:28 (last commit) and ~18:44. Damage: the branch ref `task/G-02-v01a-gap-pilot` was zeroed (restored from the reflog to `5ba5d38`) and the `assetopsv1-postgres-1` container was killed (restarted; Postgres WAL recovery clean, all DBs present). Verified afterwards: `git fsck --full` clean, all refs resolve, both worktrees clean, every tracked file rehashed equal to HEAD (the 13 ` M` files under autocrlf are byte-identical, pre-existing), no NUL-filled files; check-all 9/9, tsc 0, vitest 61 files/1446 passed, build ok. No project file was written after 18:28, so no work was lost. G-02 is past implementation: review `G-02-review.md` -> Architect answers -> fix round 1 -> fresh re-review `G-02-fix-rereview.md` ACCEPT -> R1 walkthrough fix `5ba5d38`. **NOW: waiting on owner walkthrough** (`.agent/G-02-owner-walkthrough.md`, ports 8868/8869/5368/5369; owner item: 390 px SLD caption, step 5). Then merge, then A-S4-financial. The "implementer running" note in (5) is stale.
-- **UPDATE 2026-10-13 (latest, 5):** main `5625447`: S4-03 registry closeout merged (review `.agent/S4-03-closeout-review.md` ACCEPT; also resolved I-G-01). Guards pass; next-work `.agent/next-work-2026-10-13f.json` stop_owner A-S4-financial vs A-S5-overview 3.21% — owner already chose A-S4-financial after G-02 (`.agent/owner-next-work-2026-10-13b.md`). **Active: G-02** on `task/G-02-v01a-gap-pilot` (main directory, `42bd74d`), implementer running; owner walkthrough ports 8868/8869/5368/5369. Next: A-S4-financial (Architect decision on a planning branch), then S4-02.
-- **UPDATE 2026-10-13 (4):** main `a32d4bb`: S4-03 merged (owner accepted conditionally, `.agent/owner-S4-03-acceptance-2026-10-13.md`; six reviews read; decision D-2026-10-13-s403-legacy-evidence-and-lineage-words). Next-work REFUSES (queue_mismatch: S4-03 registry open) until registry closeout lands: Sonnet running on `closeout/S4-03-registry` (main directory) -> fresh review -> merge -> rerun next-work. Then G-02 (due after G-01, owner order S4-03 then G-02). S4 milestone: S4-02 (money) still open; batched S3 and S4 Codex reviews still pending. Rule: only one full backend pytest at a time (connection exhaustion).
-- **UPDATE 2026-10-13 (3):** main `662dce3` (S4-03 plan merged; plan review `.agent/S4-03-plan-review.md` ACCEPT, carries applied `563db20`). **Active: S4-03** on `task/S4-03-finding-evidence-history` (main directory, `2bb4f87`), implementer running (ports 8898/8899/5398/5399; owner walkthrough 8866/8867/5366/5367). `sequenced_after I-S4-02` left unchanged (records history only). Next after S4-03: G-02. Gap-planning worktree is on `plan/S4-03-refine` (merged).
-- **UPDATE 2026-10-13 (2):** main `d9eb9ca`: G-01 merged (owner accepted conditionally, `.agent/owner-G-01-acceptance-2026-10-13.md`; reviews `G-01-review.md` RETURN -> `G-01-fix-rereview.md` ACCEPT; decision D-2026-10-13-g01-placement-and-orphan-scan-boundary). All 9 guards pass in the main directory (the gap-planning worktree lacks frontend/node_modules, so the scan guards fail there - run check-all in the main directory). Main directory now on `main`. Next: S4-03 (owner choice) - Codex Planner refining on `plan/S4-03-refine` in the gap-planning worktree; then G-02. NOTE: this handoff file is tracked; a G-01 fix-round agent committed it in `68dfe64` (not pushed).
-- **UPDATE 2026-10-13:** main `d57c756`: V-01b merged `34b2a9f` (owner accepted conditionally), registry closeout merged `f024ddc` (review ACCEPT `b680990`), README S4-01/S4-02 rows corrected (41dba44 had written S4-01's done row on S4-02). Guards pass. **Active: G-01** on `task/G-01-mock-gap-catalogue-and-guard` (main directory, `db98e54`), implementer running; owner walkthrough ports 8864/8865/5364/5365. **Next after G-01:** owner chose I-finding-evidence-read / S4-03 over A-S4-financial (contest 2.215 vs 2.187, 1.26%; `.agent/owner-next-work-2026-10-13.md`). G-02 due at the free slot after G-01 merges — order G-02 vs S4-03 per D-2026-10-13-g-gap-packet-activation (G-02 'next free slot after G-01'), check with owner if ambiguous.
-- main at `660de99`: S3-01, I-finding-store, V-01a (owner accepted conditionally 2026-10-12, `.agent/owner-V-01a-acceptance-2026-10-12.md`), mock-gap planning (G-01..G-05 packets) and the G activation rule (`D-2026-10-13-g-gap-packet-activation`, merged `adeeca4`). Nothing pushed.
-- Active: **V-01b** on `task/V-01b-evidence-lab-visual` (main directory). Built, `in_review`; main merged at `8ab5589`. Reviews: V-01b-review (RETURN), fix-rereview (RETURN, owner chose fix round), fix2 (ACCEPT), Architect answers `.agent/architect-V-01b-answers.md` (Q1 fix required; draft decision D-2026-10-13-v01b-visual-and-lab-read-boundaries to commit at merge), fix3 (RETURN tool-only, owner option 1), fix4 (ACCEPT, `b8bc4ce`; evidence tool 101/101 + 2 not run reproduced). HEAD `bddf514`. NOW: waiting on owner walkthrough (`.agent/V-01b-owner-walkthrough.md`, owner ports 8862/8863/5362/5363). Architect batch pending: `.agent/V-01b-questions-1.md` Q1-Q8. Owner decision flagged: shell-overflow guard 2b change to S1-03 scoping rule.
-- After V-01b merges: G-01 at next free slot (manual order; checker does not enforce), G-02 after G-01, G-03 after V-01b.
-- Gap-planning worktree `AssetOpsV1-gap-planning` used for merges to main.
-
-## Earlier state
-- main at `bc78298`: S1, S2, pre-S3 startup, **S3-01 merged** (owner checkpoint passed 2026-10-12, `.agent/owner-S3-01-acceptance-2026-10-12.md`). Nothing pushed.
-- Loop running per `.ai/COORDINATOR_LOOP.md`. Review routing (owner 2026-10-11): fresh Claude per slice/phase, Sonnet fix rounds, one batched Codex review per milestone (S3 Codex review due at end of S3: covers S3-01 and S3-02), batched Architect questions.
-- (done, merged `79a0664`) branch `closeout/S3-01-registry` — Sonnet implementer recording S3-01's delivered W1 panel portions (next-work refused `[open_path] dispatch:1`). Then fresh review, merge, rerun next-work on main, select next task.
-- Pending Architect batch: `.agent/S3-01-questions-4.md` (Q14-16, reviewer judged safe) and `-5.md` (Q17-Q22) — send with the next natural batch.
-- Owner servers: 8000, 5173/5183/5199/5213/5291; S2 demo processes on 8610/8643 left alone. Walkthrough DBs `assetops_s2demo`, `assetops_s3cases`, `assetops_s3walk` kept.
-- Routing: Codex Architect session `01a11a84-c2ea-7443-884d-0d5544355e9f`; Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; Codex cannot write .git.
-
-### Ranking notices
-- 2026-10-13 (`.agent/next-work-2026-10-13h.json`, G-02 registry closeout, after the G-02 merge): A-S4-financial 2.215 vs A-S5-overview 2.144, gap 3.21% (≤5%), candidates identical to 13e. Re-asked; owner chose A-S4-financial again ("Money decision (A-S4-financial)", `.agent/owner-next-work-2026-10-13c.md`). Tie-break had recommended A-S5-overview.
-- 2026-10-13 (`.agent/next-work-2026-10-13e.json`, S4-03 closeout branch): A-S4-financial 2.215 vs A-S5-overview 2.144, gap 3.21% (≤5%) → owner chose A-S4-financial ("Money decision", `.agent/owner-next-work-2026-10-13b.md`), after G-02. Tie-break had recommended A-S5-overview.
-- 2026-10-13 (main + V-01b closeout, `.agent/next-work-2026-10-13b.json`): A-S4-financial 2.215 vs I-finding-evidence-read 2.187, gap 1.26% (≤5%, story vs story; V-01 rule not applicable) → owner chose I-finding-evidence-read (S4-03), after G-01.
-- 2026-10-12 (main `e434cd7`): V-01a 2.655 vs V-01b 2.470, gap 6.97% (5-10% band) → V-01a selected by published tie-break, notice only. Story-path A-S4-financial 2.215 not in contest. Owner clarified the standing rule applies only to close calls (verbatim "story first in close calls").
-- 2026-10-12: contested ranking on main `79a0664` (`.agent/next-work-2026-10-12.json`): A-finding-episode 2.761 vs V-01a 2.655, gap 3.84% (≤5% → owner). Tool tie-break recommended V-01a; coordinator recommended A. **Owner chose A** (verbatim: "lets go with option A"). Started on branch `plan/A-finding-episode`.
-- 2026-10-12: decision merged `87c49ce`. Next contest: I-finding-store 2.785 vs V-01a 2.655 (4.67%). **Owner chose I-finding-store** and set a standing rule (verbatim "I-finding-store, and story path first until S4 is done"; `.agent/owner-contest-rule-2026-10-12.md`): until S4 is done, story-path beats V-01a/V-01b in ≤5% contests without stopping; log each such notice here.
-
----
-Older history follows.
-
-# Coordinator handoff (2026-10-08, S1 merged; S2-01a planning next)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Current state (supersedes everything below)
-
-- **S1 is merged into main** at `26d013b` (S1-01 persisted Foundation, S1-02 bindings/Readiness/SLD, S1-03 Foundation organization). Nothing pushed.
-- Reviews: Codex Reviewer joint review (`.agent/S1-codex-review.md`): S1-01 accept with carries, S1-02 changes required, fixed; fresh Claude re-reviews closed everything (`.agent/S1-02-fix-rereview.md`, `.agent/S1-03-review.md`, `.agent/S1-fix-rereview.md`, `.agent/S1-fix-rereview-2.md`, final verdict accept with carries).
-- Owner UI check accepted (`.agent/owner-S1-acceptance-2026-10-08.md`): "looks ok for now"; owner plans a later UI/UX modernization round after functional slices (relates to V-01).
-- Architect (Codex, session `01a11a84-c2ea-7443-884d-0d5544355e9f`) decisions: `D-2026-10-08-s1-bindings-roles-and-snapshot`, `D-2026-10-08-s1-foundation-organization` (in `.ai/DECISIONS.md`); answer files `.agent/architect-S1-*`.
-- Owner routing rules (memory): re-reviews by fresh Claude reviewer; small fix rounds by Sonnet implementer; decisions to the Codex Architect; Codex reviews new slices (batched where the owner says).
-- Carries (all in `.agent/S1-01-review-packet.md`, `.agent/S1-02-review-packet.md`, `.agent/S1-03-review-packet.md`): notably registration identity mutability (m4/N2), snapshot download availability depends on current registrations (S1-02 n5, carry before S2), 0004 downgrade drops bytes (n1), Lab phone layout and Lab layout claims unmeasured, `/api/sites` latency (m7), no DB connection timeout (N7), R1 carry-side tests (N1), nav-guard shapes (N2).
-- Dev DB `assetops`: KOBO-001 imported and converted, with several reserve/binding versions from testing; KOBO-GAP-001 test Site.
-
-## Owner rule 2026-10-09 (verbatim): "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use"
-- Remaining S2 slices (S2-01c, S2-02): a fresh Claude reviewer per slice; one Codex review over S2-01c + S2-02 together at the end of S2. Architect questions are batched (implementers proceed on fail-closed defaults); call Codex immediately only for a genuine blocker.
-- S2-01a+S2-01b merged to main at `7c10283` (owner approved). S2-01c in progress on `task/S2-01c-gateway-diagnostics-faults` (phases 1, 2 built; 3a dispatched; 3b next).
-
-## S2-02 status (2026-10-09, latest — supersedes S2 notes below)
-- S2-02 built (phases 1, 2, 3a, 3a2, 3b, corrections, 3c), fresh Claude review -> Architect batch 4 -> fix round -> fresh Claude re-review accept (`.agent/S2-02-fix-rereview.md`) -> walkthrough doc fix (R1/R2). Branch `task/S2-02-ingestion-site-evidence`. S2-01c merged at `b4006d1`.
-- WAITING ON OWNER: S2 Evidence walkthrough per `.agent/S2-02-owner-walkthrough.md` (USER_REVIEW_REQUIRED). Owner servers on old code show KOBO-001 awaiting migration until restarted on this branch.
-- Running: one Codex review of S2-01c+S2-02 (`.agent/S2-codex-review-brief.md` -> `.agent/S2-codex-review.md`).
-- Next Architect batch: `.agent/S2-02-questions-7.md` (Q37-Q40) + re-review R3 + any Codex review findings needing decisions.
-- After S2 closeout: V-01 adoption decision (owner), delivery-strategy startup prerequisites (drafts in `.agent/delivery-drafts/`, Architect batch-4 Part B answers), pre-S3 shared-contract decisions.
-
-## Delivery strategy (owner-confirmed 2026-10-09) and ranking notices
-- `D-2026-10-09-owner-delivery-strategy` recorded in `.ai/DECISIONS.md` (`f5d35c0`); working plan and phased prerequisites in `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md`.
-- Planning-only drafts allowed during S2-02 (no tracked registry/workflow/checker changes until S2-02 closeout). Loop activates only after S2-02 closeout + startup prerequisites + owner W1 input.
-- **Ranking notices (5%<gap<=10% "notify and continue") are recorded in this file under a "Ranking notices" heading.**
-
-### Ranking notices
-(none yet)
-
-## S2-01c (2026-10-09, latest)
-- Built (phases 1, 2, 3a, 3b), fresh Claude first review -> Architect batch -> fix round 1 -> re-review (R1 block) -> batched Architect (`a2d409d`) -> fix round 2 -> fresh Claude re-review ACCEPT (`.agent/S2-01c-fix2-rereview.md`). Awaiting owner merge decision.
-- S2-02 refined (planning commit before `a2d409d`; packet amended by Architect). Open questions to batch for the next Architect call: `.agent/S2-01c-questions-6.md` plus any S2-02 implementer questions.
-- Codex reviews S2-01c + S2-02 together at end of S2.
-
-## S2 status (2026-10-09) — supersedes the S2 progress notes below
-
-- S2-01a: built, Codex first review ACCEPT WITH CARRIES. S2-01b: built (phases 1, 2, 3a, 3b), Codex first review RETURN (F1) -> fix round 1 -> fresh Claude re-review accept -> Architect fix-round choices -> fix round 2 (Sonnet) -> fresh Claude re-review accept (`.agent/S2-01b-fix-rereview-2.md`). Packet `.agent/S2-01b-review-packet.md`.
-- Neither merged to main. S2-01b branch contains S2-01a. Awaiting owner's merge decision.
-- Carries in `.ai/MILESTONE_REVIEW_BACKLOG.md`: S2-01a F1 (closed in S2-01b), F3; S2-01b F2, F3, R1, layout note. Q4/Q5 demo config and asset-code identity are S2-02 prerequisites.
-- Codex sessions: Architect `01a11a84-c2ea-7443-884d-0d5544355e9f`; Planner `01a11c16-72df-7bb0-a825-60c7d83c1d82`; S2-01b reviewer `01a11e95-bb1c-7992-9491-9859b4d1abd1`. Codex sandbox cannot write `.git`; the coordinator commits its edits.
-- Next: owner merge decision; then Planner refines S2-01c (after S2-01b review, now done).
-
-## S2 progress (2026-10-08, later)
-
-- Branch `task/S2-01a-registered-lab-basis`: Codex Planner refined S2 (`b322843`; session `01a11c16-72df-7bb0-a825-60c7d83c1d82`; questions `.agent/planner-S2-questions-2026-10-08.md`). Codex Architect answered (`8544549`; `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary`; `.agent/architect-S2-answers-2026-10-08.md`; no owner input needed).
-- Codex sandbox cannot write `.git`; the coordinator commits Codex edits.
-- Phase 1 built (`ce65b8d`..`a736be7`, handoff `.agent/S2-01a-phase-1-handoff.md`); implementer questions answered by Architect (`684aa91`, `.agent/architect-S2-01a-answers-2.md`, no owner input). Phase 2 dispatched to a fresh implementer; packet expected at `.agent/S2-01a-review-packet.md`; then first review by Codex.
-- S2-01a built (phase 2 `8d0e1d3`..`145ca18`; packet `.agent/S2-01a-review-packet.md`; task in_review). Two Codex runs were killed by Claude Code for low system memory before producing output, not restarted pending owner: (1) Architect on Q4/Q5 (`.agent/architect-S2-01a-request-3.md`, resume Architect session `01a11a84-c2ea-7443-884d-0d5544355e9f`); (2) Codex first review (`.agent/S2-01a-review-brief.md`, cold session `01a11c82-0853-7653-842d-b405b88adf76` started, can be resumed). Full layout-evidence run incomplete (browser stalled after 132 PASS).
-- (superseded) S2-01a phase 1 (selection and freeze) dispatched to a fresh Claude implementer; handoff expected at `.agent/S2-01a-phase-1-handoff.md`. Phase 2 (execution, guards, frontend) goes to a fresh implementer from that handoff; then first review by Codex.
-
-## Next actions (older, done through planning)
-
-1. S2-01a is an outline: Planner (Codex) refines it against the S1 result and the carries that S2 consumes (n5 snapshot availability, gateway auth) before any implementation.
-2. Then Implementer on S2-01a; Codex review per owner; re-reviews by fresh Claude.
-
----
-Older history follows.
-
-# Coordinator handoff (2026-10-04, T028 merged; owner-led roadmap review next)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Current state (supersedes everything below)
-
-- **T028 is complete and merged**: `main` at `bd37200` (nothing pushed). Owner
-  accepted on a quick UI check (`.agent/owner-T028-acceptance-2026-10-04.md`);
-  the full packet walk was not recorded; domain-expert feedback checkpoint
-  outstanding. Final: backend 1493, host 619, simulator 244, frontend 1134,
-  build, both checks; layout 615/4 known (`.agent/T028-layout-evidence-final.txt`).
-- Role bindings reverted to Codex (Architect, Planner, Reviewer). Owner rules
-  2026-10-04: decision requests go to the active Architect (ROLE_CONFIG);
-  product screens plain-language, no simulator wording, deep analysis in its
-  own tab (`D-2026-10-04-plain-language-analysis-views`). Re-reviews after a
-  slice's first review: fresh Claude reviewer.
-- New decisions: `D-2026-10-04-analytic-readiness-scope-and-gap-impact`,
-  `-practitioner-first-finding-presentation`, `-plain-language-analysis-views`.
-- Backlog additions: T028A (configurable gap impact, after T029 point-2
-  feedback); "For T029: practitioner-first presentation direction"; legacy
-  product copy inventory after T029; carries from T028 Codex review (C1),
-  re-review (F2), presentation review (F2-F4, F7).
-- Codex retrospective reviews still queued, not run: T025e, T025f, T025g,
-  T026, demo-led plan, T027 phases 1 and 2.
-
-## Next actions
-
-1. **Owner-led major review with the Architect** (Codex) to chart the roadmap
-   and alter tasks. The owner leads it; wait for the owner's framing. Likely
-   inputs: `.ai/ARCHITECT_DEMO_RECOMMENDATION.md`, `.ai/FEATURE_MAP.md`,
-   `tasks/README.md` (queue T029 -> T029B -> T029A -> T034 -> ...), the T028
-   Architect records, backlog. Save owner text verbatim.
-2. Then the queue as revised; the retrospective Codex reviews when the owner
-   wants quota spent on them.
-
----
-Older history follows.
-
-# Coordinator handoff (2026-10-03 ~15:00, T028 phase 1 built; owner UI check next)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Current state (supersedes everything below)
-
-- T028 phase 1 is built on `task/T028-dispatch-finding-and-evidence` (cut from
-  `cfe142a`; HEAD `7e0450d`; not merged). First implementer stalled (watchdog)
-  after 7 commits; a fresh one finished. Handoff `.agent/T028-phase-1-handoff.md`
-  (per-AC table, owner UI-check steps); decision table
-  `backend/tests/dispatch_decision_table.md`. Targeted tests, tsc and both
-  checks pass; full suites belong to phase 3.
-- No review of phase 1 yet. Owner questions open: (1) stop-60 policy record
-  under profile 5 (needs scenario/publication change, not made; nothing
-  blocked); (2) Necessary intervals produce an assessment but no Finding.
-- Phase 2 risks: same recipe rerun over same window gives no revision
-  (ingestion keeps first record per key); analytic runtime bounds differ from
-  the Overview's whole-interval "Generator running time" (carry still open).
-
-## Next actions
-
-1. Owner ruled 2026-10-03 (`.agent/owner-T028-phase-1-questions-2026-10-03.md`):
-   UI check only after all T028 phases; stop-60 as is; Necessary = no Finding.
-2. Phase 2 built: HEAD `20fbc58`, handoff `.agent/T028-phase-2-handoff.md`,
-   layout `.agent/T028-phase-2-layout-evidence.txt` (546/7: 4 known, 3 the
-   updated T027 card claim, fixed, not re-run). Adds `GET /api/findings`
-   (test_health changed to allow it). Phase 3 dispatched ~21:40 to a fresh
-   Implementer (AC20, full suites, layout, packet `.agent/T028-review-packet.md`).
-   Codex reset passed 21:23: ROLE_CONFIG revert and in-flight roles put to owner.
-   Phase 3a (AC20, AC18 Evidence rows) built: HEAD `618b598`, handoff
-   `.agent/T028-phase-3a-handoff.md`. Phase 3b closeout (suites, build, layout,
-   packet, records) dispatched to a fresh Sonnet implementer.
-   Phase 3b closeout agent stalled after writing everything; coordinator
-   committed it as `9524382` (task in_review, packet `.agent/T028-review-packet.md`,
-   suites backend 1465 / host 616 / simulator 244 / frontend 1097, build ok,
-   checks pass, layout 560/5: 4 known + T025b "profile 4 discloses the status"
-   claim, seen once in T027 phase 2, not re-run). NEXT: review (owner to say
-   Codex or fresh Claude), then owner UI walk (packet last section).
-   2026-10-04: owner reply `.agent/owner-T028-closeout-2026-10-04.md`. New
-   standing rule (ROLE_CONFIG "Decision Requests Go To The Active Architect",
-   main `38177b3`, merged into T028 as `1f46d75`): decisions go to the
-   Architect, not the owner. ROLE_CONFIG reverted to Codex. Codex Architect
-   running on brief `.agent/T028-architect-brief-readiness.md` -> record
-   `.agent/T028-architect-readiness-decisions.md` (log
-   `.agent/T028-architect-codex-run.log`, capture session id). Then: any
-   required change (fresh implementer), Codex first review of T028 (discovery
-   per ROLE_CONFIG), owner UI walk. Retrospective Codex reviews (T025e, T025f,
-   T025g, T026, demo-led plan, T027 p1/p2) queued after T028's review to
-   conserve quota.
-   Codex Architect done (session 01a104e1-58c3-7062-ba32-1a1e141fc8c2):
-   `.agent/T028-architect-readiness-decisions.md`; landed as
-   D-2026-10-04-analytic-readiness-scope-and-gap-impact + T028A backlog carry
-   (`57810e8`). No owner input wanted. Correction round (record section 3)
-   dispatched to a fresh Sonnet implementer; then Codex first review.
-   Correction round done `3e75a54` (readiness-2; backend 1468, host 616
-   (coordinator ran), frontend 1098, tsc, checks). Codex first review running:
-   brief `.agent/T028-codex-review-brief.md` -> `.agent/T028-codex-review.md`
-   (log `.agent/T028-codex-review-run.log`; capture session id for resume).
-   Then: sort findings block/carry; fix round (fresh Sonnet) if any block;
-   owner UI walk (packet last section); merge.
-   Codex review RETURN (session 01a104f2-2007-7a20-b7ce-34166ee13c4f):
-   `.agent/T028-codex-review.md`, R1-R5 block (all reproduced), C1 carried to
-   backlog (`af668a7`). Fix round 1 dispatched to a fresh session-model
-   implementer (R2 has a treatment choice). Re-review: R2 choice makes it
-   discovery -> resume the Codex review session
-   (`codex exec resume -c sandbox_mode="workspace-write" --skip-git-repo-check <id> "..." < /dev/null`).
-   CORRECTION: re-reviews go to a fresh Claude reviewer (owner rule 2026-09-29,
-   memory codex-rereview-conservation), not Codex. Fix round 1 done `7368637`
-   (dispatch-2, readiness-3; backend 1482, frontend 1099, host 616). Fresh Claude
-   re-review running -> `.agent/T028-fix-round-1-claude-rereview.md`. If it
-   finds something unexpected, put it to the Architect/owner, do not auto-route
-   to Codex. Then owner UI walk.
-   Claude re-review: ACCEPT, F1 (false override wording, P3) fixed in fix
-   round 2 (Sonnet, running), F2 carried to backlog, F3 packet wording in
-   round 2 (`6efafbe`). Reviewer flagged R2/R4 choices + F1 as a Codex-escalation
-   signal but recommended against; coordinator did not escalate (owner quota
-   rule); owner told and may overrule. After round 2: coordinator verifies,
-   then owner UI walk (packet last section), then merge.
-   Fix round 2 done `30122ed` (F1 wording + 3 tests, F3 packet; backend 1485,
-   host T028 14 (coordinator ran), checks pass; backend-only code change).
-   NEXT: owner UI walk, packet `.agent/T028-review-packet.md` last section;
-   record owner text verbatim; then mark T028 done, move task to completed,
-   merge to main; then retrospective Codex reviews (T025e, T025f, T025g, T026,
-   demo-led plan, T027 p1/p2), then T029.
-   Owner audience question (`.agent/owner-T028-audience-question-2026-10-04.md`)
-   -> Codex Architect (session 01a10712-8960-7e23-b764-1d6781ab5221)
-   `.agent/T028-architect-audience.md`: product-facing but reads like an
-   analyst report; narrow presentation correction before merge; landed as
-   D-2026-10-04-practitioner-first-finding-presentation + T029 carry (`66d31ad`).
-   Presentation correction dispatched to a fresh session-model implementer
-   (full suites, build, layout). Then fresh Claude review (wording must not
-   strengthen claims; disclosure usable), then owner UI walk, merge.
-   Owner presentation direction (`.agent/owner-T028-presentation-direction-2026-10-04.md`)
-   -> paused correction (`12fd695`, handoff `.agent/T028-presentation-handoff.md`)
-   -> Codex Architect (resumed session) spec `.agent/T028-architect-presentation.md`,
-   landed as D-2026-10-04-plain-language-analysis-views; AC21 + recommendation
-   tab inventory amended; legacy-copy follow-up after T029 (`74f66d4`).
-   Checkpoint 1 (default reading + Analysis tabs + vocabulary in touched copy)
-   dispatched to fresh session-model implementer. Then checkpoint 2 (four
-   graphics + vocabulary guard + layout) by a fresh implementer from
-   `.agent/T028-presentation-cp1-handoff.md`; then fresh Claude review; owner walk
-   (default views first, then Analysis); merge.
-   Checkpoint 1 done `82af69c` (backend 1491, host 619, frontend 1104, build,
-   checks; handoff `.agent/T028-presentation-cp1-handoff.md`). Checkpoint 2 split:
-   2a graphics (dispatched, fresh session model) -> `.agent/T028-presentation-cp2a-handoff.md`;
-   2b vocabulary guard + remaining T028-journey jargon (drawer normalization
-   statement, rejection details, Overview interval_statement) + rewrite stale
-   layout claims (layout-evidence.mjs ~4229-4340) + layout run + packet.
-   2a done `55f6fe8` (four graphics in `frontend/src/sites/assessmentGraphics.tsx`,
-   card timeline projection; frontend 1124, backend 1492, build, checks; no
-   layout run). 2b dispatched (guard, jargon, layout rewrite + run, full
-   suites, packet walk, records).
-   2b done `9e40a13` (vocabulary guard `frontend/src/test/productVocabulary.*`,
-   jargon removed, layout 615/4 known + Lab-off 4/0; backend 1493, host 619,
-   simulator 244, frontend 1132, build, checks; packet walk rewritten).
-   Fresh Claude review of 30122ed..9e40a13 running ->
-   `.agent/T028-presentation-claude-review.md`. Then owner walk, merge.
-   Presentation review (Claude) ACCEPT with F1 block; F2-F4, F7 rest carried
-   (`74f769b`). Sonnet fix round: F1, F5, residual jargon, F6. Then owner walk.
-   Fix round done `05ae70f` (frontend 1134, backend 1493, host 619 + build run
-   by coordinator, checks pass). T028 READY FOR OWNER WALK: packet
-   `.agent/T028-review-packet.md` last section. Record owner text verbatim,
-   then mark done, move task to completed, merge to main.
-   Former owner decisions for UI review (now with the Architect): gap rule (only a gap that left a segment
-   Indeterminate lowers Full to Limited) and site-wide readiness window.
-3. Then phase 3, then a fresh Claude reviewer (or Codex after reset), then owner UI check.
-4. After the Codex reset (21:23 today): ROLE_CONFIG revert, retrospective list
-   (add T028 phase 1 if Claude-reviewed), ask who takes in-flight roles.
-
----
-Older history follows.
-
-# Coordinator handoff (2026-10-03, T027 merged; T028 next)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Current state (supersedes older sections below)
-
-- **T027 is complete and merged**: `main` at `1f4e64c` (nothing pushed). Owner
-  hands-on checks of both phases successful (`.agent/owner-T027-phase-2-hands-on-2026-10-03.md`).
-  Owner ruling 2026-10-03: "Start Simulation" stays a disabled Quick action with
-  its Run-setup reason. Final suites: backend 1435, host 602, simulator 244,
-  frontend 1071; both checks pass.
-- Codex retrospective list: T025e, T025f, T025g, T026, the demo-led plan,
-  T027 phase 1 and phase 2.
-- Carries in `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 1/2"
-  (N2, N6, registry location for T034; generator runtime for T028; Lab
-  "no accepted evidence" wording fast lane; intermittent T026 layout claim).
-
-## Next actions
-
-1. **T028** (dispatch Finding, `tasks/T028-dispatch-finding-and-evidence.md`) by a
-   fresh Implementer; read the T028 generator-runtime carry first.
-2. After the Codex reset (2026-10-03 21:23): revert Architect/Planner/Reviewer in
-   `.ai/ROLE_CONFIG.md` to Codex, queue the retrospective reviews above, and ask
-   the owner who takes in-flight roles.
-
----
-Older history follows.
-
-# Coordinator handoff (2026-10-03, T027 phase 1 accepted; phase 2 next)
-
-A fresh coordinator starts from this file; do not re-derive what it states.
-
-## Where things stand
-
-- `main` at `4ae4d4b` (nothing pushed): the demo-led recommendation and replan
-  (`f7325c3`) plus T025h parked in `.ai/MILESTONE_REVIEW_BACKLOG.md`
-  ("Parked task: T025h"; pick up not before T029 with the T026 AC15 p95 task;
-  branch `task/T025h-picker-compatibility` is superseded, do not merge).
-- Sources of record: `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` (owner-approved),
-  `.ai/DECISIONS.md` `D-2026-10-02-*`, `tasks/README.md` queue T027 -> T028 ->
-  T029 -> T029B -> T029A -> T034 -> T034A -> T031 -> T032 -> T030 -> T035 ->
-  T033 -> T025i -> T036.
-- Owner text, verbatim, in `.agent/owner-*-2026-10-02.md` (review,
-  instruction, approval, acceptance); each approval file separates the owner's
-  words from the coordinator's reading.
-- **T027 phase 1 is accepted** on `task/T027-commit-ingestion-and-site-overview`
-  (cut from `f7325c3`; HEAD `dfb9651`; task `Status: in_review`, phase 2 open).
-  - Owner hands-on check: successful (`.agent/owner-T027-phase-1-hands-on-2026-10-03.md`).
-  - Review `.agent/T027-phase-1-claude-review.md` (accept with one fix);
-    fix round `c9fb412..24bc13e`; re-review `.agent/T027-phase-1-claude-rereview.md`
-    (accept); N10 `.pyc` untracked in `dfb9651`.
-  - Suites: backend 1417, host 602, simulator 244 (run from `simulator/`),
-    frontend 1056; both checks pass. Layout evidence from phase 1 build:
-    4 pre-existing FAILs only.
-  - Carried to `.ai/MILESTONE_REVIEW_BACKLOG.md` "Carried from T027 phase 1":
-    release resume needs the live stage (N2), evidence store design (N6),
-    configuration-registry location (owner question, trigger T034).
-  - Phase 2 handoff: `.agent/T027-phase-1-handoff.md` (includes N9: one
-    source for `NEEDED_SIGNALS` and the AC22 profile).
-
-## Next actions
-
-1. T027 phase 2 (mini-grid Site Overview: AC11, AC22, and the Overview
-   extensions of ACs 10, 12-15, 19) by a fresh Implementer from
-   `.agent/T027-phase-1-handoff.md`. Ends with full suites, layout evidence,
-   final packet.
-2. Fresh Claude Reviewer on phase 2 (or Codex after the reset; ask the owner),
-   then the owner's demo point 1 check.
-3. Before T027's final merge: merge `main` (`4ae4d4b`) into the T027 branch.
-
-## Open owner items (defaults stand until the owner rules)
-
-- Demo point 3 shows the Action already accepted (no live Accept click).
-- Name of the evidence-limited Portfolio-lite site: left to T034A's Planner.
-- Global Financials root vs Portfolio view: decide after T036.
-
-## Standing rules
-
-- Owner restarts sessions to save usage: dispatch long agents only when the
-  owner expects them to run in this session; otherwise leave the next action
-  here for a fresh session.
-- Pass owner feedback to agents verbatim via a saved `.agent/` file.
-- `.ai/ROLE_CONFIG.md`: after the Codex reset 2026-10-03 21:23, revert the
-  Architect, Planner and Reviewer rows to Codex, queue retrospective Codex
-  reviews of T025e, T025f, T025g, T026 and the demo-led plan, and ask the owner
-  who takes in-flight roles.
-- `.agent/` is gitignored: commit with `git add -f`.
-
-## Update 2026-10-03 ~10:25: T027 phase 2 built and reviewed; owner UI check next
-
-- Phase 2 on the T027 branch (HEAD bb8976d): packet `.agent/T027-phase-2-review-packet.md`
-  (fix rounds 1-3), layout `.agent/T027-phase-2-layout-evidence-fix-round-1.txt`
-  (513 PASS / 5 FAIL: 4 known + intermittent T026 delayed-reading claim, backlogged).
-- Reviews (all Claude, temporary binding): `.agent/T027-phase-2-claude-review.md`
-  (F1-F5), `-claude-rereview.md` (R1-R3), `-claude-rereview-2.md` (S1, S2).
-  Fix round 3 (S1/S2, strings + comments only) verified by the coordinator:
-  tsc clean, frontend 1071. Backend 1435, host 602, simulator 244.
-- Owner asked (2026-10-03): send to reviewer, owner does UI check after all is
-  complete. Next: owner UI check (packet "User-review focus" 1-7), owner rulings on
-  energy wording (point 6) and on "Start Simulation" (keep disabled with true
-  reason vs remove/link to Run setup). Then merge main (4ae4d4b) into the branch,
-  mark T027 done, merge.
-- Codex retrospective list gains T027 phase 1 and phase 2.
-
-## Entry 36 (2026-10-17, usage limit) - in-flight state
-
-- Main: W2-00 merged `8e0af014`; W2-02/W2-03 packets `0dda3362`; W2-01 answers `2f70af49`; F5 carries `.agent/W1-F5-carries.md` `91958d71`.
-- W1-F2 (review3): fix round 2 running (re-review `.agent/W1-F2-rereview.md` RETURN 2 Medium: limits panel merge, inline-status CSS reset). Then fresh re-review -> merge on ACCEPT.
-- W1-F3 (AssetOpsV1-review): fix round 1 running (review `.agent/W1-F3-review.md` RETURN 3H/6M). Told about inline-status CSS bug.
-- W1-F4 (review4): fix round 2 trim running (heights grew after round-1 fixes). Then re-review.
-- W2-01 (review2): build running after Architect answers (`D-2026-10-17-w2-01-answers`).
-- Next: F5 (health/asset + carries + all-26 audit) with the recurring-defect self-check (memory `mockup-is-layout-spec`); then owner repeat walkthrough. W2-02 after W2-01 merges.
-- On resume: check each worktree's git log/status; agents may have been cut off - re-dispatch from committed state.
-
-## Entry 37 (2026-10-17 late) - W1 rework complete; awaiting owner repeat walkthrough
-
-- W1 fidelity rework F1-F5b all merged on main (`056a34b8`): F2 `2275348f`, F4 `aceb759e`, F3 `92a91dc2`, F5a `e7a1f6a1`, F5b `056a34b8`. Frontend 2140 passed, guards 10/10.
-- Owner walkthrough index: `.agent/W1-F5b-evidence/index.html` (168 app-vs-mock pairs at 1440/390, 0 failing; overages with reasons in `overages.json`). Owner folder `AssetOpsV1` moved to `056a34b8`. W1 closes only on owner acceptance.
-- W2: W2-00, W2-01 merged. W2-02 (review2, `task/W2-02-cold-producer`) commit (4) + full suites running (agent). Then Opus review, W2-03 (build spec ready: `.agent/W2-03-build-spec.md`).
-- Efficiency rules in memory `token-efficiency`.
-
-## Entry 38 (2026-10-18) - W1 accepted conditionally
-
-- Owner accepted W1 conditionally (`.agent/owner-W1-acceptance-2026-10-18.md`): refine UI/UX after all waves; backlog item added. W1 is closed for sequencing; W2 proceeds.
-- W2: W2-00..02 merged; W2-03 final proof running (review2, `task/W2-03-cold-assessment`); W2-04 spec passed readiness gate; W2 mockup authority ruling `D-2026-10-18-w2-mockup-authority`.
-
-## Entry 39 (2026-10-18) - post-W2 parallel plan approved
-
-- Owner approved a two-lane post-W2 plan; Architect turns it into the binding sequence when W2 closes: `.agent/owner-post-W2-parallel-plan-2026-10-18.md`.
-- W2: W2-00..03 merged (`b486af76`); W2-04 building (review2); W2-05a/05b packets + specs being written (gap-planning).
-
-40. 2026-10-19. W2-04 merged (`e0214e20`; closeout `5c53a3bc`). W2-03 follow-up merged (`c25aba2e`; Lows in backlog). W2-05a merged (closeout `ed57b2f4`; writer-guard probe run waived per Run 8). Wave 2: 6/8. W2-05b build started in `AssetOpsV1-review5` on `task/W2-05b-ev-producer` (commits 1-2 this run, handoff `.agent/W2-05b-phase-handoff.md`). W2-06 then W2-07 are strictly serial after 05b (migrations 0025/0026). `codex exec` must always run with `< /dev/null` (ROLE_CONFIG `b18650a3`). Free worktrees: review2, review3, review.
-
-41. 2026-10-20. W2-06 merged (`d4d13735`; closeout `215ef19e`; fixes per r5-r10; re-review ACCEPT). Wave 2 is 7/8. W2-07 is building in `AssetOpsV1-review5` on `task/W2-07-ev-site-evidence-money`: commit 1 is in; the q1 rulings fixed the R2 tariff-cutoff blocker; commits 2-3 are running. The binding post-W2 sequence is `.agent/post-W2-sequence.md` (`D-2026-10-20-post-w2-sequence`; migrations 0027-0039). The W4-01 and W3-01 packets and build specs are merged, and the independent spec review is closed after three Architect closure rounds (`3ccb4646`). Both are ready to build when W2-07 merges, Lane A W4-01 and Lane B W3-01. The shared provenance DTO is `D-2026-10-20-shared-provenance-dto`. Lesson: a fresh-reviewer implementer dry-read of each new build spec before its build found 66 questions. Keep doing it.
-
-42. 2026-10-20. W2-07 merged (`d99cfd9a`; closeout `30c154b3`; Opus review REVISE M1-M4, Architect r1 rulings, Sonnet fix, Sonnet re-review ACCEPT). **Wave 2 closed (8/8).** The W3/W4 wave-start basis is recorded in `.agent/owner-W3-W4-wave-start-2026-10-20.md`: Architect recommendations apply and owner confirmation is requested. Lane A W4-01 is building in `AssetOpsV1-review5` on `task/W4-01-work-case-core` (run 1 = spec commit 1, DB `w401a_test`). Lane B W3-01 is building in `AssetOpsV1-review2` on `task/W3-01-estate-claim-action-roots` (DB `w301a_test`). The W2 owner walkthrough index is being prepared on `plan/W2-walkthrough-index` in gap-planning. Pending: the OPS-01 speed follow-up (Step 1, after the lanes' first runs), and only one full suite at a time across the lanes. Free worktree: review3.
-
-43. 2026-10-20 (in progress). **Merge hazard to remember:** W4-01 cherry-picked the W3-01 money prerequisites `c55dadd4`/`da15d71f` (as `aff24bbd`/`9a5756f9`), then REVERTED them per W4-01 review r1 M5. Once W4-01 merges, main carries that revert. When W3-01 later merges main, check that `ConsequenceReadService.select_consequence_on`, `MoneyEligibility.for_finding_on` and `test_w301_w1_money_snapshot_helpers_postgres.py` survive. Diff those files against W3's reviewed versions before W3's review. The W3-01 test fix for `test_w206_ev_store_postgres.py:465` (public `basis_sha256` is now the selection digest) must be cherry-picked into W4-01 before its final full suite.
-
-44. 2026-10-21. W3-01 merged (`b5d0a7d6`), W4-01 merged (`d76809dd`). **W4-02's canonical branch is now `task/W4-02-mini-grid-depth-clean`** in `AssetOpsV1-review3`, squashed at `6ce5bd09`. The old `task/W4-02-mini-grid-depth` committed `frontend/node_modules`, `frontend/dist` and `tsbuildinfo` in `a82c7a6a`; a history rewrite was refused as destructive, so the clean branch was built by squash. Never merge the old branch. The W4-02 final fix round (Final review rulings plus backend infra B-M1/B-L1..4) is running on the clean branch. Next: re-review, then the container full suite, then merge. W3-02 is in review2: commits 0a/0b/0c/1 are accepted, the commit-2 fix round (Record details, eyebrow casing, recapture) is running, and commits 3–4 (Financials) remain. ROLE_CONFIG now forbids killing all Chrome processes and forbids `git add -f` beyond named `.agent/` paths.
-
-## Codex retrospective queue (Claude Architect exception, 2026-10-22 until 12:39 reset)
-Owner: "use a fresh claude architect instead of codex until  the codex quota is reset". After the reset, revert the ROLE_CONFIG Architect row to Codex, then send Codex one batched retrospective review of these Claude Architect rulings:
-- W5-01 C1q rulings (merge 3a4929b0): Health source `foundation_on`, Cooling #1-#6, review Lows, C2-C5 sweep.
-- W6-01 A1 Q1-Q9 + W6 sweep (merge 89f26391), incl. the unruled stale `EstateEvidence.tsx` "Not available yet" text for Operational records / Preventive plan after E2/B3.
-- W5 guard-ownership sweep fold, 11 findings (merge 3126b77e).
-- W5-01 C1 Q13 chamber-probe ruling (plan/W5-01-c1q2).
-- W6-01 A1Q2 R1-R4 confirmations (plan/W6-01-a1q2).
-- W6-01 A2Q1-Q10 + readiness X1-X9 (plan/W6-01-a2q).
-- W6-01 CL3 7 readiness gaps (plan/W6-01-close3).
-- W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. E1 key tables closed by Claude in plan/W5-close2.
-- W5 close2: C3/E4 notices (new copy), C5/E6 scenario rows, E2/E3/E4 literals, E1 key tables; E1b also edits ev_site_reads.py (_energy extract).
-- W5 C2 Q5-Q7 (plan/W5-c2q2).
-- W6-01 A2Q11 + R5-R8 (plan/W6-01-a2q11).
-- MOCK-FIDELITY CHECK (owner asked 2026-10-22): Codex retrospective must check every Claude ruling against v69 mock, explicitly: C2 table heading Match->Status; C2 Recovery curves chart->table (guard rule 5; alternative = chart in an allowed graphics module); C3/E4 new notice sentences not in mock; E2 bars as plain divs; E3 no-svg. Rule keep or restore-to-mock for each before C3/E2/E3 build.
-- NEXT W6 Codex request: add "preserve K4a rail override" note to W6 B3 and C2 cards (operatorRouteFrames.test.tsx) - W5-02/04 readiness Recheck 3 Low.
+# Coordinator handoff — 2026-10-28 (replaces all earlier versions; older text is in git history)
+
+Read this first. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
+
+## FIRST ACTION (owner, 2026-10-28, verbatim in `.agent/owner-test-pipeline-review-2026-10-28.md`)
+"once the current test ends, i want a complete review of the test pipeline to dramatically cut the runtime and memory usage, it simply is not substainable and i don't believe it is optimized. that happens on a new session with your hand-off. Then the data lane and other tasks can be considered."
+
+So: (1) confirm the CC-M gate result below and merge if green; (2) run a **complete test-pipeline review** with the Claude Architect (it plans) and an Implementer (it confirms against code), aiming to **dramatically** cut runtime and memory. Then present the plan to the owner before implementing. The data lane, CC-D2/CC-D1 and TEL-08 come after that, unless the owner says otherwise.
+
+Evidence for the review:
+- Backend collects 4138 tests. Split into 4 parts on 2026-10-28: part 1 (1011, 382 s), part 2 (965, 1643 s), part 3 (1121, 1419 s). Part 4 (1041) took about 2 h per half with reduced workers.
+- Whole-suite runs were killed twice by Claude Code's low-memory reaper, at 29% and 80%.
+- Idle memory is about 2.8 GB free of 16 GB. Commit is about 20 GB. Baseline: svchost 1.5 GB, claude 1.4 GB, Chrome 1.1 GB, memory compression 1.1 GB, vmmemWSL (Docker/Postgres) 0.9 GB.
+- Each Postgres test creates and drops its own `*_test` DBs via `pg_harness`.
+- Many tests spawn `assetops_gateway serve` subprocesses, and each Python process appears twice: the venv shim plus Python312.
+- Single TEL acceptance tests run 9–12 min (replay-rate bound). The frontend vitest suite has 3400+ tests.
+- The old speed-up task is in memory `turnaround-speed-rules` and `test-suite-policy` (tiered suites).
+- Fix ideas the owner was told: a `.wslconfig` memory cap, closing Chrome during runs, a fresh session, and `CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP=1` (owner-set env var only).
+
+## Gate in flight at handoff
+CC-M (`task/CC-M-combined-schema`, worktree `AssetOpsV1-ccm`, migrations 0036 + 0037, review ACCEPT in `.agent/CC-M-review.md`).
+- Merge gate: full backend = parts 1–3 (3096 passed, 1 failed) plus part 4 run as two halves.
+- The part-1 failure was a missing gitignored `var/sites/mg-001.yaml`. The coordinator copied `var/sites/` into the worktree; the builder reruns that test alone.
+- Gate: total equals 4138 with 0 real failures. Then merge into main, merging main into the branch first.
+- Result: SEE `.agent/CC-M-review-packet.md` in that worktree (the builder updates it). If it is not recorded there, check before merging.
+
+## State of the demo sprint (owner-approved two lanes; Architect = Claude subagent `assetops-architect`; Planner = Codex)
+Docs (only HTML now; owner removed the .md files): `Docs/demo-sprint/` holds `commercial-capability-readiness.html` (Commercial Capability Architecture), `telemetry-integration-plan-claude.html`, `telemetry-integration-plan.html` (Codex, older), `demo-data-strategy.html` (rev 4) and `long_running_proposal.html` (owner ACCEPTED 2026-10-28, `.agent/owner-long-running-accepted-2026-10-28.md`).
+Build specs: `.agent/build-sequence-2026-10-27.md`, `.agent/build-spec-telemetry-2026-10-27.md` (sections A–M), `.agent/build-spec-commercial-2026-10-27.md`. Rulings are in `.agent/telemetry-rulings-2026-10-27.md`.
+
+Telemetry lane (merged to main): TEL-00..03, TEL-04, TEL-05, TEL-05b (source gate alone withholds money; step 6 proven), TEL-06 (CSV collector).
+- TEL-07 runbook and claims: built on `task/TEL-07-claims-runbook` (worktree `AssetOpsV1-tel7`), not reviewed. Its runbook needs `field_bench.py` setup/activate/read, which comes from TEL-08.
+- TEL-08 BeagleBone: blocked on the owner. They run a 2-min check: USB, `ssh debian@192.168.7.2`, `cat /etc/debian_version`, `python3 --version`. If Python is under 3.11, the recommended path is a self-contained prebuilt Python (python-build-standalone armv7) copied over USB, with no SD card. The Architect must confirm the exact build. Python is required (the gateway is Python). The owner was asked to have the board ready by Thu 29 Oct noon, and also needs a firewall rule for ports 8443/5020.
+
+Commercial lane (merged): CC-R1, CC-R2 (portfolio placement; multi-group Portfolio evidence deferred to the demo sprint per Q6).
+- CC-M: gate in flight (above).
+- Next: CC-D2 (post-trial reassessment, 1.75 d), then CC-D1 (productive-use, 1.75 d).
+- Owner open question: overlap CC-D2/CC-D1, and start the data lane's light tasks early. Superseded by the test-pipeline review first.
+
+Demo data lane (Lane D): owner OD answers in `.agent/owner-answers-demo-data-2026-10-28.md`; replies in `.agent/architect-reply-demo-data-od-2026-10-28.md` and `-simpler-long-run-`. Rev 4 cards DD-00..13 (about 18.25 builder-days). Lane D opens next sprint (OD-6). The suggested doc addition (rounding-ledger worked example plus drift bound of about 0.00045 C) is not yet made.
+
+Owner telemetry/commercial answers: `.agent/owner-answers-open-questions-1/2-2026-10-27.md`, `.agent/architect-reply-owner-q2-q3-2026-10-27.md`.
+
+Logged Lows and regressions to fold into one Sonnet fix round: `.agent/demo-sprint-lows-2026-10-28.md`. It includes a real regression: `site-tabs__link` overflows to 421 px at 390 px on the Recommendation/hold pages, which came in on main after W1-UX-06.
+
+Other owner decisions still open (pre-sprint): the 7 design-difference rows (R453, R382, R383, R384, R385, R111, R396) and whether to start the demo-planning round.
+
+## Rules in force (unchanged; see `.ai/ROLE_CONFIG.md` and memory)
+- Plain-language owner reports, no system vocabulary. Save owner text verbatim in `.agent/` before relaying it.
+- Implementers never make isolated design decisions: the Architect rules and the answers are recorded in the specs.
+- Fix rounds use a Sonnet implementer. Re-reviews use a fresh Claude reviewer. Merge on ACCEPT.
+- One heavy job at a time (Postgres acceptance, full suites, browser capture). Telemetry had priority until 30 Oct.
+- PYTHONPATH must name the worktree, using the venv `AssetOpsV1-plan2\.venv\Scripts\python.exe`. Guards need `ASSETOPS_GUARD_PYTHON`.
+- **Never `-ExecutionPolicy Bypass` or any policy override.** Run guard scripts directly. A builder tried this once and was blocked; remind every brief.
+- Test DBs: `*_test` and producers' own `<prefix>_audit*` only. Never a demo or non-test DB. Kill processes by PID only.
+- Keep-awake (`tools/keep-awake-during-tests.ps1 -MaxHours 168 -IdleMinutes 10080`, from the PowerShell tool) was killed 3 times by the memory reaper. Restart it only when the owner asks.
+- Don't purchase hardware; the owner said "Do not purchase the ~$100 kit yet".
+- Working directly on main: the coordinator committed small `.agent` tracking files on main this session. Prefer a branch next time.
+
+## Worktrees
+Active: `AssetOpsV1-ccm` (CC-M), `AssetOpsV1-tel7` (TEL-07), `AssetOpsV1-demo-plan` (docs branch; merge into main after each doc).
+Merged and safe to prune when convenient: `-cc`, `-cc2`, `-tel`, `-tel4`, `-tel5`, `-tel5b`, `-tel6`, and the old `-review*` / `-ops04` / `-gap-planning`.
