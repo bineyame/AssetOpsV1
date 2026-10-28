@@ -148,8 +148,10 @@ details.wire summary{cursor:pointer;font-weight:650}
 <li><a href="#s1">1 Mission and value thesis</a></li>
 <li><a href="#s2">2 Outcomes, drivers and economic mechanisms</a>
   <ol><li><a href="#s2-tax">2.1 Outcome taxonomy</a></li><li><a href="#s2-drv">2.2 What drives each outcome</a></li><li><a href="#s2-tension">2.3 Competing objectives</a></li><li><a href="#s2-cause">2.4 Establishing causality and materiality</a></li></ol></li>
+<li><a href="#mech">M Outcome management mechanism</a>
+  <ol><li><a href="#mech-stages">M.1 Eight stages</a></li><li><a href="#mech-table">M.2 Each stage today</a></li><li><a href="#mech-map">M.3 One model: loop and patterns</a></li><li><a href="#mech-decision">M.4 What a decision is</a></li><li><a href="#mech-threads">M.5 Two threads</a></li><li><a href="#mech-d">M.6 D1 to D5 on the mechanism</a></li><li><a href="#mech-cover">M.7 Outcome coverage</a></li></ol></li>
 <li><a href="#s3">3 Unified system architecture</a>
-  <ol><li><a href="#s3-loop">3.1 Value-delivery loop</a></li><li><a href="#s3-arch">3.2 System layers</a></li><li><a href="#s3-auth">3.3 Authority boundaries</a></li><li><a href="#s3-intel">3.4 How the intelligences cooperate</a></li><li><a href="#s3-shared">3.5 Shared causes and competing resources</a></li><li><a href="#s3-feedback">3.6 Feedback and learning</a></li><li><a href="#s3-ex">3.7 Decisions end to end</a></li></ol></li>
+  <ol><li><a href="#s3-loop">3.1 Value-delivery loop (detailed view)</a></li><li><a href="#s3-arch">3.2 System layers</a></li><li><a href="#s3-auth">3.3 Authority boundaries</a></li><li><a href="#s3-intel">3.4 How the intelligences cooperate</a></li><li><a href="#s3-shared">3.5 Shared causes and competing resources</a></li><li><a href="#s3-feedback">3.6 Feedback and learning</a></li><li><a href="#s3-ex">3.7 Decisions end to end</a></li></ol></li>
 <li><a href="#s4">4 Cross-vertical patterns and boundaries</a></li>
 <li><a href="#s5">5 Mini-grid: seven outcomes</a></li>
 <li><a href="#s6">6 EV bus: seven outcomes</a></li>
@@ -159,7 +161,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <li><a href="#s9">9 Target versus current</a>
   <ol><li><a href="#s9-levels">9.1 Four readiness levels</a></li><li><a href="#s9-mach">9.2 Machinery gaps</a></li><li><a href="#s9-out">9.3 Outcome readiness</a></li></ol></li>
 <li><a href="#s10">10 Roadmap, demos, pilot progression</a>
-  <ol><li><a href="#s10-derive">10.1 How priority is derived</a></li><li><a href="#s10-target">10.2 Strategic target</a></li><li><a href="#s10-road">10.3 Capability roadmap</a></li><li><a href="#s10-demo">10.4 Demo scope</a></li><li><a href="#s10-pilot">10.5 Pilot progression</a></li><li><a href="#s10-sprint">10.6 The five-day sprint</a></li></ol></li>
+  <ol><li><a href="#s10-derive">10.1 How priority is derived</a></li><li><a href="#s10-target">10.2 Strategic target</a></li><li><a href="#s10-road">10.3 Capability roadmap</a></li><li><a href="#s10-demo">10.4 Demo scope</a></li><li><a href="#s10-pilot">10.5 Pilot progression</a></li><li><a href="#s10-sprint">10.6 The five-day sprint</a></li><li><a href="#s10-mech">10.7 What the mechanism changes</a></li></ol></li>
 <li><a href="#appA">Appendix A Code findings</a></li>
 <li><a href="#appB">Appendix B Entity model and claim enums</a></li>
 <li><a href="#appC">Appendix C Decision specifications</a></li>
@@ -172,8 +174,9 @@ details.wire summary{cursor:pointer;font-weight:650}
 <main>
 <header>
 <h1>Commercial Capability Architecture</h1>
-<p class="byline">AssetOps, 27 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>, code read at HEAD <code>1c6cb27e</code>. This revision replaces revision 2 (the implementer edition); git keeps it. Owner request, word for word: <code>.agent/owner-commercial-architecture-reframe-2026-10-27.md</code>.</p>
+<p class="byline">AssetOps, revision 4, 28 October 2026 (revision 3: 27 October). Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Code for the revision 4 additions read at main <code>e234bcd2</code>; the rest at <code>1c6cb27e</code>. Revision 4 adds section M (the outcome management mechanism), places D1 to D5 on it, and adds roadmap recommendations in 10.7; git keeps revision 3. Owner feedback for revision 4, word for word: <code>.agent/owner-decision-in-delivery-model-2026-10-28.md</code>. Owner request, word for word: <code>.agent/owner-commercial-architecture-reframe-2026-10-27.md</code>.</p>
 <p class="lede">This is an outcome-led product and system architecture. It starts from the money and value AssetOps exists to help its customers create, works down through what physically and economically drives that value, describes the one coordinated system that discovers, decides and verifies it, and only then measures the code against that target. Code findings, wire shapes, migrations and tests are in the appendices.</p>
+<div class="callout ok"><p><b>Start with section <a href="#mech">M</a>.</b> It states the one mechanism the whole document describes: know which outcomes matter and what drives them, watch each against its objective, explain any gap through its drivers, weigh the levers, decide, act, check, and reassess the same outcome. It defines a decision inside that mechanism and shows where D1 to D5 sit on it and what each leaves open.</p></div>
 <div class="callout"><p><b>How to read the evidence marks.</b> <span class="tag t-impl">IMPL</span> code read and cited as <code>file:line</code> (backend paths are relative to <code>backend/assetops_backend/</code> unless another root is given). <span class="tag t-run">RUN</span> a focused non-database test of that behaviour passed today. <span class="tag t-present">PRESENT</span> a Postgres or browser test exists but was not run. <span class="tag t-part">PARTIAL</span> some of the target exists. <span class="tag t-target">TARGET</span> target state, not current. <span class="tag t-none">ABSENT</span> searched for and not found.</p></div>
 </header>
 
@@ -216,7 +219,8 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><th>Question</th><th>Short answer</th><th>Where</th></tr>
 <tr><td>What commercial value is AssetOps designed to create?</td><td>Six overlapping outcomes: revenue growth and realization, operating cost reduction, revenue and value protection, asset and capital protection, capital productivity, and performance and investment assurance. The last one multiplies the others; it is not added to them.</td><td><a href="#s2-tax">2.1</a></td></tr>
 <tr><td>What determines that value?</td><td>Physical drivers (energy balance, thermal mass, charge acceptance), operating choices (dispatch, reserve, scheduling, loading), financial terms (tariff, fuel price, collection) and contracts (service obligations, departure rosters, storage rates). Many are shared across outcomes and pull against each other.</td><td><a href="#s2-drv">2.2</a>, <a href="#s2-tension">2.3</a></td></tr>
-<tr><td>How does the system discover, evaluate and help realize it?</td><td>An eleven-stage value-delivery loop from observation to learning, run by shared coordination machinery over vertical-specific engines.</td><td><a href="#s3-loop">3.1</a></td></tr>
+<tr><td>How does the system discover, evaluate and help realize it?</td><td>One outcome management mechanism in eight stages: know which outcomes matter and what drives them; watch each against its objective; explain a gap through its drivers; weigh the levers; decide; act; check; reassess and learn. The eleven-stage loop is its detailed working view, run by shared coordination machinery over vertical-specific engines.</td><td><a href="#mech">M</a>, <a href="#s3-loop">3.1</a></td></tr>
+<tr><td>Where does a decision fit?</td><td>A decision is one outcome carried from "needs attention" to "reassessed": drivers, levers with what-if and a recommended best lever, a person's choice with an expected effect, then action, check and reassessment of the same outcome. D1 to D5 are build items that add some of these stages; none is a complete decision on its own yet.</td><td><a href="#mech-decision">M.4</a>, <a href="#mech-d">M.6</a></td></tr>
 <tr><td>How do capabilities work together?</td><td>Through one decision thread: every Finding, opportunity, scenario, Action, verification and reassessment carries the same asset, window, revision and basis identities, so each stage reads the earlier stage's stored claim and never overwrites it.</td><td><a href="#s3-arch">3.2</a>, <a href="#s3-intel">3.4</a></td></tr>
 <tr><td>What can be reused across verticals?</td><td>Evidence and provenance, episodes and recurrence, the declared-input revision pattern, the money consequence and claim ladder, Actions and frozen-plan verification, Estate partitioning and overlap refusal, and portfolio placement.</td><td><a href="#s4">4</a></td></tr>
 <tr><td>What must remain domain-specific?</td><td>Physical assessments, feasibility constraints, verification criteria and guardrails, commercial denominators (kWh served, revenue km, pallet-day) and the buyer's decision.</td><td><a href="#s4">4</a></td></tr>
@@ -313,13 +317,228 @@ details.wire summary{cursor:pointer;font-weight:650}
 </section>
 </section>
 
+<!-- ===================================================== M (revision 4) -->
+<section id="mech">
+<h2>M The outcome management mechanism: where every part of this document fits</h2>
+<p class="lede">AssetOps does one job for every customer, site and portfolio, in every vertical. It knows which outcomes matter and what drives them. It watches each outcome against its objective and says when one needs attention. It explains the gap through the drivers behind it, on stated evidence. It helps a person choose a lever, with a what-if for each option and a recommended best lever. Then it checks that the lever worked and reassesses the same outcome. The outcomes (section 2), the system layers (section 3), the patterns (section 4), the vertical engines (sections 5 to 7), the portfolio layer (section 8) and the decision specifications D1 to D5 (Appendix C) are all parts of this one mechanism.</p>
+<div class="callout"><p><b>Why this section was added (revision 4, 28 October 2026).</b> The owner's review, word for word in <code>.agent/owner-decision-in-delivery-model-2026-10-28.md</code>: "I'm not seeing where decision fits in the general mechanics, it is not just a shape concern." Revision 3 described the outcomes and the machinery but not the mechanism that joins them, so D1 to D5 read as features. This section states the mechanism, defines a decision inside it (M.4), places each D on it (M.6) and shows how far each outcome O1 to O6 is covered (M.7). The eleven-stage loop of 3.1 and the patterns of section 4 are kept, and M.3 maps them onto the mechanism, so there is one model, not two. The section is lettered M so that existing section numbers and cross-references stay stable.</p></div>
+
+<section id="mech-stages">
+<h3>M.1 Eight stages, one outcome at a time</h3>
+<p>The mechanism runs per outcome, per scope: one site, one customer, or a portfolio. Stage 1 is set up before any decision. Stages 2 to 8 repeat for as long as the outcome matters. A <b>decision</b> is one pass of one outcome through stages 2 to 8 (M.4).</p>
+<figure>
+<div class="sv"><svg viewBox="0 0 980 560" role="img" aria-labelledby="fmt fmd">
+<title id="fmt">The outcome management mechanism, with D1 to D5 placed on it</title>
+<desc id="fmd">Top: eight stage boxes from "what matters" to "reassess and learn", with the loop stages of section 3.1 under each and a return arrow from reassessment back to status. A bracket marks stages 2 to 8 as one decision. Below: five rows, one per decision item D5, D2, D1, D3 and D4. Each row has a cell under each stage, coloured by whether the stage exists in code today, is added by that item, is partial, or stays open after the item.</desc>
+<defs><marker id="mm1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker>
+<marker id="mm2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="arrowhead-acc"/></marker></defs>
+<text x="70" y="20" text-anchor="middle" class="tiny muted">set up first</text>
+<path class="ln-acc" d="M135,32 L135,26 L965,26 L965,32"/>
+<text x="550" y="19" text-anchor="middle" class="small b">A decision: one outcome, from "needs attention" (2) to "reassessed" (8)</text>
+<rect class="box-gap" x="15" y="40" width="110" height="80" rx="9"/><text x="70" y="61" text-anchor="middle" class="b small">1 What matters</text><text x="70" y="79" text-anchor="middle" class="tiny">outcomes, targets</text><text x="70" y="92" text-anchor="middle" class="tiny">and their drivers</text><text x="70" y="111" text-anchor="middle" class="tiny muted">loop 2, 11</text>
+<rect class="box-warn" x="135" y="40" width="110" height="80" rx="9"/><text x="190" y="61" text-anchor="middle" class="b small">2 Watch status</text><text x="190" y="79" text-anchor="middle" class="tiny">on track, or needs</text><text x="190" y="92" text-anchor="middle" class="tiny">attention?</text><text x="190" y="111" text-anchor="middle" class="tiny muted">loop 1, 4, 5</text>
+<rect class="box-warn" x="255" y="40" width="110" height="80" rx="9"/><text x="310" y="61" text-anchor="middle" class="b small">3 Explain gap</text><text x="310" y="79" text-anchor="middle" class="tiny">drivers in play,</text><text x="310" y="92" text-anchor="middle" class="tiny">on what evidence</text><text x="310" y="111" text-anchor="middle" class="tiny muted">loop 3, 4</text>
+<rect class="box-warn" x="375" y="40" width="110" height="80" rx="9"/><text x="430" y="61" text-anchor="middle" class="b small">4 Weigh levers</text><text x="430" y="79" text-anchor="middle" class="tiny">what-if, best lever,</text><text x="430" y="92" text-anchor="middle" class="tiny">trade-offs</text><text x="430" y="111" text-anchor="middle" class="tiny muted">loop 5, 6</text>
+<rect class="box-warn" x="495" y="40" width="110" height="80" rx="9"/><text x="550" y="61" text-anchor="middle" class="b small">5 Decide</text><text x="550" y="79" text-anchor="middle" class="tiny">a person chooses,</text><text x="550" y="92" text-anchor="middle" class="tiny">expects an effect</text><text x="550" y="111" text-anchor="middle" class="tiny muted">loop 7</text>
+<rect class="box-ok" x="615" y="40" width="110" height="80" rx="9"/><text x="670" y="61" text-anchor="middle" class="b small">6 Act</text><text x="670" y="79" text-anchor="middle" class="tiny">apply it, do and</text><text x="670" y="92" text-anchor="middle" class="tiny">track the work</text><text x="670" y="111" text-anchor="middle" class="tiny muted">loop 8</text>
+<rect class="box-warn" x="735" y="40" width="110" height="80" rx="9"/><text x="790" y="61" text-anchor="middle" class="b small">7 Check</text><text x="790" y="79" text-anchor="middle" class="tiny">did the driver</text><text x="790" y="92" text-anchor="middle" class="tiny">change?</text><text x="790" y="111" text-anchor="middle" class="tiny muted">loop 9</text>
+<rect class="box-gap" x="855" y="40" width="110" height="80" rx="9"/><text x="910" y="61" text-anchor="middle" class="b small">8 Reassess</text><text x="910" y="79" text-anchor="middle" class="tiny">did the outcome</text><text x="910" y="92" text-anchor="middle" class="tiny">move? then learn</text><text x="910" y="111" text-anchor="middle" class="tiny muted">loop 10, 11</text>
+<path class="ln" d="M125,80 L135,80" marker-end="url(#mm1)"/><path class="ln" d="M245,80 L255,80" marker-end="url(#mm1)"/><path class="ln" d="M365,80 L375,80" marker-end="url(#mm1)"/><path class="ln" d="M485,80 L495,80" marker-end="url(#mm1)"/><path class="ln" d="M605,80 L615,80" marker-end="url(#mm1)"/><path class="ln" d="M725,80 L735,80" marker-end="url(#mm1)"/><path class="ln" d="M845,80 L855,80" marker-end="url(#mm1)"/>
+<path class="ln-acc" d="M910,120 C910,158 190,158 190,124" marker-end="url(#mm2)"/>
+<text x="550" y="172" text-anchor="middle" class="small">The reassessment updates the outcome's status. A missed objective or a recurrence opens the next decision on the same outcome.</text>
+<text x="15" y="204" class="b">Where each decision item sits</text>
+<text x="15" y="222" class="small b">D5 Portfolio placement · every outcome, attention only · built (CC-R2)</text>
+<rect class="box-gap" x="15" y="228" width="110" height="26" rx="6"/><text x="70" y="245" text-anchor="middle" class="tiny">no objectives</text>
+<rect class="box-ok" x="135" y="228" width="110" height="26" rx="6"/><text x="190" y="245" text-anchor="middle" class="tiny">placement groups</text>
+<rect class="box-ok" x="255" y="228" width="110" height="26" rx="6"/><text x="310" y="245" text-anchor="middle" class="tiny">reasons per Finding</text>
+<rect class="box" x="375" y="228" width="590" height="26" rx="6"/><text x="670" y="245" text-anchor="middle" class="tiny muted">not a choice of lever: it hands each case on to a site decision</text>
+<text x="15" y="276" class="small b">D2 Post-trial reassessment · O2, MG-2 cost per kWh · KOBO-001 · next build (CC-D2)</text>
+<rect class="box-gap" x="15" y="282" width="110" height="26" rx="6"/><text x="70" y="299" text-anchor="middle" class="tiny">no cost target</text>
+<rect class="box-gap" x="135" y="282" width="110" height="26" rx="6"/><text x="190" y="299" text-anchor="middle" class="tiny">no MG-2 status</text>
+<rect class="box-ok" x="255" y="282" width="110" height="26" rx="6"/><text x="310" y="299" text-anchor="middle" class="tiny">Finding recurs</text>
+<rect class="box-warn" x="375" y="282" width="110" height="26" rx="6"/><text x="430" y="299" text-anchor="middle" class="tiny">reserve −5, no value</text>
+<rect class="box-warn" x="495" y="282" width="110" height="26" rx="6"/><text x="550" y="299" text-anchor="middle" class="tiny">Action, no forecast</text>
+<rect class="box-ok" x="615" y="282" width="110" height="26" rx="6"/><text x="670" y="299" text-anchor="middle" class="tiny">applied</text>
+<rect class="box-ok" x="735" y="282" width="110" height="26" rx="6"/><text x="790" y="299" text-anchor="middle" class="tiny">verified (simulated)</text>
+<rect class="box-acc" x="855" y="282" width="110" height="26" rx="6"/><text x="910" y="299" text-anchor="middle" class="tiny b">D2 adds</text>
+<text x="15" y="330" class="small b">D1 Productive-use contribution · O1, MG-1 · MG-W402-001 · after CC-D2 (CC-D1)</text>
+<rect class="box-gap" x="15" y="336" width="110" height="26" rx="6"/><text x="70" y="353" text-anchor="middle" class="tiny">no revenue target</text>
+<rect class="box-gap" x="135" y="336" width="110" height="26" rx="6"/><text x="190" y="353" text-anchor="middle" class="tiny">no MG-1 status</text>
+<rect class="box-ok" x="255" y="336" width="110" height="26" rx="6"/><text x="310" y="353" text-anchor="middle" class="tiny">headroom study</text>
+<rect class="box-acc" x="375" y="336" width="110" height="26" rx="6"/><text x="430" y="353" text-anchor="middle" class="tiny b">D1 adds what-if</text>
+<rect class="box-warn" x="495" y="336" width="110" height="26" rx="6"/><text x="550" y="353" text-anchor="middle" class="tiny">Work link only</text>
+<rect class="box-ok" x="615" y="336" width="110" height="26" rx="6"/><text x="670" y="353" text-anchor="middle" class="tiny">Work case</text>
+<rect class="box-gap" x="735" y="336" width="110" height="26" rx="6"/><text x="790" y="353" text-anchor="middle" class="tiny">no load-meter check</text>
+<rect class="box-gap" x="855" y="336" width="110" height="26" rx="6"/><text x="910" y="353" text-anchor="middle" class="tiny">no revenue recheck</text>
+<text x="15" y="384" class="small b">D3 EV departure charging · O3 and O2, EV-1 and EV-2 · not scheduled (R6)</text>
+<rect class="box-gap" x="15" y="390" width="110" height="26" rx="6"/><text x="70" y="407" text-anchor="middle" class="tiny">no readiness target</text>
+<rect class="box-gap" x="135" y="390" width="110" height="26" rx="6"/><text x="190" y="407" text-anchor="middle" class="tiny">no vehicles yet</text>
+<rect class="box-warn" x="255" y="390" width="110" height="26" rx="6"/><text x="310" y="407" text-anchor="middle" class="tiny">sessions, faults</text>
+<rect class="box-acc" x="375" y="390" width="110" height="26" rx="6"/><text x="430" y="407" text-anchor="middle" class="tiny b">D3 adds options</text>
+<rect class="box-acc" x="495" y="390" width="110" height="26" rx="6"/><text x="550" y="407" text-anchor="middle" class="tiny b">declared choice</text>
+<rect class="box-gap" x="615" y="390" width="110" height="26" rx="6"/><text x="670" y="407" text-anchor="middle" class="tiny">no EV Action</text>
+<rect class="box-gap" x="735" y="390" width="110" height="26" rx="6"/><text x="790" y="407" text-anchor="middle" class="tiny">no EV verifier</text>
+<rect class="box-gap" x="855" y="390" width="110" height="26" rx="6"/><text x="910" y="407" text-anchor="middle" class="tiny">no cost recheck</text>
+<text x="15" y="438" class="small b">D4 Cold lots requiring review · O3, CC-1 · not scheduled (R5)</text>
+<rect class="box-warn" x="15" y="444" width="110" height="26" rx="6"/><text x="70" y="461" text-anchor="middle" class="tiny">temperature range</text>
+<rect class="box-acc" x="135" y="444" width="110" height="26" rx="6"/><text x="190" y="461" text-anchor="middle" class="tiny b">D4: lots to review</text>
+<rect class="box-ok" x="255" y="444" width="110" height="26" rx="6"/><text x="310" y="461" text-anchor="middle" class="tiny">excursion record</text>
+<rect class="box-acc" x="375" y="444" width="110" height="26" rx="6"/><text x="430" y="461" text-anchor="middle" class="tiny b">D4: handle earlier</text>
+<rect class="box-gap" x="495" y="444" width="110" height="26" rx="6"/><text x="550" y="461" text-anchor="middle" class="tiny">no review record</text>
+<rect class="box-warn" x="615" y="444" width="110" height="26" rx="6"/><text x="670" y="461" text-anchor="middle" class="tiny">cold Work exists</text>
+<rect class="box-gap" x="735" y="444" width="110" height="26" rx="6"/><text x="790" y="461" text-anchor="middle" class="tiny">no inspection check</text>
+<rect class="box-gap" x="855" y="444" width="110" height="26" rx="6"/><text x="910" y="461" text-anchor="middle" class="tiny">no loss recheck</text>
+<rect class="box-ok" x="15" y="496" width="22" height="14" rx="3"/><text x="43" y="507" class="tiny">exists in code today</text>
+<rect class="box-acc" x="175" y="496" width="22" height="14" rx="3"/><text x="203" y="507" class="tiny">the D item adds it</text>
+<rect class="box-warn" x="330" y="496" width="22" height="14" rx="3"/><text x="358" y="507" class="tiny">partial</text>
+<rect class="box-gap" x="420" y="496" width="22" height="14" rx="3"/><text x="448" y="507" class="tiny">still open after the D item</text>
+<rect class="box" x="610" y="496" width="22" height="14" rx="3"/><text x="638" y="507" class="tiny">not part of this item</text>
+<text x="15" y="540" class="tiny muted">Stage boxes at the top: green exists, amber partial, purple dashed missing, judged across all verticals. Code read at main e234bcd2 (M.2 and Appendix A.4).</text>
+</svg></div>
+<figcaption>Figure M.1. The mechanism and the decision items on it. Read a row from left to right: a D item is a full decision only if every cell from stage 2 to stage 8 is green or blue. None is a full decision yet. D2 comes closest, because stages 3 to 7 already exist for that thread and D2 adds stage 8. D1 adds stage 4 to a thread whose stages 1, 2, 7 and 8 are open.</figcaption>
+</figure>
+<p><b>In plain words.</b></p>
+<ol class="ac">
+<li><b>What matters.</b> For this site or portfolio: which outcomes count, how each is measured, what the objective is, what must not be harmed, and which drivers move it.</li>
+<li><b>Watch status.</b> Is each outcome on track against its objective? If not, or if there is room to do better, it needs attention. If the evidence cannot tell, it is unknown, and the reason is shown.</li>
+<li><b>Explain the gap.</b> Which drivers explain the gap, on what evidence, how sure is that, and what else could explain it?</li>
+<li><b>Weigh the levers.</b> Which levers are feasible? What would each do to this outcome and to the others it touches (what-if)? Which is the best lever, and why? This is decision support.</li>
+<li><b>Decide.</b> A named person chooses one lever for this outcome and records the effect they expect.</li>
+<li><b>Act.</b> The change is applied and the work is done and tracked.</li>
+<li><b>Check.</b> Independent later evidence shows whether the driver changed, without breaking a guardrail.</li>
+<li><b>Reassess and learn.</b> Did the outcome itself move toward its objective, compared on the same basis with the effect expected at stage 5? The answer updates the status (back to 2) and what the system expects of that lever and driver next time (back to 1 and 4).</li>
+</ol>
+</section>
+
+<section id="mech-table">
+<h3>M.2 Each stage: question, inputs, output, authority, today</h3>
+<p>Code was read at main <code>e234bcd2</code> for this section. Paths are relative to <code>backend/assetops_backend/</code> unless another root is given. Corrections to the brief that started this revision are marked <b>Correction</b>.</p>
+<div class="tw wide"><table>
+<tr><th>Stage</th><th>Question it answers</th><th>Inputs</th><th>What it produces</th><th>Authority</th><th>Exists today</th><th>Missing</th></tr>
+<tr><td><b>1 What matters</b></td><td>Which outcomes matter here, how is each measured, what is its objective or target, what must it not harm, and which drivers move it?</td><td>Outcome taxonomy O1 to O6 and vertical outcomes (<a href="#s2-tax">2.1</a>, sections 5 to 7); the customer's objectives and targets; guardrail limits; driver model (<a href="#s2-drv">2.2</a>); site configuration (Foundation)</td><td>An outcome register per scope: outcome, value KPI, objective, guardrails, beneficiary, applicable drivers, version</td><td>The customer sets objectives (human, recorded as a declared-input revision); versioning is deterministic</td><td><span class="tag t-none">ABSENT</span> for commercial outcomes: no code stores an outcome, objective or target per customer, site or portfolio. A search of the backend for objective, target and goal finds only operational statements: <span class="tag t-part">PARTIAL</span> the cold chamber range taken from the Foundation policy (<code>analytics/cold_site_reads.py:91-93</code>, <code>:356-370</code>); the EV line "Let depot vehicles charge when scheduled, within the configured Site import limit" (<code>ev_site_reads.py:618-622</code>); the mini overview objective, which is always "No assessment yet" (<code>evidence/overview.py:47-52</code>, <code>:646-649</code>); and five fixed operational keys in the Portfolio objective matrix (<code>estate/portfolio.py:229</code>). Drivers exist only as rules inside each engine; there is no driver entity (<a href="#s3-shared">3.5</a>).</td><td>Outcome register with objectives and guardrails; drivers recorded as data</td></tr>
+<tr><td><b>2 Watch status</b></td><td>Is each outcome on track against its objective, on what evidence and coverage? Or does it need attention, or is it unknown, and why?</td><td>The register (1); accepted evidence; value KPIs and leading indicators; money consequences; coverage</td><td>Outcome status per scope and window (on track, needs attention, unknown with reason) and its trend; at portfolio level, where to look first</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span>, per signal rather than per outcome. <b>Correction:</b> a "needs attention" view does exist. It is a list of evidence and Finding signals per Site, not an outcome measured against an objective: cold (<code>analytics/cold_site_reads.py:382-415</code>: probe gap, backup start failure, transfer unknown, policy missing) and EV (<code>ev_site_reads.py:712-728</code>: fault abort, incomplete session, meter gap, tariff missing), rendered in <code>frontend/src/sites/coldSiteViews.tsx</code> and <code>EvSiteViews.tsx</code>. The Portfolio objective matrix has five cells per Site, but Service or product, Backup and Asset condition are always UNKNOWN, "No reviewed objective assessment" (<code>estate/portfolio.py:382-392</code>, <code>:234</code>). Cost control is REVIEW when an eligible operating-cost line exists (<code>:366-379</code>) and Evidence comes from readiness (<code>:355-363</code>). The value cards show Productive use and Asset life UNSUPPORTED and Verified recovery NOT_ESTABLISHED (<code>:309-314</code>). Since revision 3, placement puts every Finding in a group with reasons (<code>estate/placement.py:16</code>, <code>:140-151</code>; CC-R2 merged at <code>9cec4fcb</code>). No trajectory exists (Appendix C, event history).</td><td>Status per outcome against its objective; trend</td></tr>
+<tr><td><b>3 Explain the gap</b></td><td>Which drivers explain the gap or the opportunity, on what evidence, how sure, and what else could explain it?</td><td>Findings, episodes and assessments; rival explanations; money per Finding; the driver model</td><td>For one outcome: the drivers in play, each with its evidence and claim level, its share of the gap where that can be shown, and rival explanations with their disposition</td><td>Deterministic; AI may propose rival causes for a person to confirm (target)</td><td><span class="tag t-part">PARTIAL</span> Findings carry a mechanism, evidence and recurrence (<code>analytics/finding_episode.py:622</code>, <code>:689</code>); money per Finding revision (<code>financials/fuel_cost.py:284</code>). <b>Correction:</b> for mini, rival explanations are recorded per Finding, keyed POLICY, UNCERTAINTY and CAPABILITY, with a disposition from PLAUSIBLE to RULED_OUT (<code>backend/migrations/versions/0030_w4_mini_decisions.py:100-135</code>), which is a partial form of "which drivers are considered". <span class="tag t-none">ABSENT</span>: any link from a Finding to the outcome it affects, and any attribution of an outcome gap to drivers. The word "attribution" in <code>actions/verification.py:655-739</code> means something else: whether new evidence causally withdraws a resolution.</td><td>Finding-to-outcome link; driver attribution of the gap</td></tr>
+<tr><td><b>4 Weigh the levers</b></td><td>Which levers are feasible for the drivers in play? What would each do to this outcome and to every outcome it touches? Which is best, and why?</td><td>Drivers (3); controllable levers; constraints from the Foundation and business records; declared assumptions; guardrails (1)</td><td>Options, each with a what-if and its effect on the primary and guardrail outcomes; the best lever with its reason; the expected effect; the claim level (modelled or expected value)</td><td>Simulation and optimisation propose; money and feasibility are deterministic; nothing here chooses</td><td><span class="tag t-part">PARTIAL</span> mini reserve-trial recommendation: one lever, and the text says "The trial predicts no saving, runtime or safety change" (<code>actions/service.py:297</code>, <code>:344</code>; <code>actions/reserve_trial.py:234</code>). Mini productive-load gross scenario (<code>mini_decisions/scenario_rules.py:191</code>). EV and cold scenarios store context only (<code>ev_scenarios/rules.py:4-6</code>). No comparison across options and no solver (<a href="#appA">A</a>, F35).</td><td>An expected effect per option; comparison of options for one outcome</td></tr>
+<tr><td><b>5 Decide</b></td><td>Who chose which lever, for which outcome, against which evidence, and what effect did they expect?</td><td>The options and recommendation (4); the current Finding or opportunity revision</td><td>An accepted Action pinned to its evidence, naming the outcome, the expected effect and the check that will judge it</td><td>Human</td><td><span class="tag t-part">PARTIAL</span> Action acceptance pinned to a Finding revision (<code>actions/service.py:387</code>); mini productive-use Work link to a scenario or an opportunity (<code>0030_w4_mini_decisions.py:192-209</code>). Neither names the outcome it serves or records an expected effect. The Work link names the scenario, not the scenario revision, so the figure the person relied on is not pinned. The reserve-trial plan freezes a technical criterion only.</td><td>Outcome and expected effect on the decision record</td></tr>
+<tr><td><b>6 Act</b></td><td>Was it applied, what work was done, and when?</td><td>The Action</td><td>Action events; Work case</td><td>Human, recorded deterministically</td><td><span class="tag t-impl">IMPL</span> <code>actions/lifecycle.py:69</code>; Work migrations <code>0033</code>, <code>0035</code></td><td>Field proof of who performed it (pilot)</td></tr>
+<tr><td><b>7 Check</b></td><td>Did the lever change the driver it targeted, on independent later evidence, without breaking a guardrail?</td><td>A frozen plan; later accepted evidence</td><td>VERIFIED, INEFFECTIVE or INCONCLUSIVE, with the frozen evidence</td><td>Deterministic</td><td><span class="tag t-run">RUN</span> mini reserve trial only (<code>actions/verification.py:129</code>, <code>:742</code>; <code>actions/verification_rules.py:711</code>)</td><td>Checks for every other lever: productive load, EV allocation, cold handling</td></tr>
+<tr><td><b>8 Reassess and learn</b></td><td>Did the outcome itself move toward its objective, on the same model and basis, compared with the expected effect? What should change in what we expect next time?</td><td>The check (7); the same model, prices and windows; the expected effect (5); the objective (1)</td><td>Post-intervention modelled change (simulation) or realized value (field records only); updated status; new baselines and track record</td><td>Deterministic</td><td><span class="tag t-none">ABSENT</span> reassessment: specified as D2, next build CC-D2; its table is migration 0037 in CC-M, reviewed and awaiting merge. <span class="tag t-part">PARTIAL</span> learning: recurrence withdraws a resolution (<code>actions/verification.py:945</code>; <code>analytics/finding_episode.py:622</code>).</td><td>Reassessment; results fed back into status (2) and expectations (4)</td></tr>
+</table></div>
+<div class="callout warn"><p><b>The three gaps the owner's model exposes, confirmed against the code.</b> (1) No per-customer or per-site commercial objectives or targets exist; only operational statements do. (2) No status per outcome exists. A "needs attention" view exists per Site signal and per Finding (placement), not per outcome. (3) No driver-attribution step exists. Findings stand in for drivers, and mini records rival explanations, but nothing links a Finding to the outcome it affects or apportions a gap. These three gaps are why a D item can only start at stage 3 or 4 today.</p></div>
+</section>
+
+<section id="mech-map">
+<h3>M.3 One model: how the loop (3.1) and the patterns (4) map onto the mechanism</h3>
+<p>The eight stages are the model. The eleven-stage loop in 3.1 is the same mechanism split finer for engineering. The patterns in section 4 are kinds of outcome that recur across verticals, and each one reuses the mechanism. Nothing in 3.1 or 4 is a second process.</p>
+<div class="grid2">
+<div class="tw mid"><table>
+<tr><th>Loop stage (3.1)</th><th>Mechanism stage</th><th>Note</th></tr>
+<tr><td>1 Observe</td><td>input to 2 and 3</td><td>Evidence feeds the stages; it is not a stage of its own</td></tr>
+<tr><td>2 Establish context</td><td>1</td><td>The mechanism adds what the loop lacked: objectives and targets</td></tr>
+<tr><td>3 Diagnose drivers</td><td>3</td><td></td></tr>
+<tr><td>4 Quantify</td><td>2 and 3</td><td>Size of the gap (2); worth of each driver (3)</td></tr>
+<tr><td>5 Prioritise</td><td>2, and 4 at portfolio scope</td><td>Triage is "what needs attention" (2); ranking and allocation weigh levers across sites (4)</td></tr>
+<tr><td>6 Evaluate interventions</td><td>4</td><td></td></tr>
+<tr><td>7 Decide</td><td>5</td><td>Only the moment of choice. The decision is the whole thread from 2 to 8 (M.4)</td></tr>
+<tr><td>8 Execute and track</td><td>6</td><td></td></tr>
+<tr><td>9 Verify independently</td><td>7</td><td></td></tr>
+<tr><td>10 Reassess economics</td><td>8</td><td>Reassessed against the outcome and its objective, not only the intervention</td></tr>
+<tr><td>11 Learn and improve</td><td>8, feeding 1 and 4</td><td></td></tr>
+</table></div>
+<div class="callout gap"><p><b>What changed, and why it matters.</b> The loop started from observing a problem and ended with the economics of an intervention. That made it problem-led: anything that improved one stage looked like a feature. The mechanism starts from the outcomes that matter and their objectives, and ends when the same outcome has been reassessed. Read that way, a "decision" is no longer a stage or a feature. It is the unit of work that carries one outcome from "needs attention" to "reassessed".</p></div>
+</div>
+<div class="tw wide"><table>
+<tr><th>Pattern (4)</th><th>Outcome it manages</th><th>Status measure (2)</th><th>Typical drivers (3)</th><th>Typical levers (4)</th><th>Check (7)</th><th>Decision item</th></tr>
+<tr><td>P1 Spare capacity sold profitably</td><td>O1</td><td>Contribution per site-month; spare capacity sold</td><td>Headroom, demand, tariff, collection</td><td>Add a load in eligible hours; sell charger slots or pallet space</td><td>Delivered kWh at the load meter, reserve held; later, billed and collected revenue</td><td>D1</td></tr>
+<tr><td>P2 Cost per productive unit</td><td>O2</td><td>Cost per kWh served, per revenue km, per pallet-day</td><td>Dispatch, reserve, tariff window, specific fuel consumption</td><td>Reserve change, generator or charging schedule</td><td>Fewer avoidable generator seconds; energy shifted to cheaper windows</td><td>D2</td></tr>
+<tr><td>P3 Service readiness and continuity</td><td>O3</td><td>Critical load served; departures met; backup recovered</td><td>Reserve cover, shared charging power, backup start</td><td>Charging priority; reserve; maintenance</td><td>Energy delivered by departure; recovery observed</td><td>D3</td></tr>
+<tr><td>P4 Exposure requiring review</td><td>O3</td><td>Lots or demand at risk</td><td>Excursion, backup failure, time to handle</td><td>Earlier handling; inspection</td><td>Inspection result recorded</td><td>D4</td></tr>
+<tr><td>P5 Stress to capital risk</td><td>O4</td><td>Stress cue against expected asset life</td><td>Cycling depth, starts, temperature</td><td>Operating limits; maintenance timing</td><td>Lower stress cue later</td><td>none</td></tr>
+<tr><td>P6 Measured-to-paid reconciliation</td><td>O1 (realization), O6</td><td>Collection ratio; reconciliation residual</td><td>Billing, vending, settlement</td><td>Follow up a residual</td><td>Residual closed by records</td><td>none</td></tr>
+<tr><td>P7 Evidence for capital</td><td>O6</td><td>Share of reported value at verified level</td><td>Source coverage, provenance</td><td>Metering or source upgrade</td><td>Claim promoted on new evidence</td><td>none (R1 labels support it)</td></tr>
+</table></div>
+<p>D5 (placement) is stage 2 at portfolio scope for every pattern: it says where to look first. The pattern sets what is specific at stages 2, 3, 4 and 7. The stages themselves, their records and their claim levels are shared.</p>
+</section>
+
+<section id="mech-decision">
+<h3>M.4 What a decision is</h3>
+<div class="principle">
+<p><b>Definition.</b> A decision is one outcome carried through stages 2 to 8. It needs:</p>
+<p>an <b>outcome that needs attention</b> against its objective (2), plus the <b>drivers in play</b> and their evidence (3), plus <b>feasible levers</b>, each with a <b>what-if</b>, and a <b>recommended best lever</b> with its trade-offs (4), plus a <b>person's choice</b> of one lever with the effect they expect (5). That choice is then followed by the <b>action</b> (6), a <b>check</b> that the driver changed (7), and a <b>reassessment of the same outcome</b> against the same objective and the expected effect (8).</p>
+<p>A decision is closed only at stage 8, or when the record states why stage 8 cannot be reached.</p>
+</div>
+<div class="grid2">
+<div class="card"><h4>Rules that follow</h4>
+<ul class="tight">
+<li>Every decision names one primary outcome and the guardrail outcomes it must not harm.</li>
+<li>A decision starts from stage 2. A Finding or an opportunity (for example, spare headroom) is a driver observation at stage 3. It becomes a decision when it is tied to an outcome that needs attention or has room to improve.</li>
+<li>The effect expected at stage 5 is what stage 8 is compared with. Without it, a reassessment can say what changed but not whether the choice worked as intended.</li>
+<li>An item that delivers only some stages must say which stages are open and show them as "not available yet". It must not be presented as a decision.</li>
+</ul></div>
+<div class="card"><h4>Words used in this document</h4>
+<ul class="tight">
+<li><b>Decision support</b>: stage 4 (what-if, best lever, trade-offs). D1's contribution calculation is decision support.</li>
+<li><b>Decision record</b>: stage 5 (the accepted Action or Work link).</li>
+<li><b>Decision thread</b>: stages 2 to 8 for one outcome, joined by shared identities (<a href="#s3-arch">3.2</a>, <a href="#continuity">Appendix C continuity</a>).</li>
+<li><b>Decision item D1 to D5</b>: a build item that adds one or more stages to a decision thread. It is not a decision in itself (M.6).</li>
+</ul></div>
+</div>
+</section>
+
+<section id="mech-threads">
+<h3>M.5 Two threads, stage by stage</h3>
+<p>The generator-support thread at KOBO-001 (O2, MG-2) and the grain-mill thread at MG-W402-001 (O1, MG-1), side by side. Figures are the declared assumptions from Appendix C.</p>
+<div class="tw wide"><table>
+<tr><th>Stage</th><th>KOBO-001: recurring generator support (O2, MG-2)</th><th>MG-W402-001: grain-mill productive load (O1, MG-1)</th></tr>
+<tr><td>1 What matters</td><td><span class="tag t-none">open</span> No cost-per-kWh objective is declared for the site.</td><td><span class="tag t-none">open</span> No contribution objective per site-month is declared.</td></tr>
+<tr><td>2 Watch status</td><td><span class="tag t-none">open</span> No MG-2 status. What the system shows instead is a recurring Finding with a fuel-cost exposure, placed in "Act now" (placement, CC-R2).</td><td><span class="tag t-none">open</span> No MG-1 status. The Portfolio Productive-use card shows "Not established" (<code>estate/portfolio.py:309-314</code>).</td></tr>
+<tr><td>3 Explain the gap</td><td><span class="tag t-impl">exists</span> Driver: the reserve is high enough that the generator covers hours the battery could carry. Evidence: a recurring episode with observed OFF proof. Rival explanations are recorded.</td><td><span class="tag t-impl">exists</span> Driver: spare noon solar headroom. Evidence: a five-day headroom study (6 October excluded). Demand and collection are not evidenced.</td></tr>
+<tr><td>4 Weigh the levers</td><td><span class="tag t-part">partial</span> One lever: reserve down 5 points. The recommendation predicts no saving, so there is no expected value.</td><td><span class="tag t-target">D1 adds</span> A contribution what-if: 1.70 USD per eligible hour, collection break-even 0.12, payback 71 eligible hours. One lever (add this load, or not). No other options, because only one noon hour is assessed (ruling R1.1).</td></tr>
+<tr><td>5 Decide</td><td><span class="tag t-part">partial</span> Action accepted and pinned to the Finding revision. No expected effect is recorded.</td><td><span class="tag t-part">partial</span> A Work case can be linked to the scenario (<code>0030_w4_mini_decisions.py:192-209</code>). The expected contribution is not pinned, because the link names the scenario, not its revision.</td></tr>
+<tr><td>6 Act</td><td><span class="tag t-impl">exists</span> Applied as a new Foundation revision.</td><td><span class="tag t-impl">exists</span> The Work case is tracked. Nothing records that the load was connected.</td></tr>
+<tr><td>7 Check</td><td><span class="tag t-run">exists</span> At least 25% fewer avoidable generator seconds, with guardrails held: VERIFIED on simulated evidence.</td><td><span class="tag t-none">open</span> Delivered kWh at the load meter in eligible hours, with reserve held. No check exists.</td></tr>
+<tr><td>8 Reassess and learn</td><td><span class="tag t-target">D2 adds</span> The modelled change in cost per kWh of feeder demand, on the same windows, fuel-consumption value and price (0.125 to 0.0833 USD/kWh in the example). Learning: a recurrence withdraws the resolution (exists).</td><td><span class="tag t-none">open</span> Contribution recomputed from later delivered kWh on the same basis, then from billed and collected revenue (field records). No learning.</td></tr>
+<tr><td><b>After the D item</b></td><td>Stages 3 to 8 covered; 1 and 2 open. A complete decision thread on simulated evidence, with no objective to measure it against.</td><td>Stages 3 and 4 covered, 5 and 6 thin; 1, 2, 7 and 8 open. Decision support for MG-1, not yet a decision.</td></tr>
+</table></div>
+</section>
+
+<section id="mech-d">
+<h3>M.6 D1 to D5 as instances of the mechanism</h3>
+<div class="tw wide"><table>
+<tr><th>Item</th><th>Outcome it serves</th><th>Stages it adds</th><th>Already in place on that thread</th><th>Left open</th><th>What would close the gap</th></tr>
+<tr><td><b>D5</b> Portfolio placement (R2)<br><span class="tag t-impl">built</span> CC-R2</td><td>All outcomes, portfolio scope</td><td>2, at portfolio scope: where to look first, with reasons</td><td>Findings and their facts (3)</td><td>It places Findings, not outcomes, and names no objective. Its "confidence" is evidence confidence only. It hands cases on to site decisions without linking to them.</td><td>Status per outcome (R13, proposed in <a href="#s10-mech">10.7</a>), so placement can say "MG-2 at KOBO-001 needs attention" instead of "this Finding recurred"</td></tr>
+<tr><td><b>D2</b> Post-trial reassessment (R3)<br><span class="tag t-run">next</span> CC-D2</td><td>O2, MG-2 cost per kWh</td><td>8</td><td>3, 4 (one lever), 5, 6, 7</td><td>1 and 2. No forecast at stages 4 and 5, so the reassessment reports a change but cannot judge it against an expectation. Realized value needs fuel records.</td><td>A declared cost objective and MG-2 status (R13); a forecast stored with the recommendation (R14)</td></tr>
+<tr><td><b>D1</b> Productive-use contribution (R4)<br>CC-D1, after CC-D2</td><td>O1, MG-1 contribution</td><td>4 (what-if, break-even, payback)</td><td>3 (headroom study); a thin 5 and 6 (Work link, Work case)</td><td>1, 2, 7, 8. The figure the person relied on is not pinned at stage 5. There is no load-meter check, and no contribution reassessment from billing and collection.</td><td>R13 for 1 and 2; R14 to pin the expected contribution; a later load-meter check and contribution reassessment (R4b, H2); settlement records (R10)</td></tr>
+<tr><td><b>D3</b> EV departure charging (R6)</td><td>O3 readiness (EV-1), with O2 cost (EV-2) as the trade-off</td><td>4 (feasible allocations, best lever, cost against readiness); a declared 5</td><td>3, in part (sessions, faults, connector availability)</td><td>1 and 2 (no readiness objective; no vehicles in the backend); 6 to 8 (no EV Action, no EV verifier, no cost recheck)</td><td>Declared vehicles and roster; an EV verifier (R9); R13 and R14</td></tr>
+<tr><td><b>D4</b> Cold lots requiring review (R5)</td><td>O3 inventory value (CC-1)</td><td>2 (lots requiring review are the attention list for CC-1) and 4 (handling earlier as the alternative)</td><td>3 (excursion chronology); cold Work (migration 0033); the operational temperature range (1, in part)</td><td>5 (no review decision record), 7 (no inspection result), 8 (no loss compared with declared value)</td><td>Lot register and inspection records; a cold check (R9)</td></tr>
+</table></div>
+<p><b>What this says about D1.</b> The owner's reading is correct. As specified, D1 is a calculator at stage 4. It becomes part of a decision only when MG-1 has an objective and a status (stages 1 and 2), the expected contribution is pinned when the person chooses (5), and a check and a reassessment follow (7 and 8). None of these is in the D1 specification.</p>
+</section>
+
+<section id="mech-cover">
+<h3>M.7 Outcome coverage, O1 to O6</h3>
+<p>Readiness levels are those of <a href="#s9-levels">9.1</a>. "Stages reached" counts a stage only where at least one demo thread for that outcome has it.</p>
+<div class="tw wide"><table>
+<tr><th>Outcome</th><th>What the demo shows</th><th>Readiness level</th><th>Stages reached</th><th>Honestly missing</th><th>What moves it to pilot level</th></tr>
+<tr><td><b>O1</b> Revenue growth and realization</td><td>Mini headroom study and gross sales scenario (MG-1); EV gross tariff context. After CC-D1: an expected contribution with break-even and payback. The Portfolio Productive-use card says "Not established".</td><td><span class="tag t-part">Simulated</span>, stages 3 and 4 only</td><td>3, 4 (5 and 6 thin)</td><td>Objective, status, check, reassessment. Demand, collection and settlement records (MG-6, EV-6, CC-2 absent).</td><td>Demand schedule and tariff versions declared, then imported; a settlement export (R10); a load-meter check; contribution reassessed on the same basis</td></tr>
+<tr><td><b>O2</b> Operating cost reduction</td><td>KOBO-001 end to end on simulated evidence: recurring Finding, fuel-cost bound, reserve trial accepted, applied and verified. After CC-D2: the post-trial modelled change. EV session cost.</td><td><span class="tag t-impl">Simulated</span>, stages 3 to 7 (8 after CC-D2); technical readiness for the Modbus path, with money withheld (TEL-05b)</td><td>3 to 7, 8 after CC-D2</td><td>Objective and MG-2 status; a forecast at the recommendation; fuel records; a served-energy boundary (feeder demand stands in)</td><td>An operator EMS export with a generator role and a real-source class; fuel receipts; a declared cost objective</td></tr>
+<tr><td><b>O3</b> Revenue and value protection</td><td>Cold excursions, backup chains and EV fault or incomplete sessions as Site attention items; cold exposure unpriced. D3 and D4 only as labelled declared illustrations.</td><td><span class="tag t-part">Simulated</span>, signals only; no decision thread</td><td>2 (signals), 3</td><td>Objectives in commercial terms (service level, departures, stock value); lot register; rosters; EV and cold checks (R9); recurrence for cold and EV</td><td>Logger export; CSMS export plus a fleet roster; lot register; EV and cold verifiers</td></tr>
+<tr><td><b>O4</b> Asset and capital protection</td><td><b>Not covered.</b> Portfolio Asset condition is always UNKNOWN (<code>estate/portfolio.py:388</code>); the Asset life card is UNSUPPORTED (<code>:309-314</code>); battery degradation, remaining life and stress are withheld (<code>sites/battery_boundary.py:26</code>); no stress producer exists. MG-C uses an UNCONFIRMED generator-support stand-in.</td><td><span class="tag t-none">None</span>. Not demonstrable.</td><td>none</td><td>Every stage</td><td>A stress-cue producer from throughput and starts, unpriced (R11); longer histories (R8); an asset register and replacement costs. Money needs a validated degradation basis first (H3).</td></tr>
+<tr><td><b>O5</b> Capital productivity</td><td>Portfolio placement with reasons (CC-R2); comparison partitions with overlap refusal; no estate total</td><td><span class="tag t-part">Simulated</span>, triage only</td><td>2 at portfolio scope, per Finding</td><td>Capital basis; constraints; allocation (R12); portfolio status per outcome</td><td>Budgets, technician capacity and objectives as records; an allocation prototype</td></tr>
+<tr><td><b>O6</b> Performance and investment assurance</td><td>Lineage for simulated evidence; claim labels and the beneficiary key (CC-R1); one verified technical trial; Modbus proof A through the real gateway on an emulator, with money withheld</td><td><span class="tag t-impl">Simulated</span>; technical readiness for the Modbus class (telemetry R1 to R2)</td><td>Supports 7 and 8 on every thread</td><td>Real-source class; field provenance; an evidence pack; financier rules</td><td>A genuine export validated (telemetry R3); a real-source class; the five gates of telemetry ruling D5</td></tr>
+</table></div>
+<p>Only O2 has a thread that reaches a check, and no outcome has stages 1 and 2 in commercial terms. O4 is not covered at all, and the demo should say so in its own words ("Not assessed yet") rather than imply coverage.</p>
+</section>
+</section>
+
 <!-- ===================================================== 3 -->
 <section id="s3">
 <h2>3 Unified system architecture and orchestration of capabilities</h2>
 <p>AssetOps is one system that moves a case from an observation to an economically qualified, verified result, and then learns from it. The same coordination machinery serves every vertical; the physical reasoning underneath it does not.</p>
 
 <section id="s3-loop">
-<h3>3.1 The value-delivery loop</h3>
+<h3>3.1 The value-delivery loop: the mechanism's detailed working view</h3>
+<div class="callout"><p><b>Not a second model.</b> The loop below is the mechanism of section <a href="#mech">M</a> split into finer engineering steps. The column "M" in the table says which mechanism stage each loop stage belongs to (<a href="#mech-map">M.3</a>). The loop has no stage for objectives and targets, and it ends on the economics of an intervention rather than on the outcome. The mechanism adds the first and corrects the second.</p></div>
 <figure>
 <div class="sv"><svg viewBox="0 0 980 420" role="img" aria-labelledby="f31t f31d">
 <title id="f31t">The AssetOps value-delivery loop</title>
@@ -332,7 +551,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <rect class="box-warn" x="280" y="30" width="170" height="56" rx="10"/><text x="365" y="54" text-anchor="middle" class="b">2 Establish context</text><text x="365" y="72" text-anchor="middle" class="tiny">topology, policy, prices, records</text>
 <rect class="box-warn" x="520" y="30" width="170" height="56" rx="10"/><text x="605" y="54" text-anchor="middle" class="b">3 Diagnose drivers</text><text x="605" y="72" text-anchor="middle" class="tiny">assessments, episodes, causes</text>
 <rect class="box-warn" x="760" y="30" width="180" height="56" rx="10"/><text x="850" y="54" text-anchor="middle" class="b">4 Quantify</text><text x="850" y="72" text-anchor="middle" class="tiny">consequence or opportunity</text>
-<rect class="box-gap" x="760" y="180" width="180" height="56" rx="10"/><text x="850" y="204" text-anchor="middle" class="b">5 Prioritise</text><text x="850" y="222" text-anchor="middle" class="tiny">triage, compare, allocate</text>
+<rect class="box-warn" x="760" y="180" width="180" height="56" rx="10"/><text x="850" y="204" text-anchor="middle" class="b">5 Prioritise</text><text x="850" y="222" text-anchor="middle" class="tiny">triage, compare, allocate</text>
 <rect class="box-warn" x="760" y="330" width="180" height="56" rx="10"/><text x="850" y="354" text-anchor="middle" class="b">6 Evaluate interventions</text><text x="850" y="372" text-anchor="middle" class="tiny">feasible alternatives</text>
 <rect class="box-warn" x="520" y="330" width="170" height="56" rx="10"/><text x="605" y="354" text-anchor="middle" class="b">7 Decide</text><text x="605" y="372" text-anchor="middle" class="tiny">accepted Action, owner</text>
 <rect class="box-warn" x="280" y="330" width="170" height="56" rx="10"/><text x="365" y="354" text-anchor="middle" class="b">8 Execute and track</text><text x="365" y="372" text-anchor="middle" class="tiny">apply, work, observe</text>
@@ -348,22 +567,22 @@ details.wire summary{cursor:pointer;font-weight:650}
 <path class="ln-gap" d="M600,244 C640,290 760,320 800,330" marker-end="url(#m31g)"/>
 <text x="20" y="410" class="tiny muted">Green: exists for the simulated path. Amber: partial. Purple dashed: target, missing today. Stages can be skipped or repeated; a case does not have to pass through each one in order.</text>
 </svg></div>
-<figcaption>Figure 3.1. The loop is conceptual. A recurring problem may jump from 9 back to 3; a portfolio review starts at 5 across many open cases.</figcaption>
+<figcaption>Figure 3.1. The loop is the detailed view of the mechanism in Figure M.1. Prioritise is amber since placement merged (CC-R2). A recurring problem may jump from 9 back to 3; a portfolio review starts at 5 across many open cases.</figcaption>
 </figure>
 
 <div class="tw wide"><table>
-<tr><th>Stage</th><th>Question answered</th><th>Artefact it leaves</th><th>Authority</th><th>Today</th></tr>
-<tr><td>1 Observe</td><td>What did the sources report, and can we trust it?</td><td>Accepted or rejected evidence with source class and lineage</td><td>Deterministic</td><td><span class="tag t-impl">IMPL</span> source classes <code>evidence/source_provenance.py:40-43</code>; gateway router <code>gateway_api.py:49</code>. Simulated sources only.</td></tr>
-<tr><td>2 Context</td><td>What is this site, its limits, its rules and its prices?</td><td>Versioned Foundation, policies, price and tariff publications; declared business inputs</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> Foundation and prices exist (<code>sites/foundation_service.py:414</code>, <code>financials/fuel_cost.py:440</code>); business records (demand, billing, rosters, lots, contracts) <span class="tag t-none">ABSENT</span> (<a href="#appA">A</a>, F31 to F33)</td></tr>
-<tr><td>3 Diagnose</td><td>What is happening, why, how long and how often?</td><td>Assessment, Finding revision, episode, recurrence</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> mini recurrence <code>analytics/finding_episode.py:689</code>; cold and EV never recur (<code>analytics/adapters/postgres_finding_store.py:638-639</code>, <code>:735-737</code>)</td></tr>
-<tr><td>4 Quantify</td><td>What is it worth, to whom, on what basis?</td><td>Money consequence or opportunity with basis hash and claim level</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> fuel <code>financials/fuel_cost.py:284</code>, EV tariff <code>financials/ev_money.py:200</code>; cold deliberately unpriced <code>financials/cold_consequence.py:44-48</code></td></tr>
-<tr><td>5 Prioritise</td><td>What needs attention, what compares, what gets the resources?</td><td>Placement with reasons; comparable groups; allocation plan</td><td>Deterministic rules; optimisation for allocation</td><td><span class="tag t-none">ABSENT</span> priority and confidence are null (<code>estate/index.py:124</code>); order is episode start (<code>estate/portfolio.py:33</code>)</td></tr>
-<tr><td>6 Evaluate</td><td>Which interventions are feasible, and what does each do to every affected outcome?</td><td>Alternatives with constraints, costs and trade-offs</td><td>Simulation (modelled what-if) and bounded optimisation, proposing only</td><td><span class="tag t-part">PARTIAL</span> mini reserve recommendation (<code>actions/service.py:344</code>); mini productive-load gross scenario (<code>mini_decisions/scenario_rules.py:191</code>); EV and cold scenarios store context only (<code>ev_scenarios/rules.py:4-6</code>)</td></tr>
-<tr><td>7 Decide</td><td>Who accepted what, against which evidence?</td><td>Accepted Action pinned to a Finding revision</td><td>Human</td><td><span class="tag t-impl">IMPL</span> <code>actions/service.py:387</code></td></tr>
-<tr><td>8 Execute</td><td>Was it applied, and what work was done?</td><td>Action events, Work case</td><td>Human, recorded deterministically</td><td><span class="tag t-impl">IMPL</span> <code>actions/lifecycle.py:69</code>; Work migrations <code>0033</code>, <code>0035</code></td></tr>
-<tr><td>9 Verify</td><td>Did the intended technical condition change, on independent later evidence?</td><td>Frozen plan and outcome: VERIFIED, INEFFECTIVE, INCONCLUSIVE</td><td>Deterministic</td><td><span class="tag t-run">RUN</span> mini only: <code>actions/verification.py:129</code>, <code>:742</code>; <code>actions/verification_rules.py:711</code></td></tr>
-<tr><td>10 Reassess</td><td>Did it matter economically, under the same model and price basis?</td><td>Post-intervention modelled change, or unavailable with reason</td><td>Deterministic</td><td><span class="tag t-none">ABSENT</span> (spec D2, <a href="#appC">Appendix C</a>)</td></tr>
-<tr><td>11 Learn</td><td>What should change in baselines, recommendations and portfolio expectations?</td><td>Updated baseline windows, rule priors, intervention track record</td><td>Deterministic; AI-assisted retrieval of similar cases (target)</td><td><span class="tag t-part">PARTIAL</span> only recurrence withdrawing a resolution (<code>actions/verification.py:945</code>, <code>analytics/finding_episode.py:622</code>)</td></tr>
+<tr><th>Stage</th><th>M</th><th>Question answered</th><th>Artefact it leaves</th><th>Authority</th><th>Today</th></tr>
+<tr><td>1 Observe</td><td>input to 2, 3</td><td>What did the sources report, and can we trust it?</td><td>Accepted or rejected evidence with source class and lineage</td><td>Deterministic</td><td><span class="tag t-impl">IMPL</span> source classes <code>evidence/source_provenance.py:40-43</code>; gateway router <code>gateway_api.py:49</code>. Simulated sources only.</td></tr>
+<tr><td>2 Context</td><td>1</td><td>What is this site, its limits, its rules and its prices?</td><td>Versioned Foundation, policies, price and tariff publications; declared business inputs</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> Foundation and prices exist (<code>sites/foundation_service.py:414</code>, <code>financials/fuel_cost.py:440</code>); business records (demand, billing, rosters, lots, contracts) <span class="tag t-none">ABSENT</span> (<a href="#appA">A</a>, F31 to F33)</td></tr>
+<tr><td>3 Diagnose</td><td>3</td><td>What is happening, why, how long and how often?</td><td>Assessment, Finding revision, episode, recurrence</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> mini recurrence <code>analytics/finding_episode.py:689</code>; cold and EV never recur (<code>analytics/adapters/postgres_finding_store.py:638-639</code>, <code>:735-737</code>)</td></tr>
+<tr><td>4 Quantify</td><td>2, 3</td><td>What is it worth, to whom, on what basis?</td><td>Money consequence or opportunity with basis hash and claim level</td><td>Deterministic</td><td><span class="tag t-part">PARTIAL</span> fuel <code>financials/fuel_cost.py:284</code>, EV tariff <code>financials/ev_money.py:200</code>; cold deliberately unpriced <code>financials/cold_consequence.py:44-48</code></td></tr>
+<tr><td>5 Prioritise</td><td>2; 4 across sites</td><td>What needs attention, what compares, what gets the resources?</td><td>Placement with reasons; comparable groups; allocation plan</td><td>Deterministic rules; optimisation for allocation</td><td><span class="tag t-part">PARTIAL</span> at <code>1c6cb27e</code> priority and confidence were null (<code>estate/index.py:124</code>) and order was episode start. Since then placement with reasons has merged (CC-R2; <code>estate/placement.py:140-151</code>, order <code>estate/portfolio.py:34-36</code>). It places Findings, not outcomes (<a href="#mech-table">M.2</a>). Allocation is absent.</td></tr>
+<tr><td>6 Evaluate</td><td>4</td><td>Which interventions are feasible, and what does each do to every affected outcome?</td><td>Alternatives with constraints, costs and trade-offs</td><td>Simulation (modelled what-if) and bounded optimisation, proposing only</td><td><span class="tag t-part">PARTIAL</span> mini reserve recommendation (<code>actions/service.py:344</code>); mini productive-load gross scenario (<code>mini_decisions/scenario_rules.py:191</code>); EV and cold scenarios store context only (<code>ev_scenarios/rules.py:4-6</code>)</td></tr>
+<tr><td>7 Decide</td><td>5</td><td>Who accepted what, against which evidence?</td><td>Accepted Action pinned to a Finding revision</td><td>Human</td><td><span class="tag t-impl">IMPL</span> <code>actions/service.py:387</code></td></tr>
+<tr><td>8 Execute</td><td>6</td><td>Was it applied, and what work was done?</td><td>Action events, Work case</td><td>Human, recorded deterministically</td><td><span class="tag t-impl">IMPL</span> <code>actions/lifecycle.py:69</code>; Work migrations <code>0033</code>, <code>0035</code></td></tr>
+<tr><td>9 Verify</td><td>7</td><td>Did the intended technical condition change, on independent later evidence?</td><td>Frozen plan and outcome: VERIFIED, INEFFECTIVE, INCONCLUSIVE</td><td>Deterministic</td><td><span class="tag t-run">RUN</span> mini only: <code>actions/verification.py:129</code>, <code>:742</code>; <code>actions/verification_rules.py:711</code></td></tr>
+<tr><td>10 Reassess</td><td>8</td><td>Did it matter economically, under the same model and price basis?</td><td>Post-intervention modelled change, or unavailable with reason</td><td>Deterministic</td><td><span class="tag t-none">ABSENT</span> (spec D2, <a href="#appC">Appendix C</a>)</td></tr>
+<tr><td>11 Learn</td><td>8, feeding 1 and 4</td><td>What should change in baselines, recommendations and portfolio expectations?</td><td>Updated baseline windows, rule priors, intervention track record</td><td>Deterministic; AI-assisted retrieval of similar cases (target)</td><td><span class="tag t-part">PARTIAL</span> only recurrence withdrawing a resolution (<code>actions/verification.py:945</code>, <code>analytics/finding_episode.py:622</code>)</td></tr>
 </table></div>
 </section>
 
@@ -493,6 +712,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 
 <section id="s3-ex">
 <h3>3.7 Two decisions end to end</h3>
+<p>Both examples are decision threads in the sense of <a href="#mech-decision">M.4</a>. Example A is the KOBO-001 thread; <a href="#mech-threads">M.5</a> sets it beside the productive-use thread stage by stage, including the stages that are still open (no cost objective, no MG-2 status). Example B is the D3 thread for EV readiness.</p>
 <h4>Example A. Mini-grid: recurring generator support at KOBO-001</h4>
 <figure>
 <div class="sv"><svg viewBox="0 0 980 250" role="img" aria-labelledby="f37t f37d">
@@ -547,6 +767,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><td><b>P6</b> Measured-to-paid reconciliation</td><td>Meter to cash (MG-6)</td><td>Session to settlement (EV-6)</td><td>Occupancy to invoice (CC-2, CC-7)</td><td>Business-record join, residuals without accusation</td></tr>
 <tr><td><b>P7</b> Evidence for capital</td><td>Investor assurance (MG-7)</td><td>Depot investment (EV-7)</td><td>Quality and portfolio assurance (CC-7)</td><td>Provenance, verification record, evidence pack</td></tr>
 </table></div>
+<p><b>Patterns and the mechanism.</b> Each pattern is one recurring kind of outcome, managed by the same mechanism. The pattern fixes what is specific at stages 2, 3, 4 and 7 (the status measure, the typical drivers, the levers and the check). The stages, their records and their claim levels are shared. <a href="#mech-map">M.3</a> places each pattern, and the decision item that serves it, on the mechanism.</p>
 
 <figure>
 <div class="sv"><svg viewBox="0 0 980 300" role="img" aria-labelledby="f41t f41d">
@@ -1241,6 +1462,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><td>CC-2 to CC-7</td><td>chronology and continuity</td><td>—</td><td>occupancy, contracts, meter</td><td>—</td></tr>
 <tr><td>Portfolio</td><td>Estate views; placement after D5</td><td>—</td><td>constraints and objectives</td><td>—</td></tr>
 </table></div>
+<p><a href="#mech-cover">M.7</a> restates readiness for each commercial outcome O1 to O6, with the mechanism stages each reaches. O4 is not covered.</p>
 </section>
 </section>
 
@@ -1320,6 +1542,36 @@ details.wire summary{cursor:pointer;font-weight:650}
 <h3>10.6 What the five-day sprint can hold</h3>
 <p>The sprint is a subset of the demo scope. Validation, not coding, limits throughput. A focused sprint credibly holds R1 and R2 plus <b>one</b> working decision whose rulings are closed. My recommendation is R3 (D2): it completes deep demo 1, reuses the most existing machinery and establishes the reassessment pattern every later verifier needs. The Implementer recommended R4 (D1) as the lower-risk first decision; both are defensible, and the choice is an owner decision below. R5 and R6 enter as declared illustrations, clearly labelled, until built.</p>
 </section>
+<section id="s10-mech">
+<h3>10.7 What the mechanism changes for the roadmap and the next build items (recommendations only)</h3>
+<div class="callout warn"><p><b>Recommendations only.</b> Nothing below changes the build sequence, the build specification, any task card or any code. Each change waits for the owner's decision in the list at the end of this section.</p></div>
+<h4>How priority should be read from now on</h4>
+<p>Add one rule to <a href="#s10-derive">10.1</a>: an item is valued by which stages of the mechanism it closes, and for which outcome. An item that completes a decision thread on one outcome comes before an item that opens a new partial thread, at similar value and effort. Under this rule D2 stays ahead of D1, and an outcome register and status item becomes a near-term need rather than a horizon 2 extra.</p>
+<h4>Proposed new roadmap items (not scheduled)</h4>
+<div class="tw wide"><table>
+<tr><th>#</th><th>Item</th><th>Mechanism stages</th><th>Outcomes</th><th>Reuse</th><th>Horizon</th><th>Effort</th></tr>
+<tr><td>R13</td><td><b>Outcome register and outcome status, demo-sized.</b> Declared objectives per site for the outcomes the demo shows: MG-2 cost per kWh of feeder demand and MG-1 contribution per site-month, plus the cold chamber range that is already declared. They are recorded with the existing declared-input revision pattern and labelled "declared objective", never shown as the customer's own. A status per outcome (on track, needs attention, unknown with reason) fills the Portfolio objective matrix honestly, and placement reasons name the outcome. A Finding-to-outcome link is included, without apportioning the gap.</td><td>1, 2, and a link at 3</td><td>All; O4 shows "Not assessed yet"</td><td>All verticals</td><td>H1</td><td>M, after an Architect specification of about half a day</td></tr>
+<tr><td>R14</td><td><b>Decision-thread contract.</b> Every decision record names its outcome and stores the expected effect it relied on (scenario revision or recommendation forecast). Every check and reassessment points back to that outcome. Open stages show as "not available yet". This works mostly over existing IDs. Pinning the outcome and the forecast needs one migration after 0037.</td><td>5, with links through 2 to 8</td><td>O1, O2, O3</td><td>All decision items</td><td>H1 to H2</td><td>S to M</td></tr>
+<tr><td>R4b</td><td><b>Productive-use check and contribution reassessment.</b> Delivered kWh at the load meter in eligible hours with reserve held (stage 7), then contribution recomputed on the same basis (stage 8). It needs a load-meter source in the simulated world.</td><td>7, 8</td><td>O1, MG-1</td><td>The P1 pattern for EV-3, CC-2</td><td>H2</td><td>M</td></tr>
+</table></div>
+<h4>Next build items: CC-D2 and CC-D1 (both on hold behind the test-pipeline review)</h4>
+<div class="grid2">
+<div class="card"><h4>CC-D2: proceed next, code unchanged</h4><p>It is the only thread where stages 3 to 7 already exist, so it closes a whole decision thread on simulated evidence and completes deep demo 1. Recommended additions are presentation only, inside its existing screen: name the outcome ("supply cost per kWh of feeder demand, MG-2"), and state two open stages plainly ("No cost objective declared"; "No saving was forecast when the trial was recommended"). No schema, rule or test change.</p></div>
+<div class="card"><h4>CC-D1: build after R13, labelled as decision support</h4><p>As specified it is stage 4 only. My recommendation is to write the R13 specification and build R13 between CC-D2 and CC-D1. R13 gives every vertical stages 1 and 2, and gives D1 the outcome status it lacks. CC-D1 then follows as specified (its enum value is already in the reviewed CC-M slice), presented as "Decision support for MG-1 contribution" with "Check: not available yet" and "Reassessment: not available yet". The alternative is to keep the current order (CC-D2, then CC-D1) and do R13 afterwards. That is faster to a second working calculation, but the demo would show a contribution figure tied to no objective.</p></div>
+</div>
+<h4>Decisions for the owner</h4>
+<ol>
+<li><b>Governing model.</b> Adopt the eight-stage mechanism (section M) as the document's governing model, with the eleven-stage loop kept as its detailed working view (M.3). Recommendation: adopt.</li>
+<li><b>Decision definition.</b> Adopt the definition in M.4 and the rule that every decision item names its outcome and shows its open stages as "not available yet". Recommendation: adopt.</li>
+<li><b>CC-D2.</b> Next build item, code unchanged, with the outcome named and the two open stages stated in its copy. Recommendation: yes.</li>
+<li><b>Order after CC-D2.</b> R13 (outcome register and status: specification, then build) before CC-D1, or CC-D1 first as currently sequenced. Recommendation: R13 first.</li>
+<li><b>CC-D1 presentation.</b> Show D1 as decision support for MG-1, with check and reassessment "not available yet". Its stages 7 and 8 become R4b in horizon 2. Recommendation: accept.</li>
+<li><b>Where demo objectives come from.</b> Declared per site and labelled "declared objective", never presented as a customer's target. Recommendation: accept.</li>
+<li><b>O4 in the demo.</b> Say openly that asset and capital protection is not assessed yet, and do not illustrate it. Recommendation: accept.</li>
+<li><b>R14 timing.</b> Pin the outcome and the expected effect on decision records in horizon 1, as one migration after 0037, or defer to horizon 2. Recommendation: horizon 1, after R13.</li>
+</ol>
+</section>
+
 </section>
 
 <!-- ===================================================== Appendices -->
@@ -1367,6 +1619,22 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><td>F33</td><td>No billing, vending, payment or settlement ingestion; billing appears only as typed gaps</td><td><code>ev_site_reads.py:76</code>, <code>:767-770</code>, <code>:854</code>, <code>:970</code></td></tr>
 <tr><td>F34</td><td>No AI or LLM library in backend or frontend dependencies or imports</td><td><code>backend/pyproject.toml:6-21</code> (the one textual hit, <code>financials/fuel_cost.py:78</code>, records a review, not runtime use)</td></tr>
 <tr><td>F35</td><td>No optimisation solver (pulp, ortools, scipy, cvxpy, pyomo, highspy) anywhere</td><td>searched</td></tr>
+</table></div>
+
+<h3>A.4 Mechanism findings (revision 4, read at main <code>e234bcd2</code>)</h3>
+<p>Since revision 3, CC-R1 (claim labels, beneficiary key, no-double-count invariant; merge <code>af7f1f90</code>) and CC-R2 (placement, D5; merge <code>9cec4fcb</code>) have reached main. Where sections 3.1, 8.1 and 9.2 say priority is null and placement is absent, that was true at <code>1c6cb27e</code>. Placement now exists.</p>
+<div class="tw wide"><table>
+<tr><th>#</th><th>Finding</th><th>Citation</th><th>Mechanism stage</th></tr>
+<tr><td>M1</td><td>No commercial outcome, objective or target is stored per customer, site or portfolio. The backend's only objective concepts are operational: the cold chamber range from the Foundation policy, the EV charging statement, and the mini overview's fixed "No assessment yet".</td><td><code>analytics/cold_site_reads.py:91-93</code>, <code>:356-370</code>; <code>ev_site_reads.py:618-622</code>; <code>evidence/overview.py:47-52</code>, <code>:646-649</code></td><td>1</td></tr>
+<tr><td>M2</td><td>The Portfolio objective matrix has five fixed operational keys. The first three cells are always UNKNOWN, "No reviewed objective assessment".</td><td><code>estate/portfolio.py:229</code>, <code>:234</code>, <code>:382-392</code></td><td>2</td></tr>
+<tr><td>M3</td><td>Cost control is REVIEW when an eligible operating-cost line exists. Evidence comes from readiness.</td><td><code>estate/portfolio.py:355-363</code>, <code>:366-379</code></td><td>2</td></tr>
+<tr><td>M4</td><td>Value cards: Productive use and Asset life UNSUPPORTED, Verified recovery NOT_ESTABLISHED, Service or product risk UNKNOWN.</td><td><code>estate/portfolio.py:309-314</code></td><td>2</td></tr>
+<tr><td>M5</td><td>Site "needs attention" lists exist for cold and EV and are rendered. They list evidence and Finding signals, not outcomes against objectives.</td><td><code>analytics/cold_site_reads.py:382-415</code>; <code>ev_site_reads.py:712-728</code>; <code>frontend/src/sites/coldSiteViews.tsx</code>, <code>EvSiteViews.tsx</code></td><td>2</td></tr>
+<tr><td>M6</td><td>Placement puts each Finding in one of five groups with reasons; the Portfolio orders by group first.</td><td><code>estate/placement.py:16</code>, <code>:140-151</code>; <code>estate/portfolio.py:34-36</code></td><td>2 (portfolio)</td></tr>
+<tr><td>M7</td><td>Mini records rival explanations per Finding (POLICY, UNCERTAINTY, CAPABILITY) with a disposition.</td><td><code>backend/migrations/versions/0030_w4_mini_decisions.py:100-135</code></td><td>3</td></tr>
+<tr><td>M8</td><td>No Finding-to-outcome link and no driver attribution. "Attribution" in verification means causal withdrawal of a resolution.</td><td><code>actions/verification.py:655-739</code></td><td>3</td></tr>
+<tr><td>M9</td><td>The mini decision Work link names a scenario or an opportunity, not a revision, and carries no outcome or expected effect.</td><td><code>0030_w4_mini_decisions.py:192-209</code></td><td>5</td></tr>
+<tr><td>M10</td><td>The reserve-trial recommendation states that it predicts no saving, runtime or safety change, so no forecast exists for stage 8 to compare with.</td><td><code>actions/service.py:344</code></td><td>4, 5</td></tr>
 </table></div>
 <h3>A.3 Corrections to revision 2</h3>
 <ul class="tight">
@@ -1456,7 +1724,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 
 <section id="appC" class="appendix">
 <h2>Appendix C. Decision specifications D1 to D5 and supporting engineering</h2>
-<p>Carried from revision 2 with its Implementer review worked in: wire shapes, migrations, rulings, executable acceptance criteria, producer cases, mock-deviation notes, validation tiers and effort. Roadmap items map as R4 = D1, R3 = D2, R6 = D3, R5 = D4, R2 = D5. The Implementer's alternative for D1 (extend <code>PRODUCTIVE_LOAD</code> keys with no migration, <code>.agent/implementer-effort-view-2026-10-27.md</code>) was weighed; ruling R1.5 below keeps a new kind so stored meanings of existing revisions do not change.</p>
+<p>Carried from revision 2 with its Implementer review worked in: wire shapes, migrations, rulings, executable acceptance criteria, producer cases, mock-deviation notes, validation tiers and effort. Roadmap items map as R4 = D1, R3 = D2, R6 = D3, R5 = D4, R2 = D5. Each D is a build item that adds stages to one decision thread in the mechanism of section <a href="#mech">M</a>. It is not a decision in itself. Each frame below now names the outcome, the stages the item adds and the stages it leaves open (<a href="#mech-d">M.6</a>). The Implementer's alternative for D1 (extend <code>PRODUCTIVE_LOAD</code> keys with no migration, <code>.agent/implementer-effort-view-2026-10-27.md</code>) was weighed; ruling R1.5 below keeps a new kind so stored meanings of existing revisions do not change.</p>
 <section id="d1" class="decision">
 <h3>D1 Mini-grid productive-use contribution</h3>
 <div class="frame">
@@ -1464,6 +1732,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <div><b>Decision</b>Add this productive load in eligible hours, or not?</div>
 <div><b>Money</b>Collected revenue − supply cost − enablement</div>
 <div><b>Claim</b><code>EXPECTED_VALUE</code>, <code>MINI_OPERATOR</code></div>
+<div><b>Mechanism</b>Outcome O1, MG-1. Adds stage 4 (decision support). Open: 1, 2, 7, 8; stage 5 does not pin the figure relied on</div>
 </div>
 <h4>Economic model</h4>
 <div class="formula">unit contribution  = E × tariff × collection_fraction − E × marginal_cost − other_cost_per_window   (E = proposed_kW × duration_h)
@@ -1571,6 +1840,7 @@ payback windows    = ceil(enablement_cost / unit contribution)     only when uni
 <div><b>Decision</b>Did the dispatch change lower supply cost per kWh of demand?</div>
 <div><b>Money</b>Change in modelled fuel cost per kWh of feeder demand; intervention cost stated beside it</div>
 <div><b>Claim</b>Level 3 technical, plus <code>POST_INTERVENTION_MODELLED</code></div>
+<div><b>Mechanism</b>Outcome O2, MG-2. Adds stage 8 to a thread with 3 to 7 in place. Open: 1, 2, and the forecast at 4 and 5</div>
 </div>
 <p>The owner's sequence: <b>operating issue → source-backed drivers and history → feasible intervention → recorded Action → independent technical verification → qualified commercial reassessment</b>.</p>
 <div class="formula">modelled fuel(w)  = SFC × generator_kWh(w)                      nominal; upper = 1.10 × nominal
@@ -1700,6 +1970,7 @@ READ_FLAGS           = SUPERSEDED_BY_WITHDRAWAL | PRICE_REPUBLISHED</pre>
 <div><b>Decision</b>Which feasible allocation gets the bus ready for departure, and at what cost?</div>
 <div><b>Money</b>Depot energy cost and alternative cost per option; effect on other vehicles</div>
 <div><b>Claim</b><code>EXPECTED_VALUE</code>, <code>FLEET_OPERATOR</code></div>
+<div><b>Mechanism</b>Outcome O3 (EV-1), O2 as trade-off. Adds stage 4 and a declared 5. Open: 1, 2, 6, 7, 8</div>
 </div>
 <div class="formula">required_battery_kWh = route_kWh + reserve_pct × capacity − initial_soc × capacity   (≥ 0)
 grid_kWh_needed      = required_battery_kWh / efficiency
@@ -1818,6 +2089,7 @@ PREFERRED_REASONS  = LOWEST_TOTAL_COST_ALL_MET | NO_FEASIBLE_OPTION</pre>
 <div><b>Decision</b>Which lots must be inspected, and is handling now worth it?</div>
 <div><b>Money</b>Declared value of lots meeting a rule. Review scope, not loss.</div>
 <div><b>Claim</b><code>INVENTORY_REQUIRING_REVIEW</code>, <code>GOODS_OWNER</code></div>
+<div><b>Mechanism</b>Outcome O3, CC-1. Adds stage 2 (lots to review) and 4 (handle earlier). Open: 5, 7, 8</div>
 </div>
 <div class="formula">exposure during presence: low  = rectangles wholly inside [placed_at, removed_at)
                           high = rectangles intersecting it
@@ -1923,6 +2195,7 @@ UNKNOWN_REASONS = SOURCE_GATE_WITHHELD | COVERAGE_INCOMPLETE | CONTRADICTORY_EVI
 <div><b>Decision</b>Where to look first; which opportunities compare</div>
 <div><b>Money</b>No cross-basis sums</div>
 <div><b>Claim</b>Placement reasons over existing facts; no score</div>
+<div><b>Mechanism</b>Stage 2 at portfolio scope, every outcome. Built (CC-R2). Places Findings, not outcomes; no lever choice</div>
 </div>
 
 <h4>What the code does now</h4>
@@ -2139,6 +2412,7 @@ CONFIDENCE_STATES = SUPPORTED_SOURCE_COHERENT | LIMITED | UNKNOWN</pre>
 <li><b>New: MG-C battery stress.</b> Keep the UNCONFIRMED generator-support stand-in for the demo, or build a stress-cue producer first (R11). Recommendation: stand-in now, producer in horizon 2.</li>
 <li><b>New: beneficiary basis.</b> Constant per category for the demo; declared per site at pilot. Recommendation: adopt.</li>
 <li><b>New: EV and cold if not built.</b> Show the departure decision and the lot review set as clearly labelled declared illustrations. Recommendation: accept.</li>
+<li><b>Revision 4: the mechanism and the next build items.</b> Eight decisions: the governing model, the decision definition, CC-D2, the order of R13 and CC-D1, how CC-D1 is presented, where demo objectives come from, O4 in the demo, and R14 timing. They are listed with recommendations in <a href="#s10-mech">10.7</a>.</li>
 </ol>
 </section>
 </main>
