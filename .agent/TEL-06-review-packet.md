@@ -1,6 +1,6 @@
-# TEL-06 review packet (TEL-06a / TEL-06b): partial, stopped on questions
+# TEL-06 review packet (TEL-06a / TEL-06b)
 
-Status: in_review (partial: collector core only; profile, fixture, 06a and 06b are blocked on `.agent/TEL-06-questions.md`)
+Status: in_review. TEL-06b is written; its Postgres run is held for the coordinator's go.
 
 PYTHONPATH (PowerShell):
 ```
@@ -8,65 +8,70 @@ $env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-tel6\backend;C:\Users\asse
 ```
 Interpreter: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe`. The import check names `AssetOpsV1-tel6\gateway` and `AssetOpsV1-tel6\field`.
 
-Branch `task/TEL-06-csv-collector`, from main `caf22405` (plus `205d3062`, TEL-05b Lows). Build commit `b43283ca`.
+Branch `task/TEL-06-csv-collector`, cut from main `caf22405`. Built over `b43283ca` (collector), `3a0a2c14` (rulings), `b7441d43` (profile, fixture, generator), `ded503fc` (06a) and `7c58841c` (06b).
 
 ## Task
-TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`: the illustrative generic interval CSV collector `assetops-generic-interval-csv/1` (owner Q7 = (c), no vendor naming).
+TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`, as amended by section M (TEL-06 rulings Q1-Q9). The task is the illustrative generic interval CSV collector `assetops-generic-interval-csv/1`. Owner Q7 = (c): no vendor naming.
 
 ## Outcome delivered
-- `field/assetops_field/export_csv.py` contains `CSV_CODES` (the eight codes), `CsvRefused(code, field, detail, profile_sha256)` and `CsvCollector(profile, publisher)`.
-  - `.reports(path)` validates the whole file with no IPC and raises `CsvRefused`.
-  - `.collect(path)` runs `reports()`, then `admit`, then `seal_and_release`.
-- The grammar is exactly as TEL-06 states it:
-  - BOM or non-UTF-8 → `ENCODING`; no data rows → `EMPTY_FILE`.
-  - The header is `timestamp_utc` plus `<column> [<unit>]` in any order. The unit passes through verbatim to the report `unit`.
-  - Timestamp format → `INVALID_TIMING`, span grid → `SPAN_MISMATCH`, repeat → `DUPLICATE_ROW`, order → `UNSORTED_ROWS`.
-  - Each cell is matched against `-?[0-9]+(\.[0-9]+)?` and must be an exact multiple of `output_resolution` → `INVALID_VALUE`. A blank cell gives `UNAVAILABLE`/`NO_MEASUREMENT`.
-  - Each row is one interval `[t - span, t)`. Reports are built through the existing `build_report`, with only `unit` replaced.
-- Imports: stdlib, `assetops_contracts`, and `assetops_field` only (D4).
-- **Not delivered (blocked):**
-  - `field/profiles/generic-interval-csv-illustrative-1.json` (Q1);
-  - `contract-fixtures/telemetry/generic-interval-csv-v1/*` and its generator (Q2);
-  - `host/tests/test_field_export_csv_proof.py`, TEL-06a (Q3);
-  - the TEL-06b third Postgres test (Q4);
-  - `release_previous` on start (Q5).
+- **Collector** (`field/assetops_field/export_csv.py`): `CSV_CODES` (8 codes), `CsvRefused(code, field, detail, profile_sha256)`, and `CsvCollector(profile, publisher)` with `.reports(path)` and `.collect(path)`.
+  - `.reports(path)` validates the whole file first and makes no IPC call.
+  - `.collect(path)` runs `admit`, then `seal_and_release`. It returns `{profile_sha256, file_sha256, session_ref, report_count, admissions, sealed}` (M Q7).
+  - A row whose cell count differs from the header, or a blank line, gives `INVALID_VALUE` (M Q6).
+  - The caller owns `release_previous` (M Q5).
+  - The value is normalised through `exact_decimal_text` (M Q8).
+  - The `report_key` is the spec's key (M Q9).
+- **Profile** (`field/profiles/generic-interval-csv-illustrative-1.json`): four `ILLUSTRATIVE` kW rows at 0.001, laid out exactly as in the M Q1 table. The PV row is `pv_power`; the clinic, mill and residential meters are `feeder_demand`. Profile SHA-256 `1496bd9a18ef721a8d0cf35e2f5bbe4a057673dcbb4fdce595c1b385380bb036`.
+- **Fixture** (`contract-fixtures/telemetry/generic-interval-csv-v1/kobo-window.csv` and `manifest.json`): 49 rows, 196 cells and 4 blank cells (03:00Z). CSV SHA-256 `8c886ba820d418e88fe1e41a10313e68b1f9c58275aa7b63c3a70745f579e9e9`. The source is the `-1` JSONL (`3d62a831…`, checked against its manifest). Each value is rounded half-even once at 0.001. The manifest keys are exactly those in M Q2 (e).
+- **Generator**: `host/tests/field_observation_fixtures.py:generate_interval_csv_fixture`, also run as `python host/tests/field_observation_fixtures.py interval-csv`.
+- **Freshness test**: `test_interval_csv_fixture_is_fresh_and_its_profile_matches_the_run` in `host/tests/test_field_observation_fixtures.py`. It checks:
+  - byte equality of both files;
+  - LF line ends and no BOM;
+  - the counts;
+  - the header;
+  - that the collector accepts the fixture;
+  - spans, cadences, classes and units against the publication profile;
+  - roles against the snapshot bindings.
+- **06a** (`host/tests/test_field_export_csv_proof.py`): uses `tel4.Bench` with its own expect file (M Q3, steps 1-4).
+- **06b** (`test_generic_csv_lands_as_accepted_evidence`, a third test in `host/tests/test_field_modbus_tcp_acceptance_postgres.py`): uses a fresh `*_test` database with KOBO-001 (M Q4).
 
 ## Files materially changed
-- `field/assetops_field/export_csv.py` (new)
-- `field/tests/test_field_export_csv.py` (new, 41 tests; it uses a profile built in the test, not the checked-in profile)
-- `.agent/TEL-06-questions.md` (new, Q1-Q9)
+`field/assetops_field/export_csv.py`, `field/tests/test_field_export_csv.py`, `field/profiles/generic-interval-csv-illustrative-1.json`, `contract-fixtures/telemetry/generic-interval-csv-v1/{kobo-window.csv,manifest.json}`, `host/tests/field_observation_fixtures.py`, `host/tests/test_field_observation_fixtures.py`, `host/tests/test_field_export_csv_proof.py`, `host/tests/test_field_modbus_tcp_acceptance_postgres.py` (test appended, docstring paragraph), `.agent/TEL-06-questions.md` and the spec section M (Architect's rulings, committed as given).
 
-## Acceptance criteria (TEL-06 gates)
+## Acceptance criteria
 | Gate | Status |
 |---|---|
-| Same file twice → identical message IDs, no new sequence | Partial. The focused test shows byte-identical admit bodies. The gateway-side check needs 06a, which is blocked (Q3). |
-| Renamed header refuses whole file, 0 IPC admissions, names profile SHA | Met (focused): `test_header_mismatch_refuses_the_whole_file_with_no_ipc[*]` asserts `link.calls == []` and the SHA in both the attribute and the message. Not yet shown through a real gateway (06a). |
-| Timestamp without `Z` → `INVALID_TIMING` | Met (focused). |
-| Blank cell → `UNAVAILABLE` | Met (focused), with `NO_MEASUREMENT` and the span carried. |
-| Header unit `W` → `UNIT_INCOMPATIBLE` holds | Partial. The focused test shows `[W]` passes to the report unit verbatim. The hold itself is gateway behaviour and needs 06a (blocked). |
-| 06b: accepted IDs listed, provenance `UNKNOWN`, no money row | Not built (Q4). |
-| No vendor name in TEL-06 code, profile, fixture, UI text | Met for the files that exist: a case-insensitive grep of `export_csv.py` and `test_field_export_csv.py` for vendor names (victron, vrm, sma, huawei, solaredge, monta, monnit, cerbo, gx, aggsoft) returns nothing. The test imports `FakeLink` and `profile_document` from the shared `field_fixtures.py`, which names its `-1` source by design (Q-T66). No UI text is touched. |
-| Every `CSV_CODES` entry has one focused test | Met. `test_every_csv_code_has_a_focused_test` enforces it by name. |
+| Same file twice → identical message IDs, no new sequence | **Met (06a step 2).** All 196 are `ALREADY_ADMITTED`, with the same `(message_id, sequence)` per index, and `sealed.batch_ids == []`. The `sequence_state` rows and the `envelope_outbox` and `upload_batch` counts are unchanged. The second collect used a new `session_ref` after `release_previous`. |
+| Renamed header refuses the whole file, 0 IPC admissions, names the profile SHA | **Met.** Focused: `link.calls == []` and the SHA is in both the attribute and the message. 06a step 3: `HEADER_MISMATCH`, with `envelope_outbox`, `report_admission` and `mapping_hold` unchanged. |
+| A timestamp without `Z` → `INVALID_TIMING` | **Met** (focused, and 06a step 3). |
+| A blank cell → `UNAVAILABLE` | **Met.** The 03:00Z cells arrive as `UNAVAILABLE`/`NO_MEASUREMENT` with `interval_start` 02:45Z (06a step 1). |
+| A header unit `W` → `UNIT_INCOMPATIBLE` holds | **Met (06a step 4).** There are 49 PV holds, `HELD`/`UNIT_INCOMPATIBLE`/`unit`, and the other 147 are `ALREADY_ADMITTED`. The outbox and the sequences are unchanged. |
+| 06b: accepted IDs listed, provenance `UNKNOWN`, no money row | **Written, not run.** It asserts 196 accepted rows equal to the receipts' IDs, `{"pv_power": 49, "feeder_demand": 147}`, the exact-value oracle, `UNKNOWN`/`["NO_POSITIVE_BINDING"]`, and zero consequence rows. It collects without a database (3 tests collected). |
+| No vendor name in TEL-06 code, profile, fixture or UI text | **Met.** A case-insensitive grep of the TEL-06 files (collector, field test, profile, fixture, manifest, 06a) for victron, vrm, sma, huawei, solaredge, monta, monnit, cerbo, gx and aggsoft exits 1 (no match). No UI is touched. 06a and 06b import the TEL-04/05 modules, which name their `-1` source by design (Q-T66). |
+| Every `CSV_CODES` entry has one focused test | **Met.** It is enforced by name in `test_every_csv_code_has_a_focused_test`. |
 
-## Checks run (at `b43283ca`)
-- `pytest field/tests/test_field_export_csv.py` → 41 passed.
-- `pytest field/tests` → 193 passed in 14.2 s.
-- Non-vacuous proof (committed first, reverted with `git checkout`): with the BOM check and the duplicate check disabled, 2 failed (`test_encoding_a_byte_order_mark_is_refused`, `test_duplicate_row_a_repeated_timestamp_is_refused`). `git status` was clean after the revert.
-- Guards: see "Guards" below.
-- No heavy job was run, no Postgres was run, and no server was started.
+## Checks run (final code `7c58841c`)
+- `pytest field/tests/test_field_export_csv.py`: 45 passed.
+- `pytest field/tests`: 197 passed in 14.6 s.
+- `pytest host/tests/test_field_observation_fixtures.py` (light, run as its own file): 3 passed in 8.4 s.
+- `pytest host/tests/test_field_export_csv_proof.py` (06a, one file, medium weight; the coordinator allowed it): 1 passed in 6.7 s (8.7 s of wall time with `-s`).
+- 06b: `--collect-only` only. `ASSETOPS_TEST_DATABASE_URL` was unset, and nothing touched Postgres.
+- Non-vacuous proofs (each committed first, then reverted with `git checkout`, and `git status` was clean afterwards):
+  - Disabling the BOM check and the duplicate check failed the 2 matching focused tests.
+  - Forcing the report unit to `kW` failed 06a step 4: `('ALREADY_ADMITTED', None, None)` came back where `('HELD', 'UNIT_INCOMPATIBLE', 'unit')` was expected.
+- Guards: `tools/check-architecture.ps1` → "Architecture check passed."; `tools/check-agent-workflow.ps1` → "Agent workflow check passed." Both were run directly with no policy override, and `ASSETOPS_GUARD_PYTHON` was set to the plan2 venv.
 
-## Guards
-`tools/check-architecture.ps1` → "Architecture check passed."; `tools/check-agent-workflow.ps1` → "Agent workflow check passed." (run directly, no policy override, ASSETOPS_GUARD_PYTHON set to the plan2 venv). Vendor-name grep: exit 1 (no match).
+## Held heavy run (needs the coordinator's go)
+Run 06b alone against `assetops_tel_test`, and only that test, twice in a row (M Q4):
+`<python> -m pytest host/tests/test_field_modbus_tcp_acceptance_postgres.py -k test_generic_csv_lands_as_accepted_evidence -q -s -p no:cacheprovider --basetemp "$env:TEMP\assetops-tel\tel06b"`
+The two existing tests in that file are not rerun.
 
 ## Known deviations
-- Q6: a row whose cell count is wrong raises `INVALID_VALUE` provisionally.
-- Q7: the `collect()` return keys are provisional.
-- Q8: the value text is normalised through `exact_decimal_text` (`0.50` → `0.5`).
-- Q9: the spec's `report_key` is used, not the card's.
+None from section M. The plan card's `SOURCE_TIME_IN_FUTURE` case is out of scope by M Q3.
 
 ## Residual risk
-- The gateway's handling (dedupe, `UNIT_INCOMPATIBLE`) is untested until 06a exists.
-- `release_previous` is absent, so a crash between `admit` and `seal` in a CSV session would leave an unsealed group until another session seals.
+- 06b has not run. Central's acceptance of the four UNAVAILABLE envelopes and of the 03:00-15:00 timing is unproven until it does. A refusal there is a stop to report (M Q4).
+- `_oracle` in 06a takes the fixture semantics from the ruling (half-even at 0.001; blank for non-`REPORTED`), so it is independent of the CSV but not of the ruling.
 
 ## User-review focus
-Answer Q1-Q4 (blocking). Then the profile, the fixture and generator, 06a and 06b get built. 06a and 06b are heavy, and 06b is Postgres. Both need a queue slot.
+None is required beyond the normal review. Lane T items close with the coordinator's merge (Q-T3).
