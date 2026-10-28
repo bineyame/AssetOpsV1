@@ -11,6 +11,12 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
 - **At the end of an ordinary slice:** one real-Postgres full backend suite,
   on the slice's final revision, with the JUnit zero-skip check below. Cite it
   in the review packet.
+- **Where (PERF-01, R2):** every full or merge run goes through the Docker
+  runner, `tools\run-backend-suite-in-container.ps1` (below). The Windows host
+  runs focused files only, through `tools\run-host-tests.ps1`, which refuses a
+  suite sweep. Until the revised testing policy takes effect (owner D4, after
+  PERF phases 1-3 prove out) a full run is still the whole suite (`-Tier all`,
+  the default), or the fast and slow tiers run back to back.
 - **Reviewers** run the focused files relevant to their findings and cite the
   implementer's same-revision full evidence. A reviewer reruns the full suite
   only for a finding that needs it.
@@ -81,34 +87,55 @@ CASCADE reports. `ASSETOPS_TEST_CLEANUP=truncate` restores TRUNCATE.
   (`WAL_LOG` or `FILE_COPY`). Since OPS-04 every run-owned `*_test` database gets
   `ALTER DATABASE ... SET synchronous_commit = off`. Server-wide settings are never
   changed by the tests.
+- PERF-01 (R3): the Docker runner uses a separate, test-only server by default,
+  `postgres-test` in `docker-compose.test.yml` (container
+  `assetopsv1-postgres-test-1`, volume `assetopsv1_assetops-test-pg`, no
+  published port). It is started with `fsync=off`, `full_page_writes=off` and
+  `synchronous_commit=off`, because its data is rebuilt by every run and is
+  worth nothing after a crash. The development server `assetopsv1-postgres-1`
+  and its databases are not touched by it; `-Server shared` runs against the
+  development server's `assetops_test` as before. The tests still change no
+  server-wide setting; the server is started that way.
 
 ## Commands (PowerShell, from the repository root)
 
+Run the tools scripts directly from a PowerShell prompt that may run local
+scripts. Never add an execution-policy override.
+
+Focused files on the host (R9). The wrapper puts this worktree's packages first
+on `PYTHONPATH`, checks that `assetops_backend`, `assetops_contracts`,
+`assetops_simulator`, `assetops_gateway` and `assetops_field` import from this
+worktree, and refuses otherwise (the shared venv's editable installs point at
+another checkout). It defaults `ASSETOPS_TEST_DATABASE_URL` to the development
+server's `assetops_test` and refuses a directory or empty target (R2):
+
 ```powershell
-$env:ASSETOPS_TEST_DATABASE_URL = "postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test"
-$py = ".venv\Scripts\python.exe"
+$env:ASSETOPS_TEST_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe"  # or -Interpreter
 
 # S1 Foundation and bindings
-& $py -m pytest backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
+tools\run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
 
 # S2 ingestion and evidence
-& $py -m pytest backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
+tools\run-host-tests.ps1 -- backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
 
 # S3 dispatch
-& $py -m pytest backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
+tools\run-host-tests.ps1 -- backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
 
 # S3-02a capability and claim-limit read
-& $py -m pytest backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
+tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
 
 # S4 Finding and money
-& $py -m pytest backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
-
-# Complete suite - the normal full command (two workers), with JUnit for the zero-skip proof
-& $py -m pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q --durations=30 --junitxml=.pytest-junit.xml
-
-# Complete suite, serial (fallback; also what a serial re-check of one file uses)
-& $py -m pytest backend/tests -q --durations=30 --junitxml=.pytest-junit.xml
+tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
+
+Pytest flags go after `--`. Focused files can also run in Docker, which avoids
+the Windows port forward: `tools\run-backend-suite-in-container.ps1 -Targets
+'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
+
+Complete suite: only in Docker (next section). The host fallback
+(`tools\run-host-tests.ps1 -AllowHostFull -- backend/tests -n 2 --dist loadfile
+--no-loadscope-reorder -q --junitxml=.pytest-junit.xml`) is for a Docker outage
+only, and its packet says why.
 
 ### Before a long full run
 
@@ -125,7 +152,7 @@ slow or budget-bound failure as a code regression. A machine that sleeps mid-run
 a 40-minute suite into hours (seen in OPS-01: one run reached 34% in 4 h).
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\keep-awake-during-tests.ps1
+tools\keep-awake-during-tests.ps1   # the Docker runner starts this itself
 ```
 
 Cap every full run at twice its expected wall time (see Timing below). A run
@@ -149,8 +176,36 @@ whose message names `ASSETOPS_TEST_DATABASE_URL` means the database was unset.
 ## Full suite inside the Compose network (OPS-03)
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-backend-suite-in-container.ps1
+tools\run-backend-suite-in-container.ps1                 # whole suite, dedicated test server, workers from free memory
+tools\run-backend-suite-in-container.ps1 -Tier fast      # everything but the slow tier
+tools\run-backend-suite-in-container.ps1 -Tier slow      # the slow tier only
+tools\run-backend-suite-in-container.ps1 -Workers 2 -CapMinutes 150 -Server shared
 ```
+
+PERF-01 options and records:
+
+- `-Server dedicated` (default) uses `postgres-test`; `shared` uses the
+  development server as OPS-03 did.
+- `-Tier all` (default), `fast` (`-m "not slow"`) or `slow` (`-m slow`).
+- `-Workers 0` (default) picks 2-4 workers from the memory free at start (R10):
+  the budget is the smaller of the VM's available memory and (Windows free
+  memory above a 1.5 GB reserve, plus memory the VM already holds unused),
+  less 400 MB fixed, at 450 MB per worker (the PERF-01 baseline peak was about
+  384 MB of resident memory per worker). Below two workers it refuses to start
+  (exit 3) and says to close programs or pass `-Workers`.
+- `-Targets` runs named files or node IDs instead of `backend/tests`.
+- Every run also writes `collected.txt` (the whole suite's `--collect-only`
+  node IDs, whatever the tier), `phase-times.csv` (each test's set-up, call and
+  teardown time, `tests/phase_timing.py`), `memory.csv` and `memory-peak.txt`
+  (`tools/sample-test-memory.ps1`, every 5 s: Windows free memory, the VM
+  process's working set, memory used inside the VM, runner and database
+  container memory, runner processes and their resident sizes) and
+  `run-options.txt` (memory at start and the options chosen). The container
+  checks before pytest that every AssetOps package imports from `/workspace`.
+- `python tools/summarize-test-run.py <run-dir> [--compare <baseline-dir>
+  --extra <slow-tier-dir> --known-failure <id>]` writes `report.md`,
+  `summary.json` and `passed.txt`, and checks a run against a baseline:
+  identical collected IDs, identical JUnit pass list, zero skips.
 
 The wrapper runs the same pytest command (`-n 2 --dist loadfile
 --no-loadscope-reorder -q --durations=30`) in the one-shot `backend-test-runner`
@@ -181,6 +236,21 @@ in both: the owner-only credential test
 (`test_s2_gateway_access_postgres.py::TestProvisioning::test_a_protected_dacl_that_grants_another_account_is_refused`)
 checks a Windows DACL on Windows and, on Linux, that a `0644` file is refused
 and a `0600` file accepted by `verify_owner_only`.
+
+## Slow tier (PERF-01, R5)
+
+Tests marked `@pytest.mark.slow` wait on the real clock as their subject. They
+are the slowest and the most load-sensitive tests, and a fast-tier run leaves
+them out (`-m "not slow"`, a deselection, never a skip):
+
+- `test_s4_schedule_health_postgres.py::TestTickCost::test_measure_a_real_child_tick_over_one_and_four_sites` (about 150 s)
+- `test_s4_schedule_health_postgres.py::TestStaleWithoutJob::test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued` (about 130 s; the 120 s stale wait)
+- `test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed_its_job_lease_is_exposed_and_a_db_stall_is_a_typed_timeout` (about 140 s)
+- `host/tests/test_field_modbus_tcp_acceptance_postgres.py`, both TEL acceptance tests (60x real time, 9-12 min each; not part of the backend suite)
+
+Until the revised policy takes effect (D4), a full backend run is `-Tier all`
+or a `fast` run plus a `slow` run whose JUnit results together match the whole
+suite.
 
 ## Timing
 
