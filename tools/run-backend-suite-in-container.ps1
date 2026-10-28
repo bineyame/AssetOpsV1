@@ -1,22 +1,48 @@
-# OPS-03: run the full backend suite inside the Docker Compose network.
+# OPS-03: run the full backend suite inside the Docker Compose network. Since PERF-01 (R2) this is the only
+# supported path for a full or merge run; the Windows host runs focused files only (tools\run-host-tests.ps1).
 #
-#   powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-backend-suite-in-container.ps1
+#   tools\run-backend-suite-in-container.ps1 [-Tier all|fast|slow] [-Workers N] [-Server dedicated|shared]
+#       [-CapMinutes M] [-Targets 'backend/tests/test_x.py ...']
+#
+# Run it directly from a PowerShell prompt that may run local scripts; it never passes an execution-policy
+# override to anything it starts (its children inherit the caller's policy).
+#
+# PERF-01 options:
+#   -Server dedicated (default)  the test-only `postgres-test` server (docker-compose.test.yml; crash safety off,
+#                                its own volume, no published port). `shared` = the OPS-03 behaviour on `postgres`.
+#   -Tier all (default)          every test. `fast` = `-m "not slow"`, `slow` = `-m slow` (the deliberate
+#                                real-clock tests; backend/TESTING.md "Slow tier"). The default stays `all` until
+#                                the revised testing policy (owner D4) takes effect.
+#   -Workers 0 (default)         choose 2-4 workers from the memory free when the run starts (R10); a number
+#                                overrides. Refuses to start when not even two workers fit.
 #
 # The one-shot `backend-test-runner` service (docker-compose.test.yml) joins the `assetopsv1` project
-# network and reaches Postgres as `postgres:5432`. The shared Postgres container is started if absent but
-# never recreated, stopped or removed (`--no-recreate`, and the runner starts with `--no-deps`, because the
+# network and reaches Postgres as `postgres-test:5432` (or `postgres:5432`). A Postgres container is started if
+# absent but never recreated, stopped or removed (`--no-recreate`, and the runner starts with `--no-deps`, because the
 # bind-mount source differs per worktree and plain `up`/`run` would recreate it). Each attempt writes
 # junit.xml, console.log, wall-time.txt and connections.csv to var/test-results/OPS-03/<run-id>/.
 # The pytest wall time is capped at -CapMinutes (2x the expected wall in backend/TESTING.md); a run past the
 # cap is recorded as a hang (timeout.txt), terminated, and exits 124. The URL and password are never printed.
-param([int]$CapMinutes = 100, [int]$Workers = 4, [string]$Targets = 'backend/tests')  # 2x the measured 50-min expected wall (backend/TESTING.md Timing)
+param(
+    [int]$CapMinutes = 100,  # 2x the expected wall (backend/TESTING.md Timing)
+    [int]$Workers = 0,
+    [string]$Targets = 'backend/tests',
+    [ValidateSet('dedicated', 'shared')][string]$Server = 'dedicated',
+    [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all'
+)
 
 # Continue: Windows PowerShell 5.1 turns native stderr into terminating errors under Stop; failures are checked
 # explicitly through `$LASTEXITCODE` and -ErrorAction Stop instead.
 $ErrorActionPreference = 'Continue'
 $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $project = 'assetopsv1'
-$pgContainer = 'assetopsv1-postgres-1'
+$pgService = if ($Server -eq 'dedicated') { 'postgres-test' } else { 'postgres' }
+$pgContainer = "assetopsv1-$pgService-1"
+# R10: the memory one worker needs at its peak (pytest worker, its gateway children, its database sessions), from
+# the PERF-01 baseline memory sample, plus the fixed cost of a run and the Windows free memory every run leaves.
+$perWorkerMb = 450
+$fixedMb = 400
+$windowsReserveMb = 1536
 $composeArgs = @('compose', '-p', $project, '-f', (Join-Path $worktree 'docker-compose.yml'),
                  '-f', (Join-Path $worktree 'docker-compose.test.yml'))
 
@@ -42,11 +68,50 @@ $password = $env:ASSETOPS_PG_PASSWORD
 if (-not $password) { $password = 'assetops-local-dev' }
 $env:ASSETOPS_WORKTREE = $worktree
 $env:OPS03_RUN_ID = $runId
-$env:ASSETOPS_TEST_WORKERS = [string]$Workers
 $env:ASSETOPS_TEST_TARGETS = $Targets
+$env:ASSETOPS_TEST_MARKEXPR = switch ($Tier) { 'fast' { 'not slow' } 'slow' { 'slow' } default { '' } }
 $env:ASSETOPS_CONTAINER_TEST_DATABASE_URL =
-    'postgresql+psycopg://assetops:{0}@postgres:5432/assetops_test' -f [uri]::EscapeDataString($password)
+    'postgresql+psycopg://assetops:{0}@{1}:5432/assetops_test' -f [uri]::EscapeDataString($password), $pgService
 Remove-Item Env:\DATABASE_URL, Env:\ASSETOPS_TEST_DATABASE_URL -ErrorAction SilentlyContinue
+
+# Compose interpolates the runner's required variables even for `up <server>`, so this follows them.
+& docker @composeArgs up -d --no-recreate --wait $pgService
+if ($LASTEXITCODE -ne 0) { throw "$pgService did not start healthy" }
+
+# R10: worker count from the memory free now. Inside the VM a run can use what the VM already holds and has not
+# used (vmmem working set - VM used) plus what Windows can still give it above the reserve; it can never pass the
+# VM's own available memory (its cap). The budget is the smaller of the two, less the run's fixed cost.
+$winFreeMb = [int]((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory / 1024)
+$vmmem = Get-Process -Name 'vmmemWSL', 'vmmem' -ErrorAction SilentlyContinue | Select-Object -First 1
+$vmmemMb = if ($vmmem) { [int]($vmmem.WorkingSet64 / 1MB) } else { 0 }
+$vmAvailMb = $null; $vmUsedMb = $null
+$meminfo = @(& docker exec $pgContainer grep -e ^MemTotal: -e ^MemAvailable: /proc/meminfo 2>$null)
+if ($LASTEXITCODE -eq 0 -and $meminfo.Count -ge 2) {
+    $vmTotalMb = [int]([long](($meminfo[0] -split '\s+')[1]) / 1024)
+    $vmAvailMb = [int]([long](($meminfo[1] -split '\s+')[1]) / 1024)
+    $vmUsedMb = $vmTotalMb - $vmAvailMb
+}
+$heldMb = if ($null -ne $vmUsedMb) { [math]::Max(0, $vmmemMb - $vmUsedMb) } else { 0 }
+$budgetMb = [math]::Max(0, $winFreeMb - $windowsReserveMb) + $heldMb
+if ($null -ne $vmAvailMb -and $vmAvailMb -lt $budgetMb) { $budgetMb = $vmAvailMb }
+$budgetMb -= $fixedMb
+$fit = [int][math]::Floor($budgetMb / $perWorkerMb)
+$memoryNote = ("memory at start: windows_free_mb=$winFreeMb vmmem_ws_mb=$vmmemMb vm_used_mb=$vmUsedMb " +
+    "vm_available_mb=$vmAvailMb budget_mb=$budgetMb fits=$fit")
+if ($Workers -le 0) {
+    if ($fit -lt 2) {
+        Write-Output $memoryNote
+        Write-Output ('REFUSED: not even 2 workers fit in the free memory. Close programs (Chrome first) and retry, ' +
+            'or pass -Workers explicitly.')
+        "$memoryNote REFUSED" | Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
+        exit 3
+    }
+    $Workers = [int][math]::Min(4, $fit)
+}
+
+$env:ASSETOPS_TEST_WORKERS = [string]$Workers
+"$memoryNote workers=$Workers server=$pgService tier=$Tier targets=$Targets" |
+    Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
 
 $keepAwake = $null
 $memorySampler = $null
@@ -64,10 +129,7 @@ try {
         '-NoProfile', '-File', (Join-Path $PSScriptRoot 'sample-test-memory.ps1'),
         '-OutFile', $memoryCsv, '-RunnerContainer', $runner, '-PgContainer', $pgContainer, '-WatchProcessId', $PID)
 
-    & docker @composeArgs up -d --no-recreate --wait postgres
-    if ($LASTEXITCODE -ne 0) { throw 'postgres did not start healthy' }
-
-    Write-Output "OPS-03 run $runId -> $runDir"
+    Write-Output "OPS-03 run $runId -> $runDir ($Workers workers, $pgService, tier $Tier)"
     $stdout = Join-Path $runDir 'compose-stdout.log'
     $stderr = Join-Path $runDir 'compose-stderr.log'
     $runArgs = $composeArgs + @('run', '--rm', '-T', '--no-deps', '--name', $runner, 'backend-test-runner')

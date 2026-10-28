@@ -396,6 +396,7 @@ class TestClaimsCrashAndReplay:
 
 
 class TestKillableStagesAndServerTimeouts:
+    @pytest.mark.slow  # PERF-01 R5: waits on the real clock by design (backend/TESTING.md "Slow tier")
     def test_a_hung_stage_is_killed_its_job_lease_is_exposed_and_a_db_stall_is_a_typed_timeout(
             self, kobo, engine) -> None:  # noqa: F811
         deliver(kobo, block(DAY_A, 8, 9))

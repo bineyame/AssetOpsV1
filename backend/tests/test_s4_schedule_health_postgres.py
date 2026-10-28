@@ -388,6 +388,7 @@ class TestStaleNoWork:
 
 
 class TestStaleWithoutJob:
+    @pytest.mark.slow  # PERF-01 R5: waits on the real clock by design (backend/TESTING.md "Slow tier")
     def test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued(
             self, kobo, engine, capsys, monkeypatch) -> None:  # noqa: F811
         """Phase-2 review F-A, an OVERRIDE-PATH test (S4-07): production decisions take DB time, so this decision
@@ -520,6 +521,7 @@ class TestOverlappingIngestionRace:
 
 
 class TestTickCost:
+    @pytest.mark.slow  # PERF-01 R5: waits on the real clock by design (backend/TESTING.md "Slow tier")
     def test_measure_a_real_child_tick_over_one_and_four_sites(self, kobo, store, engine, capsys) -> None:  # noqa: F811
         lim = TickLimits(**FAST)
         deliver(kobo, block(DAY_A, 8, 9))

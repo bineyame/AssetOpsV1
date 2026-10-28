@@ -3,18 +3,41 @@
 # Use only through tools/run-backend-suite-in-container.ps1, which sets the
 # required variables below and never prints the database URL or password:
 #   ASSETOPS_WORKTREE                     absolute host path of the worktree, bind-mounted at /workspace
-#   ASSETOPS_CONTAINER_TEST_DATABASE_URL  postgresql+psycopg://assetops:<encoded password>@postgres:5432/assetops_test
+#   ASSETOPS_CONTAINER_TEST_DATABASE_URL  postgresql+psycopg://assetops:<encoded password>@<postgres-test|postgres>:5432/assetops_test
 #   OPS03_RUN_ID                          the run directory name under var/test-results/OPS-03/
 #
 # The runner reaches Postgres by its service name on the project default network
 # (never the Windows port forward), publishes no ports, and is never started by
 # a plain `docker compose up` (profile `test`).
+#
+# PERF-01 (R3): `postgres-test` is a second PostgreSQL server used only by test runs. Crash safety is off
+# (fsync, full_page_writes, synchronous_commit): its data is throw-away and is rebuilt by every run, and a
+# Docker crash costs nothing but a rerun. It has its own volume, publishes no port, and holds only
+# `assetops_test` (the harness's admin base) and the run-owned `*_test` databases. The development server
+# `postgres` (docker-compose.yml) and its databases are never touched by it. The runner uses it by default
+# (`-Server dedicated`); `-Server shared` keeps the OPS-03 behaviour against `postgres`.
 services:
+  postgres-test:
+    image: postgres:16.4-alpine
+    profiles: [test]
+    command: ["postgres", "-c", "max_connections=200", "-c", "fsync=off", "-c", "full_page_writes=off",
+              "-c", "synchronous_commit=off"]
+    environment:
+      POSTGRES_USER: assetops
+      POSTGRES_PASSWORD: ${ASSETOPS_PG_PASSWORD:-assetops-local-dev}
+      POSTGRES_DB: assetops_test
+    volumes:
+      - assetops-test-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assetops -d assetops_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
   backend-test-runner:
     image: python:3.12.7-slim-bookworm
     profiles: [test]
     depends_on:
-      postgres:
+      postgres-test:
         condition: service_healthy
     working_dir: /workspace
     command: ["sh", "/workspace/tools/run-backend-suite-in-container.sh"]
@@ -26,6 +49,7 @@ services:
       ASSETOPS_TEST_DATABASE_URL: ${ASSETOPS_CONTAINER_TEST_DATABASE_URL:?set by tools/run-backend-suite-in-container.ps1}
       ASSETOPS_TEST_WORKERS: ${ASSETOPS_TEST_WORKERS:-4}
       ASSETOPS_TEST_TARGETS: ${ASSETOPS_TEST_TARGETS:-backend/tests}
+      ASSETOPS_TEST_MARKEXPR: ${ASSETOPS_TEST_MARKEXPR:-}
       OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
     volumes:
       - type: bind
@@ -34,5 +58,6 @@ services:
       - assetops-test-venv:/opt/assetops-venv
       - assetops-test-pip-cache:/root/.cache/pip
 volumes:
+  assetops-test-pg:
   assetops-test-venv:
   assetops-test-pip-cache:

@@ -132,6 +132,7 @@ def _consequence_rows(site_id: str) -> dict[str, int]:
         engine.dispose()
 
 
+@pytest.mark.slow  # PERF-01 R5: replays a field device at 60x real time (9-12 min)
 @pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 def test_gx_profile_1_lands_as_accepted_evidence(tmp_path: Path, monkeypatch, capsys) -> None:
     import pg_harness
@@ -418,6 +419,7 @@ def _current_amount_paths(value, path: str = "$") -> list[str]:
     return found
 
 
+@pytest.mark.slow  # PERF-01 R5: replays a field device at 60x real time (9-12 min)
 @pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 def test_gx_profile_2_raises_a_finding_with_no_money_shown(tmp_path: Path, monkeypatch, capsys) -> None:
     import pg_harness

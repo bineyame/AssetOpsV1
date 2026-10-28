@@ -116,7 +116,12 @@ def refuse_template_opt_out_under_xdist(config: pytest.Config) -> None:
             "routing every worker would reset the same test database. Unset it, or run serially (-n 0).")
 
 
+SLOW_MARKER = ('slow: deliberate real-clock tests, the PERF-01 slow tier (backend/TESTING.md "Slow tier"); '
+               'select with -m slow, leave out with -m "not slow"')
+
+
 def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line("markers", SLOW_MARKER)
     refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)
     if workerinput is not None:
