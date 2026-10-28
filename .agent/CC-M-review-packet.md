@@ -69,6 +69,11 @@ because they exercise only the CHECK and the downgrade guard.
   stopped it at about 29% with no failure reported up to that point (all dots). No JUnit file. Not restarted, as the
   reaper's notice instructs; it needs a fresh go when memory allows. Run DBs `assetops_ccm_pt21143e8a_{tpl,gw0,gw1}_test`
   are left for the harness's orphan sweep on the next run. No pytest processes are left.
+- Rerun on the owner's go (same command and revision `f6090364`; the leftover run DBs were dropped first with
+  `pg_harness.cleanup_run`): **not completed**. The memory-pressure reaper stopped it again at about 80%, roughly
+  35 min in. No test failure was recorded before the stop. The one `F` in the log comes right after `[gw0] node
+  down: Not properly terminated`, which is the worker being killed. No JUnit file. Not restarted. Run DBs
+  `assetops_ccm_pt7904a9a5_*` were dropped with `cleanup_run`. No pytest processes are left.
 - Not run yet: a completed full backend suite, frontend suite, typecheck, build.
 
 ## Known deviations
