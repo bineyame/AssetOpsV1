@@ -256,3 +256,25 @@ def test_classify_precedence_across_several_requests():
     assert classify([exc(4), silent], row)[0] is PollOutcome.NO_ANSWER
     assert classify([exc(3), silent], row)[0] is PollOutcome.CONFIG_FAULT
     assert classify([words, ReadResult("WORDS", words=(1, 2))], row)[0] is PollOutcome.CONFIG_FAULT
+
+
+def test_open_warms_the_connection_before_the_first_read(serve):
+    server, client = serve(words_reply([1, 2, 3]))
+    assert client._socket is None
+    assert client.open() is True and client._socket is not None
+    warmed = client._socket
+    assert client.open() is True and client._socket is warmed
+    assert server.frames == [] and bytes(server.received) == b""
+    assert client.read(100, 3, 808, 3).kind == "WORDS"
+    assert client._socket is warmed and len(server.frames) == 1
+
+
+def test_open_against_a_closed_port_returns_false_and_the_read_reconnects_lazily():
+    probe = socket.socket()
+    probe.bind(("127.0.0.1", 0))
+    port = probe.getsockname()[1]
+    probe.close()
+    client = ModbusTcpClient("127.0.0.1", port, timeout_s=2.0)
+    assert client.open() is False and client._socket is None
+    result = client.read(1, 3, 0, 1)
+    assert result.kind == "NO_ANSWER" and result.no_answer in ("REFUSED", "TIMEOUT")

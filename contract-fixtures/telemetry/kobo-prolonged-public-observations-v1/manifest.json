@@ -1,0 +1,1 @@
+{"generator":"host/tests/field_observation_fixtures.py:generate_prolonged_fixture","observation_count":1036,"publication_profile":"registered-kobo-publication:4","scenario":"kobo-mini-grid-prolonged:2","sha256":"c49aa7c846b264cec552fa9fa5837703980aec3edc97c5e397996d1bb25f85b1","timestep_minutes":5,"window":{"end":"2026-10-13T11:00:00Z","start":"2026-10-13T03:00:00Z"}}

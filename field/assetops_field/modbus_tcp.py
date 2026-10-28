@@ -58,6 +58,19 @@ class ModbusTcpClient:
             finally:
                 self._socket = None
 
+    def open(self) -> bool:
+        """Warm-up connect: open the persistent connection before the first scheduled read. Sends no bytes,
+        changes no counter; on any OSError leaves no socket and the first read reconnects lazily."""
+        if self._socket is not None:
+            return True
+        try:
+            connection = socket.create_connection((self.host, self.port), timeout=self.timeout_s)
+        except OSError:
+            return False
+        connection.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self._socket = connection
+        return True
+
     def _next_tid(self) -> int:
         tid = self._tid
         self._tid = (self._tid + 1) % 65536
