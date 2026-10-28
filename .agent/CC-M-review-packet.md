@@ -63,7 +63,13 @@ because they exercise only the CHECK and the downgrade guard.
 - Head-literal files (the 20 changed `test_*.py`, together): 246 passed, 0 failed, 1854 s wall (revision `b64013b6`, `assetops_ccm_test`).
 - `tools/check-architecture.ps1`: Architecture check passed. `tools/check-agent-workflow.ps1`: Agent workflow check
   passed. Both run directly, no policy override.
-- Not run yet: full backend suite (real Postgres, JUnit zero-skip), frontend suite, typecheck, build.
+- Coordinator go after review ACCEPT (`.agent/CC-M-review.md`): main `f6237c95` (incl. TEL-06) merged clean as
+  `f6090364`. Full backend suite (normal command, `-n 2 --dist loadfile --no-loadscope-reorder`, base
+  `assetops_ccm_test`, keep-awake running, cap 200 min): **not completed**. Claude Code's memory-pressure reaper
+  stopped it at about 29% with no failure reported up to that point (all dots). No JUnit file. Not restarted, as the
+  reaper's notice instructs; it needs a fresh go when memory allows. Run DBs `assetops_ccm_pt21143e8a_{tpl,gw0,gw1}_test`
+  are left for the harness's orphan sweep on the next run. No pytest processes are left.
+- Not run yet: a completed full backend suite, frontend suite, typecheck, build.
 
 ## Known deviations
 
