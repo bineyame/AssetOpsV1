@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Long-Running Simulation Proposal</title>
+<meta name="description" content="The proposed algorithm for 91-day AssetOps simulation histories: why the cold model slowed down, the six established patterns the fix is built from, the run step by step, why it beats the alternatives, and how it fits the Observe to Verify mechanics without moving any pinned digest.">
+<style>
+:root{
+  --bg:#f6f5f1; --surface:#ffffff; --surface2:#efede7; --ink:#1d1f24; --muted:#5d6370; --line:#c9cbd1;
+  --accent:#2f5bd3; --accent-soft:#e3e9fb;
+  --obs:#0f7c74; --der:#2f5bd3; --mod:#6a43c4; --dec:#8a6d1f; --syn:#b26a00; --flt:#c2352b;
+  --bad:#c2352b; --ok:#2b8a3e; --warn:#b26a00;
+  --mono:"Cascadia Code","JetBrains Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+  --sans:"Segoe UI","Inter",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171b; --surface:#1e2127; --surface2:#262a31; --ink:#e7e8ea; --muted:#a3a9b5; --line:#3a3f48;
+    --accent:#7d9cff; --accent-soft:#25304d;
+    --obs:#3cc2b6; --der:#7d9cff; --mod:#a98bff; --dec:#d9b85c; --syn:#f0a23a; --flt:#ff7a6e;
+    --bad:#ff7a6e; --ok:#5cc46f; --warn:#f0a23a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171b; --surface:#1e2127; --surface2:#262a31; --ink:#e7e8ea; --muted:#a3a9b5; --line:#3a3f48;
+  --accent:#7d9cff; --accent-soft:#25304d;
+  --obs:#3cc2b6; --der:#7d9cff; --mod:#a98bff; --dec:#d9b85c; --syn:#f0a23a; --flt:#ff7a6e;
+  --bad:#ff7a6e; --ok:#5cc46f; --warn:#f0a23a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+a{color:var(--accent);overflow-wrap:anywhere}
+code,pre,.mono{font-family:var(--mono)}
+code{font-size:.86em;background:var(--surface2);padding:.08em .35em;border-radius:5px;overflow-wrap:anywhere}
+pre{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;overflow-x:auto;font-size:12.5px;line-height:1.5;margin:12px 0}
+pre code{background:none;padding:0;font-size:inherit;overflow-wrap:normal}
+h1,h2,h3,h4{line-height:1.25;margin:1.6em 0 .5em}
+h1{font-size:2.3rem;margin:0 0 .3em;letter-spacing:-.01em}
+h2{font-size:1.6rem;padding-top:.4em;border-top:1px solid var(--line);margin-top:2.4em}
+h3{font-size:1.16rem}
+h4{font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+p,li{max-width:78ch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:0;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2);font-weight:600}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;border-radius:6px}
+.tw table{min-width:720px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);max-width:1260px;margin:0 auto;padding:0 16px}
+@media (min-width:1120px){.layout{grid-template-columns:236px minmax(0,1fr);gap:40px}}
+nav.toc{font-size:14px}
+@media (min-width:1120px){nav.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow-y:auto;padding:28px 0}}
+nav.toc ol{list-style:none;padding:0;margin:0}
+nav.toc li{margin:2px 0}
+nav.toc a{display:block;padding:4px 8px;border-radius:6px;color:var(--muted);text-decoration:none}
+nav.toc a:hover{background:var(--surface2);color:var(--ink)}
+@media (max-width:1119px){nav.toc{margin:16px 0}nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}}
+main{min-width:0;padding:28px 0 80px}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px 26px;margin-bottom:10px;position:relative}
+.hero p.lede{font-size:1.08rem;color:var(--muted);margin:.2em 0 1em}
+.meta{font-size:13px;color:var(--muted)}
+.themebtn{position:absolute;top:16px;right:16px;font:13px var(--sans);background:var(--surface2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.callout{border:1px solid var(--line);border-left:5px solid var(--accent);background:var(--surface);border-radius:var(--r);padding:12px 16px;margin:16px 0}
+.callout.warn{border-left-color:var(--warn)}.callout.bad{border-left-color:var(--bad)}.callout.ok{border-left-color:var(--ok)}
+.callout > :first-child{margin-top:0}.callout > :last-child{margin-bottom:0}
+.callout b.k{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.o{display:inline-block;font:700 11px/1 var(--sans);padding:4px 6px;border-radius:5px;white-space:nowrap;vertical-align:1px;border:1.4px solid currentColor}
+.o-obs{color:var(--obs)}.o-der{color:var(--der)}.o-mod{color:var(--mod)}.o-dec{color:var(--dec)}.o-syn{color:var(--syn)}.o-flt{color:var(--flt)}.o-none{color:var(--muted);border-style:dashed}
+.f{font:700 10.5px/1 var(--sans);padding:3px 5px;border-radius:4px;white-space:nowrap}
+.f-fact{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
+.f-inf{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
+.f-unv{background:color-mix(in srgb,var(--bad) 13%,var(--surface));color:var(--bad)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin:16px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.card h4{margin:0 0 6px;color:var(--ink);text-transform:none;letter-spacing:0;font-size:1rem}
+.card p,.card li{margin:.3em 0;font-size:14.3px}
+.card ul{padding-left:18px;margin:.3em 0}
+.card.mg{border-top:5px solid var(--obs)}.card.ev{border-top:5px solid var(--der)}.card.cc{border-top:5px solid var(--mod)}
+figure{margin:20px 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll svg{min-width:640px}
+figcaption{font-size:13.5px;color:var(--muted);margin-top:8px}
+figcaption b{color:var(--ink)}
+svg.fig{width:100%;height:auto;display:block}
+.bx{fill:var(--surface);stroke:var(--line);stroke-width:1.3}
+.bx.soft{fill:var(--surface2)}
+.bx.hl{stroke:var(--accent);stroke-width:2}
+.bx.obs{stroke:var(--obs);stroke-width:2}.bx.der{stroke:var(--der);stroke-width:2}.bx.mod{stroke:var(--mod);stroke-width:2}.bx.dec{stroke:var(--dec);stroke-width:2}.bx.syn{stroke:var(--syn);stroke-width:2}.bx.flt{stroke:var(--flt);stroke-width:2}
+.bx.dash{stroke-dasharray:5 4}
+.t{fill:var(--ink);font:12.5px var(--sans)}
+.tb{font-weight:650}
+.tm{fill:var(--muted);font:11.5px var(--sans)}
+.ts{font-size:11px}
+.lane{fill:var(--muted);font:700 11.5px var(--sans);letter-spacing:.08em}
+.ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+.ln.a{marker-end:url(#arw)}
+.ln.d{stroke-dasharray:5 4}
+.ln.bad{stroke:var(--bad)}
+.mk{fill:var(--muted)}
+.fill-obs{fill:color-mix(in srgb,var(--obs) 22%,var(--surface))}
+.fill-der{fill:color-mix(in srgb,var(--der) 20%,var(--surface))}
+.fill-mod{fill:color-mix(in srgb,var(--mod) 20%,var(--surface))}
+.fill-dec{fill:color-mix(in srgb,var(--dec) 22%,var(--surface))}
+.fill-syn{fill:color-mix(in srgb,var(--syn) 22%,var(--surface))}
+.fill-flt{fill:color-mix(in srgb,var(--flt) 20%,var(--surface))}
+.fill-none{fill:var(--surface2)}
+.c-obs{fill:var(--obs)}.c-der{fill:var(--der)}.c-mod{fill:var(--mod)}.c-flt{fill:var(--flt)}.c-syn{fill:var(--syn)}.c-dec{fill:var(--dec)}
+.s-obs{stroke:var(--obs)}.s-mod{stroke:var(--mod)}.s-flt{stroke:var(--flt)}.s-der{stroke:var(--der)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--muted);margin:8px 0}
+details.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin:10px 0}
+details.q summary{cursor:pointer;font-weight:650}
+details.q[open] summary{margin-bottom:6px}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;font-size:14px;margin:8px 0}
+.kv dt{font-weight:600}.kv dd{margin:0;color:var(--ink)}
+.task{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:var(--r);padding:12px 16px;margin:14px 0}
+.task.t{border-left-color:var(--obs)}.task.c{border-left-color:var(--mod)}.task.x{border-left-color:var(--dec)}
+.task h3{margin:.1em 0 .4em;font-size:1.06rem}
+.task .kv{font-size:13.8px}
+.foot{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:3em;padding-top:1em}
+.dec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;margin:12px 0}
+.dec h3{margin:.1em 0 .4em;font-size:1.05rem}
+@media (max-width:600px){h1{font-size:1.7rem}h2{font-size:1.32rem}.hero{padding:22px 16px}.themebtn{position:static;margin-bottom:10px}.kv{grid-template-columns:minmax(0,1fr)}.kv dt{margin-top:6px}}
+</style>
+<style>
+.sc{display:inline-block;font:700 11px/1 var(--sans);padding:4px 6px;border-radius:5px;white-space:nowrap}
+.sc.g{background:color-mix(in srgb,var(--ok) 16%,var(--surface));color:var(--ok)}
+.sc.p{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
+.sc.x{background:color-mix(in srgb,var(--bad) 13%,var(--surface));color:var(--bad)}
+.matrix td{min-width:118px}
+.matrix td:first-child{min-width:150px}
+.matrix tr.win td{background:color-mix(in srgb,var(--ok) 7%,var(--surface))}
+.gridl{stroke:var(--line);stroke-width:1}
+.axis{stroke:var(--muted);stroke-width:1.2}
+.ser-a{stroke:var(--flt);stroke-width:2;fill:none}
+.ser-b{stroke:var(--obs);stroke-width:2;fill:none}
+.dot-a{fill:var(--flt);stroke:var(--surface);stroke-width:2}
+.dot-b{fill:var(--obs);stroke:var(--surface);stroke-width:2}
+.band-a{fill:color-mix(in srgb,var(--flt) 14%,transparent)}
+.sw{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:4px;margin-right:5px}
+.sw.a{background:var(--flt)}.sw.b{background:var(--obs)}
+.big{font-size:2rem;font-weight:700;line-height:1.1;margin:0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.stat .meta{margin:.2em 0 0}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps>li{counter-increment:s;position:relative;padding:8px 0 8px 44px;border-bottom:1px solid var(--line)}
+.steps>li::before{content:counter(s);position:absolute;left:0;top:8px;width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:flex;align-items:center;justify-content:center}
+.pat{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin:16px 0}
+.pat .card{border-top:5px solid var(--accent)}
+.pat .card .meta{margin:.2em 0 .5em}
+.lbl{display:inline-block;border:1.4px solid var(--obs);color:var(--obs);font:700 12px/1 var(--sans);padding:5px 8px;border-radius:6px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk"/></marker>
+</defs></svg>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+<details open><summary class="meta" style="cursor:pointer">Contents</summary>
+<ol>
+<li><a href="#short">0 The proposal in short</a></li>
+<li><a href="#problem">1 The problem, measured</a></li>
+<li><a href="#foundation">2 Conceptual foundation</a></li>
+<li><a href="#algorithm">3 The algorithm, step by step</a></li>
+<li><a href="#best">4 Why it is the best option</a></li>
+<li><a href="#fit">5 Fit with AssetOps mechanics</a></li>
+<li><a href="#risks">6 Risks and measurements owed</a></li>
+<li><a href="#cards">7 Implementation cards and effort</a></li>
+<li><a href="#sources">8 Sources and checks</a></li>
+</ol>
+</details>
+</nav>
+<main>
+<header class="hero">
+<button class="themebtn" id="themebtn" type="button">Light / dark</button>
+<h1>Long-Running Simulation Proposal</h1>
+<p class="lede">How AssetOps can simulate 91 days of a site's history in a minute or two, inside a quarter of a gigabyte, without changing any result the product already shows.</p>
+<p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Owner request, word for word: <code>.agent/owner-long-running-proposal-2026-10-28.md</code>. The design itself is ruled in <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4, §13</a>; this document explains it and does not change it. Where they differ, §13 governs. Code claims were re-read at <code>069bcd61</code>. This is a plan: no code, test or measurement was run for it.</p>
+</header>
+
+<h2 id="short">0 The proposal in short</h2>
+<div class="callout ok"><b class="k">What we propose</b>
+<p>Each 91-day history stays <b>one simulation run</b>, with one identity. Inside, the run is worked through <b>a week at a time</b>. Each week is written to disk as soon as it is finished, gets its own fingerprint, and hands its exact end state to the next week. When all thirteen weeks are written, a short index file is written last, and only then is the history published, week by week, through the publication path the product already uses.</p>
+<p>The step that makes this possible is small: the new cold-room model keeps temperature to a <b>millionth of a degree</b>, and a <b>rounding ledger</b> records every millionth it rounds away, so the energy books still balance exactly.</p></div>
+<div class="grid">
+<div class="stat"><p class="big">3.5 to 23 h</p><p class="meta">Cold-room physics for 91 days today, projected from measured runs</p></div>
+<div class="stat"><p class="big">about 22 s</p><p class="meta">The same physics with the millionth-of-a-degree rule (measured slope)</p></div>
+<div class="stat"><p class="big">0.25 GB</p><p class="meta">Memory target, flat whether the run is 7 or 91 days</p></div>
+<div class="stat"><p class="big">0 moved</p><p class="meta">Existing profiles and pinned fingerprints that change</p></div>
+</div>
+<p>The rest of this document shows why the old approach slowed down (§1), the six well-known patterns the design is made from (§2), the run step by step (§3), how it compares with the five alternatives we considered (§4), where it sits in the product (§5), what is still to be measured (§6), and the build cards (§7).</p>
+
+<h2 id="problem">1 The problem, measured</h2>
+<p>We assumed the barrier to 91-day runs was memory: every run path today keeps the whole window in memory. A short timing of the cold-room model showed a different cause. The model uses exact fractions, and those fractions get longer at every simulated minute.</p>
+
+<h3>1.1 Why the numbers grow</h3>
+<p>Each minute, the cold model updates the chamber temperature from the heat leaking in and the cooling taken out. With the default room values (heat leak 0.08, thermal capacity 1.2), the update works out to:</p>
+<pre><code>T_next = T × 899/900 + (a constant)</code></pre>
+<p>Because the arithmetic is exact, the fraction is never simplified away. Every minute, the bottom of the fraction (its <b>denominator</b>) is multiplied by 900, which adds about three digits. After one day the temperature is a fraction whose denominator has 4,254 digits. After 91 days it would have about 387,000. Every later step has to multiply and add numbers of that size, so each step is slower than the one before.</p>
+<details class="q"><summary>Technical detail: where this is in the code</summary>
+<p><span class="f f-fact">FACT</span> <code>simulator/assetops_simulator/packs/cold.py:408-412</code>: <code>heat = (heat_leak × (ambient − T) + door × door_heat × 60) × 1/60</code> and <code>t_next = T + (heat − cool) / thermal_capacity</code>, all in <code>Fraction</code>. Defaults at <code>cold.py:68-73</code>: 0.08 / 60 / 1.2 = 1/900, so the coefficient on <code>T</code> is 899/900. <code>heat_total</code> accumulates the same growing terms. The kernel's own rule is that "nothing in this module limits a denominator" (<code>kernel/execute.py:34</code>). log<sub>10</sub>(900) ≈ 2.954 digits per step × 1,440 steps = 4,254 digits, which matches the measured value exactly.</p></details>
+
+<h3>1.2 Digits and time per simulated day</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 640 290" role="img" aria-labelledby="fa-t">
+<title id="fa-t">Denominator digits of the chamber temperature against simulated days. Exact arithmetic grows in a straight line from 4,254 digits at day 1 to about 387,000 at day 91. The millionth-of-a-degree rule stays at about six digits.</title>
+<text class="t tb" x="60" y="18">Size of the temperature's denominator (digits)</text>
+<line class="gridl" x1="60" y1="180" x2="580" y2="180"/><line class="gridl" x1="60" y1="130" x2="580" y2="130"/><line class="gridl" x1="60" y1="80" x2="580" y2="80"/><line class="gridl" x1="60" y1="30" x2="580" y2="30"/>
+<line class="axis" x1="60" y1="230" x2="580" y2="230"/>
+<text class="tm" x="52" y="234" text-anchor="end">0</text><text class="tm" x="52" y="184" text-anchor="end">100k</text><text class="tm" x="52" y="134" text-anchor="end">200k</text><text class="tm" x="52" y="84" text-anchor="end">300k</text><text class="tm" x="52" y="34" text-anchor="end">400k</text>
+<text class="tm" x="60" y="250" text-anchor="middle">0</text><text class="tm" x="231" y="250" text-anchor="middle">30</text><text class="tm" x="403" y="250" text-anchor="middle">60</text><text class="tm" x="580" y="250" text-anchor="middle">91</text>
+<text class="tm" x="320" y="272" text-anchor="middle">Simulated days</text>
+<line class="ser-a" x1="60" y1="230" x2="82.9" y2="221.5"/>
+<line class="ser-a" x1="82.9" y1="221.5" x2="580" y2="36.5" stroke-dasharray="6 4"/>
+<line class="ser-b" x1="60" y1="229.2" x2="580" y2="229.2"/>
+<circle class="dot-a" cx="65.7" cy="227.9" r="4.5"><title>Day 1 (measured): 4,254 digits</title></circle>
+<circle class="dot-a" cx="71.4" cy="225.7" r="4.5"><title>Day 2 (measured): 8,508 digits</title></circle>
+<circle class="dot-a" cx="82.9" cy="221.5" r="4.5"><title>Day 4 (measured): 17,016 digits</title></circle>
+<circle class="dot-a" cx="580" cy="36.5" r="4.5"><title>Day 91 (computed: 2.954 digits per step): about 387,000 digits</title></circle>
+<text class="t" x="572" y="56" text-anchor="end">Exact fractions: about 387,000 digits at day 91</text>
+<text class="t" x="572" y="220" text-anchor="end">Millionth-of-a-degree rule: about 6 digits, flat</text>
+</svg></div>
+<figcaption><b>The digits grow in a straight line, and never stop.</b> Exact arithmetic (red) adds about three digits per simulated minute; the solid part is measured (days 1, 2 and 4), the dashed part follows from the 900× rule. With the proposed rule (teal), the denominator stays at 19 to 21 bits, about six digits, measured flat from 1 to 7 days.</figcaption>
+</figure>
+
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 640 290" role="img" aria-labelledby="fb-t">
+<title id="fb-t">Seconds of computing per simulated day, on a log scale. Exact arithmetic rises from 0.77 s for day 1 to about 10 s per day by day 4, projected at 5 to 40 minutes per simulated day by day 91. The proposed rule stays flat at about a quarter of a second per day.</title>
+<text class="t tb" x="60" y="18">Computing time per simulated day (seconds, log scale)</text>
+<line class="gridl" x1="60" y1="190" x2="580" y2="190"/><line class="gridl" x1="60" y1="150" x2="580" y2="150"/><line class="gridl" x1="60" y1="110" x2="580" y2="110"/><line class="gridl" x1="60" y1="70" x2="580" y2="70"/><line class="gridl" x1="60" y1="30" x2="580" y2="30"/>
+<line class="axis" x1="60" y1="230" x2="580" y2="230"/>
+<text class="tm" x="52" y="234" text-anchor="end">0.1</text><text class="tm" x="52" y="194" text-anchor="end">1</text><text class="tm" x="52" y="154" text-anchor="end">10</text><text class="tm" x="52" y="114" text-anchor="end">100</text><text class="tm" x="52" y="74" text-anchor="end">1,000</text><text class="tm" x="52" y="34" text-anchor="end">10,000</text>
+<text class="tm" x="60" y="250" text-anchor="middle">0</text><text class="tm" x="231" y="250" text-anchor="middle">30</text><text class="tm" x="403" y="250" text-anchor="middle">60</text><text class="tm" x="580" y="250" text-anchor="middle">91</text>
+<text class="tm" x="320" y="272" text-anchor="middle">Simulated day</text>
+<polygon class="band-a" points="80,149.3 580,92.3 580,55.7"/>
+<polyline class="ser-a" points="65.7,194.5 71.4,170.2 80,149.3"/>
+<line class="ser-a" x1="80" y1="149.3" x2="580" y2="92.3" stroke-dasharray="6 4"/>
+<line class="ser-a" x1="80" y1="149.3" x2="580" y2="55.7" stroke-dasharray="6 4"/>
+<line class="ser-b" x1="65.7" y1="214.4" x2="100" y2="214.4"/>
+<line class="ser-b" x1="100" y1="214.4" x2="580" y2="214.4" stroke-dasharray="6 4"/>
+<circle class="dot-a" cx="65.7" cy="194.5" r="4.5"><title>Day 1 (measured): 0.77 s</title></circle>
+<circle class="dot-a" cx="71.4" cy="170.2" r="4.5"><title>Day 2 (measured): 3.1 s</title></circle>
+<circle class="dot-a" cx="80" cy="149.3" r="4.5"><title>Days 3 to 4 (measured): about 10.4 s per day</title></circle>
+<circle class="dot-b" cx="65.7" cy="214.4" r="4.5"><title>Proposed rule (measured, 1 to 7 days): 160 to 186 µs per step, about 0.25 s per day</title></circle>
+<circle class="dot-b" cx="100" cy="214.4" r="4.5"><title>Day 7 (measured): still about 0.25 s per day</title></circle>
+<text class="t" x="572" y="48" text-anchor="end">Exact: 5 to 40 min per simulated day by day 91 (projected)</text>
+<text class="t" x="572" y="206" text-anchor="end">Proposed: about 0.25 s per day, flat</text>
+</svg></div>
+<figcaption><b>Exact arithmetic slows down every day; the proposed rule does not.</b> Measured: 0.77 s for day 1, 3.89 s cumulative for 2 days, 24.7 s for 4 days (time ×5.1 then ×6.4 per doubling). The shaded band is the projection to day 91: <span class="f f-inf">INFERENCE</span> at least 3.5 h in total at a quadratic rate, about 23 h at the measured rate. Proposed rule: 160 to 186 µs per step, so about 22 s for all 91 days.</figcaption>
+</figure>
+<details class="q"><summary>Table view of both charts</summary>
+<div class="tw"><table>
+<thead><tr><th>Window</th><th>Steps</th><th>Denominator, exact</th><th>Cumulative time, exact</th><th>Denominator, proposed</th><th>Time, proposed</th></tr></thead>
+<tbody>
+<tr><td>1 day</td><td>1,440</td><td>4,254 digits</td><td>0.77 s</td><td>19 to 21 bits</td><td>about 0.25 s</td></tr>
+<tr><td>2 days</td><td>2,880</td><td>8,508 digits</td><td>3.89 s</td><td>19 to 21 bits</td><td>about 0.5 s</td></tr>
+<tr><td>4 days</td><td>5,760</td><td>17,016 digits</td><td>24.7 s</td><td>19 to 21 bits</td><td>about 1 s</td></tr>
+<tr><td>7 days</td><td>10,080</td><td>—</td><td>—</td><td>19 to 21 bits (measured)</td><td>about 1.7 s (measured slope)</td></tr>
+<tr><td>91 days</td><td>131,040</td><td>about 387,000 digits</td><td>3.5 to 23 h <span class="f f-inf">INF</span></td><td>19 to 21 bits <span class="f f-inf">INF</span></td><td>about 21 to 24 s <span class="f f-inf">INF</span></td></tr>
+</tbody></table></div>
+<p class="meta">Measured in a scratch process, stepping only, nothing kept; about 35 s of CPU in total, peak under 100 MB (§13.1). DD-05a reproduces these within ±30% before any build.</p></details>
+
+<h3>1.3 Why memory was never the root cause</h3>
+<p>Memory and time were both symptoms of the same thing: very long numbers. Fixing memory alone (streaming) leaves the long numbers in place, so the run still takes hours. Fixing the numbers alone makes the physics fast, but the run still holds about a gigabyte of finished results. Only both together fit the laptop.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 660 330" role="img" aria-labelledby="fc-t">
+<title id="fc-t">Two by two grid. Rows: exact fractions or millionth-of-a-degree rule. Columns: whole window kept in memory, or streamed week by week. Only the streamed, bounded-precision cell is minutes and under a quarter gigabyte.</title>
+<text class="lane" x="250" y="22" text-anchor="middle">WHOLE WINDOW IN MEMORY (today)</text>
+<text class="lane" x="510" y="22" text-anchor="middle">STREAMED, WEEK BY WEEK</text>
+<text class="lane" x="60" y="105" text-anchor="middle">EXACT</text><text class="lane" x="60" y="121" text-anchor="middle">FRACTIONS</text>
+<text class="lane" x="60" y="245" text-anchor="middle">MILLIONTH</text><text class="lane" x="60" y="261" text-anchor="middle">OF A DEGREE</text>
+<rect class="bx flt" x="125" y="36" width="250" height="130" rx="10"/>
+<text class="t tb" x="140" y="62">Today's paths at 91 days</text>
+<text class="t" x="140" y="86">Time: 3.5 to 23 hours</text>
+<text class="t" x="140" y="106">Memory: tens of GB held</text>
+<text class="tm" x="140" y="130">Would be killed on this laptop</text>
+<text class="tm" x="140" y="148">long before it finished</text>
+<rect class="bx flt" x="385" y="36" width="250" height="130" rx="10"/>
+<text class="t tb" x="400" y="62">Revision 3 streaming plan</text>
+<text class="t" x="400" y="86">Time: still 3.5 to 23 hours</text>
+<text class="t" x="400" y="106">Memory: flat</text>
+<text class="tm" x="400" y="130">Disk: about 200 GB of</text>
+<text class="tm" x="400" y="148">private records text</text>
+<rect class="bx syn" x="125" y="176" width="250" height="130" rx="10"/>
+<text class="t tb" x="140" y="202">Precision fix only</text>
+<text class="t" x="140" y="226">Physics: about 22 seconds</text>
+<text class="t" x="140" y="246">Memory: about 1 GB held</text>
+<text class="tm" x="140" y="270">160 MB of steps + 0.8 GB of</text>
+<text class="tm" x="140" y="288">rendered records; over target</text>
+<rect class="bx obs" x="385" y="176" width="250" height="130" rx="10" style="stroke-width:3"/>
+<text class="t tb" x="400" y="202">Proposal: both together</text>
+<text class="t" x="400" y="226">Run: about 1 to 2 minutes</text>
+<text class="t" x="400" y="246">Memory: 0.25 GB target, flat</text>
+<text class="tm" x="400" y="270">Plus publication time,</text>
+<text class="tm" x="400" y="288">still to be measured (§6)</text>
+</svg></div>
+<figcaption><b>Streaming fixes memory; bounded precision fixes time; the proposal needs both.</b> The revision 3 plan had the right shape but would have failed its own acceptance test at hours of pack time. Revision 3's estimate came from a two-day peak of 65 MB, extrapolated in a straight line, and most of that peak was digits, not steps.</figcaption>
+</figure>
+<details class="q"><summary>Technical detail: what each cell is made of</summary>
+<p>Measured with bounded precision: keeping every transition for 7 days peaks at 31 MB, about 1.2 KB per step; rendering the v1 private minute records and their canonical JSON adds about 6 KB per step (93 MB peak at 10,080 steps). Extrapolated to 131,040 steps: transitions about 160 MB, private rendering about 0.8 GB. With exact arithmetic the retained state runs to tens of GB and the private text to about 200 GB (§13.1). The other two models behave differently: EV v1 already rounds allocation to <code>QUANTUM_KW = 1</code> (<code>packs/ev_charger.py:38</code>), and the mini-grid kernel's flows are additive with constant efficiencies, so <span class="f f-inf">INFERENCE</span> its denominators are bounded by the constants. A guard test (§3.4) checks both, and DD-05a measures the kernel.</p></details>
+
+<h2 id="foundation">2 Conceptual foundation</h2>
+<p>None of the six parts below is new. Each is the standard answer that long-horizon simulation or time-series software already uses for the same problem. That is the point: the design is made of well-tested ideas, applied where AssetOps has the same shape of problem.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 960 230" role="img" aria-labelledby="fd-t">
+<title id="fd-t">The six parts as one pipeline: a forcing cursor feeds the fixed-point model with its rounding ledger; results are pulled one at a time through the transform into an incremental digest and an append-only week segment; at each week end the exact state is handed to the next week; a manifest is written last.</title>
+<rect class="bx dec" x="10" y="40" width="130" height="70" rx="9"/><text class="t tb" x="75" y="66" text-anchor="middle">3 Forcing cursor</text><text class="tm" x="75" y="86" text-anchor="middle">hourly weather,</text><text class="tm" x="75" y="100" text-anchor="middle">one lookup per step</text>
+<rect class="bx mod" x="170" y="30" width="170" height="90" rx="9"/><text class="t tb" x="255" y="56" text-anchor="middle">1 Fixed-point model</text><text class="tm" x="255" y="76" text-anchor="middle">T on a 10⁻⁶ °C grid</text><text class="tm" x="255" y="92" text-anchor="middle">+ rounding ledger</text><text class="tm" x="255" y="108" text-anchor="middle">books balance exactly</text>
+<rect class="bx der" x="370" y="40" width="140" height="70" rx="9"/><text class="t tb" x="440" y="66" text-anchor="middle">2 Pull pipeline</text><text class="tm" x="440" y="86" text-anchor="middle">model → transform,</text><text class="tm" x="440" y="100" text-anchor="middle">one record at a time</text>
+<rect class="bx obs" x="540" y="40" width="160" height="70" rx="9"/><text class="t tb" x="620" y="66" text-anchor="middle">5 Incremental digest</text><text class="tm" x="620" y="86" text-anchor="middle">same bytes as today's</text><text class="tm" x="620" y="100" text-anchor="middle">whole-window hash</text>
+<rect class="bx syn" x="730" y="40" width="220" height="70" rx="9"/><text class="t tb" x="840" y="66" text-anchor="middle">4 Week segment files</text><text class="tm" x="840" y="86" text-anchor="middle">append-only; renamed when closed;</text><text class="tm" x="840" y="100" text-anchor="middle">manifest written last</text>
+<path class="ln a" d="M140,75 H168"/><path class="ln a" d="M340,75 H368"/><path class="ln a" d="M510,75 H538"/><path class="ln a" d="M700,75 H728"/>
+<rect class="bx hl" x="170" y="160" width="780" height="50" rx="9"/><text class="t tb" x="190" y="184">6 Exact state hand-off at each week boundary</text><text class="tm" x="190" y="200">week k's end state (with its fingerprint) is week k+1's start state; nothing is reset, nothing re-derived</text>
+<path class="ln a d" d="M840,110 V158"/><path class="ln a d" d="M255,158 V122"/>
+</svg></div>
+<figcaption><b>Six parts, one flow.</b> Numbers match the cards below. Part 4 and part 5 run side by side: every record is hashed into the whole-run fingerprint and the week's own fingerprint as it is written.</figcaption>
+</figure>
+
+<div class="pat">
+<div class="card"><h4>1 Fixed-point state with a rounding ledger</h4>
+<p class="meta">Precedent: deterministic lockstep simulation (networked games, physics engines that must replay identically on every machine) and accounting's rounding-difference account.</p>
+<p><b>Idea:</b> hold numbers on a fixed grid so they stay the same size forever, and write down every bit that was rounded away so totals still add up.</p>
+<p><b>Why it applies:</b> the cold model needs exact, repeatable energy books, not unlimited digits. A millionth of a degree is at least 1,000 times finer than any reading the simulated probe publishes, so no published value changes; the ledger keeps the balance check exactly zero.</p></div>
+<div class="card"><h4>2 Generator pipeline with bounded memory</h4>
+<p class="meta">Precedent: the Volcano iterator model used by database engines, Unix pipes, and keyed state in stream processors such as Flink.</p>
+<p><b>Idea:</b> each stage asks the stage before it for the next record, handles it, and passes it on. Only the small state each stage needs is kept.</p>
+<p><b>Why it applies:</b> the transform from physics to readings needs only the previous few minutes, never the whole history. Memory then depends on the state, not on how many days are run.</p></div>
+<div class="card"><h4>3 Indexed (cursor) series forcing</h4>
+<p class="meta">Precedent: EnergyPlus weather files, read hourly and held across shorter steps by position.</p>
+<p><b>Idea:</b> to find this step's weather, compute its position in the series. Do not search the whole list.</p>
+<p><b>Why it applies:</b> today the kernel checks every input against every step, about 229 million checks for a 91-day mini-grid run. With a cursor it is one lookup per column per step.</p></div>
+<div class="card"><h4>4 Append-only weekly segments, manifest last</h4>
+<p class="meta">Precedent: Kafka log segments; Zarr and Parquet chunked files with a metadata file; git's streamed object hashing.</p>
+<p><b>Idea:</b> write the data in closed chunks, and write a small index of the chunks last. If the index is missing, the write did not finish.</p>
+<p><b>Why it applies:</b> AssetOps already treats a run with no artifact as INTERRUPTED and writes artifacts by atomic rename. Weeks also line up with five-minute slots and with Mondays.</p></div>
+<div class="card"><h4>5 Incremental digests, byte-identical framing</h4>
+<p class="meta">Precedent: streamed hashing in git and content-addressed stores; any hash that is fed piece by piece.</p>
+<p><b>Idea:</b> feed the fingerprint the same bytes in the same order, piece by piece, and you get the same fingerprint as hashing the whole at once.</p>
+<p><b>Why it applies:</b> today's fingerprint is the hash of one compact JSON text, <code>["profile",[r1,r2,…]]</code>. That text can be fed record by record, so the long path gives the same fingerprint the short path would.</p></div>
+<div class="card"><h4>6 Exact state hand-off at week boundaries</h4>
+<p class="meta">Precedent: checkpoint and restart in long scientific simulations; segment-by-segment integration in numerical solvers.</p>
+<p><b>Idea:</b> the end of one chunk is the start of the next, carried over exactly, so cutting the run into chunks changes nothing.</p>
+<p><b>Why it applies:</b> it is what lets the run be both one history and thirteen checkable weeks. A test proves it: seven 1-day pieces equal one 7-day piece, record for record.</p></div>
+</div>
+
+<h3>2.1 The rounding ledger, pictured</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 760 220" role="img" aria-labelledby="fe-t">
+<title id="fe-t">After each exact update, temperature is rounded to the nearest millionth of a degree. The small difference, multiplied by the thermal capacity, is added to the rounding ledger, so heat in minus heat out plus rounding equals the change in stored energy exactly.</title>
+<line class="axis" x1="40" y1="80" x2="720" y2="80"/>
+<g class="tm"><text x="120" y="108" text-anchor="middle">3.999998</text><text x="280" y="108" text-anchor="middle">3.999999</text><text x="440" y="108" text-anchor="middle">4.000000</text><text x="600" y="108" text-anchor="middle">4.000001 °C</text></g>
+<line class="axis" x1="120" y1="72" x2="120" y2="88"/><line class="axis" x1="280" y1="72" x2="280" y2="88"/><line class="axis" x1="440" y1="72" x2="440" y2="88"/><line class="axis" x1="600" y1="72" x2="600" y2="88"/>
+<circle class="dot-a" cx="388" cy="80" r="6"/><text class="t" x="388" y="56" text-anchor="middle">exact update</text>
+<circle class="dot-b" cx="440" cy="80" r="6"/><text class="t" x="460" y="56">kept: nearest grid point</text>
+<path class="ln a" d="M394,70 Q416,40 436,70"/>
+<rect class="bx dec" x="40" y="132" width="680" height="70" rx="9"/>
+<text class="t tb" x="60" y="156">Rounding ledger: rounding_kwh_total += C × (T_kept − T_exact)</text>
+<text class="t" x="60" y="180">Balance check, still exact at every step:  C × (T − T₀) − (heat_total − cool_total + rounding_kwh_total) = 0</text>
+</svg></div>
+<figcaption><b>Nothing is lost; it is just written down.</b> The difference is never more than half a millionth of a degree, and because each step rounds the exact update of an already-rounded value, the error does not accumulate past one grid step.</figcaption>
+</figure>
+<details class="q"><summary>Technical detail: the precision rules per model</summary>
+<ul>
+<li><b>Cold, new version <code>cold-thermal/2</code>:</b> after each step, <code>T</code> is rounded half-even to <code>TEMPERATURE_QUANTUM = Fraction(1, 10**6)</code> °C. The quantum must be at least 1,000 times finer than the probe's declared output resolution, which the transform already applies half-even once (<code>observation/transform.py:216-220</code>). DD-06 checks this.</li>
+<li><b>EV, new version <code>ev-charger/2</code>:</b> any power that depends on state of charge (taper) is floored to <code>QUANTUM_KW</code> before it is applied, the v1 rule extended.</li>
+<li><b>Mini-grid:</b> no change expected; DD-05a measures whether its denominators grow, and stops if they do.</li>
+<li><b>v1 profiles keep exact arithmetic.</b> Their windows are at most two days, and their pinned fingerprints must not move.</li>
+</ul></details>
+
+<h2 id="algorithm">3 The algorithm, step by step</h2>
+<h3>3.1 In plain steps</h3>
+<ol class="steps">
+<li><b>Register one run.</b> The scenario names its real public input series and that series' fingerprint. The backend checks the step budget (at most 131,040 steps) and fixes the run's identity.</li>
+<li><b>Pass 1, week 1.</b> The host starts the model from its initial state and pulls one minute at a time: model, then readings, then both fingerprints, then one line appended to the week's file.</li>
+<li><b>Close the week.</b> The file is renamed from <code>.partial</code> to its final name. Its line count, fingerprint and the fingerprint of the model's end state are noted.</li>
+<li><b>Hand over.</b> Week 2 starts from week 1's exact end state. Steps 2 to 4 repeat for all 13 weeks.</li>
+<li><b>Commit.</b> The index (the "head") is written last, by atomic rename. Until it exists, the run reads INTERRUPTED, as today.</li>
+<li><b>Pass 2, publish week by week.</b> For each week, the reports are grouped by their publication instant and released through the existing ordered release, which already resumes from the last admitted instant after a crash.</li>
+<li><b>Downstream, nothing new.</b> The gateway seals admissions; ingestion accepts evidence; provenance sees one registered run; assessment, money and verification read it as they read any run.</li>
+</ol>
+
+<h3>3.2 Pseudocode</h3>
+<pre><code># Pass 1: execute and write every week (nothing is published yet)
+state   = engine.initial_state(scenario)           # registry keyed by model profile
+forcing = ForcingSeries(scenario.series)           # lookup = (offset - start) // cadence
+whole   = IncrementalDigest(prefix='["&lt;profile&gt;",[')  # v1 framing, fed piece by piece
+segments = []
+
+for week in calendar_weeks(run.start, run.end):    # 10,080 one-minute or 2,016 five-minute steps
+    seg = SegmentWriter(f"seg-{week.index:02}.partial")
+    for record, reports in engine.iter_window(state=state, start=week.start,
+                                              end=week.end, forcings=forcing):
+        line = canonical_json(record)
+        whole.feed(line)                           # same bytes as hashing the whole list
+        seg.append(line, reports)                  # one line per record; week digest fed too
+    state = engine.end_state()                     # exact hand-off, nothing reset
+    segments.append(seg.close(end_state_sha256=digest(state)))   # rename .partial -> final
+
+write_head_atomically(run_id, whole.finish(']]'), segments)      # commit marker, written last
+
+# Pass 2: release by segment through the existing ordered release
+for seg in segments:
+    groups = group_by_published_at(seg.read_reports())
+    _release(run_id, basis, schedule, instants=groups, target=seg.end)  # resumes at admitted_through
+</code></pre>
+<details class="q"><summary>Technical detail: files, schema and what is held in memory</summary>
+<p>Files: <code>var/executions/&lt;run_id&gt;.d/seg-NN.private.jsonl</code> and <code>seg-NN.reports.jsonl</code>, one canonical JSON line per record. Head: <code>var/executions/&lt;run_id&gt;.yaml</code>, schema 8, <code>long-run/1</code>, with the projection fields, <code>boundaries_total</code>, the whole-run <code>content_digest</code> and <code>series_digest</code>, <code>reported_count</code> and <code>segments: [{index, from, to, boundaries, private: {sha256, lines}, reports: {sha256, lines}, end_state_sha256}]</code>. The framing <code>["&lt;profile&gt;",[r1,r2,…]]</code> equals <code>sha256(canonical_json([profile, records]))</code> byte for byte, because <code>canonical_json</code> uses sorted keys and no whitespace (<code>contracts/assetops_contracts/source_envelope.py:1076-1080</code>; today's cold digest is <code>host/cold_publication.py:228</code>). Today's writer already writes <code>.yaml.partial</code> then renames (<code>host/lab_execution.py:1888-1923</code>).</p>
+<p>Held in memory during the run: the model state, the transform's carried state, held reports, two hash objects, the open file handles and counters. In pass 2, one week of groups (cold: 10,080 instants, <span class="f f-inf">INF</span> about 20 MB).</p>
+<p>Extension seam: <code>host/long_run.py</code> defines a small <code>LongRunEngine</code> protocol (<code>open(verified)</code> → iterator of <code>(private_record, reports)</code>, <code>state_digest()</code>) and a registry keyed by model profile; <code>runs/service.py</code>'s freeze rule becomes a table keyed by profile. Each model adds one module and one row (<code>long_run_cold.py</code>, <code>long_run_ev.py</code>, <code>long_run_mini.py</code>), so the EV and mini-grid work can proceed in parallel lanes.</p></details>
+
+<h3>3.3 One 91-day run, from scenario to evidence</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 1010 560" role="img" aria-labelledby="fs-t" style="min-width:900px">
+<title id="fs-t">Sequence diagram of one 91-day run across eight participants: producer, backend run service, host long-run engine, model and transform, segment files, gateway, ingestion and evidence, assessment.</title>
+<g>
+<rect class="bx soft" x="20" y="10" width="100" height="40" rx="7"/><text class="t tb ts" x="70" y="35" text-anchor="middle">Producer</text>
+<rect class="bx soft" x="140" y="10" width="110" height="40" rx="7"/><text class="t tb ts" x="195" y="28" text-anchor="middle">Backend</text><text class="tm ts" x="195" y="42" text-anchor="middle">run service</text>
+<rect class="bx hl" x="270" y="10" width="110" height="40" rx="7"/><text class="t tb ts" x="325" y="28" text-anchor="middle">Host</text><text class="tm ts" x="325" y="42" text-anchor="middle">long-run engine</text>
+<rect class="bx mod" x="400" y="10" width="110" height="40" rx="7"/><text class="t tb ts" x="455" y="28" text-anchor="middle">Model +</text><text class="tm ts" x="455" y="42" text-anchor="middle">transform</text>
+<rect class="bx syn" x="530" y="10" width="110" height="40" rx="7"/><text class="t tb ts" x="585" y="28" text-anchor="middle">Segment</text><text class="tm ts" x="585" y="42" text-anchor="middle">files + head</text>
+<rect class="bx soft" x="660" y="10" width="100" height="40" rx="7"/><text class="t tb ts" x="710" y="35" text-anchor="middle">Gateway</text>
+<rect class="bx obs" x="780" y="10" width="110" height="40" rx="7"/><text class="t tb ts" x="835" y="28" text-anchor="middle">Ingestion +</text><text class="tm ts" x="835" y="42" text-anchor="middle">evidence</text>
+<rect class="bx soft" x="905" y="10" width="95" height="40" rx="7"/><text class="t tb ts" x="952" y="35" text-anchor="middle">Assessment</text>
+</g>
+<g class="ln d"><line x1="70" y1="50" x2="70" y2="550"/><line x1="195" y1="50" x2="195" y2="550"/><line x1="325" y1="50" x2="325" y2="550"/><line x1="455" y1="50" x2="455" y2="550"/><line x1="585" y1="50" x2="585" y2="550"/><line x1="710" y1="50" x2="710" y2="550"/><line x1="835" y1="50" x2="835" y2="550"/><line x1="952" y1="50" x2="952" y2="550"/></g>
+<path class="ln a" d="M70,78 H193"/><text class="tm ts" x="76" y="72">create run: scenario + series SHA</text>
+<path class="ln a" d="M195,100 q30,0 30,12 q0,12 -28,12"/><text class="tm ts" x="230" y="108">freeze: profile row, ≤131,040 steps,</text><text class="tm ts" x="230" y="120">one run identity digest</text>
+<path class="ln a" d="M195,146 H323"/><text class="tm ts" x="200" y="140">execute run R</text>
+<rect class="bx dash" x="262" y="160" width="390" height="150" rx="8" style="fill:none"/><text class="lane" x="270" y="176">PASS 1 · REPEAT FOR WEEKS 1 TO 13</text>
+<path class="ln a" d="M325,198 H453"/><text class="tm ts" x="330" y="192">iter_window(state, week)</text>
+<path class="ln a d" d="M455,222 H327"/><text class="tm ts" x="345" y="216">next record (pulled)</text>
+<path class="ln a" d="M325,246 H583"/><text class="tm ts" x="390" y="240">append line; feed both digests</text>
+<path class="ln a" d="M325,286 H583"/><text class="tm ts" x="345" y="268">close week: rename, lines,</text><text class="tm ts" x="345" y="280">sha256, end_state_sha256</text>
+<path class="ln a" d="M325,336 H583"/><text class="tm ts" x="345" y="330">write head last (commit)</text>
+<rect class="bx dash" x="262" y="352" width="590" height="118" rx="8" style="fill:none"/><text class="lane" x="270" y="368">PASS 2 · REPEAT FOR EACH WEEK</text>
+<path class="ln a d" d="M585,392 H327"/><text class="tm ts" x="345" y="386">read week's reports, grouped by instant</text>
+<path class="ln a" d="M325,418 H708"/><text class="tm ts" x="450" y="412">ordered release (existing _release)</text>
+<path class="ln a" d="M710,446 H833"/><text class="tm ts" x="716" y="440">sealed admissions</text>
+<path class="ln a" d="M835,496 q30,0 30,12 q0,12 -28,12"/><text class="tm ts" x="600" y="494">accepted evidence; publication records,</text><text class="tm ts" x="600" y="506">one per sealed batch, all of run R</text>
+<path class="ln a" d="M835,540 H950"/><text class="tm ts" x="842" y="534">one REGISTERED_SIMULATION</text>
+</svg></div>
+<figcaption><b>Only the host part is new.</b> The backend freeze gains a table row, the files gain a new layout, and everything from the gateway onwards is unchanged. The labels and money rules downstream see one run, not thirteen.</figcaption>
+</figure>
+
+<h3>3.4 Exact state hand-off</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 900 260" role="img" aria-labelledby="fh-t">
+<title id="fh-t">Week segments chained by exact end states. Each state has a fingerprint recorded in the manifest. Below, a proof: seven one-day segments and one seven-day segment produce identical records and digests.</title>
+<rect class="bx syn" x="20" y="30" width="170" height="70" rx="9"/><text class="t tb" x="105" y="58" text-anchor="middle">Week 1</text><text class="tm" x="105" y="80" text-anchor="middle">seg-00 · 10,080 min</text>
+<rect class="bx syn" x="290" y="30" width="170" height="70" rx="9"/><text class="t tb" x="375" y="58" text-anchor="middle">Week 2</text><text class="tm" x="375" y="80" text-anchor="middle">seg-01</text>
+<rect class="bx syn soft" x="560" y="30" width="110" height="70" rx="9"/><text class="t tb" x="615" y="70" text-anchor="middle">…</text>
+<rect class="bx syn" x="710" y="30" width="170" height="70" rx="9"/><text class="t tb" x="795" y="58" text-anchor="middle">Week 13</text><text class="tm" x="795" y="80" text-anchor="middle">seg-12</text>
+<circle class="dot-b" cx="240" cy="65" r="18"/><text class="t tb" x="240" y="70" text-anchor="middle" style="fill:var(--surface)">S₁</text>
+<circle class="dot-b" cx="510" cy="65" r="18"/><text class="t tb" x="510" y="70" text-anchor="middle" style="fill:var(--surface)">S₂</text>
+<path class="ln a" d="M190,65 H220"/><path class="ln a" d="M258,65 H288"/><path class="ln a" d="M460,65 H490"/><path class="ln a" d="M528,65 H558"/><path class="ln a" d="M670,65 H708"/>
+<text class="tm" x="240" y="112" text-anchor="middle">end_state_sha256</text><text class="tm" x="510" y="112" text-anchor="middle">end_state_sha256</text>
+<text class="t" x="20" y="150">The end state is passed as an object, never rebuilt. Energy ledgers, transition ordinals, outage and door counters all carry over.</text>
+<rect class="bx obs" x="20" y="170" width="390" height="70" rx="9"/><text class="t tb" x="40" y="196">Test: 7 × 1-day segments</text><text class="tm" x="40" y="218">chained by end state</text>
+<text class="t tb" x="450" y="212" text-anchor="middle">=</text>
+<rect class="bx obs" x="490" y="170" width="390" height="70" rx="9"/><text class="t tb" x="510" y="196">1 × 7-day segment</text><text class="tm" x="510" y="218">same records, same whole-run digests</text>
+</svg></div>
+<figcaption><b>Cutting the run into weeks changes nothing.</b> If two runs of the same scenario ever differ, the first week whose <code>end_state_sha256</code> differs shows where the difference began.</figcaption>
+</figure>
+<details class="q"><summary>Technical detail: the guarantees tested</summary>
+<ul>
+<li><b>Byte-identical v1.</b> v1 <code>run_window</code> becomes <code>ColdRun(tuple(iter_window(..., state=ColdState.initial(...), close=True)))</code>; schema 6 and 7 artifacts, the pinned digests and the W2 vectors do not move.</li>
+<li><b>Digest equivalence.</b> On a 2-day window with the v1 profile label substituted, the long path's private records, report texts, content digest and series digest equal the v1 path's.</li>
+<li><b>No numeric growth (the regression oracle).</b> Every long-run profile runs for 1,440 and 10,080 steps; the largest state denominator may grow by at most 8 bits and time per step by at most 1.5×.</li>
+<li><b>Determinism at 91 days.</b> Cold and EV take minutes, so DD-09 and DD-10 run the full 91 days twice and compare head digests and every <code>end_state_sha256</code>.</li>
+<li><b>Crash behaviour.</b> A kill during pass 1 leaves no head (INTERRUPTED); a restart rewrites every segment and yields the same head. A kill during pass 2 resumes from <code>admitted_through</code> with no duplicate admission.</li>
+</ul></details>
+
+<h2 id="best">4 Why it is the best option</h2>
+<p>The owner asked for the efficient and elegant solution that high-quality software would use here, not the least effort. So the five alternatives are judged on correctness first and effort last. Each is a real option someone could reasonably propose.</p>
+<div class="legend"><span><span class="sc g">Good</span> meets the need</span><span><span class="sc p">Partial</span> works with a cost or a gap</span><span><span class="sc x">Fails</span> breaks a product rule or the budget</span></div>
+<div class="tw"><table class="matrix">
+<thead><tr><th>Option</th><th>Correctness</th><th>Determinism and digests</th><th>Memory</th><th>Time</th><th>Money and provenance</th><th>Label integrity</th><th>Maintainability</th><th>Fit</th></tr></thead>
+<tbody>
+<tr><td><b>A. Thirteen chained weekly runs</b></td><td><span class="sc p">Partial</span> each run resets the energy ledger and counters unless a seeding input is added to every model</td><td><span class="sc p">Partial</span> per-run digests only; no whole-history fingerprint; numbering restarts</td><td><span class="sc g">Good</span> about 0.1 GB per run</td><td><span class="sc p">Partial</span> still needs the precision fix</td><td><span class="sc x">Fails</span> any before-and-after set spans two runs, reads MIXED, and money is withheld</td><td><span class="sc g">Good</span> per run</td><td><span class="sc p">Partial</span> seeding on every model, staging changes</td><td><span class="sc x">Fails</span> fixing it needs a provenance-model change that is out of bounds</td></tr>
+<tr><td><b>B. A coarser time step</b> (15 min cold, 5 min EV)</td><td><span class="sc x">Fails</span> a 15-minute step moves the chamber up to about 0.55 K; 1-minute start delays and the 15-minute excursion rule stop meaning the same thing</td><td><span class="sc p">Partial</span> deterministic, but a different model</td><td><span class="sc p">Partial</span> fewer steps, numbers still grow</td><td><span class="sc p">Partial</span> feasible but still super-linear</td><td><span class="sc g">Good</span></td><td><span class="sc g">Good</span></td><td><span class="sc p">Partial</span> one step size per model to defend</td><td><span class="sc x">Fails</span> changes the physics the product reports on</td></tr>
+<tr><td><b>C. Writer-only change</b> (stream the output file)</td><td><span class="sc g">Good</span> same model</td><td><span class="sc g">Good</span> framing kept</td><td><span class="sc p">Partial</span> saves about 0.8 GB; long numbers and kept steps remain</td><td><span class="sc x">Fails</span> still hours</td><td><span class="sc g">Good</span></td><td><span class="sc g">Good</span></td><td><span class="sc g">Good</span></td><td><span class="sc p">Partial</span> necessary, not sufficient; adopted as part 4</td></tr>
+<tr><td><b>D. Replay a prepared CSV</b></td><td><span class="sc p">Partial</span> physics moves to an offline tool with no run</td><td><span class="sc p">Partial</span> the fingerprint belongs to the file, not a run</td><td><span class="sc g">Good</span></td><td><span class="sc g">Good</span> at run time</td><td><span class="sc x">Fails</span> field-path evidence reads UNKNOWN and withholds money by design</td><td><span class="sc x">Fails</span> no "Simulated with real public inputs" label</td><td><span class="sc p">Partial</span> a second producer to maintain</td><td><span class="sc x">Fails</span> for histories; it stays as Track P (DD-11)</td></tr>
+<tr><td><b>E. Revision 3 streaming path</b></td><td><span class="sc g">Good</span></td><td><span class="sc g">Good</span> v1 framing kept</td><td><span class="sc p">Partial</span> flat, but about 200 GB of private text on disk</td><td><span class="sc x">Fails</span> 3.5 to 23 hours of cold physics</td><td><span class="sc g">Good</span> one run</td><td><span class="sc g">Good</span></td><td><span class="sc p">Partial</span> two whole-run sidecars; EV and mini-grid collide in one file</td><td><span class="sc g">Good</span></td></tr>
+<tr class="win"><td><b>F. Proposal:</b> one run, segmented bounded-memory stream</td><td><span class="sc g">Good</span> same 1-minute physics; books exact</td><td><span class="sc g">Good</span> v1 unchanged; whole-run, per-week and end-state fingerprints</td><td><span class="sc g">Good</span> 0.25 GB target, flat</td><td><span class="sc g">Good</span> pass 1 about 1 to 2 min; publication still to measure</td><td><span class="sc g">Good</span> one run ID, one source; money kept</td><td><span class="sc g">Good</span> derived exactly as before</td><td><span class="sc g">Good</span> one module and one table row per model</td><td><span class="sc g">Good</span> reuses release, resume and provenance as they are</td></tr>
+</tbody></table></div>
+<p><b>Reading the matrix.</b> Every rejected option fails on a correctness or product rule, not on effort. A and D lose the money figures that make the demo worth having. B changes the physics. C and E are pieces of the right answer that leave the dominant cost in place, so the proposal keeps them as parts 4 and 2. The proposal costs 0.75 builder-days more than revision 3 (18.25 against 17.5).</p>
+<details class="q"><summary>Technical detail: the code facts behind the "Fails" cells</summary>
+<ul>
+<li>A: <code>ColdState.initial</code> (<code>packs/cold.py:213</code>) starts a fresh state; several runs in one cited set raise <code>MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS</code> (<code>backend/assetops_backend/evidence/source_provenance.py:199-203</code>, "no compatible-run-basis record exists yet"). Adding that record is a provenance-model change the commercial lane's §0.2 forbids.</li>
+<li>B: declared dynamics in <code>cold.py:68-73</code> include a 1-minute compressor start delay, a 5-minute start timeout, a 15-minute minimum excursion and a 0.2 K return hysteresis. The mini-grid's 5-minute step is already chosen by its physics (<code>packs/mini_grid.py:29-33</code>) and stays. EnergyPlus follows the same principle: hourly weather, sub-hourly zone steps.</li>
+<li>D: field-path evidence has no publication record, reads <code>UNKNOWN</code> and withholds money (TEL-05, TEL-06).</li>
+<li>E: revision 3 DD-05b acceptance (b) would fail at hours of pack time (§13.6).</li>
+</ul></details>
+
+<h2 id="fit">5 Fit with AssetOps mechanics</h2>
+<h3>5.1 Where it sits</h3>
+<p>The long-run path changes only how the evidence is <b>produced</b>. Every later stage reads the history exactly as it reads a short run today.</p>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 960 170" role="img" aria-labelledby="fm-t">
+<title id="fm-t">The AssetOps loop: Observe, Assess, Find, Cost, Act, Verify. The long-run path sits inside Observe, as the producer of registered simulation evidence. The other stages are unchanged.</title>
+<rect class="bx obs" x="10" y="20" width="200" height="130" rx="10" style="stroke-width:3"/>
+<text class="t tb" x="110" y="46" text-anchor="middle">Observe</text>
+<text class="tm" x="110" y="68" text-anchor="middle">registered run → gateway</text>
+<text class="tm" x="110" y="84" text-anchor="middle">→ accepted evidence</text>
+<rect class="fill-obs" x="24" y="98" width="172" height="40" rx="7"/><text class="t tb ts" x="110" y="116" text-anchor="middle">new: long-run path</text><text class="tm ts" x="110" y="131" text-anchor="middle">(producer side only)</text>
+<g>
+<rect class="bx" x="250" y="50" width="120" height="70" rx="9"/><text class="t tb" x="310" y="82" text-anchor="middle">Assess</text><text class="tm ts" x="310" y="100" text-anchor="middle">windows, coverage</text>
+<rect class="bx" x="390" y="50" width="120" height="70" rx="9"/><text class="t tb" x="450" y="82" text-anchor="middle">Find</text><text class="tm ts" x="450" y="100" text-anchor="middle">episodes, Findings</text>
+<rect class="bx" x="530" y="50" width="120" height="70" rx="9"/><text class="t tb" x="590" y="82" text-anchor="middle">Cost</text><text class="tm ts" x="590" y="100" text-anchor="middle">money, if one source</text>
+<rect class="bx" x="670" y="50" width="120" height="70" rx="9"/><text class="t tb" x="730" y="82" text-anchor="middle">Act</text><text class="tm ts" x="730" y="100" text-anchor="middle">change at day 50</text>
+<rect class="bx" x="810" y="50" width="140" height="70" rx="9"/><text class="t tb" x="880" y="82" text-anchor="middle">Verify</text><text class="tm ts" x="880" y="100" text-anchor="middle">before vs after</text>
+</g>
+<path class="ln a" d="M210,85 H248"/><path class="ln a" d="M370,85 H388"/><path class="ln a" d="M510,85 H528"/><path class="ln a" d="M650,85 H668"/><path class="ln a" d="M790,85 H808"/>
+<text class="tm" x="600" y="148" text-anchor="middle">Unchanged: they read evidence, provenance and labels, whatever produced them</text>
+</svg></div>
+<figcaption><b>A producer change, not a product change.</b> The Lab run page shows its existing "not available" state for history and report views of a long run; no new screen is added.</figcaption>
+</figure>
+
+<h3>5.2 One run keeps the before and after in one source</h3>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 960 250" role="img" aria-labelledby="fw-t">
+<title id="fw-t">A 91-day timeline: seven baseline weeks, the first three free of injected faults, then a change at day 50 and six post-change weeks. With one run, a before-and-after comparison stays in one source and money is shown. With chained runs, the comparison spans two runs, reads mixed, and money is withheld.</title>
+<text class="lane" x="20" y="22">ONE RUN (PROPOSAL)</text>
+<g>
+<rect class="fill-none" x="20" y="34" width="207" height="34" rx="4"/><text class="tm" x="123" y="56" text-anchor="middle">weeks 1-3: no injected faults</text>
+<rect class="fill-syn" x="229" y="34" width="276" height="34" rx="4"/><text class="tm" x="367" y="56" text-anchor="middle">weeks 4-7: baseline with faults</text>
+<rect class="fill-obs" x="507" y="34" width="433" height="34" rx="4"/><text class="tm" x="723" y="56" text-anchor="middle">weeks 8-13: after the change</text>
+</g>
+<line class="axis" x1="506" y1="26" x2="506" y2="78" style="stroke:var(--ink);stroke-width:2"/><text class="t tb" x="506" y="92" text-anchor="middle">day 50: change</text>
+<rect class="bx obs" x="20" y="100" width="920" height="26" rx="6" style="fill:none"/><text class="t ts" x="480" y="118" text-anchor="middle">run R · one identity digest · one REGISTERED_SIMULATION source → comparison shown with money</text>
+<text class="lane" x="20" y="160">THIRTEEN CHAINED RUNS (REJECTED)</text>
+<g>
+<rect class="bx" x="20" y="172" width="67" height="30" rx="4"/><rect class="bx" x="89" y="172" width="67" height="30" rx="4"/><rect class="bx" x="158" y="172" width="67" height="30" rx="4"/><rect class="bx" x="227" y="172" width="67" height="30" rx="4"/><rect class="bx" x="296" y="172" width="67" height="30" rx="4"/><rect class="bx" x="365" y="172" width="67" height="30" rx="4"/><rect class="bx" x="434" y="172" width="70" height="30" rx="4"/><rect class="bx" x="508" y="172" width="70" height="30" rx="4"/><rect class="bx" x="580" y="172" width="70" height="30" rx="4"/><rect class="bx" x="652" y="172" width="70" height="30" rx="4"/><rect class="bx" x="724" y="172" width="70" height="30" rx="4"/><rect class="bx" x="796" y="172" width="70" height="30" rx="4"/><rect class="bx" x="868" y="172" width="72" height="30" rx="4"/>
+</g>
+<path class="ln bad" d="M400,212 H620" style="stroke-width:2"/><text class="t ts" x="510" y="232" text-anchor="middle" style="fill:var(--bad)">comparison spans runs → MIXED → money withheld</text>
+</svg></div>
+<figcaption><b>Why one run matters for money.</b> The resolver groups evidence by run, and one run already publishes many sealed batches (<code>evidence/publication.py:208-230</code>; <code>source_provenance.py:194-205</code>). Weekly batches of one run are one source. Thirteen runs are thirteen sources, and the money rule withholds the figure.</figcaption>
+</figure>
+
+<h3>5.3 What stays byte-identical, and what is new</h3>
+<div class="tw"><table>
+<thead><tr><th>Stays exactly as it is</th><th>New, by design</th></tr></thead>
+<tbody>
+<tr><td><code>cold-thermal/1</code> and <code>ev-charger/1</code> profiles, with exact arithmetic</td><td><code>cold-thermal/2</code>: fixed point at 10<sup>−6</sup> °C, disclosed in its notes; its fingerprints are new because it is a new profile</td></tr>
+<tr><td>Pinned fingerprints, for example the EV <code>PINNED_COMPLETE_DIGEST</code> and the cold W2-02 digests DD-06 pins first</td><td><code>ev-charger/2</code>: many sessions, N connectors, taper floored to 1 kW</td></tr>
+<tr><td>W2 test vectors (<code>cold-w203</code>, <code>ev-w206</code>)</td><td>Schema 8 head with a week manifest; per-week and end-state fingerprints</td></tr>
+<tr><td>Schema 6 and 7 artifacts and their writers</td><td>A long-run engine registry and a freeze table keyed by profile</td></tr>
+<tr><td>The ordered publication rule, release and resume; the gateway; ingestion; provenance; money gates</td><td>A step budget: at most 131,040 steps on the long path, 100,000 on whole-window paths</td></tr>
+</tbody></table></div>
+
+<h3>5.4 The label</h3>
+<p>The run's scenario names its input series (<code>ambient_series</code>, <code>session_series</code> or <code>forcing_series</code>) together with that series' manifest fingerprint. Because the run is still one registered simulation whose scenario carries that reference, the server derives the label exactly as planned, with the same money terms as any registered simulation: <span class="lbl">Simulated with real public inputs</span>. No new source class and no new money rule are needed (DD-12 is unchanged).</p>
+
+<h2 id="risks">6 Risks and measurements still owed</h2>
+<div class="callout warn"><b class="k">The real remaining risk: publication time</b>
+<p>Each reached minute that carries a reading is its own sealed admission at the gateway (<code>host/gateway_publication.py:128-153</code>). A 91-day cold run is up to <b>131,041 admissions</b>; an EV run up to 26,209. Nobody has timed that yet. DD-05a times a two-day registered cold release and extrapolates. If the whole producer (model, gateway, ingestion, assessment) projects over 30 minutes, the builder stops and the Architect rules. The ordered-publication rule is not changed in advance.</p></div>
+<h3>6.1 DD-05a probes (light, evidence only)</h3>
+<div class="tw"><table>
+<thead><tr><th>Probe</th><th>What it measures</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>(i) Cold v1, exact and bounded</td><td>Exact for 1, 2, 4 days (digits, time); bounded at 10<sup>−6</sup> °C for 1 and 7 days (time per step, peak)</td><td>Reproduce §1 within ±30% before building</td></tr>
+<tr><td>(ii) EV v1</td><td>2 and 7 days</td><td>Confirm EV's rounding already bounds it</td></tr>
+<tr><td>(iii) Mini-grid kernel</td><td>Kobo scenario, 5-minute step, 2 and (if forcing allows) 7 days: time per step, peak, largest denominator</td><td>Confirm the kernel needs no precision rule</td></tr>
+<tr><td>(iv) Registered cold release</td><td>One timed 2-day release through host and gateway: time per sealed admission</td><td>Extrapolate to 131,041 admissions</td></tr>
+</tbody></table></div>
+<p class="meta">Each case in a fresh process, no memory tracing in timed runs, one heavy job at a time, never beside a suite; about five minutes of model runs in total. Results go to <code>.agent/DD-05a-run-cost.md</code>.</p>
+<h3>6.2 Stop conditions</h3>
+<ul>
+<li>A shipped scenario or fixture changes its outcome, or any v1 fingerprint or schema 6/7 artifact changes.</li>
+<li>The mini-grid's denominators grow with step count, or its time per step grows more than 1.5× from 2 to 7 days (DD-05 then needs a precision rule).</li>
+<li>Memory grows with window length (more than 20% between 7 and 91 days), passes 0.25 GB as a target, or reaches the 1.5 GB hard stop; or pass 1 exceeds 5 minutes for cold.</li>
+<li>Publication projects the whole producer over 30 minutes.</li>
+<li>The resolver reads the weekly batches of one run as more than one source.</li>
+<li>A v2 public reading differs from v1 at the published resolution on a W2-02 case; the Architect rules whether the quantum or the case changes.</li>
+<li>Machine rules: keep-awake on, and a 2× wall-time cap that stops the host process.</li>
+</ul>
+
+<h2 id="cards">7 Implementation cards and effort</h2>
+<div class="tw"><table>
+<thead><tr><th>Card</th><th>What it delivers</th><th>Lane</th><th>Builder-days</th><th>Suite</th></tr></thead>
+<tbody>
+<tr><td>DD-05a</td><td>Step budget limits and the baseline probes of §6.1</td><td>D</td><td>0.75</td><td>Full</td></tr>
+<tr><td>DD-06</td><td><code>cold-thermal/2</code>: millionth-of-a-degree state, rounding ledger, hourly ambient series, streaming iterator</td><td>D</td><td>1.5</td><td>Scoped</td></tr>
+<tr><td>DD-05b</td><td>The segmented long-run host path: registry, week files, head, incremental digests, release by week, resume; proven on cold over 91 days</td><td>D</td><td>2.75</td><td>Full</td></tr>
+<tr><td>DD-05</td><td>Mini-grid indexed series forcing and kernel boundary sink, on the registry</td><td>D</td><td>2.5</td><td>Full</td></tr>
+<tr><td>DD-07a</td><td><code>ev-charger/2</code> model and transform (simulator files only)</td><td>T</td><td>1.25</td><td>Scoped</td></tr>
+<tr><td>DD-07b</td><td><code>ev-charger/2</code> on the long-run path</td><td>T</td><td>1.0</td><td>Full</td></tr>
+<tr><td>DD-08, DD-09, DD-10</td><td>The three 91-day history producers (mini-grid, cold, EV)</td><td>D, T, T</td><td>1.0, 0.75, 0.75</td><td>Scoped</td></tr>
+</tbody></table></div>
+<figure>
+<div class="scroll"><svg class="fig" viewBox="0 0 900 150" role="img" aria-labelledby="fg-t">
+<title id="fg-t">Next sprint in two lanes. Lane D: DD-05a, DD-06, DD-05b ending about day 5, DD-05, DD-08 ending about day 8.5. Lane T: DD-07a from day 0 to 1.25, then DD-07b from day 5 to 6, DD-10 to about 6.75, DD-09 to about 7.5.</title>
+<text class="lane" x="10" y="44">LANE D</text><text class="lane" x="10" y="104">LANE T</text>
+<g class="tm"><text x="90" y="138" text-anchor="middle">0</text><text x="250" y="138" text-anchor="middle">2</text><text x="410" y="138" text-anchor="middle">4</text><text x="570" y="138" text-anchor="middle">6</text><text x="730" y="138" text-anchor="middle">8</text><text x="850" y="138" text-anchor="middle">builder-day 9.5</text></g>
+<rect class="fill-dec" x="90" y="24" width="60" height="30" rx="4"/><text class="t ts" x="120" y="44" text-anchor="middle">05a</text>
+<rect class="fill-mod" x="152" y="24" width="118" height="30" rx="4"/><text class="t ts" x="211" y="44" text-anchor="middle">DD-06</text>
+<rect class="fill-syn" x="272" y="24" width="218" height="30" rx="4"/><text class="t ts" x="381" y="44" text-anchor="middle">DD-05b (ends about day 5)</text>
+<rect class="fill-obs" x="492" y="24" width="198" height="30" rx="4"/><text class="t ts" x="591" y="44" text-anchor="middle">DD-05 mini-grid</text>
+<rect class="fill-der" x="692" y="24" width="78" height="30" rx="4"/><text class="t ts" x="731" y="44" text-anchor="middle">DD-08</text>
+<rect class="fill-mod" x="90" y="84" width="100" height="30" rx="4"/><text class="t ts" x="140" y="104" text-anchor="middle">DD-07a</text>
+<rect class="fill-syn" x="490" y="84" width="80" height="30" rx="4"/><text class="t ts" x="530" y="104" text-anchor="middle">07b</text>
+<rect class="fill-der" x="572" y="84" width="58" height="30" rx="4"/><text class="t ts" x="601" y="104" text-anchor="middle">10</text>
+<rect class="fill-der" x="632" y="84" width="58" height="30" rx="4"/><text class="t ts" x="661" y="104" text-anchor="middle">09</text>
+<path class="ln a d" d="M490,56 V82"/>
+</svg></div>
+<figcaption><b>EV at 91 days fits next sprint, at about builder-day 7.</b> This holds if the telemetry builder (Lane T) takes the EV cards and DD-05b passes on its first attempt. With one lane the sequence is 12.25 days and EV slips a sprint. Total backlog: 18.25 builder-days (revision 3: 17.5). Every card ends with a fresh Claude review, never by its builder; full suites run one at a time on the heavy-job queue.</figcaption>
+</figure>
+
+<h2 id="sources">8 Sources and checks</h2>
+<details class="q"><summary>What was read and checked for this document</summary>
+<ul>
+<li>Design authority: <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4 §13</a> and cards DD-05a, DD-06, DD-05b, DD-05, DD-07a/b; owner-facing reply <code>.agent/architect-reply-simpler-long-run-2026-10-28.md</code>.</li>
+<li>Re-read at <code>069bcd61</code>: <code>simulator/assetops_simulator/packs/cold.py</code> (68-73, 213, 400-416), <code>packs/ev_charger.py:38</code>, <code>packs/mini_grid.py:26-35</code>, <code>kernel/execute.py</code> (34, 1278-1298), <code>observation/transform.py:214-222</code>; <code>host/lab_execution.py</code> (1888-1923, 2944-2970); <code>host/gateway_publication.py:128-153</code>; <code>host/cold_publication.py:228</code>; <code>contracts/assetops_contracts/source_envelope.py:1076-1080</code>; <code>backend/assetops_backend/evidence/publication.py:208-230</code>; <code>evidence/source_provenance.py:192-206</code>. All facts quoted in §13 held. No long-run code exists yet.</li>
+<li>Measurements are the Architect's three scratch timings from §13.1. None were rerun for this document.</li>
+<li>Precedents named are general industry practice, cited from the Architect's knowledge, not re-fetched.</li>
+</ul></details>
+<p class="foot">Long-Running Simulation Proposal, 28 October 2026. Produced by the Architect (Claude) at the owner's request, as an explanation of Demo Data Strategy revision 4 §13. Plan only; no product code, test, database or suite was changed or run.</p>
+</main>
+</div>
+<script>
+(function(){
+"use strict";
+var b=document.getElementById("themebtn");
+try{var t=localStorage.getItem("ao-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+b.addEventListener("click",function(){var cur=document.documentElement.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");var n=cur==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("ao-theme",n);}catch(e){}});
+})();
+</script>
+</body>
+</html>
