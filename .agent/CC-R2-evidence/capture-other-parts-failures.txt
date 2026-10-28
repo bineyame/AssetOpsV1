@@ -1,0 +1,3 @@
+FAIL  narrow recommendation: no sideways page scroll (measured 214 elements)  {"scrollWidth":390,"clientWidth":390,"measured":214,"wide":["site-tabs__link:421"]}
+FAIL  narrow case guardrail hold: no sideways page scroll (measured 165 elements)  {"scrollWidth":390,"clientWidth":390,"measured":165,"wide":["site-tabs__link:421"]}
+FAIL  narrow case withdrawn hold: no sideways page scroll (measured 167 elements)  {"scrollWidth":390,"clientWidth":390,"measured":167,"wide":["site-tabs__link:421"]}

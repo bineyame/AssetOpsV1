@@ -22,7 +22,9 @@ window and source fakes the builders used. Stored outcomes, metrics, events, his
 
 Cases: target_miss (INEFFECTIVE, TARGET_MISS), guardrail (INEFFECTIVE, GUARDRAIL_FAIL, hold on the different
 Finding F02), inconclusive (real roles-2 windows: INCONCLUSIVE), withdrawn (VERIFIED -> RESOLVED -> late reading ->
-REASSESSMENT_PENDING -> overlap accept of F02 -> RESOLUTION_WITHDRAWN -> re-settled INCONCLUSIVE).
+REASSESSMENT_PENDING -> overlap accept of F02 -> RESOLUTION_WITHDRAWN -> re-settled INCONCLUSIVE), estate (CC-R2 D5:
+F01 VERIFIED next to S4 F03's recurring 09:30 Finding, the MG-B stand-in, and S4 F05 through its UNCONFIRMED match,
+the MG-C stand-in; the build asserts their Portfolio placement and the no-double-count invariant before it writes).
 """
 
 from __future__ import annotations
@@ -33,7 +35,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 UTC = timezone.utc
-CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn")
+CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn", "estate")
 TEST_SCOPED = "TEST-SCOPED example (S6-02a evaluator builders over a roles-2 Site; not a Lab run)"
 LABELS = {
     "target_miss": "Target not met (INEFFECTIVE, TARGET_MISS) - authored complete windows",
@@ -42,7 +44,13 @@ LABELS = {
     "inconclusive": "Could not conclude (INCONCLUSIVE) - the real roles-2 windows are incomplete; no fake",
     "withdrawn": "VERIFIED, then late evidence: resolution withdrawn, overlap hold, re-settled INCONCLUSIVE - "
                  "authored complete windows plus the real late reading",
+    "estate": "Portfolio placement (CC-R2): the unconfirmed Finding on test-scoped readings; source not resolved, "
+              "no Action",
 }
+#: CC-R2-Q6 ruling: the one-day Portfolio read the `estate` case asserts and captures (supersedes F1's 31 days).
+ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z"
+#: CC-R2-Q6 ruling: the MG-B day, asserted only (rule 1 hides its recurrence: source not resolved).
+ESTATE_MG_B = "/api/estate/portfolio?from=2026-10-11T00:00:00Z&to=2026-10-12T00:00:00Z"
 
 
 class Patch:
@@ -86,6 +94,8 @@ def build(url: str, work: Path, case: str) -> None:
     runner = CaseRunner(store, engine)
     run_case(runner, S4["F01"])
     run_case(runner, S4["F02"])
+    if case == "estate":
+        estate_findings(runner, url, S4)
     h = verifying(runner)
     fake = {"baseline_soc": "50", "later_soc": "50", "inject": []}
     findings = h.findings()
@@ -122,6 +132,9 @@ def build(url: str, work: Path, case: str) -> None:
             outcome = ev.evaluate(h, action_id, "eval-0003").json()["outcome"]
             assert outcome["outcome"] == "INCONCLUSIVE", outcome
             out["expect"] = {"current_state": "INCONCLUSIVE", "outcome": "INCONCLUSIVE", "label": "Could not conclude"}
+        elif case == "estate":  # CC-R2-Q6 ruling: no Action, plan or evaluation in this case
+            action_id, plan, outcome = None, None, {"outcome_id": None, "reasons": [], "outcome": None}
+            out["expect"] = None
         else:  # withdrawn
             inject: set = set()
             ev.complete_windows(Patch(), h, inject=inject)
@@ -149,7 +162,7 @@ def build(url: str, work: Path, case: str) -> None:
         pinned = max(h.clock.at, runner.now) + timedelta(minutes=1)
         out |= {"action": action_id, "plan": plan["plan_id"] if isinstance(plan, dict) else plan,
                 "outcome": outcome["outcome_id"], "outcome_reasons": outcome["reasons"],
-                "pinned_at": pinned.isoformat(), "fake": fake if case != "inconclusive" else None,
+                "pinned_at": pinned.isoformat(), "fake": fake if case not in ("inconclusive", "estate") else None,
                 "findings": {day: str(fid) for day, fid in findings.items()}}
     finally:
         h.close()
@@ -158,12 +171,80 @@ def build(url: str, work: Path, case: str) -> None:
         pg.dispose(runner.findings)
         pg.dispose(store)
         engine.dispose()
+    if case == "estate":  # any failure exits non-zero before the case file (and so before any capture) exists
+        out["placement"] = estate_assertions(out)
     (work / f"case-{case}.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
-    print(f"case {case}: {outcome['outcome']} {outcome['reasons']} action {action_id}")
+    if case == "estate":
+        print(f"case estate: no Action (CC-R2-Q6); {out['placement']['F05']}")
+    else:
+        print(f"case {case}: {outcome['outcome']} {outcome['reasons']} action {action_id}")
 
 
-def serve(url: str, work: Path, case: str, port: int) -> None:
-    spec = json.loads((work / f"case-{case}.json").read_text(encoding="utf-8"))
+def estate_findings(runner, url: str, S4: dict) -> None:
+    """CC-R2 case `estate`: S4 F03 (its 09:30 anchor recurs after 08:00 with no Action: the MG-B stand-in), S4 F05
+    through and including its first UNCONFIRMED match (the MG-C stand-in), then diesel price v1 (build spec CC-D2
+    "Price": one revision covers both verification windows); no Action or evaluation in this case (CC-R2-Q6)."""
+    from test_s4_finding_store_postgres import check, run_case
+
+    run_case(runner, S4["F03"])
+    for step in S4["F05"]["steps"]:
+        outcome = runner.step(step)
+        if step["do"] == "match":
+            check(runner, outcome, step["expect"], "F05", bool(step.get("collateral")))
+            if any(x.get("lifecycle") == "UNCONFIRMED" for x in step["expect"]):
+                break
+    else:
+        raise SystemExit("S4 F05 has no UNCONFIRMED match step")
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+    from assetops_backend.publish_assumption import main as publish
+
+    prices = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-diesel-price-publications.json"
+    store = PostgresAssumptionStore(url)
+    try:
+        code = publish(["fixture", "--site", "KOBO-001", "--file", str(prices), "--step", "v1"], store=store)
+    finally:
+        import pg_harness as pg
+
+        pg.dispose(store)
+    if code != 0:
+        raise SystemExit(f"diesel price v1 publication failed ({code})")
+
+
+def _cursor_key() -> None:
+    """The Portfolio route needs a deployment cursor key; a TEST-SCOPED process gets a random one when none is set
+    (the post-W6 audit `start_apis.ps1` pattern), never a committed value."""
+    import os
+    import secrets
+
+    from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV
+
+    os.environ.setdefault(PORTFOLIO_CURSOR_KEY_ENV, secrets.token_hex(32))
+
+
+def _pin_read_clock(pinned) -> None:
+    """CC-R2-F2: the estate read time (the cursor cutoff `k`) is pinned like the Action clock, so `read_at == pinned_at`.
+    Wraps `read` on both classes (the subclass overrides it); the wrapper only sets `snap.read_at` before `work`."""
+    from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
+    from assetops_backend.estate.adapters.postgres_evidence_money_read import PostgresEvidenceMoneyRead
+
+    for cls in (PostgresEstateRead, PostgresEvidenceMoneyRead):
+        original = cls.read
+        if getattr(original, "_cc_r2_pinned", False):
+            continue
+
+        def read(self, work, _original=original):
+            def pinned_work(snap):
+                snap.read_at = pinned
+                return work(snap)
+
+            return _original(self, pinned_work)
+
+        read._cc_r2_pinned = True
+        cls.read = read
+
+
+def pinned_app(spec: dict):
+    """`host/lab_app.py` with the case's window fakes and its Action clock pinned at `pinned_at` (as `serve`)."""
     pinned = datetime.fromisoformat(spec["pinned_at"])
     if spec["fake"] is not None:
         window_fake(spec["fake"])
@@ -176,13 +257,85 @@ def serve(url: str, work: Path, case: str, port: int) -> None:
         return real(*args, **kwargs)
 
     main.build_action_service = pinned_service
+    _pin_read_clock(pinned)
     sys.path.insert(0, str(Path.cwd().parents[1] / "host"))
     import lab_app
+
+    return lab_app.app
+
+
+def _placed(row: dict | None) -> tuple:
+    if row is None:
+        return (None, [])
+    return (row["placement"]["group"], [x["code"] for x in row["placement"]["reasons"]])
+
+
+def estate_assertions(spec: dict) -> dict:
+    """CC-R2-Q6 ruling: the served Portfolio on 2026-10-21 (the MG-C stand-in, captured) and 2026-10-11 (the MG-B
+    day, asserted only); returns the F05 placement, the counts and its `data-portfolio-row` key."""
+    from fastapi.testclient import TestClient
+
+    from assetops_backend.estate.money_invariants import double_count_violations
+
+    _cursor_key()
+    client = TestClient(pinned_app(spec))
+    failures: list[str] = []
+
+    def read(path: str) -> dict:
+        response = client.get(path)
+        if response.status_code != 200:
+            raise SystemExit(f"estate: Portfolio read {path} {response.status_code}: {response.text[:400]}")
+        body = response.json()
+        if body["status"] != "CURRENT":
+            failures.append(f"{path}: status {body['status']}")
+        violations = double_count_violations(body)
+        if violations:
+            failures.append(f"{path}: double-count violations: {violations}")
+        if any(r["priority"] is not None for r in body["rows"]):
+            failures.append(f"{path}: a row has a numeric priority")
+        if body["next_cursor"] is not None:
+            failures.append(f"{path}: does not fit one page")
+        return body
+
+    body, mg_b = read(ESTATE_PORTFOLIO), read(ESTATE_MG_B)
+    rows = body["rows"]
+    f05 = rows[0] if len(rows) == 1 else None
+    if f05 is None:
+        failures.append(f"10-21: {len(rows)} rows, expected exactly one (F05)")
+    else:
+        facts = (f05["episode_start"], f05["lifecycle"], f05["mechanism"], f05["workflow_label"],
+                 f05["source_provenance"]["state"], _placed(f05), f05["confidence"], f05["confidence_reasons"])
+        want = ("2026-10-21T08:00:00Z", "UNCONFIRMED", "GENERATOR_SUPPORT_CANDIDATE", "Recommendation not accepted",
+                "UNKNOWN", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"]), "UNKNOWN",
+                ["Unconfirmed Finding", "Source not resolved"])
+        if facts != want:
+            failures.append(f"10-21 F05 {facts}")
+    counts = {"NEEDS_INVESTIGATION": 1, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}
+    if body["summary"]["placement_counts"] != counts:
+        failures.append(f"10-21 counts {body['summary']['placement_counts']}")
+    got_b = [(r["episode_start"], r["lifecycle"], _placed(r)) for r in mg_b["rows"]]
+    if got_b != [(at, "SUPPORTED", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN"]))
+                 for at in ("2026-10-11T09:30:00Z", "2026-10-11T08:00:00Z")]:
+        failures.append(f"10-11 rows {got_b}")
+    if failures:
+        raise SystemExit("estate: placement assertions failed:\n  " + "\n  ".join(failures))
+    print("estate: F05 ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED']); "
+          "10-11: 2 rows NEEDS_INVESTIGATION; no double count")
+    key = f"{f05['finding_id']}|{f05['finding_revision_id']}"  # the page's data-portfolio-row
+    return {"F05": _placed(f05), "counts": body["summary"]["placement_counts"], "rows": {"F05": key}}
+
+
+def serve(url: str, work: Path, case: str, port: int) -> None:
+    spec = json.loads((work / f"case-{case}.json").read_text(encoding="utf-8"))
+    pinned = datetime.fromisoformat(spec["pinned_at"])
+    if case == "estate":
+        _cursor_key()
+    app = pinned_app(spec)
     import uvicorn
 
-    print(f"TEST-SCOPED case {case} served on 127.0.0.1:{port}, Action clock pinned at {pinned.isoformat()}",
+    print(f"TEST-SCOPED case {case} served on 127.0.0.1:{port}, Action clock and estate read time pinned at {pinned.isoformat()}",
           flush=True)
-    uvicorn.run(lab_app.app, host="127.0.0.1", port=port, log_level="warning")
+    uvicorn.run(app, host="127.0.0.1", port=port, log_level="warning")
 
 
 def main() -> None:

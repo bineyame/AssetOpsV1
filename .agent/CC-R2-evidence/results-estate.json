@@ -1,0 +1,202 @@
+[
+  {
+    "name": "loaded http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop estate Portfolio loads with rows",
+    "ok": true
+  },
+  {
+    "name": "desktop estate Portfolio: one heading, Needs investigation first · 1",
+    "ok": true,
+    "detail": [
+      [
+        "NEEDS_INVESTIGATION",
+        "Needs investigation first · 1"
+      ]
+    ]
+  },
+  {
+    "name": "desktop estate Portfolio: F05 is the one row, NEEDS_INVESTIGATION under its heading, with both reason lines",
+    "ok": true,
+    "detail": {
+      "count": 1,
+      "placement": "NEEDS_INVESTIGATION",
+      "heading": "NEEDS_INVESTIGATION",
+      "reasons": "Evidence source is not resolved; check the source before acting · The latest assessment no longer confirms this Finding; check its basis",
+      "confidence": "UNKNOWN",
+      "confidenceText": "Unconfirmed Finding · Source not resolved"
+    }
+  },
+  {
+    "name": "desktop estate Portfolio: F05 confidence UNKNOWN, \"Unconfirmed Finding · Source not resolved\"; no guarded word or raw code",
+    "ok": true,
+    "detail": {
+      "confidence": "UNKNOWN",
+      "text": "Unconfirmed Finding · Source not resolved",
+      "words": []
+    }
+  },
+  {
+    "name": "desktop estate Portfolio: bottom line and the closed \"How placement works\" disclosure",
+    "ok": true,
+    "detail": {
+      "bottom": "Placement and confidence answer different questions.",
+      "summary": "How placement works",
+      "open": false
+    }
+  },
+  {
+    "name": "desktop estate Portfolio: no sideways page scroll (measured 361 elements)",
+    "ok": true,
+    "detail": {
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "measured": 361,
+      "wide": []
+    }
+  },
+  {
+    "name": "desktop estate Portfolio: the opened disclosure shows the five policy lines and the footer",
+    "ok": true,
+    "detail": {
+      "lines": [
+        "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+        "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+        "Monitor (checked next): a change was applied or verified.",
+        "Compare value: the Finding has a priced cost exposure.",
+        "Unpriced risk: the Finding has no price basis."
+      ],
+      "footer": "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1."
+    }
+  },
+  {
+    "name": "loaded http://localhost:5466/mockups/v69/index.html#/portfolio: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop mock #/portfolio renders",
+    "ok": true,
+    "detail": [
+      "Portfolio Value & Operations",
+      "Where management should act first",
+      "Objectives across the estate",
+      "Evidence that would change a decision",
+      "An opportunity beyond reducing cost",
+      "What changed in this review"
+    ]
+  },
+  {
+    "name": "loaded http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow estate Portfolio loads with rows",
+    "ok": true
+  },
+  {
+    "name": "narrow estate Portfolio: one heading, Needs investigation first · 1",
+    "ok": true,
+    "detail": [
+      [
+        "NEEDS_INVESTIGATION",
+        "Needs investigation first · 1"
+      ]
+    ]
+  },
+  {
+    "name": "narrow estate Portfolio: F05 is the one row, NEEDS_INVESTIGATION under its heading, with both reason lines",
+    "ok": true,
+    "detail": {
+      "count": 1,
+      "placement": "NEEDS_INVESTIGATION",
+      "heading": "NEEDS_INVESTIGATION",
+      "reasons": "Evidence source is not resolved; check the source before acting · The latest assessment no longer confirms this Finding; check its basis",
+      "confidence": "UNKNOWN",
+      "confidenceText": "Unconfirmed Finding · Source not resolved"
+    }
+  },
+  {
+    "name": "narrow estate Portfolio: F05 confidence UNKNOWN, \"Unconfirmed Finding · Source not resolved\"; no guarded word or raw code",
+    "ok": true,
+    "detail": {
+      "confidence": "UNKNOWN",
+      "text": "Unconfirmed Finding · Source not resolved",
+      "words": []
+    }
+  },
+  {
+    "name": "narrow estate Portfolio: bottom line and the closed \"How placement works\" disclosure",
+    "ok": true,
+    "detail": {
+      "bottom": "Placement and confidence answer different questions.",
+      "summary": "How placement works",
+      "open": false
+    }
+  },
+  {
+    "name": "narrow estate Portfolio: no sideways page scroll (measured 361 elements)",
+    "ok": true,
+    "detail": {
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "measured": 361,
+      "wide": []
+    }
+  },
+  {
+    "name": "narrow estate Portfolio: the opened disclosure shows the five policy lines and the footer",
+    "ok": true,
+    "detail": {
+      "lines": [
+        "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+        "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+        "Monitor (checked next): a change was applied or verified.",
+        "Compare value: the Finding has a priced cost exposure.",
+        "Unpriced risk: the Finding has no price basis."
+      ],
+      "footer": "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1."
+    }
+  },
+  {
+    "name": "loaded http://localhost:5466/mockups/v69/index.html#/portfolio: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow mock #/portfolio renders",
+    "ok": true,
+    "detail": [
+      "Portfolio Value & Operations",
+      "Where management should act first",
+      "Objectives across the estate",
+      "Evidence that would change a decision",
+      "An opportunity beyond reducing cost",
+      "What changed in this review"
+    ]
+  }
+]

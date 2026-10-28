@@ -6,9 +6,11 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { forbiddenPhrases } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioStatus } from "../estateClient";
 import { EstatePortfolioPage } from "../EstatePortfolio";
+import { mechanismWords } from "../portfolioWords";
 import {
   COLD_ROW,
   coverageSite,
@@ -88,6 +90,21 @@ describe("estate Portfolio page", () => {
     expect(text(rows[0])).toContain("Unpriced");
   });
 
+  it("showsCustomerMechanismWordsNotRawCodes", async () => {
+    expect(mechanismWords("GENERATOR_SUPPORT_CANDIDATE")).toBe("Possible extended generator support");
+    expect(mechanismWords("COLD_EXCURSION")).toBe("Chamber temperature above policy");
+    expect(mechanismWords("COLD_START_FAILURE")).toBe("Automatic start failed");
+    expect(mechanismWords("EV_INTERRUPTION")).toBe("Charging session interrupted");
+    expect(mechanismWords(null)).toBe("Mechanism not recorded");
+    expect(mechanismWords("SOMETHING_NEW")).toBe("Mechanism not recorded");
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(text(priority)).toContain("Possible extended generator support");
+    expect(text(priority)).toContain("Chamber temperature above policy");
+    expect(text(priority)).not.toMatch(/[A-Z]+_[A-Z_]+/);
+  });
+
   it("rendersUnpricedCardAndEmptyRisksLensNotAssessed", async () => {
     const cards = portfolioBody().value_cards.map((c) =>
       c.key === "OPERATING_COST"
@@ -101,6 +118,10 @@ describe("estate Portfolio page", () => {
     expect(text(first)).toContain("GreenHarvest · consequence recorded without a price");
     expect(text(document.querySelector("[data-portfolio-card='SERVICE_PRODUCT_RISK'] [data-portfolio-card-value]"))).toBe("Not assessed");
     expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
+    // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
+    const bottom = panel("Where management should act first").querySelector(".panel-bottom") as HTMLElement;
+    expect(bottom.querySelector("span")).toBeNull();
+    expect(within(bottom).getByRole("link", { name: "Open all Findings →" })).toBeTruthy();
   });
 
   it("rendersEveryFindingColumnAndFourLensStates", async () => {
@@ -110,11 +131,11 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, client);
     await settledScreen();
     const priority = panel("Where management should act first");
-    expect(Array.from(priority.querySelectorAll("th")).map((th) => th.textContent)).toEqual([
+    expect(Array.from(priority.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
       "Site",
       "Finding / operating mechanism",
       "Value / consequence",
-      "Priority",
+      "Placement", // CC-R2: was "Priority"
       "Confidence",
       "Action / next move",
     ]);
@@ -125,15 +146,20 @@ describe("estate Portfolio page", () => {
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
-    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded");
+    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support");
     expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
-    expect(cells[3]).toBe("Not assessed");
-    expect(cells[4]).toBe("Not assessed No reviewed confidence measure");
+    // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
+    expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
+    expect(cells[4]).toBe("Supported, coherent source Supported Finding · Prepared example data source");
     expect(cells[5]).toBe("No accepted Action Next move not recorded Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
-    expect(text(priority)).toContain("Priority and confidence are not assessed for these records.");
+    // CC-R2-Q3 ruling: the subtitle and the bottom line (no longer computed from priority).
+    expect(text(priority)).toContain(
+      "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.",
+    );
+    expect(text(priority.querySelector(".panel-bottom span"))).toBe("Placement and confidence answer different questions.");
     const lenses = within(priority).getAllByRole("button").filter((b) => b.closest("[aria-label='Finding lens']"));
     expect(lenses.map((b) => [b.textContent, b.getAttribute("aria-pressed")])).toEqual([
       ["All findings", "true"],
@@ -425,8 +451,8 @@ describe("estate Portfolio page", () => {
     const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
     expect(new Set(labels).size).toBe(2);
     expect(labels).toEqual([
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded",
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Mechanism not recorded",
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support",
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Possible extended generator support",
     ]);
     expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     expectV69Panels("portfolio");
@@ -613,5 +639,141 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     expect(text(document.querySelector("[data-page-refusal]"))).toBe("Estate records are unavailable right now. Try again.");
     expect(text(document.querySelector("[data-estate-window]"))).toBe("Window 2026-10-06 to 2026-10-06 (UTC days)");
     view.unmount();
+  });
+});
+
+describe("CC-R2 Portfolio placement groups (D5)", () => {
+  const groupHeads = () =>
+    Array.from(document.querySelectorAll("tr.placement-group")).map((tr) => [tr.getAttribute("data-placement-group"), text(tr)]);
+
+  it("headsEachGroupOnceWithItsCountAndShowsEveryRowsReasonLine", async () => {
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now · 1"],
+      ["COMPARE_VALUE", "Compare value · 1"],
+    ]);
+    const head = priority.querySelector("tr.placement-group th") as HTMLElement;
+    expect(head.getAttribute("scope")).toBe("colgroup");
+    expect(head.getAttribute("colspan")).toBe("6");
+    // Every row: a group heading precedes it and its Placement cell has the group label and the reason line.
+    const body = Array.from(priority.querySelectorAll("tbody tr"));
+    expect(body.map((tr) => (tr.classList.contains("placement-group") ? "head" : tr.getAttribute("data-portfolio-row")?.slice(0, 8)))).toEqual([
+      "head",
+      "f2f2f2f2",
+      "head",
+      "f1f1f1f1",
+    ]);
+    const cold = priority.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-placement]") as HTMLElement;
+    expect(cold.getAttribute("data-portfolio-placement")).toBe("ACT_NOW");
+    expect(lines(cold)).toBe("Act now No end is recorded for this episode · No accepted Action; open the recommendation");
+    for (const cell of Array.from(priority.querySelectorAll("[data-portfolio-placement-reasons]"))) {
+      expect(text(cell)).not.toBe("");
+      expect(text(cell)).not.toMatch(/saving|saved/i);
+    }
+    expect(Array.from(priority.querySelectorAll("[data-portfolio-confidence]")).map((c) => c.getAttribute("data-portfolio-confidence"))).toEqual([
+      "SUPPORTED_SOURCE_COHERENT",
+      "SUPPORTED_SOURCE_COHERENT",
+    ]);
+    // R5.3: the policy text is reachable from the panel, closed by default.
+    const policy = priority.querySelector("[data-placement-policy]") as HTMLDetailsElement;
+    expect(policy.open).toBe(false);
+    expect(text(policy.querySelector("summary"))).toBe("How placement works");
+    expect(Array.from(policy.querySelectorAll("li")).map(text)).toEqual([
+      "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+      "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+      "Monitor (checked next): a change was applied or verified.",
+      "Compare value: the Finding has a priced cost exposure.",
+      "Unpriced risk: the Finding has no price basis.",
+    ]);
+    expect(text(policy.querySelector("p"))).toBe(
+      "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.",
+    );
+    expect(text(priority)).not.toMatch(/\bscore\b/i);
+  });
+
+  it("omitsTheCountWhenPlacementCountsAreNull", async () => {
+    const counts = { NEEDS_INVESTIGATION: null, ACT_NOW: null, COMPARE_VALUE: null, UNPRICED_RISK: null, MONITOR: null };
+    const base = portfolioBody();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, placement_counts: counts } }))));
+    await settledScreen();
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now"],
+      ["COMPARE_VALUE", "Compare value"],
+    ]);
+  });
+
+  it("showsAGroupSplitAcrossPagesOnce", async () => {
+    const extra = row({ finding_id: "f3f3f3f3-0000-4000-8000-000000000003", finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003" });
+    const pageTwo = portfolioBody({ rows: [extra], next_cursor: null, value_cards: [], objectives: [] });
+    const client = portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo));
+    renderAt(ENTRY, client);
+    await settledScreen();
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
+    });
+    await settledScreen();
+    expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
+    expect(groupHeads()).toEqual([
+      ["ACT_NOW", "Act now · 1"],
+      ["COMPARE_VALUE", "Compare value · 1"],
+    ]);
+  });
+});
+
+describe("CC-R2-Q1 placement and confidence words", () => {
+  const REASONS = [
+    "Evidence comes from mixed sources; check the source before acting",
+    "Evidence source is not resolved; check the source before acting",
+    "The latest assessment no longer confirms this Finding; check its basis",
+    "Cost is withheld because its basis is not current",
+    "No end is recorded for this episode",
+    "Returned after an earlier episode (Finding 1a2b3c4d)",
+    "Reopened after it had closed",
+    "No accepted Action; open the recommendation",
+    "Action accepted, not yet applied",
+    "Change applied; verification result pending",
+    "Earlier resolution withdrawn after new evidence",
+    "Priced cost exposure; compares with like lines in Financials",
+    "Priced cost exposure; no like line to compare with",
+    "Product temperature risk; no price basis",
+    "Backup start failure; no price basis",
+    "Charging service interruption; no price basis",
+    "No price basis for this Finding",
+    "Change verified on test data; watch for a return",
+    "Change applied; no verified result yet",
+    "No open signal",
+  ];
+  const CONFIDENCE: [string, string[]][] = [
+    ["SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"]],
+    ["LIMITED", ["Unconfirmed Finding", "Prepared example data source", "Cost basis withheld"]],
+    ["UNKNOWN", ["Supported Finding", "Mixed sources", "Site coverage incomplete; other Findings may be missing"]],
+    ["UNKNOWN", ["Unconfirmed Finding", "Source not resolved"]],
+  ];
+
+  it("everyPlacementAndConfidenceTextIsFreeOfGuardedWords", async () => {
+    const groups = ["NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "MONITOR"] as const;
+    const rows = CONFIDENCE.map(([confidence, reasons], i) =>
+      row({
+        finding_id: `f${i}f${i}f${i}f${i}-0000-4000-8000-00000000000${i}`,
+        finding_revision_id: `e${i}e${i}e${i}e${i}-0000-4000-8000-00000000000${i}`,
+        placement: {
+          policy_version: "estate-placement/1",
+          group: groups[i],
+          group_rank: i + 1,
+          reasons: REASONS.slice(i * 5, i * 5 + 5).map((t) => ({ code: `C${i}`, text: t })),
+        },
+        confidence,
+        confidence_reasons: reasons,
+      }),
+    );
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows, total_count: rows.length }))));
+    await settledScreen();
+    const priority = panel("Where management should act first");
+    expect(priority.querySelectorAll("[data-portfolio-row]")).toHaveLength(4);
+    const shown = text(priority);
+    for (const t of [...REASONS, ...CONFIDENCE.flatMap(([, r]) => r)]) expect(shown).toContain(t);
+    expect(forbiddenPhrases(priority.textContent ?? "")).toEqual([]);
   });
 });

@@ -47,14 +47,20 @@
 .estate-portfolio .portfolio-findings th{font-size:8px;padding:9px 7px;white-space:normal}
 .estate-portfolio .portfolio-findings td{padding:13px 7px;vertical-align:top;line-height:1.5;overflow-wrap:anywhere}
 .estate-portfolio .portfolio-findings th:nth-child(1){width:12%}
-.estate-portfolio .portfolio-findings th:nth-child(2){width:23%}
-.estate-portfolio .portfolio-findings th:nth-child(3){width:24%}
-.estate-portfolio .portfolio-findings th:nth-child(4){width:9%}
+.estate-portfolio .portfolio-findings th:nth-child(2){width:21%}
+.estate-portfolio .portfolio-findings th:nth-child(3){width:22%}
+.estate-portfolio .portfolio-findings th:nth-child(4){width:13%}
 .estate-portfolio .portfolio-findings th:nth-child(5){width:13%}
 .estate-portfolio .portfolio-findings th:nth-child(6){width:19%}
+.estate-portfolio .portfolio-findings td[data-portfolio-placement]{overflow-wrap:normal;word-break:normal}
 .estate-portfolio .portfolio-findings small{font-size:9px;display:block;line-height:1.5;margin-top:5px}
 .estate-portfolio .portfolio-findings .badge{font-size:9px;padding:3px 5px}
 .estate-portfolio .portfolio-findings .impact{font-size:11px;display:block}
+/* CC-R2 (R502): placement group headings inside the priority table and the policy disclosure. */
+.estate-portfolio .portfolio-findings tr.placement-group th{text-align:left;font-size:9px;padding:10px 7px 6px;background:#f3f2ee;letter-spacing:.02em}
+.estate-portfolio .placement-policy{margin-top:10px;font-size:10px;line-height:1.5}
+.estate-portfolio .placement-policy summary{cursor:pointer;font-weight:600}
+.estate-portfolio .placement-policy ul{margin:6px 0 4px;padding-left:18px}
 .estate-portfolio .portfolio-findings .impact.red{color:#a65347}
 .estate-portfolio .portfolio-findings .impact.amber{color:#9c741f}
 .estate-portfolio .portfolio-findings .impact.green{color:#237d69}

@@ -57,7 +57,8 @@ _ACTION_CURSOR_KEYS = (_FINDING_CURSOR_KEYS - {"lens", "state_filter"}) | {"kind
 # W3-03 closure 4 B1/B2: the Portfolio cursor is the Finding key set plus `kind`, with `state_filter` null, and the
 # five-part marker [episode_start_or_null, site_code_key, site_id, finding_id, finding_revision_id].
 _PORTFOLIO_CURSOR_KEYS = _FINDING_CURSOR_KEYS | {"kind"}
-_MARKER_KINDS = {"evidence": 3, "financials": 5, "portfolio": 5}
+#: CC-R2 (R5.4): the Portfolio marker leads with the placement `group_rank`; a five-part cursor is refused.
+_MARKER_KINDS = {"evidence": 3, "financials": 5, "portfolio": 6}
 
 
 class EstateRefusal(Exception):
@@ -237,9 +238,10 @@ def _marker_ok(kind: str, after: Any) -> bool:
             return False
         if kind == "evidence":
             return all(_nonempty(x) for x in after) and _uuid(after[1])
-        if kind == "portfolio":
-            return ((after[0] is None or _canonical_instant(after[0])) and _nonempty(after[1])
-                    and all(_uuid(x) for x in after[2:]))
+        if kind == "portfolio":  # CC-R2: [group_rank 1-5 (int, never bool), at|null, site_code_key, UUIDs...]
+            return (type(after[0]) is int and 1 <= after[0] <= 5
+                    and (after[1] is None or _canonical_instant(after[1])) and _nonempty(after[2])
+                    and all(_uuid(x) for x in after[3:]))
         return ((after[0] is None or _canonical_instant(after[0])) and all(_nonempty(x) for x in after[1:])
                 and _uuid(after[2]))
     if len(after) != 2 or not all(isinstance(x, str) for x in after):
@@ -345,12 +347,15 @@ def decode_portfolio_cursor(value: Any, key: bytes) -> dict[str, Any]:
 def cursor_after(payload: dict[str, Any]) -> tuple:
     """The ordered resume marker: `(at, row_id)` for Findings/Actions (unchanged); the stored string tuple for
     Evidence; `(window_start_or_None, site_code_key, site_id, category, line_key)` for Financials;
-    `(episode_start_or_None, site_code_key, site_id, finding_id, finding_revision_id)` for Portfolio."""
+    `(group_rank, episode_start_or_None, site_code_key, site_id, finding_id, finding_revision_id)` for Portfolio
+    (CC-R2)."""
     kind = payload.get("kind")
     after = payload["after"]
     if kind == "evidence":
         return tuple(after)
-    if kind in ("financials", "portfolio"):
+    if kind == "portfolio":
+        return (after[0], None if after[1] is None else _instant(after[1], "INVALID_CURSOR"), *after[2:])
+    if kind == "financials":
         return (None if after[0] is None else _instant(after[0], "INVALID_CURSOR"), *after[1:])
     return _instant(after[0], "INVALID_CURSOR"), after[1]
 
@@ -359,7 +364,9 @@ def cursor_marker(kind: str, after: tuple) -> list[Any]:
     """The wire form of a resume marker (inverse of `cursor_after`)."""
     if kind == "evidence":
         return [str(x) for x in after]
-    if kind in ("financials", "portfolio"):
+    if kind == "portfolio":  # CC-R2: the int group_rank stays an int on the wire
+        return [int(after[0]), token_time(after[1]), *(str(x) for x in after[2:])]
+    if kind == "financials":
         return [token_time(after[0]), *(str(x) for x in after[1:])]
     return [token_time(after[0]), after[1]]
 

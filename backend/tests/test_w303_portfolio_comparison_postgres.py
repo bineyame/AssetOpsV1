@@ -36,6 +36,7 @@ if URL:
 
     import pg_harness
     from assetops_backend.estate import portfolio
+    from assetops_backend.estate.money_invariants import double_count_violations
     from assetops_backend.estate.scope import wire_time
 
 UTC = timezone.utc
@@ -239,6 +240,7 @@ def test_operating_cost_first_match_wins_across_partitions(portfolio_fixture) ->
     view = Portfolio(fx.engine, fx.tenant_id)
     body = view.ok(**fx.window, limit=1)
     financial = fx.money().ok("financials", **fx.window, limit=100)
+    assert double_count_violations(body, financial) == []  # CC-R1 L1
     by_cat = _by_category(financial["rows"])
     (w1,) = by_cat[OPERATING_COST]
     parts = [g for g in financial["groups"] if g["category"] == OPERATING_COST and g["line_keys"]]
@@ -279,6 +281,7 @@ def test_ineligible_overlap_and_unknown_coverage_decline_total(portfolio_fixture
     view = Portfolio(fx.engine, fx.tenant_id)
     clean = view.ok(**fx.window, limit=100)
     financial = fx.money().ok("financials", **fx.window, limit=100)
+    assert double_count_violations(clean, financial) == []  # CC-R1 L1
     states = {g["category"]: g["state"] for g in financial["groups"] if g["line_keys"]}
     assert states[GROSS_TARIFF] == "COMPARABLE" and "INELIGIBLE" in states.values(), states
     assert clean["money"]["groups"] == financial["groups"] and clean["money"]["exclusions"] == financial["exclusions"]
@@ -291,6 +294,7 @@ def test_ineligible_overlap_and_unknown_coverage_decline_total(portfolio_fixture
     empty = add_empty_site(fx.engine, fx.site_ids["EV-LAB-001"], "W303-EMPTY-001")
     partial = view.ok(**fx.window, limit=100)
     financial = fx.money().ok("financials", **fx.window, limit=100)
+    assert double_count_violations(partial, financial) == []  # CC-R1 L1
     (tariff,) = [g for g in partial["money"]["groups"] if g["category"] == GROSS_TARIFF and g["line_keys"]]
     assert tariff["state"] == "UNKNOWN_COVERAGE" and tariff["amount"] is None
     assert "UNKNOWN_COVERAGE" in tariff["reason_codes"]

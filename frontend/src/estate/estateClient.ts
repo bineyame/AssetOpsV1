@@ -171,6 +171,16 @@ export interface EstatePortfolioCoverage {
   sites: EstateCoverageSite[];
 }
 
+/** CC-R2 (D5) placement groups, in the server's group order (`group_rank` = index + 1). */
+export type EstatePlacementGroup = "NEEDS_INVESTIGATION" | "ACT_NOW" | "COMPARE_VALUE" | "UNPRICED_RISK" | "MONITOR";
+
+export interface EstatePlacement {
+  policy_version: string;
+  group: EstatePlacementGroup;
+  group_rank: number;
+  reasons: { code: string; text: string }[];
+}
+
 export interface EstatePortfolioRow {
   site_id: string;
   site_code: string;
@@ -186,8 +196,11 @@ export interface EstatePortfolioRow {
   lifecycle: EstateLifecycle;
   lens_flags: ("COST" | "RISK" | "OPPORTUNITY")[];
   priority: string | null;
+  /** CC-R2 (D5): the server's placement group and reasons (policy `estate-placement/1`); never a score. */
+  placement: EstatePlacement;
+  /** CC-R2: always set on a Portfolio row (`SUPPORTED_SOURCE_COHERENT` | `LIMITED` | `UNKNOWN`). */
   confidence: string | null;
-  confidence_reasons: unknown[];
+  confidence_reasons: string[];
   consequence: EstateConsequence;
   action_id: string | null;
   action_title: string | null;
@@ -311,6 +324,8 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     verified_resolution_count: number | null;
     combined_value: null;
     combined_value_state: "NOT_COMPARABLE";
+    /** CC-R2: rows per placement group over every member (all lenses); null unless Finding coverage is known. */
+    placement_counts: Record<EstatePlacementGroup, number | null>;
   };
   value_cards: EstateValueCard[];
   objectives: EstateObjective[];

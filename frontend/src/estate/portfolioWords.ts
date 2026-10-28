@@ -19,7 +19,37 @@ export const PORTFOLIO_SUBTITLE = "Operating decisions across the estate: cost, 
 export const PORTFOLIO_PAGE_SIZE = 50;
 
 export const PRIORITY_PANEL = "Where management should act first";
-export const PRIORITY_SUBTITLE = "Selected Findings across accessible Sites; priority and confidence appear when assessed.";
+/**
+ * CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:133`) says "ranked by consequence and urgency"; groups are not a
+ * value ranking (the placement policy footer says so).
+ */
+export const PRIORITY_SUBTITLE =
+  "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.";
+/** CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:135`) says "Priority"; the column is now "Placement". */
+export const PRIORITY_BOTTOM_LINE = "Placement and confidence answer different questions.";
+/** CC-R2 (D5, build spec "CC-R2 Frontend"): placement group labels, in the server's group order. */
+export const PLACEMENT_GROUP_LABEL = {
+  NEEDS_INVESTIGATION: "Needs investigation first",
+  ACT_NOW: "Act now",
+  COMPARE_VALUE: "Compare value",
+  UNPRICED_RISK: "Unpriced risk",
+  MONITOR: "Monitor",
+} as const;
+export const PLACEMENT_CONFIDENCE_WORDS: Record<string, string> = {
+  SUPPORTED_SOURCE_COHERENT: "Supported, coherent source",
+  LIMITED: "Limited",
+  UNKNOWN: "Unknown",
+};
+export const PLACEMENT_POLICY_SUMMARY = "How placement works";
+export const PLACEMENT_POLICY_LINES = [
+  "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
+  "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
+  "Monitor (checked next): a change was applied or verified.",
+  "Compare value: the Finding has a priced cost exposure.",
+  "Unpriced risk: the Finding has no price basis.",
+] as const;
+export const PLACEMENT_POLICY_FOOTER =
+  "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.";
 export const OBJECTIVES_PANEL = "Objectives across the estate";
 export const OBJECTIVES_SUBTITLE = "Operating condition, not a composite health score";
 export const OBJECTIVES_FOOTNOTE =
@@ -157,4 +187,20 @@ export function exclusionLineLabel(lineKey: string, body: Pick<EstatePortfolioBo
   const line = body.selected_lines.find((l) => l.line_key === lineKey);
   if (line !== undefined && line.site_name.trim() !== "") return line.site_name;
   return LINE_DOMAIN_WORD[lineKey.split(":")[0]] ?? "Consequence line";
+}
+
+export const MECHANISM_NOT_RECORDED = "Mechanism not recorded";
+/**
+ * CC-R2-F3 ruling. MOCK DEVIATION: v69 `#/portfolio` shows instance text such as "Automatic start failed; cooling
+ * interrupted" and "30 min candidate; charging trade-off remains". The wire carries only the mechanism code, so these
+ * generic words drop the figures and effects the row does not carry. Null or any other code falls back.
+ */
+export const MECHANISM_WORDS: Record<string, string> = {
+  GENERATOR_SUPPORT_CANDIDATE: "Possible extended generator support",
+  COLD_EXCURSION: "Chamber temperature above policy",
+  COLD_START_FAILURE: "Automatic start failed",
+  EV_INTERRUPTION: "Charging session interrupted",
+};
+export function mechanismWords(code: string | null | undefined): string {
+  return (code != null && Object.prototype.hasOwnProperty.call(MECHANISM_WORDS, code) && MECHANISM_WORDS[code]) || MECHANISM_NOT_RECORDED;
 }

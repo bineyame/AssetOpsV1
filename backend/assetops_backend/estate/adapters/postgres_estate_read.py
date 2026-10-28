@@ -213,6 +213,17 @@ class EstateSnapshot:
             "SELECT id, created_at FROM finding_revision WHERE tenant_id = :t AND site_id = :s "
             "AND id = ANY(CAST(:ids AS uuid[]))"), {"t": t, "s": s, "ids": [str(x) for x in revision_ids]})}
 
+    def _with_mechanism(self, t: UUID, s: UUID, findings: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """CC-R2 (build spec Q-C8): one batched `finding.mechanism` read per window, added to each findings dict."""
+        if not findings:
+            return findings
+        mechanism = {str(r[0]).lower(): r[1] for r in self._c.execute(text(
+            "SELECT id, mechanism FROM finding WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(CAST(:ids AS uuid[]))"), {"t": t, "s": s, "ids": [f["finding_id"] for f in findings]})}
+        for f in findings:
+            f["mechanism"] = mechanism.get(str(f["finding_id"]).lower())
+        return findings
+
     def selected_windows(self, t: UUID, s: UUID, domain: str, from_: datetime, to: datetime,
                          evidence_cutoff: datetime, k: datetime) -> list[dict[str, Any]]:
         code = self._c.execute(text("SELECT site_code FROM site WHERE tenant_id = :t AND id = :s"),
@@ -267,7 +278,7 @@ class EstateSnapshot:
                 "assessment_revision_ids": _uuids(x.revision_id for x in selected.values()),
                 "evidence_ids": _uuids(e for x in selected.values() for e in x.evidence_ids),
                 "probe_fresh": None if latest is None else probe_fresh(latest, snap["hi"]),
-                "findings": findings}
+                "findings": self._with_mechanism(t, s, findings)}
 
     def _ev_window(self, t: UUID, s: UUID, snap: dict[str, Any], k: datetime) -> dict[str, Any]:
         ev = self._o.ev
@@ -305,7 +316,7 @@ class EstateSnapshot:
                 "selection_id": str(sel["revision_id"]),
                 "selected_at": self._selected_at(t, s, analytic, snap["lo"], snap["hi"], seq),
                 "assessment_revision_ids": _uuids([sel["revision_id"]]), "evidence_ids": _uuids(sel["evidence_ids"]),
-                "probe_fresh": None, "findings": findings}
+                "probe_fresh": None, "findings": self._with_mechanism(t, s, findings)}
 
     # --- Actions ----------------------------------------------------------------------------------------------
 

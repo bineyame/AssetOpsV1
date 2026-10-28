@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
 import {
@@ -49,7 +49,14 @@ import {
   PORTFOLIO_PATH,
   PORTFOLIO_SUBTITLE,
   PORTFOLIO_TITLE,
+  PLACEMENT_CONFIDENCE_WORDS,
+  PLACEMENT_GROUP_LABEL,
+  PLACEMENT_POLICY_FOOTER,
+  PLACEMENT_POLICY_LINES,
+  PLACEMENT_POLICY_SUMMARY,
+  PRIORITY_BOTTOM_LINE,
   PRIORITY_PANEL,
+  mechanismWords,
   PRIORITY_SUBTITLE,
   PROGRESS_PANEL,
   PROGRESS_REFERENCE,
@@ -190,7 +197,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           <strong>{row.title}</strong>
         )}
         <small>
-          Finding {row.site_code} · {row.finding_id} · {row.mechanism ?? "Mechanism not recorded"}
+          Finding {row.site_code} · {row.finding_id} · {mechanismWords(row.mechanism)}
         </small>
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>
@@ -201,12 +208,15 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <small>Basis not recorded</small>
         <small>{episode}</small>
       </td>
-      <td>
-        <span className="badge badge--neutral">{row.priority ?? "Not assessed"}</span>
+      <td data-portfolio-placement={row.placement.group}>
+        <strong>{PLACEMENT_GROUP_LABEL[row.placement.group]}</strong>
+        <small data-portfolio-placement-reasons>{row.placement.reasons.map((r) => r.text).join(" · ")}</small>
       </td>
-      <td>
-        <span className="badge badge--neutral">{row.confidence ?? "Not assessed"}</span>
-        <small>{row.confidence === null ? "No reviewed confidence measure" : row.confidence_reasons.join(", ")}</small>
+      <td data-portfolio-confidence={row.confidence ?? undefined}>
+        <span className="badge badge--neutral">
+          {row.confidence === null ? "Not assessed" : (PLACEMENT_CONFIDENCE_WORDS[row.confidence] ?? row.confidence)}
+        </span>
+        <small>{row.confidence === null ? "No reviewed confidence measure" : row.confidence_reasons.join(" · ")}</small>
       </td>
       <td>
         {row.action_id !== null && row.links.action !== null ? (
@@ -234,7 +244,33 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
   );
 }
 
-const TABLE_HEADS = ["Site", "Finding / operating mechanism", "Value / consequence", "Priority", "Confidence", "Action / next move"];
+const TABLE_HEADS = ["Site", "Finding / operating mechanism", "Value / consequence", "Placement", "Confidence", "Action / next move"];
+
+/** CC-R2: the loaded rows with one group heading before each group's first loaded row (once across pages). */
+function placementRows(
+  rows: EstatePortfolioRow[],
+  counts: EstatePortfolioBody["summary"]["placement_counts"],
+  siteState: Map<string, string>,
+) {
+  const out: ReactNode[] = [];
+  let group: string | null = null;
+  for (const row of rows) {
+    if (row.placement.group !== group) {
+      group = row.placement.group;
+      const count = counts?.[row.placement.group] ?? null;
+      out.push(
+        <tr key={`group|${group}`} className="placement-group" data-placement-group={group}>
+          <th colSpan={TABLE_HEADS.length} scope="colgroup">
+            {PLACEMENT_GROUP_LABEL[row.placement.group]}
+            {count === null ? "" : ` · ${count}`}
+          </th>
+        </tr>,
+      );
+    }
+    out.push(<FindingRow key={`${row.finding_id}|${row.finding_revision_id}`} row={row} siteState={siteState.get(row.site_id)} />);
+  }
+  return out;
+}
 
 function PriorityPanel({
   body,
@@ -254,7 +290,6 @@ function PriorityPanel({
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
   const incomplete = body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN";
   const count = body.total_count === null ? "Unknown" : String(body.total_count);
-  const both = rows.length > 0 && rows.every((r) => r.priority !== null && r.confidence !== null);
   return (
     <section className="panel priority-panel" aria-labelledby="portfolio-priority-heading" data-portfolio-panel="priority">
       <div className="panel-head">
@@ -301,13 +336,20 @@ function PriorityPanel({
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
-                <FindingRow key={`${row.finding_id}|${row.finding_revision_id}`} row={row} siteState={siteState.get(row.site_id)} />
-              ))
+              placementRows(rows, body.summary.placement_counts, siteState)
             )}
           </tbody>
         </DataTable>
       </div>
+      <details className="placement-policy" data-placement-policy>
+        <summary>{PLACEMENT_POLICY_SUMMARY}</summary>
+        <ul>
+          {PLACEMENT_POLICY_LINES.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+        <p>{PLACEMENT_POLICY_FOOTER}</p>
+      </details>
       {loadMore !== null ? (
         <p className="portfolio-more">
           <button type="button" className="v69-chip" onClick={loadMore}>
@@ -317,9 +359,7 @@ function PriorityPanel({
       ) : null}
       <div className="panel-bottom">
         <Link to={estateHref("/findings", window)}>Open all Findings →</Link>
-        <span>
-          {both ? "Priority and confidence answer different questions." : "Priority and confidence are not assessed for these records."}
-        </span>
+        {rows.length > 0 ? <span>{PRIORITY_BOTTOM_LINE}</span> : null}
       </div>
     </section>
   );

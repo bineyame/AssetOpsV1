@@ -26,11 +26,13 @@ from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
 from assetops_backend.estate.index import (
     LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, select_action_scope, select_finding_scope)
+from assetops_backend.estate.placement import GROUPS, place
 from assetops_backend.estate.scope import (
     SITE_TOKEN_ARRAYS, EstateRequest, resume_after, selection_token, wire_time)
 
 PORTFOLIO_SCHEMA = "estate-portfolio-1"
-PORTFOLIO_ORDER = ("episode_start desc nulls last, site_code_key asc, site_id asc, finding_id asc, "
+#: CC-R2 (R5.4): placement group first, then the existing most-recent-first order.
+PORTFOLIO_ORDER = ("group_rank asc, episode_start desc nulls last, site_code_key asc, site_id asc, finding_id asc, "
                    "finding_revision_id asc")
 #: Closure 1: only these selected lifecycle heads are current management work; the others stay in the token.
 MEMBERS = ("SUPPORTED", "UNCONFIRMED")
@@ -108,8 +110,10 @@ def money_units(domain: str, cov: dict[str, Any], lines: list[dict[str, Any]]) -
 # --- row projection ----------------------------------------------------------------------------------------------
 
 def order_key(row: dict[str, Any]) -> tuple:
+    """CC-R2: `(group_rank, at is None, -ts, *marker[2:])`; the marker is `(group_rank, at, site_code_key, site_id,
+    finding_id, finding_revision_id)`."""
     at = row["_at"]
-    return (at is None, 0.0 if at is None else -at.timestamp(), *row["_marker"][1:])
+    return (row["_marker"][0], at is None, 0.0 if at is None else -at.timestamp(), *row["_marker"][2:])
 
 
 class ActionSelectionError(RuntimeError):
@@ -145,17 +149,32 @@ def workflow_label(action: dict[str, Any] | None) -> str:
     return "No action yet"
 
 
-def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any]:
+def line_groups(lines: list[dict[str, Any]], groups: list[dict[str, Any]]) -> dict[str, str]:
+    """CC-R2 (Q-C7): each line's Finding revision -> the `state` of the money group whose `line_keys` hold that
+    line, from the same call's `compare()` groups (no query). A revision without a line is absent."""
+    state_of = {key: g["state"] for g in groups for key in g["line_keys"]}
+    out: dict[str, str] = {}
+    for line in lines:
+        frid = line.get("finding_revision_id")
+        if frid is not None and line["line_key"] in state_of:
+            out.setdefault(str(frid), state_of[line["line_key"]])
+    return out
+
+
+def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: dict[str, Any] | None = None,
+                  line_group: str | None = None) -> dict[str, Any]:
     site = r["_site"]
     code = quote(site["site_code"], safe="")
     fid, frid = r["finding_id"], r["finding_revision_id"]
     action = _action_for(r, actions)
+    placed = place(r, action, site_cov or {}, line_group)  # CC-R2: row facts only; `priority` stays null
     return {
         "site_id": r["site_id"], "site_code": r["site_code"], "site_name": r["site_name"], "domain": r["_domain"],
         "finding_id": fid, "finding_revision_id": frid, "finding_label": r["finding_label"], "title": r["title"],
         "mechanism": r["_mechanism"], "episode_start": r["episode_start"], "episode_end": wire_time(r["_episode_end"]),
         "lifecycle": r["lifecycle"], "lens_flags": r["lens_flags"], "priority": r["priority"],
-        "confidence": r["confidence"], "confidence_reasons": r["confidence_reasons"],
+        "placement": placed.wire(), "confidence": placed.confidence,
+        "confidence_reasons": list(placed.confidence_reasons),
         "consequence": r["consequence"],
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
@@ -171,7 +190,8 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
         "links": {"site": r["links"]["site"], "finding": r["links"]["finding"],
                   "action": None if action is None else
                   f"/sites/{code}/actions/{action['action_id']}?event_id={action['selected_event_id']}"},
-        "_at": r["_at"], "_marker": (r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
+        "_at": r["_at"],
+        "_marker": (placed.group_rank, r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
 
 
 # --- the token ---------------------------------------------------------------------------------------------------
@@ -497,7 +517,10 @@ class EstatePortfolioService(EstateEvidenceService):
         token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], req.lens, None,
                                 token_sites)
         after = self._fence(tenant_id, req, scope, token)
-        members = [portfolio_row(r, a_rows) for r in f_rows if r["lifecycle"] in MEMBERS]
+        cov_of = {str(site["site_id"]): cov for site, _, cov in f_sites}
+        group_of = line_groups(m_lines_all, groups)
+        members = [portfolio_row(r, a_rows, cov_of.get(r["site_id"]), group_of.get(str(r["finding_revision_id"])))
+                   for r in f_rows if r["lifecycle"] in MEMBERS]
         shown = members if req.lens == "all" else [r for r in members if LENS_FLAG[req.lens] in r["lens_flags"]]
         shown.sort(key=order_key)
         start = 0 if after is None else resume_after([r["_marker"] for r in shown], after)
@@ -522,7 +545,10 @@ class EstatePortfolioService(EstateEvidenceService):
             "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,
             "accepted_action_count": len(a_rows) if actions_complete else None,
             "verified_resolution_count": prog["verified_resolution_count"],
-            "combined_value": None, "combined_value_state": "NOT_COMPARABLE"}
+            "combined_value": None, "combined_value_state": "NOT_COMPARABLE",
+            # CC-R2: over `members` (all lenses, like `finding_count`); all five keys; null unless F is known.
+            "placement_counts": {g: (sum(1 for r in members if r["placement"]["group"] == g) if finding_known else None)
+                                 for g in GROUPS}}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
         site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])

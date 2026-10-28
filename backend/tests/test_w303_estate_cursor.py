@@ -40,8 +40,11 @@ FR = "30000000-0000-4000-8000-000000000002"
 READ_AT = datetime(2026, 10, 8, tzinfo=timezone.utc)
 D0, D1 = datetime(2026, 10, 1, tzinfo=timezone.utc), datetime(2026, 10, 8, tzinfo=timezone.utc)
 WIN = [("from", "2026-10-01T00:00:00Z"), ("to", "2026-10-08T00:00:00Z")]
-MARK = (datetime(2026, 10, 6, 4, tzinfo=timezone.utc), "kobo-001", str(S), F, FR)
-NULL_MARK = (None, *MARK[1:])
+# CC-R2 (R5.4): the six-part Portfolio marker `(group_rank, at|None, site_code_key, site_id, finding_id, revision)`;
+# these fixtures were five-part before CC-R2 and are rewritten by design.
+MARK = (2, datetime(2026, 10, 6, 4, tzinfo=timezone.utc), "kobo-001", str(S), F, FR)
+NULL_MARK = (2, None, *MARK[2:])
+FIVE_PART = ["2026-10-06T04:00:00.000000Z", "kobo-001", str(S), F, FR]  # the pre-CC-R2 wire form
 
 
 class Snap:
@@ -97,7 +100,7 @@ def test_portfolio_parser_validates_lens_and_forbids_state() -> None:
     _refused("INVALID_LIMIT", parse_request, "portfolio", WIN + [("limit", "0")])
 
 
-def test_five_part_marker_round_trips_with_null_first_member() -> None:
+def test_six_part_marker_round_trips_with_null_instant() -> None:
     for marker in (MARK, NULL_MARK):
         token, cursor = _page_two(marker, lens="risks")
         payload = _payload(cursor)
@@ -112,11 +115,12 @@ def test_five_part_marker_round_trips_with_null_first_member() -> None:
         assert cursor_after(payload) == marker
         req, scope = _scope(cursor=cursor, lens="risks")
         assert EstateIndexService._fence(T, req, scope, token) == marker
-    assert _payload(_page_two(NULL_MARK)[1])["after"][0] is None
-    assert _payload(_page_two(MARK)[1])["after"][0] == "2026-10-06T04:00:00.000000Z"
+    assert _payload(_page_two(NULL_MARK)[1])["after"][:2] == [2, None]
+    assert _payload(_page_two(MARK)[1])["after"][:2] == [2, "2026-10-06T04:00:00.000000Z"]
     rows = [MARK, NULL_MARK]
     assert resume_after(rows, MARK) == 1
-    _refused("INVALID_CURSOR", resume_after, rows, (None, "kobo-001", str(S2), F, FR))  # valid nonmember: 422
+    _refused("INVALID_CURSOR", resume_after, rows, (2, None, "kobo-001", str(S2), F, FR))  # valid nonmember: 422
+    _refused("INVALID_CURSOR", resume_after, rows, (3, *MARK[1:]))  # same row facts, another group: 422
 
 
 def _mutated(marker, changes):
@@ -135,14 +139,21 @@ def _mutated(marker, changes):
     {"kind": ...}, {"kind": "findings"}, {"kind": "financials"}, {"page_one_mode": ...},
     {"page_one_mode": "current"}, {"state_filter": "SUPPORTED"}, {"state_filter": ...}, {"lens": ...},
     {"lens": "money"}, {"limit": 50}, {"v": 2},
-    {"after": ["2026-10-06T04:00:00.000000Z", "kobo-001"]},  # arity
-    {"after": [None, "kobo-001", str(S), F]},
-    {"after": [None, "kobo-001", str(S), F, FR, "x"]},
-    {"after": ["2026-10-06T04:00:00Z", "kobo-001", str(S), F, FR]},  # non-canonical instant
-    {"after": [None, "", str(S), F, FR]},  # empty site_code_key
-    {"after": [None, "kobo-001", "not-a-uuid", F, FR]},
-    {"after": [None, "kobo-001", str(S), "finding-1", FR]},
-    {"after": [None, "kobo-001", str(S), F, 7]},
+    {"after": [2, "2026-10-06T04:00:00.000000Z", "kobo-001"]},  # arity
+    {"after": FIVE_PART},  # CC-R2: the pre-CC-R2 five-part cursor is refused
+    {"after": [None, "kobo-001", str(S), F, FR]},  # five-part, null instant
+    {"after": [2, None, "kobo-001", str(S), F]},
+    {"after": [2, None, "kobo-001", str(S), F, FR, "x"]},
+    {"after": [True, None, "kobo-001", str(S), F, FR]},  # bool is not a group_rank
+    {"after": [0, None, "kobo-001", str(S), F, FR]},  # rank out of range
+    {"after": [6, None, "kobo-001", str(S), F, FR]},
+    {"after": ["2", None, "kobo-001", str(S), F, FR]},  # rank as a string
+    {"after": [2.0, None, "kobo-001", str(S), F, FR]},  # rank as a float
+    {"after": [2, "2026-10-06T04:00:00Z", "kobo-001", str(S), F, FR]},  # non-canonical instant
+    {"after": [2, None, "", str(S), F, FR]},  # empty site_code_key
+    {"after": [2, None, "kobo-001", "not-a-uuid", F, FR]},
+    {"after": [2, None, "kobo-001", str(S), "finding-1", FR]},
+    {"after": [2, None, "kobo-001", str(S), F, 7]},
     {"known_at": "2026-10-08T00:00:00Z"},  # non-canonical cutoff
     {"authorized_site_ids": [7]},
 ])

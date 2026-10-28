@@ -21,7 +21,7 @@ import {
   type ScenarioScope,
 } from "./miniDecisionsClient";
 import { ClaimLabel } from "./ClaimLabel";
-import { siteLocalDate,siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
+import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
 

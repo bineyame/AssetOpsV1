@@ -42,14 +42,21 @@ export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow 
     finding_revision_id: "e1e1e1e1-0000-4000-8000-000000000001",
     finding_label: "Extended generator support",
     title: "Extended generator support",
-    mechanism: null,
+    mechanism: "GENERATOR_SUPPORT_CANDIDATE",
     episode_start: "2026-10-06T14:20:00Z",
     episode_end: "2026-10-06T15:20:00Z",
     lifecycle: "SUPPORTED",
     lens_flags: ["COST"],
     priority: null,
-    confidence: null,
-    confidence_reasons: [],
+    // CC-R2: a server-placed row (a priced single line with a closed episode and no Action).
+    placement: {
+      policy_version: "estate-placement/1",
+      group: "COMPARE_VALUE",
+      group_rank: 3,
+      reasons: [{ code: "PRICED_SINGLE", text: "Priced cost exposure; no like line to compare with" }],
+    },
+    confidence: "SUPPORTED_SOURCE_COHERENT",
+    confidence_reasons: ["Supported Finding", "Prepared example data source"],
     consequence: {
       state: "PRICED",
       amount: null,
@@ -85,9 +92,21 @@ export const COLD_ROW = row({
   finding_revision_id: "e2e2e2e2-0000-4000-8000-000000000002",
   title: "Temperature excursion",
   finding_label: "Temperature excursion",
-  lens_flags: [],
+  // CC-R2: the W3-03 fixture's cold excursion: RISK lens, open episode, no Action, so ACT_NOW.
+  mechanism: "COLD_EXCURSION",
+  lens_flags: ["RISK"],
   episode_start: "2026-10-06T19:00:00Z",
-  episode_end: "2026-10-06T20:00:00Z",
+  episode_end: null,
+  placement: {
+    policy_version: "estate-placement/1",
+    group: "ACT_NOW",
+    group_rank: 2,
+    reasons: [
+      { code: "EPISODE_OPEN", text: "No end is recorded for this episode" },
+      { code: "NO_ACTION_RECORDED", text: "No accepted Action; open the recommendation" },
+    ],
+  },
+  confidence_reasons: ["Supported Finding", "Generated test data source"],
   consequence: { state: "UNPRICED", amount: null, amount_low: null, amount_high: null, currency: null, source_revision_id: "c2" },
   links: { site: "/sites/COLD-001", finding: null, action: null },
 });
@@ -144,6 +163,7 @@ export function portfolioBody(over: Partial<EstatePortfolioBody> = {}): EstatePo
       verified_resolution_count: 0,
       combined_value: null,
       combined_value_state: "NOT_COMPARABLE",
+      placement_counts: { NEEDS_INVESTIGATION: 0, ACT_NOW: 1, COMPARE_VALUE: 1, UNPRICED_RISK: 0, MONITOR: 0 },
     },
     value_cards: CLEAN_CARDS,
     objectives: SITES.map((s) => ({
