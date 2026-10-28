@@ -248,3 +248,10 @@ evaluation, so `action` is null, `expect` is null and `fake` is null.
 - **Limitation of the evidence.** It shows one group only, by ruling (Q6). The multi-group served Portfolio belongs
   to the demo sprint.
 
+
+## Fix round: re-review M1 (Placement label wrap)
+
+- Commit c469c09e: `estatePortfolio.css` column 4 widened 9% to 13% (cols 2/3 now 21%/22%); `td[data-portfolio-placement]` uses `overflow-wrap:normal;word-break:normal`.
+- Estate part recaptured (prepare, serve case estate, evidence mjs with PART=estate, drop). 20/20 claims passed at 1440 and 390, `noOverflow` passes at both. Evidence under `.agent/CC-R2-evidence/` refreshed (four app PNGs).
+- Read at 1440: "Needs / investigation first" wraps at word boundaries, no mid-word break. At 390 the Placement column sits inside the table's own scroller, off-screen in the shot, so the label there is not visually confirmed (same rule applies).
+- Frontend estate tests 65 passed, tsc clean; guards run plainly by the coordinator.
