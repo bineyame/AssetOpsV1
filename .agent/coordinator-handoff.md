@@ -22,7 +22,16 @@ CC-M (`task/CC-M-combined-schema`, worktree `AssetOpsV1-ccm`, migrations 0036 + 
 - Merge gate: full backend = parts 1–3 (3096 passed, 1 failed) plus part 4 run as two halves.
 - The part-1 failure was a missing gitignored `var/sites/mg-001.yaml`. The coordinator copied `var/sites/` into the worktree; the builder reruns that test alone.
 - Gate: total equals 4138 with 0 real failures. Then merge into main, merging main into the branch first.
-- Result: SEE `.agent/CC-M-review-packet.md` in that worktree (the builder updates it). If it is not recorded there, check before merging.
+- **Result (packet e7191a88): gate NOT met.** All 4138 ran: 4133 passed, 5 failed. Three of the failures pass alone: the `var/sites` test and two part-4a flakes.
+- **Two real failures, which are a CC-R2 regression already on main:** `backend/tests/test_w303_portfolio_scope_snapshot_postgres.py:155` and `test_w303_selectors_postgres.py:77`. Both still expect an empty `mechanism`, which CC-R2 now sets. CC-R2 was merged without a full suite.
+- **Next step:**
+  1. Confirm with the Architect that the tests are stale, not the code.
+  2. Run a Sonnet fix round on a branch from main, updating those two expectations.
+  3. Rerun the two files alone, and merge the fix.
+  4. Merge main into CC-M, rerun only the w303 Postgres files plus the CC-M schema test, then merge CC-M.
+  
+  The rest of the full suite stands, since the code is otherwise unchanged.
+- Timing for the review: part 4a took 6583 s and part 4b took 7772 s, with halved workers.
 
 ## State of the demo sprint (owner-approved two lanes; Architect = Claude subagent `assetops-architect`; Planner = Codex)
 Docs (only HTML now; owner removed the .md files): `Docs/demo-sprint/` holds `commercial-capability-readiness.html` (Commercial Capability Architecture), `telemetry-integration-plan-claude.html`, `telemetry-integration-plan.html` (Codex, older), `demo-data-strategy.html` (rev 4) and `long_running_proposal.html` (owner ACCEPTED 2026-10-28, `.agent/owner-long-running-accepted-2026-10-28.md`).
