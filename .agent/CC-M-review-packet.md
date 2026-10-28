@@ -74,7 +74,26 @@ because they exercise only the CHECK and the downgrade guard.
   35 min in. No test failure was recorded before the stop. The one `F` in the log comes right after `[gw0] node
   down: Not properly terminated`, which is the worker being killed. No JUnit file. Not restarted. Run DBs
   `assetops_ccm_pt7904a9a5_*` were dropped with `cleanup_run`. No pytest processes are left.
-- Not run yet: a completed full backend suite, frontend suite, typecheck, build.
+- Split run on the owner's go (revision `c348530f` = merge `f6090364` plus packet commits). `--collect-only -q`
+  collected **4138** tests in 252 files. The files were sorted and split into 4 disjoint parts by test count. Each
+  part ran alone with `-n 1 --dist loadfile --no-loadscope-reorder` and JUnit, and its run DBs were checked
+  before the next part.
+  | Part | Files | JUnit cases | Passed | Failed | Skipped | Wall |
+  |---|---|---|---|---|---|---|
+  | 1 | 34 | 1011 | 1010 | 1 | 0 | 382 s |
+  | 2 | 70 | 965 | 965 | 0 | 0 | 1643 s |
+  | 3 | 48 | 1121 | 1121 | 0 | 0 | 1419 s |
+  | 4 | 99 | not completed (expected 1041) | - | - | - | stopped |
+  Part 1's failure is `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation::test_the_shipped_
+  scenario_blocks_only_on_the_values_this_site_lacks`. Rerun alone it fails the same way, so it is not a flake:
+  `FileNotFoundError ... AssetOpsV1-ccmar\sites\mg-001.yaml`. The gitignored `var/` user store is missing from
+  this worktree; OPS-02 and W2-05a recorded the same precondition. It is unrelated to CC-M and was not fixed.
+  Part 4: the first attempt collected nothing (exit 5), because a byte-order-mark line in the split list duplicated a
+  part-1 file. That line was removed, leaving 251 unique files. The second attempt was stopped by Claude Code's
+  memory-pressure reaper at about 69%, with no test failure before the stop (the one `F` follows `[gw0] node down`).
+  It was not restarted. No pytest processes are left. Run DBs `assetops_ccm_pt1f78c249_{tpl,gw0}_test` remain.
+  Gate so far: 3097 of 4138 run (3096 passed, 1 failed, 0 skipped). Part 4 (1041 tests) still needs a run.
+- Not run yet: a completed part 4, frontend suite, typecheck, build.
 
 ## Known deviations
 
