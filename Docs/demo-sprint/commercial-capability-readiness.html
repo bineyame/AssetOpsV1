@@ -207,7 +207,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <div class="tw mid"><table>
 <tr><th>AssetOps is</th><th>AssetOps is not</th></tr>
 <tr><td>One decision-support system in which evidence, diagnosis, commercial models, alternatives, actions and verification share identities and feed each other</td><td>A set of dashboards, financial calculators and separate workflows</td></tr>
-<tr><td>A system that proposes and qualifies interventions; people decide and act</td><td>An autonomous controller or optimiser that writes to equipment (no OT write path is proposed; <a href="integration-pilot-baseline.md">integration baseline</a>)</td></tr>
+<tr><td>A system that proposes and qualifies interventions; people decide and act</td><td>An autonomous controller or optimiser that writes to equipment (no OT write path is proposed; every integration route is read-only, <a href="telemetry-integration-plan-claude.html#arch">telemetry integration plan §4</a>)</td></tr>
 <tr><td>A source of qualified commercial evidence, with each figure labelled by how far it has been proven</td><td>A P&amp;L, billing or ERP system, or a generator of realized-savings claims from simulation</td></tr>
 </table></div>
 
@@ -420,7 +420,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <div class="tw wide"><table>
 <tr><th>Reasoning kind</th><th>May</th><th>May never</th><th>Today</th></tr>
 <tr><td><b>Deterministic computation</b></td><td>Accept or reject evidence; compute assessments, episodes, money with exact arithmetic; decide eligibility, comparability and verdicts; set claim levels</td><td>Infer a value that its inputs cannot support (it returns UNKNOWN, WITHHELD or UNAVAILABLE instead)</td><td><span class="tag t-impl">IMPL</span> throughout; exact-or-refuse arithmetic, e.g. <code>actions/verification_rules.py:61</code> (<code>fmt</code>)</td></tr>
-<tr><td><b>Simulation</b></td><td>(a) Generate the demo's operating reality behind the evidence boundary. (b) Evaluate a declared what-if in a product scenario, labelled modelled</td><td>Be read by product analytics as truth; promote a paired-run difference to realized value</td><td><span class="tag t-impl">IMPL</span> private kernel world (<a href="simulation-evolution-assessment.md">simulation assessment</a>); product scenarios are declared calculations, not simulator calls</td></tr>
+<tr><td><b>Simulation</b></td><td>(a) Generate the demo's operating reality behind the evidence boundary. (b) Evaluate a declared what-if in a product scenario, labelled modelled</td><td>Be read by product analytics as truth; promote a paired-run difference to realized value</td><td><span class="tag t-impl">IMPL</span> private kernel world (<code>simulator/assetops_simulator/kernel/</code>); product scenarios are declared calculations, not simulator calls</td></tr>
 <tr><td><b>Optimisation</b></td><td>Enumerate or search feasible alternatives under declared constraints; rank them by a stated objective; show why each fails</td><td>Execute, or hide an infeasible option's reason, or optimise one outcome while breaching another's guardrail</td><td><span class="tag t-none">ABSENT</span> no solver in the repository (<a href="#appA">A</a>, F35). The simulator's own charger sharing (<code>simulator/assetops_simulator/packs/ev_charger.py:291</code>) is world physics, not a product decision</td></tr>
 <tr><td><b>AI-assisted reasoning</b></td><td>Explain a stored result in plain language; draft an investigation note; retrieve similar past cases; propose a vendor field mapping or alternative causes for a human to confirm</td><td>Compute or change an amount, set a claim level, write evidence, choose an intervention, or appear as the source of a number</td><td><span class="tag t-target">TARGET</span> none in code; every AI output would cite the deterministic records it explains</td></tr>
 </table></div>
@@ -1278,9 +1278,9 @@ details.wire summary{cursor:pointer;font-weight:650}
 <tr><td>R5</td><td>Cold lot review set (D4)</td><td>O3; CC-1, CC-4</td><td>P4 pattern</td><td>H1</td><td>M</td><td>5</td><td>D4</td></tr>
 <tr><td>R6</td><td>EV departure decision (D3)</td><td>O3, O2; EV-1, EV-2, EV-5</td><td>Allocation seed</td><td>H1</td><td>M to L</td><td>6</td><td>D3</td></tr>
 <tr><td>R7</td><td>Integration proofs A and B1</td><td>O6; all</td><td>All verticals</td><td>H1</td><td>per plan</td><td>parallel lane</td><td><a href="telemetry-integration-plan-claude.html">telemetry plan</a></td></tr>
-<tr><td>R8</td><td>Longitudinal histories with continuity</td><td>O2 to O4</td><td>All verticals</td><td>H1 to H2</td><td>M</td><td>7</td><td><a href="simulation-evolution-assessment.md">simulation</a></td></tr>
+<tr><td>R8</td><td>Longitudinal histories with continuity</td><td>O2 to O4</td><td>All verticals</td><td>H1 to H2</td><td>M</td><td>7</td><td><a href="demo-data-strategy.html">demo data strategy</a></td></tr>
 <tr><td>R9</td><td>EV and cold verifiers; cold and EV recurrence</td><td>O3, O6; EV-1, CC-6</td><td>Shared pattern</td><td>H2</td><td>M each</td><td>8</td><td>—</td></tr>
-<tr><td>R10</td><td>Business-record imports and real-source class</td><td>O1, O6; MG-6, EV-6, CC-2</td><td>All</td><td>H2</td><td>L</td><td>pilot gate</td><td><a href="integration-pilot-baseline.md">baseline</a></td></tr>
+<tr><td>R10</td><td>Business-record imports and real-source class</td><td>O1, O6; MG-6, EV-6, CC-2</td><td>All</td><td>H2</td><td>L</td><td>pilot gate</td><td><a href="telemetry-integration-plan-claude.html#gaps">telemetry plan §12</a></td></tr>
 <tr><td>R11</td><td>Stress cues; learning loop; AI explanation</td><td>O4, all</td><td>All</td><td>H2</td><td>M each</td><td>9</td><td>—</td></tr>
 <tr><td>R12</td><td>Resource and capital allocation</td><td>O5</td><td>All</td><td>H2 to H3</td><td>L</td><td>10</td><td>—</td></tr>
 </table></div>
@@ -1312,7 +1312,7 @@ details.wire summary{cursor:pointer;font-weight:650}
 <path class="ln" d="M155,75 L175,75" marker-end="url(#m105)"/><path class="ln" d="M320,75 L340,75" marker-end="url(#m105)"/><path class="ln" d="M485,75 L505,75" marker-end="url(#m105)"/><path class="ln" d="M650,75 L670,75" marker-end="url(#m105)"/><path class="ln" d="M815,75 L835,75" marker-end="url(#m105)"/>
 <text x="10" y="140" class="small">First pilot routes (unchanged): mini EMS or OEM read-only export; EV CSMS export plus fleet records; cold independent logger export. No OEM, protocol or date is committed.</text>
 </svg></div>
-<figcaption>Figure 10.2. Each step needs the gates in the <a href="integration-pilot-baseline.md">integration baseline</a>; none is skipped by a better demo.</figcaption>
+<figcaption>Figure 10.2. Each step needs the gates in the telemetry integration plan (<a href="telemetry-integration-plan-claude.html#claims">§10.0 readiness claim record</a> and <a href="telemetry-integration-plan-claude.html#gaps">§12 pilot-readiness gaps</a>); none is skipped by a better demo.</figcaption>
 </figure>
 </section>
 

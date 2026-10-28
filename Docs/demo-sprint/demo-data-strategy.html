@@ -150,6 +150,7 @@ details.q[open] summary{margin-bottom:6px}
 <h1>Demo Data Strategy</h1>
 <p class="lede">How AssetOps grounds its mini-grid, EV bus depot and cold-chain demo in real public data before any customer export exists, without ever presenting a modelled reading as a field observation.</p>
 <p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Authority: the owner's request, word for word in <code>.agent/owner-demo-data-strategy-2026-10-28.md</code>; brief <code>.agent/architect-request-demo-data-strategy.md</code>. This is a plan only. Nothing here is built, and nothing should be built until the plan is reviewed (owner §6).</p>
+<p class="meta"><b>Revision 2, 28 October 2026.</b> Applies the owner's answers to OD-1 to OD-8, word for word in <code>.agent/owner-answers-demo-data-2026-10-28.md</code>. The changes are summarised in the box "Owner decisions 2026-10-28" below and carried into §1.3, §3.4, §4.2, §5, §7, §8 and §10. References to the retired demo-sprint Markdown files were replaced by inline facts or by links to the HTML documents.</p>
 <p class="meta">Evidence marks: <span class="f f-fact">FACT</span> read on the source page, in its data dictionary or in a small sample (sample reads were made by research subagents into the scratchpad); <span class="f f-inf">INFERENCE</span> the Architect's judgement; <span class="f f-unv">UNVERIFIED</span> searched for and not confirmed. Code claims cite <code>file:line</code> at the branch head.</p>
 </header>
 
@@ -158,6 +159,22 @@ details.q[open] summary{margin-bottom:6px}
 <div class="callout ok">
 <b class="k">The recommendation in one paragraph</b>
 <p>Do not wait for a customer export. No public dataset contains a whole African mini-grid, bus depot or cold room, so the demo should be built on a <b>"real inputs, AssetOps physics, labelled origin"</b> pattern. Real public measurements supply the things nobody can invent credibly: solar resource, ambient temperature, measured load shapes, charging-session behaviour, duty cycles, door-event responses and published tariffs. The existing simulator packs, extended where needed, turn those inputs into physically consistent telemetry. That telemetry is published through the same gateway and ingestion path the product already uses, and every series carries an origin label. Raw public readings are also replayed through the merged CSV collector, the Modbus emulator and the BeagleBone. That proves the pipe takes real-world signal shapes, but it carries no money.</p>
+</div>
+
+<div class="callout warn" id="owner-2026-10-28">
+<b class="k">Owner decisions 2026-10-28</b>
+<div class="tw"><table>
+<thead><tr><th>Decision</th><th>Owner answer</th><th>What this revision does</th></tr></thead>
+<tbody>
+<tr><td>OD-1 demo standard</td><td>Yes</td><td>Adopted: real inputs, AssetOps physics, labelled origin.</td></tr>
+<tr><td>OD-2 labelling</td><td>"It is important to preserve proper source labels, it could share the money rules"</td><td><b>Changed.</b> Reference-grounded histories get their own label, <b>"Simulated with real public inputs"</b>, as a server-derived attribute of the existing positive class. Money terms are identical to <code>REGISTERED_SIMULATION</code> by construction, because the money gate never reads the attribute. No new class, no migration (§1.3, DD-12).</td></tr>
+<tr><td>OD-3 site naming</td><td>Yes</td><td>Place and type names, "reference" in the display name.</td></tr>
+<tr><td>OD-4 history length</td><td>"Current run limits should not impose unrealistic constraint… I don't see why a 90 should not work"</td><td><b>Changed to 91 days (13 weeks).</b> The run limit is restructured from minutes to a step budget, the offset limit stops being a one-week cap, and a measured memory and time probe comes first (new card DD-05a; §3.4, §4.2, §5.3). The 200-entry timeline limit stays: it was never the constraint.</td></tr>
+<tr><td>OD-5 licence posture</td><td>"For test and demo purposes, not production, consider reasonable license aspects in that context"</td><td><b>Relaxed.</b> Any publicly downloadable source may be used for test and demo with attribution. Raw files from sources without an open licence stay in a local, ignored cache; only open-licence excerpts and fitted statistics are committed; no raw restricted data is ever handed to a customer (§5.1, DD-01).</td></tr>
+<tr><td>OD-6 data lane</td><td>Yes</td><td>Lane D opens at the start of the next sprint.</td></tr>
+<tr><td>OD-7 restricted data requests</td><td>"I don't understand the goal here, why would sending a request unlock access?"</td><td><b>Withdrawn.</b> It would not, within the demo timeline. Those organisations are approached as pilot prospects, with data under a pilot agreement (§9), not as data donors.</td></tr>
+<tr><td>OD-8 EV focus</td><td>Buses first</td><td>Buses first; e-boda optional.</td></tr>
+</tbody></table></div>
 </div>
 
 <div class="grid">
@@ -169,11 +186,11 @@ details.q[open] summary{margin-bottom:6px}
 <h3>Six things this plan changes or establishes</h3>
 <ol>
 <li><b>One origin vocabulary.</b> Every series carries one of six origins: observed, derived, modelled, declared, synthetic or fault-injected (§1). The vocabulary lives in a dataset manifest, not in the product schema. It reaches the screen through the existing basis and claim-record copy.</li>
-<li><b>No new provenance class for the demo.</b> Reconstructed histories are published as <code>AUTHORED_DEMONSTRATION</code> under a fixture spec that names its reference basis, or as <code>REGISTERED_SIMULATION</code> where a single registered run can carry them. Both are honest: neither claims field reality. Raw replay through the field path gets no publication and reads <code>UNKNOWN</code>, as TEL-05 and TEL-06 already assert (§1.3, §7).</li>
-<li><b>Three engine extensions are on the critical path.</b> A series forcing input for the mini-grid pack, an ambient series for the cold pack and a many-session EV pack. They are needed because the current scenario contracts cannot carry 56 days of real inputs (§3.4, code facts in §11).</li>
-<li><b>56-day histories, not 90.</b> 56 days fits the run parser's 69-day ceiling (<code>runs/parsing.py:147</code>) and gives four baseline weeks plus four post-intervention weeks (§4).</li>
+<li><b>A distinct source label, no new money class.</b> Reconstructed histories are published as <code>REGISTERED_SIMULATION</code> where a single registered run can carry them, or as <code>AUTHORED_DEMONSTRATION</code> under a fixture spec that names its reference basis. When the run or fixture is pinned to a registered dataset pack, the server adds a reference-inputs attribute and the screen reads "Simulated with real public inputs" (owner OD-2). Money rules are those of the underlying class. Neither claims field reality. Raw replay through the field path gets no publication and reads <code>UNKNOWN</code>, as TEL-05 and TEL-06 already assert (§1.3, §7).</li>
+<li><b>Three engine extensions are on the critical path.</b> A series forcing input for the mini-grid pack, an ambient series for the cold pack and a many-session EV pack. They are needed because the current scenario contracts cannot carry 13 weeks of real inputs (§3.4, code facts in §11).</li>
+<li><b>91-day (13-week) histories.</b> The run limit becomes a step budget sized by measurement, and the offset limit no longer caps a scenario at one week (owner OD-4, card DD-05a). Seven baseline weeks, the first three free of injected faults, then six post-intervention weeks (§4).</li>
 <li><b>TEL-10 is re-timed, not cancelled.</b> It stays the only route to an R3 vendor claim and moves to the first pilot export. TEL-06 is reused unchanged with new profiles (§7).</li>
-<li><b>A sequenced backlog of 14 tasks (DD-00 to DD-13).</b> It starts in Lane T after TEL-07 and in Lane C after CC-D1, and does not touch either lane's open files (§8).</li>
+<li><b>A sequenced backlog of 15 tasks (DD-00 to DD-13, plus DD-05a).</b> It starts in Lane T after TEL-07 and in Lane C after CC-D1, and does not touch either lane's open files (§8).</li>
 </ol>
 
 <figure>
@@ -213,7 +230,7 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td><span class="o o-der">DERIVED</span></td><td>A deterministic, documented transform of observed values</td><td>Plane-of-array irradiance from horizontal irradiance; kW from PATH volts × amps; hourly means from 1-minute data</td><td>"Derived from &lt;source&gt; by &lt;transform&gt;"</td><td>That the transform is a measurement</td></tr>
 <tr><td><span class="o o-mod">MODELLED</span></td><td>Produced by an AssetOps physics pack from observed, derived and declared inputs</td><td>Battery SoC, generator runtime and fuel, cold-room air temperature, connector allocation</td><td>"Modelled from real inputs"; "simulated"</td><td>"Observed", "telemetry from the site"</td></tr>
 <tr><td><span class="o o-dec">DECLARED</span></td><td>An input a person states: ratings, prices, contracts, lots, rosters</td><td>KOBO-sized foundation (60 kWp, 200 kWh); EPRA tariff steps; lot values</td><td>"Declared demo input" with its source cited</td><td>That it is the customer's figure</td></tr>
-<tr><td><span class="o o-syn">SYNTHETIC</span></td><td>Resampled or generated statistically from a real distribution, with a fixed seed</td><td>56 days of bus arrivals drawn from ACN session statistics; day resampling of the 12-day Nairobi e-boda set</td><td>"Synthetic, calibrated to &lt;source&gt;"</td><td>That any single synthetic event happened</td></tr>
+<tr><td><span class="o o-syn">SYNTHETIC</span></td><td>Resampled or generated statistically from a real distribution, with a fixed seed</td><td>91 days of bus arrivals drawn from ACN session statistics; day resampling of the 12-day Nairobi e-boda set</td><td>"Synthetic, calibrated to &lt;source&gt;"</td><td>That any single synthetic event happened</td></tr>
 <tr><td><span class="o o-flt">FAULT-INJECTED</span></td><td>A declared intervention in the model, on a fixed schedule and seed</td><td>Reserve set point raised; connector fault latch; backup generator fails to start</td><td>"Injected fault in a simulated history"</td><td>"Incident", "observed failure", or any field rate</td></tr>
 </tbody></table></div>
 <p>Origins compose: a modelled series inherits the weakest origin of its inputs for its label. A temperature modelled from an observed ambient and an injected door fault is shown as modelled, with fault-injected as its cause. <span class="f f-inf">INFERENCE</span> This weakest-input rule is the same rule <code>field/assetops_field/profile.py:257-259</code> uses for profile status (<code>STATUS_INCONSISTENT</code>), so the team already knows the pattern.</p>
@@ -223,7 +240,7 @@ details.q[open] summary{margin-bottom:6px}
 <div class="tw"><table>
 <thead><tr><th>Claim level</th><th>Before this plan</th><th>After this plan</th></tr></thead>
 <tbody>
-<tr><td>1 MODELLED_OPPORTUNITY / 1b INVENTORY_REQUIRING_REVIEW</td><td>Authored or simulated windows of hours to two days, with invented inputs</td><td>56-day histories whose exogenous inputs are observed or derived, cited in the basis panel</td></tr>
+<tr><td>1 MODELLED_OPPORTUNITY / 1b INVENTORY_REQUIRING_REVIEW</td><td>Authored or simulated windows of hours to two days, with invented inputs</td><td>91-day histories whose exogenous inputs are observed or derived, cited in the basis panel and labelled "Simulated with real public inputs"</td></tr>
 <tr><td>2 EXPECTED_VALUE</td><td>Declared demo-tenant inputs</td><td>The same, with tariffs and consumption bands cited to AMDA 2024 and EPRA</td></tr>
 <tr><td>3 / 3a technical verification and post-intervention change</td><td>One narrow mini trial on authored windows</td><td>The same rules, on comparable windows that share real weather and real load shape</td></tr>
 <tr><td>4 Verified realized field value</td><td>"Unavailable in simulation"</td><td><b>Unchanged.</b> Nothing in this plan reaches level 4.</td></tr>
@@ -232,11 +249,23 @@ details.q[open] summary{margin-bottom:6px}
 
 <h3>1.3 Provenance: what a public dataset needs to be labelled honestly</h3>
 <p><span class="f f-fact">FACT</span> The resolver knows two positive classes, <code>AUTHORED_DEMONSTRATION</code> and <code>REGISTERED_SIMULATION</code> (<code>evidence/source_provenance.py:40-44</code>). Anything unbound is <code>UNKNOWN</code>, and a field-path batch has no publication (<code>.agent/telemetry-rulings-2026-10-27.md</code>, D1 and D5(d)). The field publisher refuses a gateway whose <code>source_mode</code> is not <code>SIMULATED</code> (<code>field/assetops_field/publish.py:18,43</code>). <b>There is no positive real-source class, and this plan does not need one for the demo.</b></p>
+<h4 id="ref-label">The "Simulated with real public inputs" label (owner OD-2)</h4>
+<p>The owner wants the source label kept precise and accepts that it may share the money rules. Two designs were weighed.</p>
+<div class="tw"><table>
+<thead><tr><th></th><th>A. Attribute of the existing class (recommended)</th><th>B. New positive class</th></tr></thead>
+<tbody>
+<tr><td>Mechanism</td><td>The provenance read block keeps <code>state</code> = <code>REGISTERED_SIMULATION</code> (or <code>AUTHORED_DEMONSTRATION</code>) and gains an optional, server-derived <code>reference_inputs</code> object: <code>{pack_id, pack_version, manifest_sha256, sources: [{id, title, origin}]}</code>. It is present only when the run's scenario pins a <code>forcing_series</code> whose dataset-pack manifest SHA-256 is in a server registry of reference packs (a sibling of <code>build_authored_fixture_specs</code>, <code>evidence/composition.py:31</code>), or when an authored fixture spec records such a SHA. Never free text, never client-supplied</td><td>A third member of <code>SOURCE_CLASSES</code> and <code>POSITIVE_STATES</code>, for example <code>REFERENCE_GROUNDED_SIMULATION</code></td></tr>
+<tr><td>Money</td><td>Identical by construction: <code>permits_current_money</code> reads only <code>state</code> (<code>provenance_read.py:27-32</code>)</td><td>Identical only if every gate is edited to list the new class</td></tr>
+<tr><td>Truth of the label</td><td>Proven: the manifest SHA is inside the run identity digest, so the label cannot outlive a change of inputs</td><td>Asserted at publication time</td></tr>
+<tr><td>Change surface</td><td>One read derivation, one registry, the label copy in <code>sourceProvenance.tsx</code>. No migration, no CHECK change, existing audit captures unaffected (only reference sites carry the attribute)</td><td>Three CHECK constraints (<code>0017_evidence_publication.py:67-76</code>, <code>0023_w2_cold_consequence.py:77</code>, <code>0026_w2_ev_money.py:62</code>), 38 non-test backend and frontend files that name the classes, the crossed-class rule, full suites and an audit recapture</td></tr>
+<tr><td>Cost</td><td>About 0.5 builder-day, added to DD-12</td><td><span class="f f-inf">INF</span> 3 to 4 builder-days plus recapture</td></tr>
+</tbody></table></div>
+<p><b>Decision: A.</b> It gives the owner the distinct label at a sixth of the cost and makes the label harder to fake. If reference histories ever need different money terms, the attribute is the seam from which a class can be promoted. Raw replay through the field path (Track P) does not get this label's money terms: it reads "Real public data, replayed through the field path" with money withheld, because a field-path batch has no run identity to pin.</p>
 <div class="tw"><table>
 <thead><tr><th>Route</th><th>Class it resolves to</th><th>Why it is honest</th><th>Money</th></tr></thead>
 <tbody>
-<tr><td>Track R, single registered run (cold now; mini and EV after DD-05 and DD-07)</td><td><code>REGISTERED_SIMULATION</code></td><td>It is a simulation. Its real inputs are part of the scenario, so the run identity digest covers them.</td><td>Levels 1 to 3</td></tr>
-<tr><td>Track R, producer-built history (the fallback while the packs are extended)</td><td><code>AUTHORED_DEMONSTRATION</code>, fixture spec <code>ref-&lt;site&gt;-&lt;window&gt;</code> plus a version, registered in <code>evidence/composition.py:build_authored_fixture_specs</code></td><td>AssetOps authored it. The spec records the dataset-pack manifest SHA-256, so "inputs from" can be cited.</td><td>Levels 1 to 3</td></tr>
+<tr><td>Track R, single registered run (cold now; mini and EV after DD-05 and DD-07)</td><td><code>REGISTERED_SIMULATION</code> with <code>reference_inputs</code>; label "Simulated with real public inputs"</td><td>It is a simulation. Its real inputs are part of the scenario, so the run identity digest covers them.</td><td>Levels 1 to 3</td></tr>
+<tr><td>Track R, producer-built history (the fallback while the packs are extended)</td><td><code>AUTHORED_DEMONSTRATION</code>, fixture spec <code>ref-&lt;site&gt;-&lt;window&gt;</code> plus a version, registered in <code>evidence/composition.py:build_authored_fixture_specs</code>, with <code>reference_inputs</code> from the spec</td><td>AssetOps authored it. The spec records the dataset-pack manifest SHA-256, so "inputs from" can be cited.</td><td>Levels 1 to 3</td></tr>
 <tr><td>Track P, raw replay through CSV collector, emulator or BeagleBone</td><td><code>UNKNOWN</code> / <code>NO_POSITIVE_BINDING</code></td><td>Unchanged from TEL-05 and TEL-06: the field path never receives a publication.</td><td>Withheld by design</td></tr>
 <tr><td>Pilot export from a customer (TEL-10)</td><td>A real-source class, after a contract ruling (R5, TEL-09)</td><td>Only a genuine customer source may ever be called real.</td><td>Level 4 becomes possible</td></tr>
 </tbody></table></div>
@@ -259,8 +288,8 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>M7</td><td>Ndoro village load (Mozambique, Zenodo)<br><a href="https://zenodo.org/records/7681579">zenodo.org/records/7681579</a></td><td>CC-BY-4.0</td><td>24 MB xlsx</td><td>Hourly; RAMP-modelled from 2019-20 field campaigns, 69 users</td><td><span class="f f-fact">FACT</span> description</td><td>Medium</td><td>Alternative to M3 (modelled)</td></tr>
 <tr><td>M8</td><td>AMDA Benchmarking Africa's Minigrids 2024<br><a href="https://www.africamda.org/wp-content/uploads/2025/04/Benchmarking-Africas-Minigrids-Report-2024-Online-version.pdf">africamda.org (PDF)</a></td><td><span class="f f-unv">NOT STATED</span></td><td>PDF, aggregate only</td><td>19 countries</td><td><span class="f f-fact">FACT</span> 16.6 kWh/user/month (residential &lt;7, commercial &gt;26); tariff $0.40 / $0.38 E&amp;S Africa, $0.25 W&amp;C; ARPU $2.5 / $5.2; uptime 88%; hybrid energy cost $0.30-0.50/kWh</td><td>High</td><td><b>Selected.</b> Calibration bands and declared tariffs, cited</td></tr>
 <tr><td>M9</td><td>NREL PVDAQ (OEDI)<br><a href="https://data.openei.org/submissions/4568">data.openei.org/submissions/4568</a></td><td>CC-BY-4.0</td><td>S3, 512 GB total</td><td>US systems only, typically 15-min</td><td><span class="f f-fact">FACT</span> long table <code>system_id, measured_on, metric_id, value</code></td><td>High</td><td>Rejected for Africa. Optional noise template only</td></tr>
-<tr><td>M10</td><td>Renewvia African mini-grid data</td><td>—</td><td>Restricted</td><td>Press: Kalobeyei 60 kWp, Niger Delta 67.3 kW / 180 kWh</td><td><span class="f f-unv">UNVERIFIED</span> no access page found; a related survey paper is arXiv 2401.02445</td><td>Low</td><td>Not critical path. Site sizes inform §4. Outreach is decision OD-7</td></tr>
-<tr><td>M11</td><td>CrossBoundary / E4I Mini-Grid Innovation Lab</td><td>—</td><td>Restricted</td><td>62 sites, 12 developers, 2017-2019</td><td><span class="f f-fact">FACT</span> existence (E4I report)</td><td>High</td><td>Not critical path. Outreach target</td></tr>
+<tr><td>M10</td><td>Renewvia African mini-grid data</td><td>—</td><td>Restricted</td><td>Press: Kalobeyei 60 kWp, Niger Delta 67.3 kW / 180 kWh</td><td><span class="f f-unv">UNVERIFIED</span> no access page found; a related survey paper is arXiv 2401.02445</td><td>Low</td><td>Not critical path. Site sizes inform §4. No data request (OD-7 withdrawn 2026-10-28); a pilot prospect, see §9</td></tr>
+<tr><td>M11</td><td>CrossBoundary / E4I Mini-Grid Innovation Lab</td><td>—</td><td>Restricted</td><td>62 sites, 12 developers, 2017-2019</td><td><span class="f f-fact">FACT</span> existence (E4I report)</td><td>High</td><td>Not critical path. Public aggregate reports only; raw site data is held under developer agreements (OD-7)</td></tr>
 <tr><td>M12</td><td>Uganda PV-battery mini-grid (Mendeley) p8m7bbnvb6; BBOXX SHS batteries (Oxford)</td><td>— ; CC-BY-NC-4.0</td><td>Download</td><td>Simulated; solar home systems</td><td>Not opened / not pulled</td><td>Low</td><td>Rejected: simulated, and a non-commercial licence</td></tr>
 </tbody></table></div>
 
@@ -344,14 +373,15 @@ details.q[open] summary{margin-bottom:6px}
 <h3 id="engine-gaps">3.4 What the engines cannot carry today</h3>
 <p>These code facts decide the shape of the backlog. Each was read at the branch head.</p>
 <div class="tw"><table>
-<thead><tr><th>Limit</th><th>Evidence</th><th>Effect on a 56-day real-input history</th><th>Fix in backlog</th></tr></thead>
+<thead><tr><th>Limit</th><th>Evidence</th><th>Effect on a 91-day real-input history</th><th>Fix in backlog</th></tr></thead>
 <tbody>
-<tr><td>A generic scenario has at most 200 timeline entries, each offset at most 10,000 minutes</td><td><code>scenarios/parsing.py:274,291</code></td><td>Hourly irradiance plus three loads for 56 days is about 5,400 entries over 80,640 minutes. It cannot be written as scenario forcings</td><td>DD-05 series forcing</td></tr>
-<tr><td>The shipped Kobo forcing window ends early</td><td><code>simulation-evolution-assessment.md</code>: a two-day run stopped after 95 steps with <code>FORCING_NOT_AVAILABLE</code></td><td>Mini-grid runs cannot exceed the forcing they are given</td><td>DD-05</td></tr>
+<tr><td>A generic scenario has at most 200 timeline entries</td><td><code>scenarios/parsing.py:274,609</code></td><td>Hourly irradiance plus three loads for 91 days is about 8,700 values. They cannot be written as timeline entries, and should not be: the limit keeps a scenario's timeline readable on screen and its document bounded. <b>Kept.</b> The series travels as one pinned reference, and 13 weeks of faults and interventions need about ten entries</td><td>DD-05 series forcing (one entry)</td></tr>
+<tr><td>Every timeline entry starts, and every window ends, within 10,000 minutes (one week)</td><td><code>scenarios/parsing.py:291,665,1509-1519</code>; the comment calls a later offset "a typo rather than an intention"</td><td>A fault on day 29 is at 40,320 minutes. <b>Revision 1 missed this: even the 56-day plan could not place its faults.</b> The guard protects against typos; on long histories it blocks real intentions</td><td>DD-05a: the offset ceiling follows the run interval ceiling, and the typo guard moves to run creation (an entry outside the run's interval is refused)</td></tr>
+<tr><td>The shipped Kobo forcing window ends early</td><td><code>packs/minigrid.py:517</code>, <code>kernel/execute.py:796</code>: a run past the end of its forcing stops with <code>FORCING_NOT_AVAILABLE</code>. A two-day <code>kobo-mini-grid-prolonged</code> run at 5-minute steps stopped after 95 steps (475 minutes) for this reason</td><td>Mini-grid runs cannot exceed the forcing they are given</td><td>DD-05</td></tr>
 <tr><td>The cold pack and scenario take one constant ambient</td><td><code>scenarios/cold_parsing.py:29,86</code>; <code>packs/cold.py:177,213</code></td><td>No diurnal ambient, so no realistic day/night compressor duty</td><td>DD-06 <code>cold-thermal/2</code></td></tr>
 <tr><td>The EV scenario window is fixed to one hour, with at most two plug-ins</td><td><code>scenarios/ev_parsing.py:32,188-189,213-214</code>; <code>packs/ev_charger.py:44,211</code></td><td>No multi-day depot history is possible</td><td>DD-07 <code>ev-charger/2</code></td></tr>
 <tr><td>Several runs never form one coherent source</td><td><code>source_provenance.py</code>, <code>MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS</code></td><td>Day-by-day segments would read <code>MIXED</code> and lose money</td><td>One run per history (or one authored fixture)</td></tr>
-<tr><td>A run is at most 100,000 minutes</td><td><code>runs/parsing.py:147</code></td><td>56 days (80,640 min) fits; 90 days does not</td><td>OD-4</td></tr>
+<tr><td>A run is at most 100,000 minutes</td><td><code>runs/parsing.py:142-147,427-431</code>; the comment says it exists "so a request cannot ask for a run nothing could walk"</td><td>91 days is 131,040 minutes and is refused. The guard protects the worker from a run too long or too large to finish, but it counts minutes, while cost follows steps and outputs: a 91-day mini run at 5-minute steps is 26,208 steps, a quarter of the 1-minute, 100,000-step run already allowed</td><td>DD-05a: a step budget replaces the minute cap as the cost guard</td></tr>
 <tr><td>Sites have no location</td><td>No latitude or zone field found; displays are UTC (<code>actions/site_index.py:35</code>)</td><td>Real weather must be tied to a declared point</td><td>Location lives in the dataset manifest (DD-02), not the schema</td></tr>
 <tr><td>The CSV collector carries interval signals only, and never resamples</td><td><code>field/assetops_field/export_csv.py:1-22</code>; build spec TEL-06-Q1</td><td>SoC (a state signal) cannot be replayed by CSV; spans must match exactly</td><td>DD-11 prepares span-exact files</td></tr>
 </tbody></table></div>
@@ -370,35 +400,35 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>5 (optional)</td><td>EV-C Nairobi e-boda hub</td><td>Low for the current commercial model (EV is framed as bus)</td><td>High for duty (E5 is African)</td><td>Pilot conversations with two-wheeler operators</td><td>DD-07</td></tr>
 </tbody></table></div>
 
-<h3>4.2 One shared 56-day shape</h3>
-<p>Every history runs 56 days: <b>2026-08-31T00:00Z to 2026-10-26T00:00Z</b>, Monday to Monday. Weeks 1 to 4 are the baseline, with injected faults. Day 29 (2026-09-28) is the declared intervention. Weeks 5 to 8 are the later period. The real inputs come from the same calendar weeks one year earlier, shifted by exactly 364 days, which keeps the weekday and nearly the season (PATH Senegal data, from 2019, is shifted by a whole number of weeks as well). The shift is written in the manifest and in every claim record. It is never hidden.</p>
+<h3>4.2 One shared 13-week shape</h3>
+<p>Every history runs 91 days (owner OD-4): <b>2026-07-27T00:00Z to 2026-10-26T00:00Z</b>, Monday to Monday. Weeks 1 to 7 are the baseline. Weeks 1 to 3 carry no injected fault, which gives every site a clean reference period; faults start in week 5. Day 50 (2026-09-14) is the declared intervention. Weeks 8 to 13 are the later period. Every fault and intervention keeps its position relative to the intervention from revision 1, moved 21 days later. The real inputs come from the same calendar weeks one year earlier, shifted by exactly 364 days, which keeps the weekday and nearly the season (PATH Senegal data, from 2019, is shifted by a whole number of weeks as well). The shift is written in the manifest and in every claim record. It is never hidden.</p>
 <figure>
 <div class="scroll">
 <svg class="fig" viewBox="0 0 1000 330" role="img" aria-labelledby="f1t">
-<title id="f1t">Fifty-six-day timelines for the four reference sites with baseline, intervention and later phases and fault markers.</title>
-<rect class="fill-none" x="190" y="30" width="400" height="260" opacity=".55"/>
-<text class="lane" x="196" y="22">BASELINE · WEEKS 1-4</text><text class="lane" x="600" y="22">LATER · WEEKS 5-8</text>
-<path class="ln d" d="M590 28V292"/><text class="tm" x="596" y="40">day 29 intervention</text>
-<g class="tm"><text x="186" y="322">31 Aug</text><text x="378" y="322">14 Sep</text><text x="576" y="322">28 Sep</text><text x="770" y="322">12 Oct</text><text x="950" y="322">26 Oct</text></g>
+<title id="f1t">Ninety-one-day timelines for the four reference sites with baseline, intervention and later phases and fault markers.</title>
+<rect class="fill-none" x="190" y="30" width="431" height="260" opacity=".55"/>
+<text class="lane" x="196" y="22">BASELINE · WEEKS 1-7</text><text class="lane" x="630" y="22">LATER · WEEKS 8-13</text>
+<path class="ln d" d="M621 28V292"/><text class="tm" x="627" y="40">day 50 intervention</text>
+<g class="tm"><text x="186" y="322">27 Jul</text><text x="371" y="322">17 Aug</text><text x="603" y="322">14 Sep</text><text x="849" y="322">12 Oct</text><text x="950" y="322">26 Oct</text></g>
 <text class="t tb" x="10" y="64">MG-REF-TK1</text><text class="tm" x="10" y="80">Turkana hybrid</text>
-<rect class="fill-obs" x="190" y="52" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="48">real irradiance and ambient (NASA POWER) all 56 days</text>
-<rect class="fill-flt" x="290" y="70" width="300" height="12" rx="3"/><text class="tm ts" x="294" y="94">F-MG1 reserve raised 30% → 45% (day 8)</text>
-<rect class="fill-flt" x="190" y="100" width="400" height="8" rx="3"/><text class="tm ts" x="600" y="108">mill moved to 10:00-14:00 and reserve restored (proposals)</text>
+<rect class="fill-obs" x="190" y="52" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="48">real irradiance and ambient (NASA POWER) all 91 days</text>
+<rect class="fill-flt" x="436" y="70" width="185" height="12" rx="3"/><text class="tm ts" x="440" y="94">F-MG1 reserve 30% → 45% (day 29)</text>
+<rect class="fill-flt" x="190" y="100" width="431" height="8" rx="3"/><text class="tm ts" x="630" y="108">mill to 10:00-14:00, reserve restored</text>
 <text class="t tb" x="10" y="140">CC-REF-SN1</text><text class="tm" x="10" y="156">Senegal cold room</text>
-<rect class="fill-obs" x="190" y="128" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="124">real ambient (PATH Senegal) all 56 days</text>
-<circle class="c-flt" cx="420" cy="152" r="7"/><text class="tm ts" x="432" y="156">F-CC1 grid loss + backup fails (day 17)</text>
-<rect class="fill-flt" x="315" y="164" width="275" height="8" rx="3"/><text class="tm ts" x="600" y="172">F-CC3 condenser fouling, cleaned day 29</text>
-<circle class="c-syn" cx="740" cy="152" r="6"/><text class="tm ts" x="752" y="156">F-CC4 probe gap 3 h</text>
+<rect class="fill-obs" x="190" y="128" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="124">real ambient (PATH Senegal) all 91 days</text>
+<circle class="c-flt" cx="515" cy="152" r="7"/><text class="tm ts" x="527" y="156">F-CC1 grid loss, backup fails (day 38)</text>
+<rect class="fill-flt" x="454" y="164" width="167" height="8" rx="3"/><text class="tm ts" x="630" y="172">F-CC3 fouling, cleaned day 50</text>
+<circle class="c-syn" cx="753" cy="152" r="6"/><text class="tm ts" x="765" y="156">F-CC4 probe gap 3 h</text>
 <text class="t tb" x="10" y="208">EV-REF-NB1</text><text class="tm" x="10" y="224">Nairobi bus depot</text>
 <rect class="fill-syn" x="190" y="196" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="192">synthetic arrivals from ACN statistics; real EPRA tariff</text>
-<rect class="fill-flt" x="190" y="214" width="400" height="8" rx="3"/><text class="tm ts" x="600" y="222">F-EV2 charge-on-arrival → delayed start 22:00</text>
-<circle class="c-flt" cx="360" cy="236" r="6"/><circle class="c-flt" cx="820" cy="236" r="6"/><text class="tm ts" x="372" y="240">F-EV1 connector fault latch (days 13 and 45)</text>
+<rect class="fill-flt" x="190" y="214" width="431" height="8" rx="3"/><text class="tm ts" x="630" y="222">F-EV2 on arrival → delayed start 22:00</text>
+<circle class="c-flt" cx="480" cy="236" r="6"/><circle class="c-flt" cx="761" cy="236" r="6"/><text class="tm ts" x="492" y="240">F-EV1 fault latch (days 34, 66)</text>
 <text class="t tb" x="10" y="272">MG-REF-ND1</text><text class="tm" x="10" y="288">Niger Delta</text>
-<rect class="fill-obs" x="190" y="260" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="256">real rainy-season irradiance; no fault in weeks 1-2 (control)</text>
-<rect class="fill-flt" x="390" y="278" width="600" height="8" rx="3"/><text class="tm ts" x="600" y="298">F-MG4 usable capacity −20% from day 15</text>
+<rect class="fill-obs" x="190" y="260" width="800" height="12" rx="3"/><text class="tm ts" x="194" y="256">real rainy-season irradiance; no fault in weeks 1-5 (control)</text>
+<rect class="fill-flt" x="498" y="278" width="492" height="8" rx="3"/><text class="tm ts" x="630" y="298">F-MG4 usable capacity −20% from day 36</text>
 </svg>
 </div>
-<figcaption><b>Figure 1.</b> The shared 56-day frame. Teal bars are observed inputs, orange are synthetic, red are injected faults or declared interventions.</figcaption>
+<figcaption><b>Figure 1.</b> The shared 13-week frame. Teal bars are observed inputs, orange are synthetic, red are injected faults or declared interventions.</figcaption>
 </figure>
 
 <h3>4.3 Site specifications</h3>
@@ -408,9 +438,9 @@ details.q[open] summary{margin-bottom:6px}
 <dt>Assets <span class="o o-dec">DECLARED</span></dt><dd>The KOBO-001 foundation: 60 kWp PV, 50 kW inverter, 200 kWh battery with 30% reserve, 30 kW PCS at 95%, 40 kW generator at 0.3 L/kWh with 30-min minimum runtime, 400 L tank. Feeders: residential (about 450 households), clinic, mill plus water pump.</dd>
 <dt>Commercial model</dt><dd>PAYG tariff of $0.40/kWh (AMDA 2024, Eastern and Southern Africa). Diesel price from the existing steps. Beneficiary <code>MINI_OPERATOR</code>.</dd>
 <dt>Normal behaviour</dt><dd>Day-time PV surplus charges the battery; the evening peak is carried by the battery to reserve, then by the generator. Real cloudy days produce honest generator use.</dd>
-<dt>F-MG1 <span class="o o-flt">FAULT-INJECTED</span></dt><dd><b>Root cause:</b> the reserve set point is raised from 30% to 45% on day 8 (a declared operator change). <b>Impact:</b> evening generator starts while usable battery energy remains, measured as generator kWh and litres per week. <b>Counterfactual:</b> the same inputs at 30%. <b>Corrective action:</b> the existing reserve trial. This is the D2 / CC-D2 story on 56 days of real weather.</dd>
+<dt>F-MG1 <span class="o o-flt">FAULT-INJECTED</span></dt><dd><b>Root cause:</b> the reserve set point is raised from 30% to 45% on day 29 (a declared operator change). <b>Impact:</b> evening generator starts while usable battery energy remains, measured as generator kWh and litres per week. <b>Counterfactual:</b> the same inputs at 30%. <b>Corrective action:</b> the existing reserve trial. This is the D2 / CC-D2 story on 91 days of real weather.</dd>
 <dt>F-MG3 (inefficiency)</dt><dd><b>Root cause:</b> the mill runs 17:00-20:00 local, into the evening peak. <b>Impact:</b> generator kWh, and lost midday surplus (curtailment). <b>Counterfactual and action:</b> mill moved to 10:00-14:00, which is the D1 / CC-D1 productive-use contribution.</dd>
-<dt>Findings expected</dt><dd>Recurring generator-support episodes in weeks 2 to 4; none of that kind after day 29 on comparable days; curtailment headroom for the mill.</dd>
+<dt>Findings expected</dt><dd>Recurring generator-support episodes in weeks 5 to 7; none in the clean weeks 1 to 3; none of that kind after day 50 on comparable days; curtailment headroom for the mill.</dd>
 <dt>Overlap</dt><dd>F-MG1 and F-MG3 both reduce generator kWh. They form one overlap group: listed separately with the overlap stated, or one combined scenario on one basis (§6.4).</dd>
 </dl></details>
 
@@ -420,9 +450,9 @@ details.q[open] summary{margin-bottom:6px}
 <dt>Assets <span class="o o-dec">DECLARED</span></dt><dd>One chamber, one probe, one compressor, grid, backup generator and transfer switch, as <code>cold-thermal</code> models (<code>packs/cold.py:1-6</code>). Thermal capacity and heat leak start from the COLD-LAB-001 values and are scaled to a 20 m³ room in DD-01, with the scaling cited.</dd>
 <dt>Commercial model</dt><dd>Goods owners rent space; the provider sells cooling. Beneficiaries <code>GOODS_OWNER</code> (CC-1) and <code>COOLING_PROVIDER</code> (CC-3, CC-6 repairs).</dd>
 <dt>Normal behaviour</dt><dd>Market-hours door openings drawn from the PATH door rate; compressor duty follows the real ambient's day and night cycle (needs DD-06).</dd>
-<dt>F-CC1</dt><dd><b>Root cause:</b> grid loss at 14:10 on day 17, and the backup generator fails to start. <b>Impact:</b> degree-minutes above policy; lots in the room meet the review rule. <b>Counterfactual:</b> backup starts after its declared delay. <b>Action:</b> generator maintenance work order. Feeds D4 lots requiring review.</dd>
-<dt>F-CC3</dt><dd><b>Root cause:</b> cooling capacity falls 15% linearly from day 10 (condenser fouling). <b>Impact:</b> longer compressor duty, kWh per cooling day. <b>Action:</b> cleaning on day 29. Shown as a modelled change only, because no cold verification rule exists (<code>simulation-evolution-assessment.md</code>).</dd>
-<dt>F-CC4</dt><dd>A 3-hour probe gap on day 44. Expected: coverage below 0.8, so lot states read <code>UNKNOWN / COVERAGE_INCOMPLETE</code>, never "safe".</dd>
+<dt>F-CC1</dt><dd><b>Root cause:</b> grid loss at 14:10 on day 38, and the backup generator fails to start. <b>Impact:</b> degree-minutes above policy; lots in the room meet the review rule. <b>Counterfactual:</b> backup starts after its declared delay. <b>Action:</b> generator maintenance work order. Feeds D4 lots requiring review.</dd>
+<dt>F-CC3</dt><dd><b>Root cause:</b> cooling capacity falls 15% linearly from day 31 (condenser fouling). <b>Impact:</b> longer compressor duty, kWh per cooling day. <b>Action:</b> cleaning on day 50. Shown as a modelled change only, because no cold post-action verification rule exists (<code>actions/verification_rules.py</code> has none for cold).</dd>
+<dt>F-CC4</dt><dd>A 3-hour probe gap on day 65. Expected: coverage below 0.8, so lot states read <code>UNKNOWN / COVERAGE_INCOMPLETE</code>, never "safe".</dd>
 </dl></details>
 
 <details class="q"><summary>EV-REF-NB1 · Nairobi electric bus depot (rank 3)</summary>
@@ -431,8 +461,8 @@ details.q[open] summary{margin-bottom:6px}
 <dt>Assets <span class="o o-dec">DECLARED</span></dt><dd>Three 60 kW connectors under a 120 kW site import limit (needs DD-07; EV-LAB-001 has two connectors under 80 kW). Bus pack size and daily km declared, with public sources cited in DD-01.</dd>
 <dt>Commercial model</dt><dd>EPRA time-of-use tariff, KSh 16 peak and 8 off-peak per kWh. Beneficiary <code>FLEET_OPERATOR</code>.</dd>
 <dt>Normal behaviour</dt><dd>Returns 20:00-22:30 local; departures from 05:30. Arrival SoC from declared km × kWh/km drawn from the ZTBus distribution. Taper from KU Leuven curves.</dd>
-<dt>F-EV2</dt><dd><b>Root cause:</b> chargers start on arrival, in the peak band. <b>Impact:</b> energy cost per km. <b>Action:</b> delayed start at 22:00 from day 29. The D3 money is <code>EXPECTED_VALUE</code>.</dd>
-<dt>F-EV1</dt><dd>Connector 2 fault latch at 23:40 on days 13 and 45, cleared after 50 minutes. Expected: <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> gates and one bus short of its departure need under <code>SHARED</code> allocation, as the D3 fault case asserts.</dd>
+<dt>F-EV2</dt><dd><b>Root cause:</b> chargers start on arrival, in the peak band. <b>Impact:</b> energy cost per km. <b>Action:</b> delayed start at 22:00 from day 50. The D3 money is <code>EXPECTED_VALUE</code>.</dd>
+<dt>F-EV1</dt><dd>Connector 2 fault latch at 23:40 on days 34 and 66, cleared after 50 minutes. Expected: <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> gates and one bus short of its departure need under <code>SHARED</code> allocation, as the D3 fault case asserts.</dd>
 <dt>F-EV3</dt><dd>A bus left plugged after full until 04:30 blocks a late arrival on several nights. Impact: charger productivity (EV-3), drawn from the ACN idle-after-full distribution.</dd>
 <dt>Overlap</dt><dd>F-EV2 and priority allocation change the same kWh. One overlap group.</dd>
 </dl></details>
@@ -440,8 +470,8 @@ details.q[open] summary{margin-bottom:6px}
 <details class="q"><summary>MG-REF-ND1 · Niger Delta riverine mini-grid (rank 4)</summary>
 <dl class="kv">
 <dt>Context</dt><dd>Humid, rainy-season site in the Niger Delta. Sizing follows press figures for a 67.3 kW, 180 kWh site <span class="f f-fact">FACT</span> (press). Tariff $0.25/kWh (AMDA, Western and Central Africa).</dd>
-<dt>Control case</dt><dd>Weeks 1 and 2 have no injected fault. Generator use in them must be explained by low available PV (real rainy-season irradiance). <b>The demo must raise no reserve or dispatch Finding here.</b> This is the false-positive test investors will ask about.</dd>
-<dt>F-MG4</dt><dd>Usable battery capacity 20% below nameplate from day 15. Impact: earlier generator starts at the same SoC trajectory. MG-4 shows physical stress (depth and cycles); no capital money, because no cycle-cost source exists.</dd>
+<dt>Control case</dt><dd>Weeks 1 to 5 have no injected fault. Generator use in them must be explained by low available PV (real rainy-season irradiance). <b>The demo must raise no reserve or dispatch Finding here.</b> This is the false-positive test investors will ask about.</dd>
+<dt>F-MG4</dt><dd>Usable battery capacity 20% below nameplate from day 36. Impact: earlier generator starts at the same SoC trajectory. MG-4 shows physical stress (depth and cycles); no capital money, because no cycle-cost source exists.</dd>
 </dl></details>
 
 <h2 id="architecture">5 Unified data preparation and replay architecture</h2>
@@ -483,34 +513,43 @@ details.q[open] summary{margin-bottom:6px}
   "schema": {"id": "assetops.demo-data-pack", "version": 1},
   "pack_id": "mg-ref-tk1-inputs", "pack_version": 1, "site_code": "MG-REF-TK1",
   "location": {"lat": "3.7600", "lon": "34.6800", "basis": "declared reference point"},
-  "window": {"source_start": "2025-09-01T00:00:00Z", "source_end": "2025-10-27T00:00:00Z",
-             "shift_days": 364, "demo_start": "2026-08-31T00:00:00Z", "demo_end": "2026-10-26T00:00:00Z"},
+  "window": {"source_start": "2025-07-28T00:00:00Z", "source_end": "2025-10-27T00:00:00Z",
+             "shift_days": 364, "demo_start": "2026-07-27T00:00:00Z", "demo_end": "2026-10-26T00:00:00Z"},
   "sources": [{"id": "M1", "url": "https://power.larc.nasa.gov/api/temporal/hourly/point?...",
-               "licence": "…as read in DD-01…", "retrieved_at": "…", "raw_sha256": "…",
+               "licence": "…as read in DD-01…", "attribution": "…", "committed": true, "retrieved_at": "…", "raw_sha256": "…",
                "excerpt": "inputs/nasa-power-hourly.csv", "excerpt_sha256": "…"}],
   "signals": [{"target": "pv-array/plane-of-array-irradiance", "unit": "W/m2", "origin": "DERIVED",
                "inputs": ["M1:ALLSKY_SFC_SW_DWN"], "transform": "poa-isotropic/1",
                "cadence_seconds": 3600, "gaps": "NONE_IN_WINDOW"}],
-  "faults": [{"id": "F-MG1", "kind": "RESERVE_SETPOINT", "at": "2026-09-07T00:00:00Z",
+  "faults": [{"id": "F-MG1", "kind": "RESERVE_SETPOINT", "at": "2026-08-24T00:00:00Z",
               "value": "45", "unit": "%", "origin": "FAULT_INJECTED"}],
-  "interventions": [{"id": "I-MG1", "at": "2026-09-28T00:00:00Z", "kind": "RESERVE_SETPOINT", "value": "30"}],
-  "seed": 20260831,
+  "interventions": [{"id": "I-MG1", "at": "2026-09-14T00:00:00Z", "kind": "RESERVE_SETPOINT", "value": "30"}],
+  "seed": 20260727,
   "calibration": [{"check": "kwh-per-user-month", "band": ["5", "9"], "basis": "M8"}]
 }</code></pre>
-<p>The coordinates and licence fields above are placeholders; DD-01 fixes them. Sources that may not be redistributed (E1, E2 until confirmed, E7) never get an excerpt. Only the derived statistics the generator uses are committed, as quantiles with a citation. <span class="f f-inf">INFERENCE</span> Committing a handful of fitted parameters is not redistribution of the dataset; decision OD-5 confirms this posture.</p>
+<p>The coordinates and licence fields above are placeholders; DD-01 fixes them.</p>
+<div class="callout" id="licence"><b class="k">Licence posture for test and demo (owner OD-5, 2026-10-28)</b>
+<ul>
+<li><b>Use:</b> any publicly downloadable dataset may be used for internal tests and for demos, including sources with no formal licence (E1 Caltech ACN, E2 ZTBus, E7 Dundee), as long as its stated terms of use are followed.</li>
+<li><b>Attribution, always:</b> every source is named in the manifest (<code>attribution</code>) and in the screen's "inputs from" copy (DD-12), with the citation the publisher asks for (for ACN, Lee et al., e-Energy '19).</li>
+<li><b>What enters git:</b> excerpts of open sources (CC-BY, CC0, and public government data such as NASA POWER and PVGIS, terms read in DD-01) and the fitted statistics of every source. Raw files from sources without an open licence, or behind a registration, stay in a local cache under <code>.cache/demo-data/</code>, listed in <code>.gitignore</code> and refetched by script; the manifest records their SHA-256 with <code>"committed": false</code>.</li>
+<li><b>No redistribution to customers:</b> a demo shows charts, Findings and modelled results. It never hands a prospect a raw file from a restricted source, and a demo export of a reference site carries only modelled and derived values with their attribution.</li>
+<li><b>What remains a real constraint:</b> a source marked non-commercial (CC-BY-NC or similar) is not used, even as statistics, because a sales demo is commercial use; a registration token (ACN) is personal and never committed or shared; no operator is named (OD-3); and this posture ends at the first pilot or production use, when DD-01's terms notes are re-read against the actual use.</li>
+</ul></div>
 
 <h3>5.2 How each vertical runs</h3>
 <div class="tw"><table>
 <thead><tr><th>Vertical</th><th>Engine</th><th>Preferred provenance</th><th>Fallback if the engine task slips</th></tr></thead>
 <tbody>
-<tr><td>Mini-grid</td><td>Kobo model with a series forcing input (DD-05), one 56-day run, 5-minute physics step</td><td><code>REGISTERED_SIMULATION</code></td><td>A producer drives the Kobo laws offline and publishes an authored fixture (<code>AUTHORED_DEMONSTRATION</code>, spec <code>ref-mg-ref-tk1@1</code>). G1 must then show the same results as the registered path on the one window both can run</td></tr>
+<tr><td>Mini-grid</td><td>Kobo model with a series forcing input (DD-05), one 91-day run, 5-minute physics step</td><td><code>REGISTERED_SIMULATION</code></td><td>A producer drives the Kobo laws offline and publishes an authored fixture (<code>AUTHORED_DEMONSTRATION</code>, spec <code>ref-mg-ref-tk1@1</code>). G1 must then show the same results as the registered path on the one window both can run</td></tr>
 <tr><td>Cold</td><td><code>cold-thermal/2</code> with an hourly ambient forcing (DD-06), one-minute step, one run</td><td><code>REGISTERED_SIMULATION</code></td><td><code>cold-thermal/1</code> with a constant ambient equal to the window's mean daily maximum, declared as an approximation; available today</td></tr>
-<tr><td>EV</td><td><code>ev-charger/2</code>: N connectors, unbounded sessions, any window (DD-07)</td><td><code>REGISTERED_SIMULATION</code></td><td>None that is honest at 56 days. EV stays on the existing one-hour D3 windows until DD-07 lands</td></tr>
+<tr><td>EV</td><td><code>ev-charger/2</code>: N connectors, unbounded sessions, any window (DD-07)</td><td><code>REGISTERED_SIMULATION</code></td><td>None that is honest at 91 days. EV stays on the existing one-hour D3 windows until DD-07 lands</td></tr>
 </tbody></table></div>
-<p>Each new pack version keeps its predecessor byte-identical. <code>cold-thermal/1</code> and <code>ev-charger/1</code> digests must not change; the existing pinned digests in the simulation assessment are the regression oracle.</p>
+<p>Each new pack version keeps its predecessor byte-identical. <code>cold-thermal/1</code> and <code>ev-charger/1</code> digests must not change; the two-day public digests quoted in DD-06 and DD-07 are the regression oracle.</p>
 
 <h3>5.3 Volumes and run cost</h3>
-<p><span class="f f-inf">INFERENCE</span> extrapolated from the measured two-day samples (<code>simulation-evolution-assessment.md</code>), not observed: a 56-day cold run is about 80,640 steps and 114,000 observations, roughly 2 to 3 minutes; EV about 274,000 public records, under a minute of pack time. Mini-grid at a 5-minute step is about 16,000 steps. Gateway, ingestion and database time are not measured. DD-08 measures them before the other producers are built, and its stop condition is a run over 30 minutes or over 2 GB on the 16 GB laptop.</p>
+<p><span class="f f-inf">INFERENCE</span> extrapolated from measured two-day pack runs (cold: 2,880 steps, 4.3 to 5.3 s, 65.1 MB peak; EV: 0.9 s, 38.4 MB peak), not observed: a 91-day cold run is about 131,040 steps and 185,000 observations, roughly 3.5 to 4.5 minutes of pack time; EV about 445,000 public records, about one and a half minutes; mini-grid at a 5-minute step about 26,000 steps. Peak memory is not known: it depends on whether a pack keeps all outputs until the end, and the two-day peaks say nothing about that. This laptop has 16 GB and recently had runs killed for low memory, so nothing at 91 days is built on an estimate.</p>
+<div class="callout warn" id="budget"><b class="k">Run budget for 91 days (owner OD-4)</b><p><b>Measure first.</b> DD-05a drives each pack directly, without the backend or Postgres, for 7, 28, 56 and 91 days, each in a fresh process, and records wall time and peak working set. <b>Budget:</b> one producer process at most 1.5 GB peak and 15 minutes of pack time; a whole producer (pack, gateway, ingestion, assessment) at most 30 minutes, measured in DD-08. <b>Machine rules:</b> one heavy job at a time on the existing queue, never beside a full suite, keep-awake script on. <b>If 91 days breaks the budget:</b> first remedy is streaming, with pack output written to disk in weekly chunks and published as weekly batches of the same single run, which keeps one run identity (<span class="f f-inf">INF</span>: the resolver's multiple-runs rule is about runs, not batches; DD-05a confirms this before relying on it). Second remedy, that vertical alone stays at 56 days and says so on screen.</p></div>
 
 <h2 id="validation">6 Integration and validation</h2>
 
@@ -544,7 +583,7 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>EV session energy and dwell distributions against the E1 template</td><td>Kolmogorov-Smirnov distance ≤ 0.15 (<span class="f f-inf">INF</span>)</td><td>Above</td></tr>
 <tr><td>Cold door-open rise and recovery against C2; compressor duty against C3 baseline</td><td>Recovery time within ±30% (<span class="f f-inf">INF</span>)</td><td>Outside</td></tr>
 <tr><td>G2 pipeline (after ingestion)</td><td>Accepted evidence count equals produced reports; values equal at resolution; provenance resolves to exactly one positive class with one run ID (or one fixture version)</td><td>Exact</td><td>Any mismatch, or <code>MIXED</code></td></tr>
-<tr><td rowspan="3">G3 outcomes (on reads)</td><td>Every injected fault yields its expected Finding or episode within the window; the clean control (MG-REF-ND1 weeks 1-2) yields none</td><td>Exact set</td><td>Missed or false Finding</td></tr>
+<tr><td rowspan="3">G3 outcomes (on reads)</td><td>Every injected fault yields its expected Finding or episode within the window; the clean control (MG-REF-ND1 weeks 1-5, and every site's weeks 1-3) yields none</td><td>Exact set</td><td>Missed or false Finding</td></tr>
 <tr><td>Every money figure has one claim level and one beneficiary, cites accepted IDs that resolve positive, and its sign and size agree with the counterfactual twin within ±5% (<span class="f f-inf">INF</span>)</td><td>As stated</td><td>Disagreement</td></tr>
 <tr><td>Estate never sums an overlap group; <code>estate_total</code> stays null</td><td>Exact</td><td>Any sum across a group</td></tr>
 </tbody></table></div>
@@ -554,7 +593,7 @@ details.q[open] summary{margin-bottom:6px}
 
 <h3>6.5 Acceptance criteria for the whole strategy</h3>
 <ol>
-<li>All three verticals show at least one money-affecting Finding on a 56-day history whose exogenous inputs are observed or derived, with the source cited in the basis panel.</li>
+<li>All three verticals show at least one money-affecting Finding on a 91-day history whose exogenous inputs are observed or derived, with the source cited in the basis panel.</li>
 <li>Every injected fault is detected, and every detection traces to a declared root cause in the manifest.</li>
 <li>The control case raises nothing.</li>
 <li>Each recommendation's expected change agrees with its twin.</li>
@@ -568,7 +607,7 @@ details.q[open] summary{margin-bottom:6px}
 <tbody>
 <tr><td>TEL-10 vendor profile from a genuine sample</td><td>The intended way to give the demo real-world grounding before outreach (owner Q7 = c); no start date</td><td><b>Re-timed, scope unchanged.</b> It is no longer the pre-outreach grounding; Track R replaces that. It becomes the first pilot task: a <code>PINNED</code> profile from a genuine export, R3 for that vendor, export type and version only. §9 gives the intake checklist the pilot conversation should agree in advance</td></tr>
 <tr><td>TEL-06 customer-export collector (merged)</td><td>Illustrative format <code>assetops-generic-interval-csv/1</code>, profile <code>generic-interval-csv-illustrative-1</code>, KOBO-001 fixture from a simulator run</td><td><b>Reused without code change.</b> DD-11 adds a second profile and fixture for the observed inputs of MG-REF-TK1. The format stays "illustrative, defined by AssetOps"; it is never called a vendor format</td></tr>
-<tr><td>TEL-09 provenance per route</td><td>Emulated-interface class only with run ID, digest, profile SHA and read-back test</td><td>Unchanged. Decision OD-2 recommends not adding a "reference replay" money class</td></tr>
+<tr><td>TEL-09 provenance per route</td><td>Emulated-interface class only with run ID, digest, profile SHA and read-back test</td><td>Unchanged for the field path. OD-2 (owner, 2026-10-28): Track R histories carry the "Simulated with real public inputs" attribute on their existing class; no new money class; raw replay stays money-withheld</td></tr>
 <tr><td>TEL-08 BeagleBone, TEL-07 runbook</td><td>Laptop and board replay of simulator JSONL</td><td>Unchanged for October. DD-11 adds one optional board rerun with reference JSONL after TEL-07</td></tr>
 </tbody></table></div>
 
@@ -580,7 +619,7 @@ details.q[open] summary{margin-bottom:6px}
 </div>
 
 <h2 id="backlog">8 Implementation backlog</h2>
-<p>Fourteen tasks, written as build-spec cards. Sizes are builder-days. "Lane T" means the telemetry builder after TEL-07; "Lane C" means the commercial builder after CC-D1; "Lane D" is a third, data lane the coordinator may open if the owner approves (OD-6). Postgres steps join the existing heavy-job queue. Every task ends with a fresh Claude review, never by its builder.</p>
+<p>Fifteen tasks, written as build-spec cards (DD-05a added in revision 2). Sizes are builder-days. "Lane T" means the telemetry builder after TEL-07; "Lane C" means the commercial builder after CC-D1; "Lane D" is a third, data lane the coordinator may open if the owner approves (OD-6). Postgres steps join the existing heavy-job queue. Every task ends with a fresh Claude review, never by its builder.</p>
 <figure>
 <div class="scroll">
 <svg class="fig" viewBox="0 0 1000 360" role="img" aria-labelledby="f3t">
@@ -594,6 +633,7 @@ details.q[open] summary{margin-bottom:6px}
 <rect class="bx der" x="530" y="34" width="90" height="40" rx="7"/><text class="t tb" x="540" y="58">DD-03</text>
 <rect class="bx obs" x="860" y="34" width="120" height="40" rx="7"/><text class="t tb" x="870" y="58">DD-11 replay</text>
 <rect class="bx" x="640" y="34" width="90" height="40" rx="7" style="stroke:var(--ok);stroke-width:2"/><text class="t tb" x="650" y="58">DD-04</text>
+<rect class="bx mod" x="70" y="144" width="112" height="40" rx="7"/><text class="t tb" x="78" y="168">DD-05a limits</text>
 <rect class="bx mod" x="200" y="144" width="110" height="40" rx="7"/><text class="t tb" x="210" y="168">DD-06 cold/2</text>
 <rect class="bx mod" x="330" y="144" width="110" height="40" rx="7"/><text class="t tb" x="340" y="168">DD-05 mini</text>
 <rect class="bx mod" x="460" y="144" width="110" height="40" rx="7"/><text class="t tb" x="470" y="168">DD-07 EV/2</text>
@@ -607,25 +647,26 @@ details.q[open] summary{margin-bottom:6px}
 <path class="ln a" d="M465 74L255 140"/><path class="ln a" d="M465 74L385 140"/><path class="ln a" d="M465 74L515 140"/>
 <path class="ln a" d="M310 164C470 110 560 128 636 132"/><path class="ln a" d="M440 164C540 176 600 178 636 178"/><path class="ln a" d="M570 164C600 200 610 224 636 224"/>
 <path class="ln a" d="M685 74V110"/>
+<path class="ln a" d="M182 164H196"/><path class="ln a" d="M126 184C150 214 370 214 385 188"/><path class="ln a" d="M126 184C160 226 500 226 515 188"/>
 <path class="ln a" d="M180 284H786"/><path class="ln a" d="M740 178C770 200 800 240 830 260"/><path class="ln a" d="M880 284H886"/>
-<text class="tm" x="200" y="330">DD-00 to DD-04 and DD-11 are light (no simulator or schema change). DD-05 to DD-07 change engines and run full suites when the machine is idle.</text>
+<text class="tm" x="200" y="330">DD-00 to DD-04 and DD-11 are light (no simulator or schema change). DD-05a, DD-05 to DD-07 change limits or engines and run full suites when the machine is idle.</text>
 </svg>
 </div>
-<figcaption><b>Figure 3.</b> Dependencies. DD-08 is the first producer because it measures run cost for the others and feeds the CC-D2 and CC-D1 story.</figcaption>
+<figcaption><b>Figure 3.</b> Dependencies. DD-05a (limits and measured budget) precedes the three engine tasks. DD-08 is the first producer because it measures run cost for the others and feeds the CC-D2 and CC-D1 story.</figcaption>
 </figure>
 
 <div class="task t"><h3>DD-00 · Rulings and pre-flight (no code) · 0.25 d · Lane T</h3>
 <dl class="kv"><dt>Goal</dt><dd>The owner decisions in §10 are recorded, and the builder posts all questions in one batch before any code.</dd>
 <dt>Files</dt><dd><code>.agent/DD-00-questions.md</code>, Architect answers appended to this document's next revision.</dd>
-<dt>Done when</dt><dd>OD-1 to OD-6 have answers; the builder writes "no open questions".</dd>
+<dt>Done when</dt><dd>OD-1 to OD-8 were answered on 2026-10-28 (box in §0); the builder confirms each card matches them and writes "no open questions".</dd>
 <dt>Stop</dt><dd>Any answer contradicts a card. Revise the card first.</dd></dl></div>
 
 <div class="task t"><h3>DD-01 · Source verification and pinned excerpts · 0.75 d · Lane T</h3>
 <dl class="kv"><dt>Goal</dt><dd>Close every <span class="f f-unv">UNVERIFIED</span> mark this plan depends on, and pin the excerpts.</dd>
 <dt>Files</dt><dd><code>tools/demo_data/fetch.py</code> (stdlib <code>urllib</code> only, one function per source, no network in tests); <code>contract-fixtures/demo-data/&lt;pack&gt;/inputs/*.csv</code>; <code>tools/demo_data/tests/test_fetch_parse.py</code> on saved response bytes.</dd>
-<dt>Work</dt><dd>Read and quote the licence pages for NASA POWER, PVGIS, ZTBus and the EPRA gazette; read the M4 Nyabiheke span and columns; read the C1 door sheet's columns; fix the reference coordinates; find an outage time series for Senegal or record "declared assumption".</dd>
-<dt>Acceptance</dt><dd>Each excerpt has a SHA-256 in its manifest and parses to the expected columns; no excerpt over 2 MB; no excerpt from a source whose licence does not permit redistribution.</dd>
-<dt>Stop</dt><dd>A selected source's licence forbids redistribution: keep it as a template (statistics only) and tell the Architect. M4 has under 30 days of usable data: fall back to M3 and say so.</dd></dl></div>
+<dt>Work</dt><dd>Write a one-paragraph terms note per source (licence or terms of use, required attribution, any non-commercial clause, committed or cached) for every source used, including NASA POWER, PVGIS, ACN, ZTBus, Dundee and the EPRA gazette; add <code>.cache/demo-data/</code> to <code>.gitignore</code>; read the M4 Nyabiheke span and columns; read the C1 door sheet's columns; fix the reference coordinates; find an outage time series for Senegal or record "declared assumption".</dd>
+<dt>Acceptance</dt><dd>Each excerpt has a SHA-256 in its manifest and parses to the expected columns; no excerpt over 2 MB; no raw file from a source without an open licence is committed (it is cached and refetched, with <code>"committed": false</code> and its SHA-256 in the manifest).</dd>
+<dt>Stop</dt><dd>A source's terms forbid commercial use or require written permission: do not use it, even as statistics, and tell the Architect. M4 has under 30 days of usable data: fall back to M3 and say so.</dd></dl></div>
 
 <div class="task t"><h3>DD-02 · Dataset-pack manifest and validator · 0.5 d · Lane T</h3>
 <dl class="kv"><dt>Goal</dt><dd>The manifest of §5.1 as a strict, pure loader.</dd>
@@ -645,29 +686,36 @@ details.q[open] summary{margin-bottom:6px}
 <dt>Acceptance</dt><dd>Each check fails on its broken fixture and passes on the KOBO two-day public observations (<code>contract-fixtures/telemetry/kobo-public-observations-v1</code>).</dd>
 <dt>Stop</dt><dd>A check would duplicate an analytics rule. Call the rule; never reimplement it.</dd></dl></div>
 
-<div class="task x"><h3>DD-05 · Mini-grid series forcing · 1.5 d · Lane D (full suite)</h3>
-<dl class="kv"><dt>Goal</dt><dd>A Kobo model profile version that reads plane-of-array irradiance and per-load demand from a pinned series referenced by SHA-256, so one 56-day run is possible.</dd>
+<div class="task x"><h3>DD-05a · Long-run limits and measured budget · 0.75 d · Lane D (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>91-day runs become possible without raising the risk the old limits guarded against, and their cost is known before any producer is built (owner OD-4).</dd>
+<dt>Files</dt><dd><code>tools/demo_data/probe_run_cost.py</code> (stdlib only; peak working set via <code>ctypes</code> <code>GetProcessMemoryInfo</code> plus <code>tracemalloc</code>); <code>backend/assetops_backend/runs/parsing.py</code>; <code>backend/assetops_backend/scenarios/parsing.py</code>; the run-creation path that loads the scenario; their tests.</dd>
+<dt>Work, in order</dt><dd>(1) Probe: drive the cold and EV packs directly for 7, 28, 56 and 91 days at a 1-minute step, each in a fresh process on an idle machine; record wall time and peak memory in <code>.agent/DD-05a-run-cost.md</code>. The mini pack is probed in DD-05, once it can run past its forcing. (2) Limits: <code>MAX_INTERVAL_MINUTES</code> becomes 527,040 (366 days, a calendar sanity bound); a new <code>MAX_RUN_STEPS</code> (interval ÷ timestep) is the cost guard, set to the largest step count whose probed peak is at most half the 1.5 GB budget, and never below 131,040; refusals keep the code <code>INTERVAL_INVALID</code> and name the step count. <code>MAX_OFFSET_MINUTES</code> follows <code>MAX_INTERVAL_MINUTES</code>. At run creation, a scenario entry that starts at or after the run's end, or a window that ends after it, is refused as <code>SCENARIO_ENTRY_OUTSIDE_INTERVAL</code>. <code>MAX_TIMELINE_ENTRIES</code> stays 200.</dd>
+<dt>Acceptance</dt><dd>Every run request valid today stays valid (each has at most 100,000 steps); a 91-day request at a 1-minute step is accepted; a request over <code>MAX_RUN_STEPS</code> is refused with the step count named; an entry at minute 70,560 parses; an entry outside a run's interval is refused at run creation; all existing scenario and run digests unchanged; the probe report shows 91-day cold and EV peaks and wall times.</dd>
+<dt>Stop</dt><dd>The probe shows a 91-day cold or EV pack run over 1.5 GB or 15 minutes: report the numbers; the Architect sizes the streaming remedy of §5.3 or holds that vertical at 56 days. Any shipped scenario or fixture trips the new outside-interval refusal: report it, do not loosen the rule. Contract or schema change needed for the step budget: stop.</dd></dl></div>
+
+<div class="task x"><h3>DD-05 · Mini-grid series forcing · 1.5 d · Lane D, after DD-05a (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>A Kobo model profile version that reads plane-of-array irradiance and per-load demand from a pinned series referenced by SHA-256, so one 91-day run is possible.</dd>
 <dt>Files</dt><dd><code>backend/assetops_backend/runs/profiles.py</code> (new model profile version), <code>backend/assetops_backend/scenarios/parsing.py</code> (a <code>forcing_series</code> reference, counted as one timeline entry), <code>simulator/assetops_simulator/packs/mini_grid.py</code>, the kernel forcing exposure, tests.</dd>
-<dt>Acceptance</dt><dd>Existing Kobo scenario digests are unchanged; a series equal to an existing step forcing gives the identical public digest; a 56-day run completes and passes G1; the run identity digest changes when one series byte changes.</dd>
+<dt>Acceptance</dt><dd>Existing Kobo scenario digests are unchanged; a series equal to an existing step forcing gives the identical public digest; a 91-day run completes within the DD-05a budget and passes G1; the mini pack's 91-day wall time and peak memory are added to the DD-05a report; the run identity digest changes when one series byte changes, and so does the manifest SHA that DD-12's label reads.</dd>
 <dt>Stop</dt><dd>The change needs a contract revision beyond one optional scenario key, or any existing digest moves. Stop and send the Architect the diff. Then the authored-fixture fallback of §5.2 applies.</dd></dl></div>
 
-<div class="task x"><h3>DD-06 · cold-thermal/2 ambient series · 0.75 d · Lane D</h3>
+<div class="task x"><h3>DD-06 · cold-thermal/2 ambient series · 0.75 d · Lane D, after DD-05a</h3>
 <dl class="kv"><dt>Goal</dt><dd>Hourly ambient as forcing, leaving v1 byte-identical.</dd>
 <dt>Files</dt><dd><code>simulator/assetops_simulator/packs/cold.py</code> (new profile constant and an <code>AMBIENT_SET</code> forcing kind for v2 only), <code>backend/assetops_backend/scenarios/cold_parsing.py</code>, tests.</dd>
 <dt>Acceptance</dt><dd>The v1 two-day digest <code>ef31f2dc…</code> is unchanged; a v2 run with a constant ambient series equals v1; the energy residual stays exactly 0.</dd>
 <dt>Stop</dt><dd>Any v1 digest changes.</dd></dl></div>
 
-<div class="task x"><h3>DD-07 · ev-charger/2 · 1.5 d · Lane D (full suite)</h3>
-<dl class="kv"><dt>Goal</dt><dd>N declared connectors, unbounded sessions with scoped IDs, any window up to the run limit.</dd>
+<div class="task x"><h3>DD-07 · ev-charger/2 · 1.5 d · Lane D, after DD-05a (full suite)</h3>
+<dl class="kv"><dt>Goal</dt><dd>N declared connectors, unbounded sessions with scoped IDs, any window up to the DD-05a step budget. A 91-day depot is about 550 overnight sessions plus top-ups; session state is held per open session, never as a list of every past session.</dd>
 <dt>Files</dt><dd><code>simulator/assetops_simulator/packs/ev_charger.py</code> (new class beside v1), <code>backend/assetops_backend/scenarios/ev_parsing.py</code> (v2 schema), EV observation and publication profiles, tests.</dd>
-<dt>Acceptance</dt><dd>The v1 digest <code>948e8f14…</code> and the <code>ev-interrupted</code> replay are unchanged; v2 with two connectors and the v1 forcing equals v1's public records; a 56-day, three-connector run passes G1; the D3 SHARED infeasibility (9.6 kWh) reproduces on a v2 window.</dd>
+<dt>Acceptance</dt><dd>The v1 digest <code>948e8f14…</code> and the <code>ev-interrupted</code> replay are unchanged; v2 with two connectors and the v1 forcing equals v1's public records; a 91-day, three-connector run passes G1 within the DD-05a budget; the D3 SHARED infeasibility (9.6 kWh) reproduces on a v2 window.</dd>
 <dt>Stop</dt><dd>EV analytics would need a schema change to read more than two connectors. Stop and report; that is an Architect ruling.</dd></dl></div>
 
 <div class="task c"><h3>DD-08 · MG-REF-TK1 history producer · 1.0 d · Lane D, after DD-05</h3>
-<dl class="kv"><dt>Goal</dt><dd>The rank-1 site of §4.3, end to end, plus the cost measurement of §5.3.</dd>
+<dl class="kv"><dt>Goal</dt><dd>The rank-1 site of §4.3 over 91 days, end to end, plus the whole-producer cost measurement of §5.3 (gateway, ingestion, assessment).</dd>
 <dt>Files</dt><dd><code>backend/conversions/mg-ref-tk1-bindings.json</code>, <code>backend/tests/fixtures/ref/mg-ref-tk1.yaml</code>, <code>tools/demo_data/build_minigrid.py</code>, <code>tools/demo_data_walkthrough.py</code> (producer CLI on the existing walkthrough pattern), <code>assetops_ref_mg_tk1_test</code> database.</dd>
-<dt>Acceptance</dt><dd>G1, G2 and G3 pass; F-MG1 gives generator-support episodes in weeks 2-4; after day 29 the reserve trial evaluates on comparable windows; the overlap group shows no sum; two runs give the same public digest; wall time and peak memory recorded.</dd>
-<dt>Stop</dt><dd>A run over 30 minutes or 2 GB; any Finding outside the declared set.</dd></dl></div>
+<dt>Acceptance</dt><dd>G1, G2 and G3 pass; weeks 1-3 raise no reserve Finding; F-MG1 gives generator-support episodes in weeks 5-7; after day 50 the reserve trial evaluates on comparable windows; the overlap group shows no sum; two runs give the same public digest; wall time, peak memory and database rows per stage recorded beside the DD-05a report.</dd>
+<dt>Stop</dt><dd>The producer breaks the §5.3 budget (pack process over 1.5 GB, or the whole producer over 30 minutes): stop and report; the streaming remedy is an Architect decision. Any Finding outside the declared set.</dd></dl></div>
 
 <div class="task c"><h3>DD-09 · CC-REF-SN1 history producer · 0.75 d · Lane D</h3>
 <dl class="kv"><dt>Goal</dt><dd>The cold site of §4.3. It can start before DD-06 on the constant-ambient fallback and be rerun on v2.</dd>
@@ -677,7 +725,7 @@ details.q[open] summary{margin-bottom:6px}
 
 <div class="task c"><h3>DD-10 · EV-REF-NB1 history producer · 0.75 d · Lane D, after DD-07</h3>
 <dl class="kv"><dt>Goal</dt><dd>The depot site of §4.3.</dd>
-<dt>Acceptance</dt><dd>F-EV1 produces <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> on both fault nights; F-EV2 shows peak-band energy before day 29 and off-peak after; ACN calibration KS ≤ 0.15; D3 decision reproduces a departure shortfall on a fault night.</dd>
+<dt>Acceptance</dt><dd>F-EV1 produces <code>CONNECTOR_UNAVAILABLE_OBSERVED</code> on both fault nights; F-EV2 shows peak-band energy before day 50 and off-peak after; ACN calibration KS ≤ 0.15; D3 decision reproduces a departure shortfall on a fault night.</dd>
 <dt>Stop</dt><dd>D3 has not merged: build the history only.</dd></dl></div>
 
 <div class="task t"><h3>DD-11 · Track P reference replay · 0.75 d · Lane T, after TEL-07</h3>
@@ -686,11 +734,11 @@ details.q[open] summary{margin-bottom:6px}
 <dt>Acceptance</dt><dd>All cells admitted and accepted; values equal at resolution; provenance <code>UNKNOWN</code> with reasons exactly <code>["NO_POSITIVE_BINDING"]</code>; zero consequence rows. Optional: one BeagleBone rerun of the JSONL at rate 12.</dd>
 <dt>Stop</dt><dd>Any publication would be attached, or a modelled series is put on the field path.</dd></dl></div>
 
-<div class="task c"><h3>DD-12 · "Inputs from" in basis panels and claim records · 0.5 d · Lane C, after CC-D1</h3>
-<dl class="kv"><dt>Goal</dt><dd>A Finding or money basis on a reference site names its input sources and their origins in plain language, read from the fixture spec or run identity, never from free text.</dd>
-<dt>Files</dt><dd><code>frontend/src/sites/sourceProvenance.tsx</code> and its tests; the backend read that already returns publication fixtures and runs.</dd>
-<dt>Acceptance</dt><dd>Copy reads, for example, "Simulated. Weather measured by NASA POWER near this location, shifted from 2025. Loads modelled from published rural Kenya profiles." No screen uses "observed" for a modelled value. MOCK DEVIATION noted against v6.9 if the panel grows.</dd>
-<dt>Stop</dt><dd>The copy would need a schema field. Report; do not add one.</dd></dl></div>
+<div class="task c"><h3>DD-12 · "Simulated with real public inputs" label and "inputs from" · 1.0 d · Lane C, after CC-D1</h3>
+<dl class="kv"><dt>Goal</dt><dd>Owner OD-2: a reference site's evidence carries its own source label, "Simulated with real public inputs", and names its input sources and their origins in plain language. The backend adds the optional <code>reference_inputs</code> object of §1.3 to the provenance read block, derived from the run's pinned manifest SHA or the authored fixture spec and a server registry of reference packs, never from free text. Money is untouched.</dd>
+<dt>Files</dt><dd><code>backend/assetops_backend/evidence/provenance_read.py</code> (the read block only), a reference-pack registry beside <code>evidence/composition.py</code>, <code>frontend/src/sites/sourceProvenance.tsx</code>, <code>frontend/src/ui/productWords.ts</code>, and their tests.</dd>
+<dt>Acceptance</dt><dd><code>permits_current_money</code> and every money gate are byte-unchanged, and a test proves a reference run and a plain run of the same class get the same money result; a run whose manifest SHA is not registered gets no attribute and reads "Simulated". Copy reads, for example, "Simulated with real public inputs. Weather measured by NASA POWER near this location, shifted from 2025. Loads modelled from published rural Kenya profiles." No screen uses "observed" for a modelled value. MOCK DEVIATION noted against v6.9 if the panel grows.</dd>
+<dt>Stop</dt><dd>The attribute would need a stored column, a migration, or a change to a money gate. Report; do not add one.</dd></dl></div>
 
 <div class="task c"><h3>DD-13 · Portfolio producer and demo runbook · 0.75 d · Lane C</h3>
 <dl class="kv"><dt>Goal</dt><dd>The four reference sites in one demo tenant for Estate triage and comparison, with a monotone install clock (the D5 producer risk).</dd>
@@ -702,10 +750,10 @@ details.q[open] summary{margin-bottom:6px}
 <thead><tr><th>Window</th><th>Lane T</th><th>Lane C</th><th>Lane D (if opened)</th></tr></thead>
 <tbody>
 <tr><td>to 30 Oct</td><td>TEL-08, TEL-05b, TEL-07 (unchanged)</td><td>CC-R2, CC-M (unchanged)</td><td>—</td></tr>
-<tr><td>31 Oct to 3 Nov</td><td>DD-00, DD-01, DD-02, DD-03, DD-04 (light, no Postgres)</td><td>CC-D2, CC-D1 (unchanged)</td><td>DD-06 (light)</td></tr>
-<tr><td>Next sprint</td><td>DD-11</td><td>DD-12, DD-13</td><td>DD-05 → DD-08; DD-09; DD-07 → DD-10</td></tr>
+<tr><td>31 Oct to 3 Nov</td><td>DD-00, DD-01, DD-02, DD-03, DD-04 (light, no Postgres)</td><td>CC-D2, CC-D1 (unchanged)</td><td>DD-05a probe step only (pack-level, no Postgres, machine idle)</td></tr>
+<tr><td>Next sprint</td><td>DD-11</td><td>DD-12, DD-13</td><td>DD-05a limits → DD-06; DD-05 → DD-08; DD-09; DD-07 → DD-10</td></tr>
 </tbody></table></div>
-<p>If Lane D is not opened, Lane T takes DD-05 to DD-10 after DD-11, in that order, and the EV site moves last. None of these tasks touches <code>financials/trial_fuel_comparison.py</code>, the s602b cases, <code>scenario_rules.py</code> or the w403 cases, which CC-D2 and CC-D1 own.</p>
+<p>Lane D opens at the start of the next sprint (OD-6, accepted). If it could not, Lane T would take DD-05a to DD-10 after DD-11, in that order, and the EV site moves last. None of these tasks touches <code>financials/trial_fuel_comparison.py</code>, the s602b cases, <code>scenario_rules.py</code> or the w403 cases, which CC-D2 and CC-D1 own.</p>
 
 <h2 id="gaps">9 Residual gaps and pilot data requests</h2>
 <p>These cannot be credibly validated without an operator's data, and the demo must say "not available yet" for each.</p>
@@ -722,32 +770,41 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>Local-time and vendor quirks in exports</td><td>Only a real file shows them</td><td>One raw export, unedited, with its vendor and version</td><td>TEL-10 <code>PINNED</code> profile</td></tr>
 </tbody></table></div>
 <div class="callout"><b class="k">Pilot intake checklist (agree in the first pilot conversation)</b><p>One unedited export per system with vendor, product and version; the time zone the export uses; units and sign conventions; 90 days at the native interval; the asset register (ratings and commissioning dates); tariff and fuel price history; permission to keep the file for regression tests. This turns TEL-10 into a half-day task instead of a negotiation.</p></div>
+<p><b>Renewvia and the Innovation Lab (OD-7, withdrawn).</b> Their site data is not gated by a form that a request opens. Renewvia's operating data belongs to a private operator and is shared, when at all, under a research or data-sharing agreement with named partners. The Innovation Lab's data was given by each developer under confidentiality, so the Lab cannot release raw site data without every developer's consent. A cold request from AssetOps would most likely get no answer, or an NDA and legal review taking weeks to months, and any data granted would carry use limits that could rule out a sales demo. It cannot land within the demo timeline, so it is not a demo-data action. Renewvia, like any operator, belongs on the pilot list: data then comes under the pilot agreement and the intake checklist above. The Lab's published aggregate reports remain usable as calibration, like AMDA 2024.</p>
 
 <h2 id="decisions">10 Owner decisions</h2>
+<p>All eight were answered on 2026-10-28 (<code>.agent/owner-answers-demo-data-2026-10-28.md</code>). OD-1, OD-3, OD-6 and OD-8 are accepted as recommended. OD-2, OD-4, OD-5 and OD-7 are revised below, each with the owner's words first.</p>
 <div class="dec"><h3>OD-1 · Adopt "real inputs, AssetOps physics, labelled origin" as the demo standard</h3>
 <p><b>Example:</b> the Turkana site's weather is NASA POWER's measured weather for September 2025, shifted to 2026; its battery SoC is computed by our model and labelled "simulated".</p>
-<p><b>Recommendation:</b> adopt. <b>Rationale:</b> it meets the owner's real-data-first principle with what actually exists, avoids waiting for an export, and keeps every claim at the honest rung.</p></div>
+<p><b>Recommendation:</b> adopt. <b>Rationale:</b> it meets the owner's real-data-first principle with what actually exists, avoids waiting for an export, and keeps every claim at the honest rung.</p>
+<p><b>Decided 2026-10-28:</b> adopted.</p></div>
 <div class="dec"><h3>OD-2 · How reference-grounded histories are labelled</h3>
-<p><b>Example:</b> a generator-cost Finding at MG-REF-TK1 shows "Simulated · weather measured by NASA POWER" rather than a new badge "Reference data".</p>
-<p><b>Recommendation:</b> use the existing classes now (<code>REGISTERED_SIMULATION</code>, or <code>AUTHORED_DEMONSTRATION</code> as the fallback), and add "inputs from" copy (DD-12). Do not create a reference-replay money class. <b>Rationale:</b> a new class touches the money gate in five read paths and buys no extra truth. The value is in the inputs, which the copy can cite.</p></div>
+<p><b>Owner, 2026-10-28:</b> "it is important to preserve proper source labels, it could share the money rules".</p>
+<p><b>Example:</b> a generator-cost Finding at MG-REF-TK1 carries the label "Simulated with real public inputs", distinct from the plain "Simulated" of KOBO-001, and its money is computed exactly as KOBO-001's would be.</p>
+<p><b>Decision (revised):</b> option A of §1.3. The label is a server-derived <code>reference_inputs</code> attribute of the existing positive class, present only when the run or fixture is pinned to a registered dataset-pack manifest. The money gate reads the class only, so the money rules are shared by construction. Cost: about 0.5 builder-day, folded into DD-12 (now 1.0 d). <b>Rejected:</b> a new positive class (option B), at 3 to 4 builder-days with three CHECK migrations and an audit recapture, which would buy the same label with a weaker proof.</p></div>
 <div class="dec"><h3>OD-3 · Site naming</h3>
 <p><b>Example:</b> "Turkana hybrid (reference)", not the name of the operator whose public site size it resembles.</p>
-<p><b>Recommendation:</b> place and type names only, with "reference" in the display name. <b>Rationale:</b> naming a real operator would imply their data, which the demo does not have.</p></div>
+<p><b>Recommendation:</b> place and type names only, with "reference" in the display name. <b>Rationale:</b> naming a real operator would imply their data, which the demo does not have.</p>
+<p><b>Decided 2026-10-28:</b> accepted.</p></div>
 <div class="dec"><h3>OD-4 · History length</h3>
-<p><b>Example:</b> 56 days (four baseline weeks and four later weeks) rather than 90.</p>
-<p><b>Recommendation:</b> 56 days. <b>Rationale:</b> it fits the 100,000-minute run limit without an architecture change, and four comparable weeks either side of an intervention is what verification needs. 90 days would need the parser limit raised and measured first.</p></div>
+<p><b>Owner, 2026-10-28:</b> "current run limits should not impose unrealistic constraint on possible real world reference. I don't see why a 90 should not work".</p>
+<p><b>Example:</b> the Turkana history runs from 27 July to 26 October 2026: three clean weeks, four weeks with the reserve fault, the intervention on 14 September, then six weeks after it.</p>
+<p><b>Decision (revised):</b> 91 days (13 whole weeks, so weekdays line up). What each limit protects, and what changes: the <b>100,000-minute run limit</b> protects the worker from a run that cannot finish, but counts minutes rather than steps, so it is replaced by a step budget sized by measurement, with a 366-day calendar bound kept. The <b>10,000-minute offset limit</b> catches typos, but would have blocked faults placed after the first week even at 56 days; it now follows the run bound, and an entry outside its run is refused at run creation. The <b>200-entry timeline limit</b> keeps a scenario readable on screen; it stays, because real series travel as one pinned reference. All of this is DD-05a, which measures memory and time on this 16 GB laptop before any producer runs (§5.3). <b>Fallback:</b> if one vertical cannot meet the budget even with streaming, it alone stays at 56 days and says so.</p></div>
 <div class="dec"><h3>OD-5 · Licence posture</h3>
 <p><b>Example:</b> the NREL load workbook (CC-BY) is excerpted into the repository with attribution; Caltech ACN sessions are not, and only fitted dwell and energy quantiles are committed.</p>
-<p><b>Recommendation:</b> commit excerpts only from sources whose licence permits it (CC-BY, CC0, or a licence read and quoted in DD-01); use everything else as statistics. <b>Rationale:</b> it keeps the repository shareable with investors and pilots without a licence question.</p></div>
+<p><b>Owner, 2026-10-28:</b> "this is for test and demo purposes, not production, consider reasonable license aspects in that context".</p>
+<p><b>Decision (revised):</b> the test-and-demo posture of §5.1: use any publicly downloadable source, always with attribution; commit open-licence excerpts and every source's fitted statistics; keep raw files from sources without an open licence in an ignored local cache; never hand raw restricted data to a customer. <b>Still real:</b> no non-commercial sources (a sales demo is commercial use), no shared registration tokens, no operator names, and a re-read of the terms at the first pilot or production use.</p></div>
 <div class="dec"><h3>OD-6 · A third, data lane</h3>
 <p><b>Example:</b> a Lane D builder takes DD-05 to DD-10 in the next sprint while Lanes T and C finish their milestones.</p>
-<p><b>Recommendation:</b> open Lane D at the start of the next sprint, not before 3 November. <b>Rationale:</b> the engine tasks need full suites, and the heavy-job queue is committed until CC-D1 merges. The light tasks fit Lane T's gap after TEL-07.</p></div>
-<div class="dec"><h3>OD-7 · Ask for restricted data in parallel</h3>
-<p><b>Example:</b> one short research-collaboration request each to Renewvia and to the CrossBoundary / Energy 4 Impact Innovation Lab.</p>
-<p><b>Recommendation:</b> send them, but keep them off the critical path. <b>Rationale:</b> a yes would upgrade mini-grid inputs from derived to observed; a no or a delay costs nothing.</p></div>
+<p><b>Recommendation:</b> open Lane D at the start of the next sprint, not before 3 November. <b>Rationale:</b> the engine tasks need full suites, and the heavy-job queue is committed until CC-D1 merges. The light tasks fit Lane T's gap after TEL-07.</p>
+<p><b>Decided 2026-10-28:</b> accepted.</p></div>
+<div class="dec"><h3>OD-7 · Ask for restricted data in parallel (withdrawn)</h3>
+<p><b>Owner, 2026-10-28:</b> "I don't understand the goal here, why would sending a request unlock access?"</p>
+<p><b>Decision (revised): withdrawn.</b> The owner is right that a request does not unlock access. The data sits behind research or data-sharing agreements: Renewvia's with named partners, the Innovation Lab's under each developer's confidentiality terms. A request can at best open a conversation that leads, over weeks or months, to an agreement with use limits. That cannot land in the demo timeline and would likely exclude a sales demo anyway (§9). Renewvia is approached as a pilot prospect, where data comes under the pilot agreement; the Lab's public reports remain calibration sources.</p></div>
 <div class="dec"><h3>OD-8 · EV focus</h3>
 <p><b>Example:</b> the depot is buses (matching D3 and the commercial architecture); the e-boda hub with real Nairobi duty data is optional.</p>
-<p><b>Recommendation:</b> buses first; e-boda only if a pilot prospect is a two-wheeler operator. <b>Rationale:</b> the commercial outcomes and D3 are written for buses; e-boda would need its own outcome set.</p></div>
+<p><b>Recommendation:</b> buses first; e-boda only if a pilot prospect is a two-wheeler operator. <b>Rationale:</b> the commercial outcomes and D3 are written for buses; e-boda would need its own outcome set.</p>
+<p><b>Decided 2026-10-28:</b> buses first.</p></div>
 
 <h2 id="record">11 Verification record</h2>
 <h3>Code facts read for this plan</h3>
@@ -758,7 +815,8 @@ details.q[open] summary{margin-bottom:6px}
 <tr><td>Field publisher requires a SIMULATED gateway; source publication requires a SIMULATED gateway</td><td><code>field/assetops_field/publish.py:18,43</code>; <code>evidence/adapters/postgres_evidence_ledger.py:395-397</code></td></tr>
 <tr><td>Authored fixtures come from a server spec registry</td><td><code>evidence/publication.py:1-20,184-200</code>; <code>evidence/composition.py:31</code></td></tr>
 <tr><td>CSV collector grammar, no resampling; profile statuses and weakest-row rule</td><td><code>field/assetops_field/export_csv.py:1-22</code>; <code>field/assetops_field/profile.py:38,257-259</code></td></tr>
-<tr><td>Scenario timeline ≤ 200 entries; offset ≤ 10,000 min; run ≤ 100,000 min</td><td><code>scenarios/parsing.py:274,291</code>; <code>runs/parsing.py:146-147</code></td></tr>
+<tr><td>Scenario timeline ≤ 200 entries; offset and window end ≤ 10,000 min; run ≤ 100,000 min, with the stated purpose of each bound</td><td><code>scenarios/parsing.py:266-291,609,665,1509-1519</code>; <code>runs/parsing.py:142-147,427-431</code></td></tr>
+<tr><td>Money gate reads the provenance class only; class names enumerated in three CHECK constraints</td><td><code>evidence/provenance_read.py:27-32</code>; <code>migrations/versions/0017_evidence_publication.py:67-76</code>, <code>0023_w2_cold_consequence.py:77</code>, <code>0026_w2_ev_money.py:62</code></td></tr>
 <tr><td>EV scenario fixed one-hour window; two plug-ins; default 80 kW limit</td><td><code>scenarios/ev_parsing.py:32,188-189,213-214</code>; <code>packs/ev_charger.py:44,93,211</code></td></tr>
 <tr><td>Cold scenario and pack take one constant ambient; forcing kinds</td><td><code>scenarios/cold_parsing.py:29,86</code>; <code>packs/cold.py:136-143,177,213,441-460</code></td></tr>
 <tr><td>Kobo forces irradiance and per-load demand</td><td><code>runs/profiles.py:987-1030</code></td></tr>
@@ -771,11 +829,12 @@ details.q[open] summary{margin-bottom:6px}
 <li>Nyabiheke time span and columns; PATH door-sheet columns; Kenya nano-grid columns.</li>
 <li>Any access route to Renewvia data; any public African genset, SoC, PAYG, charger-fault, spoilage or outage time series.</li>
 <li>The September 2026 EPRA gazette text.</li>
-<li>Run, ingestion and database cost at 56 days (DD-08 measures it).</li>
+<li>Run memory and time at 91 days (DD-05a measures pack cost; DD-08 measures the whole producer).</li>
+<li>The data-sharing terms of Renewvia and the Innovation Lab are inferred from how such data is normally held and from the Lab's published reports; no agreement text was read.</li>
 </ul>
 <p>The calibration tolerances in §6.3 marked <span class="f f-inf">INFERENCE</span> are the Architect's proposals, to be confirmed in DD-00.</p>
 
-<p class="foot">Demo Data Strategy, revision 1, 28 October 2026. Produced by the Architect (Claude). Dataset research was done by three research subagents under the Architect's brief and checked against each other; the Architect did not re-fetch every source. This document is a plan; no code, test, database or suite was changed or run for it.</p>
+<p class="foot">Demo Data Strategy, revision 2, 28 October 2026 (revision 1 the same day; revision 2 applies the owner's OD-1 to OD-8 answers). Produced by the Architect (Claude). Dataset research was done by three research subagents under the Architect's brief and checked against each other; the Architect did not re-fetch every source. This document is a plan; no code, test, database or suite was changed or run for it.</p>
 </main>
 </div>
 <script>
