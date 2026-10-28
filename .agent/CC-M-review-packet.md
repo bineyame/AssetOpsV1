@@ -86,7 +86,7 @@ because they exercise only the CHECK and the downgrade guard.
   | 4 | 99 | not completed (expected 1041) | - | - | - | stopped |
   Part 1's failure is `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation::test_the_shipped_
   scenario_blocks_only_on_the_values_this_site_lacks`. Rerun alone it fails the same way, so it is not a flake:
-  `FileNotFoundError ... AssetOpsV1-ccmarsitesmg-001.yaml`. The gitignored `var/` user store is missing from
+  `FileNotFoundError ... AssetOpsV1-ccm/var/sites/mg-001.yaml`. The gitignored `var/` user store is missing from
   this worktree; OPS-02 and W2-05a recorded the same precondition. It is unrelated to CC-M and was not fixed.
   Part 4: the first attempt collected nothing (exit 5), because a byte-order-mark line in the split list duplicated a
   part-1 file. That line was removed, leaving 251 unique files. The second attempt was stopped by Claude Code's
