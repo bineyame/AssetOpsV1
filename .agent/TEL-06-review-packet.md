@@ -1,6 +1,6 @@
 # TEL-06 review packet (TEL-06a / TEL-06b)
 
-Status: in_review. TEL-06b is written; its Postgres run is held for the coordinator's go.
+Status: in_review. 06a green; 06b Postgres gate green twice on fresh databases.
 
 PYTHONPATH (PowerShell):
 ```
@@ -46,7 +46,7 @@ TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`, as amended by section M (
 | A timestamp without `Z` → `INVALID_TIMING` | **Met** (focused, and 06a step 3). |
 | A blank cell → `UNAVAILABLE` | **Met.** The 03:00Z cells arrive as `UNAVAILABLE`/`NO_MEASUREMENT` with `interval_start` 02:45Z (06a step 1). |
 | A header unit `W` → `UNIT_INCOMPATIBLE` holds | **Met (06a step 4).** There are 49 PV holds, `HELD`/`UNIT_INCOMPATIBLE`/`unit`, and the other 147 are `ALREADY_ADMITTED`. The outbox and the sequences are unchanged. |
-| 06b: accepted IDs listed, provenance `UNKNOWN`, no money row | **Written, not run.** It asserts 196 accepted rows equal to the receipts' IDs, `{"pv_power": 49, "feeder_demand": 147}`, the exact-value oracle, `UNKNOWN`/`["NO_POSITIVE_BINDING"]`, and zero consequence rows. It collects without a database (3 tests collected). |
+| 06b: accepted IDs listed, provenance `UNKNOWN`, no money row | **Met (green twice; see the 06b gate below).** It asserts 196 accepted rows equal to the receipts' IDs, `{"pv_power": 49, "feeder_demand": 147}`, the exact-value oracle, `UNKNOWN`/`["NO_POSITIVE_BINDING"]`, and zero consequence rows. It collects without a database (3 tests collected). |
 | No vendor name in TEL-06 code, profile, fixture or UI text | **Met.** A case-insensitive grep of the TEL-06 files (collector, field test, profile, fixture, manifest, 06a) for victron, vrm, sma, huawei, solaredge, monta, monnit, cerbo, gx and aggsoft exits 1 (no match). No UI is touched. 06a and 06b import the TEL-04/05 modules, which name their `-1` source by design (Q-T66). |
 | Every `CSV_CODES` entry has one focused test | **Met.** It is enforced by name in `test_every_csv_code_has_a_focused_test`. |
 
@@ -55,7 +55,6 @@ TEL-06 in `.agent/build-spec-telemetry-2026-10-27.md`, as amended by section M (
 - `pytest field/tests`: 197 passed in 14.6 s.
 - `pytest host/tests/test_field_observation_fixtures.py` (light, run as its own file): 3 passed in 8.4 s.
 - `pytest host/tests/test_field_export_csv_proof.py` (06a, one file, medium weight; the coordinator allowed it): 1 passed in 6.7 s (8.7 s of wall time with `-s`).
-- 06b: `--collect-only` only. `ASSETOPS_TEST_DATABASE_URL` was unset, and nothing touched Postgres.
 - Non-vacuous proofs (each committed first, then reverted with `git checkout`, and `git status` was clean afterwards):
   - Disabling the BOM check and the duplicate check failed the 2 matching focused tests.
   - Forcing the report unit to `kW` failed 06a step 4: `('ALREADY_ADMITTED', None, None)` came back where `('HELD', 'UNIT_INCOMPATIBLE', 'unit')` was expected.
@@ -70,7 +69,6 @@ The two existing tests in that file are not rerun.
 None from section M. The plan card's `SOURCE_TIME_IN_FUTURE` case is out of scope by M Q3.
 
 ## Residual risk
-- 06b has not run. Central's acceptance of the four UNAVAILABLE envelopes and of the 03:00-15:00 timing is unproven until it does. A refusal there is a stop to report (M Q4).
 - `_oracle` in 06a takes the fixture semantics from the ruling (half-even at 0.001; blank for non-`REPORTED`), so it is independent of the CSV but not of the ruling.
 
 ## User-review focus
