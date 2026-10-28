@@ -93,7 +93,25 @@ because they exercise only the CHECK and the downgrade guard.
   memory-pressure reaper at about 69%, with no test failure before the stop (the one `F` follows `[gw0] node down`).
   It was not restarted. No pytest processes are left. Run DBs `assetops_ccm_pt1f78c249_{tpl,gw0}_test` remain.
   Gate so far: 3097 of 4138 run (3096 passed, 1 failed, 0 skipped). Part 4 (1041 tests) still needs a run.
-- Not run yet: a completed part 4, frontend suite, typecheck, build.
+- Part 4, on the owner's go. The coordinator copied `var/sites/` into the worktree (local only, not committed), and
+  part 1's `test_runs_api` failure then passed alone. The part-4 run DBs were dropped with `cleanup_run`. Part 4 was
+  split by test count into 4a (38 files) and 4b (61 files), each run serially (no `-n`):
+  | Half | JUnit cases | Passed | Failed | Skipped | Wall |
+  |---|---|---|---|---|---|
+  | 4a | 549 | 547 | 2 | 0 | 6583 s |
+  | 4b | 492 | 490 | 2 | 0 | 7772 s |
+  - 4a `test_w301_estate_golden_postgres.py::test_w301_golden_manifest_public_replay[ev]` (EV coverage read UNKNOWN)
+    and `test_w302_money_comparability_postgres.py::test_w302_money_persisted_ev_different_currency` (psycopg
+    `connection timeout expired`): each **passed alone** (39 s; 3933 s). Treated as flakes from load and timing.
+  - 4b `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids`
+    (`:155`) and `test_w303_selectors_postgres.py::test_portfolio_row_facts_and_verification_ids_match_stored_rows`
+    (`:77`): **fail alone too** (2 failed, 98.6 s). This is real and outside CC-M. Both still assert `mechanism is None`,
+    but CC-R2 `0bcb7f16` (on main, Q-C8) now fills mechanism (`COLD_EXCURSION`, `GENERATOR_SUPPORT_CANDIDATE`).
+    These are CC-R2 test literals that were never updated. Not fixed: that needs a go, since it is outside CC-M.
+- **Full-suite gate: 1011 + 965 + 1121 + 549 + 492 = 4138 = collected.** 4133 passed, 5 failed, 0 skipped. Of the 5,
+  3 pass alone (1 was the environment precondition, 2 were flakes) and 2 are real, from CC-R2 on main. The gate
+  (0 failures) is **not met** until those two literals are fixed.
+- Not run yet: frontend suite, typecheck, build.
 
 ## Known deviations
 
