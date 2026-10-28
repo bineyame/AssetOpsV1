@@ -9,7 +9,7 @@
 # junit.xml, console.log, wall-time.txt and connections.csv to var/test-results/OPS-03/<run-id>/.
 # The pytest wall time is capped at -CapMinutes (2x the expected wall in backend/TESTING.md); a run past the
 # cap is recorded as a hang (timeout.txt), terminated, and exits 124. The URL and password are never printed.
-param([int]$CapMinutes = 100, [int]$Workers = 4)  # 2x the measured 50-min expected wall (backend/TESTING.md Timing)
+param([int]$CapMinutes = 100, [int]$Workers = 4, [string]$Targets = 'backend/tests')  # 2x the measured 50-min expected wall (backend/TESTING.md Timing)
 
 # Continue: Windows PowerShell 5.1 turns native stderr into terminating errors under Stop; failures are checked
 # explicitly through `$LASTEXITCODE` and -ErrorAction Stop instead.
@@ -43,18 +43,26 @@ if (-not $password) { $password = 'assetops-local-dev' }
 $env:ASSETOPS_WORKTREE = $worktree
 $env:OPS03_RUN_ID = $runId
 $env:ASSETOPS_TEST_WORKERS = [string]$Workers
+$env:ASSETOPS_TEST_TARGETS = $Targets
 $env:ASSETOPS_CONTAINER_TEST_DATABASE_URL =
     'postgresql+psycopg://assetops:{0}@postgres:5432/assetops_test' -f [uri]::EscapeDataString($password)
 Remove-Item Env:\DATABASE_URL, Env:\ASSETOPS_TEST_DATABASE_URL -ErrorAction SilentlyContinue
 
 $keepAwake = $null
+$memorySampler = $null
 $compose = $null
 $runner = "assetops-ops03-$runId"
 $exitCode = 1
 try {
+    # PERF-01: no execution-policy override on the child; it inherits this process's policy.
     $keepAwake = Start-Process powershell -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $PSScriptRoot 'keep-awake-during-tests.ps1'),
+        '-NoProfile', '-File', (Join-Path $PSScriptRoot 'keep-awake-during-tests.ps1'),
         '-WatchProcessId', $PID)
+    # PERF-01 phase 0 (R10): memory sampler, every 5 s, next to the connection sampler below.
+    $memoryCsv = Join-Path $runDir 'memory.csv'
+    $memorySampler = Start-Process powershell -WindowStyle Hidden -PassThru -ArgumentList @(
+        '-NoProfile', '-File', (Join-Path $PSScriptRoot 'sample-test-memory.ps1'),
+        '-OutFile', $memoryCsv, '-RunnerContainer', $runner, '-PgContainer', $pgContainer, '-WatchProcessId', $PID)
 
     & docker @composeArgs up -d --no-recreate --wait postgres
     if ($LASTEXITCODE -ne 0) { throw 'postgres did not start healthy' }
@@ -118,6 +126,20 @@ try {
             Write-Output $peak
         }
     }
+    if ($memorySampler -and -not $memorySampler.HasExited) { Stop-Process -Id $memorySampler.Id -Force }
+    if ((Test-Path $memoryCsv) -and ($mrows = @(Import-Csv $memoryCsv))) {
+        $peakOf = { param($column) ($mrows | Where-Object { $_.$column -ne '' } | ForEach-Object { [int]$_.$column } |
+            Measure-Object -Maximum).Maximum }
+        $lowOf = { param($column) ($mrows | Where-Object { $_.$column -ne '' } | ForEach-Object { [int]$_.$column } |
+            Measure-Object -Minimum).Minimum }
+        $mpeak = ('peak vm_used_mb={0} vmmem_ws_mb={1} runner_mem_mb={2} pg_mem_mb={3} runner_procs={4} ' +
+            'runner_rss_sum_mb={5} runner_rss_max_mb={6} min win_free_mb={7} vm_total_mb={8} samples={9}') -f `
+            (& $peakOf 'vm_used_mb'), (& $peakOf 'vmmem_ws_mb'), (& $peakOf 'runner_mem_mb'), (& $peakOf 'pg_mem_mb'),
+            (& $peakOf 'runner_procs'), (& $peakOf 'runner_rss_sum_mb'), (& $peakOf 'runner_rss_max_mb'),
+            (& $lowOf 'win_free_mb'), (& $peakOf 'vm_total_mb'), $mrows.Count
+        $mpeak | Out-File (Join-Path $runDir 'memory-peak.txt') -Encoding ascii
+        Write-Output $mpeak
+    }
     $wall = Join-Path $runDir 'wall-time.txt'
     if (Test-Path $wall) { Get-Content $wall }
     $console = Join-Path $runDir 'console.log'
@@ -126,5 +148,6 @@ try {
     Write-Output "OPS-03 run $runId exit code $exitCode"
 } finally {
     if ($keepAwake -and -not $keepAwake.HasExited) { Stop-Process -Id $keepAwake.Id -Force }
+    if ($memorySampler -and -not $memorySampler.HasExited) { Stop-Process -Id $memorySampler.Id -Force }
 }
 exit $exitCode

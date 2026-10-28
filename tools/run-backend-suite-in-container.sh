@@ -38,11 +38,22 @@ else
   echo "test dependencies cached (marker hit)"
 fi
 
+# PERF-01 phase 0: the collected node IDs (whole suite, no tier filter) for the run-to-run ID comparison, and
+# per-test set-up / call / teardown times (backend/tests/phase_timing.py).
+/opt/assetops-venv/bin/python -m pytest backend/tests --collect-only -q -p no:cacheprovider > "$out/collected.txt" 2>&1 || true
+export ASSETOPS_TEST_PHASE_TIMES="$out/phase-times.csv"
+
+# A focused Docker run may name its own targets (paths or node IDs, space-separated); the default is the suite.
+targets="${ASSETOPS_TEST_TARGETS:-backend/tests}"
+case "$targets" in
+  *[!A-Za-z0-9_/.:\ -]*) echo "ASSETOPS_TEST_TARGETS holds characters outside [A-Za-z0-9_/.: -]" >&2; exit 2 ;;
+esac
+
 date -u +%Y-%m-%dT%H:%M:%SZ > "$out/pytest-started"
 start=$(date +%s)
 set +e
 {
-  /opt/assetops-venv/bin/python -m pytest backend/tests -n "${ASSETOPS_TEST_WORKERS:-4}" --dist loadfile --no-loadscope-reorder -q \
+  /opt/assetops-venv/bin/python -m pytest $targets -n "${ASSETOPS_TEST_WORKERS:-4}" --dist loadfile --no-loadscope-reorder -q \
     --durations=30 --junitxml="/workspace/var/test-results/OPS-03/$run_id/junit.xml"
   echo $? > "$out/exit-code"
 } 2>&1 | tee "$out/console.log"
