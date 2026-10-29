@@ -133,6 +133,11 @@ def test_d_action_records_walkthrough_and_contract(runner) -> None:
     assert after["state"]["outcome"]["state"] == "PENDING" and after["change"] == change
     assert after["newer_revision_notice"] is not None and after["latest_finding_revision"]["is_origin"] is False
     assert overview["capability_denied"]["body"]["system_demo_capability"]["apply"]["allowed"] is False
+    # OUT-A3 (ruled default 1): the Action read carries the reserve-trial mechanism's categories on the mini grid.
+    from assetops_backend.outcomes.outcome_map import categories_for
+
+    assert overview["accepted_pending"]["body"]["categories"] == categories_for(
+        "FINDING:GENERATOR_SUPPORT_CANDIDATE", "mini_grid")
     assert overview["wrong_site_404"]["status"] == 404
 
     # History: server order despite OBSERVED's earlier occurred_at; exact event; cutoff; conflict.

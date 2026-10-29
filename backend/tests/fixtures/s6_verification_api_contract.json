@@ -513,6 +513,38 @@
     "foundation_revision_id": "<uuid>",
     "input_sha256": "<sha256>"
    },
+   "categories": {
+    "items": [
+     {
+      "category": "OPTIMIZE_COST",
+      "label": "Optimize cost and efficiency",
+      "outcomes": [
+       {
+        "key": "MG-2",
+        "label": "Supply cost per kWh"
+       }
+      ],
+      "role": "MOVES"
+     },
+     {
+      "category": "PROTECT_ASSET",
+      "label": "Protect asset and capital",
+      "outcomes": [
+       {
+        "key": "MG-5",
+        "label": "Reliable service"
+       },
+       {
+        "key": "MG-4",
+        "label": "Battery and generator life"
+       }
+      ],
+      "role": "CHECKED"
+     }
+    ],
+    "policy_version": "outcome-map/1",
+    "state": "MAPPED"
+   },
    "change": {
     "action_id": "<uuid>",
     "applied_event_id": "<uuid>",
@@ -9059,7 +9091,7 @@
        ],
        "model_version": "dispatch-3.2",
        "run_id": "<uuid>",
-       "selection_seq": 19,
+       "selection_seq": 27,
        "window_revision_ids": [
         "<uuid>"
        ]
@@ -9343,7 +9375,7 @@
         ],
         "model_version": "dispatch-3.2",
         "run_id": "<uuid>",
-        "selection_seq": 22,
+        "selection_seq": 30,
         "window_revision_ids": [
          "<uuid>"
         ]

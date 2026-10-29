@@ -14,6 +14,7 @@ from types import SimpleNamespace
 from uuid import UUID, uuid4
 
 import pytest
+from assetops_backend.outcomes.outcome_map import categories_for
 from test_w205b_ev_replay_postgres import CASES, SELECTED, URL, VECTORS, _connector_asset, chain  # noqa: F401
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -262,7 +263,9 @@ def test_six_replays_read_through_the_selected_api(chain, case) -> None:  # noqa
         assert [x["finding_id"] for x in findings["items"]] == [item["finding_id"]]
         assert set(findings["items"][0]) == {"finding_id", "revision_id", "revision_no", "basis_sha256",
                                              "session_id", "title", "claim_level", "lifecycle", "as_of",
-                                             "source_provenance", "links"}
+                                             "source_provenance", "links", "categories"}
+        assert findings["items"][0]["categories"] == categories_for("FINDING:EV_INTERRUPTION", "ev_charging")  # A3
+        assert finding["categories"] == findings["items"][0]["categories"]
         # Withdrawal (the FAULT source's clock proof revoked): the Finding leaves the list and the session; its
         # detail at the new selection is history only.
         _withdrawal(built, stored_findings(built)[0])

@@ -31,6 +31,8 @@ from assetops_backend.actions.lifecycle import (
 )
 from assetops_backend.actions.ports import ActionRefused, ActionStore, ApplyFailed, FoundationPublish
 from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, PROVENANCE_UNREADABLE, unresolved
+from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
 # (tenant_id, site_id, finding_id, revision_id | None, source_open) ->
 #   {"revision_id", "latest_revision_id", "is_latest", "claim_is_current"} | None (unknown in this Site)
@@ -698,6 +700,9 @@ class ActionService:
             "source_provenance": self.source_provenance(tenant_id, site_id, action["origin_finding_revision_id"]),
             "system_demo_capability": capability,
             "links": self._links(site_code, action, chosen),
+            # OUT-A3 (ruled default 1): the read has no origin mechanism; the reserve trial is the only mechanism an
+            # Action can be created from, so its constant maps on the mini-grid domain. No new query.
+            "categories": categories_for(finding_signal_key(reserve_trial.MECHANISM), MINI),
         }
 
     def events(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,

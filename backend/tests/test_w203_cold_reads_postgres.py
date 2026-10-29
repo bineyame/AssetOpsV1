@@ -16,6 +16,7 @@ from uuid import uuid4
 import pytest
 
 from assetops_backend.analytics.cold_reads import currentness_state, encode_cursor, probe_fresh
+from assetops_backend.outcomes.outcome_map import categories_for
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 needs_db = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -148,7 +149,12 @@ def test_window_limit_and_paging(chain) -> None:  # noqa: F811
     items = first["items"] + second["items"]
     assert {i["kind"] for i in items} == {"EXCURSION", "START_RESPONSE"}
     assert get(c, f"findings?{W}")["items"] == items
+    # OUT-A3: each kind maps through its stored cold mechanism; F-118 moves and checks Protect, checks Cost.
+    mechanism = {"EXCURSION": "COLD_EXCURSION", "START_RESPONSE": "COLD_START_FAILURE"}
+    for i in items:
+        assert i["categories"] == categories_for("FINDING:" + mechanism[i["kind"]], "cold_chain") and             i["categories"]["state"] == "MAPPED"
     detail = get(c, f"findings/{items[0]['finding_id']}?{W}")
+    assert detail["categories"] == items[0]["categories"]
     assert detail["revisions"][0]["transition"] == "OPENED" and detail["episode_revision_id"]
     listed = get(c, f"findings?{W}")
     _assert_selected_blocks(built, listed, items,
