@@ -16,7 +16,7 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   root, the runner or a dependency manifest. Cite its output and the run's JUnit
   zero-skip check in the review packet. It covers `backend/tests` only. A
   change under `field/`, `host/` or `gateway/` also needs that package's own
-  tests (for example `toolsun-host-tests.ps1 -- host/tests/<file>`).
+  tests (for example `tools\run-host-tests.ps1 -- host/tests/<file>`).
 - **At every merge to main:** the full backend fast tier in Docker (build once,
   copy per test, below), the full frontend suite and check-all. Schema or shared
   plumbing merges add the slow tier.
