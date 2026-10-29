@@ -102,3 +102,56 @@ they also fail under forks on this main, so they are found, not caused. Forks ha
   ingestion).
 - Memory peak: VM used 2453 MB, vmmem 3147 MB, runner RSS sum 1480 MB (370 MB per worker; the largest process
   336 MB), Postgres 677 MB, min Windows free 3273 MB.
+
+## Profiles and the 5-worker trial (owner 2026-10-29: "yes to the performance point")
+
+### Site-build profiles (`var/test-results/PERF-01-profiles/`)
+
+Method: py-spy 0.4.0 at 100 Hz (`--threads --subprocesses`) on one test per family, run in the Docker runner on
+`postgres-test`. The tools are `tools/profile-tests-in-container.ps1` with `docker-compose.profile.yml` (SYS_PTRACE,
+runner only), and `tools/profile-summary.py`. Each family has an on-CPU run and an idle-included wall run.
+
+| family (test) | test wall | on-CPU: test thread / in-process app / gateway | where the test thread's wall goes |
+| --- | ---: | --- | --- |
+| EV complete (w206_ev_store) | 21.3 s | 4.5 / 3.4 / 2.3 s | gateway IPC wait 58%, YAML 15%*, DB driver 11%, gateway start 7% |
+| cold backup-failed (w502_domain_intent) | 22.1 s | 2.6 / 3.4 / 1.7 s | gateway IPC wait 49%, YAML 14%*, DB driver 14%, gateway start 11% |
+| mini W4 set-up + ingest + reconcile (w403_job_isolation) | 45.3 s | 16.8 / 0.4 / 0 s | DB driver 61% (6.9 s on CPU, the rest waiting on Postgres), SQLAlchemy 17%, envelope parse/validate 5% |
+| portfolio (w303 scope snapshot) | about 50 s (wall view incomplete, see note) | 7.8 / 8.6 / 7.3 s | gateway IPC, DB driver, YAML*, 3 gateway starts |
+
+\* YAML is the scenario catalogue. It is read once per test process (`tests/scenario_cache.py`), so in a full run it
+is paid once per worker, not once per build. The same goes for imports. They are excluded from the per-build
+figures below.
+
+Note: in the portfolio wall run, py-spy lost most main-thread samples under 4 gateway children, so only its on-CPU
+figures are used.
+
+Per-build hotspots in a full run:
+- **Ingest round trip (EV and cold).** The test thread waits on the gateway while the gateway uploads over TLS to
+  the in-process central app, which ingests row by row (`ledger_service.submit` -> `postgres_evidence_ledger.work /
+  decide_chunk / _persist`). About 13.7k SQL statements per EV build.
+- **Gateway start.** 1.6-2.5 s per gateway.
+- **TLS in the gateway uploader.** `ssl.create_default_context` on every post: 1.1-1.3 s of CPU per build, plus
+  handshakes.
+- **Mini ingest.** In-process and Postgres-bound: about 21 s waiting on the server, plus `mini_depth.append_selection`
+  at 4.8 s.
+- **No sleeps or polling.** Sleep is at most 0.1 s per build.
+
+### 5-worker trial (`var/test-results/PERF-01-workers5/`, run 20261029-101114-000eaf)
+
+The memory guard allowed 5 (budget 2478 MB at 450 MB per worker), so 6 was not tried.
+
+| | 4 workers (20261029-075935) | 5 workers |
+| --- | ---: | ---: |
+| pytest wall | 3759 s (62.6 min) | 3435 s (57.2 min, -8.6%) |
+| summed test time | 14,520 s | 16,203 s (+11.6% per test) |
+| idle in span | 240 s | 611 s |
+| VM CPU (8 logical) | not sampled | mean 60%, p90 68%, max 71%, never 90% |
+| host CPU | not sampled | mean 76%, p90 90%, max 100% (Chrome was open) |
+| runner / Postgres cores | - | 2.7 / 1.6 mean, 4.1 / 3.0 max |
+| peak VM used / vmmem | 2453 / 3147 MB | 2738 / 3553 MB |
+| min Windows free | 3273 MB | 2747 MB |
+| result | 4130 passed + 2 known | 4130 passed + 2 known |
+
+The CPU is an i7-1065G7: 4 physical cores, 8 threads, 15 W. VM CPU levelling off at 60-70% of 8 logical CPUs, with
+every test 11.6% slower, means the physical cores are saturated. A fifth worker buys 8.6%, and a sixth would buy
+little or nothing on this laptop.

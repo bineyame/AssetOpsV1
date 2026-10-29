@@ -1,0 +1,9 @@
+# PERF-01: profiling override for the one-shot test runner (tools/profile-tests-in-container.ps1 only).
+# py-spy needs ptrace to sample the pytest process and its children (gateway subprocesses). Nothing else changes.
+services:
+  backend-test-runner:
+    cap_add: [SYS_PTRACE]
+    command: ["sh", "/workspace/tools/profile-tests-in-container.sh"]
+    environment:
+      ASSETOPS_PROFILE_TARGETS: ${ASSETOPS_PROFILE_TARGETS:?set by tools/profile-tests-in-container.ps1}
+      ASSETOPS_PROFILE_IDLE: ${ASSETOPS_PROFILE_IDLE:-}

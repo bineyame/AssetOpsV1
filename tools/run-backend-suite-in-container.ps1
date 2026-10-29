@@ -26,6 +26,7 @@
 param(
     [int]$CapMinutes = 100,  # 2x the expected wall (backend/TESTING.md Timing)
     [int]$Workers = 0,
+    [int]$MaxWorkers = 4,  # PERF-01 trial: the most workers -Workers 0 may choose (the memory guard still decides)
     [string]$Targets = 'backend/tests',
     [ValidateSet('dedicated', 'shared')][string]$Server = 'dedicated',
     [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all',
@@ -108,7 +109,7 @@ if ($Workers -le 0) {
         "$memoryNote REFUSED" | Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
         exit 3
     }
-    $Workers = [int][math]::Min(4, $fit)
+    $Workers = [int][math]::Min($MaxWorkers, $fit)
 }
 
 $env:ASSETOPS_TEST_WORKERS = [string]$Workers
