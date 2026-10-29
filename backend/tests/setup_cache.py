@@ -271,7 +271,9 @@ def row_fingerprint(tmp_root: str | None) -> dict:
 
 
 def _snapshot_name(key: str) -> str:
-    return f"assetops_sc_{code_fingerprint()[:8]}_{key[:20]}_test"
+    # The mode is part of the name (review M2): a verify cache and an on cache never share a saved database.
+    mode = "v" if verify() else "c"
+    return f"assetops_sc_{code_fingerprint()[:8]}_{mode}{key[:19]}_test"
 
 
 def _exists(name: str) -> bool:
@@ -686,6 +688,10 @@ def run_op(original, kind: str, label: str, args, kwargs):
             # state is the module's clone plus other tests' leftovers, which it is not meant to see. It starts
             # from the clean clone instead, so equal ops share one saved build.
             pristine = True
+        if not fresh and not pristine and _state.get("writes_since_op"):
+            # Review M1: the digest cannot see every write (time columns, tables over 500 rows). A test that has
+            # written to the worker database since its previous op runs this op live.
+            raise NotCached("the test wrote to the database since its previous op")
         start_state = None if fresh else ("pristine-clone" if pristine else state_digest())
         fresh_start = fresh
         key = hashlib.sha256(json.dumps([code_fingerprint(), label, plain_args, _plain(kwargs), self_fields,
@@ -701,6 +707,7 @@ def run_op(original, kind: str, label: str, args, kwargs):
             record["seconds"] = round(time.perf_counter() - started, 3)
             _log(record)
     _state["ops_in_test"] = _state.get("ops_in_test", 0) + 1
+    _state["writes_since_op"] = 0
     folder = Path(os.environ[DIR_ENV]) / code_fingerprint()[:8] / key[:20]
     name = _snapshot_name(key)
     meta_path = folder / "meta.pkl"
@@ -714,9 +721,14 @@ def run_op(original, kind: str, label: str, args, kwargs):
             return result
         except NotCached as reason:
             record["restore_refused"] = str(reason)
+    start_unknown = False
     if pristine:
-        _reset_pristine()
-        record["reset_to_clone"] = True
+        try:
+            _reset_pristine()
+            record["reset_to_clone"] = True
+        except NotCached as reason:  # review L5: the clean-clone start is refused, the op still runs live
+            record.update(reset_refused=str(reason))
+            start_unknown = True  # the key assumed a clean clone: nothing is saved or compared
     _state["depth"] += 1
     try:
         result = original(*args, **kwargs)
@@ -724,7 +736,9 @@ def run_op(original, kind: str, label: str, args, kwargs):
         _state["depth"] -= 1
     record["build_seconds"] = round(time.perf_counter() - started, 3)
     try:
-        if hit and verify():
+        if start_unknown:
+            record["outcome"] = "live"
+        elif hit and verify():
             record.update(outcome="verify", **_compare(kind, args, result, folder, chain_tmp))
         elif not hit:
             _save(kind, args, result, folder, key, chain_tmp)
@@ -932,6 +946,7 @@ def _track_engines() -> None:
             _state.setdefault("seeded", {})[_state.get("module")] = True
         else:
             _state["test_writes"] = _state.get("test_writes", 0) + 1
+        _state["writes_since_op"] = _state.get("writes_since_op", 0) + 1
 
     event.listen(Engine, "engine_connect", on_connect)
     event.listen(Engine, "before_cursor_execute", on_execute)
@@ -1032,7 +1047,7 @@ class SetupCachePlugin:
             _state["baseline"] = None
         if _state.get("baseline") is None:  # after every wrapper of this process is installed
             _code_baseline()
-        _state.update(ops_in_test=0, test_writes=0, phase="setup", module=getattr(item.module, "__name__", ""))
+        _state.update(ops_in_test=0, test_writes=0, writes_since_op=0, phase="setup", module=getattr(item.module, "__name__", ""))
         yield
         _state["phase"] = None
 

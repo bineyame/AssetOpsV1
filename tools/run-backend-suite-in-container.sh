@@ -47,7 +47,7 @@ rm -rf "$code"
 mkdir -p "$code"
 # Only what the backend suite reads (code, shipped data, fixtures, tools, var/ without results, the frontend source).
 tar -C /workspace --exclude=./var/test-results --exclude='*/__pycache__' --exclude='*/node_modules' -cf - \
-  ./backend ./contracts ./simulator ./gateway ./host ./field ./config ./contract-fixtures ./tools ./var ./frontend/src \
+  ./backend ./contracts ./simulator ./gateway ./host ./field ./config ./contract-fixtures ./tools ./var ./frontend/src ./frontend/docs \
   ./docker-compose.yml ./docker-compose.test.yml | tar -C "$code" -xf -
 echo "worktree copied to $code in $(( $(date +%s) - copy_start )) s" | tee "$out/worktree-copy.txt"
 cd "$code"

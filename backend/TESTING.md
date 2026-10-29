@@ -14,7 +14,9 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   It selects the whole suite by itself when the change touches migrations, the
   harness, conftest, shipped configuration or fixture data, the composition
   root, the runner or a dependency manifest. Cite its output and the run's JUnit
-  zero-skip check in the review packet.
+  zero-skip check in the review packet. It covers `backend/tests` only. A
+  change under `field/`, `host/` or `gateway/` also needs that package's own
+  tests (for example `toolsun-host-tests.ps1 -- host/tests/<file>`).
 - **At every merge to main:** the full backend fast tier in Docker (build once,
   copy per test, below), the full frontend suite and check-all. Schema or shared
   plumbing merges add the slow tier.
@@ -201,14 +203,16 @@ PERF-01 options and records:
   5 workers and their gateway children). Below two workers it refuses to start
   (exit 3) and says to close programs or pass `-Workers`.
 - `-Targets` runs named files or node IDs instead of `backend/tests`.
-- Every run also writes `collected.txt` (the whole suite's `--collect-only`
-  node IDs, whatever the tier), `phase-times.csv` (each test's set-up, call and
+- Every run also writes `collected.txt` (the node IDs the run itself
+  collected, after any tier filter: a fast and a slow run together give the
+  whole suite), `phase-times.csv` (each test's set-up, call and
   teardown time, `tests/phase_timing.py`), `memory.csv` and `memory-peak.txt`
   (`tools/sample-test-memory.ps1`, every 5 s: Windows free memory, the VM
   process's working set, memory used inside the VM, runner and database
   container memory, runner processes and their resident sizes) and
   `run-options.txt` (memory at start and the options chosen). The container
-  checks before pytest that every AssetOps package imports from `/workspace`.
+  checks before pytest that every AssetOps package imports from its in-container
+  copy of the worktree (`/tmp/assetops-worktree`, see PERF-02 below).
 - `python tools/summarize-test-run.py <run-dir> [--compare <baseline-dir>
   --extra <slow-tier-dir> --known-failure <id>]` writes `report.md`,
   `summary.json` and `passed.txt`, and checks a run against a baseline:

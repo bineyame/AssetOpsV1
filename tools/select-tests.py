@@ -42,6 +42,10 @@ ALWAYS_FULL = [
     "backend/assetops_backend/main.py", "backend/db/*", "docker-compose*.yml", "tools/run-backend-suite-in-container.*",
     ".gitattributes",
 ]
+# Review M3: a tools/ file other than the guard scripts and .mjs evidence tools, and a non-code frontend file
+# (JSON, docs and other data), can be read by a backend test at run time: the whole suite.
+TOOLS_EXEMPT = ["tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
+FRONTEND_CODE = ["frontend/src/*.ts", "frontend/src/*.tsx", "frontend/src/*.css", "frontend/*.md"]
 NO_BACKEND = ["*.md", ".agent/*", "Docs/*", "docs/*", "frontend/*", "tasks/*", ".ai/*", "AGENTS.md",
               "tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
 FRONTEND_FULL = ["frontend/package.json", "frontend/package-lock.json", "frontend/vite.config.ts",
@@ -158,6 +162,11 @@ def select(changed: list[str], graph=None) -> dict:
     files, edges = graph or build_graph()
     tests = sorted(p for p in files if p.parent == REPO / TEST_DIR and p.name.startswith("test_"))
     full_reasons = sorted(c for c in changed if matches(c, ALWAYS_FULL))
+    full_reasons += [f"{c} (a tool a test may run or read)" for c in changed
+                     if c.startswith("tools/") and not matches(c, TOOLS_EXEMPT) and not matches(c, ALWAYS_FULL)]
+    full_reasons += [f"{c} (frontend data a backend test may read)" for c in changed
+                     if c.startswith("frontend/") and not matches(c, FRONTEND_CODE) and not matches(c, FRONTEND_FULL)
+                     and "/node_modules/" not in c]
     python_changed = set()
     for c in changed:
         if c.endswith(".py") and not matches(c, NO_BACKEND):
