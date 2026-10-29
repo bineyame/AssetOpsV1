@@ -26,7 +26,7 @@ CODE_ROOTS = ("backend", "host", "gateway", "simulator", "contracts", "field")
 
 
 def git(*args) -> str:
-    return subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True, check=True).stdout
+    return subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True, encoding="utf-8", errors="replace", check=True).stdout
 
 
 def load_selector():
@@ -59,7 +59,8 @@ def main() -> None:
         if not any(c.startswith(tuple(r + "/" for r in CODE_ROOTS)) for c in changed):
             continue
         with tempfile.TemporaryDirectory() as tmp:
-            data = subprocess.run(["git", "archive", "--format=tar", merge, *CODE_ROOTS], cwd=REPO,
+            present = [r for r in CODE_ROOTS if r in git("ls-tree", "--name-only", merge).split()]
+            data = subprocess.run(["git", "archive", "--format=tar", merge, *present], cwd=REPO,
                                   capture_output=True, check=True).stdout
             tarfile.open(fileobj=io.BytesIO(data)).extractall(tmp, filter="data")
             selector.REPO = Path(tmp)

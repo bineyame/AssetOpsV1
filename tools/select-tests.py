@@ -149,7 +149,7 @@ def reaches(start: Path, changed: set[Path], edges, memo) -> bool:
 
 
 def changed_files(base: str, head: str) -> list[str]:
-    out = subprocess.run(["git", "diff", "--name-only", f"{base}...{head}"], cwd=REPO, capture_output=True,
+    out = subprocess.run(["git", "diff", "--name-only", f"{base}...{head}"], cwd=REPO, capture_output=True, encoding="utf-8", errors="replace",
                          text=True, check=True).stdout
     return [line.strip() for line in out.splitlines() if line.strip()]
 
