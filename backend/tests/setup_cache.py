@@ -62,6 +62,7 @@ LOG_ENV = "ASSETOPS_SETUP_CACHE_LOG"
 CODE_ENV = "ASSETOPS_SETUP_CODE_FP"
 REPO = Path(__file__).resolve().parents[2]
 SMALL_TABLE = 500
+CACHE_FORMAT = 2  # bump to start a fresh cache namespace (part of the code fingerprint through this file)
 TIME_TYPES = ("timestamp", "date", "time", "interval")
 
 # (class, defining modules, methods, kind). "fresh-open": the op starts from pg_harness.fresh_database().
