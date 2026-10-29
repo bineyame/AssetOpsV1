@@ -1,0 +1,6343 @@
+{
+  "checked_at": "2026-10-29T06:16:23.891Z",
+  "screens": 114,
+  "book_pages": 46,
+  "page_height_px": 2590,
+  "checks": [
+    {
+      "label": "Prototype booted",
+      "passed": true,
+      "detail": "[]"
+    },
+    {
+      "label": "portfolio: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "portfolio: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sites: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "mini: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "foundation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "readiness: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "changes: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "dispatch: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "renewable: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "finding: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "analysis: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "financials: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "assumptions: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "recommendation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "recommendation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "recommendation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "recommendation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "verification: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "health: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "lab: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "temperature: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cooling: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "coldbackup: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sessions: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "availability: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "energy: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "incident: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "workverification: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "service: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "fuel: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "backup: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sitefindings: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sitework: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sitework-incidents: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sitework-maintenance: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "evidence-analysis: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "assets: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "findings: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "actions: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "incidents: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "maintenance: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "globalevidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "globalfinancials: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-foundation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-health: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-evidence-analysis: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-financials: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-assumptions: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-findings: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-work: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-work-incidents: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-work-maintenance: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-finding: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-recommendation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-recommendation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-recommendation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-recommendation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-foundation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-health: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-evidence-analysis: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-financials: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-assumptions: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-findings: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-work: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-work-incidents: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-work-maintenance: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-finding: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-recommendation: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-action: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-action: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-action: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-action: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "finding-evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "alternatives: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "alternatives: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "alternatives: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "alternatives: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-history: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-history: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "finding-history: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-history: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-overview: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-overview: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "action-overview: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-overview: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-plan: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-plan: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "action-plan: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-plan: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-execution: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-execution: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "action-execution: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-execution: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "action-evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-history: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-history: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "action-history: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-history: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "opportunity-finding: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding-excursion: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding-excursion: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-finding-excursion: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding-excursion: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-action: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-action: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-action: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-action: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "scenarios: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-scenarios: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-scenarios: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-readiness: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-readiness: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "sld: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-sld: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-sld: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets-warranty: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets-warranty: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "assets-warranty: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets-warranty: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-register: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-register: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-register: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-register: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-overview: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-create-form: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-create-template: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-batch-upload: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "site-setup-history: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-performance: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-performance: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-performance: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-performance: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-config: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-config: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-config: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-config: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-edit: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-edit: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-edit: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-edit: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-work: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-work: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-work: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-work: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-evidence: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-evidence: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-evidence: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-evidence: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "asset-warranty: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "findings-cost: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "findings-risks: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "findings-opportunities: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance-preventive: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance-preventive: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "maintenance-preventive: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance-preventive: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-overview: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-overview: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "wr-overview: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-overview: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-record: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-record: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "wr-record: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-record: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-history: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-history: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "wr-history: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-history: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "oprecords: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "oprecords: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "oprecords: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "oprecords: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-policies: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-policies: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "settings-policies: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-policies: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-tenant: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-tenant: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "settings-tenant: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-tenant: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "mini-outcomes: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "cold-outcomes: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "ev-outcomes: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "signals: visible page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "signals: no horizontal page overflow",
+      "passed": true,
+      "detail": "1425/1440"
+    },
+    {
+      "label": "signals: one subtab row maximum",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "signals: all route targets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site domain filter",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Portfolio value-led headline",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Opportunity lens keeps Finding ownership",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Risk lens keeps all risk findings across domains",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Cost lens preserves consequence basis",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Portfolio scope discloses unlike periods",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Recovered value is not work completion",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Portfolio notes retain both references",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Gap interval opens bounded evidence",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Escape closes drawer",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Assumption reaches portfolio",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Accept changes to Actions root",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Work does not auto-verify",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Empty state withholds money",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Cold shell retains site context",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: no Lab route or simulator wording in site page",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Mini overview cards use canonical assessments only",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Mini overview shows the causal strip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site lens filters in place",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: Actions | Incidents | Maintenance subtabs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: Actions | Incidents | Maintenance subtabs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: Actions | Incidents | Maintenance subtabs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Empty site work state is explicit",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: shared evidence layout",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: shared evidence layout",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: shared evidence layout",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: bridge keeps basis, confidence and source",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: bridge keeps basis, confidence and source",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: bridge keeps basis, confidence and source",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Cold backup separates backup from refrigeration failure",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Selected block follows selection",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "EV shell has distinct service content",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Review notes retained locally",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "recommendation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-recommendation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-action: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "alternatives: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-history: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-overview: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-plan: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-execution: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-history: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding-excursion: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-action: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets-warranty: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-register: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-performance: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-config: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-edit: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-work: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-evidence: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance-preventive: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-overview: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-record: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-history: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "oprecords: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-policies: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-tenant: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: site and window in top bar; provenance beside site name",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "signals: no Simulated badge in page chrome",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: Scenarios placeholder",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: Scenarios placeholder",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: Scenarios placeholder",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Global Findings lists F-108 and F-119",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Portfolio lists F-108 and F-119",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Cold-room diagram is hybrid",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: window picker in top bar",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: window picker works",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Lab shell keeps its own window label",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Window persists from Portfolio into a site",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sites: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "foundation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "changes: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "renewable: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "analysis: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: minifin names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "financials: minifin popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: minifin names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assumptions: minifin popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "recommendation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "health: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "temperature: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: cooling names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cooling: cooling popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sessions: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "availability: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "energy: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "service: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "fuel: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "backup: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitefindings: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-incidents: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sitework-maintenance: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "evidence-analysis: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "actions: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incidents: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalevidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "globalfinancials: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-foundation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-health: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-evidence-analysis: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-financials: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-assumptions: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-findings: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-incidents: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-work-maintenance: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-recommendation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-foundation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-health: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-evidence-analysis: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-financials: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-assumptions: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-findings: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-incidents: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-work-maintenance: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-finding: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-action: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "alternatives: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "finding-history: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-overview: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-plan: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-execution: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "action-history: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "opportunity-finding: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-finding-excursion: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-action: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "scenarios: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-scenarios: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-scenarios: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "assets-warranty: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-register: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: batcond names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-overview: batcond popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-performance: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-config: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-edit: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-work: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-evidence: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: batwarranty names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "asset-warranty: batwarranty popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: f104 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-cost: f104 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: f130 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-risks: f130 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "findings-opportunities: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "maintenance-preventive: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-overview: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-record: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "wr-history: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "oprecords: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-policies: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "settings-tenant: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini-outcomes: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-outcomes: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-outcomes: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "signals: no plain Low confidence without a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Confidence chips found across the mock-up",
+      "passed": true,
+      "detail": "25"
+    },
+    {
+      "label": "Confidence call to action navigates",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Pre-filled new action opens from a cause",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Evidence drawer confidence explains itself",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: gateway status panel",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "readiness: Readiness subtab active",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: gateway status panel",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-readiness: Readiness subtab active",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: gateway status panel",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-readiness: Readiness subtab active",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Gateway figures follow the analysis window",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Source-availability cause links to gateway status",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Rail: Work holds Operational records; Admin holds Settings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Assets index: condition, evidence, findings, work and warranty columns",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Warranty attention filter",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Battery warranty: terms against evidence, cover at risk, claim chip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Sites: Directory and three creation routes as subtabs; In setup panel",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-setup-history: estate-level page, no site selector or site provenance tag",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site form: six steps, blocking checks clear, gaps expected at creation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Template preview redraws its diagram with nothing reporting",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Batch preview: per-row results",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Fixing a row clears its error",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Import shows results and drafts",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Imported drafts appear In setup",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Setup history records the import",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Assets index opens BAT-001 at Overview",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site Health opens BAT-001 at Overview",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Asset Overview: identity, provenance, status with cause chip, five cards, timeline, attention, money, next step",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Asset Overview follows the window",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Warranty and vendors: repair or claim, vendor performance",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Registration draft shows validation states",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Registration submit explains validation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Edit registration keeps Configuration tab active",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Findings lenses are the subtab row",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Workflow state is a filter, not a lens",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Risks lens",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Finding detail: priority, confidence, state, claim, lens and where to look next",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Evidence drawer: chain with basis, settings at the time",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Maintenance: Corrective | Preventive, plan with due states",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Maintenance record with managed header",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "verification: managed-object header",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "incident: managed-object header",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "workverification: managed-object header",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Operational records filter by type",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Policies save as a new version",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Tenant settings keep the workspace out of operator wording",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site Financials reads the warranty record",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "EV Financials shows repair or claim line",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Site switch sitework-incidents → cold keeps the tab",
+      "passed": true,
+      "detail": "#/cold-work-incidents"
+    },
+    {
+      "label": "Site switch coldbackup → mini keeps the tab",
+      "passed": true,
+      "detail": "#/backup"
+    },
+    {
+      "label": "Site switch temperature → ev keeps the tab",
+      "passed": true,
+      "detail": "#/sessions"
+    },
+    {
+      "label": "Site switch evidence-analysis → ev keeps the tab",
+      "passed": true,
+      "detail": "#/ev-evidence-analysis"
+    },
+    {
+      "label": "Site switch sld → cold keeps the tab",
+      "passed": true,
+      "detail": "#/cold-sld"
+    },
+    {
+      "label": "Site switch readiness → ev keeps the tab",
+      "passed": true,
+      "detail": "#/ev-readiness"
+    },
+    {
+      "label": "30-day range updates window and figures",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Range persists across sites and tabs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Custom range applies",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Event window restores event labels",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: single line diagram rendered as product view",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold-sld: single line diagram rendered as product view",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-sld: single line diagram rendered as product view",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "EV overview uses canonical cards and causal strip",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "EV recommendation names owner, consequence and criteria",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "portfolio: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "dispatch: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "lab: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "sld: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev-recommendation: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "coldbackup: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-form: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-create-template: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "site-batch-upload: mobile containment",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "PDF page height (v7.0: outcome screens are taller, so pages may be portrait)",
+      "passed": true,
+      "detail": "1728 x 2590 · tallest: book-mini-outcomes:2560 book-cold-outcomes:2468 book-ev-outcomes:2393 book-portfolio:2269 book-signals:1934"
+    },
+    {
+      "label": "No browser runtime errors",
+      "passed": true,
+      "detail": "[]"
+    }
+  ],
+  "measurements": [
+    {
+      "id": "portfolio",
+      "title": "Portfolio Value & Operations",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2414,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "sites",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1193,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "mini",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1576,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "foundation",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1184,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "readiness",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1612,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "changes",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "dispatch",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1424,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "renewable",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1300,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "evidence",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1334,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "finding",
+      "title": "Generator support merits review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1578,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "analysis",
+      "title": "Generator support merits review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1292,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "financials",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1327,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "assumptions",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "recommendation",
+      "title": "Generator support merits review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1176,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "verification",
+      "title": "Reduce extended generator support",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1258,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1240,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "health",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "lab",
+      "title": "Kobo · Gateway & Ingestion",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1249,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1611,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "temperature",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1269,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cooling",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1312,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "coldbackup",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1614,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1569,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "sessions",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1109,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "availability",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "energy",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1230,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "incident",
+      "title": "Backup failure and temperature excursion",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "workverification",
+      "title": "Starter and control-circuit inspection",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1173,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "service",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1328,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "fuel",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1477,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "backup",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1274,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "sitefindings",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "sitework",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "sitework-incidents",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "sitework-maintenance",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "evidence-analysis",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "assets",
+      "title": "Assets",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1275,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "findings",
+      "title": "Findings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1201,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "actions",
+      "title": "Actions",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "incidents",
+      "title": "Incidents",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "maintenance",
+      "title": "Maintenance",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "globalevidence",
+      "title": "Portfolio evidence",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "globalfinancials",
+      "title": "Portfolio financials",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-foundation",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-health",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-evidence",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1334,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-evidence-analysis",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-financials",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-assumptions",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-findings",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-work",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-work-incidents",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-work-maintenance",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-finding",
+      "title": "Backup response failed during grid interruption",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-recommendation",
+      "title": "Backup response failed during grid interruption",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1460,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-foundation",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-health",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-evidence",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1232,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-evidence-analysis",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-financials",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1150,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-assumptions",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-findings",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-work",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-work-incidents",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-work-maintenance",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-finding",
+      "title": "Connector 2 charging session interrupted",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-recommendation",
+      "title": "Connector 2 charging session interrupted",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1460,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-action",
+      "title": "ACT-061 · Investigate connector 2",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "finding-evidence",
+      "title": "Generator support review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "alternatives",
+      "title": "Generator support review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "finding-history",
+      "title": "Generator support review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "action-overview",
+      "title": "ACT-048 · Generator policy review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "action-plan",
+      "title": "ACT-048 · Generator policy review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "action-execution",
+      "title": "ACT-048 · Generator policy review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "action-evidence",
+      "title": "ACT-048 · Generator policy review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "action-history",
+      "title": "ACT-048 · Generator policy review",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "opportunity-finding",
+      "title": "Productive-use headroom at Kobo",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1119,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-finding-excursion",
+      "title": "Chamber temperature went above policy",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-action",
+      "title": "ACT-051 · Witness automatic-start test",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "scenarios",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-scenarios",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-scenarios",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-readiness",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1431,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-readiness",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1430,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "sld",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1443,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "cold-sld",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1594,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "ev-sld",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1399,
+      "tabRows": 2,
+      "subRows": 1,
+      "broken": []
+    },
+    {
+      "id": "assets-warranty",
+      "title": "Assets",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1728,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-register",
+      "title": "Assets",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1705,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-overview",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1510,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-create-form",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2025,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-create-template",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1732,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-batch-upload",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "site-setup-history",
+      "title": "Sites",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-performance",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-config",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-edit",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1756,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-work",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-evidence",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "asset-warranty",
+      "title": "Kobo battery",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1528,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "findings-cost",
+      "title": "Findings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "findings-risks",
+      "title": "Findings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "findings-opportunities",
+      "title": "Findings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "maintenance-preventive",
+      "title": "Maintenance",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "wr-overview",
+      "title": "Starter and control-circuit inspection",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "wr-record",
+      "title": "Starter and control-circuit inspection",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "wr-history",
+      "title": "Starter and control-circuit inspection",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1101,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "oprecords",
+      "title": "Operational records",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1335,
+      "tabRows": 0,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "settings-policies",
+      "title": "Settings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1113,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "settings-tenant",
+      "title": "Settings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1223,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "mini-outcomes",
+      "title": "Kobo Mini-grid",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2753,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "cold-outcomes",
+      "title": "GreenHarvest Cold Room",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2720,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "ev-outcomes",
+      "title": "Depot Charging Hub",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 2425,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    },
+    {
+      "id": "signals",
+      "title": "Findings",
+      "width": 1440,
+      "scrollWidth": 1425,
+      "height": 1967,
+      "tabRows": 1,
+      "subRows": 0,
+      "broken": []
+    }
+  ],
+  "print_measurements": [
+    {
+      "id": "book-portfolio",
+      "height": 2268.765625,
+      "width": 1728
+    },
+    {
+      "id": "book-sites",
+      "height": 1219.6875,
+      "width": 1728
+    },
+    {
+      "id": "book-mini",
+      "height": 1630.9375,
+      "width": 1728
+    },
+    {
+      "id": "book-foundation",
+      "height": 1223.0625,
+      "width": 1728
+    },
+    {
+      "id": "book-readiness",
+      "height": 1627.421875,
+      "width": 1728
+    },
+    {
+      "id": "book-changes",
+      "height": 1054.578125,
+      "width": 1728
+    },
+    {
+      "id": "book-dispatch",
+      "height": 1441.09375,
+      "width": 1728
+    },
+    {
+      "id": "book-renewable",
+      "height": 1324.609375,
+      "width": 1728
+    },
+    {
+      "id": "book-evidence",
+      "height": 1336.96875,
+      "width": 1728
+    },
+    {
+      "id": "book-finding",
+      "height": 1628.640625,
+      "width": 1728
+    },
+    {
+      "id": "book-analysis",
+      "height": 1294.796875,
+      "width": 1728
+    },
+    {
+      "id": "book-financials",
+      "height": 1349.90625,
+      "width": 1728
+    },
+    {
+      "id": "book-assumptions",
+      "height": 1106.421875,
+      "width": 1728
+    },
+    {
+      "id": "book-recommendation",
+      "height": 1238.609375,
+      "width": 1728
+    },
+    {
+      "id": "book-verification",
+      "height": 1290.4375,
+      "width": 1728
+    },
+    {
+      "id": "book-asset",
+      "height": 1245.09375,
+      "width": 1728
+    },
+    {
+      "id": "book-health",
+      "height": 1106.96875,
+      "width": 1728
+    },
+    {
+      "id": "book-lab",
+      "height": 1295.65625,
+      "width": 1728
+    },
+    {
+      "id": "book-cold",
+      "height": 1633.53125,
+      "width": 1728
+    },
+    {
+      "id": "book-temperature",
+      "height": 1279.03125,
+      "width": 1728
+    },
+    {
+      "id": "book-cooling",
+      "height": 1329.671875,
+      "width": 1728
+    },
+    {
+      "id": "book-coldbackup",
+      "height": 1596.53125,
+      "width": 1728
+    },
+    {
+      "id": "book-ev",
+      "height": 1580.9375,
+      "width": 1728
+    },
+    {
+      "id": "book-sessions",
+      "height": 1141.21875,
+      "width": 1728
+    },
+    {
+      "id": "book-availability",
+      "height": 1090.578125,
+      "width": 1728
+    },
+    {
+      "id": "book-energy",
+      "height": 1259.21875,
+      "width": 1728
+    },
+    {
+      "id": "book-incident",
+      "height": 1111.921875,
+      "width": 1728
+    },
+    {
+      "id": "book-workverification",
+      "height": 1150.5625,
+      "width": 1728
+    },
+    {
+      "id": "book-service",
+      "height": 1338.71875,
+      "width": 1728
+    },
+    {
+      "id": "book-fuel",
+      "height": 1481.28125,
+      "width": 1728
+    },
+    {
+      "id": "book-backup",
+      "height": 1295.09375,
+      "width": 1728
+    },
+    {
+      "id": "book-sitefindings",
+      "height": 1023,
+      "width": 1728
+    },
+    {
+      "id": "book-sitework",
+      "height": 1023,
+      "width": 1728
+    },
+    {
+      "id": "book-assets",
+      "height": 1295.578125,
+      "width": 1728
+    },
+    {
+      "id": "book-findings",
+      "height": 1147.765625,
+      "width": 1728
+    },
+    {
+      "id": "book-actions",
+      "height": 1023,
+      "width": 1728
+    },
+    {
+      "id": "book-incidents",
+      "height": 1023,
+      "width": 1728
+    },
+    {
+      "id": "book-maintenance",
+      "height": 1139.015625,
+      "width": 1728
+    },
+    {
+      "id": "book-globalevidence",
+      "height": 1105.953125,
+      "width": 1728
+    },
+    {
+      "id": "book-globalfinancials",
+      "height": 1023,
+      "width": 1728
+    },
+    {
+      "id": "book-sld",
+      "height": 1482.46875,
+      "width": 1728
+    },
+    {
+      "id": "book-oprecords",
+      "height": 1350.578125,
+      "width": 1728
+    },
+    {
+      "id": "book-mini-outcomes",
+      "height": 2559.84375,
+      "width": 1728
+    },
+    {
+      "id": "book-cold-outcomes",
+      "height": 2468,
+      "width": 1728
+    },
+    {
+      "id": "book-ev-outcomes",
+      "height": 2393.140625,
+      "width": 1728
+    },
+    {
+      "id": "book-signals",
+      "height": 1933.890625,
+      "width": 1728
+    }
+  ],
+  "errors": []
+}
