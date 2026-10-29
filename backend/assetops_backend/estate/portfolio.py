@@ -27,6 +27,8 @@ from assetops_backend.estate.financials import (
 from assetops_backend.estate.index import (
     LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, select_action_scope, select_finding_scope)
 from assetops_backend.estate.placement import GROUPS, place
+from assetops_backend.outcomes.catalogue import CATEGORIES, OUTCOME_BY_KEY
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, outcome_roles
 from assetops_backend.estate.scope import (
     SITE_TOKEN_ARRAYS, EstateRequest, resume_after, selection_token, wire_time)
 
@@ -171,7 +173,11 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
     return {
         "site_id": r["site_id"], "site_code": r["site_code"], "site_name": r["site_name"], "domain": r["_domain"],
         "finding_id": fid, "finding_revision_id": frid, "finding_label": r["finding_label"], "title": r["title"],
-        "mechanism": r["_mechanism"], "episode_start": r["episode_start"], "episode_end": wire_time(r["_episode_end"]),
+        "mechanism": r["_mechanism"],
+        # OUT-A2 (ruling A-Q5): the stored Site type mapped to its coverage domain, so this equals the Findings row.
+        "categories": categories_for(finding_signal_key(r["_mechanism"]),
+                                     DOMAIN_OF_SITE_TYPE.get(r["_domain"], NOT_APPLICABLE)),
+        "episode_start": r["episode_start"], "episode_end": wire_time(r["_episode_end"]),
         "lifecycle": r["lifecycle"], "lens_flags": r["lens_flags"], "priority": r["priority"],
         "placement": placed.wire(), "confidence": placed.confidence,
         "confidence_reasons": list(placed.confidence_reasons),
@@ -192,6 +198,24 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
                   f"/sites/{code}/actions/{action['action_id']}?event_id={action['selected_event_id']}"},
         "_at": r["_at"],
         "_marker": (placed.group_rank, r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
+
+
+def category_counts(members: list[dict[str, Any]], known: bool) -> dict[str, dict[str, int | None]]:
+    """OUT-A2: per category, the members carrying it in any role and the distinct Sites whose member's primary
+    moved outcome is in it. A NOT_MAPPED member counts nowhere."""
+    if not known:
+        return {c: {"open_findings": None, "sites_with_primary_finding": None} for c in CATEGORIES}
+    open_findings = {c: 0 for c in CATEGORIES}
+    primary_sites: dict[str, set[str]] = {c: set() for c in CATEGORIES}
+    for r in members:
+        for c in {item["category"] for item in r["categories"]["items"]}:
+            open_findings[c] += 1
+        moves, _ = outcome_roles(finding_signal_key(r["mechanism"]),
+                                 DOMAIN_OF_SITE_TYPE.get(r["domain"], NOT_APPLICABLE))
+        if moves:
+            primary_sites[OUTCOME_BY_KEY[moves[0]].category].add(r["site_id"])
+    return {c: {"open_findings": open_findings[c], "sites_with_primary_finding": len(primary_sites[c])}
+            for c in CATEGORIES}
 
 
 # --- the token ---------------------------------------------------------------------------------------------------
@@ -548,7 +572,9 @@ class EstatePortfolioService(EstateEvidenceService):
             "combined_value": None, "combined_value_state": "NOT_COMPARABLE",
             # CC-R2: over `members` (all lenses, like `finding_count`); all five keys; null unless F is known.
             "placement_counts": {g: (sum(1 for r in members if r["placement"]["group"] == g) if finding_known else None)
-                                 for g in GROUPS}}
+                                 for g in GROUPS},
+            # OUT-A2 (ruling A-Q11): over `members`; all four keys; both counts null unless F is known.
+            "category_counts": category_counts(members, finding_known)}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
         site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])

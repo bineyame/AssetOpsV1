@@ -357,3 +357,25 @@ def test_absent_link_reader_and_broad_unavailable_are_503() -> None:
             raise error("The source provenance reader is not wired.")
         c, calls = _real_read(fail)
         assert _get(c)[0] == 503 and calls["n"] == 1
+
+
+def test_out_a2_finding_rows_carry_categories() -> None:
+    """OUT-A2 (ruling A-Q14): a row's `categories` come from its stored mechanism on the coverage domain; a null
+    mechanism (no producible Postgres state) is NOT_MAPPED, never a guess."""
+    from assetops_backend.estate.index import select_finding_scope
+    from assetops_backend.estate.scope import EstateRequest
+    from assetops_backend.outcomes.outcome_map import categories_for
+
+    site = {"site_id": S, "site_code": "KOBO-001", "site_name": "Kobo", "site_type": "MINIGRID"}
+    req = EstateRequest("findings", D0, D1, None, "all")
+    mapped = mini_grid([day()])
+    fid = "10000000-0000-4000-8000-000000000101"
+    mapped.reads["finding_index"] = lambda *a: {
+        "heads": [{**head(fid, "10000000-0000-4000-8000-000000000102"), "mechanism": "GENERATOR_SUPPORT_CANDIDATE"}],
+        "deferred_windows": [], "match_pass": {"matched_through_selection_seq": 5}}
+    for snap, expected in ((mini_grid([day()]), {"policy_version": "outcome-map/1", "state": "NOT_MAPPED",
+                                                  "items": []}),
+                           (mapped, categories_for("FINDING:GENERATOR_SUPPORT_CANDIDATE", "mini_grid"))):
+        _, (row,) = select_finding_scope(snap, T, req, {"sites": [site], "k": READ_AT})
+        assert row["categories"] == expected
+    assert expected["state"] == "MAPPED" and expected["items"][0]["category"] == "OPTIMIZE_COST"

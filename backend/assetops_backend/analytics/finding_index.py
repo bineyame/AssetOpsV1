@@ -34,6 +34,9 @@ from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, S
 from assetops_backend.analytics.dispatch_v3 import CONTINUITY_TOLERANCE
 from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
 from assetops_backend.analytics.finding_episode import MATCHER_VERSION
+from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
+from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
 SCHEMA_VERSION = "site-finding-index-1"
 # The new API domain token resolves to stored Finding domain/analytic, the S3 dispatch discovery basis and
@@ -391,5 +394,7 @@ class FindingIndexService:
                           "api_history": f"/api{base}/history?revision_id={rid}",
                           "api_selected_revision": f"/api{base}?revision_id={rid}"},
                 "amount": dict(AMOUNT_UNAVAILABLE),
+                # OUT-A2 (ruling A-Q13): the one domain's Findings all carry the S4 matcher mechanism.
+                "categories": categories_for(finding_signal_key(FINDING_MECHANISM), MINI),
             })
         return out

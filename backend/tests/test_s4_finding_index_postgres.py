@@ -13,6 +13,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from assetops_backend.outcomes.outcome_map import categories_for
 from test_s4_finding_store_postgres import SPEC, URL, CaseRunner, _t, run_case  # noqa: F401
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -38,6 +39,7 @@ if URL:
 
 CLOSED = "test: Performance comparison has not passed"
 DOMAIN = "mini-grid-dispatch"
+MINI_CATEGORIES = categories_for("FINDING:GENERATOR_SUPPORT_CANDIDATE", "mini_grid")
 
 
 def client_for(runner, *, gate_open: bool = True, access=None, extra: dict | None = None,
@@ -312,6 +314,7 @@ class TestPositiveRows:
             assert row["links"]["selected_revision"] == \
                 f"/sites/KOBO-001/findings/{row['finding_id']}?revision_id={row['finding_revision_id']}"
             assert row["amount"]["state"] == "UNAVAILABLE"
+            assert row["categories"] == MINI_CATEGORIES  # OUT-A2 (ruling A-Q13)
             cited = {str(e["evidence_id"]) for e in stored["evidence"] if e["finding_revision_id"] == head["id"]}
             assert set(row["cited"]["accepted_evidence_ids"]) == cited
             assert row["assessment"]["assessment_revision_id"] == str(head["assessment_revision_id"])
@@ -436,6 +439,15 @@ class _CurrentDispatch:
     def window(self, t, s, day):
         return {"status": "CURRENT", "status_reasons": [], "selection": {}, "window_assessment": None,
                 "watermarks": {}, "coverage": None, "limitations": [], "current_basis": {"read_at": None}}
+
+
+def test_out_a2_finding_index_has_one_domain_mapped_by_the_matcher_mechanism() -> None:
+    """OUT-A2 ruling A-Q13: every row maps through the one domain's matcher mechanism; a second domain token fails
+    here until its mapping is ruled."""
+    from assetops_backend.analytics import finding_index
+
+    assert list(finding_index.DOMAINS) == ["mini-grid-dispatch"]
+    assert MINI_CATEGORIES["state"] == "MAPPED"
 
 
 def test_selection_moving_during_the_read_is_never_current() -> None:

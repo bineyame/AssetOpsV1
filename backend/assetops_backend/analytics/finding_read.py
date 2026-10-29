@@ -37,6 +37,8 @@ from assetops_backend.analytics.dispatch import CANDIDATE
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
 from assetops_backend.analytics.dispatch_v3 import _NOT_EVIDENCE_GAPS
 from assetops_backend.evidence.provenance_read import finding_provenance
+from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
 REPLAY = ("Exact stored revisions only. The S3 knowledge cutoff is a worker selection timestamp, not a "
           "commit-ordered acceptance fence, so no arbitrary knowledge_at replay is offered.")
@@ -449,6 +451,8 @@ class FindingReadService:
                            "analytic_built_at": max((r["completed_at"] for r in lineage["runs"]
                                                      if r["completed_at"]), default=None)},
             "unavailable": UNAVAILABLE,
+            # OUT-A2: the selected revision's stored mechanism on the mini-grid domain.
+            "categories": categories_for(finding_signal_key(selected["mechanism"]), MINI),
         }
 
     def evidence(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, revision_id: UUID | None = None, *,

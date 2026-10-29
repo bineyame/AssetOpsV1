@@ -397,7 +397,11 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                               "combined_value_state": "NOT_COMPARABLE",
                               # CC-R2: the fake world's rows carry no source class, so all four investigate first.
                               "placement_counts": {"NEEDS_INVESTIGATION": 4, "ACT_NOW": 0, "COMPARE_VALUE": 0,
-                                                   "UNPRICED_RISK": 0, "MONITOR": 0}}
+                                                   "UNPRICED_RISK": 0, "MONITOR": 0},
+                              # OUT-A2: the fake rows carry no mechanism, so every member is NOT_MAPPED.
+                              "category_counts": dict.fromkeys(
+                                  ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"),
+                                  {"open_findings": 0, "sites_with_primary_finding": 0})}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]
@@ -431,6 +435,41 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert empty["summary"]["placement_counts"] == dict.fromkeys(
         ("NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "UNPRICED_RISK", "MONITOR"), 0)
     assert empty["scope_disclosure"] == {"sites": [], "exclusions": []}
+
+
+def test_out_a2_row_categories_and_category_counts(world, monkeypatch) -> None:
+    """OUT-A2: a ranked row's `categories` equal the Findings row's (Site type -> coverage domain, ruling A-Q5);
+    `category_counts` keeps all four keys, counts any-role members and distinct primary Sites, skips NOT_MAPPED
+    members, and is null per value unless the Finding coverage is known (ruling A-Q11)."""
+    from assetops_backend.outcomes.outcome_map import categories_for
+
+    mechanisms = {FINDING[1]: "GENERATOR_SUPPORT_CANDIDATE", FINDING[2]: "COLD_START_FAILURE",
+                  FINDING[3]: "COLD_EXCURSION"}  # FINDING[4] stays null: NOT_MAPPED
+    real_rows = world.rows
+    monkeypatch.setattr(world, "rows", lambda: [{**r, "_mechanism": mechanisms.get(r["finding_id"])}
+                                                for r in real_rows()])
+    body = get(client(world), WINDOW).json()
+    for row in body["rows"]:
+        domain = DOMAIN_OF_SITE_TYPE[row["domain"]]
+        assert row["categories"] == categories_for(f"FINDING:{mechanisms.get(row['finding_id'], 'UNMAPPED')}",
+                                                   domain), row["finding_id"]
+    assert body["summary"]["category_counts"] == {
+        "GROW_REVENUE": {"open_findings": 0, "sites_with_primary_finding": 0},
+        "OPTIMIZE_COST": {"open_findings": 2, "sites_with_primary_finding": 1},  # F1 moves, F2 checked
+        "PROTECT_ASSET": {"open_findings": 3, "sites_with_primary_finding": 1},  # F2+F3 share one cold Site
+        "ASSURE_PERFORMANCE": {"open_findings": 0, "sites_with_primary_finding": 0}}
+    real_scope = world.select_finding_scope
+
+    def unknown(snap, t, req, scope):
+        per, rows = real_scope(snap, t, req, scope)
+        return [(s, d, {**c, "state": "UNKNOWN"}) for s, d, c in per], rows
+
+    monkeypatch.setattr(portfolio, "select_finding_scope", unknown)
+    body = get(client(world), WINDOW).json()
+    assert body["summary"]["finding_count"] is None
+    assert body["summary"]["category_counts"] == dict.fromkeys(
+        ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"),
+        {"open_findings": None, "sites_with_primary_finding": None})
 
 
 def test_evidence_prompt_null_steps_and_coverage_precedence_pure() -> None:
