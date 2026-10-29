@@ -50,6 +50,7 @@ services:
       ASSETOPS_TEST_WORKERS: ${ASSETOPS_TEST_WORKERS:-4}
       ASSETOPS_TEST_TARGETS: ${ASSETOPS_TEST_TARGETS:-backend/tests}
       ASSETOPS_TEST_MARKEXPR: ${ASSETOPS_TEST_MARKEXPR:-}
+      ASSETOPS_TEST_ATTRIBUTION_ON: ${ASSETOPS_TEST_ATTRIBUTION_ON:-}
       OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
     volumes:
       - type: bind

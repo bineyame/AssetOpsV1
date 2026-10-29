@@ -51,6 +51,7 @@ from pathlib import Path
 import pytest
 
 import pg_harness
+import phase_attribution
 import phase_timing
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
@@ -127,12 +128,14 @@ def pytest_configure(config: pytest.Config) -> None:
     if workerinput is not None:
         # Before collection: module-level `URL` constants read the routed name.
         pg_harness.route(tag=workerinput["workerid"], run=workerinput.get(RUN_KEY))
+        phase_attribution.register(config, workerinput["workerid"])  # PERF-01; off unless its env var is set
         return  # basetemp comes from the controller
     phase_timing.register(config)  # PERF-01: controller or serial process only; off unless its env var is set
     if _is_xdist_controller(config):
         config.stash[_RUN] = pg_harness.new_run_id()
     else:
         pg_harness.route()
+        phase_attribution.register(config, "main")
     _choose_basetemp(config)
 
 

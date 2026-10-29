@@ -55,6 +55,9 @@ PY
 # per-test set-up / call / teardown times (backend/tests/phase_timing.py).
 /opt/assetops-venv/bin/python -m pytest backend/tests --collect-only -q -p no:cacheprovider > "$out/collected.txt" 2>&1 || true
 export ASSETOPS_TEST_PHASE_TIMES="$out/phase-times.csv"
+if [ "${ASSETOPS_TEST_ATTRIBUTION_ON:-}" = "1" ]; then
+  export ASSETOPS_TEST_ATTRIBUTION="$out/attribution"  # backend/tests/phase_attribution.py
+fi
 
 # A focused Docker run may name its own targets (paths or node IDs, space-separated); the default is the suite.
 targets="${ASSETOPS_TEST_TARGETS:-backend/tests}"

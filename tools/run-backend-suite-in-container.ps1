@@ -28,7 +28,8 @@ param(
     [int]$Workers = 0,
     [string]$Targets = 'backend/tests',
     [ValidateSet('dedicated', 'shared')][string]$Server = 'dedicated',
-    [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all'
+    [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all',
+    [switch]$Attribution  # PERF-01: per-test time attribution (backend/tests/phase_attribution.py) to <run>/attribution
 )
 
 # Continue: Windows PowerShell 5.1 turns native stderr into terminating errors under Stop; failures are checked
@@ -69,6 +70,7 @@ if (-not $password) { $password = 'assetops-local-dev' }
 $env:ASSETOPS_WORKTREE = $worktree
 $env:OPS03_RUN_ID = $runId
 $env:ASSETOPS_TEST_TARGETS = $Targets
+$env:ASSETOPS_TEST_ATTRIBUTION_ON = if ($Attribution) { '1' } else { '' }
 $env:ASSETOPS_TEST_MARKEXPR = switch ($Tier) { 'fast' { 'not slow' } 'slow' { 'slow' } default { '' } }
 $env:ASSETOPS_CONTAINER_TEST_DATABASE_URL =
     'postgresql+psycopg://assetops:{0}@{1}:5432/assetops_test' -f [uri]::EscapeDataString($password), $pgService
@@ -110,7 +112,7 @@ if ($Workers -le 0) {
 }
 
 $env:ASSETOPS_TEST_WORKERS = [string]$Workers
-"$memoryNote workers=$Workers server=$pgService tier=$Tier targets=$Targets" |
+"$memoryNote workers=$Workers server=$pgService tier=$Tier attribution=$([bool]$Attribution) targets=$Targets" |
     Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
 
 $keepAwake = $null
