@@ -1,0 +1,56 @@
+# PERF-01 review packet: phase 0 (baseline) and phase 1 (quick wins)
+
+Branch `task/PERF-01-baseline-quick-wins` from main 504ae5f1. Builder: the Architect (Claude), under the owner's
+approval in `.agent/owner-perf-approval-2026-10-28.md`. No product code and no assertion changed.
+
+## Commits
+
+- d5f39708 phase 0: `tools/sample-test-memory.ps1` (memory every 5 s), `backend/tests/phase_timing.py` (per-test
+  set-up/call/teardown CSV, registered from `conftest.py` only when `ASSETOPS_TEST_PHASE_TIMES` is set),
+  `collected.txt` per run, `-Targets` for focused Docker runs, `tools/summarize-test-run.py` (report + baseline compare).
+- 9b391cd6 phase 1:
+  - R2: the Docker runner is the full-run path. `tools/run-host-tests.ps1` refuses a directory or empty target.
+  - R3: `postgres-test` service in `docker-compose.test.yml`: fsync, full_page_writes and synchronous_commit off; its own
+    volume `assetopsv1_assetops-test-pg`; no published port. The runner uses it by default (`-Server shared` = the old
+    behaviour). `assetopsv1-postgres-1` is not touched.
+  - R5: `@pytest.mark.slow` on 3 backend tests (TestTickCost, TestStaleWithoutJob, the hung-stage test) and the 2 TEL
+    acceptance tests. The marker is registered in both conftests, so the venv marker hash is unchanged. `-Tier
+    all|fast|slow`; the default stays `all` until D4.
+  - R7: `pool: "threads"` in `frontend/vite.config.ts`.
+  - R9: `tools/run-host-tests.ps1` sets PYTHONPATH to the worktree, checks the import origin of 5 packages and refuses
+    a stale one. The container `.sh` makes the same check against `/workspace`.
+  - R10: `-Workers 0` picks 2-4 workers from the memory free at start (450 MB per worker, 400 MB fixed, a 1.5 GB
+    Windows reserve, and memory the VM already holds counted in). It refuses with exit 3 below 2 workers. The
+    memory peak is recorded per run.
+  - Keep-awake and the sampler start without `-ExecutionPolicy Bypass`; they inherit the caller's policy.
+- 100092a4 docs: `backend/TESTING.md` (commands, the dedicated server, the slow tier, the run records) and the
+  `.ai/ROLE_CONFIG.md` full-suite line.
+
+## Results (var/test-results/OPS-03/)
+
+| Run | Wall | Summed test s | Result | Peak sessions | Peak memory |
+| --- | ---: | ---: | --- | ---: | --- |
+| Baseline 20261028-183000-21e665 (shared server, all tiers, 4 workers) | 74.2 min (4451 s) | 17,204 | 4133 passed, 2 failed (the known w303 pair), 0 skipped; 4135 collected | 87 runner / 93 server | VM used 2381 MB, vmmem working set 3423 MB, runner RSS sum 1536 MB (max 372 MB), Postgres 811 MB, min Windows free 2429 MB |
+| Phase 1, attempt 1 20261028-194930-211b2c | void | - | the lid closed at 20:40 (event 506, "Reason: Lid"), Modern Standby until 01:46, and the run hit its 130-min cap. Only the 2 known failures up to then | - | - |
+| Phase 1, run 1 20261029-020406-17c9e5 (dedicated server, fast tier, 4 workers) | 71.7 min (4301 s) | 16,478 | 4130 passed, the same 2 known failures, 0 skipped; 4135 collected | 106 runner / 113 server | VM used 2474 MB, vmmem 3301 MB, RSS sum 1511 MB (max 385 MB), Postgres 706 MB, min Windows free 2680 MB |
+
+The count: 4135 collected on main. The 28 Oct CC-M gate's 4138 included `test_cc_schema_postgres.py` (3 tests), which
+exists only on the CC-M branch. The 4135 IDs are the same in the baseline and in run 1. Run 1 has 4132 JUnit cases:
+the 3 slow tests are deselected, not skipped. The compare shows that the pass lists differ by exactly those 3.
+
+## Proof status: incomplete, by instruction
+
+- Done: identical collected IDs (4135); identical pass list apart from the 3 deselected slow tests; zero skips.
+- Not done: proof run 2 was cancelled by the coordinator (owner's new target). The slow tier was not run separately.
+  The frontend forks-versus-threads count was not run.
+
+## Deviations
+
+- Per-test phase timing is a plugin (CSV), not `--durations=0`. It records the same data in a machine-readable form.
+- The runner's keep-awake launch no longer passes `-ExecutionPolicy Bypass` (rule in force).
+- Finding: the pytest set-up share is 19%, not 85-95%. Most replay builds run inside the test body (`chain.build(...)`),
+  so pytest counts them as call time. Build cost has to be measured inside the build functions.
+- Finding: R3 saved about 2% of CPU (16,478 against 17,204 summed seconds, of which about 420 s is the deselected
+  slow tests). The plan estimated 10-25%. Disk sync is not the bottleneck inside Docker.
+- Finding: under `--dist loadfile` the largest file sets a floor. `test_w403_opportunity_read_postgres.py` alone takes
+  708 s, and the last 8% of every run takes about 20 min.
