@@ -46,7 +46,10 @@ $pgService = if ($Server -eq 'dedicated') { 'postgres-test' } else { 'postgres' 
 $pgContainer = "assetopsv1-$pgService-1"
 # R10: the memory one worker needs at its peak (pytest worker, its gateway children, its database sessions), from
 # the PERF-01 baseline memory sample, plus the fixed cost of a run and the Windows free memory every run leaves.
-$perWorkerMb = 450
+# PERF-02: 340 MB measured per worker (resident set of 5 workers and their gateway children, 1664 MB, warm run
+# 20261029-165359), plus 700 MB more for Postgres when the set-up cache is on (its copies: 0.7 -> 1.4 GB measured).
+$perWorkerMb = 340
+$cacheMb = if ($Cache -ne 'off') { 700 } else { 0 }
 $fixedMb = 400
 $windowsReserveMb = 1536
 $composeArgs = @('compose', '-p', $project, '-f', (Join-Path $worktree 'docker-compose.yml'),
@@ -102,7 +105,7 @@ if ($LASTEXITCODE -eq 0 -and $meminfo.Count -ge 2) {
 $heldMb = if ($null -ne $vmUsedMb) { [math]::Max(0, $vmmemMb - $vmUsedMb) } else { 0 }
 $budgetMb = [math]::Max(0, $winFreeMb - $windowsReserveMb) + $heldMb
 if ($null -ne $vmAvailMb -and $vmAvailMb -lt $budgetMb) { $budgetMb = $vmAvailMb }
-$budgetMb -= $fixedMb
+$budgetMb -= $fixedMb + $cacheMb
 $fit = [int][math]::Floor($budgetMb / $perWorkerMb)
 $memoryNote = ("memory at start: windows_free_mb=$winFreeMb vmmem_ws_mb=$vmmemMb vm_used_mb=$vmUsedMb " +
     "vm_available_mb=$vmAvailMb budget_mb=$budgetMb fits=$fit")

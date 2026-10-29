@@ -38,17 +38,33 @@ else
   echo "test dependencies cached (marker hit)"
 fi
 
-# PERF-01 R9: every AssetOps package must import from this bind-mounted worktree, never from a stale install.
-/opt/assetops-venv/bin/python - <<'PY' || exit 2
+# PERF-02: run from a copy of the worktree in the container's own filesystem. Reading code and data through the
+# Windows bind mount failed under load (OSError: [Errno 12] Cannot allocate memory listing
+# /workspace/backend/migrations/versions, run 20261029-165359) and is slow. Results still go to $out on the mount.
+copy_start=$(date +%s)
+code=/tmp/assetops-worktree
+rm -rf "$code"
+mkdir -p "$code"
+# Only what the backend suite reads (code, shipped data, fixtures, tools, var/ without results, the frontend source).
+tar -C /workspace --exclude=./var/test-results --exclude='*/__pycache__' --exclude='*/node_modules' -cf - \
+  ./backend ./contracts ./simulator ./gateway ./host ./field ./config ./contract-fixtures ./tools ./var ./frontend/src \
+  ./docker-compose.yml ./docker-compose.test.yml | tar -C "$code" -xf -
+echo "worktree copied to $code in $(( $(date +%s) - copy_start )) s" | tee "$out/worktree-copy.txt"
+cd "$code"
+export PYTHONPATH="$code/backend:$code/contracts:$code/simulator:$code/gateway:$code/host"
+
+# PERF-01 R9: every AssetOps package must import from this worktree's copy, never from a stale install.
+/opt/assetops-venv/bin/python - "$code" <<'PY' || exit 2
 import importlib, os, sys
+root = sys.argv[1] + "/"
 bad = []
 for name in ("assetops_backend", "assetops_contracts", "assetops_simulator", "assetops_gateway"):
     path = os.path.realpath(importlib.import_module(name).__file__)
     print(f"import origin {name} = {path}")
-    if not path.startswith("/workspace/"):
+    if not path.startswith(root):
         bad.append(name)
 if bad:
-    sys.exit(f"REFUSED: {', '.join(bad)} import from outside /workspace (stale editable install)")
+    sys.exit(f"REFUSED: {', '.join(bad)} import from outside {root} (stale editable install)")
 PY
 
 # PERF-01 phase 0: per-test set-up / call / teardown times (backend/tests/phase_timing.py).
@@ -66,7 +82,7 @@ case "${ASSETOPS_SETUP_CACHE_MODE:-on}" in
 esac
 export ASSETOPS_SETUP_CACHE_LOG="$out/setup-cache"
 if [ -n "${ASSETOPS_SETUP_CACHE_DIR:-}" ]; then
-  /opt/assetops-venv/bin/python /workspace/tools/sweep-setup-cache.py "$ASSETOPS_SETUP_CACHE_DIR" || true
+  /opt/assetops-venv/bin/python "$code/tools/sweep-setup-cache.py" "$ASSETOPS_SETUP_CACHE_DIR" || true
 fi
 if [ "${ASSETOPS_TEST_ATTRIBUTION_ON:-}" = "1" ]; then
   export ASSETOPS_TEST_ATTRIBUTION="$out/attribution"  # backend/tests/phase_attribution.py

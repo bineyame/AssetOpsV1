@@ -196,8 +196,9 @@ PERF-01 options and records:
 - `-Workers 0` (default) picks 2-4 workers from the memory free at start (R10):
   the budget is the smaller of the VM's available memory and (Windows free
   memory above a 1.5 GB reserve, plus memory the VM already holds unused),
-  less 400 MB fixed, at 450 MB per worker (the PERF-01 baseline peak was about
-  384 MB of resident memory per worker). Below two workers it refuses to start
+  less 400 MB fixed and, with the set-up cache on, 700 MB for Postgres's copies
+  (measured 0.7 -> 1.4 GB), at 340 MB per worker (PERF-02 warm run: 1664 MB for
+  5 workers and their gateway children). Below two workers it refuses to start
   (exit 3) and says to close programs or pass `-Workers`.
 - `-Targets` runs named files or node IDs instead of `backend/tests`.
 - Every run also writes `collected.txt` (the whole suite's `--collect-only`
@@ -299,6 +300,11 @@ fences.
   live, reason, seconds). `python tools/setup-cache-report.py <run dir>`
   summarises it: hits, the measured copy cost, live reasons and the verify
   comparison.
+- The runner copies the code, shipped data, fixtures, tools, `var/` (without
+  results) and `frontend/src` into the container's own filesystem (about 5 s)
+  and runs from there. Reading through the Windows bind mount under load failed
+  with `Errno 12 Cannot allocate memory`. Results are still written to the
+  mounted `var/test-results/`.
 - The collected node IDs now come from the run itself (`collected.txt`, after
   any tier filter). The separate collect-only pass is gone (T3).
 
