@@ -118,3 +118,5 @@ details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .oc-mrow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:4px}
 .oc-mrow>.oc-orow{grid-column:1/-1;padding-top:6px}
 .oc-mhead>span:first-child{display:none}
+.oc-affectwrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.oc-affectwrap .oc-affects{margin-top:0}
+.oc-affects.quiet{background:#fff;border:1px solid #dfe5ee;color:#5f6e83;font-weight:500}

@@ -20,12 +20,14 @@ const CAT_OF={'MG-1':'grow','MG-3':'grow','MG-6':'grow','MG-2':'cost','MG-4':'pr
  'CC-2':'grow','CC-4':'grow','CC-3':'cost','CC-1':'protect','CC-5':'protect','CC-6':'protect','CC-7':'assure'};
 
 /* What each Finding affects, in plain words (used in Findings lists and Portfolio rows). */
-const AFFECTS={'F-104':[['MG-2'],['MG-5','MG-4']],'F-108':[['MG-7'],['MG-2']],'F-109':[['MG-1'],['MG-2','MG-5']],'F-118':[['CC-6','CC-1'],['CC-5']],'F-119':[['CC-1'],[]],'F-130':[['EV-1'],['EV-4']],
+const AFFECTS={'F-104':[['MG-2'],['MG-5','MG-4']],'F-108':[['MG-7'],['MG-2']],'F-109':[['MG-1'],['MG-2','MG-5']],'F-118':[['CC-6','CC-1'],['CC-5','CC-3']],'F-119':[['CC-1'],[]],'F-130':[['EV-1','EV-3'],['EV-4']],
  'ACT-048':[['MG-2'],['MG-5','MG-4']]};
 const RECUR={'F-104':'Seen on 24 of the last 30 days','F-118':'3 grid losses in 30 days · backup started by itself on 2','F-109':'Spare on 3 of 5 well-observed days','F-130':'Connector 2 status also unknown on 15 Sep'};
 /* Group site-level outcomes by category, keeping their plain names: [[cat,[names]]]. */
 function byCat(codes){const g=[];codes.forEach(c=>{const k=CAT_OF[c];let e=g.find(x=>x[0]===k);if(!e)g.push(e=[k,[]]);e[1].push(OUTCOME[c].toLowerCase());});return g;}
-const affectsPill=fid=>AFFECTS[fid]?`<span class="oc-affects">${byCat(AFFECTS[fid][0]).map(([k])=>CATN[k]).join(' · ')}</span>`:'';
+/* Every Finding belongs to one or more categories: the ones it moves, then the ones it must be checked against. */
+function affectsPill(fid){const a=AFFECTS[fid];if(!a)return '';const main=byCat(a[0]).map(([k])=>k),also=byCat(a[1]).map(([k])=>k).filter(k=>!main.includes(k));
+ return `<span class="oc-affectwrap">${main.map(k=>`<span class="oc-affects" title="Affects ${CATN[k]}">${CATN[k]}</span>`).join('')}${also.map(k=>`<span class="oc-affects quiet" title="Also checked under ${CATN[k]}">${CATN[k]}</span>`).join('')}</span>`;}
 const recurNote=fid=>RECUR[fid]?`<small class="oc-recur">${RECUR[fid]}</small>`:'';
 const catPills=(codes,quiet)=>byCat(codes).map(([k,ns])=>`<span class="oc-pill${quiet?' quiet':''}">${CATN[k]}<small>${ns.join(', ')}</small></span>`).join('');
 function affectsLine(fid){const a=AFFECTS[fid];if(!a)return '';const act=fid.startsWith('ACT');
@@ -66,7 +68,7 @@ const BOARD={
    prev:[['No earlier change has been checked at this site','',null]],ev:['Dispatch evidence','dispatch']},
   protect:{st:'watch',lead:'MG-4',head:'2 early warnings on battery and generator',sub:'Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured',
    contrib:[['Battery','Below its 30% reserve on 5 of 30 days · lowest 22%','Limited','asset-overview'],['Generator','462 of 500 running hours since service','Plan record','maintenance-preventive'],['Service delivery','Delivered load measured; demand not','Unknown','service'],['Backup readiness','No backup event in this window','Unknown','backup']],
-   issues:[['warn','Battery below its reserve','asset-overview'],['warn','Generator service due soon','maintenance-preventive']],
+   issues:[['warn','Battery below its reserve','asset-overview'],['warn','Generator service due soon','maintenance-preventive'],['finding','F-104 · Generator trial checked here as a safeguard','finding']],
    can:[['Battery capacity test PM-0447','maintenance-preventive']],hand:[['PM-0441 · 500-hour service','maintenance-preventive','Due soon'],['PM-0447 · Capacity test','asset-work','Scheduled 1 Nov']],
    prev:[['Service and reserve checked as safeguards in the generator trial','verification','Pending']],ev:['Battery evidence','asset-evidence']},
   assure:{st:'watch',lead:'MG-7',head:'No verified result yet · confidence low for this hour',sub:'One battery report is missing, so 30 minutes stay unclassified',
@@ -77,7 +79,7 @@ const BOARD={
   cost:{st:'needs',lead:'CC-3',head:'3 repair visits in 60 days without a result',sub:'None of the visits fixed the backup generator’s automatic start; repair cost is not recorded',
    guard:['Cooling continuity: a repair counts only when the backup then starts by itself','cold-recommendation'],
    contrib:[['Maintenance effectiveness','3 visits (14 Aug, 18 Sep, 6 Oct); automatic start still failed','High','wr-overview'],['Repair and call-out','No cost on work record WR-019','Unknown','cold-financials'],['Cooling energy',`${NAY} · no cooling energy meter`,null,null]],
-   issues:[['warn','Repeated maintenance without a result','wr-overview']],can:[['Witnessed automatic-start test','cold-recommendation']],hand:[['WR-019 · Starter and control inspection','wr-overview','Completed']],
+   issues:[['warn','Repeated maintenance without a result','wr-overview'],['finding','F-118 · Backup response failed · the fault the visits answer','cold-finding']],can:[['Witnessed automatic-start test','cold-recommendation']],hand:[['WR-019 · Starter and control inspection','wr-overview','Completed']],
    prev:[['WR-011 · Starter battery replaced, 14 Aug','maintenance','Did not fix it'],['WR-016 · Control relay reset, 18 Sep','maintenance','Did not fix it']],ev:['Financial bridge','cold-financials']},
   protect:{st:'needs',lead:'CC-1',head:'Chamber above 4°C for 25–35 min',sub:'Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed',
    contrib:[['Chamber temperature','Peak 8.2°C against a 4°C limit','High','temperature'],['Backup start','Automatic start failed; started by hand','High','coldbackup'],['Cooling recovery','Restarted with power; comparison incomplete','Medium','cooling'],['Backup generator','Monthly start test overdue since 2 Oct · warranty expired','Plan record','maintenance-preventive'],['Compressor','Coil cleaning due 15 Oct','Plan record','maintenance-preventive']],
@@ -101,7 +103,7 @@ const BOARD={
    hand:[['ACT-061 · Investigate connector 2','ev-action','Open'],['WR-021 · Connector 2 repair','maintenance','Waiting for diagnostics'],['PM-0452 · Connector inspection','maintenance-preventive','Overdue']],
    prev:[['No earlier repair on this connector','',null]],ev:['Depot evidence','ev-evidence']},
   assure:{st:'watch',lead:'EV-7',head:'Evidence limited · no verified result yet',sub:'One session end and 1 hour of connector status are missing',
-   contrib:[['Departures against the timetable',`${NAY} · no bus roster connected`,null,null],['Session records','1 session has no accepted end','Medium','ev-evidence'],['Connector status','Missing 15:00–16:00','Medium','ev-evidence']],
+   contrib:[['Departures against the timetable',`${NAY} · no bus roster connected`,null,null],['Energy billed against metered',`${NAY} · no settlement records · reconciles the revenue shown under Grow revenue`,null,'ev-financials'],['Session records','1 session has no accepted end','Medium','ev-evidence'],['Connector status','Missing 15:00–16:00','Medium','ev-evidence']],
    issues:[],can:[],hand:[],prev:null,ev:['Evidence overview','ev-evidence']}}};
 
 const val=v=>typeof v==='function'?v():v;

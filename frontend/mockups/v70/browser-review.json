@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-29T10:08:43.195Z",
+  "checked_at": "2026-10-29T10:26:02.277Z",
   "screens": 110,
   "book_pages": 42,
   "page_height_px": 2381,
@@ -2246,6 +2246,16 @@
     },
     {
       "label": "Kobo cost row names reliability as a safeguard",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Depot assure row links the billing reconciliation that sits in Grow revenue",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "A finding can belong to more than one category",
       "passed": true,
       "detail": ""
     },
@@ -4852,7 +4862,7 @@
     {
       "label": "PDF page height (v7.0: outcome screens are taller, so pages may be portrait)",
       "passed": true,
-      "detail": "1728 x 2381 · tallest: book-cold:2350 book-ev:2014 book-mini:2011 book-portfolio:1906 book-readiness:1627"
+      "detail": "1728 x 2381 · tallest: book-cold:2350 book-portfolio:2031 book-ev:2014 book-mini:2011 book-readiness:1627"
     },
     {
       "label": "No browser runtime errors",
@@ -4866,7 +4876,7 @@
       "title": "Portfolio Value & Operations",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1906,
+      "height": 2054,
       "tabRows": 0,
       "subRows": 0,
       "broken": []
@@ -5236,7 +5246,7 @@
       "title": "Findings",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1357,
+      "height": 1468,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5876,7 +5886,7 @@
       "title": "Findings",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1187,
+      "height": 1261,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5965,7 +5975,7 @@
   "print_measurements": [
     {
       "id": "book-portfolio",
-      "height": 1905.609375,
+      "height": 2030.609375,
       "width": 1728
     },
     {
@@ -6120,7 +6130,7 @@
     },
     {
       "id": "book-sitefindings",
-      "height": 1023,
+      "height": 1054.9375,
       "width": 1728
     },
     {
@@ -6135,7 +6145,7 @@
     },
     {
       "id": "book-findings",
-      "height": 1349.4375,
+      "height": 1463,
       "width": 1728
     },
     {
