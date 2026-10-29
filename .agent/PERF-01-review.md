@@ -111,3 +111,73 @@ Both fixes are small.
 - **Cap under fewer workers:** the cap does not scale with the worker count (M1). On a memory-tight day the guard picks 2 workers, and the run is killed as a "hang".
 - **Crash safety off:** `postgres-test` runs with fsync and full_page_writes off. If Docker crashes during a run, the volume may be corrupt, and the next run fails at start-up rather than failing over. TESTING should say how to recover, by removing only `assetopsv1_assetops-test-pg` and never the development volume.
 - **Phase-1 target missed:** the result, 62-72 min against the plan's estimate of about 50, is already known to the owner, and phases 2 and 3 are approved to close the gap.
+
+## Re-review (fix round 1, 7a202eff)
+
+Reviewer: a fresh Claude Reviewer, independent of the builder and of the first review. Diff `b3cac0a8..7a202eff`.
+
+### Verdict: REVISE (docs only, one Medium)
+
+H1, H2 and L1 are closed and verified. L2 and the recovery note are closed. The code side of M1 is correct, but its documentation is not. `backend/TESTING.md` still states the old cap, and it gives a wrong figure for the 3-worker cap. `.ai/ROLE_CONFIG.md` points agents to that file for the expected wall and cap, so the doc is part of the guard. Fixing it is a three-line doc edit and needs no further re-review beyond a coordinator check.
+
+### Prior findings
+
+- **H1: closed.**
+  - `git ls-files var` is empty.
+  - The 19 files now sit under `.agent/PERF-01-evidence/{attribution,profiles,workers5}`.
+  - `tools/check-architecture.ps1`, run with `ASSETOPS_GUARD_PYTHON` set to the plan2 venv and `PYTHONPATH` set to this worktree's roots, printed "Architecture check passed." (exit 0).
+- **H2: closed for the documented forms.** All of the following were run in-session (`& tools\run-host-tests.ps1 ...`) with `ASSETOPS_HOST_DRY_RUN=1`:
+  - One file after `--`, two files plus `-q -k foo`, and `-AllowHostFull -- backend/tests --collect-only -q` each listed the right targets and the plan2 python.
+  - A missing `-Interpreter` was refused (exit 2).
+  - A real run of `backend/tests/test_s3_claim_limit_vocabulary.py` gave 2 passed (exit 0).
+  - The stale-origin refusal still works. A copy of the script in a fake worktree printed REFUSED and listed the 5 out-of-worktree origins (exit 2).
+  - The dry-run variable is checked only after the target and directory refusals, so it does not weaken them (see L-b for the one side effect).
+- **M1: code closed, docs not (see M-a).** The derived cap gives these values:
+
+  | Workers | All tiers | Fast tier | Slow tier |
+  | --- | --- | --- | --- |
+  | 4 | 149 | 126 | 20 (floor) |
+  | 3 | 198 | 167 | 20 |
+  | 2 | 297 | 251 | 20 |
+
+  The 2-worker case now scales correctly, and named targets are clamped to 20-60 min. The Timing measurement rows match the packet: 74.2, 62.6 and 57.2 min.
+- **L1: closed.**
+  - `-- -k foo` is refused as "no test file named".
+  - `file -k foo` has one target.
+  - An absolute directory is refused, and so is a relative one.
+  - A `file::node` form is accepted.
+  - Residual: the value-flag list is hand-maintained, so an unlisted value-taking flag would still count its value as a target. This is acceptable.
+- **L2: closed.** "Proof status" is marked as superseded and agrees with the later section.
+- **L3: mostly closed.** The run revisions are recorded in the packet. The collected-ID and pass-list hash manifest the first review suggested was not added. That is not blocking.
+- **Recovery note: closed.** The new section is at `backend/TESTING.md:311-316`. It removes only `assetopsv1_assetops-test-pg` and says never to touch the development volume.
+
+### New findings
+
+- **M-a (Medium): `backend/TESTING.md` still contradicts the new cap.**
+  - At `backend/TESTING.md:273-274`, the text still says "about 50 min; its default cap is 100 min (`-CapMinutes`)". This is the line M1 quoted, and it sits directly above the new table.
+  - At `backend/TESTING.md:287`, the doc says "125 min fast tier" and "186 min at 3 workers". The script computes 126, and at 3 workers 198 (all tiers) or 167 (fast tier).
+  - At `backend/TESTING.md:210`, the doc still describes the runner command as `-n 2`, which the first review also noted.
+  - **Why it matters:** agents set their external hang caps from this section (ROLE_CONFIG:454-455). With conflicting values, a healthy run can be killed early, or a real hang can be waited out too long.
+  - **Fix:** replace the 50/100 sentence with a pointer to the PERF-01 rows. Correct the figures to 126 for the fast tier, and 198 (all) or 167 (fast) at 3 workers, and optionally add 297 (all) at 2 workers. State the runner's current worker selection at line 210.
+- **L-a (Low): `--` breaks the wrapper under `powershell -File`, and an unprefixed `-v` is swallowed.**
+  - At `tools/run-host-tests.ps1:19-24`, the script now has `[CmdletBinding()]`. Under `powershell -NoProfile -File tools/run-host-tests.ps1 -- <file>`, which is the form agents use from Git Bash, it fails with "parameter name '' is ambiguous" (exit 1). The same form without `--` works.
+  - In any invocation without `--`, `-v` binds to `-Verbose` and never reaches pytest. `-p` would be ambiguous.
+  - The failure is loud, and the documented in-session forms work, so this does not block.
+  - **Fix:** add one line to TESTING.md: under `-File`, omit `--`. Alternatively, strip a leading `--` before binding.
+- **L-b (Low): a leftover `ASSETOPS_HOST_DRY_RUN` exits 0 without running anything.**
+  - At `tools/run-host-tests.ps1:66`, the check comes before the R9 origin check and before pytest.
+  - If the variable is left set in a session, every "test run" exits 0 without running anything. The only trace is the printed `DRY RUN:` line.
+  - **Fix:** exit with a non-zero code such as 5 in dry-run mode, or document the variable as test-only.
+- **Note:** the wrapper runs in the caller's process, so its `$env:PYTHONPATH` assignment at line 69 persists in the calling PowerShell session after the run. This predates the fix round and is harmless for this worktree. It can mislead a later run from a different worktree in the same session.
+
+### Fix-round scope
+
+- No product code or test bodies changed. The diff touches only `.agent/`, `tools/run-host-tests.ps1`, `tools/run-backend-suite-in-container.ps1` and `backend/TESTING.md`, plus the evidence renames.
+- `tools/check-agent-workflow.ps1` printed "Agent workflow check passed." (exit 0).
+- `npx.cmd tsc --noEmit` exited 0.
+
+### Not run
+
+- No full suite was run.
+- The Docker runner was not run either. `docker ps` showed `assetops-ops03-20261029-135655-3c55b5`, which belongs to another lane, so it was left alone.
+- I checked the derived cap by arithmetic and by reading the code. I did not run it live.
