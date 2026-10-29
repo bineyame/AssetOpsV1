@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-29T06:16:23.891Z",
-  "screens": 114,
-  "book_pages": 46,
-  "page_height_px": 2590,
+  "checked_at": "2026-10-29T06:50:18.992Z",
+  "screens": 110,
+  "book_pages": 42,
+  "page_height_px": 1825,
   "checks": [
     {
       "label": "Prototype booted",
@@ -2210,86 +2210,6 @@
       "detail": ""
     },
     {
-      "label": "mini-outcomes: visible page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "mini-outcomes: no horizontal page overflow",
-      "passed": true,
-      "detail": "1425/1440"
-    },
-    {
-      "label": "mini-outcomes: one subtab row maximum",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "mini-outcomes: all route targets exist",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: visible page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: no horizontal page overflow",
-      "passed": true,
-      "detail": "1425/1440"
-    },
-    {
-      "label": "cold-outcomes: one subtab row maximum",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: all route targets exist",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: visible page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: no horizontal page overflow",
-      "passed": true,
-      "detail": "1425/1440"
-    },
-    {
-      "label": "ev-outcomes: one subtab row maximum",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: all route targets exist",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "signals: visible page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "signals: no horizontal page overflow",
-      "passed": true,
-      "detail": "1425/1440"
-    },
-    {
-      "label": "signals: one subtab row maximum",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "signals: all route targets exist",
-      "passed": true,
-      "detail": ""
-    },
-    {
       "label": "Site domain filter",
       "passed": true,
       "detail": ""
@@ -2656,21 +2576,6 @@
     },
     {
       "label": "site-setup-history: no Lab route or simulator wording in site page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "mini-outcomes: no Lab route or simulator wording in site page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: no Lab route or simulator wording in site page",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: no Lab route or simulator wording in site page",
       "passed": true,
       "detail": ""
     },
@@ -3576,41 +3481,6 @@
     },
     {
       "label": "settings-tenant: no Simulated badge in page chrome",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "mini-outcomes: no Simulated badge in page chrome",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "mini-outcomes: site and window in top bar; provenance beside site name",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: no Simulated badge in page chrome",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: site and window in top bar; provenance beside site name",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: no Simulated badge in page chrome",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: site and window in top bar; provenance beside site name",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "signals: no Simulated badge in page chrome",
       "passed": true,
       "detail": ""
     },
@@ -4545,26 +4415,6 @@
       "detail": ""
     },
     {
-      "label": "mini-outcomes: no plain Low confidence without a cause",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "cold-outcomes: no plain Low confidence without a cause",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "ev-outcomes: no plain Low confidence without a cause",
-      "passed": true,
-      "detail": ""
-    },
-    {
-      "label": "signals: no plain Low confidence without a cause",
-      "passed": true,
-      "detail": ""
-    },
-    {
       "label": "Confidence chips found across the mock-up",
       "passed": true,
       "detail": "25"
@@ -4957,7 +4807,7 @@
     {
       "label": "PDF page height (v7.0: outcome screens are taller, so pages may be portrait)",
       "passed": true,
-      "detail": "1728 x 2590 · tallest: book-mini-outcomes:2560 book-cold-outcomes:2468 book-ev-outcomes:2393 book-portfolio:2269 book-signals:1934"
+      "detail": "1728 x 1825 · tallest: book-portfolio:1795 book-readiness:1627 book-finding:1606 book-coldbackup:1597 book-cold:1580"
     },
     {
       "label": "No browser runtime errors",
@@ -4971,7 +4821,7 @@
       "title": "Portfolio Value & Operations",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 2414,
+      "height": 1826,
       "tabRows": 0,
       "subRows": 0,
       "broken": []
@@ -4991,7 +4841,7 @@
       "title": "Kobo Mini-grid",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1576,
+      "height": 1558,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5061,7 +4911,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1578,
+      "height": 1555,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5071,7 +4921,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1292,
+      "height": 1269,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5101,7 +4951,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1176,
+      "height": 1153,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5151,7 +5001,7 @@
       "title": "GreenHarvest Cold Room",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1611,
+      "height": 1554,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5191,7 +5041,7 @@
       "title": "Depot Charging Hub",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1569,
+      "height": 1533,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5341,7 +5191,7 @@
       "title": "Findings",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1201,
+      "height": 1357,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5511,7 +5361,7 @@
       "title": "Backup response failed during grid interruption",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1460,
+      "height": 1437,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5631,7 +5481,7 @@
       "title": "Connector 2 charging session interrupted",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1460,
+      "height": 1437,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5731,7 +5581,7 @@
       "title": "Productive-use headroom at Kobo",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1119,
+      "height": 1101,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5981,7 +5831,7 @@
       "title": "Findings",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1101,
+      "height": 1187,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -6065,52 +5915,12 @@
       "tabRows": 1,
       "subRows": 0,
       "broken": []
-    },
-    {
-      "id": "mini-outcomes",
-      "title": "Kobo Mini-grid",
-      "width": 1440,
-      "scrollWidth": 1425,
-      "height": 2753,
-      "tabRows": 1,
-      "subRows": 0,
-      "broken": []
-    },
-    {
-      "id": "cold-outcomes",
-      "title": "GreenHarvest Cold Room",
-      "width": 1440,
-      "scrollWidth": 1425,
-      "height": 2720,
-      "tabRows": 1,
-      "subRows": 0,
-      "broken": []
-    },
-    {
-      "id": "ev-outcomes",
-      "title": "Depot Charging Hub",
-      "width": 1440,
-      "scrollWidth": 1425,
-      "height": 2425,
-      "tabRows": 1,
-      "subRows": 0,
-      "broken": []
-    },
-    {
-      "id": "signals",
-      "title": "Findings",
-      "width": 1440,
-      "scrollWidth": 1425,
-      "height": 1967,
-      "tabRows": 1,
-      "subRows": 0,
-      "broken": []
     }
   ],
   "print_measurements": [
     {
       "id": "book-portfolio",
-      "height": 2268.765625,
+      "height": 1794.828125,
       "width": 1728
     },
     {
@@ -6120,7 +5930,7 @@
     },
     {
       "id": "book-mini",
-      "height": 1630.9375,
+      "height": 1561.625,
       "width": 1728
     },
     {
@@ -6155,12 +5965,12 @@
     },
     {
       "id": "book-finding",
-      "height": 1628.640625,
+      "height": 1605.640625,
       "width": 1728
     },
     {
       "id": "book-analysis",
-      "height": 1294.796875,
+      "height": 1271.796875,
       "width": 1728
     },
     {
@@ -6175,7 +5985,7 @@
     },
     {
       "id": "book-recommendation",
-      "height": 1238.609375,
+      "height": 1215.609375,
       "width": 1728
     },
     {
@@ -6200,7 +6010,7 @@
     },
     {
       "id": "book-cold",
-      "height": 1633.53125,
+      "height": 1580.21875,
       "width": 1728
     },
     {
@@ -6220,7 +6030,7 @@
     },
     {
       "id": "book-ev",
-      "height": 1580.9375,
+      "height": 1542.625,
       "width": 1728
     },
     {
@@ -6280,7 +6090,7 @@
     },
     {
       "id": "book-findings",
-      "height": 1147.765625,
+      "height": 1349.4375,
       "width": 1728
     },
     {
@@ -6295,7 +6105,7 @@
     },
     {
       "id": "book-maintenance",
-      "height": 1139.015625,
+      "height": 1023,
       "width": 1728
     },
     {
@@ -6316,26 +6126,6 @@
     {
       "id": "book-oprecords",
       "height": 1350.578125,
-      "width": 1728
-    },
-    {
-      "id": "book-mini-outcomes",
-      "height": 2559.84375,
-      "width": 1728
-    },
-    {
-      "id": "book-cold-outcomes",
-      "height": 2468,
-      "width": 1728
-    },
-    {
-      "id": "book-ev-outcomes",
-      "height": 2393.140625,
-      "width": 1728
-    },
-    {
-      "id": "book-signals",
-      "height": 1933.890625,
       "width": 1728
     }
   ],

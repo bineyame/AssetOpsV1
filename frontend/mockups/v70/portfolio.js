@@ -24,7 +24,7 @@ function portfolioRows(lens='All priorities'){
  ].filter(r=>lens==='All priorities'||r.kind===lens);
  return table(['Site','Finding / operating mechanism','Value / consequence','Priority','Confidence','Action / next move'],rows.map(r=>[
   `${link(r.site,r.name,'strong')}<small>${r.domain}</small>`,
-  `${link(r.finding,r.title,'strong')}<small>${r.id} · ${r.mechanism}</small>${movesLine(r.id)}`,
+  `${link(r.finding,r.title,'strong')}<small>${r.id} · ${r.mechanism}</small>${affectsPill(r.id)}`,
   `<strong class="impact ${r.tone}">${r.impact}</strong><small>${r.basis}</small><small>${r.window}</small>`,
   badge(r.priority,r.priority==='High'?'amber':'blue'),`${r.confKey?conf(r.confKey,''):badge(r.confidence)}<small>${r.limit}</small>`,
   `${r.action?link(r.action,r.actionId,'strong'):link(r.finding,'Review recommendation','strong')}<small>${r.next}</small><span class="workflow-text">${r.state}</span>`
@@ -39,22 +39,22 @@ function portfolioObjectives(){return `<div class="objective-matrix"><div class=
  ['Cost control',objectiveCell('Review','attention','financials'),objectiveCell('Unassessed','unknown','cold-financials'),objectiveCell('Unassessed','unknown','ev-financials')],
  ['Evidence',objectiveCell('Limited','limited','evidence'),objectiveCell('Limited','limited','cold-evidence'),objectiveCell('Limited','limited','ev-evidence')]
  ].map(r=>`<div class="matrix-row"><span>${r[0]}</span>${r.slice(1).join('')}</div>`).join('')}</div><p class="chart-note">Site-owned assessments · Unknown is not healthy.<br>N/A means no configured objective. Select any cell for context.</p>`;}
-function portfolioScreen(){return `<div class="portfolio-v2">${buildOrderNote()}
+function portfolioScreen(){return `<div class="portfolio-v2">
  <div class="portfolio-context"><div>${badge('Portfolio: Needs attention','amber')}<span>3 simulated sites · 1 mini-grid / 1 cold room / 1 charging hub</span></div><button class="claim-link" data-portfolio-scope>Assessment scope & periods ↗</button></div>
  <div class="value-grid">
- ${portfolioValue('<span class="oc-ocode">O2</span>Operating-cost exposure',money(),'Kobo · 30 min avoidable generator time','Modelled + scenario · one-hour window','financials','amber','money')}
- ${portfolioValue('<span class="oc-ocode">O3</span>Service & stock risk','2 sites',`Cold-room excursion + interrupted charging · ${SIGNALS.filter(x=>x.dir==='risk'&&VO[x.code][1]==='O3').length} risk signals`,'Measured events · not priced','signals','red','finding')}
- ${portfolioValue('<span class="oc-ocode">O1</span>Productive-use opportunity','18–20 <small>kW</small>','Kobo · headroom on 3 of 5 days','Modelled · demand validation remains','renewable','green','sun')}
- ${portfolioValue('<span class="oc-ocode">O4</span>Asset life',`${SIGNALS.filter(x=>x.dir==='stress').length} <small>early stress warnings</small>`,'Battery below reserve · overdue servicing · charger fault','Not a condition assessment · not priced','signals','purple','asset')}
- ${portfolioValue('<span class="oc-ocode">O6</span>Verified value recovered','Not established','Intervention outcomes need more evidence','Completed work does not establish savings','globalfinancials','neutral','check')}
+ ${portfolioValue('Operating-cost exposure',money(),'Kobo · 30 min avoidable generator time','Modelled + scenario · one-hour window','financials','amber','money')}
+ ${portfolioValue('Service & stock risk','2 sites','Cold-room excursion + interrupted charging','Measured events · financial loss unpriced','findings-risks','red','finding')}
+ ${portfolioValue('Productive-use opportunity','18–20 <small>kW</small>','Kobo · headroom on 3 of 5 days','Modelled · demand validation remains','renewable','green','sun')}
+ ${portfolioValue('Asset life',`${WARNINGS.filter(x=>x.kind==='stress').length} <small>early warnings</small>`,'Battery below reserve · overdue servicing · charger fault','Early warning · not a condition check','findings-risks','purple','asset')}
+ ${portfolioValue('Verified value recovered','Not established','Intervention outcomes need more evidence','Completed work does not establish savings','globalfinancials','neutral','check')}
  </div>
- <div class="portfolio-pulse"><span>${icon('site')}<strong>3</strong> priority sites</span><span>${icon('sun')}<strong>1</strong> opportunity</span><span>${icon('evidence')}<strong>3</strong> site evidence gaps</span><span>${icon('action')}<strong>3</strong> accepted actions</span><span>${icon('finding')}<strong>${SIGNALS.length}</strong> signals not yet priced</span><span class="pulse-note">Distinct consequence categories · no combined savings total</span></div>
+ <div class="portfolio-pulse"><span>${icon('site')}<strong>3</strong> priority sites</span><span>${icon('sun')}<strong>1</strong> opportunity</span><span>${icon('evidence')}<strong>3</strong> site evidence gaps</span><span>${icon('action')}<strong>3</strong> accepted actions</span><span>${icon('finding')}<strong>${WARNINGS.length}</strong> warnings not yet priced</span><span class="pulse-note">Distinct consequence categories · no combined savings total</span></div>
  <div class="portfolio-main">
  <section class="panel priority-panel"><div class="panel-head"><div><h2>Where management should act first</h2><p>Findings ranked by consequence and urgency, with evidence confidence alongside.</p></div><span class="eyebrow">6 findings</span></div>
  <div class="portfolio-lenses" aria-label="Finding lens">${['All priorities','Cost','Risks','Opportunities'].map((label,i)=>`<button class="chip ${i===0?'active':''}" data-portfolio-lens="${label}" aria-pressed="${i===0}">${label}</button>`).join('')}<span id="portfolio-result-count">6 findings</span></div>
- <div id="portfolio-findings">${portfolioRows()}</div><div class="panel-bottom">${link('findings','Open all Findings →')}<span>Priority and confidence answer different questions.</span></div></section>
- <aside class="portfolio-side">${panel('Outcomes across the estate',portfolioOutcomes(),'Each site’s own reading · not a composite health score')}
- <section class="portfolio-evidence"><div>${icon('evidence')}<h3>Evidence that would change a decision</h3></div><p>Restore Kobo’s missing PCS capability report to resolve two indeterminate dispatch intervals.</p>${link('evidence','Inspect the constraint →')}</section>${portfolioSignals()}</aside>
+ <div id="portfolio-findings">${portfolioRows()}</div>${warningList(()=>true,4)}<div class="panel-bottom">${link('findings','Open all Findings →')}<span>Priority and confidence answer different questions.</span></div></section>
+ <aside class="portfolio-side">${panel('Outcomes across the estate',portfolioOutcomes(),'How each site is doing on what matters')}
+ <section class="portfolio-evidence"><div>${icon('evidence')}<h3>Evidence that would change a decision</h3></div><p>Restore Kobo’s missing PCS capability report to resolve two indeterminate dispatch intervals.</p>${link('evidence','Inspect the constraint →')}</section></aside>
  </div>
  <div class="portfolio-bottom"><section class="panel opportunity-panel"><div class="panel-head"><div><div class="eyebrow">GROW USEFUL DEMAND</div><h2>An opportunity beyond reducing cost</h2></div>${badge('Scenario','green')}</div><div class="opportunity-story"><div><span class="opportunity-quantity">10 <small>kW × 1 h</small></span><p>Grain-mill evaluation at Kobo</p></div><span class="story-arrow">→</span><div><span class="opportunity-quantity">$2.50</span><p>Scenario gross sales per eligible window</p></div></div><p class="chart-note">Within 18–20 kW headroom · $0.25/kWh assumed tariff · before costs. Validate demand and service guardrails before committing.</p><div class="panel-bottom">${link('opportunity-finding','Review opportunity Finding →')}${link('renewable','Inspect physical headroom →')}</div></section>
  <section class="panel progress-panel"><div class="panel-head"><div><div class="eyebrow">CLOSE THE LOOP</div><h2>What changed in this review</h2></div><button class="claim-link" data-portfolio-progress>Inspect basis ↗</button></div>

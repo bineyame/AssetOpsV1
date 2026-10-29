@@ -60,7 +60,7 @@
       ],
       "deferred": "Six-site estate, monthly extrapolation, productive-use share, comparable energy roll-up, asset valuation, reconciliation residual and verified recovered money require their own supporting records. None is inferred from this hour."
     },
-    "v70": "Rev 5 §6.1, §11: the objective matrix becomes six outcome rows (owner-approved change from five operating rows); each cell shows the site’s own outcome, its status from the seven-state rule, and Declared where an objective is set. Value cards carry their outcome codes; the asset-life card counts early stress warnings. Ranked rows show what each finding moves and must not harm. New panel: signals not yet priced. A reviewer strip shows the proposed build order (pending owner decision)."
+    "v70": "Rev 5 §6.1, §11: the objectives matrix has six outcome rows (owner-approved change from five operating rows), shown as colour-coded status blocks with plain outcome names and a colour key. Value cards keep v6.9 labels; the asset-life card counts early warnings. Each ranked finding shows the outcome it affects and how often it recurs. Early warnings (not priced yet) sit under the ranked table, not in a separate panel."
   },
   {
     "id": "sites",
@@ -120,7 +120,7 @@
     "adapted": "Shared site-overview skeleton (all verticals): status with confidence → objective → canonical assessment cards → plain causal strip → context + needs attention (each with destination) → bounded consequence + next step. Only assessed objectives get a health conclusion; Renewable and Fuel use Unknown, never an opportunity or \"not assessed\" status.",
     "deferred": "A site-wide Healthy label while service/asset objectives are unassessed.",
     "subtitle": "60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill",
-    "v70": "Rev 5 §6.2, §7: outcome strip under the objective, linking to the new Outcomes tab."
+    "v70": "Rev 5 §6.2, §7: the v6.9 assessment cards become outcome cards (Dispatch and Fuel become Supply cost per kWh; Service becomes Reliable service; Renewable becomes Productive electricity sales; Battery becomes Battery and generator life; plus Evidence quality). Each card has one headline state, one line, and a five-step progress bar. The info button opens the outcome in operator words. Outcomes without data share one Not measured yet card."
   },
   {
     "id": "foundation",
@@ -139,8 +139,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Definition, topology and controls · public configuration at the time of evidence",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Definition, topology and controls · public configuration at the time of evidence"
   },
   {
     "id": "readiness",
@@ -158,8 +157,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Restores configuration readiness without duplicating the Evidence capability table.",
     "deferred": "General commissioning workflow and automatic field certification.",
-    "subtitle": "Definition, commissioning and gateway readiness",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Definition, commissioning and gateway readiness"
   },
   {
     "id": "changes",
@@ -177,8 +175,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Configuration change CHG-019 · generator stop policy",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Configuration change CHG-019 · generator stop policy"
   },
   {
     "id": "dispatch",
@@ -196,8 +193,7 @@
     "preserved": "Necessary / Candidate avoidable / Indeterminate are analytical classifications; all remain separate from workflow state.",
     "adapted": "Analysis is an interval drill-down, preserving one Performance subtab row.",
     "deferred": "Optimal dispatch, proven net savings and inferred controller modes.",
-    "subtitle": "Performance · source coordination and generator support",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · source coordination and generator support"
   },
   {
     "id": "renewable",
@@ -216,8 +212,7 @@
     "adapted": "Productive-use is a section within Renewable, not a third navigation level.",
     "deferred": "Market demand forecasting and generalized scenario experimentation.",
     "subtitle": "Performance · renewable use and productive-load opportunity",
-    "window": "Illustrative recurrence sample · 5 observed days",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "window": "Illustrative recurrence sample · 5 observed days"
   },
   {
     "id": "evidence",
@@ -236,8 +231,7 @@
     "preserved": "Only accepted evidence is product-visible. Source quality and physical asset condition are separate.",
     "adapted": "Window-scoped capabilities and explicit sampling denominators.",
     "deferred": "Broad gateway management and an unexplained overall quality score.",
-    "subtitle": "Evidence · capability readiness and claim ceilings",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Evidence · capability readiness and claim ceilings"
   },
   {
     "id": "finding",
@@ -257,7 +251,7 @@
     "adapted": "Retains the owner-approved Analysis destination and plain-language default.",
     "deferred": "A claim of proven waste or net realized savings.",
     "subtitle": "F-104 · Kobo Mini-grid · generator dispatch · 6 Oct 2026",
-    "v70": "Rev 5 §4.3: “This finding moves” strip above the page."
+    "v70": "Rev 5 §4.3: one “Affects / Also check” line above the page."
   },
   {
     "id": "analysis",
@@ -276,7 +270,7 @@
     "adapted": "Analysis is a deliberate additional Finding contextual tab. No additional subtab row is introduced.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "subtitle": "F-104 · analytical method, input comparison and uncertainty",
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "financials",
@@ -293,8 +287,7 @@
     "preserved": "Site owns the technical bridge. Global pages aggregate its results; financial pages have no assessment enum.",
     "adapted": "Two real consequence lines and editable assumptions instead of a broad finance suite. Subtabs Overview | Assumptions; v6.9 Drivers is the bridge on Overview; Scenarios is a placeholder with an empty state (owner, follow-up 3). Implementation note: ranges use outward rounding; totals use unrounded amounts.",
     "deferred": "Cash flow, currency conversion and monthly extrapolation.",
-    "subtitle": "Financials · technical behaviour translated to business consequence",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Financials · technical behaviour translated to business consequence"
   },
   {
     "id": "assumptions",
@@ -311,8 +304,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "One interactive price edit demonstrates the technical/economic boundary.",
     "deferred": "Real database writes and shared portfolio assumption sets.",
-    "subtitle": "Financials · assumptions and interpretation history",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Financials · assumptions and interpretation history"
   },
   {
     "id": "recommendation",
@@ -331,7 +323,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "subtitle": "F-104 · proposed policy intervention and declared success criterion",
-    "v70": "Rev 5 §4.3: moves strip; the trial reads as a lever on supply cost."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "verification",
@@ -385,8 +377,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Health · site-level asset-condition summary",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Health · site-level asset-condition summary"
   },
   {
     "id": "lab",
@@ -426,7 +417,7 @@
     "adapted": "Same overview skeleton as the mini-grid: status with confidence → objective → canonical cards → causal strip → context + needs attention (with destinations) → bounded consequence + next step. Evidence card uses evidence vocabulary (Limited) in neutral grey rather than v6.9 Healthy.",
     "deferred": "Spoilage diagnosis and stock ERP.",
     "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2, §9: outcome strip under the objective, linking to the new Outcomes tab."
+    "v70": "Rev 5 §6.2, §9: assessment cards become outcome cards (Temperature becomes Stock kept saleable; Backup and Maintenance become Cooling continuity; Cooling becomes Compressor life; plus Evidence quality and Not measured yet)."
   },
   {
     "id": "temperature",
@@ -444,8 +435,7 @@
     "preserved": "Excursions and exposure remain bounded by actual temperature evidence and configured policy.",
     "adapted": "Duration, in-policy share and exposure size are computed from the 5-minute readings as bounded ranges (duration bracketed by readings; °C·min bounded by the lower and upper reading in each 5-minute step (50–90), replacing the earlier ≈70 straight-line point estimate) rather than v6.9 point values.",
     "deferred": "Spoilage determination and unverified exposure valuation.",
-    "subtitle": "Performance · temperature policy and bounded exposure",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · temperature policy and bounded exposure"
   },
   {
     "id": "cooling",
@@ -463,8 +453,7 @@
     "preserved": "Context normalization precedes a degradation claim.",
     "adapted": "Shows an evidence-limited comparison so similar curves cannot imply a false diagnosis.",
     "deferred": "Automatic compressor diagnosis.",
-    "subtitle": "Performance · recovery under comparable conditions",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · recovery under comparable conditions"
   },
   {
     "id": "coldbackup",
@@ -482,8 +471,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "States the 8.31 discrimination (backup versus refrigeration failure) in one plain sentence; shares the backup chain table with the mini-grid; the missing transfer record is shown as an explicit missing link.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Performance · grid outage to cooling-service recovery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · grid outage to cooling-service recovery"
   },
   {
     "id": "ev",
@@ -502,7 +490,7 @@
     "adapted": "EV is extrapolated (v6.9 has no EV section). Uses the shared site-overview skeleton; sessions, connector availability and site power replace mini-grid dispatch content; cards use canonical assessments only.",
     "deferred": "Roaming, billing settlement and vehicle-battery health.",
     "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2, §8: outcome strip under the objective, linking to the new Outcomes tab."
+    "v70": "Rev 5 §6.2, §8: assessment cards become outcome cards (Session service and Availability become Buses ready to run; Site power becomes Room before expansion, with a usage bar; Charger condition becomes Charger life; plus Charger use, Evidence quality and Not measured yet)."
   },
   {
     "id": "sessions",
@@ -520,8 +508,7 @@
     "preserved": "Outcomes are evidence-derived, with unknowns preserved.",
     "adapted": "New EV read models use canonical Finding and Evidence detail.",
     "deferred": "Billing settlement and unobserved session energy.",
-    "subtitle": "Performance · charging sessions and delivered service",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · charging sessions and delivered service"
   },
   {
     "id": "availability",
@@ -538,8 +525,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "A scheduled-service denominator replaces mini-grid served-load semantics.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Performance · connector availability and unknown time",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · connector availability and unknown time"
   },
   {
     "id": "energy",
@@ -557,8 +543,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Performance · charging energy and site-power context",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · charging energy and site-power context"
   },
   {
     "id": "incident",
@@ -613,8 +598,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "An honest service gap replaces an unsupported 100% served-energy metric.",
     "deferred": "Precise unserved kWh without requested-service evidence.",
-    "subtitle": "Performance · delivered load and service claim limits",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · delivered load and service claim limits"
   },
   {
     "id": "fuel",
@@ -632,8 +616,7 @@
     "preserved": "Residual, uncertainty and expected-consumption basis stay explicit.",
     "adapted": "Shows the missing-evidence state instead of inventing a fuel-loss story for Kobo.",
     "deferred": "Fuel ERP and theft detection.",
-    "subtitle": "Performance · fuel reconciliation and uncertainty",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · fuel reconciliation and uncertainty"
   },
   {
     "id": "backup",
@@ -651,8 +634,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Performance · backup start and service recovery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Performance · backup start and service recovery"
   },
   {
     "id": "sitefindings",
@@ -669,7 +651,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "subtitle": "Site-scoped Findings · operational conclusions and evidence limits",
-    "v70": "Rev 5 §4.3: Moves line on each finding; new Outcomes tab."
+    "v70": "Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list."
   },
   {
     "id": "sitework",
@@ -687,8 +669,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Site-scoped work · the same managed records as global queues",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Site-scoped work · the same managed records as global queues"
   },
   {
     "id": "sitework-incidents",
@@ -705,8 +686,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Site-scoped work · incidents",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Site-scoped work · incidents"
   },
   {
     "id": "sitework-maintenance",
@@ -723,8 +703,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Site-scoped work · maintenance",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Site-scoped work · maintenance"
   },
   {
     "id": "evidence-analysis",
@@ -742,8 +721,7 @@
     "adapted": "Record-level detail moved off the plain Evidence overview (D-2026-10-04-plain-language-analysis-views: Site Evidence has local Overview | Analysis).",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Evidence · accepted records and how limits are set",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Evidence · accepted records and how limits are set"
   },
   {
     "id": "assets",
@@ -808,14 +786,10 @@
       [
         "Opportunities",
         "findings-opportunities"
-      ],
-      [
-        "Signals not yet priced",
-        "signals"
       ]
     ],
     "subtitle": "Evidence-backed operating conclusions · one global object model",
-    "v70": "Rev 5 §4.3, §6.2: each finding says what it moves and what it must not harm; new Signals tab."
+    "v70": "Rev 5 §4.3, §5: each finding shows the outcome it affects and how often it recurs; early warnings for the same lens sit under the table."
   },
   {
     "id": "actions",
@@ -876,7 +850,7 @@
       ]
     ],
     "subtitle": "Physical maintenance work and outcome verification",
-    "v70": "Rev 5 §5.2: repeated maintenance without result shown as a signal (cost per visit not set; proposed later, pending owner decision); earlier visits WR-011 and WR-016 added."
+    "v70": "Rev 5 §5.2: “Repeat visits without a result” replaces “Repeat findings 0”; earlier visits WR-011 and WR-016 added."
   },
   {
     "id": "globalevidence",
@@ -929,8 +903,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-health",
@@ -948,8 +921,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-evidence",
@@ -967,8 +939,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-evidence-analysis",
@@ -986,8 +957,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-financials",
@@ -1005,8 +975,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-assumptions",
@@ -1023,8 +992,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-findings",
@@ -1042,7 +1010,7 @@
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
     "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §4.3: Moves line on each finding; new Outcomes tab."
+    "v70": "Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list."
   },
   {
     "id": "cold-work",
@@ -1060,8 +1028,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-work-incidents",
@@ -1078,8 +1045,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-work-maintenance",
@@ -1096,8 +1062,7 @@
     "adapted": "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "cold-finding",
@@ -1117,7 +1082,7 @@
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
     "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "cold-recommendation",
@@ -1155,8 +1120,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-health",
@@ -1174,8 +1138,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-evidence",
@@ -1193,8 +1156,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-evidence-analysis",
@@ -1212,8 +1174,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-financials",
@@ -1231,8 +1192,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-assumptions",
@@ -1249,8 +1209,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-findings",
@@ -1268,7 +1227,7 @@
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
     "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §4.3: Moves line on each finding; new Outcomes tab."
+    "v70": "Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list."
   },
   {
     "id": "ev-work",
@@ -1286,8 +1245,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-work-incidents",
@@ -1304,8 +1262,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-work-maintenance",
@@ -1322,8 +1279,7 @@
     "adapted": "EV charging is an extrapolation of the canonical domain-pack pattern, not a defined v6.9 vertical.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "ev-finding",
@@ -1343,7 +1299,7 @@
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
     "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "ev-recommendation",
@@ -1397,7 +1353,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "alternatives",
@@ -1414,7 +1370,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "finding-history",
@@ -1432,7 +1388,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "action-overview",
@@ -1541,7 +1497,7 @@
     "adapted": "Opportunity detail linked from the Portfolio ranked Findings lens; reuses the existing five-day renewable example.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "cold-finding-excursion",
@@ -1559,7 +1515,7 @@
     "adapted": "F-119 was referenced by Incident INC-203 but had no page; added so the site Findings index has no dead references.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "v70": "Rev 5 §4.3: moves strip."
+    "v70": "Rev 5 §4.3: Affects line."
   },
   {
     "id": "cold-action",
@@ -1594,8 +1550,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Financials · scenarios (placeholder)",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Financials · scenarios (placeholder)"
   },
   {
     "id": "cold-scenarios",
@@ -1612,8 +1567,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Financials · scenarios (placeholder)",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Financials · scenarios (placeholder)"
   },
   {
     "id": "ev-scenarios",
@@ -1630,8 +1584,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Financials · scenarios (placeholder)",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Financials · scenarios (placeholder)"
   },
   {
     "id": "cold-readiness",
@@ -1650,8 +1603,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Definition, commissioning and gateway readiness",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Definition, commissioning and gateway readiness"
   },
   {
     "id": "ev-readiness",
@@ -1670,8 +1622,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Definition, commissioning and gateway readiness",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Definition, commissioning and gateway readiness"
   },
   {
     "id": "sld",
@@ -1689,8 +1640,7 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "v6.9 8.12 is the Simulator Lab site view; its structure (sources, breakers, bus, loads) is reused as a product view with reporting status instead of live flows or controls.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Foundation · single line diagram",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Foundation · single line diagram"
   },
   {
     "id": "cold-sld",
@@ -1708,8 +1658,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup"
   },
   {
     "id": "ev-sld",
@@ -1727,8 +1676,7 @@
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
     "book": false,
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery"
   },
   {
     "id": "assets-warranty",
@@ -1852,8 +1800,7 @@
         "site-setup-history"
       ]
     ],
-    "subtitle": "Lakeside Mini-grid · draft",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Lakeside Mini-grid · draft"
   },
   {
     "id": "site-create-template",
@@ -1893,8 +1840,7 @@
         "site-setup-history"
       ]
     ],
-    "subtitle": "Create a site from a template",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Create a site from a template"
   },
   {
     "id": "site-batch-upload",
@@ -1934,8 +1880,7 @@
         "site-setup-history"
       ]
     ],
-    "subtitle": "Upload, check and import sites",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Upload, check and import sites"
   },
   {
     "id": "site-setup-history",
@@ -1974,8 +1919,7 @@
         "site-setup-history"
       ]
     ],
-    "subtitle": "Audit of site creation and activation",
-    "v70": "Rev 5 §6.2: new Outcomes tab in the site tab row; page content unchanged."
+    "subtitle": "Audit of site creation and activation"
   },
   {
     "id": "asset-performance",
@@ -2121,14 +2065,10 @@
       [
         "Opportunities",
         "findings-opportunities"
-      ],
-      [
-        "Signals not yet priced",
-        "signals"
       ]
     ],
     "subtitle": "Evidence-backed operating conclusions · one object model",
-    "v70": "Rev 5 §4.3: Moves line; new Signals tab."
+    "v70": "Rev 5 §5.2: Affects pill; the repeated-maintenance warning sits under the Cost lens."
   },
   {
     "id": "findings-risks",
@@ -2161,14 +2101,10 @@
       [
         "Opportunities",
         "findings-opportunities"
-      ],
-      [
-        "Signals not yet priced",
-        "signals"
       ]
     ],
     "subtitle": "Evidence-backed operating conclusions · one object model",
-    "v70": "Rev 5 §4.3: Moves line; new Signals tab."
+    "v70": "Rev 5 §5.3: Affects pill; downtime and early warnings sit under the Risks lens."
   },
   {
     "id": "findings-opportunities",
@@ -2201,14 +2137,10 @@
       [
         "Opportunities",
         "findings-opportunities"
-      ],
-      [
-        "Signals not yet priced",
-        "signals"
       ]
     ],
     "subtitle": "Evidence-backed operating conclusions · one object model",
-    "v70": "Rev 5 §4.3: Moves line; new Signals tab."
+    "v70": "Rev 5 §5: Affects pill; idle-charger warning sits under the Opportunities lens."
   },
   {
     "id": "maintenance-preventive",
@@ -2254,7 +2186,7 @@
     "book": false,
     "obj": "WR-019",
     "subtitle": "WR-019 · GreenHarvest · corrective",
-    "v70": "Rev 5 §5.2: repeated-maintenance signal above the work request."
+    "v70": "Rev 5 §5.2: one plain notice that this is the third visit without a result."
   },
   {
     "id": "wr-record",
@@ -2361,110 +2293,5 @@
       ]
     ],
     "subtitle": "Organisation, users, roles and feature switches"
-  },
-  {
-    "id": "mini-outcomes",
-    "title": "Kobo Mini-grid",
-    "root": "Sites",
-    "section": "Outcomes",
-    "anchor": "Rev 5 §4, §7",
-    "question": "Is each outcome where it should be, and what is moving it?",
-    "models": [
-      "OutcomeStatus",
-      "Finding",
-      "Signal",
-      "Action",
-      "VerificationOutcome"
-    ],
-    "domain": "mini",
-    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
-    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
-    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill",
-    "v70": "New (rev 5 §4, §7): every mini-grid outcome in chain order (objective, what drives it, problems and signals, what can be done, action, proof), with Not available yet where records do not exist."
-  },
-  {
-    "id": "cold-outcomes",
-    "title": "GreenHarvest Cold Room",
-    "root": "Sites",
-    "section": "Outcomes",
-    "anchor": "Rev 5 §4, §9",
-    "question": "Is each outcome where it should be, and what is moving it?",
-    "models": [
-      "OutcomeStatus",
-      "Finding",
-      "Signal",
-      "Action",
-      "VerificationOutcome"
-    ],
-    "domain": "cold",
-    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
-    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
-    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "New (rev 5 §4, §9): every cold-room outcome in chain order; cooling continuity is the proposed first full check outside the mini-grid (pending owner decision)."
-  },
-  {
-    "id": "ev-outcomes",
-    "title": "Depot Charging Hub",
-    "root": "Sites",
-    "section": "Outcomes",
-    "anchor": "Rev 5 §4, §8",
-    "question": "Is each outcome where it should be, and what is moving it?",
-    "models": [
-      "OutcomeStatus",
-      "Finding",
-      "Signal",
-      "Action",
-      "VerificationOutcome"
-    ],
-    "domain": "ev",
-    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
-    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
-    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "New (rev 5 §4, §8): every depot outcome in chain order; charging interruptions are the alternative first full check (pending owner decision)."
-  },
-  {
-    "id": "signals",
-    "title": "Findings",
-    "root": "Findings",
-    "section": "Signals not yet priced",
-    "anchor": "Rev 5 §5",
-    "question": "Which drivers point toward or against an outcome where money cannot be calculated yet?",
-    "models": [
-      "Signal",
-      "Finding",
-      "MaintenanceRecord",
-      "PreventivePlan"
-    ],
-    "domain": "mini",
-    "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
-    "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
-    "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "gtabs": [
-      [
-        "All findings",
-        "findings"
-      ],
-      [
-        "Cost",
-        "findings-cost"
-      ],
-      [
-        "Risks",
-        "findings-risks"
-      ],
-      [
-        "Opportunities",
-        "findings-opportunities"
-      ],
-      [
-        "Signals not yet priced",
-        "signals"
-      ]
-    ],
-    "subtitle": "Direction and evidence, never a money figure",
-    "v70": "New (rev 5 §5): every signal not yet priced, with direction, evidence, how often and what would price it; includes repeated maintenance without result, downtime, dispatch and early stress warnings."
   }
 ]

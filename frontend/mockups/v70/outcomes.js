@@ -1,125 +1,95 @@
-/* v7.0 outcome organisation (commercial capability architecture rev 5, sections 4 to 9).
-   Presentation over the same illustrative records as v6.9. Nothing here is a new analytic. */
-const O_NAME={O1:'Revenue',O2:'Operating cost',O3:'Service and stock protection',O4:'Asset life',O5:'Return on assets',O6:'Evidence and assurance'};
-const VO={
- 'MG-1':['Productive electricity sales','O1'],'MG-2':['Supply cost per kWh','O2'],'MG-3':['Site profitability','O5'],'MG-4':['Battery and generator life','O4'],'MG-5':['Reliable service','O3'],'MG-6':['Cash collected','O1'],'MG-7':['Evidence for investors','O6'],
- 'EV-1':['Buses ready to run','O3'],'EV-2':['Energy cost per km','O2'],'EV-3':['Charger use','O1'],'EV-4':['Battery and charger life','O4'],'EV-5':['Room before depot expansion','O5'],'EV-6':['Energy billed against metered','O1'],'EV-7':['Evidence for depot investment','O6'],
- 'CC-1':['Stock kept saleable','O3'],'CC-2':['Paid cold-room use','O1'],'CC-3':['Cost per cooling unit','O2'],'CC-4':['Market value of produce','O1'],'CC-5':['Compressor life','O4'],'CC-6':['Cooling continuity','O3'],'CC-7':['Quality evidence','O6']};
-const voName=c=>VO[c][0];
-const voLabel=c=>`${VO[c][0]} <span class="oc-code">${c}</span>`;
-/* The seven status states (rev 5 §4.2), plain words on screen. */
-const OST={
- na:['Not applicable','oc-na','The site’s set-up shows this does not apply'],
- notyet:['Not assessed yet','oc-notyet','Nothing measures this yet'],
- unknown:['Unknown','oc-unknown','Readings or records are incomplete'],
- needs:['Needs attention','oc-needs','Misses its objective, or an open problem needs action'],
- watch:['Watch','oc-watch','No objective set, but a signal points one way'],
- noobj:['No objective set','oc-noobj','Measured, but no objective is set'],
- ontrack:['On track','oc-ontrack','Meets its objective over a complete period']};
-const ocChip=k=>`<span class="oc-chip ${OST[k][1]}">${OST[k][0]}</span>`;
-const proposed=(text='Proposed, pending owner decision')=>`<span class="oc-proposed" title="Shown with the architect’s proposed default. The owner has not decided this yet.">${text}</span>`;
-const declared=(p)=>`<span class="oc-declared">Declared objective</span>${p?proposed('Proposed objective, pending owner decision'):''}`;
-/* What each Finding moves (rev 5 §4.3), with the outcomes it must not harm. */
-const MOVES={
- 'F-104':{moves:['MG-2'],via:'generator and battery settings',guard:['MG-5','MG-4']},
- 'F-108':{moves:['MG-7'],via:'battery reporting',guard:[],note:'Also limits how far the supply-cost finding can go'},
- 'F-109':{moves:['MG-1'],via:'spare daytime solar',guard:['MG-2','MG-5']},
- 'F-118':{moves:['CC-6','CC-1'],via:'backup readiness',guard:['CC-5']},
- 'F-119':{moves:['CC-1'],via:'chamber temperature control',guard:['CC-3']},
- 'F-130':{moves:['EV-1'],via:'charger faults',guard:['EV-4']}};
-function movesText(fid,short=false){const m=MOVES[fid];if(!m)return '';
- const mv=m.moves.map(voName).join(', ');
- return short?`Moves: ${mv}`:`Moves: ${mv} · through ${m.via}${m.guard.length?` · Must not harm: ${m.guard.map(voName).join(', ')}`:''}`;}
-const movesLine=(fid)=>MOVES[fid]?`<small class="oc-moves">${movesText(fid)}</small>`:'';
-function movesStrip(fid){const m=MOVES[fid];if(!m)return '';
- return `<div class="oc-movestrip" role="note"><span class="oc-k">This finding moves</span>${m.moves.map(c=>`<span class="oc-pill">${voLabel(c)}</span>`).join('')}<span class="oc-k">through</span><span>${m.via}</span>${m.guard.length?`<span class="oc-k">Must not harm</span>${m.guard.map(c=>`<span class="oc-pill guard">${voLabel(c)}</span>`).join('')}`:''}${m.note?`<span class="muted">${m.note}</span>`:''}</div>`;}
+/* v7.0: the v6.9 assessment cards, organised around business outcomes (commercial capability architecture rev 5).
+   Same illustrative records as v6.9; nothing here is a new analytic. Outcome codes stay internal. */
+const OUTCOME={
+ 'MG-1':'Productive electricity sales','MG-2':'Supply cost per kWh','MG-3':'Site profitability','MG-4':'Battery and generator life','MG-5':'Reliable service','MG-6':'Cash collected','MG-7':'Evidence quality',
+ 'EV-1':'Buses ready to run','EV-2':'Energy cost per km','EV-3':'Charger use','EV-4':'Charger life','EV-5':'Room before expansion','EV-6':'Energy billed against metered','EV-7':'Evidence quality',
+ 'CC-1':'Stock kept saleable','CC-2':'Paid cold-room use','CC-3':'Cost per cooling unit','CC-4':'Market value of produce','CC-5':'Compressor life','CC-6':'Cooling continuity','CC-7':'Evidence quality'};
+const TONE={needs:'amber',watch:'blue',unknown:'gray',notyet:'none',ontrack:'green'};
+const STATE={needs:'Needs attention',watch:'Watch',unknown:'Unknown',notyet:'Not measured yet',ontrack:'On track'};
+const STEP_NAMES=['Aim set','Problem found','Fix chosen','Work done','Result proven'];
 
-/* Signals not yet priced (rev 5 §5). dir: risk | opp | stress. Always labelled "not priced". */
-const SIGNALS=[
- {id:'s-dispatch',d:'mini',code:'MG-2',dir:'risk',kind:'Dispatch',title:'Generator kept running while the battery could carry the load',seen:'Some avoidable generator time on 24 of the last 30 days',persist:'Recurring',ev:['Dispatch','dispatch'],money:'Priced separately in Financials where the fuel price is set',missing:''},
- {id:'s-solar',d:'mini',code:'MG-1',dir:'opp',kind:'Headroom',title:'Daytime solar left unused',seen:'18–20 kW spare on 3 of 5 well-observed days',persist:'Recurring',ev:['Renewable','renewable'],money:'Needs: who would buy it, at what price, and what share gets paid'},
- {id:'s-reserve',d:'mini',code:'MG-4',dir:'stress',kind:'Early stress',title:'Battery went below its 30% reserve',seen:'5 of the last 30 days · lowest 22%',persist:'Recurring',ev:['Battery overview','asset-overview'],money:'Needs: a tested model of battery wear and a replacement cost'},
- {id:'s-genservice',d:'mini',code:'MG-4',dir:'stress',kind:'Early stress',title:'Generator service due soon',seen:'462 of 500 running hours since the last service',persist:'Observed',ev:['Preventive plan','maintenance-preventive'],money:'Needs: service cost and wear model'},
- {id:'s-mini-ev',d:'mini',code:'MG-7',dir:'risk',kind:'Evidence',title:'One battery report missing',seen:'30 minutes cannot be classified',persist:'Observed',ev:['Evidence','evidence'],money:'Not a money outcome; it limits the others'},
- {id:'s-maint',d:'cold',code:'CC-6',dir:'risk',kind:'Maintenance',title:'Repeated maintenance without result',seen:'Backup generator GEN-CR-01: 3 visits in 60 days (WR-011, WR-016, WR-019); the automatic start still failed on 6 Oct',persist:'Recurring',ev:['Work request WR-019','wr-overview'],money:'Needs: cost per visit, which is not set for this site',leak:true},
- {id:'s-cold-down',d:'cold',code:'CC-6',dir:'risk',kind:'Downtime',title:'Cooling stopped on grid loss',seen:'3 grid losses in 30 days · backup started by itself on 2',persist:'Recurring',ev:['Backup','coldbackup'],money:'Needs: contract terms or penalties for interrupted cooling'},
- {id:'s-exc',d:'cold',code:'CC-1',dir:'risk',kind:'Exposure',title:'Chamber above 4°C',seen:'25–35 min above the limit · peak 8.2°C',persist:'Observed',ev:['Temperature','temperature'],money:'Needs: which stock was in the room, its value and the product’s rules'},
- {id:'s-pm0455',d:'cold',code:'CC-5',dir:'stress',kind:'Early stress',title:'Backup start test overdue',seen:'Monthly witnessed start test due 2 Oct, not done',persist:'Persistent',ev:['Preventive plan','maintenance-preventive'],money:'Needs: wear model and repair cost'},
- {id:'s-coil',d:'cold',code:'CC-5',dir:'stress',kind:'Early stress',title:'Compressor coil cleaning due soon',seen:'Quarterly cleaning due 15 Oct · compressor cycles are not counted yet',persist:'Observed',ev:['Preventive plan','maintenance-preventive'],money:'Needs: compressor run and cycle counts, wear model'},
- {id:'s-ev-down',d:'ev',code:'EV-1',dir:'risk',kind:'Downtime',title:'Connector 2 out of service',seen:'1 h out of service and 1 h unknown on 6 Oct · status also unknown on 15 Sep',persist:'Recurring',ev:['Availability','availability'],money:'Needs: the bus roster, to know which departures were affected'},
- {id:'s-ev-fault',d:'ev',code:'EV-4',dir:'stress',kind:'Early stress',title:'Charger fault and overdue inspection',seen:'Connector 2 stopped a session on a fault · monthly connector inspection overdue since 30 Sep',persist:'Observed',ev:['Charger health','ev-health'],money:'Needs: repair cost and fault history per charger'},
- {id:'s-ev-idle',d:'ev',code:'EV-3',dir:'opp',kind:'Headroom',title:'Chargers mostly idle',seen:'120 kWh delivered in an 8-hour day, under a fifth of what the 80 kW limit allows',persist:'Observed',ev:['Energy','energy'],money:'Needs: other fleets’ demand and a rate for selling charging time'},
- {id:'s-ev-peak',d:'ev',code:'EV-5',dir:'risk',kind:'Capacity',title:'Peak close to the site import limit',seen:'Peak 76 kW against an 80 kW limit',persist:'Observed',ev:['Energy','energy'],money:'Needs: a demand forecast and the cost of expanding'}];
-const DIR_TEXT={risk:'Risk to',opp:'Opportunity for',stress:'Early stress warning ·'};
-function signalLabel(x){return x.dir==='stress'?`Early stress warning · ${voName(x.code)} · not a condition assessment · not priced`:`${DIR_TEXT[x.dir]} ${voName(x.code)} · not priced`;}
-const sigTag=x=>`<span class="oc-sig ${x.dir}">${x.dir==='opp'?'Opportunity':x.dir==='stress'?'Early stress warning':'Risk'}</span>`;
-function signalCard(x){return `<article class="oc-signal ${x.dir}"><div class="oc-signal-top">${sigTag(x)}<span class="oc-kind">${x.kind}</span><span class="oc-persist">${x.persist}</span></div><h3>${x.title}</h3><p>${x.seen}</p><p class="oc-label">${signalLabel(x)}</p><p class="oc-need">${x.money}${x.leak?` ${proposed('Cost per visit: proposed as a later site setting, pending owner decision')}`:''}</p>${link(x.ev[1],`${x.ev[0]} →`)}</article>`;}
-const signalsFor=(d,code)=>SIGNALS.filter(x=>x.d===d&&(!code||x.code===code));
+/* What each Finding affects, in plain words. */
+const AFFECTS={'F-104':[['MG-2'],['MG-5','MG-4']],'F-108':[['MG-7'],['MG-2']],'F-109':[['MG-1'],['MG-2','MG-5']],'F-118':[['CC-6','CC-1'],['CC-5']],'F-119':[['CC-1'],[]],'F-130':[['EV-1'],['EV-4']]};
+const RECUR={'F-104':'Seen on 24 of the last 30 days','F-118':'3 grid losses in 30 days · backup started by itself on 2','F-109':'Spare on 3 of 5 well-observed days','F-130':'Connector 2 status also unknown on 15 Sep'};
+const affectsPill=fid=>AFFECTS[fid]?`<span class="oc-affects">${AFFECTS[fid][0].map(c=>OUTCOME[c]).join(' · ')}</span>`:'';
+const recurNote=fid=>RECUR[fid]?`<small class="oc-recur">${RECUR[fid]}</small>`:'';
+function affectsLine(fid){const a=AFFECTS[fid];if(!a)return '';
+ return `<div class="oc-affectsline"><span class="oc-k">Affects</span>${a[0].map(c=>`<span class="oc-pill">${OUTCOME[c]}</span>`).join('')}${a[1].length?`<span class="oc-k">Also check</span>${a[1].map(c=>`<span class="oc-pill quiet">${OUTCOME[c]}</span>`).join('')}`:''}${RECUR[fid]?`<span class="oc-recurline">${RECUR[fid]}</span>`:''}</div>`;}
 
-/* Per-site outcomes, in chain order: objective → status → drivers → problems and signals → levers → action → proof. */
-const NA=(t)=>`<span class="oc-missing">Not available yet${t?': '+t:''}</span>`;
-const SITE_OUT={
- mini:[
-  {code:'MG-2',st:'needs',obj:['The generator runs only when the battery cannot carry the load',true],reason:'30 min of avoidable generator time in the selected hour; seen on most days',drivers:'Generator stop setting (90% charge) and battery reserve · fuel price · load and solar',problems:[['F-104 · Generator support review','finding']],sig:['s-dispatch'],levers:[['Trial a lower generator stop setting','recommendation']],action:['ACT-048 · Reduce extended generator support','verification'],proof:['Before-and-after check with three must-not-harm tests (service, reserve, stored energy)','verification','Then: cost per kWh compared on the same basis · not available yet']},
-  {code:'MG-1',st:'unknown',obj:['At least 20 kWh a day of daytime solar sold to productive users',true],reason:'Sales to productive users are not metered',drivers:'Spare daytime solar and battery room · demand · tariff · payment',problems:[['F-109 · Productive-use headroom','opportunity-finding']],sig:['s-solar'],levers:[['Grain-mill what-if (gross sales only)','opportunity-finding']],action:null,proof:null},
-  {code:'MG-5',st:'unknown',obj:['No unmet demand at the clinic',true],reason:'Power delivered is measured; what customers needed is not',drivers:'Battery reserve · generator readiness · faults and weather',problems:[],sig:[],levers:[['Raise reserve for critical hours','service']],action:null,proof:['Checked as a must-not-harm test inside the generator trial','verification']},
-  {code:'MG-4',st:'watch',obj:null,reason:'Early stress warnings; battery condition itself is not assessed',drivers:'Depth and frequency of discharge · generator starts and running hours',problems:[],sig:['s-reserve','s-genservice'],levers:[['Reserve and depth limits','foundation'],['Service on schedule','maintenance-preventive']],action:null,proof:null},
-  {code:'MG-7',st:'watch',obj:null,reason:'Evidence limited: one battery report missing',drivers:'Reporting coverage · source of readings',problems:[['F-108 · Battery output-limit report missing','evidence']],sig:['s-mini-ev'],levers:[['Restore battery reporting','sitework']],action:['ACT-049 · Restore reporting','sitework'],proof:null},
-  {code:'MG-3',st:'notyet',obj:null,reason:'No site ledger: income, operating costs and capital are not recorded',drivers:'Everything above, plus fixed costs and capital',problems:[],sig:[],levers:[],action:null,proof:null,missing:'site income and cost records'},
-  {code:'MG-6',st:'notyet',obj:null,reason:'No billing or payment records',drivers:'Metering · vending · payment discipline',problems:[],sig:[],levers:[],action:null,proof:null,missing:'billing and payment records'}],
- cold:[
-  {code:'CC-6',st:'needs',obj:['Backup starts by itself on every grid loss',true],reason:'Automatic start failed on 6 Oct; three visits have not fixed it',drivers:'Backup readiness · maintenance response · grid reliability',problems:[['F-118 · Backup response failed','cold-finding']],sig:['s-maint','s-cold-down'],levers:[['Witnessed automatic-start test after repair','cold-action']],action:['ACT-051 · Witness automatic-start test','cold-action'],proof:['Check that the next automatic start succeeds, with chamber temperature as a must-not-harm test','cold-action','first']},
-  {code:'CC-1',st:'needs',obj:['Chamber kept at 2–4°C',false],reason:'25–35 min above 4°C; peak 8.2°C',drivers:'Temperature control · door use · backup readiness',problems:[['F-119 · Temperature excursion','cold-finding-excursion'],['F-118 · Backup response failed','cold-finding']],sig:['s-exc'],levers:[['Stock value what-if (context only)','cold-scenarios']],action:['Record stock and door log','cold-work'],proof:null},
-  {code:'CC-5',st:'watch',obj:null,reason:'Early stress warnings; compressor condition is not assessed',drivers:'Compressor cycling · servicing · backup starts',problems:[],sig:['s-pm0455','s-coil'],levers:[['Service on schedule','maintenance-preventive']],action:null,proof:null},
-  {code:'CC-7',st:'watch',obj:null,reason:'Evidence complete for this event; calibration not recorded',drivers:'Probe coverage · calibration',problems:[],sig:[],levers:[],action:null,proof:null},
-  {code:'CC-3',st:'notyet',obj:null,reason:'Cooling energy and stored volume are not measured',drivers:'Compressor duty · insulation · tariff',problems:[],sig:[],levers:[],action:null,proof:null,missing:'a cooling energy meter and stored-volume records'},
-  {code:'CC-2',st:'notyet',obj:null,reason:'No occupancy or storage contracts recorded',drivers:'Occupancy · storage rates',problems:[],sig:[],levers:[],action:null,proof:null,missing:'occupancy and storage contract records'},
-  {code:'CC-4',st:'notyet',obj:null,reason:'No quality, sales or market price records',drivers:'Product quality · market price',problems:[],sig:[],levers:[],action:null,proof:null,missing:'quality and sales records'}],
- ev:[
-  {code:'EV-1',st:'needs',obj:['Every scheduled charge completes',true],reason:'1 session interrupted and 1 outcome unknown of 12; buses and departures are not linked yet',drivers:'Charger faults · shared site power · departure schedule',problems:[['F-130 · Charging session interrupted','ev-finding']],sig:['s-ev-down'],levers:[['Investigate connector 2','ev-action']],action:['ACT-061 · Investigate connector 2','ev-action'],proof:['Check that connector 2 completes its scheduled sessions','ev-action','alt']},
-  {code:'EV-5',st:'ontrack',obj:['Stay under the 80 kW site import limit',false],reason:'Peak 76 kW · close to the limit',drivers:'Peak demand · charge scheduling',problems:[],sig:['s-ev-peak'],levers:[['Load sharing between chargers','ev-sld']],action:null,proof:null},
-  {code:'EV-3',st:'watch',obj:null,reason:'Chargers mostly idle in the service day',drivers:'Spare connector time · other fleets’ demand',problems:[],sig:['s-ev-idle'],levers:[],action:null,proof:null},
-  {code:'EV-2',st:'unknown',obj:['Charging cost within the declared tariff',true],reason:'Cost per km needs odometer readings; a tariff estimate exists',drivers:'Tariff · demand charge · charging efficiency',problems:[],sig:[],levers:[['Tariff assumption','ev-financials']],action:null,proof:null},
-  {code:'EV-4',st:'watch',obj:null,reason:'Early stress warning; charger condition is not assessed',drivers:'Fault history · inspection',problems:[],sig:['s-ev-fault'],levers:[['Connector inspection','maintenance-preventive']],action:null,proof:null},
-  {code:'EV-7',st:'watch',obj:null,reason:'Evidence limited: connector 2 status missing 15:00–16:00',drivers:'Reporting coverage',problems:[],sig:[],levers:[],action:null,proof:null},
-  {code:'EV-6',st:'notyet',obj:null,reason:'No independent depot meter or settlement records',drivers:'Meter and settlement boundary',problems:[],sig:[],levers:[],action:null,proof:null,missing:'settlement records'}]};
-const outOf=(d,c)=>SITE_OUT[d].find(x=>x.code===c);
-const OUT_ROUTE={mini:'mini-outcomes',cold:'cold-outcomes',ev:'ev-outcomes'};
+/* Outcome cards per site: the v6.9 assessment cards, relabelled and regrouped. steps: 2 done, 1 partly, 0 not yet. */
+const OUT_CARDS={
+ mini:{cards:[
+  {c:'MG-2',st:'needs',note:'30 min of generator time avoidable in this hour',href:'dispatch',steps:[2,2,2,2,1],stepNote:'Trial under way · result pending',
+   d:{aim:['The generator runs only when the battery cannot carry the load',true],drives:'The generator stop setting (90% charge), the battery reserve, fuel price, and the day’s load and sun.',found:[['Generator support review','finding'],['Fuel balance not complete yet','fuel']],fix:[['Trial a lower generator stop setting','recommendation']],done:[['Trial accepted · ACT-048','verification']],proven:'The trial is checked against generator time, service, reserve and stored energy. A cost comparison on the same basis follows once the check is complete.'}},
+  {c:'MG-5',st:'unknown',note:'Power delivered is measured; what customers needed is not',href:'service',steps:[2,0,1,0,0],stepNote:'Watched during the generator trial',
+   d:{aim:['No unmet demand at the clinic',true],drives:'Battery reserve, generator readiness, faults and weather.',found:[],fix:[['Raise the reserve for critical hours','service']],done:[],proven:'Checked as part of the generator trial, so a cost saving cannot come at the clinic’s expense.'}},
+  {c:'MG-1',st:'unknown',note:'18–20 kW of solar spare on 3 of 5 days · sales not metered',href:'renewable',steps:[2,2,1,0,0],stepNote:'Opportunity found · not acted on yet',
+   d:{aim:['At least 20 kWh a day of daytime solar sold to productive users',true],drives:'Spare daytime solar and battery room, demand from users, tariff and payment.',found:[['Productive-use headroom','opportunity-finding']],fix:[['Grain-mill what-if','opportunity-finding']],done:[],proven:'Not available yet: sales to productive users are not metered.'}},
+  {c:'MG-4',st:'watch',note:'Battery below its 30% reserve on 5 of 30 days · generator service due soon',href:'asset-overview',steps:[0,2,1,0,0],stepNote:'Early warning · condition not checked',
+   d:{aim:null,drives:'How deep and how often the battery discharges; generator starts and running hours.',found:[['Battery below reserve on 5 days, lowest 22%','asset-overview'],['Generator 500-hour service due (462 h now)','maintenance-preventive']],fix:[['Reserve and depth limits','foundation'],['Service on schedule','maintenance-preventive']],done:[],proven:'Battery condition and remaining life are not assessed. These are early warnings, not a condition check.'}},
+  {c:'MG-7',st:'watch',note:'One battery report missing · 30 min unclassified',href:'evidence',steps:[0,2,2,1,0],stepNote:'Reporting fix open',
+   d:{aim:null,drives:'Which readings arrive, and from which sources.',found:[['Battery output-limit report missing','evidence']],fix:[['Restore battery reporting','sitework']],done:[['ACT-049 · open','sitework']],proven:'Not yet.'}}],
+  later:[['MG-3','MG-6'],'Needs site income, cost and billing records']},
+ cold:{cards:[
+  {c:'CC-1',st:'needs',note:'25–35 min above 4°C · peak 8.2°C',href:'temperature',steps:[2,2,1,1,0],stepNote:'Exposure found · stock impact unknown',
+   d:{aim:['Chamber kept at 2–4°C',false],drives:'Temperature control, door use and backup readiness.',found:[['Temperature excursion','cold-finding-excursion'],['Backup response failed','cold-finding']],fix:[['Stock value what-if','cold-scenarios']],done:[['Stock and door log requested','cold-work']],proven:'Not available yet: which stock was in the room, and its value, is not recorded.'}},
+  {c:'CC-6',st:'needs',note:'Automatic start failed · 3 repair visits without a result',href:'coldbackup',steps:[2,2,2,2,0],stepNote:'Repair done · start not proven',
+   d:{aim:['Backup starts by itself on every grid loss',true],drives:'Backup readiness and maintenance response; grid reliability.',found:[['Backup response failed','cold-finding'],['Same generator visited 3 times in 60 days','cold-work-maintenance']],fix:[['Witnessed automatic-start test','cold-action']],done:[['Starter and control inspection completed','wr-overview']],proven:'The next automatic start is checked, with chamber temperature watched at the same time.'}},
+  {c:'CC-5',st:'watch',note:'Recovered after power returned · start test overdue, coil cleaning due',href:'cooling',steps:[0,2,1,0,0],stepNote:'Early warning · condition not checked',
+   d:{aim:null,drives:'Compressor cycling, servicing and backup starts.',found:[['Witnessed start test overdue since 2 Oct','maintenance-preventive'],['Coil cleaning due 15 Oct','maintenance-preventive']],fix:[['Service on schedule','maintenance-preventive']],done:[],proven:'Compressor condition is not assessed. These are early warnings, not a condition check.'}},
+  {c:'CC-7',st:'watch',note:'Loading and door records not connected',href:'cold-evidence',steps:[0,2,0,0,0],stepNote:'Gap known',
+   d:{aim:null,drives:'Probe coverage, calibration, and the operator’s records.',found:[['Loading and door records not connected','cold-evidence']],fix:[],done:[],proven:'Not yet.'}}],
+  later:[['CC-2','CC-3','CC-4'],'Needs occupancy, cooling energy and sales records']},
+ ev:{cards:[
+  {c:'EV-1',st:'needs',note:'1 interrupted · 1 unknown of 12 sessions · connector 2 out 1 h',href:'sessions',steps:[2,2,2,1,0],stepNote:'Connector check open',
+   d:{aim:['Every scheduled charge completes',true],drives:'Charger faults, shared site power and the departure schedule.',found:[['Charging session interrupted','ev-finding'],['Connector 2 out of service 1 h','availability']],fix:[['Investigate connector 2','ev-action']],done:[['ACT-061 · open','ev-action']],proven:'Connector 2 is checked over its next scheduled sessions. Which departures were affected is not known yet: buses and the roster are not linked.'}},
+  {c:'EV-5',st:'ontrack',note:'Peak 76 kW of the 80 kW limit',href:'energy',meter:[76,80],steps:[2,2,0,0,0],stepNote:'Within the limit · little room left',
+   d:{aim:['Stay under the 80 kW site import limit',false],drives:'Peak demand and how charging is scheduled.',found:[['Peak 76 kW at 10:40','energy']],fix:[['Load sharing between chargers','ev-sld']],done:[],proven:'Not needed while within the limit.'}},
+  {c:'EV-3',st:'watch',note:'120 kWh in an 8-hour day · under a fifth of capacity',href:'energy',meter:[120,640],steps:[0,2,0,0,0],stepNote:'Opportunity seen',
+   d:{aim:null,drives:'Spare connector time and other fleets’ demand.',found:[['Chargers mostly idle','energy']],fix:[],done:[],proven:'Not available yet: no demand from other fleets is recorded.'}},
+  {c:'EV-4',st:'watch',note:'Fault on connector 2 · inspection overdue since 30 Sep',href:'ev-health',steps:[0,2,1,0,0],stepNote:'Early warning · condition not checked',
+   d:{aim:null,drives:'Fault history and inspection.',found:[['Connector fault on 6 Oct','ev-health'],['Monthly connector inspection overdue','maintenance-preventive']],fix:[['Connector inspection','maintenance-preventive']],done:[],proven:'Charger condition is not assessed. These are early warnings, not a condition check.'}},
+  {c:'EV-7',st:'watch',note:'One session end and 1 h of status missing',href:'ev-evidence',steps:[0,2,0,0,0],stepNote:'Gap known',
+   d:{aim:null,drives:'Which reports arrive from the chargers and the site meter.',found:[['Status missing 15:00–16:00','ev-evidence']],fix:[],done:[],proven:'Not yet.'}}],
+  later:[['EV-2','EV-6'],'Needs odometer readings and settlement records']}};
 
-function ocStep(label,body){return `<div class="oc-step"><div class="oc-step-k">${label}</div><div class="oc-step-v">${body}</div></div>`;}
-function outcomeCard(d,o){
- const sig=o.sig.map(id=>SIGNALS.find(x=>x.id===id)),obj=o.obj?`${escapeHtml(o.obj[0])}<br>${declared(o.obj[1])}`:o.missing?NA(o.missing):`<span class="muted">No objective set</span>`;
- const list=a=>a.length?a.map(([t,h])=>link(h,t)).join('<br>'):'';
- const probs=[list(o.problems),sig.map(x=>`${sigTag(x)} ${x.title}`).join('<br>')].filter(Boolean).join('<br>')||(o.missing?NA():'<span class="muted">None open</span>');
- const proof=o.proof?`${link(o.proof[1],o.proof[0])}${o.proof[2]==='first'?`<br>${proposed('Proposed as the first full check outside the mini-grid, pending owner decision (alternative: Depot charging)')}`:o.proof[2]==='alt'?`<br>${proposed('Alternative first full check outside the mini-grid, pending owner decision')}`:o.proof[2]?`<br><span class="oc-missing">${o.proof[2]}</span>`:''}`:NA(o.missing?o.missing:'nothing checks this yet');
- return `<article class="oc-card st-${o.st}" id="oc-${o.code}"><header><div><h3>${voName(o.code)}</h3><span class="oc-code">${o.code} · ${O_NAME[VO[o.code][1]]}</span></div>${ocChip(o.st)}</header><p class="oc-reason">${o.reason}</p>
- <div class="oc-chain">${ocStep('Objective',obj)}${ocStep('What drives it',o.drivers)}${ocStep('Problems and signals',probs)}${ocStep('What can be done',list(o.levers)||NA(o.missing?'':'no lever yet'))}${ocStep('Action',o.action?link(o.action[1],o.action[0]):'<span class="muted">None</span>')}${ocStep('Proof',proof)}</div></article>`;}
-function stateLegend(){return `<details class="oc-legend"><summary>How status is read</summary><ul>${Object.values(OST).map(([t,c,why])=>`<li><span class="oc-chip ${c}">${t}</span> ${why}</li>`).join('')}</ul><p class="muted">First match wins, in this order: not applicable, not assessed yet, unknown, needs attention, watch, no objective set, on track. Status is a reading, not a score; outcomes are never combined into one health number.</p></details>`;}
-function outcomesScreen(d){const rows=SITE_OUT[d],n=k=>rows.filter(x=>x.st===k).length;
- return status(`${badge(`${n('needs')} need attention`,'amber')} ${badge(`${n('watch')} on watch`,'blue')} ${badge(`${n('notyet')} not assessed yet`,'outline')}`,'Each outcome read along the same path: objective, what drives it, problems and signals, what can be done, action, proof',link(SITES[d].overview,'Back to overview →'))+
- stateLegend()+`<div class="oc-cards">${rows.map(o=>outcomeCard(d,o)).join('')}</div>`+
- panel('Signals at this site · not priced',`<div class="oc-signals">${signalsFor(d).map(signalCard).join('')}</div>`,'Direction and evidence only, until a price or cost basis exists')+
- notice('Objectives marked “Declared objective” are set for this demonstration. They are not the customer’s own targets.','blue');}
-function siteOutcomeStrip(d){return `<nav class="oc-strip" aria-label="Outcomes at this site">${SITE_OUT[d].map(o=>`<a href="#/${OUT_ROUTE[d]}" class="oc-strip-item st-${o.st}"><span>${voName(o.code)}</span>${ocChip(o.st)}</a>`).join('')}</nav>`;}
+function stepBar(steps,note){return `<div class="oc-steps" role="img" aria-label="${steps.map((v,i)=>`${STEP_NAMES[i]}: ${v===2?'yes':v===1?'partly':'not yet'}`).join(', ')}">${steps.map((v,i)=>`<span class="s${v}" title="${STEP_NAMES[i]}"></span>`).join('')}</div><div class="oc-stepnote">${note}</div>`;}
+function outcomeCard(d,x,i){
+ return `<div class="oc-ocard tone-${TONE[x.st]}"><div class="oc-ocard-top"><span class="oc-oname">${OUTCOME[x.c]}</span><button class="oc-info" data-outcome="${d}:${i}" aria-label="How ${OUTCOME[x.c].toLowerCase()} is doing">i</button></div>
+ <div class="oc-ostate">${STATE[x.st]}</div><p class="oc-onote">${x.note}</p>${x.meter?`<div class="oc-meter" aria-hidden="true"><span style="width:${Math.min(100,Math.round(x.meter[0]/x.meter[1]*100))}%"></span></div>`:''}${stepBar(x.steps,x.stepNote)}${link(x.href,'View detail →')}</div>`;}
+function outcomeCards(d){const o=OUT_CARDS[d];
+ return `<div class="oc-ocards">${o.cards.map((x,i)=>outcomeCard(d,x,i)).join('')}<div class="oc-ocard later"><span class="oc-oname">Not measured yet</span><p class="oc-onote">${o.later[0].map(c=>OUTCOME[c]).join(', ')}</p><p class="oc-onote muted">${o.later[1]}</p></div></div>`;}
+function outcomeDrawer(d,i){const x=OUT_CARDS[d].cards[i],y=x.d,list=a=>a.length?a.map(([t,h])=>link(h,t)).join('<br>'):'<span class="muted">Nothing yet</span>';
+ drawer(OUTCOME[x.c],status(`<span class="oc-chip tone-${TONE[x.st]}">${STATE[x.st]}</span>`,SITES[d].name)+stepBar(x.steps,x.stepNote)+
+  kv([['What we aim for',y.aim?`${escapeHtml(y.aim[0])}${y.aim[1]?'<br><small class="muted">Set for this demonstration, not the customer’s own target</small>':''}`:'<span class="muted">No objective set yet</span>'],['What drives it',y.drives],['What we found',list(y.found)],['What can be done',list(y.fix)],['What has been done',list(y.done)],['Did it work',y.proven]]));}
 
-/* Findings › Signals not yet priced */
-function signalsTable(f='All'){const rows=SIGNALS.filter(x=>f==='All'||(f==='Risks'&&x.dir==='risk')||(f==='Opportunities'&&x.dir==='opp')||(f==='Early stress'&&x.dir==='stress'));
- return table(['Signal','Site · outcome','What was seen','How often','What would put a price on it'],rows.map(x=>[`${sigTag(x)}<br>${link(x.ev[1],x.title,'strong')}<small>${signalLabel(x)}</small>`,`${link(OUT_ROUTE[x.d],SITES[x.d].name)}<small>${voLabel(x.code)}</small>`,x.seen,x.persist,`${x.money}${x.leak?`<br>${proposed('Cost per visit: proposed later, pending owner decision')}`:''}`]));}
-function signalsScreen(){const c=k=>SIGNALS.filter(x=>x.dir===k).length;
- return cards([metric('Risks',String(c('risk')),'Pointing against an outcome','amber'),metric('Opportunities',String(c('opp')),'Pointing toward an outcome','green'),metric('Early stress warnings',String(c('stress')),'Not a condition assessment'),metric('Money shown','None','A signal is never a money figure')])+
- `<div class="chips" data-filter-group="signals">${['All','Risks','Opportunities','Early stress'].map((x,i)=>`<button class="chip ${i===0?'active':''}" data-signal-filter="${x}" aria-pressed="${i===0}">${x}</button>`).join('')}</div>`+
- panel('Signals not yet priced',`<div id="signals-table">${signalsTable()}</div>`,'Each signal names the outcome it points at and what is missing to price it')+
- notice('A signal says which way something points and how often it was seen. It becomes a money figure only when a price or cost basis, a unit and enough history exist.','blue');}
-document.addEventListener('click',e=>{const el=e.target.closest('[data-signal-filter]');if(!el)return;
- document.querySelectorAll('[data-signal-filter]').forEach(x=>{x.classList.toggle('active',x===el);x.setAttribute('aria-pressed',String(x===el));});
- const t=document.querySelector('#signals-table');if(t)t.innerHTML=signalsTable(el.dataset.signalFilter);});
+/* Early warnings that have no Finding of their own and no price yet. lens: Cost | Risks | Opportunities */
+const WARNINGS=[
+ {d:'cold',c:'CC-6',lens:'Cost',kind:'risk',title:'Repeated maintenance without a result',seen:'Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed',href:'wr-overview',price:'A cost per visit is not set for this site'},
+ {d:'mini',c:'MG-4',lens:'Risks',kind:'stress',title:'Battery below its reserve',seen:'5 of the last 30 days · lowest 22%',href:'asset-overview',price:'Needs a tested battery wear model'},
+ {d:'cold',c:'CC-5',lens:'Risks',kind:'stress',title:'Backup start test overdue',seen:'Monthly test due 2 Oct, not done',href:'maintenance-preventive',price:'Needs repair cost and wear history'},
+ {d:'ev',c:'EV-4',lens:'Risks',kind:'stress',title:'Charger fault and overdue inspection',seen:'Connector 2 fault on 6 Oct · inspection overdue since 30 Sep',href:'ev-health',price:'Needs repair cost and fault history'},
+ {d:'ev',c:'EV-1',lens:'Risks',kind:'risk',title:'Connector 2 out of service',seen:'1 h out and 1 h unknown on 6 Oct',href:'availability',price:'Needs the bus roster'},
+ {d:'ev',c:'EV-5',lens:'Risks',kind:'risk',title:'Peak close to the import limit',seen:'76 kW against 80 kW',href:'energy',price:'Needs a demand forecast'},
+ {d:'mini',c:'MG-4',lens:'Risks',kind:'stress',title:'Generator service due soon',seen:'462 of 500 running hours',href:'maintenance-preventive',price:'Needs service cost'},
+ {d:'ev',c:'EV-3',lens:'Opportunities',kind:'opp',title:'Chargers mostly idle',seen:'Under a fifth of daily capacity used',href:'energy',price:'Needs other fleets’ demand and a rate'}];
+const KIND={risk:'Risk',stress:'Early warning',opp:'Opportunity'};
+function warningList(filter,max){const rows=WARNINGS.filter(filter).slice(0,max||99);if(!rows.length)return '';
+ return `<div class="oc-warn"><div class="oc-warn-head"><h3>Early warnings · not priced yet</h3><button class="oc-info" data-explain="warnings" aria-label="About early warnings">i</button></div><ul>${rows.map(x=>`<li><span class="oc-kind ${x.kind}">${KIND[x.kind]}</span><div>${link(x.href,x.title,'strong')}<small>${SITES[x.d].name.split(' ')[0]} · ${OUTCOME[x.c]} · ${x.seen}</small></div></li>`).join('')}</ul></div>`;}
+function explainWarnings(){drawer('Early warnings',`<p class="prose">An early warning points at something that tends to cost money or shorten equipment life, before its cost can be worked out. It shows what was seen and how often. It never shows a money figure.</p>`+table(['Warning','What would put a value on it'],WARNINGS.map(x=>[x.title,x.price])));}
 
-/* Portfolio: outcome rows (owner-approved change from v6.9's five operating rows). */
-const PF_ROWS=[['O1',{mini:'MG-1',cold:'CC-2',ev:'EV-3'}],['O2',{mini:'MG-2',cold:'CC-3',ev:'EV-2'}],['O3',{mini:'MG-5',cold:'CC-6',ev:'EV-1'}],['O4',{mini:'MG-4',cold:'CC-5',ev:'EV-4'}],['O5',{mini:'MG-3',cold:'CC-2',ev:'EV-5'}],['O6',{mini:'MG-7',cold:'CC-7',ev:'EV-7'}]];
-function pfCell(d,code){if(!code)return `<span class="oc-cell oc-na"><b>Not applicable</b><small>Shared with revenue for cold rooms</small></span>`;
- const o=outOf(d,code),also=d==='cold'&&code==='CC-6'?outOf('cold','CC-1'):null;
- return `<a class="oc-cell ${OST[o.st][1]}" href="#/${OUT_ROUTE[d]}" aria-label="${voName(code)}: ${OST[o.st][0]}"><b>${OST[o.st][0]}</b><small>${voName(code)}${also?' · '+voName(also.code):''}</small><small class="oc-code">${code}${also?', '+also.code:''}</small>${o.obj?`<span class="oc-declared">Declared</span>`:''}</a>`;}
-function portfolioOutcomes(){return `<div class="oc-matrix" role="table" aria-label="Outcomes across the estate"><div class="oc-mrow oc-mhead" role="row"><span role="columnheader">Outcome</span>${['mini','cold','ev'].map(d=>`<span role="columnheader">${link(OUT_ROUTE[d],SITES[d].name.split(' ')[0])}</span>`).join('')}</div>${PF_ROWS.map(([o,m])=>`<div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow"><b>${O_NAME[o]}</b><small>${o}</small></span>${['mini','cold','ev'].map(d=>`<span role="cell">${pfCell(d,m[d])}</span>`).join('')}</div>`).join('')}</div><p class="chart-note">Each cell is that site’s own reading of the outcome. Not assessed yet is not healthy. ${link('signals','Signals not yet priced →')}</p><p class="chart-note">“Declared” objectives are set for this demonstration ${proposed('Which outcomes get one: proposed, pending owner decision')}</p>`;}
-function portfolioSignals(){const pick=['s-maint','s-dispatch','s-reserve','s-ev-down','s-solar'].map(id=>SIGNALS.find(x=>x.id===id));
- return `<section class="panel oc-pf-signals"><div class="panel-head"><div><h2>Signals not yet priced</h2><p>Direction and evidence where money cannot be calculated yet</p></div>${link('signals',`All ${SIGNALS.length} →`)}</div><ul class="oc-siglist">${pick.map(x=>`<li>${sigTag(x)}<div>${link(x.ev[1],x.title,'strong')}<small>${SITES[x.d].name.split(' ')[0]} · ${signalLabel(x)}</small></div></li>`).join('')}</ul></section>`;}
-function buildOrderNote(){return `<details class="oc-review"><summary>${proposed('Proposed build order, pending owner decision')}</summary><ol><li>Label and link every screen by outcome</li><li>Declared objectives and status</li><li>Signals not yet priced, including repeated maintenance</li><li>Proof for supply cost: compare cost on the same basis after the trial</li><li>Early stress warnings for asset life</li><li>First full check outside the mini-grid: cooling continuity (alternative: Depot charging)</li><li>Productive-use contribution what-if</li></ol><p class="muted">Reviewer note, not part of the product screen.</p></details>`;}
+/* Portfolio outcome matrix (owner-approved outcome rows). */
+const PF_ROWS=[['Revenue',{mini:'MG-1',cold:'CC-2',ev:'EV-3'}],['Operating cost',{mini:'MG-2',cold:'CC-3',ev:'EV-2'}],['Service and stock',{mini:'MG-5',cold:'CC-6',ev:'EV-1'}],['Asset life',{mini:'MG-4',cold:'CC-5',ev:'EV-4'}],['Return on assets',{mini:'MG-3',cold:'CC-2',ev:'EV-5'}],['Evidence',{mini:'MG-7',cold:'CC-7',ev:'EV-7'}]];
+function cellState(d,c){const x=OUT_CARDS[d].cards.find(y=>y.c===c);return x?x.st:'notyet';}
+function portfolioOutcomes(){const sites=['mini','cold','ev'];
+ return `<div class="oc-matrix" role="table" aria-label="Outcomes across the estate"><div class="oc-mrow oc-mhead" role="row"><span role="columnheader"></span>${sites.map(d=>`<span role="columnheader">${link(SITES[d].overview,SITES[d].name.split(' ')[0])}</span>`).join('')}</div>${PF_ROWS.map(([name,m])=>`<div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow">${name}</span>${sites.map(d=>{const st=cellState(d,m[d]);return `<span role="cell"><a class="oc-cell tone-${TONE[st]}" href="#/${SITES[d].overview}" title="${OUTCOME[m[d]]}"><b>${STATE[st]}</b><small>${OUTCOME[m[d]]}</small></a></span>`;}).join('')}</div>`).join('')}</div><div class="oc-key">${['needs','watch','ontrack','unknown','notyet'].map(k=>`<span><i class="tone-${TONE[k]}"></i>${STATE[k]}</span>`).join('')}</div>`;}
+
+/* Reviewer-only: open owner decisions, shown as proposed defaults in this mock. */
+function ownerDecisions(){drawer('Owner decisions shown with proposed defaults',`<p class="prose">These are open. The mock shows the architect’s proposed default for each so it can be judged in context.</p>`+table(['Decision','Proposed default in this mock','Where to see it'],[
+ ['Build order','1 labels and links · 2 objectives and status · 3 early warnings · 4 cost check after the generator trial · 5 asset-life warnings · 6 first full check outside the mini-grid · 7 productive-use contribution','Portfolio and site overviews'],
+ ['First full check outside the mini-grid','Cooling continuity at GreenHarvest (alternative: Depot charging interruptions)',`${link('cold','GreenHarvest overview')} · Cooling continuity card`],
+ ['Which outcomes get an objective for the demo','Supply cost, productive sales, reliable service, cooling continuity, buses ready to run (the chamber range and import limit already exist)','Info button on each outcome card: “Set for this demonstration”'],
+ ['Cost per maintenance visit','Added later as a site setting; until then the warning has no money value',`${link('wr-overview','WR-019')} · Findings › Cost`]]),true);}
+document.addEventListener('click',e=>{const o=e.target.closest('[data-outcome]');if(o){const [d,i]=o.dataset.outcome.split(':');outcomeDrawer(d,Number(i));return;}
+ if(e.target.closest('[data-explain="warnings"]')){explainWarnings();return;}
+ if(e.target.closest('[data-owner-decisions]'))ownerDecisions();});

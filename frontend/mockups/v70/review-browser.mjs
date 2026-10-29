@@ -89,7 +89,7 @@ try{
  await navigate('dispatch');await evaluate(`document.querySelector('[data-interval="3"]').click()`);await pause(40);
  assert('Selected block follows selection',await evaluate(`document.querySelector('.drawer')&&[...document.querySelectorAll('main h2')].some(h=>h.textContent.includes('15:05–15:20'))`));
  await evaluate(`document.querySelector('[data-close]').click()`);
- await navigate('ev');assert('EV shell has distinct service content',await evaluate(`document.querySelector('main').textContent.includes('Session service')&&!document.querySelector('main').textContent.includes('Generator support')`));
+ await navigate('ev');assert('EV shell has distinct service content',await evaluate(`document.querySelector('main').textContent.includes('Buses ready to run')&&!document.querySelector('main').textContent.includes('Generator support')`));
  await evaluate(`document.querySelector('[data-notes]').click();const t=document.querySelector('#review-note');t.value='Browser review smoke check';t.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-close]').click();document.querySelector('[data-notes]').click()`);
  assert('Review notes retained locally',await evaluate(`document.querySelector('#review-note').value==='Browser review smoke check'`));
  await evaluate(`localStorage.removeItem('assetops-v70-review-notes');document.querySelector('[data-close]').click()`);
@@ -172,7 +172,7 @@ try{
  await navigate('asset-register');assert('Registration draft shows validation states',await evaluate(`document.querySelectorAll('.reg-check.amber').length>=3&&document.querySelectorAll('.reg-steps li').length===6`));
  await evaluate(`document.querySelector('[data-reg-submit]').click()`);assert('Registration submit explains validation',await evaluate(`document.querySelector('.toast').textContent.includes('draft')`));
  await navigate('asset-edit');assert('Edit registration keeps Configuration tab active',await evaluate(`document.querySelector('.tabs a.active').textContent==='Configuration'`));
- await navigate('findings');assert('Findings lenses are the subtab row',await evaluate(`[...document.querySelectorAll('.tabs a')].map(a=>a.textContent).join('|')==='All findings|Cost|Risks|Opportunities|Signals not yet priced'`));
+ await navigate('findings');assert('Findings lenses are the subtab row',await evaluate(`[...document.querySelectorAll('.tabs a')].map(a=>a.textContent).join('|')==='All findings|Cost|Risks|Opportunities'`));
  await evaluate(`document.querySelector('[data-fstate="Recommendation"]').click()`);assert('Workflow state is a filter, not a lens',await evaluate(`document.querySelectorAll('#findings-table tbody tr').length===1&&document.querySelector('#findings-table').textContent.includes('F-109')`));
  await navigate('findings-risks');assert('Risks lens',await evaluate(`document.querySelectorAll('#findings-table tbody tr').length===4`));
  await navigate('finding');assert('Finding detail: priority, confidence, state, claim, lens and where to look next',(await has('Where to look next'))&&(await has('Lens: Cost'))&&(await has('Priority: High')));
