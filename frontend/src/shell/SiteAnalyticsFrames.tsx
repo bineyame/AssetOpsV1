@@ -1017,7 +1017,7 @@ function CanonicalMiniFinding({
               {ALTERNATIVES_FINDING_UNAVAILABLE}
             </p>
           ) : null}
-          {selection.status === "loaded" ? <AffectsLine categories={selection.categories} variant="finding" /> : null}
+          {selection.status === "loaded" ? <AffectsLine categories={selection.categories} subject="finding" /> : null}
           {view === "alternatives" ? (
             selection.status === "loaded" && revisionId !== null ? (
               <MiniAlternatives

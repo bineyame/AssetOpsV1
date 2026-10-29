@@ -228,7 +228,7 @@ export function SiteAction({
         </PageRefusal>
       ) : null}
       {/* OUT-A A5: one Affects line above every view (overview, application, history, plan, evidence, verification). */}
-      <AffectsLine categories={body.categories} variant="action" />
+      <AffectsLine categories={body.categories} subject="action" />
       {view === "overview" ? (
         <Overview body={body} links={links} />
       ) : view === "execution" ? (

@@ -1444,7 +1444,9 @@ describe("OUT-A A5: the ACT-048 Affects line", () => {
       expect(describeViolations(scan.violations)).toBe("");
       mounted.unmount();
     }
-    serve(actionReads(base, hi.events_latest));
+    // The recorded contract may itself carry the key (A3); strip it for the older-body case.
+    const { categories: _dropped, ...older } = base.body as Record<string, unknown>;
+    serve(actionReads({ status: base.status, body: older }, hi.events_latest));
     mount(`/sites/KOBO-001/actions/${ACTION}`);
     await settledScreen();
     await waitFor(() => expect(q("[data-action-origin-link]")).not.toBeNull());

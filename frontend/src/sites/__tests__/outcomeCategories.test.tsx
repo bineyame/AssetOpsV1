@@ -82,7 +82,7 @@ describe("CategoryTags (list form)", () => {
 
 describe("AffectsLine (page form)", () => {
   it("action_line_with_safeguards_checked_and_first_character_lower_cased", () => {
-    const { container } = render(<AffectsLine categories={F104} variant="action" />);
+    const { container } = render(<AffectsLine categories={F104} subject="action" />);
     const lines = container.querySelectorAll("[data-affects-line]");
     expect(lines).toHaveLength(1);
     expect(squash(lines[0].textContent)).toBe(
@@ -94,7 +94,7 @@ describe("AffectsLine (page form)", () => {
   });
 
   it("f118_finding_line_shows_every_wire_item", () => {
-    const { container } = render(<AffectsLine categories={F118} variant="finding" />);
+    const { container } = render(<AffectsLine categories={F118} subject="finding" />);
     expect(squash(container.querySelector("[data-affects-line]")?.textContent)).toBe(
       "Affects Protect asset and capital cooling continuity, stock kept saleable Also check Protect asset and capital compressor life Optimize cost and efficiency cost per cooling unit",
     );
@@ -103,16 +103,16 @@ describe("AffectsLine (page form)", () => {
   });
 
   it("no_checked_items_omits_the_second_key", () => {
-    const { container } = render(<AffectsLine categories={F119} variant="finding" />);
+    const { container } = render(<AffectsLine categories={F119} subject="finding" />);
     expect(squash(container.textContent)).toBe("Affects Protect asset and capital stock kept saleable");
     expect(container.querySelectorAll(".oc-k")).toHaveLength(1);
   });
 
   it("not_mapped_and_absent", () => {
-    const first = render(<AffectsLine categories={NOT_MAPPED} variant="finding" />);
+    const first = render(<AffectsLine categories={NOT_MAPPED} subject="finding" />);
     expect(squash(first.container.textContent)).toBe("Affects Category not mapped");
     first.unmount();
-    const second = render(<AffectsLine categories={undefined} variant="action" />);
+    const second = render(<AffectsLine categories={undefined} subject="action" />);
     expect(second.container.innerHTML).toBe("");
   });
 

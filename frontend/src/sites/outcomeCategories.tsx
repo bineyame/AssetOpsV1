@@ -133,10 +133,11 @@ function Pill({ item, quiet }: { item: OutcomeCategoryItem; quiet: boolean }) {
  */
 export function AffectsLine({
   categories,
-  variant,
+  subject,
 }: {
   categories?: OutcomeCategories | null;
-  variant: "finding" | "action";
+  /** What the line belongs to; it names the second key ("Also check" for a Finding, "Safeguards checked" for an Action). */
+  subject: "finding" | "action";
 }) {
   if (!mapped(categories)) return null;
   if (categories.state !== "MAPPED") {
@@ -162,7 +163,7 @@ export function AffectsLine({
       ))}
       {checked.length > 0 ? (
         <>
-          <span className="oc-k">{variant === "action" ? "Safeguards checked" : "Also check"}</span>{" "}
+          <span className="oc-k">{subject === "action" ? "Safeguards checked" : "Also check"}</span>{" "}
           {checked.map((item) => (
             <Fragment key={`c-${item.category}`}>
               <Pill item={item} quiet />{" "}

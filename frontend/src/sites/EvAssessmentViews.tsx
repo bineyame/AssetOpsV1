@@ -986,7 +986,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
         </>
       ) : (
         <>
-          <AffectsLine categories={finding.value.categories} variant="finding" />
+          <AffectsLine categories={finding.value.categories} subject="finding" />
           <FindingStrip finding={finding.value} siteName={props.siteName} />
           <FindingPanels finding={finding.value} session={session} analysisHref={props.analysisHref?.(selectedWindowSearch(finding.value))} />
         </>

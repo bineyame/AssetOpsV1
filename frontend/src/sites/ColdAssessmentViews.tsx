@@ -1194,7 +1194,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
         </>
       ) : (
         <>
-          <AffectsLine categories={finding.value.categories} variant="finding" />
+          <AffectsLine categories={finding.value.categories} subject="finding" />
           <FindingStatus finding={finding.value} siteName={props.siteName} />
           {isExcursion ? (
             <ExcursionFindingPanels finding={finding.value} temperature={temperature!} findings={loaded(findings)} links={ownLinks} />
