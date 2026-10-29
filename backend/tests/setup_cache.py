@@ -69,8 +69,10 @@ OPS = [
     ("Chain", ("test_w202_cold_replay_postgres", "test_w205b_ev_replay_postgres"), ("open",), "chain-open"),
     ("Chain", ("test_w202_cold_replay_postgres", "test_w205b_ev_replay_postgres"),
      ("start_release_upload", "release_and_upload", "advance_late"), "chain-step"),
-    ("CaseRunner", ("test_s4_finding_store_postgres",), ("__init__", "step"), "object"),
 ]
+# Not cached: CaseRunner (test_s4_finding_store_postgres). It shares the caller's live store and engine, whose
+# in-memory state a restored copy cannot reproduce; a trial run failed its fences ("a cited evidence ID is not
+# accepted in this Site"), so it keeps building live.
 FUNCTION_OPS = [
     ("test_w402_reads_postgres", "_setup"),
     ("test_w402_reads_postgres", "_ingest"),
@@ -153,7 +155,9 @@ def _admin():
 
 
 def _worker_name() -> str:
-    return _harness()._names()[1]
+    if "worker" not in _state:
+        _state["worker"] = _harness()._names()[1]
+    return _state["worker"]
 
 
 def _url() -> str:
@@ -238,6 +242,7 @@ def state_digest() -> str:
                 expr = " || '|' || ".join(f"coalesce(CAST({_q(c)} AS text), '~')" for c in cols)
                 selects.append(f"SELECT '{t}', md5(string_agg({expr}, '#' ORDER BY {expr})) FROM {_q(t)}")
             parts.append(json.dumps(sorted((r[0], r[1]) for r in connection.execute(text(" UNION ALL ".join(selects))))))
+        _state["last_nonempty"] = {t: n for t, n in counts.items() if n}
         return hashlib.sha256("\n".join(parts).encode()).hexdigest()
 
     return _with_worker(run)
@@ -286,6 +291,17 @@ def _save_database(key: str) -> str:
     admin.execute(text(f"ALTER DATABASE {_quote(staging)} WITH ALLOW_CONNECTIONS false"))
     admin.execute(text(f"ALTER DATABASE {_quote(staging)} RENAME TO {_quote(name)}"))
     return name
+
+
+def _reset_pristine() -> None:
+    """The worker database back to a clean clone of the run's migrated template."""
+    from sqlalchemy import text
+
+    template = _harness()._ensure_template()
+    _release_worker()
+    worker = _worker_name()
+    _admin().execute(text(f"DROP DATABASE IF EXISTS {_quote(worker)} WITH (FORCE)"))
+    _harness()._create(worker, template)
 
 
 def _restore_database(name: str) -> None:
@@ -592,7 +608,15 @@ def run_op(original, kind: str, label: str, args, kwargs):
         if kind == "chain-open":
             self_fields = {"case": args[0].case, "site_code": getattr(args[0], "site_code", None),
                            "seed": getattr(args[0], "seed", None)}
-        start_state = None if fresh else state_digest()
+        pristine = False
+        if not fresh and kind in ("object", "function") and not _state.get("ops_in_test") \
+                and not _state.get("test_writes") and not _state.get("seeded", {}).get(_state.get("module")):
+            # The first op of a test that wrote nothing itself, in a module whose fixtures seed nothing: its start
+            # state is the module's clone plus other tests' leftovers, which it is not meant to see. It starts
+            # from the clean clone instead, so equal ops share one saved build.
+            pristine = True
+        start_state = None if fresh else ("pristine-clone" if pristine else state_digest())
+        fresh_start = fresh
         key = hashlib.sha256(json.dumps([code_fingerprint(), label, plain_args, _plain(kwargs), self_fields,
                                          _uuid_state(), start_state], default=str).encode()).hexdigest()
         record["key"] = key[:20]
@@ -605,6 +629,7 @@ def run_op(original, kind: str, label: str, args, kwargs):
             _state["depth"] -= 1
             record["seconds"] = round(time.perf_counter() - started, 3)
             _log(record)
+    _state["ops_in_test"] = _state.get("ops_in_test", 0) + 1
     folder = Path(os.environ[DIR_ENV]) / code_fingerprint()[:8] / key[:20]
     name = _snapshot_name(key)
     meta_path = folder / "meta.pkl"
@@ -618,6 +643,9 @@ def run_op(original, kind: str, label: str, args, kwargs):
             return result
         except NotCached as reason:
             record["restore_refused"] = str(reason)
+    if pristine:
+        _reset_pristine()
+        record["reset_to_clone"] = True
     _state["depth"] += 1
     try:
         result = original(*args, **kwargs)
@@ -630,6 +658,8 @@ def run_op(original, kind: str, label: str, args, kwargs):
         elif not hit:
             _save(kind, args, result, folder, key, chain_tmp)
             record["outcome"] = "miss"
+            if not fresh_start:
+                record["start_nonempty"] = _state.get("last_nonempty")
         else:
             record["outcome"] = "live"
     except Exception as reason:  # noqa: BLE001 - after a live op the result stands; the save is skipped
@@ -801,7 +831,11 @@ def install() -> None:
         _wrap_function(module_name, attr)
 
 
+_WRITES = ("INSERT", "UPDATE", "DELETE", "CREATE", "ALTER", "DROP", "TRUNCATE", "COPY", "MERGE")
+
+
 def _track_engines() -> None:
+    """Pools to dispose before a save or restore, and the test's own writes to the worker database."""
     from sqlalchemy import event
     from sqlalchemy.engine import Engine
 
@@ -811,8 +845,51 @@ def _track_engines() -> None:
     def on_connect(connection):
         _state["engines"].add(connection.engine)
 
+    def on_execute(conn, cursor, statement, parameters, context, executemany):
+        if _state["depth"] or _state.get("emptying") or _state.get("phase") is None:
+            return
+        if not statement.lstrip()[:8].upper().startswith(_WRITES):
+            return
+        try:
+            if conn.engine.url.database != _worker_name():
+                return  # the harness's admin connection, not the worker database
+        except Exception:  # noqa: BLE001
+            return
+        scope = _state.get("fixture_scope")
+        if scope and scope != "function":  # a wider fixture seeds the module's database: no clean-clone start
+            _state.setdefault("seeded", {})[_state.get("module")] = True
+        else:
+            _state["test_writes"] = _state.get("test_writes", 0) + 1
+
     event.listen(Engine, "engine_connect", on_connect)
+    event.listen(Engine, "before_cursor_execute", on_execute)
     _state["tracking"] = True
+
+
+def _track_emptying() -> None:
+    harness = _harness()
+    original = harness.empty_tables
+    if getattr(original, "__setup_cache__", False):
+        return
+
+    @functools.wraps(original)
+    def empty_tables(*args, **kwargs):
+        _state["emptying"] = True
+        try:
+            return original(*args, **kwargs)
+        finally:
+            _state["emptying"] = False
+
+    empty_tables.__setup_cache__ = True
+    for m in list(sys.modules.values()):
+        namespace = getattr(m, "__dict__", None)
+        if isinstance(namespace, dict):
+            for name, value in list(namespace.items()):
+                if value is original:
+                    try:
+                        setattr(m, name, empty_tables)
+                    except Exception:  # noqa: BLE001
+                        pass
 
 
 _UUID_NAMES = {"uuid4", "uuid"}
@@ -870,13 +947,32 @@ def _track_monkeypatch() -> None:
 class SetupCachePlugin:
     def pytest_collection_finish(self, session) -> None:
         install()
+        _track_emptying()
         self._modules = len(sys.modules)
 
-    @pytest.hookimpl(tryfirst=True)
-    def pytest_runtest_setup(self, item) -> None:
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_setup(self, item):
         if len(sys.modules) != getattr(self, "_modules", 0):
             install()
             self._modules = len(sys.modules)
+        _state.update(ops_in_test=0, test_writes=0, phase="setup", module=getattr(item.module, "__name__", ""))
+        yield
+        _state["phase"] = None
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_fixture_setup(self, fixturedef, request):
+        outer = _state.get("fixture_scope")
+        _state["fixture_scope"] = fixturedef.scope
+        try:
+            yield
+        finally:
+            _state["fixture_scope"] = outer
+
+    @pytest.hookimpl(hookwrapper=True)
+    def pytest_runtest_call(self, item):
+        _state["phase"] = "call"
+        yield
+        _state["phase"] = None
 
     def pytest_sessionfinish(self) -> None:
         if _state["log"] is not None:
