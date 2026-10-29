@@ -200,3 +200,17 @@ the sampler, profile files and docs. This round changes tooling and docs only.
   `file -k foo -m "not slow"` has one target); an absolute directory path is refused (dry run: REFUSED).
 - L2: "Proof status" section rewritten to agree with "Phase-1 proof now passes".
 - Residual risk: recovery note added to TESTING.md (remove only `assetopsv1_assetops-test-pg`).
+
+## Fix round 2 (re-review dc3e3729, REVISE)
+
+- M-a: TESTING.md: the stale "about 50 min; cap 100 min" sentence now points at the PERF-01 timing rows; cap figures
+  corrected to 149 / 126 / 20 min (all / fast / slow, 4 workers), 198 / 167 (3 workers), 297 / 251 (2 workers); the
+  runner is no longer described as `-n 2` (workers from free memory, 4 by default).
+- L-a: `run-host-tests.ps1` has no param block now (a CmdletBinding script gets the common parameters, which made `--`
+  ambiguous and `-v` mean -Verbose under -File). `-Interpreter` and `-AllowHostFull` are parsed by hand from `$args`
+  (exact names); `--` is dropped; all else goes to pytest. Proof with `powershell -NoProfile -File`: `-- file -q`,
+  `file1 file2 -v -x`, `-AllowHostFull -- backend/tests -n 2 -q` all resolve the right targets; `-- -k foo -v` is
+  refused; direct call and a real run (35 passed) still work. Limit: the same `-File` call launched from the Git Bash
+  tool is blocked by this machine's execution policy ("running scripts is disabled", not overridden per the rules), so
+  the `-File` proof was run from the PowerShell tool; the invocation and argument handling are identical.
+- L-b: dry-run mode prints "NOTHING RAN: ... (exit 3)" and exits 3 (seen in every dry run above).

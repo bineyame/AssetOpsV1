@@ -14,15 +14,22 @@
 # else the plan2 virtual environment (C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv).
 # Database: ASSETOPS_TEST_DATABASE_URL as set; when unset, the shared development server's `assetops_test`
 # (backend/TESTING.md). It never prints the URL.
-# PositionalBinding is off, so the interpreter is reachable only by name and every other argument (test files, pytest
-# flags) is a pytest argument. Put `--` before pytest arguments when in doubt (-I, -A prefixes belong to this script).
-[CmdletBinding(PositionalBinding = $false)]
-param(
-    [string]$Interpreter = '',
-    [switch]$AllowHostFull,
-    [Parameter(ValueFromRemainingArguments = $true)][string[]]$PytestArgs = @()
-)
-$PytestArgs = @($PytestArgs | Where-Object { $_ -ne $null -and $_ -ne '--' })
+# No param() block on purpose: a CmdletBinding script gets the common parameters, so under `powershell -File` a `--` is
+# "ambiguous" and a bare -v becomes -Verbose. The two script options are parsed by hand from $args (exact names only,
+# case-insensitive); everything else, `--` aside, is a pytest argument, so the interpreter is never positional.
+$Interpreter = ''
+$AllowHostFull = $false
+$PytestArgs = @()
+$rest = @($args)
+for ($i = 0; $i -lt $rest.Count; $i++) {
+    $a = [string]$rest[$i]
+    if ($a -ieq '-Interpreter') {
+        if ($i + 1 -ge $rest.Count) { Write-Output 'REFUSED: -Interpreter needs a path.'; exit 2 }
+        $Interpreter = [string]$rest[++$i]
+    } elseif ($a -ieq '-AllowHostFull') { $AllowHostFull = $true }
+    elseif ($a -eq '--') { continue }
+    else { $PytestArgs += $a }
+}
 $ErrorActionPreference = 'Continue'
 $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
@@ -63,7 +70,12 @@ if (-not $AllowHostFull) {
         }
     }
 }
-if ($env:ASSETOPS_HOST_DRY_RUN) { Write-Output "DRY RUN: python=$Python targets=$($targets -join ',') pytest-args=$($PytestArgs -join ' ')"; exit 0 }
+if ($env:ASSETOPS_HOST_DRY_RUN) {
+    # Exit non-zero: a leftover ASSETOPS_HOST_DRY_RUN must never look like a passing test run.
+    Write-Output "DRY RUN: python=$Python targets=$($targets -join ',') pytest-args=$($PytestArgs -join ' ')"
+    Write-Output 'NOTHING RAN: ASSETOPS_HOST_DRY_RUN is set (exit 3). Unset it to run the tests.'
+    exit 3
+}
 
 $roots = @('backend', 'contracts', 'simulator', 'gateway', 'host', 'field') | ForEach-Object { Join-Path $worktree $_ }
 $env:PYTHONPATH = (($roots + @($env:PYTHONPATH)) | Where-Object { $_ }) -join ';'

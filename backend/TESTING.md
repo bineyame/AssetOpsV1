@@ -128,7 +128,7 @@ tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py ba
 tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
 
-Pytest flags go after `--`; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
+Pytest flags go after `--` (optional; it is dropped). From Git Bash use `powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
 the Windows port forward: `tools\run-backend-suite-in-container.ps1 -Targets
 'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
 
@@ -207,8 +207,8 @@ PERF-01 options and records:
   `summary.json` and `passed.txt`, and checks a run against a baseline:
   identical collected IDs, identical JUnit pass list, zero skips.
 
-The wrapper runs the same pytest command (`-n 2 --dist loadfile
---no-loadscope-reorder -q --durations=30`) in the one-shot `backend-test-runner`
+The wrapper runs the same pytest command as the host (`-n <workers> --dist loadfile
+--no-loadscope-reorder -q --durations=30`; workers from free memory, 4 by default) in the one-shot `backend-test-runner`
 service (`docker-compose.test.yml`, image `python:3.12.7-slim-bookworm`,
 profile `test`, no published ports) on the `assetopsv1` project network, so the
 suite reaches Postgres as `postgres:5432` instead of through Docker Desktop's
@@ -270,8 +270,8 @@ compare only back-to-back runs in a quiet window.
 | W2-expanded suite, same command, after the OPS-01 post-W2 follow-up | 57.7 min, 56.4 min; peak 62 and 67 sessions (68 and 73 server-wide) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the before collection |
 | Same suite and command in the Compose runner (OPS-03 wrapper, `python:3.12.7-slim-bookworm`) | 46.5 min, 49.7 min (pytest wall, two consecutive runs); peak 58 and 56 runner sessions (73 and 67 server-wide, other lanes included) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the host collection; first run also installed the venv (about 15 min of slow downloads, cached afterwards) |
 
-Expected container full run (`tools\run-backend-suite-in-container.ps1`): about
-50 min; its default cap is 100 min (`-CapMinutes`). The remaining time is the
+Expected container full run (`tools\run-backend-suite-in-container.ps1`): see
+the PERF-01 timing rows below (74.2 min all tiers, 62.6 min fast tier at 4 workers); the default cap is derived from them. The remaining time is the
 same product-path work listed below; removing the port forward saves about
 8-10 min against the host run.
 
@@ -283,8 +283,8 @@ PERF-01 measurements (4135 tests, container runner, 4 workers unless stated):
 | Fast tier, test-only server (20261029-075935-ad347d) | 62.6 min | 4130 passed, the same 2 failures; slow tier run separately: 287 s, 3 passed |
 | Fast tier, test-only server, 5 workers (20261029-101114-000eaf) | 57.2 min | -MaxWorkers 5 trial; the memory guard still chooses the count |
 
-Default cap = 2 x measured wall x (4 / workers): 149 min for a full run at 4 workers
-(125 min fast tier, 20 min slow tier), 186 min at 3 workers. A run past the cap is a hang,
+Default cap = 2 x measured wall x (4 / workers): 149 / 126 / 20 min for all / fast / slow tiers
+at 4 workers, 198 / 167 min (all / fast) at 3 workers and 297 / 251 min at 2 workers. A run past the cap is a hang,
 not a wait.
 
 Expected `-n 2` full run (W2-expanded suite, 3268 tests): about 50-60 min; cap at
