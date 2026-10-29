@@ -12,6 +12,7 @@
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import type { SourceProvenance } from "./sourceProvenance";
 import { hasKeys, isObject } from "./evidenceRead";
+import type { OutcomeCategories } from "./outcomeCategories";
 
 export type UndecidedKind = "RECORD_GAP" | "MODELLING" | "UNSTATED";
 
@@ -188,6 +189,8 @@ export interface RevisionGroup {
 
 export interface FindingDetailBody {
   site_code: string;
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
   access_basis: string;
   source_gate: { permitted: boolean; reason: string };
   audit_only: { non_current: boolean; reason: string; statement: string } | null;

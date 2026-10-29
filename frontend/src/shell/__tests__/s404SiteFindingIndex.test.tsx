@@ -32,6 +32,7 @@ import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { F104 } from "../../sites/__tests__/outcomeFixtures";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
@@ -201,6 +202,33 @@ describe("S4-04 Site Findings index: positive rows (sitefindings:1#b)", () => {
     expect(getFindingIndex.mock.calls[1][1].cursor).toBe("cursor-page-2");
     expect(screen.getByRole("link", { name: "First page" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Next page" })).toBeNull();
+  });
+});
+
+describe("OUT-A A4 Site Findings index: category pills", () => {
+  it("a mini row shows solid Optimize and outlined Protect under its title; a row without the key shows none", async () => {
+    const body = indexBody({
+      rows: [
+        indexRow(FID_B, RID_B, "2026-10-25T18:00:00Z", "2026-10-25T19:00:00Z", { categories: F104 }),
+        indexRow(FID_A, RID_A, "2026-10-25T06:00:00Z", "2026-10-25T07:00:00Z"),
+      ],
+      total_count: 2,
+      next_cursor: null,
+    });
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    const rows = Array.from(document.querySelectorAll("[data-finding-index-row]"));
+    expect(rows).toHaveLength(2);
+    const tags = Array.from(rows[0].querySelectorAll("td:first-child .oc-affects")).map((el) => [el.textContent, el.classList.contains("quiet")]);
+    expect(tags).toEqual([
+      ["Affects Optimize cost and efficiency", false],
+      ["Also checked under Protect asset and capital", true],
+    ]);
+    expect(rows[1].querySelector("[data-outcome-tags]")).toBeNull();
+    const scan = scanProductVocabulary(rows[0] as HTMLElement, "sitefindings", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(2);
+    expect(describeViolations(scan.violations)).toBe("");
   });
 });
 

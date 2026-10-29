@@ -5,6 +5,8 @@
  * full-precision cutoff), and any lens, state or window change restarts at page one without it.
  */
 
+import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
+
 export const ESTATE_API_PATH = "/api/estate";
 
 export const FINDINGS_SCHEMA = "estate-finding-index-2";
@@ -83,6 +85,8 @@ export interface EstateFindingRow {
   status: EstateSiteState;
   /** `null` for a cold/EV row without a provable row-local window and cutoff (no `?revision_id=` fallback). */
   links: { finding: string | null; site: string };
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
 }
 
 export interface EstateFindingsBody extends EstateEnvelope {
@@ -213,6 +217,8 @@ export interface EstatePortfolioRow {
   next_move: string | null;
   source_provenance: EstateSourceBlock;
   links: { site: string | null; finding: string | null; action: string | null };
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
 }
 
 export type EstateValueCardKey = "OPERATING_COST" | "SERVICE_PRODUCT_RISK" | "PRODUCTIVE_USE" | "ASSET_LIFE" | "VERIFIED_RECOVERY";
@@ -238,7 +244,7 @@ export interface EstateValueCard {
   destination: string | null;
   detail: string | null;
   basis_text: string;
-  tone: "amber" | "blue" | "neutral";
+  tone: "amber" | "blue" | "neutral" | "red";
 }
 
 export type EstateObjectiveKey = "SERVICE_PRODUCT" | "BACKUP" | "ASSET_CONDITION" | "COST_CONTROL" | "EVIDENCE";
@@ -326,6 +332,8 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     combined_value_state: "NOT_COMPARABLE";
     /** CC-R2: rows per placement group over every member (all lenses); null unless Finding coverage is known. */
     placement_counts: Record<EstatePlacementGroup, number | null>;
+    /** OUT-A A2: per outcome category, counts null unless Finding coverage is known; absent on an older body. */
+    category_counts?: Record<OutcomeCategoryKey, { open_findings: number | null; sites_with_primary_finding: number | null }>;
   };
   value_cards: EstateValueCard[];
   objectives: EstateObjective[];

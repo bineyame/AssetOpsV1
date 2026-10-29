@@ -16,6 +16,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { F118, F119 } from "./outcomeFixtures";
 
 afterEach(cleanup);
 
@@ -194,5 +195,21 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     // A mini Site's main tabs carry no cold window query.
     for (const a of Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"))) expect(a.getAttribute("href")).not.toContain("known_at");
     expect(document.querySelector("[data-cold-finding-row]")).toBeNull();
+  });
+
+  it("OUT-A A4: start failure shows solid Protect and outlined Optimize; excursion only solid Protect", async () => {
+    renderIndex(ok({ ...STOCKED, items: [item(901, "EXCURSION", { categories: F119 }), item(902, "START_RESPONSE", { categories: F118 }), item(903, "OTHER_KIND")] }));
+    await settledScreen();
+    const tagsOf = (row: Element | null) =>
+    Array.from(row?.querySelectorAll(".oc-affects") ?? []).map((el) => [el.textContent, el.classList.contains("quiet")]);
+    expect(tagsOf(document.querySelector(`[data-cold-finding-row="${id(901)}"] td:first-child`))).toEqual([["Affects Protect asset and capital", false]]);
+    expect(tagsOf(document.querySelector(`[data-cold-finding-row="${id(902)}"] td:first-child`))).toEqual([
+      ["Affects Protect asset and capital", false],
+      ["Also checked under Optimize cost and efficiency", true],
+    ]);
+    expect(document.querySelector(`[data-cold-finding-row="${id(903)}"] [data-outcome-tags]`)).toBeNull();
+    const scan = scanProductVocabulary(document.querySelector("main") as HTMLElement, "sitefindings", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(5);
+    expect(describeViolations(scan.violations)).toBe("");
   });
 });

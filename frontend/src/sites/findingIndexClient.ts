@@ -15,6 +15,7 @@
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
+import type { OutcomeCategories } from "./outcomeCategories";
 
 /** The one supported domain token (`mini_grid` / `dispatch` on the server). */
 export const FINDING_INDEX_DOMAIN = "mini-grid-dispatch";
@@ -54,6 +55,8 @@ export interface FindingIndexRow {
   finding_revision_id: string;
   revision_no: number;
   title: string;
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
   episode: { start: string; end: string };
   lifecycle: string;
   transition: string | null;

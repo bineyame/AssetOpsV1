@@ -59,6 +59,7 @@ import { LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 import "./w1ux02-findings-index.css";
 import { UnavailableChip } from "../ui/UnavailableEntry";
+import { CategoryTags } from "./outcomeCategories";
 
 /**
  * W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's lens chips and the real window control, at the top
@@ -548,6 +549,7 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
                 <small className="finding-index-version">· Version {row.revision_no}</small>
                 {/* W1-F3 review H2/M9: related Findings sit under the title instead of a wrapping column. */}
                 <Relations row={row} links={links} />
+                <CategoryTags categories={row.categories} />
               </td>
               <td data-finding-index-domain>
                 <DomainCell row={row} links={links} />

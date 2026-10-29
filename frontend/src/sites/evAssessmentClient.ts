@@ -15,6 +15,7 @@
 import { coldWindowSearch, type ColdRead, type ColdWindowQuery } from "./coldAssessmentClient";
 import { isObject } from "./evidenceRead";
 import { SITES_API_PATH } from "./siteDirectoryClient";
+import type { OutcomeCategories } from "./outcomeCategories";
 
 export type EvRead<T> = ColdRead<T>;
 export type EvWindowQuery = ColdWindowQuery;
@@ -112,6 +113,8 @@ export interface EvSessionDetailRead extends EvEnvelope, EvSessionItem {
 
 export interface EvFindingItem {
   finding_id: string;
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
   revision_id: string;
   revision_no: number;
   basis_sha256: string;

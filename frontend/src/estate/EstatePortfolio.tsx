@@ -66,6 +66,7 @@ import {
   VALUE_OWNERSHIP,
 } from "./portfolioWords";
 import "./estatePortfolio.css";
+import { CategoryTags } from "../sites/outcomeCategories";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -199,6 +200,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <small>
           Finding {row.site_code} · {row.finding_id} · {mechanismWords(row.mechanism)}
         </small>
+        <CategoryTags categories={row.categories} />
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>
       <td>
