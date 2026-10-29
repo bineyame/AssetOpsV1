@@ -1,5 +1,5 @@
 /* Measure v69 mock panels (cards, statusbar, panels, notices) at 1440 and 390 via headless Chrome CDP.
-   Usage: node tools/measure-mock-panels.mjs <out-dir> <screen-id>...  -> mock-measure.json + PNGs. */
+   Usage: node tools/measure-mock-panels.mjs [--mock <dir>] <out-dir> <screen-id>...  -> mock-measure.json + PNGs. */
 import { spawn } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -8,10 +8,20 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 import { widthGuard } from "./evidence-checks.mjs";
 const PORT = 9488;
 const CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const MOCK = pathToFileURL(resolve(dirname(fileURLToPath(import.meta.url)), "../frontend/mockups/v69/index.html")).href;
-const OUT = process.argv[2];
-const SCREENS = process.argv.slice(3);
-if (!OUT || !SCREENS.length) { console.error("usage: node tools/measure-mock-panels.mjs <out-dir> <screen-id>..."); process.exit(2); }
+// OUT-A A6: `--mock <dir>` (anywhere in the arguments) picks the mock folder, default frontend/mockups/v69; a relative
+// dir resolves against the working directory. The positional shape `<out-dir> <screen-id>...` is unchanged.
+const ARGS = process.argv.slice(2);
+const mockAt = ARGS.indexOf("--mock");
+let MOCK_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../frontend/mockups/v69");
+if (mockAt !== -1) {
+  if (!ARGS[mockAt + 1]) { console.error("usage: --mock <dir> needs a directory"); process.exit(2); }
+  MOCK_DIR = resolve(ARGS[mockAt + 1]);
+  ARGS.splice(mockAt, 2);
+}
+const MOCK = pathToFileURL(join(MOCK_DIR, "index.html")).href;
+const OUT = ARGS[0];
+const SCREENS = ARGS.slice(1);
+if (!OUT || !SCREENS.length) { console.error("usage: node tools/measure-mock-panels.mjs [--mock <dir>] <out-dir> <screen-id>..."); process.exit(2); }
 const profile = mkdtempSync(join(tmpdir(), "w302-mock-"));
 const chrome = spawn(CHROME, ["--headless=new","--disable-gpu","--no-first-run",`--remote-debugging-port=${PORT}`,`--user-data-dir=${profile}`,"about:blank"],{stdio:"ignore"});
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));

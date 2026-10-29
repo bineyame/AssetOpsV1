@@ -41,13 +41,3 @@
 }
 .oc-pill.quiet { background: var(--surface-raised); border-color: var(--border-subtle); color: var(--status-neutral-text); font-weight: 500; }
 .oc-pill small { display: block; font-weight: 400; font-size: 10px; color: var(--status-neutral-text); margin-top: 1px; }
-
-/* A6: Portfolio category cards (mock pfCard / portfolioOutcomeCards). */
-.oc-pfgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.oc-pfcard .value-number { font-size: 22px; }
-.value-label .oc-cat { width: 26px; height: 26px; padding: 5px; }
-.oc-pfdef { font-size: 10.5px; color: var(--text-secondary); line-height: 1.45; margin: 2px 0 6px; }
-.oc-sitedots { display: flex; flex-wrap: wrap; gap: 4px 9px; margin: 0 0 9px; font-size: 10px; color: var(--text-secondary); }
-.oc-sitedots:empty { display: none; }
-@media (max-width: 1200px) { .oc-pfgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 760px) { .oc-pfgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

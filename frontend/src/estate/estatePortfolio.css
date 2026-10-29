@@ -165,3 +165,11 @@
 .estate-portfolio .portfolio-context>div{gap:3px 6px}
 .estate-portfolio .portfolio-context .badge{padding:2px 6px}
 }
+/* OUT-A A6: the four outcome category cards (v7.0 mock pfCard / .oc-pfgrid), tokens for colour. */
+.estate-portfolio .value-grid.oc-pfgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.estate-portfolio .oc-pfcard .value-number{font-size:22px}
+.estate-portfolio .value-label .oc-cat{width:26px;height:26px;padding:5px}
+.estate-portfolio .oc-pfcard .oc-pfdef{font-size:10.5px;color:var(--text-secondary);line-height:1.45;margin:2px 0 6px}
+.estate-portfolio .oc-pfcard .oc-sitedots{display:flex;flex-wrap:wrap;gap:4px 9px;margin:0 0 9px;font-size:10px;color:var(--text-secondary)}
+.estate-portfolio .oc-pfcard .oc-sitedots:empty{display:none}
+@media screen and (max-width:1200px){.estate-portfolio .value-grid.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
