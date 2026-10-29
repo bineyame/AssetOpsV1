@@ -54,3 +54,51 @@ the 3 slow tests are deselected, not skipped. The compare shows that the pass li
   slow tests). The plan estimated 10-25%. Disk sync is not the bottleneck inside Docker.
 - Finding: under `--dist loadfile` the largest file sets a floor. `test_w403_opportunity_read_postgres.py` alone takes
   708 s, and the last 8% of every run takes about 20 min.
+
+## Measured attribution run (owner 2026-10-29: "i want the actual run to be timed and actual time attributed")
+
+Instrumentation: `backend/tests/phase_attribution.py` (commit e7a8bcd5). It is off unless `ASSETOPS_TEST_ATTRIBUTION`
+is set, which the runner does under `-Attribution`. It does not change any test body, fixture or assertion.
+Overhead (`tools/attribution-overhead.py`): 0.88 us per wrapped call and 1.3 us per SQL statement. The full run made
+133k wrapped calls and 3.27M statements, about 4.4 s of 14,520 s (0.03%).
+
+Runs:
+- 20261029-075935-ad347d: fast tier, 4 workers, pytest wall 3759 s (62.6 min). 4130 passed, the 2 known failures.
+- 20261029-090322-b2ebc7: slow tier, 287 s, 3 passed.
+- Frontend: threads 203 s warm (326 s cold), forks 265 s.
+
+Report: `var/test-results/PERF-01-attribution/attribution-report.md` and `attribution.json`, also committed.
+
+**Phase-1 proof now passes.** The fast run and the slow run together match the baseline: the same 4135 collected
+IDs, identical cases, an identical pass list (the 2 known w303 failures in both) and 0 skips. This is the second full
+fast run with the same pass list (after 20261029-020406).
+
+**Frontend.** Under threads: 3451 passed and 3 failed. The 3 failures are `w1f4VerificationStructure.test.tsx`, and
+they also fail under forks on this main, so they are found, not caused. Forks had 1 extra flaky failure, in
+`s404SiteFindingIndex`.
+
+| part (fast tier, 4132 tests) | s | % of measured |
+| --- | ---: | ---: |
+| DB create/clone/drop + migrations | 653 | 4.5 |
+| Site/Foundation install + credentials | 255 | 1.8 |
+| gateway subprocess start/stop | 667 | 4.6 |
+| replay / ingest / seed (site build) | 10,072 | 69.4 |
+| app / router / TestClient | 208 | 1.4 |
+| other child processes | 51 | 0.4 |
+| other fixture set-up | 181 | 1.2 |
+| test's own work (remainder of call) | 2,287 | 15.7 |
+| teardown | 145 | 1.0 |
+| **total = measured** | **14,520** | 100 (unattributed 0.0 s) |
+
+- Workers were busy 97% of the span. Idle inside the span was 240 s, and the tail per worker was 0-85 s. The
+  earlier "20-minute tail" claim was wrong: the last 8% are heavy tests, not idle workers.
+- Outside the span: 69 s of xdist start and collection, plus 83 s of collect-only before pytest.
+- World time (db + install + gateway + build) is 11,648 s, 80.2% of the total.
+- 624 tests do a root site build: 736 root builds. They form 107 distinct root builds and 121 distinct per-test
+  set-ups; 40 set-ups cover 90% of the world time.
+- Building each distinct set-up once costs 2,635 s (the largest is 149 s).
+- Read-only after the build: 78 of the 624 building tests (2,022 s of world time). 546 write in their check phase,
+  mostly product derivation run by the test itself (mini_opportunity_evidence, mini_depth, finding evidence,
+  ingestion).
+- Memory peak: VM used 2453 MB, vmmem 3147 MB, runner RSS sum 1480 MB (370 MB per worker; the largest process
+  336 MB), Postgres 677 MB, min Windows free 3273 MB.

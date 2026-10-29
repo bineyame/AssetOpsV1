@@ -1,0 +1,5868 @@
+[
+  {
+    "run": "20261029-075935-ad347d",
+    "pytest_wall_s": 3759,
+    "memory_peak": "peak vm_used_mb=2453 vmmem_ws_mb=3147 runner_mem_mb=2087 pg_mem_mb=677 runner_procs=21 runner_rss_sum_mb=1480 runner_rss_max_mb=336 min win_free_mb=3273 vm_total_mb=3918 samples=655",
+    "tests": 4132,
+    "workers": 4,
+    "measured_test_seconds": 14520.4,
+    "attributed_seconds": 14520.4,
+    "unattributed_seconds": -0.01,
+    "totals": {
+      "db": 653.4,
+      "install": 255.1,
+      "gateway": 667.3,
+      "build": 10072.4,
+      "app": 208.1,
+      "subprocess": 51.1,
+      "setup_other": 180.8,
+      "checks": 2286.9,
+      "teardown": 145.3
+    },
+    "span_s": 3690.0,
+    "per_worker": {
+      "gw0": {
+        "tests": 796,
+        "first_start_s": 0.0,
+        "last_end_s": 3605.0,
+        "tail_idle_s": 85.0,
+        "test_phases_s": 3586.6,
+        "protocol_s": 3602.7
+      },
+      "gw1": {
+        "tests": 1410,
+        "first_start_s": 0.0,
+        "last_end_s": 3627.7,
+        "tail_idle_s": 62.2,
+        "test_phases_s": 3613.5,
+        "protocol_s": 3623.7
+      },
+      "gw2": {
+        "tests": 1287,
+        "first_start_s": 0.0,
+        "last_end_s": 3659.0,
+        "tail_idle_s": 31.0,
+        "test_phases_s": 3636.7,
+        "protocol_s": 3655.6
+      },
+      "gw3": {
+        "tests": 639,
+        "first_start_s": 0.1,
+        "last_end_s": 3690.0,
+        "tail_idle_s": 0.0,
+        "test_phases_s": 3683.6,
+        "protocol_s": 3688.0
+      }
+    },
+    "worker_idle_s": 239.6,
+    "files": {
+      "tests/test_s4_finding_evidence_history_postgres.py": {
+        "tests": 3,
+        "total": 89.6,
+        "db": 4.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 41.2,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.6,
+        "checks": 43.2,
+        "teardown": 0.0
+      },
+      "tests/test_run_history_api.py": {
+        "tests": 11,
+        "total": 5.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 3.2,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 2.0,
+        "teardown": 0.0
+      },
+      "tests/test_run_setup.py": {
+        "tests": 88,
+        "total": 1.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 1.4,
+        "teardown": 0.0
+      },
+      "tests/test_run_stage_api.py": {
+        "tests": 4,
+        "total": 3.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.5,
+        "teardown": 0.0
+      },
+      "tests/test_run_store.py": {
+        "tests": 35,
+        "total": 8.7,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.7,
+        "checks": 8.0,
+        "teardown": 0.0
+      },
+      "tests/test_runs_api.py": {
+        "tests": 28,
+        "total": 4.9,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.7,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 3.2,
+        "teardown": 0.0
+      },
+      "tests/test_s1_bindings.py": {
+        "tests": 35,
+        "total": 21.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 11.3,
+        "subprocess": 0.0,
+        "setup_other": 1.0,
+        "checks": 8.8,
+        "teardown": 0.0
+      },
+      "tests/test_s1_cutover.py": {
+        "tests": 23,
+        "total": 19.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 8.6,
+        "subprocess": 0.0,
+        "setup_other": 0.3,
+        "checks": 10.5,
+        "teardown": 0.0
+      },
+      "tests/test_s2_gateway_access_postgres.py": {
+        "tests": 29,
+        "total": 26.2,
+        "db": 3.8,
+        "install": 2.7,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.8,
+        "subprocess": 0.0,
+        "setup_other": 14.4,
+        "checks": 4.4,
+        "teardown": 0.1
+      },
+      "tests/test_s2_rejection_placement.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s3_claim_limit_postgres.py": {
+        "tests": 18,
+        "total": 14.3,
+        "db": 0.6,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 9.1,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 4.3,
+        "teardown": 0.0
+      },
+      "tests/test_s3_dispatch_v3_analytic.py": {
+        "tests": 20,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_s3_role_vocabulary.py": {
+        "tests": 11,
+        "total": 1.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_s405_publication_postgres.py": {
+        "tests": 21,
+        "total": 37.4,
+        "db": 13.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 6.2,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 10.3,
+        "checks": 7.5,
+        "teardown": 0.0
+      },
+      "tests/test_s4_consequence_read.py": {
+        "tests": 5,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_deferred_match_postgres.py": {
+        "tests": 3,
+        "total": 30.2,
+        "db": 0.9,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 14.3,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 13.8,
+        "teardown": 1.0
+      },
+      "tests/test_s4_evidence_consequence_work_postgres.py": {
+        "tests": 13,
+        "total": 102.2,
+        "db": 45.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 50.8,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.3,
+        "checks": 2.0,
+        "teardown": 3.6
+      },
+      "tests/test_s4_finding_index_reach.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_fuel_cost.py": {
+        "tests": 39,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_s4_power_demo_case_postgres.py": {
+        "tests": 8,
+        "total": 39.8,
+        "db": 1.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 25.9,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 10.2,
+        "teardown": 2.4
+      },
+      "tests/test_s4_schedule_tick_postgres.py": {
+        "tests": 6,
+        "total": 64.8,
+        "db": 1.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 19.7,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 42.4,
+        "teardown": 1.6
+      },
+      "tests/test_s6_site_action_index.py": {
+        "tests": 15,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s6_site_action_index_postgres.py": {
+        "tests": 2,
+        "total": 32.3,
+        "db": 1.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 24.5,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 6.3,
+        "teardown": 0.1
+      },
+      "tests/test_s6_verification_evaluator_postgres.py": {
+        "tests": 11,
+        "total": 125.5,
+        "db": 5.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 80.8,
+        "app": 0.7,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 38.5,
+        "teardown": 0.3
+      },
+      "tests/test_sites_api.py": {
+        "tests": 62,
+        "total": 52.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 26.5,
+        "subprocess": 0.0,
+        "setup_other": 9.2,
+        "checks": 16.4,
+        "teardown": 0.0
+      },
+      "tests/test_w203_cold_replay_postgres.py": {
+        "tests": 14,
+        "total": 232.6,
+        "db": 4.0,
+        "install": 9.3,
+        "gateway": 26.9,
+        "build": 176.5,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 12.2,
+        "teardown": 3.4
+      },
+      "tests/test_w205b_ev_scenarios.py": {
+        "tests": 91,
+        "total": 13.9,
+        "db": 0.0,
+        "install": 0.2,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 2.8,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 10.8,
+        "teardown": 0.1
+      },
+      "tests/test_w206_ev_publication_enqueue_postgres.py": {
+        "tests": 5,
+        "total": 61.4,
+        "db": 1.5,
+        "install": 2.2,
+        "gateway": 4.1,
+        "build": 50.2,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.8,
+        "teardown": 0.4
+      },
+      "tests/test_w206_ev_reads_postgres.py": {
+        "tests": 23,
+        "total": 616.0,
+        "db": 7.2,
+        "install": 12.8,
+        "gateway": 46.2,
+        "build": 507.6,
+        "app": 0.8,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 34.5,
+        "teardown": 6.8
+      },
+      "tests/test_w301_provenance_dto_postgres.py": {
+        "tests": 7,
+        "total": 218.0,
+        "db": 3.1,
+        "install": 4.4,
+        "gateway": 16.3,
+        "build": 167.3,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 1.2,
+        "checks": 22.6,
+        "teardown": 2.8
+      },
+      "tests/test_w301_w1_snapshot_helpers_postgres.py": {
+        "tests": 4,
+        "total": 25.6,
+        "db": 1.6,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 21.1,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.6,
+        "teardown": 0.0
+      },
+      "tests/test_w302_w1_claim_limit_on_postgres.py": {
+        "tests": 7,
+        "total": 30.9,
+        "db": 1.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 26.9,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.5,
+        "teardown": 0.0
+      },
+      "tests/test_w303_portfolio_reduction.py": {
+        "tests": 44,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w303_portfolio_scope_snapshot_postgres.py": {
+        "tests": 10,
+        "total": 627.9,
+        "db": 3.1,
+        "install": 10.0,
+        "gateway": 45.2,
+        "build": 509.0,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 53.3,
+        "teardown": 6.8
+      },
+      "tests/test_w403_opportunity_scan_postgres.py": {
+        "tests": 5,
+        "total": 221.0,
+        "db": 1.1,
+        "install": 1.9,
+        "gateway": 0.0,
+        "build": 216.9,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 1.0,
+        "teardown": 0.0
+      },
+      "tests/test_w403_scenarios_postgres.py": {
+        "tests": 10,
+        "total": 423.6,
+        "db": 1.8,
+        "install": 3.3,
+        "gateway": 0.0,
+        "build": 355.8,
+        "app": 2.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 60.2,
+        "teardown": 0.0
+      },
+      "tests/test_w502_domain_intent_api.py": {
+        "tests": 5,
+        "total": 52.9,
+        "db": 0.9,
+        "install": 1.8,
+        "gateway": 6.6,
+        "build": 37.6,
+        "app": 0.6,
+        "subprocess": 0.0,
+        "setup_other": 2.1,
+        "checks": 2.3,
+        "teardown": 1.0
+      },
+      "tests/test_w502_domain_work_links_postgres.py": {
+        "tests": 5,
+        "total": 84.0,
+        "db": 1.4,
+        "install": 3.3,
+        "gateway": 9.5,
+        "build": 58.3,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 1.5,
+        "checks": 9.1,
+        "teardown": 0.7
+      },
+      "tests/test_w504_ev_intent_api.py": {
+        "tests": 6,
+        "total": 168.7,
+        "db": 1.6,
+        "install": 3.1,
+        "gateway": 11.8,
+        "build": 136.8,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 4.9,
+        "checks": 8.7,
+        "teardown": 1.6
+      },
+      "tests/test_w504_ev_work_cases.py": {
+        "tests": 18,
+        "total": 0.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w601a_global_incidents.py": {
+        "tests": 20,
+        "total": 65.7,
+        "db": 2.8,
+        "install": 1.5,
+        "gateway": 4.1,
+        "build": 28.9,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 1.5,
+        "checks": 25.9,
+        "teardown": 0.8
+      },
+      "tests/test_w601b_global_maintenance.py": {
+        "tests": 16,
+        "total": 46.4,
+        "db": 2.2,
+        "install": 0.7,
+        "gateway": 2.0,
+        "build": 15.8,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.7,
+        "checks": 24.3,
+        "teardown": 0.3
+      },
+      "tests/test_w601e_operational_index.py": {
+        "tests": 12,
+        "total": 17.9,
+        "db": 1.8,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 15.5,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_read_postgres.py": {
+        "tests": 3,
+        "total": 60.5,
+        "db": 4.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 40.7,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.6,
+        "checks": 14.4,
+        "teardown": 0.0
+      },
+      "tests/test_pg_harness.py": {
+        "tests": 17,
+        "total": 2.4,
+        "db": 0.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.9,
+        "teardown": 0.0
+      },
+      "tests/test_run_binds_scenario_to_site.py": {
+        "tests": 43,
+        "total": 7.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 7.0,
+        "teardown": 0.0
+      },
+      "tests/test_run_execution_api.py": {
+        "tests": 45,
+        "total": 36.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 18.4,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 18.1,
+        "teardown": 0.0
+      },
+      "tests/test_run_store_loader.py": {
+        "tests": 60,
+        "total": 31.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 26.5,
+        "setup_other": 0.2,
+        "checks": 4.7,
+        "teardown": 0.1
+      },
+      "tests/test_s2_evidence_ledger_postgres.py": {
+        "tests": 33,
+        "total": 37.2,
+        "db": 18.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 4.3,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 11.1,
+        "checks": 3.7,
+        "teardown": 0.1
+      },
+      "tests/test_s2_registered_commit_api.py": {
+        "tests": 5,
+        "total": 5.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.9,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 3.4,
+        "teardown": 0.0
+      },
+      "tests/test_s3_capability_read_postgres.py": {
+        "tests": 7,
+        "total": 10.1,
+        "db": 0.8,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 8.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.8,
+        "teardown": 0.0
+      },
+      "tests/test_s3_dispatch_read_postgres.py": {
+        "tests": 9,
+        "total": 21.0,
+        "db": 1.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 6.7,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 4.7,
+        "checks": 8.1,
+        "teardown": 0.0
+      },
+      "tests/test_s405b_registered_release.py": {
+        "tests": 11,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_assumption_publication.py": {
+        "tests": 33,
+        "total": 1.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.8,
+        "teardown": 0.0
+      },
+      "tests/test_s4_assumption_read_api.py": {
+        "tests": 21,
+        "total": 2.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.7,
+        "teardown": 0.0
+      },
+      "tests/test_s4_assumptions_postgres.py": {
+        "tests": 23,
+        "total": 12.6,
+        "db": 2.8,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 6.4,
+        "checks": 3.4,
+        "teardown": 0.1
+      },
+      "tests/test_s4_consequence_recompute_postgres.py": {
+        "tests": 13,
+        "total": 73.5,
+        "db": 2.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 53.7,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.6,
+        "checks": 13.4,
+        "teardown": 3.6
+      },
+      "tests/test_s4_evidence_drain.py": {
+        "tests": 12,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_api.py": {
+        "tests": 17,
+        "total": 1.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.8,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_cause.py": {
+        "tests": 5,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_episode.py": {
+        "tests": 38,
+        "total": 0.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_evidence_history_api.py": {
+        "tests": 7,
+        "total": 1.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.6,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_s4_finding_index_postgres.py": {
+        "tests": 10,
+        "total": 79.5,
+        "db": 2.2,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 62.3,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 14.4,
+        "teardown": 0.0
+      },
+      "tests/test_s4_schedule_install_gate.py": {
+        "tests": 4,
+        "total": 12.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 12.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_schedule_upstream_unit.py": {
+        "tests": 7,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s5_overview_postgres.py": {
+        "tests": 2,
+        "total": 26.9,
+        "db": 0.7,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 5.2,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 20.0,
+        "teardown": 0.6
+      },
+      "tests/test_s5_overview_read.py": {
+        "tests": 39,
+        "total": 0.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.4,
+        "teardown": 0.0
+      },
+      "tests/test_s6_action_records_postgres.py": {
+        "tests": 1,
+        "total": 17.2,
+        "db": 0.7,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 16.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_s6_action_rule.py": {
+        "tests": 60,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_s6_action_store_postgres.py": {
+        "tests": 12,
+        "total": 70.9,
+        "db": 1.9,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 42.8,
+        "app": 1.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 25.1,
+        "teardown": 0.0
+      },
+      "tests/test_s6_verification_rules.py": {
+        "tests": 45,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_s6_verification_verdict.py": {
+        "tests": 10,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_s7_asset_boundary_postgres.py": {
+        "tests": 7,
+        "total": 9.8,
+        "db": 1.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 6.7,
+        "checks": 1.4,
+        "teardown": 0.0
+      },
+      "tests/test_s7_health_contract_postgres.py": {
+        "tests": 1,
+        "total": 2.9,
+        "db": 0.6,
+        "install": 0.3,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 1.4,
+        "checks": 0.6,
+        "teardown": 0.0
+      },
+      "tests/test_s7_source_health_postgres.py": {
+        "tests": 9,
+        "total": 15.8,
+        "db": 1.3,
+        "install": 2.1,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 10.6,
+        "checks": 1.3,
+        "teardown": 0.1
+      },
+      "tests/test_s7_source_health_rules.py": {
+        "tests": 6,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_scenario_execution_contract.py": {
+        "tests": 72,
+        "total": 3.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 3.3,
+        "teardown": 0.0
+      },
+      "tests/test_scenario_fingerprints.py": {
+        "tests": 6,
+        "total": 7.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 7.2,
+        "teardown": 0.0
+      },
+      "tests/test_scenario_parsing.py": {
+        "tests": 144,
+        "total": 0.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.6,
+        "teardown": 0.1
+      },
+      "tests/test_scenario_repository.py": {
+        "tests": 22,
+        "total": 4.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 4.3,
+        "teardown": 0.0
+      },
+      "tests/test_scenario_vocabulary.py": {
+        "tests": 33,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.2,
+        "teardown": 0.0
+      },
+      "tests/test_scenarios_api.py": {
+        "tests": 37,
+        "total": 53.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 16.4,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 36.7,
+        "teardown": 0.0
+      },
+      "tests/test_state_refs.py": {
+        "tests": 42,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_t027_overview.py": {
+        "tests": 18,
+        "total": 1.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.5,
+        "teardown": 0.0
+      },
+      "tests/test_t028_dispatch_analytic.py": {
+        "tests": 34,
+        "total": 2.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 2.2,
+        "teardown": 0.0
+      },
+      "tests/test_t028_presentation_profile.py": {
+        "tests": 7,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w200_binding_metadata.py": {
+        "tests": 3,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w200_receipt_bytes_postgres.py": {
+        "tests": 1,
+        "total": 1.7,
+        "db": 0.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.3,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.8,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w200_source_events_postgres.py": {
+        "tests": 14,
+        "total": 42.4,
+        "db": 29.7,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 3.6,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 6.3,
+        "checks": 2.5,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_replay_api.py": {
+        "tests": 14,
+        "total": 0.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.7,
+        "teardown": 0.0
+      },
+      "tests/test_w203_cold_reads_postgres.py": {
+        "tests": 6,
+        "total": 94.5,
+        "db": 1.4,
+        "install": 3.2,
+        "gateway": 10.2,
+        "build": 69.6,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 8.7,
+        "teardown": 1.3
+      },
+      "tests/test_w204_cold_migration.py": {
+        "tests": 11,
+        "total": 79.7,
+        "db": 35.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 37.6,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.7,
+        "checks": 1.9,
+        "teardown": 3.2
+      },
+      "tests/test_w204_cold_worker.py": {
+        "tests": 4,
+        "total": 53.9,
+        "db": 1.6,
+        "install": 2.1,
+        "gateway": 5.9,
+        "build": 39.3,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 3.9,
+        "teardown": 0.8
+      },
+      "tests/test_w205a_ev_vocabulary.py": {
+        "tests": 86,
+        "total": 0.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.3,
+        "teardown": 0.1
+      },
+      "tests/test_w206_ev_enqueue_postgres.py": {
+        "tests": 20,
+        "total": 103.6,
+        "db": 4.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 90.5,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.5,
+        "checks": 1.0,
+        "teardown": 6.5
+      },
+      "tests/test_w206_ev_store_postgres.py": {
+        "tests": 13,
+        "total": 357.8,
+        "db": 3.8,
+        "install": 7.1,
+        "gateway": 26.7,
+        "build": 305.0,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 10.7,
+        "teardown": 4.2
+      },
+      "tests/test_w301_cold_selection_on_postgres.py": {
+        "tests": 4,
+        "total": 62.5,
+        "db": 1.0,
+        "install": 2.6,
+        "gateway": 8.0,
+        "build": 45.8,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 3.3,
+        "teardown": 1.7
+      },
+      "tests/test_w301_estate_index_ev_postgres.py": {
+        "tests": 4,
+        "total": 104.8,
+        "db": 1.1,
+        "install": 2.3,
+        "gateway": 7.7,
+        "build": 87.1,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 5.9,
+        "teardown": 0.5
+      },
+      "tests/test_w301_estate_index_postgres.py": {
+        "tests": 20,
+        "total": 327.0,
+        "db": 5.3,
+        "install": 10.6,
+        "gateway": 32.0,
+        "build": 240.3,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 4.3,
+        "checks": 29.0,
+        "teardown": 4.9
+      },
+      "tests/test_w302_pinned_facades.py": {
+        "tests": 21,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w302_w1_day_reduction.py": {
+        "tests": 8,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w303_estate_cursor.py": {
+        "tests": 43,
+        "total": 0.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w303_portfolio_api.py": {
+        "tests": 5,
+        "total": 1.7,
+        "db": 0.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.4,
+        "teardown": 0.0
+      },
+      "tests/test_w303_portfolio_comparison_postgres.py": {
+        "tests": 4,
+        "total": 269.7,
+        "db": 1.4,
+        "install": 4.0,
+        "gateway": 17.9,
+        "build": 216.2,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 27.3,
+        "teardown": 2.6
+      },
+      "tests/test_w303_portfolio_workflow_labels.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w402_inputs_postgres.py": {
+        "tests": 1,
+        "total": 40.0,
+        "db": 0.7,
+        "install": 0.6,
+        "gateway": 0.0,
+        "build": 36.6,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.1,
+        "teardown": 0.0
+      },
+      "tests/test_w402_migration_postgres.py": {
+        "tests": 14,
+        "total": 77.1,
+        "db": 14.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 48.7,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.0,
+        "checks": 5.7,
+        "teardown": 7.8
+      },
+      "tests/test_w402_replay_selection_postgres.py": {
+        "tests": 1,
+        "total": 83.4,
+        "db": 0.6,
+        "install": 0.6,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 82.2,
+        "teardown": 0.0
+      },
+      "tests/test_w402_roles_properties.py": {
+        "tests": 16,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w403_opportunity_job_isolation_postgres.py": {
+        "tests": 5,
+        "total": 194.8,
+        "db": 1.4,
+        "install": 2.1,
+        "gateway": 0.0,
+        "build": 172.1,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 16.5,
+        "teardown": 2.7
+      },
+      "tests/test_w403_opportunity_stage.py": {
+        "tests": 8,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w403_opportunity_worker_postgres.py": {
+        "tests": 5,
+        "total": 337.5,
+        "db": 1.5,
+        "install": 2.9,
+        "gateway": 0.0,
+        "build": 301.3,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 31.8,
+        "teardown": 0.0
+      },
+      "tests/test_w403_work_links_postgres.py": {
+        "tests": 3,
+        "total": 221.3,
+        "db": 1.1,
+        "install": 1.9,
+        "gateway": 0.0,
+        "build": 189.7,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 28.3,
+        "teardown": 0.0
+      },
+      "tests/test_w501_cold_scenarios_postgres.py": {
+        "tests": 7,
+        "total": 149.3,
+        "db": 8.1,
+        "install": 4.2,
+        "gateway": 13.3,
+        "build": 76.7,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 44.9,
+        "teardown": 1.5
+      },
+      "tests/test_w503_ev_depth_postgres.py": {
+        "tests": 15,
+        "total": 227.4,
+        "db": 2.5,
+        "install": 5.6,
+        "gateway": 16.2,
+        "build": 181.3,
+        "app": 0.8,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 20.3,
+        "teardown": 0.6
+      },
+      "tests/test_w504_ev_work_producer_postgres.py": {
+        "tests": 4,
+        "total": 97.9,
+        "db": 0.8,
+        "install": 2.1,
+        "gateway": 6.2,
+        "build": 66.5,
+        "app": 3.4,
+        "subprocess": 0.0,
+        "setup_other": 4.3,
+        "checks": 14.5,
+        "teardown": 0.0
+      },
+      "tests/test_w601c_request_detail.py": {
+        "tests": 18,
+        "total": 67.7,
+        "db": 2.7,
+        "install": 1.4,
+        "gateway": 3.6,
+        "build": 35.1,
+        "app": 0.7,
+        "subprocess": 0.0,
+        "setup_other": 1.4,
+        "checks": 22.1,
+        "teardown": 0.6
+      },
+      "tests/test_addressed_bindings.py": {
+        "tests": 103,
+        "total": 0.9,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.8,
+        "teardown": 0.0
+      },
+      "tests/test_config.py": {
+        "tests": 14,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_execution_contract_alignment.py": {
+        "tests": 29,
+        "total": 1.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_fetch_seam_contract.py": {
+        "tests": 10,
+        "total": 15.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 8.1,
+        "subprocess": 0.0,
+        "setup_other": 3.7,
+        "checks": 3.5,
+        "teardown": 0.0
+      },
+      "tests/test_foundation_content_parsing.py": {
+        "tests": 128,
+        "total": 0.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 0.2,
+        "teardown": 0.1
+      },
+      "tests/test_health.py": {
+        "tests": 4,
+        "total": 1.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.0,
+        "teardown": 0.0
+      },
+      "tests/test_lr01_cohort_v4.py": {
+        "tests": 32,
+        "total": 0.7,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.7,
+        "teardown": 0.0
+      },
+      "tests/test_lr01_money_eligibility.py": {
+        "tests": 6,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_lr01_money_eligibility_postgres.py": {
+        "tests": 3,
+        "total": 27.0,
+        "db": 1.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 13.8,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.2,
+        "checks": 10.0,
+        "teardown": 0.7
+      },
+      "tests/test_model_owned_needs.py": {
+        "tests": 15,
+        "total": 3.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 3.0,
+        "teardown": 0.0
+      },
+      "tests/test_post_w6_w3_estate_links.py": {
+        "tests": 7,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_r373_request_access.py": {
+        "tests": 10,
+        "total": 92.8,
+        "db": 1.7,
+        "install": 1.2,
+        "gateway": 5.2,
+        "build": 44.3,
+        "app": 12.5,
+        "subprocess": 0.0,
+        "setup_other": 1.4,
+        "checks": 26.3,
+        "teardown": 0.3
+      },
+      "tests/test_run_history_delta_api.py": {
+        "tests": 19,
+        "total": 16.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 9.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 7.5,
+        "teardown": 0.0
+      },
+      "tests/test_s2_receipt_v2.py": {
+        "tests": 4,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s2_registered_basis.py": {
+        "tests": 33,
+        "total": 11.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 3.2,
+        "subprocess": 0.0,
+        "setup_other": 0.3,
+        "checks": 8.0,
+        "teardown": 0.0
+      },
+      "tests/test_s2_registered_basis_postgres.py": {
+        "tests": 5,
+        "total": 5.5,
+        "db": 1.6,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 3.8,
+        "teardown": 0.0
+      },
+      "tests/test_s2_registered_resolution.py": {
+        "tests": 16,
+        "total": 0.9,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.9,
+        "teardown": 0.0
+      },
+      "tests/test_s2_site_evidence_postgres.py": {
+        "tests": 15,
+        "total": 18.9,
+        "db": 1.9,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 6.4,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 8.2,
+        "checks": 2.2,
+        "teardown": 0.0
+      },
+      "tests/test_s3_performance_cutover.py": {
+        "tests": 27,
+        "total": 0.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.6,
+        "teardown": 0.0
+      },
+      "tests/test_s405_resolver.py": {
+        "tests": 13,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s405_resolver_postgres.py": {
+        "tests": 9,
+        "total": 31.0,
+        "db": 1.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 20.2,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 2.7,
+        "checks": 4.5,
+        "teardown": 2.1
+      },
+      "tests/test_s4_consequence_cause_dispatch.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_consequence_store_postgres.py": {
+        "tests": 13,
+        "total": 96.7,
+        "db": 38.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 49.6,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.0,
+        "checks": 4.4,
+        "teardown": 3.4
+      },
+      "tests/test_s4_evidence_drain_postgres.py": {
+        "tests": 10,
+        "total": 73.4,
+        "db": 2.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 49.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.4,
+        "checks": 19.1,
+        "teardown": 2.7
+      },
+      "tests/test_s4_schedule_health_postgres.py": {
+        "tests": 9,
+        "total": 150.2,
+        "db": 1.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 29.5,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 116.7,
+        "teardown": 2.3
+      },
+      "tests/test_s6_verification_plan_postgres.py": {
+        "tests": 5,
+        "total": 42.0,
+        "db": 2.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 26.2,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 13.0,
+        "teardown": 0.1
+      },
+      "tests/test_site_identity.py": {
+        "tests": 43,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_site_parsing.py": {
+        "tests": 53,
+        "total": 0.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_site_repository.py": {
+        "tests": 49,
+        "total": 2.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.5,
+        "teardown": 0.0
+      },
+      "tests/test_site_template_catalog.py": {
+        "tests": 19,
+        "total": 1.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.3,
+        "teardown": 0.0
+      },
+      "tests/test_site_template_fingerprints.py": {
+        "tests": 7,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_site_template_lineage.py": {
+        "tests": 11,
+        "total": 4.9,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 2.9,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 2.0,
+        "teardown": 0.0
+      },
+      "tests/test_site_template_parsing.py": {
+        "tests": 30,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_site_templates_api.py": {
+        "tests": 18,
+        "total": 14.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 8.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 6.0,
+        "teardown": 0.0
+      },
+      "tests/test_t027_commit_api.py": {
+        "tests": 8,
+        "total": 8.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 4.3,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 4.5,
+        "teardown": 0.0
+      },
+      "tests/test_w201_cold_foundation_postgres.py": {
+        "tests": 18,
+        "total": 15.2,
+        "db": 6.2,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 8.8,
+        "teardown": 0.0
+      },
+      "tests/test_w201_cold_vocabulary.py": {
+        "tests": 28,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_run_identity.py": {
+        "tests": 19,
+        "total": 0.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.3,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_scenario.py": {
+        "tests": 3,
+        "total": 0.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.4,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_scenarios_api.py": {
+        "tests": 5,
+        "total": 1.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_snapshot_gate_postgres.py": {
+        "tests": 14,
+        "total": 10.3,
+        "db": 2.5,
+        "install": 7.3,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.4,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w203_cold_migration_postgres.py": {
+        "tests": 5,
+        "total": 63.0,
+        "db": 38.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 20.7,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.5,
+        "checks": 2.1,
+        "teardown": 1.7
+      },
+      "tests/test_w203_cold_rules.py": {
+        "tests": 8,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w204_cold_consequence.py": {
+        "tests": 35,
+        "total": 119.9,
+        "db": 2.3,
+        "install": 4.6,
+        "gateway": 12.5,
+        "build": 91.5,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 7.1,
+        "teardown": 1.6
+      },
+      "tests/test_w205a_ev_foundation_api_postgres.py": {
+        "tests": 11,
+        "total": 9.8,
+        "db": 1.8,
+        "install": 4.8,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 2.9,
+        "teardown": 0.0
+      },
+      "tests/test_w205a_ev_foundation_postgres.py": {
+        "tests": 20,
+        "total": 23.5,
+        "db": 2.4,
+        "install": 6.9,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 14.1,
+        "teardown": 0.0
+      },
+      "tests/test_w205a_ev_roles.py": {
+        "tests": 23,
+        "total": 0.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.6,
+        "teardown": 0.0
+      },
+      "tests/test_w205b_ev_replay_api.py": {
+        "tests": 19,
+        "total": 4.8,
+        "db": 0.0,
+        "install": 0.3,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 3.0,
+        "teardown": 0.0
+      },
+      "tests/test_w205b_ev_replay_postgres.py": {
+        "tests": 13,
+        "total": 494.5,
+        "db": 5.6,
+        "install": 10.7,
+        "gateway": 37.1,
+        "build": 395.4,
+        "app": 1.6,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 40.4,
+        "teardown": 3.7
+      },
+      "tests/test_w301_estate_api.py": {
+        "tests": 8,
+        "total": 0.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.7,
+        "teardown": 0.0
+      },
+      "tests/test_w301_estate_coverage.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w301_estate_golden_postgres.py": {
+        "tests": 6,
+        "total": 171.8,
+        "db": 2.1,
+        "install": 3.6,
+        "gateway": 11.2,
+        "build": 126.9,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 26.6,
+        "teardown": 1.2
+      },
+      "tests/test_w301_ev_selection_on_postgres.py": {
+        "tests": 3,
+        "total": 77.3,
+        "db": 0.7,
+        "install": 1.6,
+        "gateway": 5.7,
+        "build": 65.6,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 2.8,
+        "teardown": 0.8
+      },
+      "tests/test_w301_w1_money_snapshot_helpers_postgres.py": {
+        "tests": 6,
+        "total": 35.9,
+        "db": 1.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 26.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 8.1,
+        "teardown": 0.0
+      },
+      "tests/test_w302_estate_cursor.py": {
+        "tests": 26,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w302_evidence_api.py": {
+        "tests": 19,
+        "total": 3.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 1.9,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.9,
+        "teardown": 0.0
+      },
+      "tests/test_w302_evidence_ev_postgres.py": {
+        "tests": 4,
+        "total": 109.6,
+        "db": 1.1,
+        "install": 2.2,
+        "gateway": 8.0,
+        "build": 90.4,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 6.8,
+        "teardown": 1.1
+      },
+      "tests/test_w302_evidence_links_postgres.py": {
+        "tests": 3,
+        "total": 61.6,
+        "db": 0.9,
+        "install": 2.0,
+        "gateway": 6.3,
+        "build": 47.6,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 4.2,
+        "teardown": 0.4
+      },
+      "tests/test_w302_money_api.py": {
+        "tests": 12,
+        "total": 1.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_w302_pinned_facades_postgres.py": {
+        "tests": 8,
+        "total": 156.6,
+        "db": 2.9,
+        "install": 4.2,
+        "gateway": 12.6,
+        "build": 125.2,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 9.8,
+        "teardown": 1.6
+      },
+      "tests/test_w303_selectors_postgres.py": {
+        "tests": 3,
+        "total": 12.5,
+        "db": 0.9,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 7.7,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 3.8,
+        "teardown": 0.0
+      },
+      "tests/test_w401_site_indexes_postgres.py": {
+        "tests": 5,
+        "total": 67.9,
+        "db": 1.8,
+        "install": 1.4,
+        "gateway": 4.0,
+        "build": 47.9,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 11.8,
+        "teardown": 0.5
+      },
+      "tests/test_w401_work_api.py": {
+        "tests": 11,
+        "total": 14.0,
+        "db": 2.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.6,
+        "subprocess": 0.0,
+        "setup_other": 3.7,
+        "checks": 7.7,
+        "teardown": 0.0
+      },
+      "tests/test_w401_work_service_postgres.py": {
+        "tests": 8,
+        "total": 32.4,
+        "db": 1.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 22.4,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 8.3,
+        "teardown": 0.0
+      },
+      "tests/test_w402_cold_enqueue_gate_postgres.py": {
+        "tests": 1,
+        "total": 2.2,
+        "db": 0.6,
+        "install": 1.1,
+        "gateway": 0.0,
+        "build": 0.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w402_inputs.py": {
+        "tests": 1,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w402_mini_lease_postgres.py": {
+        "tests": 3,
+        "total": 56.7,
+        "db": 0.9,
+        "install": 0.7,
+        "gateway": 0.0,
+        "build": 46.6,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 8.3,
+        "teardown": 0.0
+      },
+      "tests/test_w402_mini_stage.py": {
+        "tests": 11,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w402_overview_reason.py": {
+        "tests": 5,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_w402_projection.py": {
+        "tests": 7,
+        "total": 0.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.6,
+        "teardown": 0.0
+      },
+      "tests/test_w402_reads.py": {
+        "tests": 24,
+        "total": 3.8,
+        "db": 0.9,
+        "install": 1.7,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.9,
+        "teardown": 0.0
+      },
+      "tests/test_w402_reads_postgres.py": {
+        "tests": 6,
+        "total": 330.1,
+        "db": 1.3,
+        "install": 3.5,
+        "gateway": 0.0,
+        "build": 308.8,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 16.5,
+        "teardown": 0.0
+      },
+      "tests/test_w403_opportunity_result.py": {
+        "tests": 18,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w403_replay_postgres.py": {
+        "tests": 2,
+        "total": 241.1,
+        "db": 0.9,
+        "install": 0.8,
+        "gateway": 0.0,
+        "build": 143.5,
+        "app": 2.6,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 93.2,
+        "teardown": 0.0
+      },
+      "tests/test_w403_scenario_rules.py": {
+        "tests": 27,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w501_cold_depth_postgres.py": {
+        "tests": 12,
+        "total": 200.9,
+        "db": 3.6,
+        "install": 8.7,
+        "gateway": 25.1,
+        "build": 146.6,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 13.1,
+        "teardown": 3.3
+      },
+      "tests/test_w501_cold_depth_router.py": {
+        "tests": 4,
+        "total": 0.7,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.6,
+        "teardown": 0.0
+      },
+      "tests/test_w502_cold_scenario_producer.py": {
+        "tests": 4,
+        "total": 47.2,
+        "db": 0.8,
+        "install": 1.9,
+        "gateway": 6.2,
+        "build": 32.4,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 5.1,
+        "teardown": 0.7
+      },
+      "tests/test_w502_domain_action_index_api.py": {
+        "tests": 3,
+        "total": 16.5,
+        "db": 0.3,
+        "install": 0.6,
+        "gateway": 1.8,
+        "build": 10.9,
+        "app": 1.0,
+        "subprocess": 0.0,
+        "setup_other": 0.6,
+        "checks": 1.2,
+        "teardown": 0.1
+      },
+      "tests/test_w502_domain_action_index_postgres.py": {
+        "tests": 2,
+        "total": 33.7,
+        "db": 0.5,
+        "install": 1.2,
+        "gateway": 3.9,
+        "build": 23.8,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.9,
+        "checks": 2.2,
+        "teardown": 0.3
+      },
+      "tests/test_w502_domain_intent_model.py": {
+        "tests": 7,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w502_domain_intent_postgres.py": {
+        "tests": 11,
+        "total": 193.1,
+        "db": 8.2,
+        "install": 8.0,
+        "gateway": 22.6,
+        "build": 137.8,
+        "app": 0.6,
+        "subprocess": 0.0,
+        "setup_other": 7.6,
+        "checks": 5.9,
+        "teardown": 2.4
+      },
+      "tests/test_w503_ev_scenarios_postgres.py": {
+        "tests": 15,
+        "total": 397.1,
+        "db": 9.5,
+        "install": 7.6,
+        "gateway": 26.9,
+        "build": 312.2,
+        "app": 0.9,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 39.9,
+        "teardown": 0.0
+      },
+      "tests/test_cc_money_invariants.py": {
+        "tests": 17,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.1,
+        "teardown": 0.0
+      },
+      "tests/test_cc_placement.py": {
+        "tests": 41,
+        "total": 0.2,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.2,
+        "teardown": 0.0
+      },
+      "tests/test_cc_placement_postgres.py": {
+        "tests": 2,
+        "total": 123.4,
+        "db": 3.2,
+        "install": 1.9,
+        "gateway": 10.9,
+        "build": 94.4,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 11.5,
+        "teardown": 1.4
+      },
+      "tests/test_component_properties.py": {
+        "tests": 81,
+        "total": 0.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.2,
+        "teardown": 0.1
+      },
+      "tests/test_s1_bindings_postgres.py": {
+        "tests": 16,
+        "total": 28.4,
+        "db": 18.6,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 1.1,
+        "checks": 8.7,
+        "teardown": 0.0
+      },
+      "tests/test_s1_foundation_postgres.py": {
+        "tests": 10,
+        "total": 6.4,
+        "db": 1.8,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 4.1,
+        "teardown": 0.0
+      },
+      "tests/test_s2_legacy_comparison.py": {
+        "tests": 10,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s2_publication_lab_api.py": {
+        "tests": 31,
+        "total": 24.8,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 8.8,
+        "subprocess": 0.0,
+        "setup_other": 0.9,
+        "checks": 15.1,
+        "teardown": 0.0
+      },
+      "tests/test_s3_claim_limit_vocabulary.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_s3_demo_configuration.py": {
+        "tests": 5,
+        "total": 1.9,
+        "db": 0.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.8,
+        "teardown": 0.0
+      },
+      "tests/test_s3_dispatch_assessment_postgres.py": {
+        "tests": 16,
+        "total": 29.3,
+        "db": 2.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 9.8,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 8.2,
+        "checks": 9.4,
+        "teardown": 0.0
+      },
+      "tests/test_s4_assumption_read_postgres.py": {
+        "tests": 6,
+        "total": 5.5,
+        "db": 1.4,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 3.0,
+        "checks": 1.0,
+        "teardown": 0.0
+      },
+      "tests/test_s4_consequence_history.py": {
+        "tests": 25,
+        "total": 0.4,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.2,
+        "teardown": 0.0
+      },
+      "tests/test_s4_consequence_history_postgres.py": {
+        "tests": 7,
+        "total": 34.8,
+        "db": 1.2,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 27.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.3,
+        "checks": 4.3,
+        "teardown": 1.6
+      },
+      "tests/test_s4_evidence_decided_at_postgres.py": {
+        "tests": 10,
+        "total": 98.4,
+        "db": 3.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 38.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 53.9,
+        "teardown": 2.9
+      },
+      "tests/test_s4_finding_store_postgres.py": {
+        "tests": 6,
+        "total": 57.3,
+        "db": 1.3,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 50.5,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 5.3,
+        "teardown": 0.0
+      },
+      "tests/test_s6_action_apply_postgres.py": {
+        "tests": 12,
+        "total": 80.0,
+        "db": 1.9,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 52.7,
+        "app": 0.9,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 24.3,
+        "teardown": 0.1
+      },
+      "tests/test_s6_verification_holds_postgres.py": {
+        "tests": 7,
+        "total": 111.3,
+        "db": 3.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 77.5,
+        "app": 0.4,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 29.6,
+        "teardown": 0.2
+      },
+      "tests/test_simulator_lab_gate.py": {
+        "tests": 20,
+        "total": 14.7,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 7.9,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 6.8,
+        "teardown": 0.0
+      },
+      "tests/test_t027_ingestion.py": {
+        "tests": 34,
+        "total": 17.7,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 3.2,
+        "subprocess": 12.5,
+        "setup_other": 0.1,
+        "checks": 1.9,
+        "teardown": 0.0
+      },
+      "tests/test_t028_fix_round_1.py": {
+        "tests": 17,
+        "total": 1.5,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.4,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_lab_bindings_postgres.py": {
+        "tests": 3,
+        "total": 2.3,
+        "db": 0.7,
+        "install": 1.1,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.5,
+        "teardown": 0.0
+      },
+      "tests/test_w202_cold_replay_postgres.py": {
+        "tests": 12,
+        "total": 177.8,
+        "db": 3.5,
+        "install": 7.4,
+        "gateway": 22.5,
+        "build": 132.6,
+        "app": 1.2,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 7.7,
+        "teardown": 2.9
+      },
+      "tests/test_w204_cold_reads.py": {
+        "tests": 21,
+        "total": 89.2,
+        "db": 1.7,
+        "install": 3.2,
+        "gateway": 10.1,
+        "build": 59.6,
+        "app": 0.5,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 12.8,
+        "teardown": 1.3
+      },
+      "tests/test_w205a_ev_migration.py": {
+        "tests": 3,
+        "total": 18.2,
+        "db": 17.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.2,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 0.9,
+        "teardown": 0.0
+      },
+      "tests/test_w206_ev_migration_postgres.py": {
+        "tests": 7,
+        "total": 75.8,
+        "db": 44.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 27.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.9,
+        "checks": 1.1,
+        "teardown": 2.2
+      },
+      "tests/test_w206_ev_session_rules.py": {
+        "tests": 63,
+        "total": 0.3,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.2,
+        "teardown": 0.0
+      },
+      "tests/test_w206_ev_vector_cases.py": {
+        "tests": 10,
+        "total": 1.6,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 1.6,
+        "teardown": 0.0
+      },
+      "tests/test_w207_ev_money.py": {
+        "tests": 2,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w207_ev_money_postgres.py": {
+        "tests": 14,
+        "total": 316.2,
+        "db": 34.8,
+        "install": 5.2,
+        "gateway": 18.0,
+        "build": 224.9,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.5,
+        "checks": 25.1,
+        "teardown": 7.4
+      },
+      "tests/test_w207_ev_site_reads_postgres.py": {
+        "tests": 19,
+        "total": 442.1,
+        "db": 4.2,
+        "install": 8.6,
+        "gateway": 31.6,
+        "build": 349.7,
+        "app": 1.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 42.0,
+        "teardown": 5.0
+      },
+      "tests/test_w302_evidence_scope_snapshot_postgres.py": {
+        "tests": 3,
+        "total": 21.5,
+        "db": 1.0,
+        "install": 0.8,
+        "gateway": 1.9,
+        "build": 14.5,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 3.0,
+        "teardown": 0.3
+      },
+      "tests/test_w302_financials_links_postgres.py": {
+        "tests": 3,
+        "total": 63.8,
+        "db": 0.7,
+        "install": 1.9,
+        "gateway": 6.6,
+        "build": 49.1,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 4.9,
+        "teardown": 0.5
+      },
+      "tests/test_w302_money_comparability_postgres.py": {
+        "tests": 6,
+        "total": 136.8,
+        "db": 0.8,
+        "install": 1.9,
+        "gateway": 11.3,
+        "build": 114.1,
+        "app": 0.2,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 7.7,
+        "teardown": 0.9
+      },
+      "tests/test_w303_portfolio_fixture_postgres.py": {
+        "tests": 2,
+        "total": 84.2,
+        "db": 0.3,
+        "install": 1.6,
+        "gateway": 6.3,
+        "build": 69.8,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 5.3,
+        "teardown": 0.9
+      },
+      "tests/test_w401_migration_postgres.py": {
+        "tests": 2,
+        "total": 35.9,
+        "db": 24.7,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 7.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.4,
+        "checks": 2.8,
+        "teardown": 1.0
+      },
+      "tests/test_w401_work_read_postgres.py": {
+        "tests": 4,
+        "total": 32.5,
+        "db": 1.4,
+        "install": 0.7,
+        "gateway": 2.1,
+        "build": 21.9,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 5.9,
+        "teardown": 0.1
+      },
+      "tests/test_w402_authored_v4_postgres.py": {
+        "tests": 3,
+        "total": 45.5,
+        "db": 0.8,
+        "install": 1.4,
+        "gateway": 0.0,
+        "build": 39.5,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 3.7,
+        "teardown": 0.0
+      },
+      "tests/test_w402_mini_stage_postgres.py": {
+        "tests": 3,
+        "total": 105.8,
+        "db": 1.1,
+        "install": 1.3,
+        "gateway": 0.0,
+        "build": 86.4,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.2,
+        "checks": 16.8,
+        "teardown": 0.0
+      },
+      "tests/test_w402_overview_basis_postgres.py": {
+        "tests": 4,
+        "total": 5.6,
+        "db": 1.2,
+        "install": 1.9,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.8,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 1.7,
+        "teardown": 0.0
+      },
+      "tests/test_w402_rules.py": {
+        "tests": 7,
+        "total": 0.9,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.9,
+        "teardown": 0.0
+      },
+      "tests/test_w402_site_registration_postgres.py": {
+        "tests": 1,
+        "total": 3.1,
+        "db": 0.7,
+        "install": 0.9,
+        "gateway": 0.0,
+        "build": 0.3,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 1.2,
+        "teardown": 0.0
+      },
+      "tests/test_w403_alternative_postgres.py": {
+        "tests": 6,
+        "total": 24.2,
+        "db": 1.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 17.9,
+        "app": 0.9,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 4.4,
+        "teardown": 0.0
+      },
+      "tests/test_w403_final_review_writes.py": {
+        "tests": 4,
+        "total": 0.0,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w403_migration_postgres.py": {
+        "tests": 11,
+        "total": 76.8,
+        "db": 36.5,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 36.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.7,
+        "checks": 3.2,
+        "teardown": 0.3
+      },
+      "tests/test_w403_opportunity_links_postgres.py": {
+        "tests": 1,
+        "total": 72.7,
+        "db": 0.8,
+        "install": 0.5,
+        "gateway": 0.0,
+        "build": 55.8,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 15.5,
+        "teardown": 0.0
+      },
+      "tests/test_w403_opportunity_read_postgres.py": {
+        "tests": 10,
+        "total": 724.4,
+        "db": 2.2,
+        "install": 5.5,
+        "gateway": 0.0,
+        "build": 487.0,
+        "app": 2.2,
+        "subprocess": 0.0,
+        "setup_other": 0.1,
+        "checks": 227.4,
+        "teardown": 0.0
+      },
+      "tests/test_w503_ev_availability_postgres.py": {
+        "tests": 15,
+        "total": 135.8,
+        "db": 1.5,
+        "install": 3.0,
+        "gateway": 10.0,
+        "build": 112.9,
+        "app": 0.1,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 6.8,
+        "teardown": 1.4
+      },
+      "tests/test_w504_ev_intent_model.py": {
+        "tests": 10,
+        "total": 0.1,
+        "db": 0.0,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 0.0,
+        "app": 0.0,
+        "subprocess": 0.0,
+        "setup_other": 0.0,
+        "checks": 0.0,
+        "teardown": 0.0
+      },
+      "tests/test_w504_ev_intent_postgres.py": {
+        "tests": 15,
+        "total": 353.8,
+        "db": 10.5,
+        "install": 7.4,
+        "gateway": 26.4,
+        "build": 280.9,
+        "app": 0.3,
+        "subprocess": 0.0,
+        "setup_other": 10.1,
+        "checks": 14.3,
+        "teardown": 3.9
+      }
+    },
+    "setups": {
+      "root_builds": 736,
+      "distinct": 107,
+      "tests_with_a_build": 624,
+      "world_seconds_in_tests_with_a_build": 11211.7,
+      "by_fingerprint": [
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"]",
+          "builds": 64,
+          "world_seconds": 1600.8,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_publication_enqueue_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w301_estate_index_ev_postgres.py",
+            "tests/test_w301_ev_selection_on_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w302_evidence_links_postgres.py",
+            "tests/test_w302_financials_links_postgres.py",
+            "tests/test_w302_money_comparability_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {}, \"start_release_upload\"]",
+          "builds": 38,
+          "world_seconds": 924.7,
+          "files": [
+            "tests/test_cc_placement_postgres.py",
+            "tests/test_r373_request_access.py",
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w504_ev_intent_api.py",
+            "tests/test_w504_ev_intent_postgres.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"d1e45727\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 139,
+          "world_seconds": 893.2,
+          "files": [
+            "tests/test_s405_resolver_postgres.py",
+            "tests/test_s4_consequence_history_postgres.py",
+            "tests/test_s4_consequence_recompute_postgres.py",
+            "tests/test_s4_consequence_store_postgres.py",
+            "tests/test_s4_evidence_consequence_work_postgres.py",
+            "tests/test_s4_evidence_drain_postgres.py",
+            "tests/test_s4_schedule_health_postgres.py",
+            "tests/test_w203_cold_migration_postgres.py",
+            "tests/test_w204_cold_migration.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w206_ev_enqueue_postgres.py",
+            "tests/test_w206_ev_migration_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py",
+            "tests/test_w401_migration_postgres.py",
+            "tests/test_w402_migration_postgres.py",
+            "tests/test_w402_mini_lease_postgres.py",
+            "tests/test_w402_mini_stage_postgres.py",
+            "tests/test_w403_migration_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}]",
+          "builds": 41,
+          "world_seconds": 748.9,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_job_isolation_postgres.py",
+            "tests/test_w403_opportunity_links_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py",
+            "tests/test_w403_replay_postgres.py",
+            "tests/test_w403_scenarios_postgres.py",
+            "tests/test_w403_work_links_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "builds": 34,
+          "world_seconds": 696.9,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_job_isolation_postgres.py",
+            "tests/test_w403_opportunity_links_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py",
+            "tests/test_w403_replay_postgres.py",
+            "tests/test_w403_scenarios_postgres.py",
+            "tests/test_w403_work_links_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\"]",
+          "builds": 23,
+          "world_seconds": 603.3,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_estate_index_ev_postgres.py",
+            "tests/test_w301_ev_selection_on_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<SubRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {}]",
+          "builds": 8,
+          "world_seconds": 596.1,
+          "files": [
+            "tests/test_w303_portfolio_comparison_postgres.py",
+            "tests/test_w303_portfolio_fixture_postgres.py",
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"backup-failed\", {}, \"start_release_upload\"]",
+          "builds": 38,
+          "world_seconds": 591.7,
+          "files": [
+            "tests/test_r373_request_access.py",
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w501_cold_depth_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py",
+            "tests/test_w502_domain_action_index_api.py",
+            "tests/test_w502_domain_action_index_postgres.py",
+            "tests/test_w502_domain_intent_api.py",
+            "tests/test_w502_domain_intent_postgres.py",
+            "tests/test_w502_domain_work_links_postgres.py",
+            "tests/test_w601a_global_incidents.py",
+            "tests/test_w601b_global_maintenance.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}]",
+          "builds": 30,
+          "world_seconds": 549.3,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_job_isolation_postgres.py",
+            "tests/test_w403_opportunity_links_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py",
+            "tests/test_w403_scenarios_postgres.py",
+            "tests/test_w403_work_links_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\"]",
+          "builds": 23,
+          "world_seconds": 315.4,
+          "files": [
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w301_cold_selection_on_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w302_evidence_links_postgres.py",
+            "tests/test_w302_evidence_scope_snapshot_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"excursion\", {}, \"start_release_upload\"]",
+          "builds": 20,
+          "world_seconds": 311.8,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w302_financials_links_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w401_work_read_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"]",
+          "builds": 12,
+          "world_seconds": 308.3,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"]",
+          "builds": 10,
+          "world_seconds": 266.3,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\", \"advance_late\"]",
+          "builds": 14,
+          "world_seconds": 210.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w301_cold_selection_on_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "builds": 8,
+          "world_seconds": 208.4,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}, \"start_release_upload\"]",
+          "builds": 11,
+          "world_seconds": 177.3,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"49f61049\", \"5ea3ed85\", \"df74c549\", \"b77cfc0e\", \"5ea3ed85\", \"c9135f1a\", \"8735982b\", \"5ea3ed85\", \"c9135f1a\", \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\", \"280da6a0\", \"5ea3ed85\", \"40de4dcf\", \"0c4f4774\", \"c8b66538\", \"d9745040\", \"1ba42bb8\", \"5ea3ed85\", \"37c385af\", \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\", \"53982725\", \"294c801c\", \"5ea3ed85\", \"265c10b9\", \"6a969445\"]",
+          "builds": 4,
+          "world_seconds": 144.5,
+          "files": [
+            "tests/test_s4_finding_evidence_history_postgres.py",
+            "tests/test_s4_finding_index_postgres.py",
+            "tests/test_s4_finding_read_postgres.py",
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 30,
+          "world_seconds": 127.7,
+          "files": [
+            "tests/test_s4_finding_evidence_history_postgres.py",
+            "tests/test_s4_finding_store_postgres.py",
+            "tests/test_s6_action_apply_postgres.py",
+            "tests/test_s6_action_store_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w401_work_read_postgres.py",
+            "tests/test_w401_work_service_postgres.py",
+            "tests/test_w601a_global_incidents.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "builds": 9,
+          "world_seconds": 126.8,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_scenarios_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"missing-probe\", {}, \"start_release_upload\"]",
+          "builds": 7,
+          "world_seconds": 112.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w301_estate_golden_postgres.mixed_replay\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<timedelta>\"], {}]",
+          "builds": 2,
+          "world_seconds": 87.4,
+          "files": [
+            "tests/test_w301_estate_golden_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {}]",
+          "builds": 1,
+          "world_seconds": 83.4,
+          "files": [
+            "tests/test_cc_placement_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.start_release_upload\"]",
+          "builds": 6,
+          "world_seconds": 77.3,
+          "files": [
+            "tests/test_w502_cold_scenario_producer.py",
+            "tests/test_w502_domain_work_links_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {\"fresh\": true}, \"start_release_upload\"]",
+          "builds": 3,
+          "world_seconds": 75.6,
+          "files": [
+            "tests/test_w504_ev_work_producer_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"cold_drain\": true}]",
+          "builds": 1,
+          "world_seconds": 69.1,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"w1_source\": \"MIXED\"}]",
+          "builds": 1,
+          "world_seconds": 68.3,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"cold_drain\": false}]",
+          "builds": 1,
+          "world_seconds": 67.7,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"w1_source\": \"UNBOUND\"}]",
+          "builds": 1,
+          "world_seconds": 66.6,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "builds": 4,
+          "world_seconds": 64.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\"]",
+          "builds": 18,
+          "world_seconds": 62.9,
+          "files": [
+            "tests/test_s4_evidence_decided_at_postgres.py",
+            "tests/test_s4_schedule_health_postgres.py",
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"1e4d2a30\"]",
+          "builds": 5,
+          "world_seconds": 56.3,
+          "files": [
+            "tests/test_s6_site_action_index_postgres.py",
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_holds_postgres.py",
+            "tests/test_w303_portfolio_comparison_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {\"fresh\": false, \"install\": \"<install_second_ev_site>\", \"scenario_id\": \"ev-complete-lab-002\", \"scenarios\": \"<CachedScenarioRepository>\"}, \"start_release_upload\"]",
+          "builds": 2,
+          "world_seconds": 50.6,
+          "files": [
+            "tests/test_w302_money_comparability_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}]",
+          "builds": 15,
+          "world_seconds": 50.0,
+          "files": [
+            "tests/test_s3_capability_read_postgres.py",
+            "tests/test_s3_claim_limit_postgres.py",
+            "tests/test_s4_evidence_consequence_work_postgres.py",
+            "tests/test_s4_evidence_decided_at_postgres.py",
+            "tests/test_s4_evidence_drain_postgres.py",
+            "tests/test_s4_finding_index_postgres.py",
+            "tests/test_s6_action_records_postgres.py",
+            "tests/test_s6_site_action_index_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w401_work_service_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 4,
+          "world_seconds": 45.7,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_holds_postgres.py",
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 4,
+          "world_seconds": 44.5,
+          "files": [
+            "tests/test_w403_alternative_postgres.py",
+            "tests/test_w403_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 5,
+          "world_seconds": 36.1,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py",
+            "tests/test_s6_verification_plan_postgres.py",
+            "tests/test_w401_work_service_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-08\"]], {}]",
+          "builds": 2,
+          "world_seconds": 32.6,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "builds": 2,
+          "world_seconds": 29.1,
+          "files": [
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\", \"advance_late\"]",
+          "builds": 1,
+          "world_seconds": 27.4,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"49f61049\", \"5ea3ed85\", \"df74c549\", \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\", \"53982725\", \"294c801c\", \"5ea3ed85\", \"265c10b9\", \"6a969445\", \"645d7474\"]",
+          "builds": 3,
+          "world_seconds": 27.0,
+          "files": [
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"169ced82\"]",
+          "builds": 4,
+          "world_seconds": 26.4,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\", \"release_and_upload\"]",
+          "builds": 1,
+          "world_seconds": 24.9,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\"]",
+          "builds": 1,
+          "world_seconds": 24.8,
+          "files": [
+            "tests/test_w301_provenance_dto_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"237ff034\", \"1e4d2a30\"]",
+          "builds": 2,
+          "world_seconds": 22.3,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 5,
+          "world_seconds": 22.1,
+          "files": [
+            "tests/test_s4_power_demo_case_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"1766a32b\", \"5ea3ed85\"]",
+          "builds": 4,
+          "world_seconds": 22.1,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\"]",
+          "builds": 4,
+          "world_seconds": 17.9,
+          "files": [
+            "tests/test_lr01_money_eligibility_postgres.py",
+            "tests/test_s4_power_demo_case_postgres.py",
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-08\", \"2026-10-09\", \"2026-10-10\", \"2026-10-11\", \"2026-10-12\"]], {}]",
+          "builds": 1,
+          "world_seconds": 17.8,
+          "files": [
+            "tests/test_w403_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 2,
+          "world_seconds": 14.7,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_w303_selectors_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}, \"start_release_upload\", \"release_and_upload\"]",
+          "builds": 1,
+          "world_seconds": 14.4,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 3,
+          "world_seconds": 14.1,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-05\"]], {}]",
+          "builds": 1,
+          "world_seconds": 13.5,
+          "files": [
+            "tests/test_w403_opportunity_read_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"fe2a0898\"]",
+          "builds": 1,
+          "world_seconds": 12.4,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"e472df87\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 12.0,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"1e4d2a30\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 11.9,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"71f11bc5\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 3,
+          "world_seconds": 11.6,
+          "files": [
+            "tests/test_r373_request_access.py",
+            "tests/test_w601b_global_maintenance.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 2,
+          "world_seconds": 10.8,
+          "files": [
+            "tests/test_w403_alternative_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-09\"]], {}]",
+          "builds": 1,
+          "world_seconds": 10.1,
+          "files": [
+            "tests/test_w402_reads_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8319ad7d\", \"5ea3ed85\", \"718bbd33\", \"5ea3ed85\", \"dcee202f\", \"5ea3ed85\"]",
+          "builds": 2,
+          "world_seconds": 10.0,
+          "files": [
+            "tests/test_s4_deferred_match_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 10.0,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\", \"280da6a0\", \"5ea3ed85\", \"40de4dcf\"]",
+          "builds": 1,
+          "world_seconds": 9.0,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"63a7e426\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 8.5,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"s6_action_records.build\", [\"<CaseRunner>\", {\"F01\": {\"case_id\": \"F01\", \"day\": \"2026-10-06\", \"label\": \"candidate-open\", \"steps\": \"<list>\"}, \"F02\": {\"case_id\": \"F02\", \"day\": \"2026-10-08\", \"label\": \"overlap-adjacent-cross-day\", \"steps\": \"<list>\"}, \"F03\": {\"case_id\": \"F03\", \"day\": \"2026-10-11\", \"label\": \"recurrence\", \"steps\": \"<list>\"}, \"F04\": {\"case_id\": \"F04\", \"day\": \"2026-10-13\", \"label\": \"late-earlier-acceptance\", \"steps\": \"<list>\"}, \"F05\": {\"case_id\": \"F05\", \"day\": \"2026-10-21\", \"label\": \"limitation-and-closure\", \"steps\": \"<list>\"}, \"F06\": {\"case_id\": \"F06\", \"day\": \"2026-10-15\", \"label\": \"split-and-bridge\", \"steps\": \"<list>\"}, \"F08\": {\"case_id\": \"F08\", \"day\": \"2026-10-19\", \"label\": \"retry-and-absent-basis\", \"steps\": \"<list>\"}}, \"<make>\"], {}]",
+          "builds": 1,
+          "world_seconds": 8.4,
+          "files": [
+            "tests/test_s6_action_records_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\"]",
+          "builds": 2,
+          "world_seconds": 8.3,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"b77cfc0e\", \"5ea3ed85\", \"c9135f1a\", \"8735982b\", \"5ea3ed85\", \"c9135f1a\"]",
+          "builds": 2,
+          "world_seconds": 8.3,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"s6_action_records.build\", [\"<CaseRunner>\", {\"F01\": {\"case_id\": \"F01\", \"day\": \"2026-10-06\", \"label\": \"candidate-open\", \"steps\": \"<list>\"}, \"F02\": {\"case_id\": \"F02\", \"day\": \"2026-10-08\", \"label\": \"overlap-adjacent-cross-day\", \"steps\": \"<list>\"}, \"F03\": {\"case_id\": \"F03\", \"day\": \"2026-10-11\", \"label\": \"recurrence\", \"steps\": \"<list>\"}, \"F04\": {\"case_id\": \"F04\", \"day\": \"2026-10-13\", \"label\": \"late-earlier-acceptance\", \"steps\": \"<list>\"}, \"F05\": {\"case_id\": \"F05\", \"day\": \"2026-10-21\", \"label\": \"limitation-and-closure\", \"steps\": \"<list>\"}, \"F06\": {\"case_id\": \"F06\", \"day\": \"2026-10-15\", \"label\": \"split-and-bridge\", \"steps\": \"<list>\"}, \"F08\": {\"case_id\": \"F08\", \"day\": \"2026-10-19\", \"label\": \"retry-and-absent-basis\", \"steps\": \"<list>\"}}, \"<make>\"], {\"second_created_after\": \"<timedelta>\"}]",
+          "builds": 1,
+          "world_seconds": 7.6,
+          "files": [
+            "tests/test_s6_site_action_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\"]",
+          "builds": 2,
+          "world_seconds": 7.5,
+          "files": [
+            "tests/test_w302_evidence_scope_snapshot_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"e472df87\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 7.3,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"73a04001\", \"7e396ee2\", \"0a2102ad\"]",
+          "builds": 1,
+          "world_seconds": 7.3,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.release_and_upload\"]",
+          "builds": 1,
+          "world_seconds": 7.2,
+          "files": [
+            "tests/test_w502_domain_work_links_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"c0c369f3\", \"7e396ee2\", \"91c5f51e\"]",
+          "builds": 1,
+          "world_seconds": 7.0,
+          "files": [
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"a0d2d99c\", \"5ea3ed85\", \"169ced82\"]",
+          "builds": 1,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\"]",
+          "builds": 1,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}]",
+          "builds": 2,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 6.2,
+          "files": [
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w301_estate_index_postgres.power_estate\", [\"<PostgresFoundationStore>\", \"<Engine>\", \"<CaptureFixture>\", \"<MonkeyPatch>\", \"<<lambda>>\"], {}]",
+          "builds": 1,
+          "world_seconds": 6.0,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 6.0,
+          "files": [
+            "tests/test_lr01_money_eligibility_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 5.9,
+          "files": [
+            "tests/test_s5_overview_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"0334b3d1\", \"5ea3ed85\", \"169ced82\"]",
+          "builds": 1,
+          "world_seconds": 5.8,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\"]",
+          "builds": 1,
+          "world_seconds": 5.7,
+          "files": [
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"74f06c19\", \"5ea3ed85\", \"718bbd33\", \"5ea3ed85\", \"dcee202f\"]",
+          "builds": 1,
+          "world_seconds": 5.2,
+          "files": [
+            "tests/test_s4_deferred_match_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"4e652a3f\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 5.0,
+          "files": [
+            "tests/test_w302_pinned_facades_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"ca5b2d01\", \"db08df9d\"]",
+          "builds": 1,
+          "world_seconds": 4.9,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"2b861e90\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 4.9,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"fc1affb5\"]",
+          "builds": 1,
+          "world_seconds": 4.8,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"7d12c046\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"s3_claim_limit_records.build\", [\"<CaseRunner>\", \"postgresql+psycopg://assetops:assetops-local-dev@postgres-test:5432/assetops_pt506481_gw1_test\"], {}]",
+          "builds": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_s3_capability_read_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\"]",
+          "builds": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"a41a5272\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"0334b3d1\", \"5ea3ed85\", \"169ced82\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 4.5,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"s3_claim_limit_records.build\", [\"<CaseRunner>\", \"postgresql+psycopg://assetops:assetops-local-dev@postgres-test:5432/assetops_pt506481_gw0_test\"], {}]",
+          "builds": 1,
+          "world_seconds": 4.4,
+          "files": [
+            "tests/test_s3_claim_limit_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w301_estate_index_postgres.power_estate\", [\"<PostgresFoundationStore>\", \"<Engine>\", \"<CaptureFixture>\", \"<MonkeyPatch>\"], {}]",
+          "builds": 1,
+          "world_seconds": 4.2,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"ebf58ef8\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 4.2,
+          "files": [
+            "tests/test_w302_pinned_facades_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"e0391b88\", \"5ea3ed85\", \"84593783\", \"e0391b88\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"91c5f51e\"]",
+          "builds": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"169ced82\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 4.0,
+          "files": [
+            "tests/test_s4_finding_read_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"1db4a5c1\", \"5ea3ed85\", \"84593783\"]",
+          "builds": 1,
+          "world_seconds": 3.9,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"c0c369f3\"]",
+          "builds": 1,
+          "world_seconds": 3.8,
+          "files": [
+            "tests/test_w403_opportunity_job_isolation_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5509163d\"]",
+          "builds": 1,
+          "world_seconds": 3.7,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"39b67ca2\"]",
+          "builds": 1,
+          "world_seconds": 3.7,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"1f874f8c\"]",
+          "builds": 1,
+          "world_seconds": 3.5,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"20481e83\"]",
+          "builds": 1,
+          "world_seconds": 3.5,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"a0d2d99c\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_s4_finding_read_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}]",
+          "builds": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\"]",
+          "builds": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"5dc49d6d\"]",
+          "builds": 1,
+          "world_seconds": 2.9,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        }
+      ],
+      "distinct_test_setups": 121,
+      "test_setups": [
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"]",
+          "tests": 59,
+          "world_seconds": 1474.6,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_publication_enqueue_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w301_estate_index_ev_postgres.py",
+            "tests/test_w301_ev_selection_on_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w302_evidence_links_postgres.py",
+            "tests/test_w302_financials_links_postgres.py",
+            "tests/test_w302_money_comparability_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "tests": 22,
+          "world_seconds": 1320.7,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_job_isolation_postgres.py",
+            "tests/test_w403_opportunity_links_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py",
+            "tests/test_w403_scenarios_postgres.py",
+            "tests/test_w403_work_links_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"d1e45727\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 137,
+          "world_seconds": 886.6,
+          "files": [
+            "tests/test_s405_resolver_postgres.py",
+            "tests/test_s4_consequence_history_postgres.py",
+            "tests/test_s4_consequence_recompute_postgres.py",
+            "tests/test_s4_consequence_store_postgres.py",
+            "tests/test_s4_evidence_consequence_work_postgres.py",
+            "tests/test_s4_evidence_drain_postgres.py",
+            "tests/test_s4_schedule_health_postgres.py",
+            "tests/test_w203_cold_migration_postgres.py",
+            "tests/test_w204_cold_migration.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w206_ev_enqueue_postgres.py",
+            "tests/test_w206_ev_migration_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w301_provenance_dto_postgres.py",
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py",
+            "tests/test_w401_migration_postgres.py",
+            "tests/test_w402_migration_postgres.py",
+            "tests/test_w402_mini_lease_postgres.py",
+            "tests/test_w402_mini_stage_postgres.py",
+            "tests/test_w403_migration_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py",
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {}, \"start_release_upload\"]",
+          "tests": 35,
+          "world_seconds": 855.1,
+          "files": [
+            "tests/test_cc_placement_postgres.py",
+            "tests/test_r373_request_access.py",
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py",
+            "tests/test_w504_ev_intent_api.py",
+            "tests/test_w504_ev_intent_postgres.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<SubRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {}]",
+          "tests": 8,
+          "world_seconds": 596.1,
+          "files": [
+            "tests/test_w303_portfolio_comparison_postgres.py",
+            "tests/test_w303_portfolio_fixture_postgres.py",
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"backup-failed\", {}, \"start_release_upload\"]",
+          "tests": 38,
+          "world_seconds": 591.7,
+          "files": [
+            "tests/test_r373_request_access.py",
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w501_cold_depth_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py",
+            "tests/test_w502_domain_action_index_api.py",
+            "tests/test_w502_domain_action_index_postgres.py",
+            "tests/test_w502_domain_intent_api.py",
+            "tests/test_w502_domain_intent_postgres.py",
+            "tests/test_w502_domain_work_links_postgres.py",
+            "tests/test_w601a_global_incidents.py",
+            "tests/test_w601b_global_maintenance.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\"]",
+          "tests": 21,
+          "world_seconds": 552.2,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w301_estate_index_ev_postgres.py",
+            "tests/test_w301_ev_selection_on_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w503_ev_availability_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"excursion\", {}, \"start_release_upload\"]",
+          "tests": 18,
+          "world_seconds": 276.7,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w204_cold_worker.py",
+            "tests/test_w302_financials_links_postgres.py",
+            "tests/test_w401_work_read_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\"]",
+          "tests": 18,
+          "world_seconds": 268.7,
+          "files": [
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w301_cold_selection_on_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w302_evidence_links_postgres.py",
+            "tests/test_w302_evidence_scope_snapshot_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "tests": 4,
+          "world_seconds": 240.4,
+          "files": [
+            "tests/test_w402_reads_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py",
+            "tests/test_w403_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\", \"advance_late\"]",
+          "tests": 14,
+          "world_seconds": 210.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w301_cold_selection_on_postgres.py",
+            "tests/test_w301_estate_index_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py",
+            "tests/test_w501_cold_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"]",
+          "tests": 8,
+          "world_seconds": 205.8,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w302_evidence_ev_postgres.py",
+            "tests/test_w302_pinned_facades_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"]",
+          "tests": 6,
+          "world_seconds": 164.2,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py",
+            "tests/test_w503_ev_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}, \"start_release_upload\"]",
+          "tests": 10,
+          "world_seconds": 162.2,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "tests": 6,
+          "world_seconds": 158.7,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py",
+            "tests/test_w206_ev_reads_postgres.py",
+            "tests/test_w206_ev_store_postgres.py",
+            "tests/test_w207_ev_money_postgres.py",
+            "tests/test_w207_ev_site_reads_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 149.0,
+          "files": [
+            "tests/test_w301_provenance_dto_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 149.0,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"49f61049\", \"5ea3ed85\", \"df74c549\", \"b77cfc0e\", \"5ea3ed85\", \"c9135f1a\", \"8735982b\", \"5ea3ed85\", \"c9135f1a\", \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\", \"280da6a0\", \"5ea3ed85\", \"40de4dcf\", \"0c4f4774\", \"c8b66538\", \"d9745040\", \"1ba42bb8\", \"5ea3ed85\", \"37c385af\", \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\", \"53982725\", \"294c801c\", \"5ea3ed85\", \"265c10b9\", \"6a969445\"]",
+          "tests": 4,
+          "world_seconds": 144.5,
+          "files": [
+            "tests/test_s4_finding_evidence_history_postgres.py",
+            "tests/test_s4_finding_index_postgres.py",
+            "tests/test_s4_finding_read_postgres.py",
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 2,
+          "world_seconds": 122.1,
+          "files": [
+            "tests/test_w403_opportunity_read_postgres.py",
+            "tests/test_w403_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "tests": 2,
+          "world_seconds": 116.5,
+          "files": [
+            "tests/test_w403_opportunity_scan_postgres.py",
+            "tests/test_w403_opportunity_worker_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"missing-probe\", {}, \"start_release_upload\"]",
+          "tests": 7,
+          "world_seconds": 112.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_reads_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w204_cold_reads.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {\"fresh\": false, \"install\": \"<install_second_ev_site>\", \"scenario_id\": \"ev-complete-lab-002\", \"scenarios\": \"<CachedScenarioRepository>\"}, \"start_release_upload\"]",
+          "tests": 2,
+          "world_seconds": 101.3,
+          "files": [
+            "tests/test_w302_money_comparability_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 27,
+          "world_seconds": 99.7,
+          "files": [
+            "tests/test_s4_finding_evidence_history_postgres.py",
+            "tests/test_s4_finding_store_postgres.py",
+            "tests/test_s6_action_apply_postgres.py",
+            "tests/test_s6_action_store_postgres.py",
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w401_work_read_postgres.py",
+            "tests/test_w401_work_service_postgres.py",
+            "tests/test_w601a_global_incidents.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\"] + [\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-08\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-08\", \"2026-10-09\", \"2026-10-10\", \"2026-10-11\", \"2026-10-12\"]], {}]",
+          "tests": 1,
+          "world_seconds": 89.0,
+          "files": [
+            "tests/test_w403_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w301_estate_golden_postgres.mixed_replay\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<timedelta>\"], {}]",
+          "tests": 2,
+          "world_seconds": 87.4,
+          "files": [
+            "tests/test_w301_estate_golden_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {}]",
+          "tests": 1,
+          "world_seconds": 83.4,
+          "files": [
+            "tests/test_cc_placement_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {\"fresh\": true}, \"start_release_upload\"]",
+          "tests": 3,
+          "world_seconds": 75.6,
+          "files": [
+            "tests/test_w504_ev_work_producer_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.start_release_upload\"]",
+          "tests": 5,
+          "world_seconds": 70.1,
+          "files": [
+            "tests/test_w502_cold_scenario_producer.py",
+            "tests/test_w502_domain_work_links_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"cold_drain\": true}]",
+          "tests": 1,
+          "world_seconds": 69.1,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"w1_source\": \"MIXED\"}]",
+          "tests": 1,
+          "world_seconds": 68.3,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"cold_drain\": false}]",
+          "tests": 1,
+          "world_seconds": 67.7,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-05\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 1,
+          "world_seconds": 67.5,
+          "files": [
+            "tests/test_w403_opportunity_read_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w303_portfolio_fixture_postgres.build_portfolio_fixture\", [\"<TopRequest>\", \"<MonkeyPatch>\", \"<CaptureFixture>\"], {\"w1_source\": \"UNBOUND\"}]",
+          "tests": 1,
+          "world_seconds": 66.6,
+          "files": [
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 1,
+          "world_seconds": 66.2,
+          "files": [
+            "tests/test_w403_opportunity_read_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"contradictory\", {}, \"start_release_upload\"]",
+          "tests": 4,
+          "world_seconds": 64.1,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py",
+            "tests/test_w203_cold_replay_postgres.py",
+            "tests/test_w204_cold_consequence.py",
+            "tests/test_w501_cold_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\"]",
+          "tests": 17,
+          "world_seconds": 60.3,
+          "files": [
+            "tests/test_s4_evidence_decided_at_postgres.py",
+            "tests/test_s4_schedule_health_postgres.py",
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"1e4d2a30\"]",
+          "tests": 5,
+          "world_seconds": 56.3,
+          "files": [
+            "tests/test_s6_site_action_index_postgres.py",
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_holds_postgres.py",
+            "tests/test_w303_portfolio_comparison_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\"] + [\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-06\", \"2026-10-07\", \"2026-10-08\", \"2026-10-09\", \"2026-10-10\"]], {}]",
+          "tests": 1,
+          "world_seconds": 56.2,
+          "files": [
+            "tests/test_w403_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\"] + [\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 3,
+          "world_seconds": 56.0,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 53.1,
+          "files": [
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"missing-meter\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\"]",
+          "tests": 1,
+          "world_seconds": 52.5,
+          "files": [
+            "tests/test_w503_ev_depth_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"fault\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 51.8,
+          "files": [
+            "tests/test_w503_ev_scenarios_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-09\"]], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 1,
+          "world_seconds": 50.4,
+          "files": [
+            "tests/test_w402_reads_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 4,
+          "world_seconds": 45.7,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_holds_postgres.py",
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-08\"]], {}]",
+          "tests": 1,
+          "world_seconds": 44.4,
+          "files": [
+            "tests/test_w402_reads_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 1,
+          "world_seconds": 43.7,
+          "files": [
+            "tests/test_w402_reads_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}] + [\"test_w402_reads_postgres._ingest\", [\"<Engine>\", \"<MgW402Install>\"], {}] + [\"test_w402_reads_postgres._reconcile\", [\"<Engine>\", [\"2026-10-07\"]], {}]",
+          "tests": 1,
+          "world_seconds": 42.2,
+          "files": [
+            "tests/test_w402_reads_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"excursion\", {}, \"start_release_upload\"] + [\"test_w205b_ev_replay_postgres.Chain.open\", \"interrupted\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 39.9,
+          "files": [
+            "tests/test_w401_site_indexes_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"late-reading\", {}, \"start_release_upload\"] + [\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"169ced82\"]",
+          "tests": 2,
+          "world_seconds": 37.5,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 5,
+          "world_seconds": 36.1,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py",
+            "tests/test_s6_verification_plan_postgres.py",
+            "tests/test_w401_work_service_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}, \"start_release_upload\"] + [\"test_w202_cold_replay_postgres.Chain.open\", \"excursion\", {}, \"start_release_upload\"]",
+          "tests": 1,
+          "world_seconds": 30.3,
+          "files": [
+            "tests/test_w301_provenance_dto_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"late-record\", {}, \"start_release_upload\", \"advance_late\", \"advance_late\"]",
+          "tests": 1,
+          "world_seconds": 27.4,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"49f61049\", \"5ea3ed85\", \"df74c549\", \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\", \"53982725\", \"294c801c\", \"5ea3ed85\", \"265c10b9\", \"6a969445\", \"645d7474\"]",
+          "tests": 3,
+          "world_seconds": 27.0,
+          "files": [
+            "tests/test_w301_estate_golden_postgres.py",
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}, \"start_release_upload\", \"release_and_upload\"]",
+          "tests": 1,
+          "world_seconds": 24.9,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"237ff034\", \"1e4d2a30\"]",
+          "tests": 2,
+          "world_seconds": 22.3,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 5,
+          "world_seconds": 22.1,
+          "files": [
+            "tests/test_s4_power_demo_case_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"1766a32b\", \"5ea3ed85\"]",
+          "tests": 4,
+          "world_seconds": 22.1,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\"]",
+          "tests": 4,
+          "world_seconds": 17.9,
+          "files": [
+            "tests/test_lr01_money_eligibility_postgres.py",
+            "tests/test_s4_power_demo_case_postgres.py",
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}] + [\"s6_action_records.build\", [\"<CaseRunner>\", {\"F01\": {\"case_id\": \"F01\", \"day\": \"2026-10-06\", \"label\": \"candidate-open\", \"steps\": \"<list>\"}, \"F02\": {\"case_id\": \"F02\", \"day\": \"2026-10-08\", \"label\": \"overlap-adjacent-cross-day\", \"steps\": \"<list>\"}, \"F03\": {\"case_id\": \"F03\", \"day\": \"2026-10-11\", \"label\": \"recurrence\", \"steps\": \"<list>\"}, \"F04\": {\"case_id\": \"F04\", \"day\": \"2026-10-13\", \"label\": \"late-earlier-acceptance\", \"steps\": \"<list>\"}, \"F05\": {\"case_id\": \"F05\", \"day\": \"2026-10-21\", \"label\": \"limitation-and-closure\", \"steps\": \"<list>\"}, \"F06\": {\"case_id\": \"F06\", \"day\": \"2026-10-15\", \"label\": \"split-and-bridge\", \"steps\": \"<list>\"}, \"F08\": {\"case_id\": \"F08\", \"day\": \"2026-10-19\", \"label\": \"retry-and-absent-basis\", \"steps\": \"<list>\"}}, \"<make>\"], {}]",
+          "tests": 1,
+          "world_seconds": 16.7,
+          "files": [
+            "tests/test_s6_action_records_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}]",
+          "tests": 8,
+          "world_seconds": 15.8,
+          "files": [
+            "tests/test_s4_evidence_decided_at_postgres.py",
+            "tests/test_s4_finding_index_postgres.py",
+            "tests/test_w401_site_indexes_postgres.py",
+            "tests/test_w401_work_service_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}] + [\"s6_action_records.build\", [\"<CaseRunner>\", {\"F01\": {\"case_id\": \"F01\", \"day\": \"2026-10-06\", \"label\": \"candidate-open\", \"steps\": \"<list>\"}, \"F02\": {\"case_id\": \"F02\", \"day\": \"2026-10-08\", \"label\": \"overlap-adjacent-cross-day\", \"steps\": \"<list>\"}, \"F03\": {\"case_id\": \"F03\", \"day\": \"2026-10-11\", \"label\": \"recurrence\", \"steps\": \"<list>\"}, \"F04\": {\"case_id\": \"F04\", \"day\": \"2026-10-13\", \"label\": \"late-earlier-acceptance\", \"steps\": \"<list>\"}, \"F05\": {\"case_id\": \"F05\", \"day\": \"2026-10-21\", \"label\": \"limitation-and-closure\", \"steps\": \"<list>\"}, \"F06\": {\"case_id\": \"F06\", \"day\": \"2026-10-15\", \"label\": \"split-and-bridge\", \"steps\": \"<list>\"}, \"F08\": {\"case_id\": \"F08\", \"day\": \"2026-10-19\", \"label\": \"retry-and-absent-basis\", \"steps\": \"<list>\"}}, \"<make>\"], {\"second_created_after\": \"<timedelta>\"}]",
+          "tests": 1,
+          "world_seconds": 15.2,
+          "files": [
+            "tests/test_s6_site_action_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 2,
+          "world_seconds": 14.7,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_w303_selectors_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.start_release_upload\"] + [\"test_w202_cold_replay_postgres.Chain.release_and_upload\"]",
+          "tests": 1,
+          "world_seconds": 14.5,
+          "files": [
+            "tests/test_w502_domain_work_links_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}, \"start_release_upload\", \"release_and_upload\"]",
+          "tests": 1,
+          "world_seconds": 14.4,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 3,
+          "world_seconds": 14.1,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py",
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"d1e45727\", \"5ea3ed85\", \"84593783\"] + [\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}]",
+          "tests": 2,
+          "world_seconds": 13.2,
+          "files": [
+            "tests/test_s4_evidence_consequence_work_postgres.py",
+            "tests/test_s4_evidence_drain_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"fe2a0898\"]",
+          "tests": 1,
+          "world_seconds": 12.4,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"e472df87\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 12.0,
+          "files": [
+            "tests/test_s6_verification_holds_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"1e4d2a30\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 11.9,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"71f11bc5\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 3,
+          "world_seconds": 11.6,
+          "files": [
+            "tests/test_r373_request_access.py",
+            "tests/test_w601b_global_maintenance.py",
+            "tests/test_w601c_request_detail.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 2,
+          "world_seconds": 10.8,
+          "files": [
+            "tests/test_w403_alternative_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8319ad7d\", \"5ea3ed85\", \"718bbd33\", \"5ea3ed85\", \"dcee202f\", \"5ea3ed85\"]",
+          "tests": 2,
+          "world_seconds": 10.0,
+          "files": [
+            "tests/test_s4_deferred_match_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 10.0,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}] + [\"s3_claim_limit_records.build\", [\"<CaseRunner>\", \"postgresql+psycopg://assetops:assetops-local-dev@postgres-test:5432/assetops_pt506481_gw1_test\"], {}]",
+          "tests": 1,
+          "world_seconds": 9.3,
+          "files": [
+            "tests/test_s3_capability_read_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\", \"280da6a0\", \"5ea3ed85\", \"40de4dcf\"]",
+          "tests": 1,
+          "world_seconds": 9.0,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}] + [\"s3_claim_limit_records.build\", [\"<CaseRunner>\", \"postgresql+psycopg://assetops:assetops-local-dev@postgres-test:5432/assetops_pt506481_gw0_test\"], {}]",
+          "tests": 1,
+          "world_seconds": 8.9,
+          "files": [
+            "tests/test_s3_claim_limit_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"eee679ae\", \"5ea3ed85\", \"c9135f1a\", \"f4a8e3ba\", \"5ea3ed85\", \"c9135f1a\", \"63a7e426\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 8.5,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\"]",
+          "tests": 2,
+          "world_seconds": 8.3,
+          "files": [
+            "tests/test_w301_w1_snapshot_helpers_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"b77cfc0e\", \"5ea3ed85\", \"c9135f1a\", \"8735982b\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 2,
+          "world_seconds": 8.3,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\", \"c9135f1a\"]",
+          "tests": 2,
+          "world_seconds": 8.0,
+          "files": [
+            "tests/test_w403_alternative_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"169ced82\"]",
+          "tests": 2,
+          "world_seconds": 7.7,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py",
+            "tests/test_w303_portfolio_scope_snapshot_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"eee679ae\", \"5ea3ed85\"]",
+          "tests": 2,
+          "world_seconds": 7.5,
+          "files": [
+            "tests/test_w302_evidence_scope_snapshot_postgres.py",
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"67d09500\", \"5ea3ed85\", \"84593783\", \"e472df87\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 7.3,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"73a04001\", \"7e396ee2\", \"0a2102ad\"]",
+          "tests": 1,
+          "world_seconds": 7.3,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"c0c369f3\", \"7e396ee2\", \"91c5f51e\"]",
+          "tests": 1,
+          "world_seconds": 7.0,
+          "files": [
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"a0d2d99c\", \"5ea3ed85\", \"169ced82\"]",
+          "tests": 1,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\", \"e5c6e6c1\", \"1766a32b\", \"5ea3ed85\", \"40de4dcf\"]",
+          "tests": 1,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w202_cold_replay_postgres.Chain.open\", \"normal\", {}]",
+          "tests": 2,
+          "world_seconds": 6.4,
+          "files": [
+            "tests/test_w202_cold_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 6.2,
+          "files": [
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w301_estate_index_postgres.power_estate\", [\"<PostgresFoundationStore>\", \"<Engine>\", \"<CaptureFixture>\", \"<MonkeyPatch>\", \"<<lambda>>\"], {}]",
+          "tests": 1,
+          "world_seconds": 6.0,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 6.0,
+          "files": [
+            "tests/test_lr01_money_eligibility_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"5ea3ed85\", \"5ea3ed85\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 5.9,
+          "files": [
+            "tests/test_s5_overview_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"0334b3d1\", \"5ea3ed85\", \"169ced82\"]",
+          "tests": 1,
+          "world_seconds": 5.8,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"d4b8365f\"]",
+          "tests": 1,
+          "world_seconds": 5.7,
+          "files": [
+            "tests/test_s6_verification_plan_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"74f06c19\", \"5ea3ed85\", \"718bbd33\", \"5ea3ed85\", \"dcee202f\"]",
+          "tests": 1,
+          "world_seconds": 5.2,
+          "files": [
+            "tests/test_s4_deferred_match_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\"] + [\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}]",
+          "tests": 1,
+          "world_seconds": 5.1,
+          "files": [
+            "tests/test_s4_evidence_decided_at_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"4e652a3f\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 5.0,
+          "files": [
+            "tests/test_w302_pinned_facades_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"ca5b2d01\", \"db08df9d\"]",
+          "tests": 1,
+          "world_seconds": 4.9,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"2b861e90\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 4.9,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5ea3ed85\", \"84593783\", \"fc1affb5\"]",
+          "tests": 1,
+          "world_seconds": 4.8,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"7d12c046\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_s6_verification_evaluator_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"52464e7b\", \"5ea3ed85\", \"c9135f1a\", \"4ff271a6\", \"5ea3ed85\", \"265c10b9\"]",
+          "tests": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"a41a5272\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 4.6,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"0334b3d1\", \"5ea3ed85\", \"169ced82\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 4.5,
+          "files": [
+            "tests/test_s4_finding_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w301_estate_index_postgres.power_estate\", [\"<PostgresFoundationStore>\", \"<Engine>\", \"<CaptureFixture>\", \"<MonkeyPatch>\"], {}]",
+          "tests": 1,
+          "world_seconds": 4.2,
+          "files": [
+            "tests/test_w301_estate_index_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"ebf58ef8\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 4.2,
+          "files": [
+            "tests/test_w302_pinned_facades_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"57523b03\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_w302_w1_claim_limit_on_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"e0391b88\", \"5ea3ed85\", \"84593783\", \"e0391b88\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_s6_action_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"91c5f51e\"]",
+          "tests": 1,
+          "world_seconds": 4.1,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"169ced82\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 4.0,
+          "files": [
+            "tests/test_s4_finding_read_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"1db4a5c1\", \"5ea3ed85\", \"84593783\"]",
+          "tests": 1,
+          "world_seconds": 3.9,
+          "files": [
+            "tests/test_w301_w1_money_snapshot_helpers_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"c0c369f3\"]",
+          "tests": 1,
+          "world_seconds": 3.8,
+          "files": [
+            "tests/test_w403_opportunity_job_isolation_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"5509163d\"]",
+          "tests": 1,
+          "world_seconds": 3.7,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"39b67ca2\"]",
+          "tests": 1,
+          "world_seconds": 3.7,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"1f874f8c\"]",
+          "tests": 1,
+          "world_seconds": 3.5,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\", \"c9135f1a\", \"20481e83\"]",
+          "tests": 1,
+          "world_seconds": 3.5,
+          "files": [
+            "tests/test_s6_action_apply_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"a0d2d99c\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_s4_finding_read_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w205b_ev_replay_postgres.Chain.open\", \"complete\", {}]",
+          "tests": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_w205b_ev_replay_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"df3b67c6\", \"5ea3ed85\"]",
+          "tests": 1,
+          "world_seconds": 3.2,
+          "files": [
+            "tests/test_s4_finding_store_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"5dc49d6d\"]",
+          "tests": 1,
+          "world_seconds": 2.9,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_w402_reads_postgres._setup\", [\"<PostgresFoundationStore>\", \"<Engine>\"], {}]",
+          "tests": 3,
+          "world_seconds": 2.2,
+          "files": [
+            "tests/test_w403_opportunity_job_isolation_postgres.py",
+            "tests/test_w403_opportunity_read_postgres.py"
+          ]
+        }
+      ]
+    },
+    "check_write_shapes_heavy": [
+      [
+        "INSERT INTO mini_opportunity_evidence (tenant_id,",
+        81359
+      ],
+      [
+        "INSERT INTO mini_depth_revision_evidence (tenant_id,",
+        24631
+      ],
+      [
+        "INSERT INTO finding_revision_evidence (finding_revision_id,",
+        7374
+      ],
+      [
+        "INSERT INTO ingestion_disposition (batch_id,",
+        4743
+      ],
+      [
+        "INSERT INTO accepted_evidence (id,",
+        4740
+      ],
+      [
+        "UPDATE recompute_job SET status",
+        3074
+      ],
+      [
+        "INSERT INTO action_basis_evidence (action_id,",
+        1338
+      ],
+      [
+        "INSERT INTO signal_binding_revision (id,",
+        1055
+      ],
+      [
+        "INSERT INTO financial_consequence_work_attempt (id,",
+        766
+      ],
+      [
+        "INSERT INTO source_clock_attestation (id,",
+        764
+      ],
+      [
+        "INSERT INTO action_basis_assessment (action_id,",
+        669
+      ],
+      [
+        "INSERT INTO financial_consequence_power_interval (consequence_revision_id,",
+        584
+      ],
+      [
+        "UPDATE schedule_site_head SET stage",
+        466
+      ],
+      [
+        "INSERT INTO analytic_run_assessment (run_id,",
+        463
+      ],
+      [
+        "INSERT INTO assessment_revision (id,",
+        460
+      ],
+      [
+        "INSERT INTO analytic_run (id,",
+        420
+      ],
+      [
+        "INSERT INTO analytic_run_evidence (run_id,",
+        404
+      ],
+      [
+        "INSERT INTO analytic_run_selection (tenant_id,",
+        399
+      ],
+      [
+        "INSERT INTO asset (id,",
+        315
+      ],
+      [
+        "INSERT INTO evidence_publication (id,",
+        278
+      ],
+      [
+        "INSERT INTO verification_metric (outcome_id,",
+        276
+      ],
+      [
+        "INSERT INTO source (id,",
+        255
+      ],
+      [
+        "INSERT INTO mini_depth_selection (tenant_id,",
+        176
+      ],
+      [
+        "INSERT INTO financial_assumption_assignment (id,",
+        174
+      ],
+      [
+        "INSERT INTO mini_depth_revision (id,",
+        168
+      ]
+    ],
+    "read_only_split": {
+      "heavy_tests": 572,
+      "heavy_seconds": 13337.1,
+      "read_only_after_build": 79,
+      "read_only_after_build_seconds": 2256.7,
+      "writes_after_build": 493,
+      "writes_after_build_seconds": 11080.4,
+      "heavy_with_root_build": 546,
+      "heavy_with_root_build_read_only": 68,
+      "heavy_setup_fixture_writes": 73,
+      "check_write_histogram": {
+        "1-10": 86,
+        "0": 79,
+        "11-100": 324,
+        ">100": 83
+      }
+    },
+    "instrumentation": {
+      "wrapped_calls": 132964,
+      "statements": 3270685,
+      "overhead_s_estimate": 4.4
+    }
+  },
+  {
+    "run": "20261029-090322-b2ebc7",
+    "pytest_wall_s": 287,
+    "memory_peak": "peak vm_used_mb=1819 vmmem_ws_mb=3162 runner_mem_mb=660 pg_mem_mb=342 runner_procs=12 runner_rss_sum_mb=753 runner_rss_max_mb=168 min win_free_mb=3486 vm_total_mb=3918 samples=59",
+    "tests": 3,
+    "workers": 2,
+    "measured_test_seconds": 313.6,
+    "attributed_seconds": 313.6,
+    "unattributed_seconds": 0.0,
+    "totals": {
+      "db": 6.3,
+      "install": 0.0,
+      "gateway": 0.0,
+      "build": 7.2,
+      "app": 0.0,
+      "subprocess": 173.6,
+      "setup_other": 0.7,
+      "checks": 125.5,
+      "teardown": 0.4
+    },
+    "span_s": 221.8,
+    "per_worker": {
+      "gw0": {
+        "tests": 2,
+        "first_start_s": 0.0,
+        "last_end_s": 221.8,
+        "tail_idle_s": 0.0,
+        "test_phases_s": 221.8,
+        "protocol_s": 221.8
+      },
+      "gw1": {
+        "tests": 1,
+        "first_start_s": 0.0,
+        "last_end_s": 91.8,
+        "tail_idle_s": 130.0,
+        "test_phases_s": 91.8,
+        "protocol_s": 91.8
+      }
+    },
+    "worker_idle_s": 130.0,
+    "files": {
+      "tests/test_s4_schedule_health_postgres.py": {
+        "tests": 2,
+        "total": 221.8,
+        "db": 3.2,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 5.0,
+        "app": 0.0,
+        "subprocess": 90.8,
+        "setup_other": 0.3,
+        "checks": 122.3,
+        "teardown": 0.3
+      },
+      "tests/test_s4_schedule_tick_postgres.py": {
+        "tests": 1,
+        "total": 91.8,
+        "db": 3.1,
+        "install": 0.0,
+        "gateway": 0.0,
+        "build": 2.2,
+        "app": 0.0,
+        "subprocess": 82.8,
+        "setup_other": 0.3,
+        "checks": 3.2,
+        "teardown": 0.1
+      }
+    },
+    "setups": {
+      "root_builds": 3,
+      "distinct": 3,
+      "tests_with_a_build": 3,
+      "world_seconds_in_tests_with_a_build": 13.5,
+      "by_fingerprint": [
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"4d06723f\"]",
+          "builds": 1,
+          "world_seconds": 7.0,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"91c5f51e\"]",
+          "builds": 1,
+          "world_seconds": 5.3,
+          "files": [
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "fingerprint": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\"]",
+          "builds": 1,
+          "world_seconds": 1.2,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        }
+      ],
+      "distinct_test_setups": 3,
+      "test_setups": [
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"4d06723f\"]",
+          "tests": 1,
+          "world_seconds": 7.0,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\", \"91c5f51e\"]",
+          "tests": 1,
+          "world_seconds": 5.3,
+          "files": [
+            "tests/test_s4_schedule_tick_postgres.py"
+          ]
+        },
+        {
+          "setup": "[\"test_s4_finding_store_postgres.CaseRunner.__init__\", [], {}, \"8728a720\"]",
+          "tests": 1,
+          "world_seconds": 1.2,
+          "files": [
+            "tests/test_s4_schedule_health_postgres.py"
+          ]
+        }
+      ]
+    },
+    "check_write_shapes_heavy": [
+      [
+        "INSERT INTO finding_revision_evidence (finding_revision_id,",
+        126
+      ],
+      [
+        "UPDATE schedule_site_head SET stage",
+        65
+      ],
+      [
+        "INSERT INTO asset (id,",
+        30
+      ],
+      [
+        "UPDATE schedule_site_head SET claim_token",
+        26
+      ],
+      [
+        "UPDATE recompute_job SET status",
+        24
+      ],
+      [
+        "UPDATE schedule_tick_head SET claim_token",
+        24
+      ],
+      [
+        "INSERT INTO source (id,",
+        24
+      ],
+      [
+        "INSERT INTO schedule_site_head (tenant_id,",
+        10
+      ],
+      [
+        "UPDATE schedule_site_head SET mini_processed",
+        10
+      ],
+      [
+        "UPDATE schedule_site_head SET s3_processed",
+        6
+      ],
+      [
+        "INSERT INTO schedule_tick_head (environment,",
+        6
+      ],
+      [
+        "INSERT INTO assessment_revision (id,",
+        4
+      ],
+      [
+        "INSERT INTO analytic_run_assessment (run_id,",
+        4
+      ],
+      [
+        "INSERT INTO finding_revision_assessment (finding_revision_id,",
+        4
+      ],
+      [
+        "UPDATE schedule_site_head SET opportunity_processed",
+        4
+      ],
+      [
+        "UPDATE schedule_site_head SET s4_outcome",
+        4
+      ]
+    ],
+    "read_only_split": {
+      "heavy_tests": 3,
+      "heavy_seconds": 313.6,
+      "read_only_after_build": 0,
+      "read_only_after_build_seconds": 0,
+      "writes_after_build": 3,
+      "writes_after_build_seconds": 313.6,
+      "heavy_with_root_build": 3,
+      "heavy_with_root_build_read_only": 0,
+      "heavy_setup_fixture_writes": 0,
+      "check_write_histogram": {
+        ">100": 2,
+        "11-100": 1
+      }
+    },
+    "instrumentation": {
+      "wrapped_calls": 399,
+      "statements": 5386,
+      "overhead_s_estimate": 0.0
+    }
+  }
+]
