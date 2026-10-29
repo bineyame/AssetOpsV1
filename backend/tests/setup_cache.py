@@ -985,7 +985,8 @@ def _track_monkeypatch() -> None:
             internal = (getattr(type(target), "__module__", "") or "").startswith(("_pytest", "pytest")) or                 (getattr(target, "__name__", "") or "").startswith(("_pytest", "pytest"))
             if name not in _UUID_NAMES and not internal:  # pytest's own session patches are not the test's
                 _state["patches"] += 1
-                _state.setdefault("patch_names", []).append(f"{fn.__name__}:{_describe(args)}")
+                described = str(args[0]) if fn.__name__ == "setenv" and args else _describe(args)  # never a value
+                _state.setdefault("patch_names", []).append(f"{fn.__name__}:{described}")
                 self.__dict__["_setup_cache_patches"] = self.__dict__.get("_setup_cache_patches", 0) + 1
             return fn(self, *args, **kwargs)
         return wrapper
