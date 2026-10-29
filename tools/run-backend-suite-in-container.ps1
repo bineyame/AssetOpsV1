@@ -27,7 +27,7 @@
 # The pytest wall time is capped at -CapMinutes (2x the expected wall in backend/TESTING.md); a run past the
 # cap is recorded as a hang (timeout.txt), terminated, and exits 124. The URL and password are never printed.
 param(
-    [int]$CapMinutes = 100,  # 2x the expected wall (backend/TESTING.md Timing)
+    [int]$CapMinutes = 0,  # 0 = derived: 2x the measured wall for the tier, scaled to the worker count (backend/TESTING.md Timing)
     [int]$Workers = 0,
     [int]$MaxWorkers = 4,  # PERF-01 trial: the most workers -Workers 0 may choose (the memory guard still decides)
     [string]$Targets = 'backend/tests',
@@ -118,6 +118,13 @@ if ($Workers -le 0) {
 }
 
 $env:ASSETOPS_TEST_WORKERS = [string]$Workers
+if ($CapMinutes -le 0) {
+    # Measured wall at 4 workers (TESTING.md Timing): all tiers 74.2 min (shared server), fast tier 62.6 min, slow tier 4.8 min.
+    # The cap is twice that, scaled by 4 / workers (fewer workers are slower), with a 20-minute floor.
+    $measured = switch ($Tier) { 'fast' { 62.6 } 'slow' { 4.8 } default { 74.2 } }
+    $CapMinutes = [int][math]::Max(20, [math]::Ceiling(2 * $measured * 4 / [math]::Max(1, $Workers)))
+    if ($Targets -ne 'backend/tests') { $CapMinutes = [int][math]::Max(20, [math]::Min($CapMinutes, 60)) }
+}
 "$memoryNote workers=$Workers server=$pgService tier=$Tier cache=$Cache attribution=$([bool]$Attribution) targets=$Targets" |
     Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
 

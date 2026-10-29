@@ -128,7 +128,7 @@ tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py ba
 tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
 
-Pytest flags go after `--`. Focused files can also run in Docker, which avoids
+Pytest flags go after `--` (optional; it is dropped). From Git Bash use `powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
 the Windows port forward: `tools\run-backend-suite-in-container.ps1 -Targets
 'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
 
@@ -207,8 +207,8 @@ PERF-01 options and records:
   `summary.json` and `passed.txt`, and checks a run against a baseline:
   identical collected IDs, identical JUnit pass list, zero skips.
 
-The wrapper runs the same pytest command (`-n 2 --dist loadfile
---no-loadscope-reorder -q --durations=30`) in the one-shot `backend-test-runner`
+The wrapper runs the same pytest command as the host (`-n <workers> --dist loadfile
+--no-loadscope-reorder -q --durations=30`; workers from free memory, 4 by default) in the one-shot `backend-test-runner`
 service (`docker-compose.test.yml`, image `python:3.12.7-slim-bookworm`,
 profile `test`, no published ports) on the `assetopsv1` project network, so the
 suite reaches Postgres as `postgres:5432` instead of through Docker Desktop's
@@ -226,7 +226,7 @@ Each attempt writes to its own `var/test-results/OPS-03/<run-id>/`:
 `.pytest-junit.xml`), `console.log`, `wall-time.txt`, `connections.csv` and
 `connections-peak.txt` (`pg_stat_activity` sampled every 5 s: server-wide,
 client backends, and the runner container's own sessions). The pytest wall time
-is capped at `-CapMinutes` (default 100, twice the measured expected wall in Timing); a run
+is capped at `-CapMinutes` (default: derived, twice the measured wall for the tier at 4 workers scaled by 4 / workers, 20-minute floor and 60-minute ceiling for named targets; 149 min for a full run at 4 workers; see Timing); a run
 past the cap writes `timeout.txt` (non-idle `pg_stat_activity`, runner
 processes, console tail), is killed, and exits 124. The exit code is pytest's
 otherwise. `tools/check-all.ps1` still runs separately on Windows.
@@ -270,10 +270,22 @@ compare only back-to-back runs in a quiet window.
 | W2-expanded suite, same command, after the OPS-01 post-W2 follow-up | 57.7 min, 56.4 min; peak 62 and 67 sessions (68 and 73 server-wide) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the before collection |
 | Same suite and command in the Compose runner (OPS-03 wrapper, `python:3.12.7-slim-bookworm`) | 46.5 min, 49.7 min (pytest wall, two consecutive runs); peak 58 and 56 runner sessions (73 and 67 server-wide, other lanes included) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the host collection; first run also installed the venv (about 15 min of slow downloads, cached afterwards) |
 
-Expected container full run (`tools\run-backend-suite-in-container.ps1`): about
-50 min; its default cap is 100 min (`-CapMinutes`). The remaining time is the
+Expected container full run (`tools\run-backend-suite-in-container.ps1`): see
+the PERF-01 timing rows below (74.2 min all tiers, 62.6 min fast tier at 4 workers); the default cap is derived from them. The remaining time is the
 same product-path work listed below; removing the port forward saves about
 8-10 min against the host run.
+
+PERF-01 measurements (4135 tests, container runner, 4 workers unless stated):
+
+| Run | Wall | Notes |
+| --- | --- | --- |
+| All tiers, shared server (baseline 20261028-183000-21e665) | 74.2 min | 4133 passed, the 2 known w303 failures, 0 skipped |
+| Fast tier, test-only server (20261029-075935-ad347d) | 62.6 min | 4130 passed, the same 2 failures; slow tier run separately: 287 s, 3 passed |
+| Fast tier, test-only server, 5 workers (20261029-101114-000eaf) | 57.2 min | -MaxWorkers 5 trial; the memory guard still chooses the count |
+
+Default cap = 2 x measured wall x (4 / workers): 149 / 126 / 20 min for all / fast / slow tiers
+at 4 workers, 198 / 167 min (all / fast) at 3 workers and 297 / 251 min at 2 workers. A run past the cap is a hang,
+not a wait.
 
 Expected `-n 2` full run (W2-expanded suite, 3268 tests): about 50-60 min; cap at
 120 min. The remaining time is product-path work, chiefly the cold/EV replay
@@ -295,3 +307,10 @@ If a timing-sensitive test (S4 tick hung-stage and claims replay, health skew
 and overlap race, drain 30 s deadline, work enqueue-lock poll) fails under
 `-n 2`, do not retry it: record the node ID and its duration, rerun that file
 serially as a separate invocation, and report both runs' JUnit counts.
+
+## Recovery: Docker crash during a test-server run (PERF-01)
+
+The test-only server (`assetopsv1-postgres-test-1`) runs with fsync off for speed. If Docker crashes or the machine
+loses power while it is running, its data directory may be corrupt: stop the container and remove only the
+`assetopsv1_assetops-test-pg` volume (`docker volume rm assetopsv1_assetops-test-pg`). It holds only disposable test
+databases and is recreated by the next run. Never touch the development server's volume.
