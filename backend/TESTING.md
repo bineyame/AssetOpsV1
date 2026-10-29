@@ -128,7 +128,7 @@ tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py ba
 tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
 
-Pytest flags go after `--`. Focused files can also run in Docker, which avoids
+Pytest flags go after `--`; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
 the Windows port forward: `tools\run-backend-suite-in-container.ps1 -Targets
 'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
 
@@ -226,7 +226,7 @@ Each attempt writes to its own `var/test-results/OPS-03/<run-id>/`:
 `.pytest-junit.xml`), `console.log`, `wall-time.txt`, `connections.csv` and
 `connections-peak.txt` (`pg_stat_activity` sampled every 5 s: server-wide,
 client backends, and the runner container's own sessions). The pytest wall time
-is capped at `-CapMinutes` (default 100, twice the measured expected wall in Timing); a run
+is capped at `-CapMinutes` (default: derived, twice the measured wall for the tier at 4 workers scaled by 4 / workers, 20-minute floor and 60-minute ceiling for named targets; 149 min for a full run at 4 workers; see Timing); a run
 past the cap writes `timeout.txt` (non-idle `pg_stat_activity`, runner
 processes, console tail), is killed, and exits 124. The exit code is pytest's
 otherwise. `tools/check-all.ps1` still runs separately on Windows.
@@ -275,6 +275,18 @@ Expected container full run (`tools\run-backend-suite-in-container.ps1`): about
 same product-path work listed below; removing the port forward saves about
 8-10 min against the host run.
 
+PERF-01 measurements (4135 tests, container runner, 4 workers unless stated):
+
+| Run | Wall | Notes |
+| --- | --- | --- |
+| All tiers, shared server (baseline 20261028-183000-21e665) | 74.2 min | 4133 passed, the 2 known w303 failures, 0 skipped |
+| Fast tier, test-only server (20261029-075935-ad347d) | 62.6 min | 4130 passed, the same 2 failures; slow tier run separately: 287 s, 3 passed |
+| Fast tier, test-only server, 5 workers (20261029-101114-000eaf) | 57.2 min | -MaxWorkers 5 trial; the memory guard still chooses the count |
+
+Default cap = 2 x measured wall x (4 / workers): 149 min for a full run at 4 workers
+(125 min fast tier, 20 min slow tier), 186 min at 3 workers. A run past the cap is a hang,
+not a wait.
+
 Expected `-n 2` full run (W2-expanded suite, 3268 tests): about 50-60 min; cap at
 120 min. The remaining time is product-path work, chiefly the cold/EV replay
 chains (about 30 s each, mostly evidence-ingest round trips at about 1.2 ms each
@@ -295,3 +307,10 @@ If a timing-sensitive test (S4 tick hung-stage and claims replay, health skew
 and overlap race, drain 30 s deadline, work enqueue-lock poll) fails under
 `-n 2`, do not retry it: record the node ID and its duration, rerun that file
 serially as a separate invocation, and report both runs' JUnit counts.
+
+## Recovery: Docker crash during a test-server run (PERF-01)
+
+The test-only server (`assetopsv1-postgres-test-1`) runs with fsync off for speed. If Docker crashes or the machine
+loses power while it is running, its data directory may be corrupt: stop the container and remove only the
+`assetopsv1_assetops-test-pg` volume (`docker volume rm assetopsv1_assetops-test-pg`). It holds only disposable test
+databases and is recreated by the next run. Never touch the development server's volume.

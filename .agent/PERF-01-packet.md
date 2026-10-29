@@ -38,11 +38,11 @@ The count: 4135 collected on main. The 28 Oct CC-M gate's 4138 included `test_cc
 exists only on the CC-M branch. The 4135 IDs are the same in the baseline and in run 1. Run 1 has 4132 JUnit cases:
 the 3 slow tests are deselected, not skipped. The compare shows that the pass lists differ by exactly those 3.
 
-## Proof status: incomplete, by instruction
+## Proof status (superseded by "Phase-1 proof now passes" below)
 
-- Done: identical collected IDs (4135); identical pass list apart from the 3 deselected slow tests; zero skips.
-- Not done: proof run 2 was cancelled by the coordinator (owner's new target). The slow tier was not run separately.
-  The frontend forks-versus-threads count was not run.
+- At first writing: identical collected IDs (4135); identical pass list apart from the 3 deselected slow tests; zero skips.
+- Proof run 2 was cancelled by the coordinator. It was replaced by fast run 20261029-075935-ad347d and slow run
+  20261029-090322-b2ebc7, which complete the proof. The frontend forks-versus-threads count was later run (see Frontend).
 
 ## Deviations
 
@@ -67,7 +67,7 @@ Runs:
 - 20261029-090322-b2ebc7: slow tier, 287 s, 3 passed.
 - Frontend: threads 203 s warm (326 s cold), forks 265 s.
 
-Report: `var/test-results/PERF-01-attribution/attribution-report.md` and `attribution.json`, also committed.
+Report: `.agent/PERF-01-evidence/attribution/attribution-report.md` and `attribution.json`, also committed.
 
 **Phase-1 proof now passes.** The fast run and the slow run together match the baseline: the same 4135 collected
 IDs, identical cases, an identical pass list (the 2 known w303 failures in both) and 0 skips. This is the second full
@@ -105,7 +105,7 @@ they also fail under forks on this main, so they are found, not caused. Forks ha
 
 ## Profiles and the 5-worker trial (owner 2026-10-29: "yes to the performance point")
 
-### Site-build profiles (`var/test-results/PERF-01-profiles/`)
+### Site-build profiles (`.agent/PERF-01-evidence/profiles/`)
 
 Method: py-spy 0.4.0 at 100 Hz (`--threads --subprocesses`) on one test per family, run in the Docker runner on
 `postgres-test`. The tools are `tools/profile-tests-in-container.ps1` with `docker-compose.profile.yml` (SYS_PTRACE,
@@ -136,7 +136,7 @@ Per-build hotspots in a full run:
   at 4.8 s.
 - **No sleeps or polling.** Sleep is at most 0.1 s per build.
 
-### 5-worker trial (`var/test-results/PERF-01-workers5/`, run 20261029-101114-000eaf)
+### 5-worker trial (`.agent/PERF-01-evidence/workers5/`, run 20261029-101114-000eaf)
 
 The memory guard allowed 5 (budget 2478 MB at 450 MB per worker), so 6 was not tried.
 
@@ -178,3 +178,25 @@ frontend afterwards with threads.
 - **Product changes** (need owner approval; estimated, not measured): batch the ingest writes (P1), reuse the
   gateway TLS context and connection (P2), batch the mini-depth and opportunity inserts (P3). If they cut builds by
   about 40%, a cold run comes to about 19-20 min backend and 22-23 min with the frontend.
+
+## Fix round 1 (review .agent/PERF-01-review.md, REVISE)
+
+Proof revisions (L3): no test, conftest or plugin code changed after e7a8bcd5, so fast run 20261029-075935-ad347d and
+slow run 20261029-090322-b2ebc7 (both run on the e7a8bcd5 test code) cover head b3cac0a8's tests. Baseline
+20261028-183000-21e665 ran on main before the branch. Commits 614f0716, d4fe44a5 and b3cac0a8 change only tooling,
+the sampler, profile files and docs. This round changes tooling and docs only.
+
+- H1: evidence moved to `.agent/PERF-01-evidence/{attribution,profiles,workers5}` (force-added; `.agent` is ignored),
+  `var/test-results/PERF-01-*` untracked with `git rm --cached` (local copies kept), packet paths updated.
+  Proof: `git ls-files var` is empty; `tools\check-architecture.ps1` result recorded in the commit report.
+- H2: `tools/run-host-tests.ps1` now has `[CmdletBinding(PositionalBinding=$false)]`; `-Interpreter` is named-only and
+  defaults to the plan2 venv; all other arguments are pytest arguments. Dry runs (ASSETOPS_HOST_DRY_RUN=1): one file,
+  two files and `-AllowHostFull -- backend/tests -n 2 ...` each list the files as targets with the plan2 python; a real
+  run of `backend/tests/test_s1_bindings.py` passed (35 passed). `backend/TESTING.md` commands match the usage line.
+- M1: `run-backend-suite-in-container.ps1` `-CapMinutes` defaults to 0 = derived: 2 x measured wall (all 74.2, fast 62.6,
+  slow 4.8 min) x 4 / workers, 20-minute floor, 60-minute ceiling for named targets (149 min full run at 4 workers).
+  TESTING.md Timing has the 4135-test numbers (74.2 / 62.6 / 57.2 min).
+- L1: flag values (`-k foo`, `-n 2`, `--junitxml x`) are not targets (`-- -k foo -q` is refused as no target;
+  `file -k foo -m "not slow"` has one target); an absolute directory path is refused (dry run: REFUSED).
+- L2: "Proof status" section rewritten to agree with "Phase-1 proof now passes".
+- Residual risk: recovery note added to TESTING.md (remove only `assetopsv1_assetops-test-pg`).

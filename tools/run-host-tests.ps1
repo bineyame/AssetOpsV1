@@ -1,6 +1,6 @@
 # PERF-01 (R9, R2): the worktree-safe way to run focused Python tests on the Windows host.
 #
-#   tools\run-host-tests.ps1 [-Interpreter C:\path\to\python.exe] -- backend/tests/test_x_postgres.py -q [...]
+#   tools\run-host-tests.ps1 [-Interpreter C:\path\to\python.exe] [-AllowHostFull] [--] backend/tests/test_x_postgres.py [more files] [pytest args]
 #
 # Why. The shared virtual environment's editable installs can point at another checkout: in AssetOpsV1-plan2\.venv
 # `assetops_backend` resolved to the stale AssetOPsV1 checkout, so a run without the right PYTHONPATH tested old code
@@ -10,27 +10,45 @@
 # R2. Full and merge runs happen only in Docker (tools\run-backend-suite-in-container.ps1). This wrapper refuses a
 # run with no target or with a directory target (a suite sweep) unless -AllowHostFull is given.
 #
-# Interpreter: -Interpreter, else $env:ASSETOPS_TEST_PYTHON, else $env:ASSETOPS_GUARD_PYTHON, else <worktree>\.venv.
+# Interpreter (named only, never positional): -Interpreter, else $env:ASSETOPS_TEST_PYTHON, else $env:ASSETOPS_GUARD_PYTHON,
+# else the plan2 virtual environment (C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv).
 # Database: ASSETOPS_TEST_DATABASE_URL as set; when unset, the shared development server's `assetops_test`
 # (backend/TESTING.md). It never prints the URL.
-# Plain (non-advanced) script parameters on purpose: every other argument, pytest flags included, lands in $args.
-# Their names avoid prefixes of common pytest flags (-p, -q, -k, -m, -n, -x, -v, -s); put `--` before the pytest
-# arguments when in doubt.
-param([string]$Interpreter = '', [switch]$AllowHostFull)
-$PytestArgs = @($args)
+# PositionalBinding is off, so the interpreter is reachable only by name and every other argument (test files, pytest
+# flags) is a pytest argument. Put `--` before pytest arguments when in doubt (-I, -A prefixes belong to this script).
+[CmdletBinding(PositionalBinding = $false)]
+param(
+    [string]$Interpreter = '',
+    [switch]$AllowHostFull,
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$PytestArgs = @()
+)
+$PytestArgs = @($PytestArgs | Where-Object { $_ -ne $null -and $_ -ne '--' })
 $ErrorActionPreference = 'Continue'
 $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
 $Python = $Interpreter
 if (-not $Python) { $Python = $env:ASSETOPS_TEST_PYTHON }
 if (-not $Python) { $Python = $env:ASSETOPS_GUARD_PYTHON }
-if (-not $Python) { $Python = Join-Path $worktree '.venv\Scripts\python.exe' }
+if (-not $Python) { $Python = 'C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe' }
 if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
     Write-Output "REFUSED: no Python interpreter at '$Python' (pass -Interpreter or set ASSETOPS_TEST_PYTHON)."
     exit 2
 }
 
-$targets = @($PytestArgs | Where-Object { $_ -and -not $_.StartsWith('-') })
+# Test targets: arguments that are neither pytest flags nor the value of a value-taking flag (`-k foo`, `-n 2`,
+# `--junitxml x.xml`). A `--flag=value` form is one argument and is skipped as a flag.
+$valueFlags = @('-k', '-m', '-n', '-p', '-c', '-o', '-W', '-r', '--maxfail', '--junitxml', '--dist', '--deselect', '--ignore',
+    '--ignore-glob', '--durations', '--tb', '--rootdir', '--basetemp', '--import-mode', '--log-level', '--confcutdir', '--color')
+$targets = @()
+for ($i = 0; $i -lt $PytestArgs.Count; $i++) {
+    $a = $PytestArgs[$i]
+    if (-not $a) { continue }
+    if ($a.StartsWith('-')) {
+        if ($valueFlags -contains $a) { $i++ }
+        continue
+    }
+    $targets += $a
+}
 if (-not $AllowHostFull) {
     if ($targets.Count -eq 0) {
         Write-Output 'REFUSED: no test file named. Full runs go through tools\run-backend-suite-in-container.ps1 (R2).'
@@ -38,12 +56,14 @@ if (-not $AllowHostFull) {
     }
     foreach ($t in $targets) {
         $path = ($t -split '::', 2)[0]
-        if (Test-Path -LiteralPath (Join-Path $worktree $path) -PathType Container) {
+        $full = if ([System.IO.Path]::IsPathRooted($path)) { $path } else { Join-Path $worktree $path }
+        if (Test-Path -LiteralPath $full -PathType Container) {
             Write-Output "REFUSED: '$t' is a directory. Host runs are for focused files; use the Docker runner (R2)."
             exit 2
         }
     }
 }
+if ($env:ASSETOPS_HOST_DRY_RUN) { Write-Output "DRY RUN: python=$Python targets=$($targets -join ',') pytest-args=$($PytestArgs -join ' ')"; exit 0 }
 
 $roots = @('backend', 'contracts', 'simulator', 'gateway', 'host', 'field') | ForEach-Object { Join-Path $worktree $_ }
 $env:PYTHONPATH = (($roots + @($env:PYTHONPATH)) | Where-Object { $_ }) -join ';'
