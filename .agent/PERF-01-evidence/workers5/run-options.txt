@@ -1,0 +1,1 @@
+memory at start: windows_free_mb=4575 vmmem_ws_mb=1373 vm_used_mb=1040 vm_available_mb=2878 budget_mb=2478 fits=5 workers=5 server=postgres-test tier=fast attribution=True targets=backend/tests

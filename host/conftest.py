@@ -35,6 +35,8 @@ def _is_writable(directory: Path) -> bool:
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    # PERF-01 R5: the field acceptance tests replay at 60x real time; they belong to the slow tier.
+    config.addinivalue_line("markers", "slow: deliberate real-clock tests, the PERF-01 slow tier")
     if config.option.basetemp is not None:
         return
     user = os.environ.get("USER") or os.environ.get("USERNAME") or "unknown"

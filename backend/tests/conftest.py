@@ -51,6 +51,8 @@ from pathlib import Path
 import pytest
 
 import pg_harness
+import phase_attribution
+import phase_timing
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
@@ -115,17 +117,25 @@ def refuse_template_opt_out_under_xdist(config: pytest.Config) -> None:
             "routing every worker would reset the same test database. Unset it, or run serially (-n 0).")
 
 
+SLOW_MARKER = ('slow: deliberate real-clock tests, the PERF-01 slow tier (backend/TESTING.md "Slow tier"); '
+               'select with -m slow, leave out with -m "not slow"')
+
+
 def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line("markers", SLOW_MARKER)
     refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)
     if workerinput is not None:
         # Before collection: module-level `URL` constants read the routed name.
         pg_harness.route(tag=workerinput["workerid"], run=workerinput.get(RUN_KEY))
+        phase_attribution.register(config, workerinput["workerid"])  # PERF-01; off unless its env var is set
         return  # basetemp comes from the controller
+    phase_timing.register(config)  # PERF-01: controller or serial process only; off unless its env var is set
     if _is_xdist_controller(config):
         config.stash[_RUN] = pg_harness.new_run_id()
     else:
         pg_harness.route()
+        phase_attribution.register(config, "main")
     _choose_basetemp(config)
 
 

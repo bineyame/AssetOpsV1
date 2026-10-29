@@ -76,5 +76,18 @@ export default defineConfig({
      * machine to fix a problem only loaded ones have.
      */
     testTimeout: 20000,
+
+    /**
+     * PERF-01 (R7): run test files in worker threads instead of child processes.
+     *
+     * Each file still gets its own jsdom environment and module graph (vitest
+     * isolates per file under threads too), so tests cannot see each other's
+     * globals; what changes is that a worker is a thread in one process, which
+     * starts faster and holds less memory than one process per worker. On the 16
+     * largest files (960 tests) this took 55.7 s against 92.7 s for forks, with
+     * all 960 passing both ways. To switch back for a diagnosis, run
+     * `npx vitest run --pool=forks`.
+     */
+    pool: "threads",
   },
 });

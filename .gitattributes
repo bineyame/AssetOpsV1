@@ -10,3 +10,5 @@ backend/tests/fixtures/w4/w401-work.json text eol=lf
 backend/tests/fixtures/w4/w403-mini-decisions.json text eol=lf
 # TEL-03: byte-pinned telemetry observation fixtures (freshness tests compare exact bytes)
 contract-fixtures/telemetry/** -text
+# PERF-01: profiling runner script is executed by Linux sh
+tools/profile-tests-in-container.sh text eol=lf
