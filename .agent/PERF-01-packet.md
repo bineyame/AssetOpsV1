@@ -155,3 +155,26 @@ The memory guard allowed 5 (budget 2478 MB at 450 MB per worker), so 6 was not t
 The CPU is an i7-1065G7: 4 physical cores, 8 threads, 15 W. VM CPU levelling off at 60-70% of 8 logical CPUs, with
 every test 11.6% slower, means the physical cores are saturated. A fifth worker buys 8.6%, and a sixth would buy
 little or nothing on this laptop.
+
+### Recommended design from the measured numbers (not started)
+
+Build each distinct set-up once, give each test its own copy, and keep the built set-ups between runs (fingerprint
+cache on by default). Use 5 workers when the memory guard allows. Drop the separate collect-only step. Run the
+frontend afterwards with threads.
+
+| input | value | status |
+| --- | ---: | --- |
+| work no set-up change touches (non-world + world of tests without a root build) | 3,309 s | measured |
+| every distinct set-up built once (121 set-ups) | 2,635 s | measured |
+| per-test copy, 624 tests at 0.5-1.0 s | 312-624 s | estimate (empty-template clone measured at 0.17 s median) |
+| 5-worker per-test inflation | x1.116 | measured |
+| xdist start and collection | 69 s | measured |
+| frontend, threads, warm | 203 s | measured |
+
+- **Cold run** (every set-up rebuilt): (3,309 + 2,635 + 312..624) x 1.116 / 5 = 23.3-24.4 min, plus 1.2 min =
+  **24.5-25.6 min backend, 28-29 min with the frontend**. Not under 20.
+- **Warm run** (set-ups reused): (3,309 + 312..624) x 1.116 / 5 = 13.5-14.6 min, plus 1.2 = 14.7-15.8 min backend,
+  **18.1-19.2 min with the frontend**. Under 20, with a thin margin.
+- **Product changes** (need owner approval; estimated, not measured): batch the ingest writes (P1), reuse the
+  gateway TLS context and connection (P2), batch the mini-depth and opportunity inserts (P3). If they cut builds by
+  about 40%, a cold run comes to about 19-20 min backend and 22-23 min with the frontend.
