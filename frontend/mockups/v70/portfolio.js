@@ -41,13 +41,7 @@ function portfolioObjectives(){return `<div class="objective-matrix"><div class=
  ].map(r=>`<div class="matrix-row"><span>${r[0]}</span>${r.slice(1).join('')}</div>`).join('')}</div><p class="chart-note">Site-owned assessments · Unknown is not healthy.<br>N/A means no configured objective. Select any cell for context.</p>`;}
 function portfolioScreen(){return `<div class="portfolio-v2">
  <div class="portfolio-context"><div>${badge('Portfolio: Needs attention','amber')}<span>3 simulated sites · 1 mini-grid / 1 cold room / 1 charging hub</span></div><button class="claim-link" data-portfolio-scope>Assessment scope & periods ↗</button></div>
- <div class="value-grid">
- ${portfolioValue('Operating-cost exposure',money(),'Kobo · 30 min avoidable generator time','Modelled + scenario · one-hour window','financials','amber','money')}
- ${portfolioValue('Service & stock risk','2 sites','Cold-room excursion + interrupted charging','Measured events · financial loss unpriced','findings-risks','red','finding')}
- ${portfolioValue('Productive-use opportunity','18–20 <small>kW</small>','Kobo · headroom on 3 of 5 days','Modelled · demand validation remains','renewable','green','sun')}
- ${portfolioValue('Asset life',`${WARNINGS.filter(x=>x.kind==='stress').length} <small>early warnings</small>`,'Battery below reserve · overdue servicing · charger fault','Early warning · not a condition check','findings-risks','purple','asset')}
- ${portfolioValue('Verified value recovered','Not established','Intervention outcomes need more evidence','Completed work does not establish savings','globalfinancials','neutral','check')}
- </div>
+ ${portfolioOutcomeCards()}
  <div class="portfolio-pulse"><span>${icon('site')}<strong>3</strong> priority sites</span><span>${icon('sun')}<strong>1</strong> opportunity</span><span>${icon('evidence')}<strong>3</strong> site evidence gaps</span><span>${icon('action')}<strong>3</strong> accepted actions</span><span>${icon('finding')}<strong>${WARNINGS.length}</strong> warnings not yet priced</span><span class="pulse-note">Distinct consequence categories · no combined savings total</span></div>
  <div class="portfolio-main">
  <section class="panel priority-panel"><div class="panel-head"><div><h2>Where management should act first</h2><p>Findings ranked by consequence and urgency, with evidence confidence alongside.</p></div><span class="eyebrow">6 findings</span></div>

@@ -52,3 +52,46 @@
 @media(max-width:760px){.oc-ocards{grid-template-columns:repeat(2,minmax(0,1fr))}.oc-ostate{font-size:16px}.oc-warn ul{grid-template-columns:1fr}}
 @media(max-width:420px){.oc-mrow{grid-template-columns:repeat(3,minmax(0,1fr))}.oc-mrow>span:first-child{grid-column:1/-1}.oc-mhead>span:first-child{display:none}}
 @media print{.oc-info{display:none}}
+/* Outcome board (site overview) */
+.ob-board{margin-bottom:18px}
+.ob-board-head{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.ob-board-head h2{font-size:15px;margin:0}
+.ob{background:#fff;border:1px solid var(--line);border-left:4px solid #c3cddb;border-radius:7px;margin-bottom:8px}
+.ob.tone-amber{border-left-color:#c48e32}.ob.tone-blue{border-left-color:#5b86cf}.ob.tone-green{border-left-color:#2f9a74}.ob.tone-gray{border-left-color:#a3afc0}
+.ob-later{border-style:dashed;border-left-width:1px;background:#fafbfd}
+.ob-sum{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;list-style:none;flex-wrap:wrap;min-height:48px}
+.ob-later .ob-sum{cursor:default}
+.ob-sum::-webkit-details-marker{display:none}
+details.ob>.ob-sum::after{content:"";width:7px;height:7px;border-right:1.6px solid #7a889b;border-bottom:1.6px solid #7a889b;transform:rotate(45deg);margin-left:4px;transition:transform .15s}
+details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
+.ob-sum:focus-visible{outline:2px solid #1d4ed8;outline-offset:-2px;border-radius:6px}
+.ob-sum .icon{width:16px;height:16px;color:#617087}
+.ob-name{font-weight:650;font-size:13px;min-width:132px}
+.ob-head{font-size:13px;font-weight:600;color:#17243b;flex:1 1 220px}
+.ob-counts{font-size:11px;color:#617087;margin-left:auto;white-space:nowrap}
+.ob-body{padding:0 16px 14px 42px}
+.ob-sub{font-size:12px;color:#4f5f76;margin:0 0 10px;line-height:1.5}
+.ob-grid{display:grid;grid-template-columns:1.35fr repeat(4,minmax(0,1fr));border:1px solid #edf0f5;border-radius:6px}
+.ob-col{padding:10px 12px;border-right:1px solid #edf0f5;min-width:0}
+.ob-col:last-child{border-right:0}
+.ob-col h4{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#7a889b;margin:0 0 7px}
+.ob-list{list-style:none;padding:0;margin:0;display:grid;gap:7px;font-size:12px;line-height:1.45}
+.ob-list li{min-width:0;overflow-wrap:anywhere}
+.ob-contrib li{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.ob-contrib small{display:block;color:#617087;font-size:11px}
+.ob-contrib .conf-chip{flex:0 0 auto}
+.oc-conf{flex:0 0 auto;font-size:10px;font-weight:600;color:#4f5f76;background:#eef1f6;border-radius:4px;padding:2px 6px;white-space:nowrap}
+.oc-state{display:inline-block;font-size:10px;color:#617087;background:#f3f5f9;border-radius:4px;padding:1px 6px;margin-top:2px}
+.ob-none{font-size:12px;color:#7d8a9c;font-style:italic;margin:0}
+.ob-foot{margin-top:9px;font-size:12px}
+/* Portfolio outcome cards */
+.oc-pfgrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.oc-pfcard .value-number{font-size:22px}
+.oc-sitedots{display:flex;flex-wrap:wrap;gap:4px 9px;margin:0 0 9px;font-size:10px;color:#52637b}
+.oc-sitedots span{display:inline-flex;align-items:center;gap:4px}
+.oc-sitedots i{width:8px;height:8px;border-radius:50%;background:#d6dde7}
+.oc-sitedots .tone-amber i{background:#d89a2b}.oc-sitedots .tone-blue i{background:#5b86cf}.oc-sitedots .tone-green i{background:#2f9a74}.oc-sitedots .tone-gray i{background:#a3afc0}.oc-sitedots .tone-none i{background:#fff;border:1px dashed #9aa6b5}
+.oc-key i.tone-green{background:#b9e2d0}
+@media(max-width:1200px){.ob-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ob-col:nth-child(3){border-right:0}.ob-col:nth-child(-n+3){border-bottom:1px solid #edf0f5}.oc-pfgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.ob-grid{grid-template-columns:1fr}.ob-col{border-right:0;border-bottom:1px solid #edf0f5}.ob-col:last-child{border-bottom:0}.ob-body{padding:0 12px 12px}.ob-sum{padding:11px 12px}.ob-name{min-width:0}.ob-counts{margin-left:0;width:100%}.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.oc-chip.tone-none{background:#fff;color:#5f6e83;border:1px dashed #b9c4d3}

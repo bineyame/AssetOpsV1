@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-29T06:50:18.992Z",
+  "checked_at": "2026-10-29T09:01:58.917Z",
   "screens": 110,
   "book_pages": 42,
-  "page_height_px": 1825,
+  "page_height_px": 2049,
   "checks": [
     {
       "label": "Prototype booted",
@@ -3670,6 +3670,16 @@
       "detail": ""
     },
     {
+      "label": "mini: f109 names its causes with a working call to action",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: f109 popover closes",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "label": "foundation: no plain Low confidence without a cause",
       "passed": true,
       "detail": ""
@@ -4417,7 +4427,7 @@
     {
       "label": "Confidence chips found across the mock-up",
       "passed": true,
-      "detail": "25"
+      "detail": "26"
     },
     {
       "label": "Confidence call to action navigates",
@@ -4807,7 +4817,7 @@
     {
       "label": "PDF page height (v7.0: outcome screens are taller, so pages may be portrait)",
       "passed": true,
-      "detail": "1728 x 1825 · tallest: book-portfolio:1795 book-readiness:1627 book-finding:1606 book-coldbackup:1597 book-cold:1580"
+      "detail": "1728 x 2049 · tallest: book-portfolio:2019 book-cold:1999 book-mini:1981 book-ev:1907 book-readiness:1627"
     },
     {
       "label": "No browser runtime errors",
@@ -4821,7 +4831,7 @@
       "title": "Portfolio Value & Operations",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1826,
+      "height": 1894,
       "tabRows": 0,
       "subRows": 0,
       "broken": []
@@ -4841,7 +4851,7 @@
       "title": "Kobo Mini-grid",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1558,
+      "height": 1933,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5001,7 +5011,7 @@
       "title": "GreenHarvest Cold Room",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1554,
+      "height": 1984,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5041,7 +5051,7 @@
       "title": "Depot Charging Hub",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1533,
+      "height": 1892,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5920,7 +5930,7 @@
   "print_measurements": [
     {
       "id": "book-portfolio",
-      "height": 1794.828125,
+      "height": 2018.609375,
       "width": 1728
     },
     {
@@ -5930,7 +5940,7 @@
     },
     {
       "id": "book-mini",
-      "height": 1561.625,
+      "height": 1980.875,
       "width": 1728
     },
     {
@@ -6010,7 +6020,7 @@
     },
     {
       "id": "book-cold",
-      "height": 1580.21875,
+      "height": 1999.46875,
       "width": 1728
     },
     {
@@ -6030,7 +6040,7 @@
     },
     {
       "id": "book-ev",
-      "height": 1542.625,
+      "height": 1906.546875,
       "width": 1728
     },
     {

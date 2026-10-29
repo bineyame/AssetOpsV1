@@ -46,7 +46,7 @@ try{
  await evaluate(`document.querySelector('[data-site-filter="Cold-chain"]').click()`);
  assert('Site domain filter',await evaluate(`document.querySelectorAll('#site-table tbody tr').length===1 && document.querySelector('#site-table').textContent.includes('GreenHarvest')`));
  await navigate('portfolio');
- assert('Portfolio value-led headline',await evaluate(`document.querySelectorAll('.value-card').length===5 && document.querySelector('.value-grid').textContent.includes('Not established')`));
+ assert('Portfolio value-led headline',await evaluate(`document.querySelectorAll('.value-card').length===6 && document.querySelector('.value-grid').textContent.includes('Not established')`));
  await evaluate(`document.querySelector('[data-portfolio-lens="Opportunities"]').click()`);
  assert('Opportunity lens keeps Finding ownership',await evaluate(`document.querySelectorAll('#portfolio-findings tbody tr').length===1 && document.querySelector('#portfolio-findings a[href="#/opportunity-finding"]')!==null`));
  await evaluate(`document.querySelector('[data-portfolio-lens="Risks"]').click()`);
@@ -89,7 +89,7 @@ try{
  await navigate('dispatch');await evaluate(`document.querySelector('[data-interval="3"]').click()`);await pause(40);
  assert('Selected block follows selection',await evaluate(`document.querySelector('.drawer')&&[...document.querySelectorAll('main h2')].some(h=>h.textContent.includes('15:05–15:20'))`));
  await evaluate(`document.querySelector('[data-close]').click()`);
- await navigate('ev');assert('EV shell has distinct service content',await evaluate(`document.querySelector('main').textContent.includes('Buses ready to run')&&!document.querySelector('main').textContent.includes('Generator support')`));
+ await navigate('ev');assert('EV shell has distinct service content',await evaluate(`document.querySelector('main').textContent.includes('Session service')&&!document.querySelector('main').textContent.includes('Generator support')`));
  await evaluate(`document.querySelector('[data-notes]').click();const t=document.querySelector('#review-note');t.value='Browser review smoke check';t.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-close]').click();document.querySelector('[data-notes]').click()`);
  assert('Review notes retained locally',await evaluate(`document.querySelector('#review-note').value==='Browser review smoke check'`));
  await evaluate(`localStorage.removeItem('assetops-v70-review-notes');document.querySelector('[data-close]').click()`);
