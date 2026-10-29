@@ -120,7 +120,7 @@
     "adapted": "Shared site-overview skeleton (all verticals): status with confidence → objective → canonical assessment cards → plain causal strip → context + needs attention (each with destination) → bounded consequence + next step. Only assessed objectives get a health conclusion; Renewable and Fuel use Unknown, never an opportunity or \"not assessed\" status.",
     "deferred": "A site-wide Healthy label while service/asset objectives are unassessed.",
     "subtitle": "60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill",
-    "v70": "Rev 5 §6.2, §7: the v6.9 assessment cards become outcome cards (Dispatch and Fuel become Supply cost per kWh; Service becomes Reliable service; Renewable becomes Productive electricity sales; Battery becomes Battery and generator life; plus Evidence quality). Each card has one headline state, one line, and a five-step progress bar. The info button opens the outcome in operator words. Outcomes without data share one Not measured yet card."
+    "v70": "Rev 5 §3, §6.2, §7: the v6.9 assessment cards are replaced by six outcome rows (Revenue, Operating cost, Service and stock, Asset life, Return on assets, Evidence and assurance). Dispatch, Fuel and fuel price are contributors to Operating cost; Renewable to Revenue; Service and Backup to Service and stock; Battery and generator service to Asset life. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "foundation",
@@ -417,7 +417,7 @@
     "adapted": "Same overview skeleton as the mini-grid: status with confidence → objective → canonical cards → causal strip → context + needs attention (with destinations) → bounded consequence + next step. Evidence card uses evidence vocabulary (Limited) in neutral grey rather than v6.9 Healthy.",
     "deferred": "Spoilage diagnosis and stock ERP.",
     "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §6.2, §9: assessment cards become outcome cards (Temperature becomes Stock kept saleable; Backup and Maintenance become Cooling continuity; Cooling becomes Compressor life; plus Evidence quality and Not measured yet)."
+    "v70": "Rev 5 §3, §6.2, §9: the v6.9 assessment cards are replaced by six outcome rows. Temperature, Backup and Cooling are contributors to Service and stock; Maintenance appears as repeated repairs under Operating cost and as work in hand and earlier interventions; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "temperature",
@@ -490,7 +490,7 @@
     "adapted": "EV is extrapolated (v6.9 has no EV section). Uses the shared site-overview skeleton; sessions, connector availability and site power replace mini-grid dispatch content; cards use canonical assessments only.",
     "deferred": "Roaming, billing settlement and vehicle-battery health.",
     "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §6.2, §8: assessment cards become outcome cards (Session service and Availability become Buses ready to run; Site power becomes Room before expansion, with a usage bar; Charger condition becomes Charger life; plus Charger use, Evidence quality and Not measured yet)."
+    "v70": "Rev 5 §3, §6.2, §8: the v6.9 assessment cards are replaced by six outcome rows. Session service and Availability are contributors to Service and stock; Site power is the Return on assets row; Charger condition and warranty feed Asset life; charging delivered and charger use feed Revenue; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "sessions",
