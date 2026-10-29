@@ -45,6 +45,7 @@ import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, detailBody } from "./coldWorkFixtures";
 import { EV_SITE } from "./evWorkFixtures";
+import { F104 } from "./outcomeFixtures";
 
 type Case = { request: { method: string; path: string; body?: Record<string, unknown> }; status: number; body: any };
 const M = contract.manifest as unknown as Record<string, Record<string, Case>>;
@@ -1422,5 +1423,31 @@ describe("post-W6 W1-b: Action history resolution rows and counts", () => {
       act(() => callbacks.forEach((cb) => cb()));
       expect(cue()?.hasAttribute("hidden")).toBe(true);
     });
+  });
+});
+
+describe("OUT-A A5: the ACT-048 Affects line", () => {
+  const LINE =
+    "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life";
+  const lines = () => qa("[data-affects-line]").map((el) => (el.textContent ?? "").replace(/\s+/g, " ").trim());
+
+  it("overview, application and history each show one line with Safeguards checked; an absent key shows none", async () => {
+    const base = ov.applied_pending_newer_revision;
+    const withCategories: Served = { status: base.status, body: { ...base.body, categories: F104 } };
+    for (const view of ["", "/execution", "/history"]) {
+      serve(actionReads(withCategories, hi.events_latest));
+      const mounted = mount(`/sites/KOBO-001/actions/${ACTION}${view}`);
+      await settledScreen();
+      await waitFor(() => expect(lines()).toEqual([LINE]));
+      const scan = scanProductVocabulary(q("[data-affects-line]") as HTMLElement, `action${view}`, { set: "w1" });
+      expect(scan.scanned).toBeGreaterThan(2);
+      expect(describeViolations(scan.violations)).toBe("");
+      mounted.unmount();
+    }
+    serve(actionReads(base, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    await waitFor(() => expect(q("[data-action-origin-link]")).not.toBeNull());
+    expect(lines()).toEqual([]);
   });
 });

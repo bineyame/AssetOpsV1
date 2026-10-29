@@ -35,6 +35,7 @@ import type {
   EvWindowQuery,
 } from "./evAssessmentClient";
 import "./w2-ev-assessment.css";
+import { AffectsLine } from "./outcomeCategories";
 
 /*
  * W2-06 commit 5: an EV_CHARGING Site's `sessions` and `ev-finding` screens in their exact v69 panel slots
@@ -985,6 +986,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
         </>
       ) : (
         <>
+          <AffectsLine categories={finding.value.categories} variant="finding" />
           <FindingStrip finding={finding.value} siteName={props.siteName} />
           <FindingPanels finding={finding.value} session={session} analysisHref={props.analysisHref?.(selectedWindowSearch(finding.value))} />
         </>

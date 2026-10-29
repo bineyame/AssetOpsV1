@@ -70,6 +70,7 @@ import {
   when,
 } from "./actionPresentation";
 import "./w1f4-action.css";
+import { AffectsLine } from "./outcomeCategories";
 
 export const ACTION_VIEWS = ["overview", "plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionView = (typeof ACTION_VIEWS)[number];
@@ -226,6 +227,8 @@ export function SiteAction({
           {lastEvents ? <p className="action-note">The last successful read is still shown below.</p> : null}
         </PageRefusal>
       ) : null}
+      {/* OUT-A A5: one Affects line above every view (overview, application, history, plan, evidence, verification). */}
+      <AffectsLine categories={body.categories} variant="action" />
       {view === "overview" ? (
         <Overview body={body} links={links} />
       ) : view === "execution" ? (

@@ -38,6 +38,7 @@ import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
 import { EV_SITE } from "./evWorkFixtures";
+import { F104 } from "./outcomeFixtures";
 import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
 import { requirementTone, sourcePair } from "../SiteActionVerification";
 
@@ -948,3 +949,31 @@ async function readVerificationCss(): Promise<string> {
   const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
   return fs.readFileSync(`${cwd}/src/sites/w1f4-verification.css`, "utf8");
 }
+
+describe("OUT-A A5: the ACT-048 Affects line on the verification tabs", () => {
+  it("plan, evidence and verification each show one line with Safeguards checked", async () => {
+    const LINE =
+      "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life";
+    const withCategories = () => {
+      const reads = actionReads();
+      (reads[API].body as Record<string, unknown>).categories = F104;
+      return reads;
+    };
+    const views: [string, Record<string, { status: number; body: unknown }>][] = [
+      ["plan", { [`${V}/plan`]: ok(prep(R.plan)) }],
+      ["evidence", { [`${V}/evidence`]: ok(prep(R.evidence)), [`${V}/plan?plan_id=${PLAN}`]: ok(prep(R.plan)) }],
+      ["verification", { [`${V}/history`]: ok(history()), [`${V}/outcome`]: ok(outcomeCurrent()) }],
+    ];
+    for (const [view, extra] of views) {
+      serve({ ...withCategories(), ...extra });
+      const mounted = mount(`/sites/KOBO-001/actions/${ACTION}/${view}`);
+      await settledScreen();
+      const lines = qa("[data-affects-line]").map((el) => (el.textContent ?? "").replace(/\s+/g, " ").trim());
+      expect(lines, view).toEqual([LINE]);
+      const scan = scanProductVocabulary(q("[data-affects-line]") as HTMLElement, `action-${view}`, { set: "w1" });
+      expect(scan.scanned).toBeGreaterThan(2);
+      expect(describeViolations(scan.violations)).toBe("");
+      mounted.unmount();
+    }
+  });
+});
