@@ -1,0 +1,7 @@
+﻿frontend threads exit=1 wall_s=239
+ FAIL  src/sites/__tests__/w1f4VerificationStructure.test.tsx > W1-F4 C2: Verification keeps the v69 panel structure 
+ FAIL  src/sites/__tests__/w1f4VerificationStructure.test.tsx > W1-F4 C2: Verification keeps the v69 panel structure 
+ FAIL  src/sites/__tests__/w1f4VerificationStructure.test.tsx > W1-F4 C2: the guard is not vacuous on Plan, Evidence 
+ Test Files  1 failed | 140 passed (141)
+      Tests  3 failed | 3451 passed (3454)
+   Duration  223.45s (transform 21.63s, setup 130.59s, collect 260.69s, tests 655.04s, environment 389.59s, prepare 52.69s)

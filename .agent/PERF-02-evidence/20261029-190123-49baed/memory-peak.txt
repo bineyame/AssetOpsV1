@@ -1,0 +1,1 @@
+peak vm_used_mb=2473 vmmem_ws_mb=3750 runner_mem_mb=1867 pg_mem_mb=1250 runner_procs=24 runner_rss_sum_mb=1664 runner_rss_max_mb=313 min win_free_mb=2939 vm_total_mb=3918 samples=330
