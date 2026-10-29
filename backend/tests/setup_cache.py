@@ -350,11 +350,16 @@ class _LazyGateway:
         self._chain = chain
         self._process = None
         self._central = None
+        self._requests: list = []  # what the original central app had recorded (tests read central.requests)
 
     def _start(self):
         if self._process is None:
             self._process, self._central = _start_gateway(self._chain)
+            self._central.requests[:0] = self._requests
         return self._process
+
+    def requests_so_far(self) -> list:
+        return list(self._central.requests) if self._central is not None else list(self._requests)
 
     def __getattr__(self, name):
         return getattr(self._start(), name)
@@ -450,8 +455,10 @@ class _Pickler(pickle.Pickler):
         name = type(obj).__name__
         if name in ("GatewayProcess", "_LazyGateway"):
             return ("gateway",)
-        if name in ("FakeCentral", "_LazyCentral"):
-            return ("central",)
+        if name == "FakeCentral":
+            return ("central", list(obj.requests))
+        if name == "_LazyCentral":
+            return ("central", obj._gateway.requests_so_far())
         if name == "GatewayLink" or name == "_LazyLink":
             return ("link",)
         if name == "CachedScenarioRepository":
@@ -491,6 +498,7 @@ class _Unpickler(pickle.Unpickler):
         if kind == "gateway":
             return c["gateway"]
         if kind == "central":
+            c["gateway"]._requests = list(pid[1]) if len(pid) > 1 else []
             return _LazyCentral(c["gateway"])
         if kind == "link":
             return _LazyLink(c["gateway"])
@@ -714,13 +722,14 @@ def _restore(kind, args, folder, name, chain_tmp):
     gateway = None
     if chain is not None:
         old = getattr(chain, "process", None)
-        if old is not None and type(old).__name__ == "GatewayProcess":  # a live gateway from a live earlier op
+        started = (old is not None and type(old).__name__ == "GatewayProcess") or             (isinstance(old, _LazyGateway) and old._process is not None)
+        if started:  # a gateway running on the files about to be replaced: stop it, a lazy one takes over
             for closing in (old.kill, getattr(chain, "central", None) and chain.central.close):
                 try:
                     closing and closing()
                 except Exception:  # noqa: BLE001
                     pass
-        gateway = old if isinstance(old, _LazyGateway) else _LazyGateway(chain)
+        gateway = old if isinstance(old, _LazyGateway) and not started else _LazyGateway(chain)
     _restore_database(name)
     if chain is not None:
         target = Path(chain_tmp)
