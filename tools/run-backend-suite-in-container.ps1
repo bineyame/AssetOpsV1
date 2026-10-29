@@ -13,6 +13,9 @@
 #   -Tier all (default)          every test. `fast` = `-m "not slow"`, `slow` = `-m slow` (the deliberate
 #                                real-clock tests; backend/TESTING.md "Slow tier"). The default stays `all` until
 #                                the revised testing policy (owner D4) takes effect.
+#   -Cache on (default)          PERF-02 build once / copy per test with set-ups kept between runs; `off` = every
+#                                set-up built live (the old path); `verify` = every hit also built live and its
+#                                rows compared with the saved build (backend/tests/setup_cache.py).
 #   -Workers 0 (default)         choose 2-4 workers from the memory free when the run starts (R10); a number
 #                                overrides. Refuses to start when not even two workers fit.
 #
@@ -30,6 +33,7 @@ param(
     [string]$Targets = 'backend/tests',
     [ValidateSet('dedicated', 'shared')][string]$Server = 'dedicated',
     [ValidateSet('all', 'fast', 'slow')][string]$Tier = 'all',
+    [ValidateSet('on', 'off', 'verify')][string]$Cache = 'on',  # PERF-02: build once, copy per test
     [switch]$Attribution  # PERF-01: per-test time attribution (backend/tests/phase_attribution.py) to <run>/attribution
 )
 
@@ -42,7 +46,10 @@ $pgService = if ($Server -eq 'dedicated') { 'postgres-test' } else { 'postgres' 
 $pgContainer = "assetopsv1-$pgService-1"
 # R10: the memory one worker needs at its peak (pytest worker, its gateway children, its database sessions), from
 # the PERF-01 baseline memory sample, plus the fixed cost of a run and the Windows free memory every run leaves.
-$perWorkerMb = 450
+# PERF-02: 340 MB measured per worker (resident set of 5 workers and their gateway children, 1664 MB, warm run
+# 20261029-165359), plus 700 MB more for Postgres when the set-up cache is on (its copies: 0.7 -> 1.4 GB measured).
+$perWorkerMb = 340
+$cacheMb = if ($Cache -ne 'off') { 700 } else { 0 }
 $fixedMb = 400
 $windowsReserveMb = 1536
 $composeArgs = @('compose', '-p', $project, '-f', (Join-Path $worktree 'docker-compose.yml'),
@@ -71,6 +78,7 @@ if (-not $password) { $password = 'assetops-local-dev' }
 $env:ASSETOPS_WORKTREE = $worktree
 $env:OPS03_RUN_ID = $runId
 $env:ASSETOPS_TEST_TARGETS = $Targets
+$env:ASSETOPS_SETUP_CACHE_MODE = $Cache
 $env:ASSETOPS_TEST_ATTRIBUTION_ON = if ($Attribution) { '1' } else { '' }
 $env:ASSETOPS_TEST_MARKEXPR = switch ($Tier) { 'fast' { 'not slow' } 'slow' { 'slow' } default { '' } }
 $env:ASSETOPS_CONTAINER_TEST_DATABASE_URL =
@@ -97,7 +105,7 @@ if ($LASTEXITCODE -eq 0 -and $meminfo.Count -ge 2) {
 $heldMb = if ($null -ne $vmUsedMb) { [math]::Max(0, $vmmemMb - $vmUsedMb) } else { 0 }
 $budgetMb = [math]::Max(0, $winFreeMb - $windowsReserveMb) + $heldMb
 if ($null -ne $vmAvailMb -and $vmAvailMb -lt $budgetMb) { $budgetMb = $vmAvailMb }
-$budgetMb -= $fixedMb
+$budgetMb -= $fixedMb + $cacheMb
 $fit = [int][math]::Floor($budgetMb / $perWorkerMb)
 $memoryNote = ("memory at start: windows_free_mb=$winFreeMb vmmem_ws_mb=$vmmemMb vm_used_mb=$vmUsedMb " +
     "vm_available_mb=$vmAvailMb budget_mb=$budgetMb fits=$fit")
@@ -120,7 +128,7 @@ if ($CapMinutes -le 0) {
     $CapMinutes = [int][math]::Max(20, [math]::Ceiling(2 * $measured * 4 / [math]::Max(1, $Workers)))
     if ($Targets -ne 'backend/tests') { $CapMinutes = [int][math]::Max(20, [math]::Min($CapMinutes, 60)) }
 }
-"$memoryNote workers=$Workers server=$pgService tier=$Tier attribution=$([bool]$Attribution) targets=$Targets" |
+"$memoryNote workers=$Workers server=$pgService tier=$Tier cache=$Cache attribution=$([bool]$Attribution) targets=$Targets" |
     Out-File (Join-Path $runDir 'run-options.txt') -Encoding ascii
 
 $keepAwake = $null

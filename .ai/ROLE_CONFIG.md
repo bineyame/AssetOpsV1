@@ -458,6 +458,13 @@ coordinator's:
   only. Run both scripts directly, never with an execution-policy override.
   Never run a bare `docker compose up` for tests: it can recreate the shared
   `assetopsv1-postgres-1`.
+  PERF-02 (owner 2026-10-29, "approve", design C) replaces the per-slice full
+  run. The slice-end check runs the tests the change can affect: `python
+  tools/select-tests.py --base main` prints the Docker and frontend commands,
+  and selects the full suite by itself for migrations, harness, fixture-data,
+  composition or runner changes. Every merge to main runs the full fast tier
+  with the set-up cache on (the default), the full frontend and check-all. Schema
+  or shared-plumbing merges add `-Tier slow`.
 - **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
   handoff - tests written against a settled interface, an AC-by-AC evidence
   pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.

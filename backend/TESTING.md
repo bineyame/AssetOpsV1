@@ -8,15 +8,23 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
 - **While building a phase:** run the focused files for the area you changed,
   plus adjacent integration tests. When an interface crosses into the host or
   gateway, also run those suites.
-- **At the end of an ordinary slice:** one real-Postgres full backend suite,
-  on the slice's final revision, with the JUnit zero-skip check below. Cite it
-  in the review packet.
+- **At the end of an ordinary slice (PERF-02, owner-approved C):** the backend
+  tests the change can affect, in Docker, plus the related frontend tests and a
+  type check. `python tools/select-tests.py --base main` prints both commands.
+  It selects the whole suite by itself when the change touches migrations, the
+  harness, conftest, shipped configuration or fixture data, the composition
+  root, the runner or a dependency manifest. Cite its output and the run's JUnit
+  zero-skip check in the review packet. It covers `backend/tests` only. A
+  change under `field/`, `host/` or `gateway/` also needs that package's own
+  tests (for example `tools\run-host-tests.ps1 -- host/tests/<file>`).
+- **At every merge to main:** the full backend fast tier in Docker (build once,
+  copy per test, below), the full frontend suite and check-all. Schema or shared
+  plumbing merges add the slow tier.
 - **Where (PERF-01, R2):** every full or merge run goes through the Docker
   runner, `tools\run-backend-suite-in-container.ps1` (below). The Windows host
   runs focused files only, through `tools\run-host-tests.ps1`, which refuses a
-  suite sweep. Until the revised testing policy takes effect (owner D4, after
-  PERF phases 1-3 prove out) a full run is still the whole suite (`-Tier all`,
-  the default), or the fast and slow tiers run back to back.
+  suite sweep. A full run is the whole suite (`-Tier all`, the default), or the
+  fast and slow tiers run back to back.
 - **Reviewers** run the focused files relevant to their findings and cite the
   implementer's same-revision full evidence. A reviewer reruns the full suite
   only for a finding that needs it.
@@ -190,18 +198,21 @@ PERF-01 options and records:
 - `-Workers 0` (default) picks 2-4 workers from the memory free at start (R10):
   the budget is the smaller of the VM's available memory and (Windows free
   memory above a 1.5 GB reserve, plus memory the VM already holds unused),
-  less 400 MB fixed, at 450 MB per worker (the PERF-01 baseline peak was about
-  384 MB of resident memory per worker). Below two workers it refuses to start
+  less 400 MB fixed and, with the set-up cache on, 700 MB for Postgres's copies
+  (measured 0.7 -> 1.4 GB), at 340 MB per worker (PERF-02 warm run: 1664 MB for
+  5 workers and their gateway children). Below two workers it refuses to start
   (exit 3) and says to close programs or pass `-Workers`.
 - `-Targets` runs named files or node IDs instead of `backend/tests`.
-- Every run also writes `collected.txt` (the whole suite's `--collect-only`
-  node IDs, whatever the tier), `phase-times.csv` (each test's set-up, call and
+- Every run also writes `collected.txt` (the node IDs the run itself
+  collected, after any tier filter: a fast and a slow run together give the
+  whole suite), `phase-times.csv` (each test's set-up, call and
   teardown time, `tests/phase_timing.py`), `memory.csv` and `memory-peak.txt`
   (`tools/sample-test-memory.ps1`, every 5 s: Windows free memory, the VM
   process's working set, memory used inside the VM, runner and database
   container memory, runner processes and their resident sizes) and
   `run-options.txt` (memory at start and the options chosen). The container
-  checks before pytest that every AssetOps package imports from `/workspace`.
+  checks before pytest that every AssetOps package imports from its in-container
+  copy of the worktree (`/tmp/assetops-worktree`, see PERF-02 below).
 - `python tools/summarize-test-run.py <run-dir> [--compare <baseline-dir>
   --extra <slow-tier-dir> --known-failure <id>]` writes `report.md`,
   `summary.json` and `passed.txt`, and checks a run against a baseline:
@@ -236,6 +247,70 @@ in both: the owner-only credential test
 (`test_s2_gateway_access_postgres.py::TestProvisioning::test_a_protected_dacl_that_grants_another_account_is_refused`)
 checks a Windows DACL on Windows and, on Linux, that a `0644` file is refused
 and a `0600` file accepted by `verify_owner_only`.
+
+## Build once, copy per test (PERF-02)
+
+The replay-chain fixtures used to rebuild the same few site set-ups hundreds of
+times per run. `tests/setup_cache.py` wraps the builder steps after collection:
+`Chain.open`, `start_release_upload`, `release_and_upload` and `advance_late` of
+the cold and EV chains (`test_w202_cold_replay_postgres.py`,
+`test_w205b_ev_replay_postgres.py`), and the W4 mini-grid `_setup`, `_ingest`
+and `_reconcile` (`test_w402_reads_postgres.py`). The first time a step runs
+with given inputs it builds live and is saved. Every later test with the same
+inputs gets its own copy instead:
+
+- **Database.** The worker database is replaced by
+  `CREATE DATABASE ... TEMPLATE assetops_sc_<code>_<key>_test`.
+- **Files.** The chain's tmp folder is copied, with its old absolute path
+  rewritten.
+- **Objects.** The chain's fields are unpickled, with new engines on the same
+  URL.
+- **Gateway.** The gateway child and the in-process central app start lazily
+  from the copied state on first use, and settle their start-up upload first.
+- **UUIDs.** The `hold_uuids` counter is set where the build left it.
+
+The key covers:
+
+- a fingerprint of the product source, migrations, shipped config, fixtures and
+  the builder and helper test files;
+- the step and its plain arguments;
+- the UUID counter;
+- for a step that does not start from a fresh database, a digest of the
+  database it starts from.
+
+The first W4 step of a test that wrote nothing itself, in a module whose
+fixtures seed nothing, starts from a clean clone instead of other tests'
+leftovers. The cache refuses a step, which then builds live as before, when:
+
+- a monkeypatch other than the UUID counter is active;
+- a repository function or class has been rebound by direct assignment;
+- another session holds the worker database;
+- an argument or the state does not pickle.
+
+Not cached: `CaseRunner` shares the caller's live store, and a trial failed its
+fences.
+
+- `-Cache on` (default in Docker): saved set-ups live in the named volume
+  `assetopsv1_assetops-test-setup-cache` and as `assetops_sc_*_test` databases
+  on `postgres-test`. They are kept between runs (T2), and a run whose code
+  fingerprint matches reuses them. `tools/sweep-setup-cache.py` (run by the
+  runner) drops all but the newest three fingerprints.
+- `-Cache off`: every step builds live, the PERF-01 path.
+- `-Cache verify`: every step builds live. Each repeat is compared with the
+  saved build: per-table row counts and content without time columns, and the
+  UUID counter. Its separate cache (volume `..._setup-cache-verify`) must be
+  built in verify mode.
+- Each run writes `setup-cache/setup-cache-<worker>.jsonl` (op, hit, miss or
+  live, reason, seconds). `python tools/setup-cache-report.py <run dir>`
+  summarises it: hits, the measured copy cost, live reasons and the verify
+  comparison.
+- The runner copies the code, shipped data, fixtures, tools, `var/` (without
+  results) and `frontend/src` into the container's own filesystem (about 5 s)
+  and runs from there. Reading through the Windows bind mount under load failed
+  with `Errno 12 Cannot allocate memory`. Results are still written to the
+  mounted `var/test-results/`.
+- The collected node IDs now come from the run itself (`collected.txt`, after
+  any tier filter). The separate collect-only pass is gone (T3).
 
 ## Slow tier (PERF-01, R5)
 

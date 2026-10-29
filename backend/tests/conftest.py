@@ -53,6 +53,7 @@ import pytest
 import pg_harness
 import phase_attribution
 import phase_timing
+import setup_cache
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
@@ -129,13 +130,17 @@ def pytest_configure(config: pytest.Config) -> None:
         # Before collection: module-level `URL` constants read the routed name.
         pg_harness.route(tag=workerinput["workerid"], run=workerinput.get(RUN_KEY))
         phase_attribution.register(config, workerinput["workerid"])  # PERF-01; off unless its env var is set
+        setup_cache.register(config)  # PERF-02: build once, copy per test; off unless ASSETOPS_SETUP_CACHE_DIR is set
         return  # basetemp comes from the controller
     phase_timing.register(config)  # PERF-01: controller or serial process only; off unless its env var is set
     if _is_xdist_controller(config):
         config.stash[_RUN] = pg_harness.new_run_id()
+        if setup_cache.enabled():
+            setup_cache.code_fingerprint()  # once per run, inherited by the workers through the environment
     else:
         pg_harness.route()
         phase_attribution.register(config, "main")
+        setup_cache.register(config)
     _choose_basetemp(config)
 
 
@@ -152,6 +157,24 @@ def pytest_configure_node(node) -> None:
 def pytest_testnodedown(node, error) -> None:
     output = getattr(node, "workeroutput", None) or {}
     node.config.stash.setdefault(_DOWN, []).append(output.get(PROVISIONED_KEY, True))
+
+
+COLLECTED_ENV = "ASSETOPS_TEST_COLLECTED"  # PERF-02 T3: the selected node IDs, written by the run itself
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_xdist_node_collection_finished(node, ids) -> None:
+    path = os.environ.get(COLLECTED_ENV)
+    if path and not os.path.exists(path):
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.writelines(f"{i}\n" for i in ids)
+
+
+def pytest_collection_finish(session: pytest.Session) -> None:
+    path = os.environ.get(COLLECTED_ENV)
+    if path and _workerinput(session.config) is None and not _is_xdist_controller(session.config):
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.writelines(f"{item.nodeid}\n" for item in session.items)
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list) -> None:
