@@ -1,7 +1,7 @@
 /* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
- decision:'v7.0 (commercial capability architecture rev 5): the objective matrix becomes outcome rows (owner-approved change); value cards carry their outcome codes; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.',
+ decision:'v7.0 (commercial capability architecture rev 5, owner decision 29 Oct 2026): the objective matrix becomes four outcome-category rows (owner-approved change); four outcome cards replace the value cards, each with its icon and definition; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.',
  sections:[
   ['Assessment and estate scope','PortfolioSummary','Deterministic roll-up of selected site assessments; no numeric composite health score.'],
   ['Value cards','PortfolioConsequenceRollup','Reuse site consequence revisions, periods, currencies and basis. Different categories are not additive.'],

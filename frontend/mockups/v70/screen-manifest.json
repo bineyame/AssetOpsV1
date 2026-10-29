@@ -25,7 +25,7 @@
         "v6.9 §8.1, p24: Portfolio command center",
         "Client Demo Recommendation, Screen 1 and Appendix A1, p11"
       ],
-      "decision": "v7.0 (commercial capability architecture rev 5): the objective matrix becomes outcome rows (owner-approved change); value cards carry their outcome codes; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.",
+      "decision": "v7.0 (commercial capability architecture rev 5, owner decision 29 Oct 2026): the objective matrix becomes four outcome-category rows (owner-approved change); four outcome cards replace the value cards, each with its icon and definition; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.",
       "sections": [
         [
           "Assessment and estate scope",
@@ -60,7 +60,7 @@
       ],
       "deferred": "Six-site estate, monthly extrapolation, productive-use share, comparable energy roll-up, asset valuation, reconciliation residual and verified recovered money require their own supporting records. None is inferred from this hour."
     },
-    "v70": "Rev 5 §6.1, §11: the objectives matrix has six outcome rows (owner-approved change from five operating rows), shown as colour-coded status blocks with plain outcome names and a colour key. Value cards keep v6.9 labels; the asset-life card counts early warnings. Each ranked finding shows the outcome it affects and how often it recurs. Early warnings (not priced yet) sit under the ranked table, not in a separate panel."
+    "v70": "Owner decision 29 Oct 2026, rev 5 §6.1, §11: the objectives matrix has four outcome rows (owner-approved change from five operating rows), one per outcome category, shown as colour-coded status blocks with the category icon, plain names and a colour key. Four outcome cards replace the value cards; each carries its icon, the owner’s one-line definition and site status dots. Protect asset and capital counts disruption and early warnings separately, never as one figure. Each ranked finding shows the category it affects and how often it recurs. Early warnings (not priced yet) sit under the ranked table and name their category."
   },
   {
     "id": "sites",
@@ -120,7 +120,7 @@
     "adapted": "Shared site-overview skeleton (all verticals): status with confidence → objective → canonical assessment cards → plain causal strip → context + needs attention (each with destination) → bounded consequence + next step. Only assessed objectives get a health conclusion; Renewable and Fuel use Unknown, never an opportunity or \"not assessed\" status.",
     "deferred": "A site-wide Healthy label while service/asset objectives are unassessed.",
     "subtitle": "60 kWp PV · 200 kWh battery · 40 kW genset · residential, clinic & grain mill",
-    "v70": "Rev 5 §3, §6.2, §7: the v6.9 assessment cards are replaced by six outcome rows (Revenue, Operating cost, Service and stock, Asset life, Return on assets, Evidence and assurance). Dispatch, Fuel and fuel price are contributors to Operating cost; Renewable to Revenue; Service and Backup to Service and stock; Battery and generator service to Asset life. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
+    "v70": "Owner decision 29 Oct 2026, rev 5 §3, §6.2, §7: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Renewable and site earnings feed Grow revenue; Dispatch, Fuel and fuel price feed Optimize cost and efficiency, with a Must not harm line naming reliable service and battery life as trial safeguards; Battery, generator service, Service and Backup feed Protect asset and capital; Evidence, the trial’s verification and actual against plan feed Assure performance and returns. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "foundation",
@@ -341,7 +341,8 @@
     "preserved": "Target plus guardrails and sufficient closed-window evidence determine outcome; activity completion cannot resolve a Finding.",
     "adapted": "Shows the honest incomplete state by default, with a separate completed-evidence review example.",
     "deferred": "Real equipment actuation and field-validated efficacy.",
-    "subtitle": "ACT-048 · source F-104 · owner: site controls lead"
+    "subtitle": "ACT-048 · source F-104 · owner: site controls lead",
+    "v70": "Owner decision 29 Oct 2026: Affects line names Optimize cost and efficiency, with Protect asset and capital (reliable service, battery and generator life) as the safeguards this trial checks."
   },
   {
     "id": "asset",
@@ -417,7 +418,7 @@
     "adapted": "Same overview skeleton as the mini-grid: status with confidence → objective → canonical cards → causal strip → context + needs attention (with destinations) → bounded consequence + next step. Evidence card uses evidence vocabulary (Limited) in neutral grey rather than v6.9 Healthy.",
     "deferred": "Spoilage diagnosis and stock ERP.",
     "subtitle": "Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh battery, grid & diesel backup",
-    "v70": "Rev 5 §3, §6.2, §9: the v6.9 assessment cards are replaced by six outcome rows. Temperature, Backup and Cooling are contributors to Service and stock; Maintenance appears as repeated repairs under Operating cost and as work in hand and earlier interventions; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
+    "v70": "Owner decision 29 Oct 2026, rev 5 §3, §6.2, §9: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Repeated repairs without a result (maintenance effectiveness) feed Optimize cost and efficiency, with cooling continuity as its Must not harm line; Temperature, Backup, Cooling and compressor and backup servicing feed Protect asset and capital; Evidence, WR-019 verification and storage service level feed Assure performance and returns; Grow revenue is Not measured yet. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "temperature",
@@ -490,7 +491,7 @@
     "adapted": "EV is extrapolated (v6.9 has no EV section). Uses the shared site-overview skeleton; sessions, connector availability and site power replace mini-grid dispatch content; cards use canonical assessments only.",
     "deferred": "Roaming, billing settlement and vehicle-battery health.",
     "subtitle": "2 × 60 kW connectors · 80 kW site limit · no stationary battery",
-    "v70": "Rev 5 §3, §6.2, §8: the v6.9 assessment cards are replaced by six outcome rows. Session service and Availability are contributors to Service and stock; Site power is the Return on assets row; Charger condition and warranty feed Asset life; charging delivered and charger use feed Revenue; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line."
+    "v70": "Owner decision 29 Oct 2026, rev 5 §3, §6.2, §8: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Charging delivered, charger use and billed against metered feed Grow revenue; Session service, Availability, Charger condition, warranty and Site power (import limit) feed Protect asset and capital; Evidence and departures against the timetable feed Assure performance and returns; Optimize cost and efficiency is Not measured yet. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line."
   },
   {
     "id": "sessions",
@@ -1406,7 +1407,8 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "book": false
+    "book": false,
+    "v70": "Affects line with the trial’s safeguards."
   },
   {
     "id": "action-plan",
@@ -1424,7 +1426,8 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "book": false
+    "book": false,
+    "v70": "Affects line with the trial’s safeguards."
   },
   {
     "id": "action-execution",
@@ -1442,7 +1445,8 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "book": false
+    "book": false,
+    "v70": "Affects line with the trial’s safeguards."
   },
   {
     "id": "action-evidence",
@@ -1460,7 +1464,8 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "book": false
+    "book": false,
+    "v70": "Affects line with the trial’s safeguards."
   },
   {
     "id": "action-history",
@@ -1478,7 +1483,8 @@
     "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
     "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
     "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-    "book": false
+    "book": false,
+    "v70": "Affects line with the trial’s safeguards."
   },
   {
     "id": "opportunity-finding",
@@ -2068,7 +2074,7 @@
       ]
     ],
     "subtitle": "Evidence-backed operating conclusions · one object model",
-    "v70": "Rev 5 §5.2: Affects pill; the repeated-maintenance warning sits under the Cost lens."
+    "v70": "Rev 5 §5.2: Affects pill names the category; the repeated-maintenance warning sits under the Cost lens and Optimize cost and efficiency, as on the GreenHarvest overview."
   },
   {
     "id": "findings-risks",

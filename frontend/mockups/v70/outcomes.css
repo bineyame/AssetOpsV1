@@ -66,7 +66,8 @@ details.ob>.ob-sum::after{content:"";width:7px;height:7px;border-right:1.6px sol
 details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .ob-sum:focus-visible{outline:2px solid #1d4ed8;outline-offset:-2px;border-radius:6px}
 .ob-sum .icon{width:16px;height:16px;color:#617087}
-.ob-name{font-weight:650;font-size:13px;min-width:132px}
+.ob-name{font-weight:650;font-size:13px;flex:0 1 268px;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.ob-name small{font-weight:400;font-size:11px;color:#617087;margin-top:2px;line-height:1.4}
 .ob-head{font-size:13px;font-weight:600;color:#17243b;flex:1 1 220px}
 .ob-counts{font-size:11px;color:#617087;margin-left:auto;white-space:nowrap}
 .ob-body{padding:0 16px 14px 42px}
@@ -85,13 +86,35 @@ details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .ob-none{font-size:12px;color:#7d8a9c;font-style:italic;margin:0}
 .ob-foot{margin-top:9px;font-size:12px}
 /* Portfolio outcome cards */
-.oc-pfgrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.oc-pfgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .oc-pfcard .value-number{font-size:22px}
 .oc-sitedots{display:flex;flex-wrap:wrap;gap:4px 9px;margin:0 0 9px;font-size:10px;color:#52637b}
 .oc-sitedots span{display:inline-flex;align-items:center;gap:4px}
 .oc-sitedots i{width:8px;height:8px;border-radius:50%;background:#d6dde7}
 .oc-sitedots .tone-amber i{background:#d89a2b}.oc-sitedots .tone-blue i{background:#5b86cf}.oc-sitedots .tone-green i{background:#2f9a74}.oc-sitedots .tone-gray i{background:#a3afc0}.oc-sitedots .tone-none i{background:#fff;border:1px dashed #9aa6b5}
 .oc-key i.tone-green{background:#b9e2d0}
-@media(max-width:1200px){.ob-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ob-col:nth-child(3){border-right:0}.ob-col:nth-child(-n+3){border-bottom:1px solid #edf0f5}.oc-pfgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1200px){.ob-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ob-col:nth-child(3){border-right:0}.ob-col:nth-child(-n+3){border-bottom:1px solid #edf0f5}.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.ob-grid{grid-template-columns:1fr}.ob-col{border-right:0;border-bottom:1px solid #edf0f5}.ob-col:last-child{border-bottom:0}.ob-body{padding:0 12px 12px}.ob-sum{padding:11px 12px}.ob-name{min-width:0}.ob-counts{margin-left:0;width:100%}.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .oc-chip.tone-none{background:#fff;color:#5f6e83;border:1px dashed #b9c4d3}
+
+/* Outcome category icons (owner, 29 Oct 2026): one line icon per category, same 1.6 stroke as the product icon set */
+.oc-ic{width:16px;height:16px;flex:0 0 auto;display:inline-block;vertical-align:middle}
+.oc-cat{width:30px;height:30px;padding:6px;border-radius:8px;background:#eef3fb;color:#2f5597}
+.oc-cat-grow{background:#e3f4ed;color:#166b50}.oc-cat-cost{background:#fff1d9;color:#8e580c}.oc-cat-protect{background:#e9f0fd;color:#275ba8}.oc-cat-assure{background:#f0eafa;color:#725094}
+.ob-sum>.oc-cat{align-self:flex-start}
+.value-label .oc-cat{width:26px;height:26px;padding:5px}
+.oc-pfdef{font-size:10.5px;color:#617087;line-height:1.45;margin:2px 0 6px}
+.oc-orow{display:flex;align-items:center;gap:6px}
+.oc-orow .oc-cat{width:22px;height:22px;padding:4px;border-radius:6px}
+.oc-colic{width:12px;height:12px;color:#9aa6b8;margin:-2px 5px 0 0}
+.ob-guard{display:flex;gap:6px;align-items:flex-start;font-size:12px;line-height:1.45;margin:0 0 10px;padding:7px 10px;background:#f4f7fc;border:1px solid #e1e8f3;border-radius:6px}
+.ob-guard .oc-colic{color:#4d6a96;width:14px;height:14px;margin:2px 0 0}
+.ob-guard b{color:#37506f;margin-right:4px}
+.oc-pill small{display:block;font-weight:400;font-size:10px;color:#617087;margin-top:1px}
+.oc-dname{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.oc-dname .oc-cat{width:24px;height:24px;padding:4px}
+@media(max-width:760px){.ob-name{flex:1 1 calc(100% - 44px)}.oc-orow .oc-cat{width:20px;height:20px}}
+/* Matrix: the category name and icon head each row across the three site cells, so long names never clip */
+.oc-mrow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:4px}
+.oc-mrow>.oc-orow{grid-column:1/-1;padding-top:6px}
+.oc-mhead>span:first-child{display:none}

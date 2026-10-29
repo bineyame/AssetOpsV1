@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-10-29T09:03:41.411Z",
+  "checked_at": "2026-10-29T10:08:43.195Z",
   "screens": 110,
   "book_pages": 42,
-  "page_height_px": 2049,
+  "page_height_px": 2381,
   "checks": [
     {
       "label": "Prototype booted",
@@ -2216,6 +2216,41 @@
     },
     {
       "label": "Portfolio value-led headline",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Portfolio: four outcome categories on cards and matrix, each with a labelled icon",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "mini: four outcome rows with definitions and labelled icons",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "cold: four outcome rows with definitions and labelled icons",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "ev: four outcome rows with definitions and labelled icons",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "GreenHarvest repeated maintenance sits under Optimize cost and efficiency on the board and in warnings",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Kobo cost row names reliability as a safeguard",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "label": "Reserve-trial verification shows its safeguards",
       "passed": true,
       "detail": ""
     },
@@ -4817,7 +4852,7 @@
     {
       "label": "PDF page height (v7.0: outcome screens are taller, so pages may be portrait)",
       "passed": true,
-      "detail": "1728 x 2049 · tallest: book-portfolio:2019 book-cold:1999 book-mini:1981 book-ev:1907 book-readiness:1627"
+      "detail": "1728 x 2381 · tallest: book-cold:2350 book-ev:2014 book-mini:2011 book-portfolio:1906 book-readiness:1627"
     },
     {
       "label": "No browser runtime errors",
@@ -4831,7 +4866,7 @@
       "title": "Portfolio Value & Operations",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1894,
+      "height": 1906,
       "tabRows": 0,
       "subRows": 0,
       "broken": []
@@ -4851,7 +4886,7 @@
       "title": "Kobo Mini-grid",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1933,
+      "height": 1963,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -4921,7 +4956,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1555,
+      "height": 1570,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -4931,7 +4966,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1269,
+      "height": 1284,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -4961,7 +4996,7 @@
       "title": "Generator support merits review",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1153,
+      "height": 1168,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -4971,7 +5006,7 @@
       "title": "Reduce extended generator support",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1258,
+      "height": 1312,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5011,7 +5046,7 @@
       "title": "GreenHarvest Cold Room",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1984,
+      "height": 2351,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5051,7 +5086,7 @@
       "title": "Depot Charging Hub",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1892,
+      "height": 2015,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5371,7 +5406,7 @@
       "title": "Backup response failed during grid interruption",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1437,
+      "height": 1452,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5491,7 +5526,7 @@
       "title": "Connector 2 charging session interrupted",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1437,
+      "height": 1452,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5591,7 +5626,7 @@
       "title": "Productive-use headroom at Kobo",
       "width": 1440,
       "scrollWidth": 1425,
-      "height": 1101,
+      "height": 1111,
       "tabRows": 1,
       "subRows": 0,
       "broken": []
@@ -5930,7 +5965,7 @@
   "print_measurements": [
     {
       "id": "book-portfolio",
-      "height": 2018.609375,
+      "height": 1905.609375,
       "width": 1728
     },
     {
@@ -5940,7 +5975,7 @@
     },
     {
       "id": "book-mini",
-      "height": 1980.875,
+      "height": 2010.953125,
       "width": 1728
     },
     {
@@ -5975,12 +6010,12 @@
     },
     {
       "id": "book-finding",
-      "height": 1605.640625,
+      "height": 1620.640625,
       "width": 1728
     },
     {
       "id": "book-analysis",
-      "height": 1271.796875,
+      "height": 1286.796875,
       "width": 1728
     },
     {
@@ -5995,12 +6030,12 @@
     },
     {
       "id": "book-recommendation",
-      "height": 1215.609375,
+      "height": 1230.609375,
       "width": 1728
     },
     {
       "id": "book-verification",
-      "height": 1290.4375,
+      "height": 1344.4375,
       "width": 1728
     },
     {
@@ -6020,7 +6055,7 @@
     },
     {
       "id": "book-cold",
-      "height": 1999.46875,
+      "height": 2350.125,
       "width": 1728
     },
     {
@@ -6040,7 +6075,7 @@
     },
     {
       "id": "book-ev",
-      "height": 1906.546875,
+      "height": 2014.21875,
       "width": 1728
     },
     {

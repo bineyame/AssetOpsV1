@@ -46,7 +46,13 @@ try{
  await evaluate(`document.querySelector('[data-site-filter="Cold-chain"]').click()`);
  assert('Site domain filter',await evaluate(`document.querySelectorAll('#site-table tbody tr').length===1 && document.querySelector('#site-table').textContent.includes('GreenHarvest')`));
  await navigate('portfolio');
- assert('Portfolio value-led headline',await evaluate(`document.querySelectorAll('.value-card').length===6 && document.querySelector('.value-grid').textContent.includes('Not established')`));
+ assert('Portfolio value-led headline',await evaluate(`document.querySelectorAll('.value-card').length===4 && document.querySelector('.value-grid').textContent.includes('Not established')`));
+ assert('Portfolio: four outcome categories on cards and matrix, each with a labelled icon',await evaluate(`(()=>{const names=['Grow revenue','Optimize cost and efficiency','Protect asset and capital','Assure performance and returns'];const cards=[...document.querySelectorAll('.oc-pfcard')],rows=[...document.querySelectorAll('.oc-matrix .oc-orow')];return cards.length===4&&rows.length===4&&names.every((n,i)=>cards[i].textContent.includes(n)&&rows[i].textContent.includes(n))&&[...document.querySelectorAll('.oc-pfcard .oc-cat,.oc-orow .oc-cat')].every(s=>s.getAttribute('role')==='img'&&s.getAttribute('aria-label'))})()`));
+ for(const site of ['mini','cold','ev']){await navigate(site);assert(`${site}: four outcome rows with definitions and labelled icons`,await evaluate(`(()=>{const r=[...document.querySelectorAll('.ob-board .ob')];return r.length===4&&r.every(x=>x.querySelector('.oc-cat[aria-label]')&&x.querySelector('.ob-name small')?.textContent.length>20)})()`));}
+ await navigate('cold');assert('GreenHarvest repeated maintenance sits under Optimize cost and efficiency on the board and in warnings',await evaluate(`(()=>{const rows=[...document.querySelectorAll('.ob-board .ob')];const cost=rows.find(r=>r.querySelector('.ob-name').textContent.startsWith('Optimize'));const w=[...document.querySelectorAll('.oc-warn li')].find(l=>l.textContent.includes('Repeated maintenance'));return cost&&cost.textContent.includes('Repeated maintenance without a result')&&(!w||w.textContent.includes('Optimize cost and efficiency'))})()`));
+ await navigate('mini');assert('Kobo cost row names reliability as a safeguard',await evaluate(`[...document.querySelectorAll('.ob-board .ob')][1].querySelector('.ob-guard')?.textContent.includes('Reliable service')===true`));
+ await navigate('verification');assert('Reserve-trial verification shows its safeguards',await evaluate(`document.querySelector('.oc-affectsline')?.textContent.includes('Safeguards checked')&&document.querySelector('.oc-affectsline').textContent.includes('reliable service')`));
+ await navigate('portfolio');
  await evaluate(`document.querySelector('[data-portfolio-lens="Opportunities"]').click()`);
  assert('Opportunity lens keeps Finding ownership',await evaluate(`document.querySelectorAll('#portfolio-findings tbody tr').length===1 && document.querySelector('#portfolio-findings a[href="#/opportunity-finding"]')!==null`));
  await evaluate(`document.querySelector('[data-portfolio-lens="Risks"]').click()`);
@@ -200,6 +206,8 @@ try{
  await navigate('ev-recommendation');assert('EV recommendation names owner, consequence and criteria',await evaluate(`['Charging operations lead','What it is worth','Declare success before evaluating'].every(t=>document.querySelector('main').textContent.includes(t))`));
  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
  for(const id of ['portfolio','mini','dispatch','cold','ev','lab','sld','ev-recommendation','coldbackup','site-create-form','site-create-template','site-batch-upload']){await navigate(id);assert(`${id}: mobile containment`,await evaluate('document.documentElement.scrollWidth<=innerWidth'));}
+ mkdirSync(join(dir,'previews'),{recursive:true});
+ for(const id of ['portfolio','mini','cold','ev']){await navigate(id);await pause(100);const p=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});writeFileSync(join(dir,'previews',`${id}-390.png`),Buffer.from(p.data,'base64'));}
  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1100,deviceScaleFactor:1,mobile:false});
  mkdirSync(join(dir,'previews'),{recursive:true});
  await evaluate(`document.querySelector('.toast')?.remove();stage.accepted=false;stage.selected=0;`);

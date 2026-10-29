@@ -147,7 +147,8 @@ details.ob>.ob-sum::after{content:"";width:7px;height:7px;border-right:1.6px sol
 details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .ob-sum:focus-visible{outline:2px solid #1d4ed8;outline-offset:-2px;border-radius:6px}
 .ob-sum .icon{width:16px;height:16px;color:#617087}
-.ob-name{font-weight:650;font-size:13px;min-width:132px}
+.ob-name{font-weight:650;font-size:13px;flex:0 1 268px;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.ob-name small{font-weight:400;font-size:11px;color:#617087;margin-top:2px;line-height:1.4}
 .ob-head{font-size:13px;font-weight:600;color:#17243b;flex:1 1 220px}
 .ob-counts{font-size:11px;color:#617087;margin-left:auto;white-space:nowrap}
 .ob-body{padding:0 16px 14px 42px}
@@ -166,20 +167,42 @@ details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .ob-none{font-size:12px;color:#7d8a9c;font-style:italic;margin:0}
 .ob-foot{margin-top:9px;font-size:12px}
 /* Portfolio outcome cards */
-.oc-pfgrid{grid-template-columns:repeat(6,minmax(0,1fr))}
+.oc-pfgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .oc-pfcard .value-number{font-size:22px}
 .oc-sitedots{display:flex;flex-wrap:wrap;gap:4px 9px;margin:0 0 9px;font-size:10px;color:#52637b}
 .oc-sitedots span{display:inline-flex;align-items:center;gap:4px}
 .oc-sitedots i{width:8px;height:8px;border-radius:50%;background:#d6dde7}
 .oc-sitedots .tone-amber i{background:#d89a2b}.oc-sitedots .tone-blue i{background:#5b86cf}.oc-sitedots .tone-green i{background:#2f9a74}.oc-sitedots .tone-gray i{background:#a3afc0}.oc-sitedots .tone-none i{background:#fff;border:1px dashed #9aa6b5}
 .oc-key i.tone-green{background:#b9e2d0}
-@media(max-width:1200px){.ob-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ob-col:nth-child(3){border-right:0}.ob-col:nth-child(-n+3){border-bottom:1px solid #edf0f5}.oc-pfgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1200px){.ob-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ob-col:nth-child(3){border-right:0}.ob-col:nth-child(-n+3){border-bottom:1px solid #edf0f5}.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.ob-grid{grid-template-columns:1fr}.ob-col{border-right:0;border-bottom:1px solid #edf0f5}.ob-col:last-child{border-bottom:0}.ob-body{padding:0 12px 12px}.ob-sum{padding:11px 12px}.ob-name{min-width:0}.ob-counts{margin-left:0;width:100%}.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .oc-chip.tone-none{background:#fff;color:#5f6e83;border:1px dashed #b9c4d3}
+
+/* Outcome category icons (owner, 29 Oct 2026): one line icon per category, same 1.6 stroke as the product icon set */
+.oc-ic{width:16px;height:16px;flex:0 0 auto;display:inline-block;vertical-align:middle}
+.oc-cat{width:30px;height:30px;padding:6px;border-radius:8px;background:#eef3fb;color:#2f5597}
+.oc-cat-grow{background:#e3f4ed;color:#166b50}.oc-cat-cost{background:#fff1d9;color:#8e580c}.oc-cat-protect{background:#e9f0fd;color:#275ba8}.oc-cat-assure{background:#f0eafa;color:#725094}
+.ob-sum>.oc-cat{align-self:flex-start}
+.value-label .oc-cat{width:26px;height:26px;padding:5px}
+.oc-pfdef{font-size:10.5px;color:#617087;line-height:1.45;margin:2px 0 6px}
+.oc-orow{display:flex;align-items:center;gap:6px}
+.oc-orow .oc-cat{width:22px;height:22px;padding:4px;border-radius:6px}
+.oc-colic{width:12px;height:12px;color:#9aa6b8;margin:-2px 5px 0 0}
+.ob-guard{display:flex;gap:6px;align-items:flex-start;font-size:12px;line-height:1.45;margin:0 0 10px;padding:7px 10px;background:#f4f7fc;border:1px solid #e1e8f3;border-radius:6px}
+.ob-guard .oc-colic{color:#4d6a96;width:14px;height:14px;margin:2px 0 0}
+.ob-guard b{color:#37506f;margin-right:4px}
+.oc-pill small{display:block;font-weight:400;font-size:10px;color:#617087;margin-top:1px}
+.oc-dname{display:inline-flex;align-items:center;gap:7px;font-weight:600}
+.oc-dname .oc-cat{width:24px;height:24px;padding:4px}
+@media(max-width:760px){.ob-name{flex:1 1 calc(100% - 44px)}.oc-orow .oc-cat{width:20px;height:20px}}
+/* Matrix: the category name and icon head each row across the three site cells, so long names never clip */
+.oc-mrow{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:4px}
+.oc-mrow>.oc-orow{grid-column:1/-1;padding-top:6px}
+.oc-mhead>span:first-child{display:none}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
- decision:'v7.0 (commercial capability architecture rev 5): the objective matrix becomes outcome rows (owner-approved change); value cards carry their outcome codes; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.',
+ decision:'v7.0 (commercial capability architecture rev 5, owner decision 29 Oct 2026): the objective matrix becomes four outcome-category rows (owner-approved change); four outcome cards replace the value cards, each with its icon and definition; ranked rows say which outcome each finding moves; signals not yet priced appear beside the evidence prompt. Everything else is the v6.9 Portfolio.',
  sections:[
   ['Assessment and estate scope','PortfolioSummary','Deterministic roll-up of selected site assessments; no numeric composite health score.'],
   ['Value cards','PortfolioConsequenceRollup','Reuse site consequence revisions, periods, currencies and basis. Different categories are not additive.'],
@@ -246,100 +269,124 @@ const OUTCOME={
  'CC-1':'Stock kept saleable','CC-2':'Paid cold-room use','CC-3':'Cost per cooling unit','CC-4':'Market value of produce','CC-5':'Compressor life','CC-6':'Cooling continuity','CC-7':'Evidence quality'};
 const TONE={needs:'amber',watch:'blue',unknown:'gray',notyet:'none',ontrack:'green',opp:'green'};
 const STATE={needs:'Needs attention',watch:'Watch',unknown:'Unknown',notyet:'Not measured yet',ontrack:'On track',opp:'Opportunity'};
-const OUTCOMES=[['rev','Revenue','sun'],['cost','Operating cost','money'],['prot','Service and stock','finding'],['asset','Asset life','asset'],['prod','Return on assets','grid'],['assure','Evidence and assurance','check']];
+/* The four outcome categories (owner decision, 29 Oct 2026): name and one-line definition. */
+const OUTCOMES=[
+ ['grow','Grow revenue','Capture more value from existing infrastructure and expand earning potential'],
+ ['cost','Optimize cost and efficiency','Eliminate avoidable expenditure and get more output from operational resources'],
+ ['protect','Protect asset and capital','Preserve asset value, avoid premature replacement and reduce service disruption'],
+ ['assure','Assure performance and returns','Establish with defensible evidence whether the infrastructure is delivering expected results']];
+const CATN=Object.fromEntries(OUTCOMES.map(([k,n])=>[k,n]));
+/* Which category each site-level outcome belongs to. */
+const CAT_OF={'MG-1':'grow','MG-3':'grow','MG-6':'grow','MG-2':'cost','MG-4':'protect','MG-5':'protect','MG-7':'assure',
+ 'EV-3':'grow','EV-6':'grow','EV-2':'cost','EV-1':'protect','EV-4':'protect','EV-5':'protect','EV-7':'assure',
+ 'CC-2':'grow','CC-4':'grow','CC-3':'cost','CC-1':'protect','CC-5':'protect','CC-6':'protect','CC-7':'assure'};
 
 /* What each Finding affects, in plain words (used in Findings lists and Portfolio rows). */
-const AFFECTS={'F-104':[['MG-2'],['MG-5','MG-4']],'F-108':[['MG-7'],['MG-2']],'F-109':[['MG-1'],['MG-2','MG-5']],'F-118':[['CC-6','CC-1'],['CC-5']],'F-119':[['CC-1'],[]],'F-130':[['EV-1'],['EV-4']]};
+const AFFECTS={'F-104':[['MG-2'],['MG-5','MG-4']],'F-108':[['MG-7'],['MG-2']],'F-109':[['MG-1'],['MG-2','MG-5']],'F-118':[['CC-6','CC-1'],['CC-5']],'F-119':[['CC-1'],[]],'F-130':[['EV-1'],['EV-4']],
+ 'ACT-048':[['MG-2'],['MG-5','MG-4']]};
 const RECUR={'F-104':'Seen on 24 of the last 30 days','F-118':'3 grid losses in 30 days · backup started by itself on 2','F-109':'Spare on 3 of 5 well-observed days','F-130':'Connector 2 status also unknown on 15 Sep'};
-const affectsPill=fid=>AFFECTS[fid]?`<span class="oc-affects">${AFFECTS[fid][0].map(c=>OUTCOME[c]).join(' · ')}</span>`:'';
+/* Group site-level outcomes by category, keeping their plain names: [[cat,[names]]]. */
+function byCat(codes){const g=[];codes.forEach(c=>{const k=CAT_OF[c];let e=g.find(x=>x[0]===k);if(!e)g.push(e=[k,[]]);e[1].push(OUTCOME[c].toLowerCase());});return g;}
+const affectsPill=fid=>AFFECTS[fid]?`<span class="oc-affects">${byCat(AFFECTS[fid][0]).map(([k])=>CATN[k]).join(' · ')}</span>`:'';
 const recurNote=fid=>RECUR[fid]?`<small class="oc-recur">${RECUR[fid]}</small>`:'';
-function affectsLine(fid){const a=AFFECTS[fid];if(!a)return '';
- return `<div class="oc-affectsline"><span class="oc-k">Affects</span>${a[0].map(c=>`<span class="oc-pill">${OUTCOME[c]}</span>`).join('')}${a[1].length?`<span class="oc-k">Also check</span>${a[1].map(c=>`<span class="oc-pill quiet">${OUTCOME[c]}</span>`).join('')}`:''}${RECUR[fid]?`<span class="oc-recurline">${RECUR[fid]}</span>`:''}</div>`;}
+const catPills=(codes,quiet)=>byCat(codes).map(([k,ns])=>`<span class="oc-pill${quiet?' quiet':''}">${CATN[k]}<small>${ns.join(', ')}</small></span>`).join('');
+function affectsLine(fid){const a=AFFECTS[fid];if(!a)return '';const act=fid.startsWith('ACT');
+ return `<div class="oc-affectsline"><span class="oc-k">Affects</span>${catPills(a[0])}${a[1].length?`<span class="oc-k">${act?'Safeguards checked':'Also check'}</span>${catPills(a[1],true)}`:''}${RECUR[fid]?`<span class="oc-recurline">${RECUR[fid]}</span>`:''}</div>`;}
 
-/* Site outcome boards. Contributors: [name, what we see, confidence (CONF key or word), link].
-   Issues: [kind, text, link]. kind: finding | risk | opp | warn. Lists of [text, link, note]. */
+/* Outcome category icons: simple 24-unit line icons, same stroke as the product icon set, each with its own label. */
+const OC_ICONS={
+ grow:['Rising trend','M3 17l6-6 4 4 7-7 M14 8h6v6'],
+ cost:['Efficiency gauge','M3.5 17a8.5 8.5 0 0 1 17 0 M12 17l4-5.5 M7 17h.01 M17 17h.01 M12 8.5v1.5'],
+ protect:['Shield','M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z'],
+ assure:['Verified report','M6 3h8.5L19 7.5V21H6z M14 3v5h5 M9 14.5l2 2 4-4.5'],
+ drives:['Drivers','M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4'],
+ issues:['Issues','M12 4L3 20h18z M12 10v4 M12 17h.01'],
+ can:['Options','M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.8 10.6c.7.6.8 1.4.8 2.4h6c0-1 .1-1.8.8-2.4A6 6 0 0 0 12 3z'],
+ hand:['In hand','M8 4h11v17H5V4h3 M9 2h6v4H9z M8.5 13l2.5 2.5 4.5-5'],
+ prev:['Earlier','M12 4a8 8 0 1 1-7.4 5 M4 4v5h5 M12 8v4.5l3 1.5'],
+ guard:['Safeguard','M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z M9 12l2 2 4-4']};
+const ocIcon=(k,label,cls='')=>`<svg class="oc-ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="${label||OC_ICONS[k][0]}"><title>${label||OC_ICONS[k][0]}</title><path d="${OC_ICONS[k][1]}"/></svg>`;
+const catIcon=k=>ocIcon(k,CATN[k],'oc-cat oc-cat-'+k);
+const colIcon=k=>`<svg class="oc-ic oc-colic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${OC_ICONS[k][1]}"/></svg>`;
+
+/* Site outcome boards, one row per category. Contributors: [name, what we see, confidence (CONF key or word), link].
+   Issues: [kind, text, link]. kind: finding | risk | opp | warn. Lists of [text, link, note].
+   guard: [text, link] names the outcomes a lever in this row must not harm; they are shown, never netted. */
 const NAY='Not available yet';
 const BOARD={
  mini:{
-  rev:{st:'opp',head:'18–20 kW of daytime solar unused',sub:'Sales to productive users are not metered, so revenue itself is not measured yet',
-   contrib:[['Productive use','Spare solar on 3 of 5 well-observed days','f109','renewable'],['Cash collected',`${NAY} · no billing or payment records`,null,null]],
+  grow:{st:'opp',lead:'MG-1',head:'18–20 kW of daytime solar unused',sub:'Sales to productive users are not metered, so revenue itself is not measured yet',
+   contrib:[['Productive use','Spare solar on 3 of 5 well-observed days','f109','renewable'],['Cash collected',`${NAY} · no billing or payment records`,null,null],['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]],
    issues:[['opp','F-109 · Productive-use headroom','opportunity-finding']],
    can:[['Grain-mill what-if · $2.50 gross per eligible window','opportunity-finding'],['Site what-ifs','scenarios']],hand:[],prev:null,ev:['Renewable evidence','renewable']},
-  cost:{st:'needs',head:()=>`${money()} exposure in this hour`,sub:'Generator ran 30 minutes longer than the load needed · seen on 24 of the last 30 days',
+  cost:{st:'needs',lead:'MG-2',head:()=>`${money()} exposure in this hour`,sub:'Generator ran 30 minutes longer than the load needed · seen on 24 of the last 30 days',
+   guard:['Reliable service and battery life are checked as safeguards in the generator trial; a fuel saving that harms them does not count','verification'],
    contrib:[['Generator use','30 min avoidable, 30 min unclear','f104','dispatch'],['Fuel','No complete fuel balance yet','Unknown','fuel'],['Fuel price','Declared at $1.20 per litre','Declared','assumptions']],
    issues:[['finding','F-104 · Generator support review','finding'],['finding','F-108 · Battery report missing limits this conclusion','evidence']],
    can:[['Trial a lower generator stop setting','recommendation'],['Proposed setting change CHG-019','changes']],
    hand:[['ACT-048 · Generator stop trial','verification',()=>stage.accepted?'Awaiting verification':'Plan ready']],
    prev:[['No earlier change has been checked at this site','',null]],ev:['Dispatch evidence','dispatch']},
-  prot:{st:'unknown',head:'Power delivered; what customers needed is not measured',sub:'Watched as a safeguard while the generator trial runs',
-   contrib:[['Service delivery','Delivered load measured; demand not','Unknown','service'],['Backup readiness','No backup event in this window','Unknown','backup']],
-   issues:[],can:[],hand:[],prev:[['Checked as a safeguard in the generator trial','verification','Pending']],ev:['Service evidence','service']},
-  asset:{st:'watch',head:'2 early warnings',sub:'Battery and generator condition is not assessed; these are early warnings only',
-   contrib:[['Battery','Below its 30% reserve on 5 of 30 days · lowest 22%','Limited','asset-overview'],['Generator','462 of 500 running hours since service','Plan record','maintenance-preventive']],
+  protect:{st:'watch',lead:'MG-4',head:'2 early warnings on battery and generator',sub:'Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured',
+   contrib:[['Battery','Below its 30% reserve on 5 of 30 days · lowest 22%','Limited','asset-overview'],['Generator','462 of 500 running hours since service','Plan record','maintenance-preventive'],['Service delivery','Delivered load measured; demand not','Unknown','service'],['Backup readiness','No backup event in this window','Unknown','backup']],
    issues:[['warn','Battery below its reserve','asset-overview'],['warn','Generator service due soon','maintenance-preventive']],
-   can:[['Battery capacity test PM-0447','maintenance-preventive']],hand:[['PM-0441 · 500-hour service','maintenance-preventive','Due soon'],['PM-0447 · Capacity test','asset-work','Scheduled 1 Nov']],prev:null,ev:['Battery evidence','asset-evidence']},
-  prod:{st:'notyet',sub:'Needs site income, operating cost and capital records'},
-  assure:{st:'watch',head:'Confidence low for this hour',sub:'One battery report is missing, so 30 minutes stay unclassified',
-   contrib:[['Readings','Generated test data source · 92% of expected readings','Limited','evidence'],['Battery reporting','14:50 output-limit report missing','High','evidence']],
+   can:[['Battery capacity test PM-0447','maintenance-preventive']],hand:[['PM-0441 · 500-hour service','maintenance-preventive','Due soon'],['PM-0447 · Capacity test','asset-work','Scheduled 1 Nov']],
+   prev:[['Service and reserve checked as safeguards in the generator trial','verification','Pending']],ev:['Battery evidence','asset-evidence']},
+  assure:{st:'watch',lead:'MG-7',head:'No verified result yet · confidence low for this hour',sub:'One battery report is missing, so 30 minutes stay unclassified',
+   contrib:[['Verified results','Generator trial ACT-048 not yet verified','Pending','verification'],['Actual against plan',`${NAY} · no target declared for this site`,null,null],['Readings','Generated test data source · 92% of expected readings','Limited','evidence'],['Battery reporting','14:50 output-limit report missing','High','evidence']],
    issues:[['finding','F-108 · Battery output-limit report missing','evidence']],can:[['Restore battery reporting','sitework']],hand:[['ACT-049 · Restore reporting','sitework','Open']],prev:null,ev:['Evidence overview','evidence']}},
  cold:{
-  rev:{st:'notyet',sub:'Needs occupancy, storage contract and sales records'},
-  cost:{st:'unknown',head:'Repair cost not recorded',sub:'The backup generator has had 3 repair visits in 60 days; none fixed the automatic start',
-   contrib:[['Repair and call-out','No cost on work record WR-019','Unknown','cold-financials'],['Cooling energy',`${NAY} · no cooling energy meter`,null,null]],
-   issues:[['warn','Repeated maintenance without a result','wr-overview']],can:[],hand:[['WR-019 · Starter and control inspection','wr-overview','Completed']],
+  grow:{st:'notyet',lead:'CC-2',sub:'Needs occupancy, storage contract, income and sales records'},
+  cost:{st:'needs',lead:'CC-3',head:'3 repair visits in 60 days without a result',sub:'None of the visits fixed the backup generator’s automatic start; repair cost is not recorded',
+   guard:['Cooling continuity: a repair counts only when the backup then starts by itself','cold-recommendation'],
+   contrib:[['Maintenance effectiveness','3 visits (14 Aug, 18 Sep, 6 Oct); automatic start still failed','High','wr-overview'],['Repair and call-out','No cost on work record WR-019','Unknown','cold-financials'],['Cooling energy',`${NAY} · no cooling energy meter`,null,null]],
+   issues:[['warn','Repeated maintenance without a result','wr-overview']],can:[['Witnessed automatic-start test','cold-recommendation']],hand:[['WR-019 · Starter and control inspection','wr-overview','Completed']],
    prev:[['WR-011 · Starter battery replaced, 14 Aug','maintenance','Did not fix it'],['WR-016 · Control relay reset, 18 Sep','maintenance','Did not fix it']],ev:['Financial bridge','cold-financials']},
-  prot:{st:'needs',head:'Chamber above 4°C for 25–35 min',sub:'Backup did not start by itself; cooling stopped until it was started by hand',
-   contrib:[['Chamber temperature','Peak 8.2°C against a 4°C limit','High','temperature'],['Backup start','Automatic start failed; started by hand','High','coldbackup'],['Cooling recovery','Restarted with power; comparison incomplete','Medium','cooling']],
-   issues:[['finding','F-118 · Backup response failed','cold-finding'],['finding','F-119 · Temperature excursion','cold-finding-excursion']],
+  protect:{st:'needs',lead:'CC-1',head:'Chamber above 4°C for 25–35 min',sub:'Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed',
+   contrib:[['Chamber temperature','Peak 8.2°C against a 4°C limit','High','temperature'],['Backup start','Automatic start failed; started by hand','High','coldbackup'],['Cooling recovery','Restarted with power; comparison incomplete','Medium','cooling'],['Backup generator','Monthly start test overdue since 2 Oct · warranty expired','Plan record','maintenance-preventive'],['Compressor','Coil cleaning due 15 Oct','Plan record','maintenance-preventive']],
+   issues:[['finding','F-118 · Backup response failed','cold-finding'],['finding','F-119 · Temperature excursion','cold-finding-excursion'],['warn','Backup start test overdue','maintenance-preventive']],
    can:[['Witnessed automatic-start test','cold-recommendation'],['Stock value what-if','cold-scenarios']],
-   hand:[['ACT-051 · Witness automatic-start test','cold-action','Open'],['INC-203 · Backup failure and excursion','incident','Investigating']],
+   hand:[['ACT-051 · Witness automatic-start test','cold-action','Open'],['INC-203 · Backup failure and excursion','incident','Investigating'],['PM-0455 · Witnessed start test','maintenance-preventive','Overdue'],['PM-0450 · Coil cleaning','maintenance-preventive','Due soon']],
    prev:[['WR-019 · Inspection completed','workverification','Not yet verified']],ev:['Cold-room evidence','cold-evidence']},
-  asset:{st:'watch',head:'2 early warnings',sub:'Compressor and backup generator condition is not assessed; these are early warnings only',
-   contrib:[['Backup generator','Monthly start test overdue since 2 Oct · warranty expired','Plan record','maintenance-preventive'],['Compressor','Coil cleaning due 15 Oct','Plan record','maintenance-preventive']],
-   issues:[['warn','Backup start test overdue','maintenance-preventive']],can:[],hand:[['PM-0455 · Witnessed start test','maintenance-preventive','Overdue'],['PM-0450 · Coil cleaning','maintenance-preventive','Due soon']],prev:null,ev:['Cold-room health','cold-health']},
-  prod:{st:'notyet',sub:'Needs occupancy and income records'},
-  assure:{st:'watch',head:'Event fully reconstructed',sub:'Loading and door records are not connected, so stock impact cannot be judged',
-   contrib:[['Power, backup and cooling chain','Every step recorded','High','cold-evidence'],['Loading and door records',NAY,null,null]],
+  assure:{st:'watch',lead:'CC-7',head:'Event fully reconstructed · no verified result yet',sub:'Loading and door records are not connected, so stock impact cannot be judged',
+   contrib:[['Verified results','WR-019 completed; not yet verified','Pending','workverification'],['Storage service level',`${NAY} · no storage contract recorded`,null,null],['Power, backup and cooling chain','Every step recorded','High','cold-evidence'],['Loading and door records',NAY,null,null]],
    issues:[],can:[['Record stock and door log','cold-work']],hand:[],prev:null,ev:['Evidence overview','cold-evidence']}},
  ev:{
-  rev:{st:'watch',head:'$36.00 gross tariff estimate',sub:'120 kWh delivered in complete sessions; chargers used under a fifth of capacity',
+  grow:{st:'watch',lead:'EV-3',head:'$36.00 gross tariff estimate',sub:'120 kWh delivered in complete sessions; chargers used under a fifth of capacity',
    contrib:[['Charging delivered','120 kWh in 10 complete sessions','f130','energy'],['Charger use','Under a fifth of daily capacity','Medium','energy'],['Energy billed against metered',`${NAY} · no settlement records`,null,null]],
    issues:[['opp','Chargers mostly idle','energy'],['finding','F-130 · Interrupted session · lost revenue unknown','ev-finding']],
    can:[['Charging what-ifs','ev-scenarios']],hand:[],prev:null,ev:['Financial bridge','ev-financials']},
-  cost:{st:'notyet',sub:'Energy cost per km needs odometer readings; a tariff estimate exists in Financials'},
-  prot:{st:'needs',head:'1 interrupted · 1 unknown of 12 sessions',sub:'Connector 2 was out of service for 1 hour; which departures were affected is not known yet',
-   contrib:[['Session service','1 fault-aborted session, 1 outcome unknown','f130','sessions'],['Connector availability','Connector 2: 1 h out, 1 h unknown','Medium','availability']],
-   issues:[['finding','F-130 · Charging session interrupted','ev-finding'],['risk','Connector 2 out of service','availability']],
-   can:[['Investigate connector 2','ev-recommendation']],hand:[['ACT-061 · Investigate connector 2','ev-action','Open'],['WR-021 · Connector 2 repair','maintenance','Waiting for diagnostics']],
+  cost:{st:'notyet',lead:'EV-2',sub:'Energy cost per km needs odometer readings; a tariff estimate exists in Financials'},
+  protect:{st:'needs',lead:'EV-1',head:'1 interrupted · 1 unknown of 12 sessions',sub:'Connector 2 was out of service for 1 hour; which departures were affected is not known yet. Charger condition is not assessed',
+   contrib:[['Session service','1 fault-aborted session, 1 outcome unknown','f130','sessions'],['Connector availability','Connector 2: 1 h out, 1 h unknown','Medium','availability'],['Connector 2 charger','Fault on 6 Oct · inspection overdue since 30 Sep','Medium','ev-health'],['Site power','Peak 76 kW of the 80 kW import limit','High','energy'],['Warranty','Claimable until Aug 2028','Record','assets-warranty']],
+   issues:[['finding','F-130 · Charging session interrupted','ev-finding'],['risk','Connector 2 out of service','availability'],['warn','Charger fault and overdue inspection','ev-health'],['risk','Peak close to the import limit','energy']],
+   can:[['Investigate connector 2','ev-recommendation'],['Claim under warranty or repair','assets-warranty']],
+   hand:[['ACT-061 · Investigate connector 2','ev-action','Open'],['WR-021 · Connector 2 repair','maintenance','Waiting for diagnostics'],['PM-0452 · Connector inspection','maintenance-preventive','Overdue']],
    prev:[['No earlier repair on this connector','',null]],ev:['Depot evidence','ev-evidence']},
-  asset:{st:'watch',head:'1 early warning',sub:'Charger condition is not assessed; warranty claim possible',
-   contrib:[['Connector 2 charger','Fault on 6 Oct · inspection overdue since 30 Sep','Medium','ev-health'],['Warranty','Claimable until Aug 2028','Record','assets-warranty']],
-   issues:[['warn','Charger fault and overdue inspection','ev-health']],can:[['Claim under warranty or repair','assets-warranty']],hand:[['PM-0452 · Connector inspection','maintenance-preventive','Overdue']],prev:null,ev:['Charger health','ev-health']},
-  prod:{st:'ontrack',head:'Peak 76 kW of the 80 kW limit',sub:'Within the limit, with little room left',meter:[76,80],
-   contrib:[['Site power','Peak at 10:40, under the limit','High','energy']],issues:[['risk','Peak close to the import limit','energy']],can:[],hand:[],prev:null,ev:['Energy evidence','energy']},
-  assure:{st:'watch',head:'Evidence limited',sub:'One session end and 1 hour of connector status are missing',
-   contrib:[['Session records','1 session has no accepted end','Medium','ev-evidence'],['Connector status','Missing 15:00–16:00','Medium','ev-evidence']],issues:[],can:[],hand:[],prev:null,ev:['Evidence overview','ev-evidence']}}};
+  assure:{st:'watch',lead:'EV-7',head:'Evidence limited · no verified result yet',sub:'One session end and 1 hour of connector status are missing',
+   contrib:[['Departures against the timetable',`${NAY} · no bus roster connected`,null,null],['Session records','1 session has no accepted end','Medium','ev-evidence'],['Connector status','Missing 15:00–16:00','Medium','ev-evidence']],
+   issues:[],can:[],hand:[],prev:null,ev:['Evidence overview','ev-evidence']}}};
 
 const val=v=>typeof v==='function'?v():v;
 function confTag(c){if(!c)return '';if(CONF[c])return conf(c,'');return `<span class="oc-conf">${c}</span>`;}
 function ocList(items,empty){return items&&items.length?`<ul class="ob-list">${items.map(([t,h,n])=>`<li>${h?link(h,t):t}${n?` <span class="oc-state">${val(n)}</span>`:''}</li>`).join('')}</ul>`:`<p class="ob-none">${empty}</p>`;}
 const ISSUE_KIND={finding:['Finding','finding'],risk:['Risk','risk'],opp:['Opportunity','opp'],warn:['Early warning','stress']};
 function issueList(items){return items.length?`<ul class="ob-list">${items.map(([k,t,h])=>`<li><span class="oc-kind ${ISSUE_KIND[k][1]}">${ISSUE_KIND[k][0]}</span> ${link(h,t)}</li>`).join('')}</ul>`:'<p class="ob-none">None open</p>';}
-function obCol(title,body){return `<div class="ob-col"><h4>${title}</h4>${body}</div>`;}
-function outcomeRow(d,key,name,ic){const x=BOARD[d][key],tone=TONE[x.st];
- if(x.st==='notyet')return `<div class="ob ob-later"><div class="ob-sum">${icon(ic)}<span class="ob-name">${name}</span><span class="oc-chip tone-none">Not measured yet</span><span class="ob-head muted">${x.sub}</span></div></div>`;
+function obCol(ic,title,body){return `<div class="ob-col"><h4>${colIcon(ic)}${title}</h4>${body}</div>`;}
+function obName(key,name,def){return `${catIcon(key)}<span class="ob-name">${name}<small>${def}</small></span>`;}
+function outcomeRow(d,key,name,def){const x=BOARD[d][key],tone=TONE[x.st];
+ if(x.st==='notyet')return `<div class="ob ob-later"><div class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-none">Not measured yet</span><span class="ob-head muted">${x.sub}</span></div></div>`;
  const n=x.issues.length,h=x.hand.length;
- return `<details class="ob tone-${tone}" ${x.st==='needs'?'open':''}><summary class="ob-sum">${icon(ic)}<span class="ob-name">${name}</span><span class="oc-chip tone-${tone}">${STATE[x.st]}</span><span class="ob-head">${val(x.head)}</span><span class="ob-counts">${n?`${n} issue${n>1?'s':''}`:'No open issues'}${h?` · ${h} in hand`:''}</span></summary>
- <div class="ob-body"><p class="ob-sub">${x.sub}</p>${x.meter?`<div class="oc-meter" aria-hidden="true"><span style="width:${Math.round(x.meter[0]/x.meter[1]*100)}%"></span></div>`:''}
- <div class="ob-grid">${obCol('What drives it',`<ul class="ob-list ob-contrib">${x.contrib.map(([nm,t,c,hr])=>`<li><div><b>${hr?link(hr,nm):nm}</b><small>${t}</small></div>${confTag(c)}</li>`).join('')}</ul>`)}
- ${obCol('Issues',issueList(x.issues))}${obCol('What can be done',ocList(x.can,'Nothing proposed yet'))}${obCol('Already in hand',ocList(x.hand,'No open action or work'))}${obCol('Earlier interventions',x.prev?ocList(x.prev,''):`<p class="ob-none">${NAY}</p>`)}</div>
+ return `<details class="ob tone-${tone}" ${x.st==='needs'?'open':''}><summary class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-${tone}">${STATE[x.st]}</span><span class="ob-head">${val(x.head)}</span><span class="ob-counts">${n?`${n} issue${n>1?'s':''}`:'No open issues'}${h?` · ${h} in hand`:''}</span></summary>
+ <div class="ob-body"><p class="ob-sub">${x.sub}</p>${x.guard?`<p class="ob-guard">${colIcon('guard')}<span><b>Must not harm</b> ${link(x.guard[1],x.guard[0])}</span></p>`:''}
+ <div class="ob-grid">${obCol('drives','What drives it',`<ul class="ob-list ob-contrib">${x.contrib.map(([nm,t,c,hr])=>`<li><div><b>${hr?link(hr,nm):nm}</b><small>${t}</small></div>${confTag(c)}</li>`).join('')}</ul>`)}
+ ${obCol('issues','Issues',issueList(x.issues))}${obCol('can','What can be done',ocList(x.can,'Nothing proposed yet'))}${obCol('hand','Already in hand',ocList(x.hand,'No open action or work'))}${obCol('prev','Earlier interventions',x.prev?ocList(x.prev,''):`<p class="ob-none">${NAY}</p>`)}</div>
  <div class="ob-foot">${link(x.ev[1],`${x.ev[0]} →`)}</div></div></details>`;}
-function outcomeBoard(d){return `<section class="ob-board" aria-label="Outcomes at this site"><div class="ob-board-head"><h2>How this site is doing</h2><button class="oc-info" data-explain="board" aria-label="About this view">i</button></div>${OUTCOMES.map(([k,n,ic])=>outcomeRow(d,k,n,ic)).join('')}</section>`;}
-function explainBoard(){drawer('How this site is doing',`<p class="prose">Each row is something the business cares about. It shows how it is doing, what is driving that, the problems and opportunities found, what could be done, what is already under way, and whether earlier work fixed anything. Every item opens the page that holds its detail.</p><p class="prose" style="margin-top:10px">Confidence says how complete and consistent the readings are. “Not measured yet” means the records needed to judge it are not connected.</p>`);}
+function outcomeBoard(d){return `<section class="ob-board" aria-label="Outcomes at this site"><div class="ob-board-head"><h2>How this site is doing</h2><button class="oc-info" data-explain="board" aria-label="About this view">i</button></div>${OUTCOMES.map(([k,n,def])=>outcomeRow(d,k,n,def)).join('')}</section>`;}
+function explainBoard(){drawer('How this site is doing',`<p class="prose">Each row is one of the four things the business is trying to achieve. It shows how it is doing, what is driving that, the problems and opportunities found, what could be done, what is already under way, and whether earlier work fixed anything. Every item opens the page that holds its detail.</p>`+table(['Outcome','What it means'],OUTCOMES.map(([k,n,def])=>[`<span class="oc-dname">${catIcon(k)}${n}</span>`,def]))+`<p class="prose" style="margin-top:10px">Money of different kinds is shown separately and never added together. Where a fix in one row could harm another, the row says what it must not harm.</p><p class="prose" style="margin-top:10px">Confidence says how complete and consistent the readings are. “Not measured yet” means the records needed to judge it are not connected.</p>`);}
 
-/* Early warnings without a Finding of their own and no price yet. */
+/* Early warnings without a Finding of their own and no price yet. c is the site-level outcome the warning bears on. */
 const WARNINGS=[
- {d:'cold',c:'CC-6',lens:'Cost',kind:'risk',title:'Repeated maintenance without a result',seen:'Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed',href:'wr-overview',price:'A cost per visit is not set for this site'},
+ {d:'cold',c:'CC-3',lens:'Cost',kind:'risk',title:'Repeated maintenance without a result',seen:'Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed',href:'wr-overview',price:'A cost per visit is not set for this site'},
  {d:'mini',c:'MG-4',lens:'Risks',kind:'stress',title:'Battery below its reserve',seen:'5 of the last 30 days · lowest 22%',href:'asset-overview',price:'Needs a tested battery wear model'},
  {d:'cold',c:'CC-5',lens:'Risks',kind:'stress',title:'Backup start test overdue',seen:'Monthly test due 2 Oct, not done',href:'maintenance-preventive',price:'Needs repair cost and wear history'},
  {d:'ev',c:'EV-4',lens:'Risks',kind:'stress',title:'Charger fault and overdue inspection',seen:'Connector 2 fault on 6 Oct · inspection overdue since 30 Sep',href:'ev-health',price:'Needs repair cost and fault history'},
@@ -349,31 +396,29 @@ const WARNINGS=[
  {d:'ev',c:'EV-3',lens:'Opportunities',kind:'opp',title:'Chargers mostly idle',seen:'Under a fifth of daily capacity used',href:'energy',price:'Needs other fleets’ demand and a rate'}];
 const KIND={risk:'Risk',stress:'Early warning',opp:'Opportunity'};
 function warningList(filter,max){const rows=WARNINGS.filter(filter).slice(0,max||99);if(!rows.length)return '';
- return `<div class="oc-warn"><div class="oc-warn-head"><h3>Early warnings · not priced yet</h3><button class="oc-info" data-explain="warnings" aria-label="About early warnings">i</button></div><ul>${rows.map(x=>`<li><span class="oc-kind ${x.kind}">${KIND[x.kind]}</span><div>${link(x.href,x.title,'strong')}<small>${SITES[x.d].name.split(' ')[0]} · ${OUTCOME[x.c]} · ${x.seen}</small></div></li>`).join('')}</ul></div>`;}
-function explainWarnings(){drawer('Early warnings',`<p class="prose">An early warning points at something that tends to cost money or shorten equipment life, before its cost can be worked out. It shows what was seen and how often. It never shows a money figure.</p>`+table(['Warning','What would put a value on it'],WARNINGS.map(x=>[x.title,x.price])));}
+ return `<div class="oc-warn"><div class="oc-warn-head"><h3>Early warnings · not priced yet</h3><button class="oc-info" data-explain="warnings" aria-label="About early warnings">i</button></div><ul>${rows.map(x=>`<li><span class="oc-kind ${x.kind}">${KIND[x.kind]}</span><div>${link(x.href,x.title,'strong')}<small>${SITES[x.d].name.split(' ')[0]} · ${CATN[CAT_OF[x.c]]} · ${x.seen}</small></div></li>`).join('')}</ul></div>`;}
+function explainWarnings(){drawer('Early warnings',`<p class="prose">An early warning points at something that tends to cost money or shorten equipment life, before its cost can be worked out. It shows what was seen and how often. It never shows a money figure.</p>`+table(['Warning','Outcome','What would put a value on it'],WARNINGS.map(x=>[x.title,CATN[CAT_OF[x.c]],x.price])));}
 
-/* Portfolio: six outcome cards (replacing the five value cards) and the outcome matrix. */
+/* Portfolio: four outcome cards (replacing the five value cards) and the outcome matrix. */
 const PF_SITE_NAME={mini:'Kobo',cold:'GreenHarvest',ev:'Depot'};
-function pfCard(k,name,ic){const sites=['mini','cold','ev'],st=sites.map(d=>BOARD[d][k].st);
+function pfCard(k,name,def){const sites=['mini','cold','ev'],st=sites.map(d=>BOARD[d][k].st);
+ const stress=WARNINGS.filter(x=>CAT_OF[x.c]==='protect'&&x.kind==='stress').length;
  const cfg={
-  rev:{tone:'green',value:'18–20 <small>kW unused</small>',detail:'Productive use at Kobo · idle chargers at Depot',basis:'Opportunities · revenue not measured yet',to:'renewable'},
-  cost:{tone:'amber',value:money(),detail:'Kobo generator time · 1 trial in hand · repeated repairs at GreenHarvest',basis:'Modelled + scenario · one-hour window',to:'financials'},
-  prot:{tone:'red',value:'2 <small>sites</small>',detail:'Cold-room exposure · interrupted charging · 3 actions and work in hand',basis:'Measured events · loss not priced',to:'findings-risks'},
-  asset:{tone:'purple',value:`${WARNINGS.filter(x=>x.kind==='stress').length} <small>early warnings</small>`,detail:'Battery below reserve · overdue servicing · charger fault',basis:'Early warning · not a condition check',to:'findings-risks'},
-  prod:{tone:'neutral',value:'Not measured',detail:'Depot peak at 95% of its limit · site income not recorded',basis:'Needs income and capital records',to:'energy'},
-  assure:{tone:'neutral',value:'Not established',detail:'No verified result yet · evidence gaps at all 3 sites',basis:'Completed work does not establish savings',to:'globalevidence'}}[k];
- return `<a class="value-card ${cfg.tone} oc-pfcard" href="#/${cfg.to}"><div class="value-label">${icon(ic)}<span>${name}</span>${icon('arrow')}</div><div class="value-number">${cfg.value}</div><p>${cfg.detail}</p><div class="oc-sitedots">${sites.map((d,i)=>`<span class="tone-${TONE[st[i]]}" title="${PF_SITE_NAME[d]}: ${STATE[st[i]]}"><i></i>${PF_SITE_NAME[d]}</span>`).join('')}</div><div class="value-basis">${cfg.basis}</div></a>`;}
-function portfolioOutcomeCards(){return `<div class="value-grid oc-pfgrid">${OUTCOMES.map(([k,n,ic])=>pfCard(k,n,ic)).join('')}</div>`;}
-const PF_ROWS=[['Revenue','rev',{mini:'MG-1',cold:'CC-2',ev:'EV-3'}],['Operating cost','cost',{mini:'MG-2',cold:'CC-3',ev:'EV-2'}],['Service and stock','prot',{mini:'MG-5',cold:'CC-6',ev:'EV-1'}],['Asset life','asset',{mini:'MG-4',cold:'CC-5',ev:'EV-4'}],['Return on assets','prod',{mini:'MG-3',cold:'CC-2',ev:'EV-5'}],['Evidence','assure',{mini:'MG-7',cold:'CC-7',ev:'EV-7'}]];
+  grow:{tone:'green',value:'18–20 <small>kW unused</small>',detail:'Productive use at Kobo · idle chargers at Depot · site income not recorded',basis:'Opportunities · revenue not measured yet',to:'renewable'},
+  cost:{tone:'amber',value:money(),detail:'Kobo generator time, 1 trial in hand · 3 repair visits without a result at GreenHarvest, cost not recorded',basis:'Modelled + scenario · one-hour window · reliability checked as a safeguard',to:'financials'},
+  protect:{tone:'red',value:`2 <small>sites disrupted</small>`,detail:`Cold-room exposure · interrupted charging · ${stress} early warnings on battery, generator, charger and backup · Depot peak at 95% of its limit`,basis:'Measured events and early warnings, counted separately · loss not priced',to:'findings-risks'},
+  assure:{tone:'neutral',value:'Not established',detail:'No verified result yet · no targets declared · evidence gaps at all 3 sites',basis:'Completed work does not establish savings',to:'globalevidence'}}[k];
+ return `<a class="value-card ${cfg.tone} oc-pfcard" href="#/${cfg.to}"><div class="value-label">${catIcon(k)}<span>${name}</span>${icon('arrow')}</div><p class="oc-pfdef">${def}</p><div class="value-number">${cfg.value}</div><p>${cfg.detail}</p><div class="oc-sitedots">${sites.map((d,i)=>`<span class="tone-${TONE[st[i]]}" title="${PF_SITE_NAME[d]}: ${STATE[st[i]]}"><i></i>${PF_SITE_NAME[d]}</span>`).join('')}</div><div class="value-basis">${cfg.basis}</div></a>`;}
+function portfolioOutcomeCards(){return `<div class="value-grid oc-pfgrid">${OUTCOMES.map(([k,n,def])=>pfCard(k,n,def)).join('')}</div>`;}
 function portfolioOutcomes(){const sites=['mini','cold','ev'];
- return `<div class="oc-matrix" role="table" aria-label="Outcomes across the estate"><div class="oc-mrow oc-mhead" role="row"><span role="columnheader"></span>${sites.map(d=>`<span role="columnheader">${link(SITES[d].overview,PF_SITE_NAME[d])}</span>`).join('')}</div>${PF_ROWS.map(([name,k,m])=>`<div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow">${name}</span>${sites.map(d=>{const st=BOARD[d][k].st;return `<span role="cell"><a class="oc-cell tone-${TONE[st]}" href="#/${SITES[d].overview}" title="${OUTCOME[m[d]]}"><b>${STATE[st]}</b><small>${OUTCOME[m[d]]}</small></a></span>`;}).join('')}</div>`).join('')}</div><div class="oc-key">${['needs','watch','opp','ontrack','unknown','notyet'].map(k=>`<span><i class="tone-${TONE[k]}"></i>${STATE[k]}</span>`).join('')}</div>`;}
+ return `<div class="oc-matrix" role="table" aria-label="Outcomes across the estate"><div class="oc-mrow oc-mhead" role="row"><span role="columnheader"></span>${sites.map(d=>`<span role="columnheader">${link(SITES[d].overview,PF_SITE_NAME[d])}</span>`).join('')}</div>${OUTCOMES.map(([k,name,def])=>`<div class="oc-mrow" role="row"><span role="rowheader" class="oc-orow" title="${def}">${catIcon(k)}<span>${name}</span></span>${sites.map(d=>{const x=BOARD[d][k],st=x.st;return `<span role="cell"><a class="oc-cell tone-${TONE[st]}" href="#/${SITES[d].overview}" title="${PF_SITE_NAME[d]} · ${name}: ${OUTCOME[x.lead]}"><b>${STATE[st]}</b><small>${OUTCOME[x.lead]}</small></a></span>`;}).join('')}</div>`).join('')}</div><div class="oc-key">${['needs','watch','opp','ontrack','unknown','notyet'].map(k=>`<span><i class="tone-${TONE[k]}"></i>${STATE[k]}</span>`).join('')}</div>`;}
 
 /* Reviewer-only: open owner decisions, shown as proposed defaults in this mock. */
 function ownerDecisions(){drawer('Owner decisions shown with proposed defaults',`<p class="prose">These are open. The mock shows the architect’s proposed default for each so it can be judged in context.</p>`+table(['Decision','Proposed default in this mock','Where to see it'],[
  ['Build order','1 labels and links · 2 objectives and status · 3 early warnings · 4 cost check after the generator trial · 5 asset-life warnings · 6 first full check outside the mini-grid · 7 productive-use contribution','Portfolio and site overviews'],
- ['First full check outside the mini-grid','Cooling continuity at GreenHarvest (alternative: Depot charging interruptions)',`${link('cold','GreenHarvest overview')} · Service and stock`],
+ ['First full check outside the mini-grid','Cooling continuity at GreenHarvest (alternative: Depot charging interruptions)',`${link('cold','GreenHarvest overview')} · Protect asset and capital`],
  ['Which outcomes get an objective for the demo','Supply cost, productive sales, reliable service, cooling continuity, buses ready to run (the chamber range and import limit already exist)','Site overviews'],
- ['Cost per maintenance visit','Added later as a site setting; until then the warning has no money value',`${link('cold','GreenHarvest overview')} · Operating cost`]]),true);}
+ ['Cost per maintenance visit','Added later as a site setting; until then the warning has no money value',`${link('cold','GreenHarvest overview')} · Optimize cost and efficiency`]]),true);}
 document.addEventListener('click',e=>{
  if(e.target.closest('[data-explain="warnings"]')){explainWarnings();return;}
  if(e.target.closest('[data-explain="board"]')){explainBoard();return;}
@@ -1368,7 +1413,7 @@ function variant(s){
 function shell(s,book=false){
  const global=!s.section||!!s.gtabs,lab=s.root==='Simulator Lab';
  const sensitive=['mini','dispatch','renewable','finding','financials','asset','cold','temperature','cooling','ev','sessions','availability','energy','evidence'];
- const fid=s.root==='Findings'&&s.section&&!s.gtabs?(s.obj||OBJ[s.id]):null;
+ const fid=(s.root==='Findings'||s.root==='Actions')&&s.section&&!s.gtabs?(s.obj||OBJ[s.id]):null;
  const body=(fid?affectsLine(fid):'')+(!book&&stage.view!=='populated'&&sensitive.includes(s.id)?variant(s):s.render());
  return `<div class="shell">${rail(s)}<main class="workspace"><header class="topbar"><div class="portfolio-name">${lab?'Simulator Lab · MG-DEMO-01':'Bineyame Operations'} <span class="muted">/ Demo estate</span></div><div class="right"><button class="searchbox" data-index>${icon('search')}Find a screen</button>${lab?`<span id="topbar-window">${SITES[s.domain].window}</span>`:`${s.root==='Sites'&&s.section&&!s.gtabs?siteSwitch(s):''}${rangePicker(global?null:s.domain)}`}<span class="avatar">BY</span></div></header><div class="canvas">${breadcrumbs(s)}<div class="page-heading"><div><div class="title-row"><h1>${s.title}</h1>${s.root==='Sites'&&s.section&&!s.gtabs?provTag(s.domain):''}</div><p>${s.subtitle||s.question}</p></div><div class="heading-actions">${!global&&!lab&&s.root!=='Sites'?btn(SITES[s.domain].overview,'Open site'):''}</div></div>${tabs(s)}${body}${footer()}</div></main></div>`;
 }
@@ -1505,14 +1550,15 @@ document.addEventListener('keydown',e=>{
 });
 window.addEventListener('hashchange',()=>{stage.view='populated';stage.rangeOpen=false;render();window.scrollTo(0,0);});
 const V70={
- portfolio:'Rev 5 §6.1, §11: the objectives matrix has six outcome rows (owner-approved change from five operating rows), shown as colour-coded status blocks with plain outcome names and a colour key. Value cards keep v6.9 labels; the asset-life card counts early warnings. Each ranked finding shows the outcome it affects and how often it recurs. Early warnings (not priced yet) sit under the ranked table, not in a separate panel.',
- mini:'Rev 5 §3, §6.2, §7: the v6.9 assessment cards are replaced by six outcome rows (Revenue, Operating cost, Service and stock, Asset life, Return on assets, Evidence and assurance). Dispatch, Fuel and fuel price are contributors to Operating cost; Renewable to Revenue; Service and Backup to Service and stock; Battery and generator service to Asset life. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line.',
- cold:'Rev 5 §3, §6.2, §9: the v6.9 assessment cards are replaced by six outcome rows. Temperature, Backup and Cooling are contributors to Service and stock; Maintenance appears as repeated repairs under Operating cost and as work in hand and earlier interventions; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line.',
- ev:'Rev 5 §3, §6.2, §8: the v6.9 assessment cards are replaced by six outcome rows. Session service and Availability are contributors to Service and stock; Site power is the Return on assets row; Charger condition and warranty feed Asset life; charging delivered and charger use feed Revenue; Evidence is the Evidence and assurance row. Each row shows the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Rows needing attention open by default; rows without data are one Not measured yet line.',
+ portfolio:'Owner decision 29 Oct 2026, rev 5 §6.1, §11: the objectives matrix has four outcome rows (owner-approved change from five operating rows), one per outcome category, shown as colour-coded status blocks with the category icon, plain names and a colour key. Four outcome cards replace the value cards; each carries its icon, the owner’s one-line definition and site status dots. Protect asset and capital counts disruption and early warnings separately, never as one figure. Each ranked finding shows the category it affects and how often it recurs. Early warnings (not priced yet) sit under the ranked table and name their category.',
+ mini:'Owner decision 29 Oct 2026, rev 5 §3, §6.2, §7: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Renewable and site earnings feed Grow revenue; Dispatch, Fuel and fuel price feed Optimize cost and efficiency, with a Must not harm line naming reliable service and battery life as trial safeguards; Battery, generator service, Service and Backup feed Protect asset and capital; Evidence, the trial’s verification and actual against plan feed Assure performance and returns. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line.',
+ cold:'Owner decision 29 Oct 2026, rev 5 §3, §6.2, §9: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Repeated repairs without a result (maintenance effectiveness) feed Optimize cost and efficiency, with cooling continuity as its Must not harm line; Temperature, Backup, Cooling and compressor and backup servicing feed Protect asset and capital; Evidence, WR-019 verification and storage service level feed Assure performance and returns; Grow revenue is Not measured yet. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line.',
+ ev:'Owner decision 29 Oct 2026, rev 5 §3, §6.2, §8: the v6.9 assessment cards are replaced by the owner’s four outcome categories (Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns; owner decision 29 Oct 2026). Charging delivered, charger use and billed against metered feed Grow revenue; Session service, Availability, Charger condition, warranty and Site power (import limit) feed Protect asset and capital; Evidence and departures against the timetable feed Assure performance and returns; Optimize cost and efficiency is Not measured yet. Each row shows the owner’s one-line definition and the state, then (figure 3.1 of rev 5) what drives it with confidence, issues, what can be done, what is already in hand, earlier interventions and an evidence link, each linking to the existing screen. Each category has one line icon, used the same way on Portfolio cards, the matrix and site rows. Rows needing attention open by default; rows without data are one Not measured yet line.',
  findings:'Rev 5 §4.3, §5: each finding shows the outcome it affects and how often it recurs; early warnings for the same lens sit under the table.',
- 'findings-cost':'Rev 5 §5.2: Affects pill; the repeated-maintenance warning sits under the Cost lens.','findings-risks':'Rev 5 §5.3: Affects pill; downtime and early warnings sit under the Risks lens.','findings-opportunities':'Rev 5 §5: Affects pill; idle-charger warning sits under the Opportunities lens.',
+ 'findings-cost':'Rev 5 §5.2: Affects pill names the category; the repeated-maintenance warning sits under the Cost lens and Optimize cost and efficiency, as on the GreenHarvest overview.','findings-risks':'Rev 5 §5.3: Affects pill; downtime and early warnings sit under the Risks lens.','findings-opportunities':'Rev 5 §5: Affects pill; idle-charger warning sits under the Opportunities lens.',
  sitefindings:'Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list.','cold-findings':'Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list.','ev-findings':'Rev 5 §4.3: Affects pill and recurrence; this site’s early warnings under the list.',
  finding:'Rev 5 §4.3: one “Affects / Also check” line above the page.',analysis:'Rev 5 §4.3: Affects line.',recommendation:'Rev 5 §4.3: Affects line.','finding-evidence':'Rev 5 §4.3: Affects line.',alternatives:'Rev 5 §4.3: Affects line.','finding-history':'Rev 5 §4.3: Affects line.','opportunity-finding':'Rev 5 §4.3: Affects line.','cold-finding':'Rev 5 §4.3: Affects line.','cold-finding-excursion':'Rev 5 §4.3: Affects line.','ev-finding':'Rev 5 §4.3: Affects line.',
+ verification:'Owner decision 29 Oct 2026: Affects line names Optimize cost and efficiency, with Protect asset and capital (reliable service, battery and generator life) as the safeguards this trial checks.','action-overview':'Affects line with the trial’s safeguards.','action-plan':'Affects line with the trial’s safeguards.','action-execution':'Affects line with the trial’s safeguards.','action-evidence':'Affects line with the trial’s safeguards.','action-history':'Affects line with the trial’s safeguards.',
  maintenance:'Rev 5 §5.2: “Repeat visits without a result” replaces “Repeat findings 0”; earlier visits WR-011 and WR-016 added.','wr-overview':'Rev 5 §5.2: one plain notice that this is the third visit without a result.'};
 SCREENS.forEach(s=>{if(V70[s.id])s.v70=V70[s.id];});
 window.mockupManifest=SCREENS.map(({render,...meta})=>meta);
