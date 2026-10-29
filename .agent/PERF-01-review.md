@@ -181,3 +181,9 @@ H1, H2 and L1 are closed and verified. L2 and the recovery note are closed. The 
 - No full suite was run.
 - The Docker runner was not run either. `docker ps` showed `assetops-ops03-20261029-135655-3c55b5`, which belongs to another lane, so it was left alone.
 - I checked the derived cap by arithmetic and by reading the code. I did not run it live.
+
+## Coordinator verification of fix round 2 (4ef670ca), 2026-10-29: ACCEPT
+- M-a: closed. TESTING.md now points at the PERF-01 timing rows, and the caps read 149/126/20 at 4 workers, 198/167 at 3 and 297/251 at 2. The remaining `-n 2` lines are historical host-fallback rows and are labelled as such.
+- L-a: closed for the PowerShell call form. The Git Bash `-File` form is blocked by the machine's execution policy; no override is used. This is documented.
+- L-b: closed. A dry run prints "NOTHING RAN" and exits 3; the coordinator ran it.
+- check-architecture.ps1 passed, and check-agent-workflow.ps1 passed (both run directly by the coordinator).
