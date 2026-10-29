@@ -425,6 +425,10 @@ def _start_gateway(chain):
     config.write_text(json.dumps(document), encoding="utf-8")
     process = g["GatewayProcess"](config)
     assert process.ready, process.first_line
+    # A restarted gateway makes one upload pass at start (a diagnostic for the current clock slot). Finish it now,
+    # under the gateway's own lock, so it cannot land in the middle of the test's next step.
+    g["RegisteredGatewayPublisher"](process.link).deliver(50)
+    time.sleep(0.2)
     return process, central
 
 
@@ -592,6 +596,61 @@ def _uuid_state():
 # --- the op wrapper ----------------------------------------------------------------------------------------
 
 
+# --- code that an op runs: no function or class may have been swapped by direct assignment -----------------------
+
+_REPO_TEXT = str(REPO)
+
+
+_BUILDER_MODULES = {m for _, modules, _, _ in OPS for m in modules} | {m for m, _ in FUNCTION_OPS}
+
+
+def _repo_modules():
+    """Product, host, gateway, simulator and contract modules, test helpers and the builder test modules."""
+    for name, module in list(sys.modules.items()):
+        path = str(getattr(module, "__file__", "") or "")
+        if not path.startswith(_REPO_TEXT) or ".venv" in path or "site-packages" in path:
+            continue
+        base = name.rsplit(".", 1)[-1]
+        if base in ("setup_cache", "phase_attribution", "phase_timing", "conftest"):
+            continue
+        if base.startswith("test_") and base not in _BUILDER_MODULES:
+            continue
+        yield name, module
+
+
+
+def _callables(module):
+    for attr, value in list(vars(module).items()):
+        if attr in _UUID_NAMES or attr.startswith("__"):
+            continue
+        if callable(value):
+            yield attr, value
+            if isinstance(value, type) and getattr(value, "__module__", None) == module.__name__:
+                for method, function in list(vars(value).items()):
+                    if callable(function) and not method.startswith("__"):
+                        yield f"{attr}.{method}", function
+
+
+def _code_baseline() -> None:
+    _state["baseline"] = {name: {a: id(v) for a, v in _callables(m)} for name, m in _repo_modules()}
+
+
+def _swapped() -> str | None:
+    """The first repository function or class rebound since the baseline (a direct-assignment patch), if any."""
+    baseline = _state.get("baseline")
+    if baseline is None:
+        return None
+    for name, module in _repo_modules():
+        known = baseline.get(name)
+        if known is None:
+            baseline[name] = {a: id(v) for a, v in _callables(module)}
+            continue
+        for attr, value in _callables(module):
+            if known.get(attr, id(value)) != id(value) and not getattr(value, "__setup_cache__", False):
+                return f"{name}.{attr}"
+    return None
+
+
 def _context(kind, args, chain_tmp):
     return {"args": list(args), "self": args[0] if kind != "function" else None, "tmp": chain_tmp}
 
@@ -605,6 +664,9 @@ def run_op(original, kind: str, label: str, args, kwargs):
         if _state["patches"]:
             raise NotCached("a monkeypatch other than the UUID counter is active: "
                             + ", ".join(_state.get("patch_names", [])[-4:]))
+        swapped = _swapped()
+        if swapped:
+            raise NotCached(f"{swapped} is rebound by direct assignment")
         fresh = kind == "chain-open" and kwargs.get("fresh", True)
         if kind == "chain-open" and kwargs.get("scenarios") is not None:
             raise NotCached("an injected scenario repository")
@@ -959,11 +1021,15 @@ class SetupCachePlugin:
         _track_emptying()
         self._modules = len(sys.modules)
 
+
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_setup(self, item):
         if len(sys.modules) != getattr(self, "_modules", 0):
             install()
             self._modules = len(sys.modules)
+            _state["baseline"] = None
+        if _state.get("baseline") is None:  # after every wrapper of this process is installed
+            _code_baseline()
         _state.update(ops_in_test=0, test_writes=0, phase="setup", module=getattr(item.module, "__name__", ""))
         yield
         _state["phase"] = None
