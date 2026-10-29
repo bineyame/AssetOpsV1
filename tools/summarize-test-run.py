@@ -113,7 +113,8 @@ def summarise(run: Path) -> dict:
 
 
 def compare(run: Path, baseline: Path, extras: list[Path], known: set[str]) -> dict:
-    base_ids, run_ids = collected(baseline), collected(run)
+    base_ids = collected(baseline)
+    run_ids = sorted(set(collected(run)).union(*(collected(e) for e in extras)))  # PERF-02: tiers collect apart
     base_cases = junit_cases(baseline)
     run_cases = dict(junit_cases(run))
     for extra in extras:

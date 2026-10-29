@@ -51,10 +51,23 @@ if bad:
     sys.exit(f"REFUSED: {', '.join(bad)} import from outside /workspace (stale editable install)")
 PY
 
-# PERF-01 phase 0: the collected node IDs (whole suite, no tier filter) for the run-to-run ID comparison, and
-# per-test set-up / call / teardown times (backend/tests/phase_timing.py).
-/opt/assetops-venv/bin/python -m pytest backend/tests --collect-only -q -p no:cacheprovider > "$out/collected.txt" 2>&1 || true
+# PERF-01 phase 0: per-test set-up / call / teardown times (backend/tests/phase_timing.py).
+# PERF-02 T3: the collected node IDs come from the run itself (conftest COLLECTED_ENV, after any tier filter);
+# the separate collect-only pass (about 80 s) is gone.
 export ASSETOPS_TEST_PHASE_TIMES="$out/phase-times.csv"
+export ASSETOPS_TEST_COLLECTED="$out/collected.txt"
+# PERF-02 T1/T2: build once, copy per test (backend/tests/setup_cache.py). Saved set-ups live in the named volume
+# mounted at /opt/assetops-setup-cache and as assetops_sc_*_test databases on postgres-test, kept between runs.
+case "${ASSETOPS_SETUP_CACHE_MODE:-on}" in
+  on) export ASSETOPS_SETUP_CACHE_DIR=/opt/assetops-setup-cache ;;
+  verify) export ASSETOPS_SETUP_CACHE_DIR=/opt/assetops-setup-cache-verify ASSETOPS_SETUP_CACHE_VERIFY=1 ;;
+  off) export ASSETOPS_SETUP_CACHE=0 ;;
+  *) echo "ASSETOPS_SETUP_CACHE_MODE must be on, verify or off" >&2; exit 2 ;;
+esac
+export ASSETOPS_SETUP_CACHE_LOG="$out/setup-cache"
+if [ -n "${ASSETOPS_SETUP_CACHE_DIR:-}" ]; then
+  /opt/assetops-venv/bin/python /workspace/tools/sweep-setup-cache.py "$ASSETOPS_SETUP_CACHE_DIR" || true
+fi
 if [ "${ASSETOPS_TEST_ATTRIBUTION_ON:-}" = "1" ]; then
   export ASSETOPS_TEST_ATTRIBUTION="$out/attribution"  # backend/tests/phase_attribution.py
 fi

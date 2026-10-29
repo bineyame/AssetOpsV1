@@ -51,14 +51,19 @@ services:
       ASSETOPS_TEST_TARGETS: ${ASSETOPS_TEST_TARGETS:-backend/tests}
       ASSETOPS_TEST_MARKEXPR: ${ASSETOPS_TEST_MARKEXPR:-}
       ASSETOPS_TEST_ATTRIBUTION_ON: ${ASSETOPS_TEST_ATTRIBUTION_ON:-}
+      ASSETOPS_SETUP_CACHE_MODE: ${ASSETOPS_SETUP_CACHE_MODE:-on}
       OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
     volumes:
       - type: bind
         source: ${ASSETOPS_WORKTREE:?set by tools/run-backend-suite-in-container.ps1}
         target: /workspace
       - assetops-test-venv:/opt/assetops-venv
+      - assetops-test-setup-cache:/opt/assetops-setup-cache
+      - assetops-test-setup-cache-verify:/opt/assetops-setup-cache-verify
       - assetops-test-pip-cache:/root/.cache/pip
 volumes:
   assetops-test-pg:
   assetops-test-venv:
+  assetops-test-setup-cache:
+  assetops-test-setup-cache-verify:
   assetops-test-pip-cache:
