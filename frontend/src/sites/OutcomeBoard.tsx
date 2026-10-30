@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode, type R
 import { Link } from "react-router-dom";
 
 import { OutcomeGlyph, type OutcomeGlyphName } from "./componentIcons";
+import { DataTable } from "../ui";
 import { OutcomeIcon } from "./outcomeCategories";
 import type {
   OutcomeBoardBody,
@@ -271,27 +272,29 @@ function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose
         </button>
       </div>
       <p className="prose">{EXPLAIN[0]}</p>
-      <table className="ob-dialog-table">
-        <thead>
-          <tr>
-            <th scope="col">Outcome</th>
-            <th scope="col">What it means</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.category}>
-              <td>
-                <span className="oc-dname">
-                  <OutcomeIcon icon={row.category} label={row.label} />
-                  {row.label}
-                </span>
-              </td>
-              <td>{row.definition}</td>
+      <div className="ob-dialog-table">
+        <DataTable>
+          <thead>
+            <tr>
+              <th scope="col">Outcome</th>
+              <th scope="col">What it means</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.category}>
+                <td>
+                  <span className="oc-dname">
+                    <OutcomeIcon icon={row.category} label={row.label} />
+                    {row.label}
+                  </span>
+                </td>
+                <td>{row.definition}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </div>
       <p className="prose">{EXPLAIN[1]}</p>
       <p className="prose">{EXPLAIN[2]}</p>
     </dialog>

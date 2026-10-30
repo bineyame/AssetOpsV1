@@ -111,7 +111,7 @@ details.ob[open] > .ob-sum::after { transform: rotate(-135deg); }
 .ob-dialog-close { border: 1px solid var(--border-subtle); background: var(--surface-raised); border-radius: 6px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; line-height: 1; }
 .ob-dialog-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .ob-dialog .prose { font-size: 12px; line-height: 1.55; margin: 0 0 10px; }
-.ob-dialog-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0 0 10px; }
+.ob-dialog-table .data-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0 0 10px; }
 .ob-dialog-table th, .ob-dialog-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
 @media screen and (max-width: 1200px) {
   .ob-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
