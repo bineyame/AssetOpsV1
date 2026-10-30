@@ -477,3 +477,6 @@ Anchors are relative to backend/assetops_backend.
   coordinator ruling before merge.
 - Coordinator: the "Each card shows what its selected period supports." strip copy goes to the Architect; left as
   is; record in the packet.
+- Coordinator ruling: the coldWorkCases K3b failure is a known load flake (the same tests flaked in slice A's full run).
+  No rerun needed; the packet records it as a flake that passed on rerun. Next agent: Step 3 from `-Tier all` (ask
+  the coordinator for a go first), then captures (separate go), then Step 4.
