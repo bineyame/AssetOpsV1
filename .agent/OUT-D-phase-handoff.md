@@ -1,4 +1,19 @@
-# OUT-D phase handoff (partial: U1-U3 done, resume at U4)
+# OUT-D phase handoff (partial: U1-U4 done, U5 in progress)
+
+## Update 2026-10-31 (second implementer)
+- `f602e7b6` merge main 9ebb3d1c (OUT-W), no conflicts. `91c8d6fd` L1 (zero AT_LEAST refused; target_text always
+  substitutes), L2 (Site-level key reuse 409 + IntegrityError backstop, `_same_key` staticmethod), L3 test tag,
+  fixture `outcome-status/2`.
+- `0f0e8a0d` U4: `site_outcomes/objective_facts.py` (from_rows, chamber_range, catalogue_index, assure_text, COPY);
+  `board.py` objective_verdict / objective_verdicts / objective_contributor / objectives_wire (board.py may import only
+  outcomes.*); composers' `mini_readings`, `cold_readings`, `ev_readings`; read.py port, wire `objectives`,
+  `policy_versions.objectives`, summary `objective_site_count`. Test `test_out_d4_board.py` (15). U4 review requested.
+- U5 (uncommitted at time of writing): `PortfolioOutcomes.tsx` `assureDetailText`, `estateClient.ts` type,
+  fixtures `objective_site_count: 0`, tests in `estatePortfolio.test.tsx` + `outcomeBoard.test.tsx` (16 related files
+  386 passed; `vitest related` itself crashes on a .py import - tooling, used explicit file list).
+  `test_out_d5_objectives_postgres.py`: one DB per producer (no combined dataset exists), so the summary count is 1
+  per DB, not 3 (Known Deviation). Full-log helper: scratchpad `ptlog.ps1 <log> <tests>` (pt.ps1 truncates to 25 lines).
+- Then U6 (captures need coordinator go), register R580-R586, closeout.
 
 Branch `task/OUT-D-declared-objectives`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outD`, head `994a5462`
 (base main `833e7c95`). Sheet (binding, self-contained): `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-D.md`.

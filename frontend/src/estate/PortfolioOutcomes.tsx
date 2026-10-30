@@ -164,11 +164,19 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
   const gap = evidenceGapText(body.summary.evidence_gap_site_count, body.scope.authorized_site_count);
   return {
     value: recovery === undefined ? "Not established" : cardValue(recovery, body).value,
-    detail: `No verified result yet · no targets declared · ${gap}`,
+    detail: assureDetailText(summary, gap),
     basis: recovery?.basis_text || ASSURE_BASIS,
     destination: "/evidence",
     tone: "neutral",
   };
+}
+
+/** OUT-D U5 (R586): the Assure detail names how many Sites declared targets; it never says "no targets" unread. */
+export function assureDetailText(summary: EstateOutcomeSummaryBody | null, gap: string): string {
+  const n = summary?.objective_site_count ?? null;
+  if (n === null) return `No verified result yet · ${gap}`;
+  if (n === 0) return `No verified result yet · no targets declared · ${gap}`;
+  return `No verified result yet · targets declared at ${n} ${n === 1 ? "site" : "sites"} · ${gap}`;
 }
 
 /** OUT-B B6: one dot per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`). */

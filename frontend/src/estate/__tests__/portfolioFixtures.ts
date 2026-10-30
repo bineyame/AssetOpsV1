@@ -363,6 +363,7 @@ export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {})
     })),
     categories: SUMMARY_CATEGORIES.map((c) => ({ ...c, icon: c.category, sites_needing_attention: 0, warning_count: 0 })),
     warnings: [],
+    objective_site_count: 0,
     ...over,
   };
 }

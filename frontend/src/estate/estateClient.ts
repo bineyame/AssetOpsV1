@@ -489,6 +489,8 @@ export interface EstateOutcomeSummaryBody {
   sites: EstateOutcomeSummarySite[];
   categories: EstateOutcomeSummaryCategory[];
   warnings: OutcomeWarning[];
+  /** OUT-D: Sites whose board lists a declared objective; null when no Site board was read. */
+  objective_site_count: number | null;
 }
 
 export interface EstateClient {

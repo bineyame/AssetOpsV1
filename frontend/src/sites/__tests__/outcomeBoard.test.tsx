@@ -186,4 +186,33 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(scan.scanned).toBeGreaterThan(20);
     expect(describeViolations(scan.violations)).toBe("");
   });
+
+  it("rendersADeclaredObjectiveContributorWithItsChipAndPassesTheScan", async () => {
+    // OUT-D U5: the objective line is an ordinary contributor with a chip; no component change.
+    const rows = boardRows().map((r) =>
+      r.category !== "OPTIMIZE_COST"
+        ? r
+        : {
+            ...r,
+            contributors: [
+              ...r.contributors,
+              {
+                key: "declared_objective:MG-2",
+                label: "Declared objective",
+                text: "Supply cost per kWh: no generator time longer than needed · 12 min longer than needed on this day",
+                confidence: { label: "Missed", tone: "amber" },
+                href: null,
+              },
+            ],
+          },
+    );
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) });
+    const drives = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='drives']") as HTMLElement;
+    expect(drives.textContent).toContain("Declared objective");
+    expect(drives.textContent).toContain("Supply cost per kWh: no generator time longer than needed · 12 min longer than needed on this day");
+    expect(Array.from(drives.querySelectorAll(".oc-conf")).map((c) => c.textContent)).toContain("Missed");
+    for (const code of ["MG-2", "MISSED", "declared_objective", "avoidable_generator_minutes"]) expect(board().textContent).not.toContain(code);
+    const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
+    expect(describeViolations(scan.violations)).toBe("");
+  });
 });
