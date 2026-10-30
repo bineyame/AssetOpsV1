@@ -93,3 +93,68 @@ These are Q-B2-1 to Q-B2-6 in the message of 2026-10-30.
 - Kill processes by PID only.
 - No execution-policy override.
 - Focused pytest: in PowerShell, set PYTHONPATH from the task file, then run `..\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider <file>` from `backend/`.
+
+## Since B1 (2026-10-30)
+- Main (slice A, 32adae2f) merged in at 6dbf723f.
+- Packet must mark register row R529 (Portfolio card site dots, D5) resolved once B6 fills the dots.
+
+## B2 landed (commits 7ad1a040 board addendum 2, then the mini composer commit)
+- board.py: Action items read the code only; Must-not-harm "... when {code} is verified ..."; `FindingFact.in_window`
+  gates signals/issues/headline/earlier-empty; unresolved links kept under PROTECT_ASSET with
+  " · linked finding outside this view" (in-hand state label, earlier result label); `unresolved_links(facts)`
+  feeds the composer's diagnostics (M1 AssertionError removed). `SiteFacts.date_suffix` for UTC-fallback dates.
+- mini.py: `MiniPorts` (12 callables bound by B4), `compose(ports, site_code, day, site_timezone)` ->
+  `MiniComposition(facts, read_state, failed, diagnostics, window, timezone)`. Tests: test_out_b2_mini.py,
+  test_out_b2_vocabulary.py (proved non-vacuous by injecting a raw code into mini copy).
+- B4 must bind: estate port returning `{site_cov, findings (select_finding_scope rows), actions
+  (select_action_scope rows)}` for one Site over the work window; paging ports take a cursor; `plans` returns
+  DRAFT preventive wires for this Site; `readiness(lo, hi)` -> FULL/LIMITED/NONE/UNKNOWN.
+
+## Packet notes added in B2 (readings)
+10. Depth windows are built from the route's Site record zone (`site.timezone`, as mini_depth_api does); local
+    dates use the depth body's `site.timezone`; if any depth read is refused, UTC + " · UTC (Site time zone
+    unavailable)". Hourly domains (fuel, service, backup) read the local noon hour of the local day.
+11. MG-1 and MG-5 need all four depth reads (B-Q6 literal). MG-2 needs dispatch; MG-7 readiness not UNKNOWN/None.
+12. Limitation plain text: leading code, else a code named in the detail, through `ALTERNATIVE_LABELS`; else generic.
+13. Work window `[day_end - 31 d, day_end)` for Finding index, Action index, estate, work and plans.
+14. Verified results: one contributor per mini Action by code. Earlier CHECKED entry: "... checked as safeguards
+    in {code}". Generator-use confidence: the lead in-window open Finding's placement confidence.
+15. An Action whose estate row is missing reads the NOT_LOADED label; `open` then comes from the index resolution.
+16. Open question for B4: the estate port needs a thin one-Site method beside `site_readiness` (two estate methods,
+    B.6 says one).
+
+## B3 port survey (done, nothing built yet). Resume here: write site_outcomes/cold.py, ev.py and tests
+Anchors are relative to backend/assetops_backend.
+- **Cold overview**: `analytics/cold_site_reads.py:314` `overview(t, s, code, lo, hi, known_at)`.
+  - Body: the envelope (`site_id`, `window{from,to,known_at}`, `currentness{state,...}`, `limitations`) plus `status`, `objective`, `needs_attention`, `cooling`, `maintenance`, `temperature_summary`, `backup_summary`, `causal_strip`, `findings`, `consequence_summary` and `links`.
+  - `objective{policy_low_deg_c, policy_high_deg_c, room_asset_id}` (:369).
+  - `backup_summary{attempts, observed_success, observed_failure, unknown}`. Success means `observed_success > 0`.
+  - `cooling{state, text, limitation}`. The state is CONTRADICTORY, LIMITED or UNAVAILABLE. It is LIMITED whenever any chain exists, and no state means "restarted".
+  - `causal_strip` is a list of `{step, state}` with state OBSERVED, MISSING or CONTRADICTORY. MISSING marks a gap step. The list is `[]` when there is no chain.
+  - `needs_attention` is a list of `{code, text, link}`. The codes are COLD_RECOMPUTE_PENDING, COLD_PROBE_GAP, COLD_START_FAILURE, COLD_TRANSFER_UNKNOWN and COLD_POLICY_MISSING.
+  - The overview's `findings.items` carry no lifecycle and no mechanism. `consequence_summary.amount` is always null for cold.
+  - **The body has no Site time zone.**
+- **Cold findings**: `postgres_assessment_store.py:2361` `findings(t, s, code, lo, hi, known_at, cursor, limit)` returns `{items, next_cursor}`.
+  - Item keys: `finding_id`, `kind` (EXCURSION→COLD_EXCURSION, START_RESPONSE→COLD_START_FAILURE), `subject_asset_id`, `revision_id`, `lifecycle`, `title`, `claim`, `episode_bounds{start{earliest,latest}, end{earliest,latest}}` and `links.finding`.
+  - The EXCURSION claim carries `peak_observed`.
+- **EV overview**: `ev_site_reads.py:595` `overview(t, s, code, lo, hi, known_at)`.
+  - `energy{complete_kwh,...}`. `denominator` holds `_EV_COUNT_KEYS`; whether `completed` is among them is unconfirmed.
+  - `site_power{observed_peak_kw, configured_limit_kw}`.
+  - `findings.items{finding_id, revision_id, session_id, title}`.
+  - `needs_attention` is a list of `{code, text, link}` with codes PENDING, FAULT_ABORT, INCOMPLETE_SESSION, METER_OR_SOURCE_GAP and TARIFF_MISSING. **It carries no counts.**
+  - `consequence_summary{state, amount, currency}`.
+  - **The body has no time zone.**
+- **EV findings**: `postgres_assessment_store.py:3342` `{items, next_cursor}`.
+  - Items are SUPPORTED only. Keys: `finding_id`, `revision_id`, `title`, `lifecycle` and `links`.
+  - There is one mechanism, EV_INTERRUPTION (`analytics/ev.py:32`).
+- **EV depth**: `analytics/ev_depth.py` `EvDepthReadService.availability|energy|health(t, s, code, lo, hi, known_at)`.
+  - Health rows: `{kind, label, asset_code, condition_state, observation}`. The CONNECTOR_FAULT row has `condition_state` NEEDS_INVESTIGATION (:21-23).
+  - Availability `connectors[]`: `{label, known_unavailable_seconds, unknown_seconds, spans[{from, to, state}]}`, where an unknown span has state UNKNOWN.
+- **Domain action index**: `work/domain_action_index.py:375` `index(t, s, code, IndexRequest(start, end, limit, known_at, cursor))`.
+  - Row keys: `action_id`, `action_code`, `domain`, `title`, `origin{finding_id, finding_revision_id, href}`, `state` (always "OPEN" for domain rows) and `links.action`. W1 rows have `title=None` and must be ignored (B-Q21).
+- **Refusals**: cold raises ColdReadUnavailable; EV raises EvReadUnavailable or EvReadRefused; work raises WorkRefused or WorkStoreUnavailable.
+- **Mismatches to raise with the coordinator before building B3:**
+  - (a) Cold "Cooling recovery": no restarted state exists. Proposal: on LIMITED, render "Restarted with power; comparison incomplete", with confidence "Medium".
+  - (b) There is no cold or EV zone in either body. Proposal: use the route Site record's `timezone`, as mini does, or else fall back to UTC.
+  - (c) EV session counts: `needs_attention` has none. Proposal: count via `denominator`'s keys, which the builder confirms first.
+  - (d) The EV findings list is SUPPORTED-only, so closed Findings linked by cases cannot be supplied. They fall under the "outside this view" rule.
