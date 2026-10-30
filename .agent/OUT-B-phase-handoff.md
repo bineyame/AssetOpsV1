@@ -1,4 +1,4 @@
-# OUT-B handoff (partial, 2026-10-30): B1 accepted; B2 is blocked on the questions below
+# OUT-B handoff (partial, 2026-10-30): B1 accepted; B2 fix round landed (awaiting coordinator check); B3 landed. Resume at B4
 
 Branch `task/OUT-B-site-outcome-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outB`. It is cut from OUT-A head `7b826e97` and has no main merge yet. Merge main in only when the coordinator says A has merged.
 
@@ -158,3 +158,51 @@ Anchors are relative to backend/assetops_backend.
   - (b) There is no cold or EV zone in either body. Proposal: use the route Site record's `timezone`, as mini does, or else fall back to UTC.
   - (c) EV session counts: `needs_attention` has none. Proposal: count via `denominator`'s keys, which the builder confirms first.
   - (d) The EV findings list is SUPPORTED-only, so closed Findings linked by cases cannot be supplied. They fall under the "outside this view" rule.
+
+## B2 fix round landed (7615977e; sent to coordinator for check, no verdict received yet)
+- M1 (addendum 3): `board.finding_moved_outcomes(domain)` (mini MG-2, cold CC-1/CC-6, EV EV-1/EV-3) are unsettled when the
+  Finding source is; `SiteFacts.findings_settled` -> `board.NOT_LOADED_LINK_SUFFIX`. Mini: finding_index refused/failed, or
+  any page `status` in FAILED/STALE/PENDING (UNASSESSED ok) -> "finding_index" in failed (PARTIAL). Tests beside
+  `test_degrade_only_ports_never_set_unknown`; proven non-vacuous.
+- L3 missing estate row -> "estate" in failed + `(action_id, mini.ESTATE_ROW_MISSING)` in diagnostics. L5 assertion in
+  b1_board. L7 `mini.plural` everywhere (reading: "1 of 1 well-observed day", noun follows assessed_days; board plan label
+  "Due at 1 operating hour"). L1 public `estate/portfolio.py` `action_for` alias + local `mini.SOURCE_TEXT` (equality test).
+  L2 `mini_depth/inputs` helpers. L4 vocab scan translates `\p{L}`/`\p{N}` and raises on others. L6 `mini.price_text`.
+
+## B3 landed (a740b6c6)
+- `site_outcomes/cold.py` (`ColdPorts`, `compose(ports, site_code, lo, hi, site_timezone)`) and `site_outcomes/ev.py`
+  (`EvPorts` incl. single `finding(fid, lo, hi)`, `health`, `availability`). Both return `mini.MiniComposition`.
+  Shared helpers now public in mini.py: `Reads` (pages(key=...)), `case_fact`, `plan_fact`, `utc`, `site_zone`, `num`,
+  `plural`, `day_month`, `not_available`. `cold.domain_action` builds domain ActionFacts (title None rows ignored, B-Q21).
+- Tests `tests/test_out_b3_cold_ev.py` (16); vocab scan covers cold/EV COPY and compositions (plant proven).
+- Focused run (b1_board, b1_status, b2_mini, b2_vocabulary, b3_cold_ev, a1_outcome_map): 116 passed.
+
+## Packet notes added in B3 (readings)
+17. Cold/EV settled base: overview `currentness.state` in (CURRENT, HISTORICAL) - a pinned read is settled. Evidence
+    outcome (CC-7/EV-7) also needs readiness not UNKNOWN; Finding-moved outcomes need the Finding source (M1).
+18. Cold and EV Finding lists are read over the board window [lo, hi) (the selected assessment); EV single reads use the
+    same window. Work, domain Actions and plans use the 31-day work window ending at hi. Cold `in_window` from
+    `episode_bounds`; EV list items are in window.
+19. Cold: empty `causal_strip` -> chain contributor "Not available yet · no power interruption in this window" and the
+    Assure headline "No verified result yet" (neither "fully" nor "partly" reconstructed is true without a chain).
+    Cooling state missing -> UNAVAILABLE text. Plan match: `asset_label` type part GENERATOR / COMPRESSOR
+    (`sites/cold_foundation.py:34-42`); RUN_HOURS plan without date -> "due at {h} operating hours".
+    Excursion headline minutes: shortest = end.earliest - start.latest, longest = end.latest - start.earliest.
+20. EV: fault = health row kind CONNECTOR with condition_state NEEDS_INVESTIGATION (`ev_depth.py:173-205`; no
+    CONNECTOR_FAULT kind exists); payloads are under body["health"]["rows"] and body["availability"]["connectors"].
+    Durations "{h} h {m} min". Status gap stamps "d MMM HH:MM" local. Site power with null peak and a limit:
+    "{limit} kW import limit declared; peak not read", Declared chip. "Investigate connector {label}": faulted connector,
+    else the first out connector; href the linked domain Action, else the lead Finding; omitted without a label.
+    A refused single read sets ev_findings failed and unsettles (M1); None -> outside-this-view.
+    Cold/EV contributors carry no href except EV Assure energy billed (spec gives no href column).
+
+## B4 next (resume here)
+- `site_outcomes/read.py` SiteOutcomeBoardService binding MiniPorts/ColdPorts/EvPorts per §B.3; `composition.py`;
+  `outcome_api.py` (board route + estate summary); `main.py:569`; `EstateEvidenceService.site_readiness`;
+  `EstatePortfolioService.site_work_rows` (addendum 3 item 16, conditions 1-2); `tests/test_out_b4_imports.py`;
+  `tests/test_out_b4_board_postgres.py` (assert real estate rows match the b2 fake keys incl. `_raw._selected_recorded_at`,
+  and the Kobo Cost Must-not-harm line on the real fixture). Cold findings store signature
+  `findings(t, s, code, lo, hi, known_at, cursor, limit)`; EV single `finding(t, s, code, finding_id: UUID, lo, hi,
+  known_at)`; `EvDepthReadService.availability|health(t, s, code, lo, hi, known_at)`; domain index
+  `index(t, s, code, IndexRequest(start, end, limit, known_at, cursor))`. B4 gets a per-unit review.
+- Then B5, B6 (R529 resolved when B6 fills Portfolio site dots; register rows R540-R551), packet, closeout.
