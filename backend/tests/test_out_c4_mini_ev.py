@@ -1,6 +1,8 @@
 """OUT-C U4: mini battery and EV warnings from fake ports (build sheet OUT-C §2 U4)."""
 from __future__ import annotations
 
+from datetime import timedelta
+
 import test_out_b2_mini as b2
 import test_out_b3_cold_ev as b3
 
@@ -132,3 +134,28 @@ def test_window_days_are_site_local() -> None:
     local = b3.LO - timedelta(hours=3)  # Nairobi midnight
     assert seen(local, local + timedelta(days=1)) == "1 h 30 min out and 30 min unknown on 20 Oct"
     assert seen(local, local + timedelta(days=2)) == "1 h 30 min out and 30 min unknown between 20 Oct and 21 Oct"
+
+
+# --------------------------------------------------------------- window anchors (U2 review L1)
+
+def _maintenance_windows(calls) -> list[tuple]:
+    return [(args[1], args[2]) for name, args in calls if name == "work" and args[0] == "maintenance"]
+
+
+def test_mini_visit_windows_are_anchored_at_the_board_day_end() -> None:
+    from assetops_backend.site_outcomes import visits
+    fake = b2.Fake()
+    b2.run(fake)
+    (incidents,) = [args for name, args in fake.calls if name == "work" and args[0] == "incidents"]
+    end = incidents[2]  # the board day's end, the same `end` every day-bounded read uses
+    assert end - incidents[1] > timedelta(days=1)  # the incident window starts well before the day: not `start`
+    assert _maintenance_windows(fake.calls) == list(visits.record_windows(end))
+    assert _maintenance_windows(fake.calls)[1][1] == end
+
+
+def test_ev_visit_windows_are_anchored_at_the_window_end() -> None:
+    from assetops_backend.site_outcomes import visits
+    fake = b3.Fake()
+    b3.run_ev(fake)
+    assert b3.LO != b3.HI
+    assert _maintenance_windows(fake.calls) == list(visits.record_windows(b3.HI))
