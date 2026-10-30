@@ -135,14 +135,21 @@ class PlanFact:
     href: str | None
 
 
+#: Issue kind of each non-Finding signal (§B.2): headroom is an opportunity, the evidence gap is a gap.
+SIGNAL_ISSUE_KIND = {"SIGNAL:PRODUCTIVE_USE_HEADROOM": "OPPORTUNITY", "SIGNAL:EVIDENCE_GAP": "EVIDENCE_GAP"}
+
+
 @dataclass(frozen=True)
 class SignalFact:
-    """A non-Finding `SIGNAL:*` fact (B1 deviation 3). Its issue kind is OPPORTUNITY or EVIDENCE_GAP."""
-    signal_key: str                    # e.g. "SIGNAL:PRODUCTIVE_USE_HEADROOM"
-    kind: str                          # issue kind: OPPORTUNITY | EVIDENCE_GAP
+    """A non-Finding `SIGNAL:*` fact (B1 deviation 3). Its issue kind is derived from `signal_key`."""
+    signal_key: str                    # a SIGNAL_ISSUE_KIND key
     open: bool
     text: str
     href: str | None = None
+
+    @property
+    def kind(self) -> str:
+        return SIGNAL_ISSUE_KIND[self.signal_key]
 
 
 @dataclass(frozen=True)
@@ -334,9 +341,9 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     in_hand: list[dict[str, Any]] = []
     earlier: list[dict[str, Any]] = []
     for a in sorted(facts.actions, key=lambda a: (a.code or "", a.action_id)):
-        origin = by_id.get(a.origin_finding_id or "")
-        if origin is None:
+        if a.origin_finding_id is None:
             continue
+        origin = _resolve_finding(by_id, a.origin_finding_id, f"Action {a.action_id}")
         r = roles[origin.finding_id]
         result = earlier_result_for_action(a)
         if result is not None:
@@ -352,7 +359,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label})
 
     for case in sorted(facts.cases, key=lambda c: (c.code or "", c.case_id)):
-        linked = [by_id[fid] for fid in case.finding_ids if fid in by_id]
+        linked = [_resolve_finding(by_id, fid, f"case {case.case_id}") for fid in case.finding_ids]
         cats = {c for f in linked for c in roles[f.finding_id].move_cats} if linked else {"PROTECT_ASSET"}
         if cat not in cats:
             continue
@@ -360,7 +367,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             label = _case_label(case) + ("" if linked else NOT_LINKED_SUFFIX)
             in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label})
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
-        linked = [by_id[fid] for fid in case.finding_ids if fid in by_id]
+        linked = [_resolve_finding(by_id, fid, f"case {case.case_id}") for fid in case.finding_ids]
         cats = {c for f in linked for c in roles[f.finding_id].move_cats} if linked else {"PROTECT_ASSET"}
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats and result is not None:
@@ -404,6 +411,15 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             EARLIER_EMPTY_OPEN if any(f.open for f in moves_here) else EARLIER_EMPTY_NONE),
     })
     return row
+
+
+def _resolve_finding(by_id: dict[str, FindingFact], finding_id: str, holder: str) -> FindingFact:
+    """A linked Finding must be in `facts.findings` (closed heads included; review M1). A miss is a composer bug:
+    it fails loudly rather than filing the item under the wrong outcome or as "not linked"."""
+    found = by_id.get(finding_id)
+    if found is None:
+        raise AssertionError(f"{holder} links Finding {finding_id}, which the composer did not supply")
+    return found
 
 
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:

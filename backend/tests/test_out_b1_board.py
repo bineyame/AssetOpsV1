@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import ast
+
+import pytest
 from dataclasses import replace
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -33,9 +35,9 @@ def rows_by_cat(facts: SiteFacts) -> dict[str, dict]:
 
 F104 = FindingFact("f104", "f104r", "Generator support review", "GENERATOR_SUPPORT_CANDIDATE", "SUPPORTED",
                    "/sites/KOBO-001/findings/f104", confidence_label="Limited")
-HEADROOM = SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", "OPPORTUNITY", True, "Productive-use headroom",
+HEADROOM = SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", True, "Productive-use headroom",
                       "/sites/KOBO-001/performance/renewable")
-GAP = SignalFact("SIGNAL:EVIDENCE_GAP", "EVIDENCE_GAP", True, "Battery output not reported limits this conclusion")
+GAP = SignalFact("SIGNAL:EVIDENCE_GAP", True, "Battery output not reported limits this conclusion")
 
 
 def act048(**kw) -> ActionFact:
@@ -310,3 +312,27 @@ def test_board_imports_only_outcomes_and_stdlib() -> None:
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 assert alias.name in allowed, alias.name
+
+
+# --------------------------------------------------------------- linked Findings must be supplied (review M1)
+
+def test_unresolved_linked_finding_fails_loudly() -> None:
+    orphan_case = request("mr9", "OPEN", 6, findings=("missing",))
+    with pytest.raises(AssertionError, match="mr9 links Finding missing"):
+        assemble(cold(cases=(orphan_case,)))
+    orphan_action = replace(COLD_ACTION, origin_finding_id="missing")
+    with pytest.raises(AssertionError, match="da1 links Finding missing"):
+        assemble(cold(actions=(orphan_action,), cases=()))
+
+
+def test_closed_linked_finding_keeps_case_in_its_outcome() -> None:
+    closed = replace(F104, lifecycle="RETIRED")
+    case = CaseFact("w1", "MR-7", "MAINTENANCE_REQUEST", "Check generator", "COMPLETED", "gen", None, ("f104",),
+                    t(1), "/maintenance/requests/w1")
+    rows = rows_by_cat(kobo(findings=(closed,), actions=(), cases=(case,)))
+    assert [e["result_label"] for e in rows[COST]["earlier"]] == ["Not yet verified"]
+    assert rows[PROTECT]["earlier"] == [] and not [i for i in rows[COST]["issues"] if i["kind"] == "FINDING"]
+
+
+def test_signal_kind_derived_from_key() -> None:
+    assert HEADROOM.kind == "OPPORTUNITY" and GAP.kind == "EVIDENCE_GAP"
