@@ -55,6 +55,8 @@ DAY_A_TO = datetime(2026, 10, 7, tzinfo=timezone.utc)
 FAILURES: list[str] = []
 COMPS: list[list[str]] = []
 LAST_PORTS: dict[str, dict] = {}
+LAST_ERRORS: dict[str, list[str]] = {}
+COMPLETED_REQUESTS: list[int] = []  # completed maintenance requests the work_index returned, per read
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 PORTS: dict[str, object] = {}  # per board read: a summary of each mini port body (why an outcome is unsettled)
 
@@ -161,9 +163,15 @@ def _record_port_failures(monkeypatch) -> None:
             elif name in ("cold_overview", "ev_overview") and isinstance(body, dict):
                 PORTS[name] = {k: (body.get(k) or {}).get("state") for k in ("currentness", "freshness", "assessment",
                                                                            "readiness", "cooling") if k in body}
+            elif name == "work_index" and a and a[0] == "maintenance" and isinstance(body, dict):
+                COMPLETED_REQUESTS.append(sum(1 for r in body.get("rows") or () if r.get("state") == "COMPLETED"))
+                PORTS.setdefault(name, []).append({"status": body.get("status"), "rows": len(body.get("rows") or ()),
+                                                   "completed": COMPLETED_REQUESTS[-1]})
             elif isinstance(body, dict) and ("rows" in body or "items" in body):
-                PORTS.setdefault(name, []).append({"status": body.get("status"), "rows": len(
-                    body.get("rows") or body.get("items") or ()), "reasons": str(body.get("reasons"))[:160]})
+                rows_ = body.get("rows") or body.get("items") or ()
+                PORTS.setdefault(name, []).append({"status": body.get("status"), "rows": len(rows_),
+                                                   "ids": [str(r.get("action_id")) for r in rows_ if isinstance(r, dict)],
+                                                   "reasons": str(body.get("reasons"))[:160]})
             elif isinstance(body, str):
                 PORTS[name] = body
             return body
@@ -213,6 +221,7 @@ def _board(c, code: str, key: str, **params) -> tuple[dict, list[str]]:
     """One board read, timed; returns the body and the composer's `failed` list."""
     COMPS.clear()
     PORTS.clear()
+    COMPLETED_REQUESTS.clear()
     started = time.perf_counter()
     r = c.get(f"/api/sites/{code}/outcome-board", params=params)
     seconds = round(time.perf_counter() - started, 2)
@@ -222,8 +231,48 @@ def _board(c, code: str, key: str, **params) -> tuple[dict, list[str]]:
     _record(key, {"read_state": body["read_state"], "states": _states(body), "window": body["window"],
                   "failed": failed, "port_errors": sorted(set(FAILURES)), "ports": dict(PORTS), "seconds": seconds})
     LAST_PORTS[key] = dict(PORTS)
+    LAST_ERRORS[key] = sorted(set(FAILURES))
     FAILURES.clear()
     return body, failed
+
+
+def _covering_day_params(lo: str, hi: str) -> dict[str, str]:
+    """The covering UTC days of a board window (addendum 7): [floor(lo), ceil(hi)), as estate route params."""
+    a = datetime.fromisoformat(lo.replace("Z", "+00:00")).astimezone(timezone.utc)
+    b = datetime.fromisoformat(hi.replace("Z", "+00:00")).astimezone(timezone.utc)
+    a = a.replace(hour=0, minute=0, second=0, microsecond=0)
+    c = b.replace(hour=0, minute=0, second=0, microsecond=0)
+    c = c if c == b else c + timedelta(days=1)
+    return {"from": a.strftime("%Y-%m-%dT%H:%M:%SZ"), "to": c.strftime("%Y-%m-%dT%H:%M:%SZ")}
+
+
+def _portfolio_evidence(c, code: str, days: dict[str, str]) -> tuple[str, str | None]:
+    """The Portfolio's EVIDENCE cell for one Site over `days` (`GET /api/estate/portfolio`), or the route's refusal
+    code. Also reads `GET /api/estate/evidence` over the same days and checks it agrees on a refusal."""
+    ev = c.get("/api/estate/evidence", params=days)
+    r = c.get("/api/estate/portfolio", params=days)
+    if r.status_code != 200:
+        assert ev.status_code == r.status_code, (ev.status_code, r.status_code, ev.text[:200], r.text[:200])
+        return "REFUSED", str(r.json().get("detail", {}).get("code") if isinstance(r.json().get("detail"), dict)
+                              else r.text[:120])
+    cells = [x["state"] for o in r.json()["objectives"] if o["site_code"] == code
+             for x in o["cells"] if x["key"] == "EVIDENCE"]
+    assert len(cells) == 1, (code, r.text[:300])
+    assert ev.status_code == 200, (ev.status_code, ev.text[:200])
+    return "CELL", cells[0]
+
+
+def _assert_readiness_equals_portfolio(c, key: str, code: str, board: dict) -> None:
+    """M2 / addendum 7: the board's readiness port value equals the Portfolio cell over the covering UTC days."""
+    days = _covering_day_params(board["window"]["from"], board["window"]["to"])
+    kind, value = _portfolio_evidence(c, code, days)
+    port = LAST_PORTS[key].get("evidence_readiness")
+    _record(f"{key}_readiness_vs_portfolio", {"days": days, "portfolio": [kind, value], "board_port": port,
+                                               "board_port_errors": LAST_ERRORS[key]})
+    if kind == "CELL":
+        assert port == value, (port, value)
+    else:  # the Portfolio refused on whole days: the board's readiness read failed the same way (Assure UNKNOWN)
+        assert port is None and any("evidence_readiness" in e for e in LAST_ERRORS[key]), (port, LAST_ERRORS[key])
 
 
 def _rows(body: dict) -> dict[str, dict]:
@@ -369,9 +418,9 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     for x in actions:
         assert ACTION_KEYS <= set(x), ACTION_KEYS - set(x)
         assert ACTION_RAW_KEYS <= set(x["_raw"]), ACTION_RAW_KEYS - set(x["_raw"])
-    # Day B: the Action index returns ACT-048 and nothing is "outside this view"
-    assert any("ACT-048" in i["text"] for r in b["rows"] for i in _items(r)) or any(
-        x.get("action_id") == spec["action"] or spec["action"] in json.dumps(x, default=str) for x in actions), actions
+    # Day B: the Action index port itself returned ACT-048 (L1: asserted on the port, not on a JSON substring)
+    index = LAST_PORTS["kobo_guardrail_day_b"]["action_index"]
+    assert sum(p["rows"] for p in index) >= 1 and any(p["ids"] and spec["action"] in p["ids"] for p in index), index
     assert not [i for r in b["rows"] for i in _items(r) if i["text"].endswith(OUTSIDE)]
 
 
@@ -407,13 +456,19 @@ def test_cold_w502_positive(monkeypatch, tmp_path) -> None:
         _serve(monkeypatch, url, tmp_path)
         with _client() as c:
             body, _ = _board(c, "COLD-LAB-001", "cold_w502_positive", **dict(zip(("from", "to"), doc["w501"]["window"])))
+            _assert_readiness_equals_portfolio(c, "cold_w502_positive", "COLD-LAB-001", body)
     grow, cost, protect, assure = _states(body)  # B.7 #2 (addendum 6: window doc["w501"]["window"], no known_at)
     assert (grow, cost, protect) == ("NOT_MEASURED", "NOT_MEASURED", "NEEDS_ATTENTION"), _states(body)
     _record("cold_assure", assure)
-    # B.7 #4: asserted only when the completed request is inside the work window ending at `to`; else recorded absent
+    # B.7 #4 (L2, evaluated): "Not yet verified" is present exactly when a completed maintenance request is in the
+    # work window (the work_index returned one) and no later related request makes it "Did not fix it".
     earlier = [i for r in body["rows"] for i in r["earlier"]]
     present = any(i.get("result_label") == "Not yet verified" for i in earlier)
-    _record("cold_b7_4_not_yet_verified", {"present": present, "window": doc["w501"]["window"]})
+    repeated = any(i.get("result_label") == "Did not fix it" for i in earlier)
+    completed = sum(COMPLETED_REQUESTS)
+    _record("cold_b7_4_not_yet_verified", {"present": present, "completed_requests_in_work_window": completed,
+                                           "window": doc["w501"]["window"]})
+    assert present == (completed > 0 and not repeated), (present, repeated, completed)
     if present:
         assert body["window"]["known_at"] is not None  # addendum 4 #5: the overview's resolved cutoff
 
@@ -438,16 +493,10 @@ def test_ev_w504_positive(monkeypatch, tmp_path) -> None:
         built = json.loads((tmp_path / "ev.json").read_text(encoding="utf-8"))
         assert built["status"] == "ready", built.get("status")
         window = {"from": built["evidence_window_E"]["from"], "to": built["evidence_window_E"]["to"]}
-        # the estate route parses midnight-aligned windows only (scope.py:120); E is one hour, so the check uses the
-        # UTC day containing E
-        start = datetime.fromisoformat(window["from"].replace("Z", "+00:00")).astimezone(timezone.utc)
-        start = start.replace(hour=0, minute=0, second=0, microsecond=0)
-        day = {"from": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "to": (start + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")}
         _serve(monkeypatch, url, tmp_path)
         with _client() as c:
             body, _ = _board(c, "EV-LAB-001", "ev_w504_positive", **window)
-            route = c.get("/api/estate/evidence", params=day)  # addendum 6 #3: is the readiness refusal the fixture's?
-    _record("ev_estate_evidence_route", {"status": route.status_code, "body": route.text[:300]})
-    assert route.status_code == 409 and "ESTATE_SELECTION_INCONSISTENT" in route.text, (
-        "site_readiness is bound wrongly (estate route succeeds)", route.status_code, route.text[:300])
-    assert _states(body) == ["WATCH", "NOT_MEASURED", "NEEDS_ATTENTION", "UNKNOWN"], _states(body)  # B.7 #2, add. 6
+            # M2 / addendum 7: the board's readiness equals the Portfolio EVIDENCE cell over the covering UTC day
+            _assert_readiness_equals_portfolio(c, "ev_w504_positive", "EV-LAB-001", body)
+    _record("ev_assure_after_covering_days", _states(body))  # addendum 7: re-recorded, expectation not adjusted
+    assert _states(body)[:3] == ["WATCH", "NOT_MEASURED", "NEEDS_ATTENTION"], _states(body)  # B.7 #2
