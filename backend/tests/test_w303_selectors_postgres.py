@@ -74,7 +74,9 @@ def test_portfolio_row_facts_and_verification_ids_match_stored_rows(store, engin
         assert frows
         for r in frows:
             assert r["_episode_end"] == stored[r["finding_revision_id"]]
-            assert r["_domain"] == site_type and r["_mechanism"] is None
+            assert r["_domain"] == site_type
+            # CC-R2: the stored mechanism of the Site's dispatch Finding (this runner is the mini-grid generator Site).
+            assert r["_mechanism"] == "GENERATOR_SUPPORT_CANDIDATE"
         (arow,) = [r for _, rows in caught["a"] for r in rows if r["action_id"] == action_id]
         raw = arow["_raw"]
         assert [(p["id"], p["recorded_at"]) for p in raw["_plans"]] == plans

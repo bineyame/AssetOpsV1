@@ -18,3 +18,18 @@ Verified (host, cache off, db clockbug_test, one file at a time): resolver file 
 history `real_clock_skew` 1 passed. Not run: the other consumers of publishing_submit and the scope_snapshot/selectors/
 estate/cc/w403 failures from rr-main.txt (awaiting go-ahead). w403 `KeyError: 'revision_id'` in rr-main is a different
 symptom and is not covered here.
+
+## Round 2 (5 more fixes, all test-only)
+- estate_index `power_estate`: read pin is `max(fixture+1min, db_now)`. The cost-lens test's "earlier cutoff" is now the
+  consequence's own `recorded_at` (it is recorded on the database clock, never before the fixture clock), so the intent
+  (earlier cutoff -> UNKNOWN with the source revision id) holds unweakened.
+- w403 replay: `alt["body"]["id"]` (route returns `id`, alternatives.py:200). The 201 branch is now asserted
+  unconditionally (F02 revision time SETUP_AT 2026-10-29 is fixed and past); the 409 not-yet-visible branch is dropped,
+  i.e. no longer exercised (not covered elsewhere). The fresh-vs-recorded Alternatives read comparison ignores
+  `window.known_at` and `selection_token` (live read stamp), which the 201 branch newly exposed.
+- w303 selectors / scope_snapshot: mechanism asserted by equality: GENERATOR_SUPPORT_CANDIDATE (selectors); each row equals the
+  stored `finding.mechanism` of its revision, and the per-Site set is pinned (KOBO-001 generator candidate; COLD-LAB-001
+  COLD_EXCURSION + COLD_START_FAILURE; EV Sites have no member rows).
+Results (host, cache off, own DB, each file alone): cc_placement 2, s4_power_demo_case 8, w301_estate_index 20,
+w301_provenance_dto 7, w301_w1_money_snapshot_helpers 6, w303_portfolio_comparison 4, w303_portfolio_fixture 2,
+w303_portfolio_scope_snapshot 10, w303_selectors 3, w403_replay 2: all passed.
