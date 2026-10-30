@@ -243,21 +243,34 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
     latest = max(windows, key=lambda w: (w["selected_at"], w["seq"], w["selection_id"]))
     out = _empty(state, watermark=evidence_cutoff, match_state="NOT_APPLICABLE",
                  job_state=_job_state(jobs, True), source_freshness=freshness, selection_id=latest["selection_id"])
-    by_finding: dict[str, dict[str, Any]] = {}
+    by_finding: dict[str, tuple[dict[str, Any], tuple[Any, ...]]] = {}
     assessments, cited, consequences = set(), set(), set()
     for w in windows:
         assessments |= set(w["assessment_revision_ids"])
         cited |= set(w["evidence_ids"])
+        order = (w["selected_at"], w["seq"], w["selection_id"])
+        in_window: dict[str, str] = {}
         for row in w["findings"]:
             if not _intersects(row["episode_start"], row["episode_end"], from_, to, k):
                 continue
-            held = by_finding.get(row["finding_id"])
-            if held is not None and held["finding_revision_id"] != row["finding_revision_id"]:
-                raise EstateSelectionInconsistent(
-                    f"Finding {row['finding_id']} has two selected revisions at one cutoff.")
-            by_finding[row["finding_id"]] = row
+            fid, frid = row["finding_id"], row["finding_revision_id"]
+            if in_window.setdefault(fid, frid) != frid:  # one window never selects two revisions of one Finding
+                raise EstateSelectionInconsistent(f"Finding {fid} has two revisions in one selected window.")
+            held = by_finding.get(fid)
+            if held is None:
+                by_finding[fid] = (row, order)
+            elif held[0]["finding_revision_id"] == frid:  # the same revision seen in two windows is no conflict
+                if order > held[1]:
+                    by_finding[fid] = (row, order)
+            else:  # FIX-01: a Finding is revised per assessed window; the highest revision_no is the lineage head
+                a, b = held[0].get("revision_no"), row.get("revision_no")
+                if a is None or b is None or a == b:
+                    raise EstateSelectionInconsistent(
+                        f"Finding {fid} has two selected revisions at one cutoff.")
+                if b > a:
+                    by_finding[fid] = (row, order)
     rows = []
-    for row in by_finding.values():
+    for row, _ in by_finding.values():
         cited |= set(row["evidence_ids"])
         if row.get("consequence_revision_id") is not None:
             consequences.add(row["consequence_revision_id"])

@@ -86,14 +86,14 @@ class _WindowRecorder:
 def _finding_links(code: str, domain: str, fid: str, frid: str, rec: _WindowRecorder | None,
                    k: datetime) -> dict[str, Any]:
     """The Site home (EV `/sites/{code}/ev`) and the Finding route: mini-grid keeps its exact `revision_id`; a
-    cold/EV Finding opens over the one selected Site window holding it with the proven row-local cutoff, else
+    cold/EV Finding opens over the one selected Site window holding its winning revision with the proven row-local cutoff, else
     null (closure 5 B5 via `finding_window_href`)."""
     from assetops_backend.estate.evidence_money import finding_window_href, site_home_href  # import cycle
     if domain == MINI_GRID:
         finding = f"/sites/{quote(code, safe='')}/findings/{fid}?revision_id={frid}"
     else:
         holding = [w for w in (rec.windows if rec is not None else ())
-                   if any(f["finding_id"] == fid for f in w.get("findings") or ())]
+                   if any(f["finding_revision_id"] == frid for f in w.get("findings") or ())]
         finding = (finding_window_href(code, fid, holding[0]["window_start"], holding[0]["window_end"], rec.cutoff,
                                        rec.cutoff, k) if len(holding) == 1 else None)
     return {"finding": finding, "site": site_home_href(code, domain)}
