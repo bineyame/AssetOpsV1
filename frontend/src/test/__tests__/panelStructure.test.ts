@@ -75,4 +75,20 @@ describe("v69 panel guard", () => {
     mount(CHROME + `<section class="panel"><h2>Site inventory</h2></section><p class="notice">Scope note.</p><section class="panel"><h2>In setup</h2></section>`);
     expect(strayBetweenPanels()).toEqual([]);
   });
+  // OUT-B B5 (R540): the v7.0 outcome board leads the three Site overview screens only, and only before panel 1.
+  const BOARD = `<section class="ob-board" aria-label="Outcomes at this site"><div class="ob-board-head"><h2>How this site is doing</h2></div><details class="ob" open><summary class="ob-sum">Grow revenue</summary><div class="ob-body"><h3>Issues</h3></div></details></section>`;
+  it("admits the outcome board before panel 1 on an overview screen and keeps its heading out of the panel titles", () => {
+    mount(CHROME + BOARD + PANELS);
+    expect(leadingIntruders(undefined, "cold")).toEqual([]);
+    expect(strayOutsidePanels()).toEqual([]);
+    expect(strayBetweenPanels()).toEqual([]);
+  });
+
+  it("fails the outcome board on another screen, or after a panel", () => {
+    mount(CHROME + BOARD + PANELS);
+    expect(leadingIntruders(undefined, "sites")).toEqual([expect.stringContaining("How this site is doing")]);
+    document.body.innerHTML = "";
+    mount(CHROME + `<section class="panel"><h2>Site inventory</h2></section>` + BOARD + `<section class="panel"><h2>In setup</h2></section>`);
+    expect(strayBetweenPanels()).toEqual([expect.stringContaining("How this site is doing")]);
+  });
 });
