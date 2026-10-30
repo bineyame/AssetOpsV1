@@ -14,3 +14,12 @@ Owner approval: .agent/owner-checkall-no-bypass-2026-10-30.md ("go with your sug
 
 ## Proof
 See final report (nav guard direct run, check-all 11/11, planted failure, grep).
+
+## Deviation
+The runner is `tools/check-navigation-truthfulness.ps1`, not `tools/checks/...`: check-architecture requires every .ps1 in tools/checks/ to be a registered module, so a runner there fails the Architecture guard (seen on first run).
+
+## Proof (env: ASSETOPS_GUARD_PYTHON=plan2 .venv python, PYTHONPATH=<worktree>/backend)
+- Direct nav guard: "Navigation truthfulness check passed."
+- check-all: 11/11 PASS, same guard list, "All 11 guards passed.", exit 0. (Worktree needed a temporary junction frontend/node_modules -> plan2's, removed afterwards.)
+- Planted `"/site-details"` in frontend/src/zzPlanted.ts: Architecture seams and Navigation truthfulness FAIL, "Check failed: 2 of 11 guards.", exit 1. File removed.
+- `grep -rn ExecutionPolicy tools/`: only the rule comment in check-all.ps1.
