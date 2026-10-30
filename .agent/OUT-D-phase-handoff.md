@@ -15,6 +15,42 @@
   per DB, not 3 (Known Deviation). Full-log helper: scratchpad `ptlog.ps1 <log> <tests>` (pt.ps1 truncates to 25 lines).
 - Then U6 (captures need coordinator go), register R580-R586, closeout.
 
+## State at da1df531 (implementer 2 stopped on context budget; resume HERE)
+Committed: `79c8d40a` U5 frontend; `da1df531` D5 Postgres test (Kobo + cold passed in one run, EV passed on a re-run
+after the R577 handling) + register R580-R586 section at the end of `.agent/mock-departure-register.md` + R542 note.
+Recorded real data (for the packet): Kobo 2026-10-21 unsettled (STALE_PROJECTION) -> all rows UNKNOWN, MG-2 0
+avoidable / 60 unclear, unserved_kwh None, all three Not checked yet, Assure "0 of 3 declared objectives met · 3 not
+checked yet", summary count 1, K1 reproducibility holds; GreenHarvest (policy 2-4°C) CC-1 + CC-6 Missed, states
+NOT_MEASURED/NEEDS_ATTENTION/NEEDS_ATTENTION/WATCH, count 1; Depot EV-1 Missed ("1 interrupted"), EV-2 no line, board
+PARTIAL, summary 409 ESTATE_SELECTION_INCONSISTENT (R577). No On track anywhere (R585).
+
+### U4 review REVISE - Architect rulings to implement next (plan2 `.agent/OUT-D4-review.md`, coordinator message)
+- M1: mini `compose` (block "OUT-D U4: declared objectives" before `facts = SiteFacts(`): when `objective_rows is None`
+  the `actual_against_plan` text is exactly "Not available yet · declared objectives could not be loaded" (no chip,
+  href None); add to mini COPY; test that a failed read never shows "no target declared" (test_out_d4).
+- M2: read.py `board()` adds `"objectives_read": comp.facts.objectives_ok`; `summary()` counts only Sites whose board
+  loaded AND objectives_read; `objective_site_count` None when no Site read; add `objective_sites_unread` = the rest,
+  failed boards included. Update the `Boards` fake in test_out_d4. Frontend: `objective_sites_unread: number | null`
+  on `EstateOutcomeSummaryBody`; `assureDetailText` (PortfolioOutcomes.tsx ~:175): unread 0 & n>=1 "targets declared at
+  {n} {site|sites}"; unread 0 & n=0 "no targets declared"; unread>=1 & n>=1 "targets declared at {n} {site|sites}, {u}
+  {site|sites} not checked"; unread>=1 & n 0/null -> no clause ("No verified result yet · {gap}"). Fixture default
+  `objective_sites_unread: 0`; extend `assureNamesDeclaredTargets...` (estatePortfolio.test.tsx). D5: record unread.
+- L1: `frontend/src/sites/OutcomeBoard.tsx` "About this view" explainer: append the paragraph "A declared objective is a
+  target set for this demonstration so the status can be shown. It is not the customer's target." `objectives_wire`
+  carries `source_note` (suggest `ObjectiveFact.source_note: str | None = None` as LAST field; from_rows fills it from
+  the row; CC-1 None). Lines still show only "Declared objective".
+- Review extras: a cold test with no excursion + complete window -> CC-1 ON_TRACK; record the real
+  `objective_site_count` in U5 (done: 1 per DB); L2 tidy COPY formatting in mini/ev and build the EV example texts from
+  the template (factor the text in `ev_readings` into a helper and use it in COPY).
+- Then check-all, give the coordinator the hash. U6 captures and full suites need the coordinator's go. Closeout:
+  create `tasks/OUT-D-declared-objectives.md` (none exists; model on tasks/OUT-W-estate-event-windows.md, Status
+  in_review, USER_REVIEW_REQUIRED false for merge), packet `.agent/OUT-D-packet.md` (force-add), CODE_STATE entry after
+  "## OUT-W" (~:6088), ACTIVE_CONTEXT line 8.
+- Known deviations so far: summary count 3 not provable on one DB (no combined dataset, R535) -> 1 per DB, EV 409
+  (R577); verdict helpers in board.py (purity test); U3 guard domain entry; Kobo verdicts all Not checked yet (sheet
+  expected Missed; recorded, not forced); `vitest related` crashes on a .py import, so the explicit related-file list was
+  used (16 files, 386 passed).
+
 Branch `task/OUT-D-declared-objectives`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outD`, head `994a5462`
 (base main `833e7c95`). Sheet (binding, self-contained): `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-D.md`.
 Architect rulings: `.agent/decisions-while-owner-away-2026-10-30.md` (Q1 below).
