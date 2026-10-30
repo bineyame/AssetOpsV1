@@ -51,9 +51,17 @@ OPTION_WHAT_IFS = "Charging what-ifs"
 #: (`analytics/ev_depth.py:173-205`).
 FAULT_KIND, FAULT_STATE = "CONNECTOR", "NEEDS_INVESTIGATION"
 
-COPY = ("2 interrupted · 1 outcome unknown", "2 interrupted · 3 outcomes unknown", NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
+
+def interrupted_text(fault: Any, unknown: Any) -> str:
+    """The EV-1 objective actual: "{n} interrupted" and, when any is unknown, " · {u} outcome(s) unknown"."""
+    return f"{fault} interrupted" + (
+        f" · {unknown} {plural(unknown, 'outcome', 'outcomes')} unknown" if unknown else "")
+
+
+COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
         SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF,
-        PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS)
+        PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS,
+        interrupted_text(2, 0), interrupted_text(2, 1), interrupted_text(2, 3))
 
 
 @dataclass(frozen=True)
@@ -76,9 +84,8 @@ def ev_readings(ok: bool, fault: Any, unknown: Any) -> dict[str, Reading]:
     EV-2 has no reading (not measured, R583)."""
     if not ok or fault is None:
         return {}
-    text = f"{fault} interrupted" + (
-        f" · {unknown} {plural(unknown, 'outcome', 'outcomes')} unknown" if unknown else "")
-    return {"EV-1": Reading(Decimal(str(fault)), unknown == 0, text)}
+    return {"EV-1": Reading(Decimal(str(fault)), unknown == 0, interrupted_text(fault, unknown))}
+
 
 
 def duration_text(seconds: Any) -> str | None:

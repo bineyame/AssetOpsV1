@@ -489,8 +489,10 @@ export interface EstateOutcomeSummaryBody {
   sites: EstateOutcomeSummarySite[];
   categories: EstateOutcomeSummaryCategory[];
   warnings: OutcomeWarning[];
-  /** OUT-D: Sites whose board lists a declared objective; null when no Site board was read. */
+  /** OUT-D: of the Sites whose board and objectives were read, those listing a declared objective; null when none was read. */
   objective_site_count: number | null;
+  /** OUT-D (review M2): Sites whose board or objectives could not be read. */
+  objective_sites_unread: number;
 }
 
 export interface EstateClient {

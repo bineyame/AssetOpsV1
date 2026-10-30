@@ -79,7 +79,11 @@ def _summary(c, params: dict, key: str) -> dict:
     assert r.status_code == 200, r.text
     body = r.json()
     _record(key, {"objective_site_count": body["objective_site_count"],
+                  "objective_sites_unread": body["objective_sites_unread"],
                   "sites": [(s["site_code"], s["read_state"]) for s in body["sites"]]})
+    unread = body["objective_sites_unread"]  # review M2: read Sites plus unread Sites are every Site
+    assert isinstance(unread, int) and 0 <= unread <= len(body["sites"])
+    assert (body["objective_site_count"] is None) == (unread == len(body["sites"]))
     return body
 
 
@@ -182,7 +186,8 @@ def test_ev_w504_objectives(monkeypatch, tmp_path) -> None:
             # this build; recorded, and the count asserted only when the summary is served.
             r = c.get("/api/estate/outcome-summary", params=b4._covering_day_params(window["from"], window["to"]))
     _record("ev_d_summary", {"status": r.status_code, "body": r.json() if r.status_code != 200 else
-                             {"objective_site_count": r.json()["objective_site_count"]}})
+                             {"objective_site_count": r.json()["objective_site_count"],
+                              "objective_sites_unread": r.json()["objective_sites_unread"]}})
     if r.status_code == 200:
         assert r.json()["objective_site_count"] == 1
     else:

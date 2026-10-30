@@ -91,10 +91,17 @@ ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 #: OUT-D U4: the objective actual texts that carry no number (the numbered ones are templates in `mini_readings`).
 MG1_ACTUAL = "sales not recorded"
 MG5_UNMEASURED = "critical demand not measured"
+MG2_LONGER = "{m} min longer than needed on this day"
+MG2_UNCLEAR = "{m} min not yet clear on this day"
+MG5_UNSERVED = "{kwh} kWh not served"
+#: OUT-D U4 (review M1): the Assure "Actual against plan" line when the objective store could not be read; it makes
+#: no claim about whether a target exists.
+PLAN_NOT_READ = "Not available yet · declared objectives could not be loaded"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
-COPY = (MG1_ACTUAL, MG5_UNMEASURED, "12 min longer than needed on this day", "5 min not yet clear on this day",
-        "3 kWh not served", *objective_facts.COPY,NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE, PROTECT_HEADLINE, PROTECT_SUBLINE,
+COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
+        PLAN_NOT_READ, *objective_facts.COPY, NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE,
+        PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
         COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
@@ -334,7 +341,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
     readings = mini_readings(dispatch, depth)
-    if objectives:
+    if objective_rows is None:
+        plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
+        contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
+                                     for x in contributors[ASSURE])
+    elif objectives:
         verdicts = [objective_verdict(o, readings, settled) for o in objectives]
         plan_line = Contributor("actual_against_plan", "Actual against plan", objective_facts.assure_text(verdicts))
         contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
@@ -383,13 +394,13 @@ def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]
     out: dict[str, Reading] = {}
     avoidable, unclear = _dispatch_minutes(dispatch)
     if avoidable is not None:
-        text = (f"{num(unclear)} min not yet clear on this day" if avoidable == 0 < unclear
-                else f"{num(avoidable)} min longer than needed on this day")
+        text = (MG2_UNCLEAR.format(m=num(unclear)) if avoidable == 0 < unclear
+                else MG2_LONGER.format(m=num(avoidable)))
         out["MG-2"] = Reading(avoidable, unclear == 0, text)
     out["MG-1"] = Reading(None, False, MG1_ACTUAL)
     unserved = (((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"))
     out["MG-5"] = (Reading(None, False, MG5_UNMEASURED) if unserved is None
-                   else Reading(Decimal(str(unserved)), True, f"{num(unserved)} kWh not served"))
+                   else Reading(Decimal(str(unserved)), True, MG5_UNSERVED.format(kwh=num(unserved))))
     return out
 
 

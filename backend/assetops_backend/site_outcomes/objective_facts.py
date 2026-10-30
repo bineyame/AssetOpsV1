@@ -46,7 +46,8 @@ def from_rows(rows: Sequence[Mapping[str, Any]] | None, fmt: Callable[[Any], str
         text = target_text(measure, target_is_zero=target == 0, number=fmt(target) or "0",
                            currency=r.get("currency"))
         facts.append(ObjectiveFact(measure.outcome, measure.key, measure.comparison, target, target == 0, text,
-                                   str(r.get("source")), None if r.get("id") is None else str(r["id"])))
+                                   str(r.get("source")), None if r.get("id") is None else str(r["id"]),
+                                   r.get("source_note")))
     return tuple(sorted(facts, key=lambda f: catalogue_index(f.outcome_key)))
 
 

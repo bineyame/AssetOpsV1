@@ -345,6 +345,7 @@ class SiteOutcomeBoardService:
             "read_state": comp.read_state,
             "rows": jsonable_encoder(assemble(comp.facts)),
             "objectives": jsonable_encoder(objectives_wire(comp.facts)),
+            "objectives_read": comp.facts.objectives_ok,
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
@@ -374,7 +375,8 @@ class SiteOutcomeBoardService:
         unchanged. A Site whose board read fails is UNAVAILABLE with four UNKNOWN rows."""
         out = []
         warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
-        # OUT-D U4: Sites whose board lists a declared objective; a failed Site counts 0; None when every Site failed
+        # OUT-D U4 (review M2): Sites whose board loaded AND whose objectives were read, and of those the ones that
+        # list a declared objective; every other Site (a failed board or a failed objectives read) is unread.
         read_sites = objective_sites = 0
         for site in sites:
             # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
@@ -392,8 +394,9 @@ class SiteOutcomeBoardService:
                 warnings += body["warnings"]
                 window: dict[str, Any] | None = body["window"]
                 window_basis: str | None = basis
-                read_sites += 1
-                objective_sites += 1 if body.get("objectives") else 0
+                if body.get("objectives_read"):
+                    read_sites += 1
+                    objective_sites += 1 if body.get("objectives") else 0
             except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
                 rows = [_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
@@ -411,7 +414,8 @@ class SiteOutcomeBoardService:
                       for cat in CATEGORIES]
         return {"schema_version": SUMMARY_SCHEMA_VERSION, "policy_versions": dict(POLICY_VERSIONS),
                 "window": {"from": wire(lo), "to": wire(hi)}, "sites": out, "categories": categories,
-                "warnings": warnings, "objective_site_count": objective_sites if read_sites else None}
+                "warnings": warnings, "objective_site_count": objective_sites if read_sites else None,
+                "objective_sites_unread": len(sites) - read_sites}
 
 
 def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at: datetime | None = None) -> str:

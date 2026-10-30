@@ -145,6 +145,22 @@ def test_failed_objectives_read_is_partial_and_never_no_objective() -> None:
     assert any(o["state"] == "NO_OBJECTIVE" for r in base.values() for o in r["outcomes"])  # non-vacuous
 
 
+def test_failed_objectives_read_never_says_no_target_declared() -> None:
+    """Review M1: the Assure line makes no claim about targets when the store was never read."""
+    def boom() -> list:
+        raise RuntimeError("objective store down")
+
+    comp, rows = run_mini(rows=boom)
+    plan = next(c for c in rows[ASSURE]["contributors"] if c["key"] == "actual_against_plan")
+    assert plan == {"key": "actual_against_plan", "label": "Actual against plan",
+                    "text": "Not available yet · declared objectives could not be loaded", "confidence": None,
+                    "href": None}
+    assert plan["text"] == mini.PLAN_NOT_READ and mini.PLAN_NOT_READ in mini.COPY
+    texts = _texts(rows)
+    assert not [t for t in texts if "no target declared" in t]
+    assert any("no target declared" in t for t in _texts(run_mini(rows=[])[1]))  # non-vacuous
+
+
 def test_unsettled_outcome_has_no_verdict() -> None:
     comp, rows = run_mini(b2.Fake(refuse=("dispatch",)))
     assert state(rows[COST], "MG-2")[0] == "UNKNOWN"
@@ -162,6 +178,8 @@ def test_board_wire_objectives_and_policy() -> None:
         ("MG-2", "Supply cost per kWh", "DECLARED", "MISSED"),
         ("MG-5", "Reliable service", "DECLARED", "NOT_JUDGED")]
     assert all(o["revision_id"] for o in objectives_wire(comp.facts))
+    assert {o["source_note"] for o in objectives_wire(comp.facts)} == {NOTE}  # review L1: wire data only
+    assert not [t for t in _texts(run_mini(b2.Fake(dispatch=dispatch("12", "0")))[1]) if NOTE in t]
 
 
 # ---------------------------------------------------------------- cold
@@ -184,6 +202,22 @@ def test_cc1_reads_the_chamber_range_only() -> None:
     no_policy = dict(b3.COLD_OVERVIEW, objective={"policy_low_deg_c": None, "policy_high_deg_c": "5"})
     comp, rows = run_cold([], no_policy)
     assert comp.facts.objectives == () and declared(rows[PROTECT]) == []
+    assert objectives_wire(run_cold([])[0].facts)[0]["source_note"] is None
+
+
+def test_cc1_on_track_with_no_excursion_and_a_complete_window() -> None:
+    """Review extra: a cold board with no excursion and a complete window reaches On track through CC-1."""
+    held = dict(b3.COLD_OVERVIEW, needs_attention=[],
+                backup_summary={"attempts": 1, "observed_success": 1, "observed_failure": 0, "unknown": 0})
+    fake = b3.Fake(cold_overview=held, cold_findings={"items": [], "next_cursor": None})
+    ports = replace(b3.cold_ports(fake), objectives=lambda: [])
+    comp = cold.compose(ports, site_code=b3.C, lo=b3.LO, hi=b3.HI, site_timezone=b3.ZONE)
+    rows = {r["category"]: r for r in assemble(comp.facts)}
+    assert {o["outcome_key"]: o["verdict"] for o in objectives_wire(comp.facts)} == {"CC-1": "MET"}
+    [line] = declared(rows[PROTECT])
+    assert line["text"] == "Stock kept saleable: chamber held between 2 and 5°C · " + cold.CC1_HELD
+    assert line["confidence"]["label"] == "Met"
+    assert state(rows[PROTECT], "CC-1")[0] == "ON_TRACK"
 
 
 def test_cc6_declared_and_contributor_order() -> None:
@@ -257,14 +291,27 @@ class Boards(SiteOutcomeBoardService):
         found = self.objectives[site.site_code]
         if found is None:
             raise RuntimeError("board failed")
+        if found == "unread":  # the board loaded but the objectives read failed (review M2)
+            return {"rows": [], "_short_values": {}, "read_state": "PARTIAL", "warnings": [],
+                    "window": {"from": None, "to": None, "known_at": None}, "objectives": [],
+                    "objectives_read": False}
         return {"rows": [], "_short_values": {}, "read_state": "AVAILABLE", "warnings": [],
-                "window": {"from": None, "to": None, "known_at": None}, "objectives": found}
+                "window": {"from": None, "to": None, "known_at": None}, "objectives": found,
+                "objectives_read": True}
 
 
 def test_summary_objective_site_count() -> None:
     lo, hi = datetime(2026, 10, 20, tzinfo=timezone.utc), datetime(2026, 10, 21, tzinfo=timezone.utc)
-    count = lambda o: Boards(o).summary(SITES, lo, hi)["objective_site_count"]  # noqa: E731
-    assert count({"KOBO-001": [{"outcome_key": "MG-2"}], "KOBO-002": [], "KOBO-003": [{"outcome_key": "MG-1"}]}) == 2
-    assert count({"KOBO-001": [{"outcome_key": "MG-2"}], "KOBO-002": None, "KOBO-003": None}) == 1  # failed: 0
-    assert count({"KOBO-001": [], "KOBO-002": [], "KOBO-003": []}) == 0
-    assert count({"KOBO-001": None, "KOBO-002": None, "KOBO-003": None}) is None
+    def count(o: dict) -> tuple[int | None, int]:
+        body = Boards(o).summary(SITES, lo, hi)
+        return body["objective_site_count"], body["objective_sites_unread"]
+
+    mg2, mg1 = [{"outcome_key": "MG-2"}], [{"outcome_key": "MG-1"}]
+    assert count({"KOBO-001": mg2, "KOBO-002": [], "KOBO-003": mg1}) == (2, 0)
+    assert count({"KOBO-001": mg2, "KOBO-002": None, "KOBO-003": None}) == (1, 2)  # failed boards are unread
+    assert count({"KOBO-001": [], "KOBO-002": [], "KOBO-003": []}) == (0, 0)
+    assert count({"KOBO-001": None, "KOBO-002": None, "KOBO-003": None}) == (None, 3)
+    # review M2: a failed objectives read is unread, never "none declared"
+    assert count({"KOBO-001": "unread", "KOBO-002": "unread", "KOBO-003": "unread"}) == (None, 3)
+    assert count({"KOBO-001": mg2, "KOBO-002": "unread", "KOBO-003": []}) == (1, 1)
+    assert count({"KOBO-001": [], "KOBO-002": "unread", "KOBO-003": None}) == (0, 2)

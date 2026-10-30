@@ -165,6 +165,10 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(document.activeElement).toBe(close);
     expect(dialog.textContent).toContain("Each row is one of the four things the business is trying to achieve.");
     expect(dialog.textContent).toContain("Money of different kinds is shown separately and never added together.");
+    const paragraphs = Array.from(dialog.querySelectorAll("p.prose")).map((p) => p.textContent);
+    expect(paragraphs[paragraphs.length - 1]).toBe(
+      "A declared objective is a target set for this demonstration so the status can be shown. It is not the customer's target.",
+    );
     const cells = Array.from(dialog.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.querySelectorAll("td")).map((td) => td.textContent));
     expect(cells).toHaveLength(4);
     // The name cell carries the named icon (its <title>) and the name.

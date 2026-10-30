@@ -997,16 +997,9 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     }
   });
 
-  it("assureNamesDeclaredTargetsForThreeOneZeroNullAndSummaryNotLoaded", async () => {
-    // OUT-D U5 (R586): the outcome summary's objective_site_count; "no targets" only when read as 0.
-    const gap = "evidence gap at 1 site";
-    const cases: [EstateOutcomeSummaryRead, string][] = [
-      [{ status: "loaded", value: outcomeSummaryBody({ objective_site_count: 3 }) }, `No verified result yet · targets declared at 3 sites · ${gap}`],
-      [{ status: "loaded", value: outcomeSummaryBody({ objective_site_count: 1 }) }, `No verified result yet · targets declared at 1 site · ${gap}`],
-      [{ status: "loaded", value: outcomeSummaryBody({ objective_site_count: 0 }) }, `No verified result yet · no targets declared · ${gap}`],
-      [{ status: "loaded", value: outcomeSummaryBody({ objective_site_count: null }) }, `No verified result yet · ${gap}`],
-      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `No verified result yet · ${gap}`],
-    ];
+  // OUT-D U5 (R586, review M2): the Assure card clause from objective_site_count and objective_sites_unread.
+  const targetsGap = "evidence gap at 1 site";
+  async function expectAssureDetail(cases: [EstateOutcomeSummaryRead, string][]) {
     for (const [answer, expected] of cases) {
       const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer as never));
       await settledScreen();
@@ -1015,6 +1008,36 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       expect(describeViolations(scanProductVocabulary(detail, "portfolio", { set: "w1" }).violations)).toBe("");
       view.unmount();
     }
+  }
+  const summaryWith = (n: number | null, u: number): EstateOutcomeSummaryRead => ({
+    status: "loaded",
+    value: outcomeSummaryBody({ objective_site_count: n, objective_sites_unread: u }),
+  });
+
+  it("assureNamesDeclaredTargetsWhenEverySiteWasRead", async () => {
+    await expectAssureDetail([
+      [summaryWith(3, 0), `No verified result yet · targets declared at 3 sites · ${targetsGap}`],
+      [summaryWith(1, 0), `No verified result yet · targets declared at 1 site · ${targetsGap}`],
+    ]);
+  });
+
+  it("assureSaysNoTargetsDeclaredOnlyWhenEverySiteWasReadAsNone", async () => {
+    await expectAssureDetail([[summaryWith(0, 0), `No verified result yet · no targets declared · ${targetsGap}`]]);
+  });
+
+  it("assureNamesTheSitesNotCheckedBesideDeclaredTargets", async () => {
+    await expectAssureDetail([
+      [summaryWith(2, 1), `No verified result yet · targets declared at 2 sites, 1 site not checked · ${targetsGap}`],
+      [summaryWith(1, 2), `No verified result yet · targets declared at 1 site, 2 sites not checked · ${targetsGap}`],
+    ]);
+  });
+
+  it("assureHasNoTargetsClauseWhenSitesAreUnreadAndNoneDeclaredOrSummaryNotLoaded", async () => {
+    await expectAssureDetail([
+      [summaryWith(0, 1), `No verified result yet · ${targetsGap}`],
+      [summaryWith(null, 3), `No verified result yet · ${targetsGap}`],
+      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `No verified result yet · ${targetsGap}`],
+    ]);
   });
 });
 

@@ -357,7 +357,8 @@ def objectives_wire(facts: SiteFacts) -> list[dict[str, Any]]:
     """The board's top-level `objectives` list. Verdict codes are wire data and never rendered."""
     verdicts = objective_verdicts(facts)
     return [{"outcome_key": f.outcome_key, "outcome_label": OUTCOME_BY_KEY[f.outcome_key].label, "source": f.source,
-             "revision_id": f.revision_id, "verdict": verdicts[f.outcome_key]} for f in facts.objectives]
+             "revision_id": f.revision_id, "source_note": f.source_note, "verdict": verdicts[f.outcome_key]}
+            for f in facts.objectives]
 
 
 def assemble(facts: SiteFacts) -> list[dict[str, Any]]:

@@ -84,6 +84,7 @@ class ObjectiveFact:
     target_text: str
     source: str
     revision_id: str | None   # None = read from an existing Site policy (CC-1)
+    source_note: str | None = None   # the declaration's note (wire data; CC-1 None)
 
 
 @dataclass(frozen=True)
