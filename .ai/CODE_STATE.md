@@ -6084,3 +6084,18 @@ Branch `task/OUT-C-early-warnings` (cut from main e8cf8a36). Contract `AssetOpsV
 - Settled: warnings render only backend text; empty list renders nothing; the frontend adds no "Not available yet" literal.
 - Left open: P-C1 failed (the whole-day estate summary on w502 shows no REPEATED warning), so estate surfaces are vitest-only and carried to the combined
   dataset; R561, R562, R565, R566, R569 open; full vitest, full backend and captures await the coordinator's go.
+
+## OUT-W - estate event windows for cold and EV Sites (built, in_review)
+Branch `task/OUT-W-estate-event-windows` (cut from main 833e7c95). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-W.md`; packet `.agent/OUT-W-packet.md`; history `.agent/OUT-W-phase-handoff.md`.
+- Backend: `EstateEvidenceService.site_selected_windows` (`estate/evidence_money.py`, after `site_readiness`): the Evidence root's selected windows of one
+  cold/EV Site on one snapshot (same `snap.selected_windows` arguments as `coverage._windowed`), deduplicated, ascending, forward and <= 31 days; [] for
+  mini/unsupported/no cutoff, None outside the authorized set; window rule and `known_at` refusals as `site_readiness`. No new SQL, no new port.
+- `site_outcomes/read.py`: `latest_window` (max end, then start), `_event_window` (any failure -> None; logs Site code and exception type only, silent for
+  `PortUnavailable`), `summary()` composes cold/EV on the latest event (`LATEST_EVENT`) or the period (`PERIOD`), mini on its day (`DAY`); sites gain
+  `window` and `window_basis` (None on a failed board); `overview_href` carries `?from=&to=[&known_at=]` only on `LATEST_EVENT`. Schema version unchanged.
+- Frontend: `EstateOutcomeSummarySite` gains `window`/`window_basis` (never shown); fixtures and Portfolio vitest prove the cold cells use the query href.
+  No component change: Portfolio cells and headers already use `overview_href`, and the Site page passes the URL window to its board (captured).
+- Settled: P-C1 is asserted on real Postgres (w502 day and week: GreenHarvest LATEST_EVENT on the W5-01 window, Cost Needs attention, one repeat warning).
+- Left open: R577 (Depot 6 Oct estate reads refuse 409 ESTATE_SELECTION_INCONSISTENT, a Finding with two selected revisions at one cutoff; FIX-01); the
+  6 Oct EV assertion flips to LATEST_EVENT when FIX-01 lands. R576 standing (earlier events in a longer period do not affect cold/EV cells).
+  Maintenance card 4 reads "Not assessed" while the summary is loading (pre-existing OUT-C behaviour, observed in capture).
