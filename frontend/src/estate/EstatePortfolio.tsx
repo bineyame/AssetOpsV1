@@ -6,6 +6,7 @@ import {
   type EstateClient,
   type EstateEnvelope,
   type EstateLens,
+  type EstateOutcomeSummaryBody,
   type EstatePortfolioBody,
   type EstatePortfolioQuery,
   type EstatePortfolioRow,
@@ -21,8 +22,6 @@ import {
   coverageStateWords,
   exclusionLineLabel,
   exclusionReasonWords,
-  NO_CONFIGURED_OBJECTIVE,
-  OBJECTIVE_DETAIL_UNAVAILABLE,
   selectedAssessmentWords,
   CATEGORIES_SEPARATE,
   contextWords,
@@ -35,9 +34,6 @@ import {
   LENS_LABELS,
   NO_ENERGY_TOTAL,
   NO_SNAPSHOT_NOTICE,
-  OBJECTIVES_FOOTNOTE,
-  OBJECTIVES_PANEL,
-  OBJECTIVES_SUBTITLE,
   OPPORTUNITY_NOTE,
   OPPORTUNITY_PANEL,
   OUTCOME_NOTE,
@@ -63,7 +59,7 @@ import {
 } from "./portfolioWords";
 import "./estatePortfolio.css";
 import { CategoryTags } from "../sites/outcomeCategories";
-import { amountOf, CategoryCards } from "./PortfolioOutcomes";
+import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -302,67 +298,22 @@ function PriorityPanel({
   );
 }
 
-function ObjectivesPanel({ body }: { body: EstatePortfolioBody }) {
-  const keys = ["SERVICE_PRODUCT", "BACKUP", "ASSET_CONDITION", "COST_CONTROL", "EVIDENCE"] as const;
-  const labels = ["Service / product", "Backup", "Asset condition", "Cost control", "Evidence"];
-  const columns = { gridTemplateColumns: `1.2fr repeat(${Math.max(body.objectives.length, 1)}, minmax(64px, 1fr))` };
+/**
+ * OUT-B B6 (R521): the panel keeps its slot and shows the outcome matrix from `GET /api/estate/outcome-summary`
+ * (mock `portfolio.js:50`, `outcomes.js:153-154`). The portfolio body's `objectives` wire stays but is not rendered.
+ */
+function ObjectivesPanel({ summary }: { summary: EstateResult<EstateOutcomeSummaryBody> | null }) {
   return (
     <section className="panel" aria-labelledby="portfolio-objectives-heading" data-portfolio-panel="objectives">
       <div className="panel-head">
         <div>
-          <h2 id="portfolio-objectives-heading">{OBJECTIVES_PANEL}</h2>
-          <p>{OBJECTIVES_SUBTITLE}</p>
+          <h2 id="portfolio-objectives-heading">{OUTCOME_MATRIX_LABEL}</h2>
+          <p>{OUTCOME_MATRIX_NOTE}</p>
         </div>
       </div>
       <div className="portfolio-matrix-scroll" data-portfolio-scroll="objectives">
-        <div className="objective-matrix" role="table" aria-label={OBJECTIVES_PANEL}>
-          <div className="matrix-head" role="row" style={columns}>
-            <span role="columnheader">Objective</span>
-            {body.objectives.map((site) => (
-              <span key={site.site_id} role="columnheader" className="matrix-site" data-portfolio-matrix-site={site.site_code}>
-                {site.site_name}
-                <small>{site.site_code}</small>
-              </span>
-            ))}
-          </div>
-          {keys.map((key, i) => (
-            <div key={key} className="matrix-row" role="row" style={columns} data-portfolio-objective={key}>
-              <span role="rowheader">{labels[i]}</span>
-              {body.objectives.map((site) => {
-                const cell = site.cells.find((c) => c.key === key);
-                if (cell === undefined) return <span key={site.site_id} role="cell" />;
-                const tone = cell.state === "REVIEW" || cell.state === "LIMITED" ? "attention" : cell.state === "NOT_APPLICABLE" ? "na" : "unknown";
-                // Q10 (R297): a cell with a server destination is a link to that mounted domain route; an EV Backup
-                // objective has no configured target and says so; other null destinations stay labelled unavailable.
-                const cellProps = {
-                  className: `objective-cell ${tone}`,
-                  title: cell.reason,
-                  "aria-description": cell.reason,
-                  "data-portfolio-cell": `${site.site_code}|${key}|${cell.state}`,
-                };
-                if (cell.destination !== null) {
-                  return (
-                    <span key={site.site_id} role="cell">
-                      <Link {...cellProps} to={cell.destination} data-portfolio-cell-link>
-                        {cell.label}
-                      </Link>
-                    </span>
-                  );
-                }
-                const unavailable =
-                  site.domain === "EV_CHARGING" && key === "BACKUP" ? NO_CONFIGURED_OBJECTIVE : OBJECTIVE_DETAIL_UNAVAILABLE;
-                return (
-                  <span key={site.site_id} role="cell" {...cellProps}>
-                    {cell.label}
-                    <small data-portfolio-cell-unavailable>{unavailable}</small>
-                  </span>
-                );
-              })}
-            </div>
-          ))}
-        </div>
+        <OutcomeMatrixBody read={summary} />
       </div>
-      <p className="chart-note">{OBJECTIVES_FOOTNOTE}</p>
     </section>
   );
 }
@@ -638,6 +589,7 @@ function Loaded({
   onLens,
   window,
   loadMore,
+  summary,
 }: {
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
@@ -645,6 +597,7 @@ function Loaded({
   onLens: (lens: EstateLens) => void;
   window: Window;
   loadMore: (() => void) | null;
+  summary: EstateResult<EstateOutcomeSummaryBody> | null;
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const s = body.summary;
@@ -661,7 +614,7 @@ function Loaded({
         <ScopeDisclosure body={body} />
       </div>
       {/* OUT-A A6: four outcome category cards replace the five value cards (mock pfCard). */}
-      <CategoryCards body={body} window={window} />
+      <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
       <div className="portfolio-pulse" data-portfolio-pulse>
         <span>
           <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites
@@ -680,7 +633,7 @@ function Loaded({
       <div className="portfolio-main">
         <PriorityPanel body={body} rows={rows} lens={lens} onLens={onLens} window={window} loadMore={loadMore} />
         <aside className="portfolio-side" data-portfolio-side>
-          <ObjectivesPanel body={body} />
+          <ObjectivesPanel summary={summary} />
           <EvidenceAside body={body} window={window} />
         </aside>
       </div>
@@ -717,6 +670,25 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reads, key]);
 
+  // OUT-B B6: the outcome summary is read in parallel with the portfolio, for the same window.
+  const windowKey = `${window.from}|${window.to}|${window.known_at ?? ""}`;
+  const [summaryRead, setSummaryRead] = useState<{ key: string; result: EstateResult<EstateOutcomeSummaryBody> } | null>(null);
+  useEffect(() => {
+    let live = true;
+    const pending =
+      reads.getOutcomeSummary === undefined
+        ? Promise.resolve<EstateResult<EstateOutcomeSummaryBody>>({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" })
+        : reads.getOutcomeSummary(window);
+    void pending.then((result) => {
+      if (live) setSummaryRead({ key: windowKey, result });
+    });
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reads, windowKey]);
+  const currentSummary = summaryRead?.key === windowKey ? summaryRead.result : null;
+
   const current = read?.key === key ? read : null;
   const loadMore =
     current === null || current.next === null
@@ -749,7 +721,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
         <div className="portfolio-loading" data-estate-loading>
           <p>Loading the Portfolio across the estate.</p>
           <ul aria-label="Portfolio slots being read">
-            {["Value cards", PRIORITY_PANEL, OBJECTIVES_PANEL, OPPORTUNITY_PANEL, PROGRESS_PANEL].map((slot) => (
+            {["Value cards", PRIORITY_PANEL, OUTCOME_MATRIX_LABEL, OPPORTUNITY_PANEL, PROGRESS_PANEL].map((slot) => (
               <li key={slot}>{slot}</li>
             ))}
           </ul>
@@ -764,6 +736,7 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
           onLens={(next) => navigate(portfolioHref(window, next))}
           window={window}
           loadMore={loadMore}
+          summary={currentSummary}
         />
       )}
     </div>
