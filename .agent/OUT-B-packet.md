@@ -91,3 +91,27 @@ Open copy: none after addendum 8. Residual: 24 non-OUT-B backend failures on mai
   - Count: 23 + 5 = 28. Not rerun now; the full set is rerun on this branch after the main clock-fixture fix lands.
 - **Checks this round:** focused backend b1-b4 non-Postgres (run with PYTHONPATH on the plan2 venv, as the host script is blocked by the execution policy): see results line below; vitest, tsc and check-all: see below.
 - **Results:** backend b1-b4 non-Postgres 138 passed; `tsc --noEmit` clean; focused vitest (src/sites, src/estate, s5SiteWindowOverview) 1953 passed, 3 failed = the known `w1f4VerificationStructure` trio (a load flake in `siteFindingEvidence` passed alone, 46/46); `tools\check-all.ps1` direct, no override: All 11 guards passed. No Postgres, browser or full suite run.
+
+## After main e07fd204
+
+Merge commit 84cd47ba (main e07fd204 into the branch): no conflicts, auto-merged. Reruns on the merged branch, one file at a time, each in its own `assetops_outbN_test` DB (127.0.0.1:55432), `-p no:cacheprovider`, plan2 venv, DBs dropped afterwards (none left). All pass:
+
+| File | Result |
+|---|---|
+| test_w303_portfolio_scope_snapshot_postgres | 10 passed (624 s) |
+| test_w303_selectors_postgres | 3 passed |
+| test_w301_estate_index_postgres | 20 passed |
+| test_w301_estate_index_ev_postgres | 4 passed |
+| test_w301_provenance_dto_postgres | 7 passed |
+| test_w301_w1_money_snapshot_helpers_postgres | 6 passed |
+| test_s4_power_demo_case_postgres | 8 passed |
+| test_cc_placement_postgres | 2 passed |
+| test_w403_replay_postgres | 2 passed |
+| test_w303_portfolio_comparison_postgres | 4 passed |
+| test_w303_portfolio_fixture_postgres | 2 passed |
+| test_s405_resolver_postgres (incl. TestRevisionSets) | 9 passed |
+| test_s4_consequence_history_postgres (incl. TestRealRows) | 7 passed |
+| test_out_b4_board_postgres | 5 passed |
+| focused non-Postgres b1-b4 (10 files) | 138 passed |
+
+`tsc --noEmit`: clean. `tools\check-all.ps1` direct, no override, ASSETOPS_GUARD_PYTHON=plan2 venv: All 11 guards passed.
