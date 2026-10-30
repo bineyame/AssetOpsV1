@@ -880,6 +880,22 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expect(card("OPTIMIZE_COST").className).toContain("amber");
   });
 
+  it("optimizeCardStaysInUnknownWordingWhenOperatingCostIsMissing", async () => {
+    // Addendum 2: a body without OPERATING_COST is malformed; the card stays, in the unknown wording.
+    const value_cards = portfolioBody().value_cards.filter((c) => c.key !== "OPERATING_COST");
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ value_cards }))));
+    await settledScreen();
+    expect(value("OPTIMIZE_COST")).toBe("Not assessed");
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
+      "Operating cost is not assessed for this selection",
+    );
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("No value line");
+    expect(card("OPTIMIZE_COST").className).toContain("neutral");
+    expect(card("OPTIMIZE_COST").getAttribute("href")).toBe(
+      "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+    );
+  });
+
   it("assureGapTextForAllSomeOneZeroAndNull", async () => {
     const cases: [number | null, number, string][] = [
       [3, 3, "evidence gaps at all 3 sites"],

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
+import { MissingClaim } from "../ui";
 import type { EstatePortfolioBody, EstateQuery, EstateValueCard } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE } from "./estateFinancialsWords";
@@ -60,10 +61,16 @@ export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: s
   },
 ];
 
-export const NOT_AVAILABLE_YET = "Not available yet";
 export const PROTECT_DETAIL = "Service disruptions recorded in Findings · loss not priced";
 export const PROTECT_BASIS = "Measured events, counted separately · loss not priced";
 export const ASSURE_BASIS = "Completed work does not establish savings";
+export const OPTIMIZE_COST_MISSING = {
+  value: "Not assessed",
+  detail: "Operating cost is not assessed for this selection",
+  basis: "No value line",
+  destination: "/financials",
+  tone: "neutral",
+} as const;
 
 /** Rulings A-Q9 / A-Q10: the evidence-gap clause of the Assure detail, from the summary and the scope. */
 export function evidenceGapText(gaps: number | null, sites: number): string {
@@ -98,7 +105,11 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody): CardConten
   const card = (k: EstateValueCard["key"]) => body.value_cards.find((c) => c.key === k);
   if (key === "GROW_REVENUE") {
     return {
-      value: NOT_AVAILABLE_YET,
+      value: (
+        <MissingClaim as="span" gapId="G-portfolio-grow-revenue" placement="portfolio.outcomes.grow-value">
+          Not available yet
+        </MissingClaim>
+      ),
       detail: "Site income not recorded",
       basis: "Opportunities · revenue not measured yet",
       destination: "/findings/opportunities",
@@ -107,7 +118,9 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody): CardConten
   }
   if (key === "OPTIMIZE_COST") {
     const cost = card("OPERATING_COST");
-    if (cost === undefined) return { value: NOT_AVAILABLE_YET, detail: "", basis: "", destination: null, tone: "neutral" };
+    // Addendum 2: the backend always sends OPERATING_COST, so its absence is a malformed body; keep the card in the
+    // unknown wording (estate/portfolio.py DISPLAYED_VALUE["UNKNOWN"]).
+    if (cost === undefined) return { ...OPTIMIZE_COST_MISSING };
     const { value, detail } = cardValue(cost, body);
     return { value, detail, basis: cost.basis_text, destination: cost.destination, tone: cost.tone };
   }
