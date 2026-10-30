@@ -292,3 +292,34 @@ Anchors are relative to backend/assetops_backend.
 - Not yet run: cold (`-c w502.BUILD positive <dir>` child, window = doc["window"]) and EV (in-process
   native_replay + _declare, window = evidence_window_E). Mini timing so far: day-B board 2.0 s (PARTIAL).
 - Then: message coordinator for B4 per-unit review; B5/B6 (B5 measure-mock-panels needs go), packet, closeout.
+
+## B4 addendum 5 applied (ebc89c7b + this commit) - Postgres test runs; 4 of 5 fail on fixture currency (questions sent)
+- `site_work_rows(tenant, site_code, day_from, day_to, work_from, work_to, known_at=None)` (`estate/portfolio.py:505`):
+  Findings + `site_cov` over the board day, Actions over the work window, one `self._read`; None when the Site is not
+  in the board-day scope. Mini port `estate(day_lo, day_hi, work_lo, work_hi)` (`mini.py:99`, call `:245`), board
+  binding `read.py:198`; fakes updated (`test_out_b2_mini.py:97`, `:172` asserts the split; `test_out_b4_read.py:66`).
+  Focused b2 mini / b4 read / b4 route: 35 passed.
+- Test (`test_out_b4_board_postgres.py`): per-case DBs `assetops_out_b_{guardrail,estate,cold,ev}_test` (clone of the
+  run template when routed, dropped FORCE after); S2 stand-in = `test_s5_overview_postgres.Imported.scope` patched onto
+  `ImportedEvidenceReads.scope` (docstring says so); evidence roots patched to tmp (both `json_evidence_store` and
+  `legacy_comparison_file`); EV build in a child (`EV_BUILD`) so the registered replay binds the case DB; `ev.URL`
+  patched in `_pin_kobo`. Each board read prints `OUT-B4 record <key>` with states, `failed`, port errors, a summary of
+  each port body (`PORTS`) and seconds. Runner as above; 103 s for the file.
+- RESULTS (run 3, head after this commit):
+  - imported_at KOBO (both s602b cases) = 2026-10-07 10:00Z > Day A `to` 10-07 00:00Z -> Day A `failed` has
+    "estate" (fixture artefact, addendum 5 #2 ii). Day B and estate 10-21: estate admitted.
+  - closed S2 (no stand-in): PARTIAL, rows all UNKNOWN, outcomes UNKNOWN/NOT_MEASURED, failed [mini_overview, estate]. PASS.
+  - With the stand-in, every Kobo read (guardrail 10-06, 11-02; estate 10-21): mini overview `freshness.state` =
+    STALE_PROJECTION (assessment CURRENT) -> mini `base` false (`mini.py:266`) -> all four rows UNKNOWN; mini depth
+    all four domains status UNKNOWN 0 rows; Finding index status UNASSESSED, 0 rows over the 31-day window (so no F01
+    issue on Day A, assertion `moves` fails). Day B: action_index 1 row (ACT-048), readiness FULL, read_state
+    AVAILABLE, still UNKNOWN (stale base). Estate 10-21: readiness NONE. Timings: 2.4 s / 2.0 s / 3.0 s.
+  - Cold w502 positive (window = doc["window"] 10-29..10-31): AVAILABLE, [NOT_MEASURED, NOT_MEASURED, UNKNOWN,
+    UNKNOWN]; cold_overview currentness UNKNOWN, cooling UNAVAILABLE; cold_findings 0 rows; readiness NONE; 0.98 s.
+  - EV w504 positive (E 10-06 08:00-09:00): PARTIAL, [WATCH, NOT_MEASURED, NEEDS_ATTENTION, UNKNOWN]; readiness
+    refused `EstateRefusal: ESTATE_SELECTION_INCONSISTENT`; ev_overview CURRENT; 1 Finding; 1.2 s.
+- OPEN (asked of the coordinator, nothing changed to make them pass): (1) the s602b fixtures' overview is
+  STALE_PROJECTION and the Finding index UNASSESSED/empty on every board day, so B.7 #2 and #3's mini assertions cannot
+  hold on them; (2) cold: is `doc["window"]` the right board window (no Findings, currentness UNKNOWN) - the cold
+  Finding's evidence window may be another key; (3) EV readiness ESTATE_SELECTION_INCONSISTENT over a 1-hour E window.
+- Resume: after the ruling, adjust fixtures/windows, rerun this file, then B4 per-unit review, then B5.

@@ -54,6 +54,7 @@ MUST_NOT_HARM = ("Reliable service and battery and generator life are checked as
 DAY_A_TO = datetime(2026, 10, 7, tzinfo=timezone.utc)
 FAILURES: list[str] = []
 COMPS: list[list[str]] = []
+PORTS: dict[str, object] = {}  # per board read: a summary of each mini port body (why an outcome is unsettled)
 
 
 def _record(key: str, value: object) -> None:
@@ -148,10 +149,22 @@ def _record_port_failures(monkeypatch) -> None:
     def call(self, name, fn, *args):
         def traced(*a):
             try:
-                return fn(*a)
+                body = fn(*a)
             except Exception as error:
                 FAILURES.append(f"{name}: {type(error).__name__}: {str(error)[:200]}")
                 raise
+            if name == "mini_overview":  # the settled base (mini.py: freshness CURRENT, assessment not CLOSED)
+                PORTS[name] = {"freshness": (body.get("freshness") or {}).get("state"),
+                               "assessment": (body.get("assessment") or {}).get("state")}
+            elif name in ("cold_overview", "ev_overview") and isinstance(body, dict):
+                PORTS[name] = {k: (body.get(k) or {}).get("state") for k in ("currentness", "freshness", "assessment",
+                                                                           "readiness", "cooling") if k in body}
+            elif isinstance(body, dict) and ("rows" in body or "items" in body):
+                PORTS.setdefault(name, []).append({"status": body.get("status"), "rows": len(
+                    body.get("rows") or body.get("items") or ()), "reasons": str(body.get("reasons"))[:160]})
+            elif isinstance(body, str):
+                PORTS[name] = body
+            return body
         return real(self, name, traced, *args)
 
     monkeypatch.setattr(mini.Reads, "call", call)
@@ -197,6 +210,7 @@ def _client():
 def _board(c, code: str, key: str, **params) -> tuple[dict, list[str]]:
     """One board read, timed; returns the body and the composer's `failed` list."""
     COMPS.clear()
+    PORTS.clear()
     started = time.perf_counter()
     r = c.get(f"/api/sites/{code}/outcome-board", params=params)
     seconds = round(time.perf_counter() - started, 2)
@@ -204,7 +218,7 @@ def _board(c, code: str, key: str, **params) -> tuple[dict, list[str]]:
     body = r.json()
     failed = COMPS[-1] if COMPS else None
     _record(key, {"read_state": body["read_state"], "states": _states(body), "window": body["window"],
-                  "failed": failed, "port_errors": sorted(set(FAILURES)), "seconds": seconds})
+                  "failed": failed, "port_errors": sorted(set(FAILURES)), "ports": dict(PORTS), "seconds": seconds})
     FAILURES.clear()
     return body, failed
 
