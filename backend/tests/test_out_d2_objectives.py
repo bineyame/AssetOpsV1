@@ -32,7 +32,7 @@ def reading(value, complete=True) -> Reading:
     (AT_MOST, "5", "5", True, MET),
     (AT_MOST, "5", "3", False, NOT_JUDGED),    # MET needs a complete window
     (AT_MOST, "5", None, True, NOT_JUDGED),
-    (AT_LEAST, "300", "300", False, MET),      # the met is proven without a complete window
+    (AT_LEAST, "300", "300", False, MET),      # ruling L3: an AT_LEAST met is proven early
     (AT_LEAST, "300", "301", True, MET),
     (AT_LEAST, "300", "120", True, MISSED),
     (AT_LEAST, "300", "120", False, NOT_JUDGED),
@@ -119,6 +119,17 @@ def test_target_texts() -> None:
         "Energy cost per km: at most 0.20 USD per km")
     assert target_text(m["interrupted_sessions"], target_is_zero=False, number="2") == (
         "Buses ready for service: at most 2 interrupted charging sessions")
+
+
+@pytest.mark.parametrize("key", list(MEASURES))
+@pytest.mark.parametrize("zero", [True, False])
+def test_rendered_target_text_always_substitutes_the_target(key, zero) -> None:
+    # Ruling L1: no rendered objective text carries a template brace, whatever the target.
+    m = MEASURES[key]
+    rendered = target_text(m, target_is_zero=zero, number="0" if zero else "7",
+                           currency="USD" if m.unit == obj.MONEY_UNIT else None)
+    assert "{" not in rendered and "}" not in rendered
+    assert "{" not in obj.CHAMBER_RANGE_TARGET.format(low="2", high="8")
 
 
 def test_every_template_passes_vocabulary() -> None:

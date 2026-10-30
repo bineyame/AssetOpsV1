@@ -18,7 +18,7 @@ from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
 from assetops_backend.financials.assumptions import SystemPrincipal
 from assetops_backend.objectives.model import (
@@ -32,6 +32,9 @@ class ObjectiveStoreUnavailable(RuntimeError):
 COLUMNS = ("id, tenant_id, site_id, outcome_key, revision_no, supersedes_revision_id, measure_key, measure_kind, "
            "comparison, target, unit, currency, window_rule, source, source_note, actor_kind, actor_id, "
            "authorization_basis, source_channel, idempotency_key, payload_sha256, recorded_at")
+
+
+IDEMPOTENCY_CONSTRAINT = "outcome_objective_revision_idempotency_unique"
 
 
 def _row(r) -> dict[str, Any]:
@@ -97,10 +100,12 @@ class PostgresObjectiveStore:
             c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended("
                            "'outcome_objective:' || :t || ':' || :s || ':' || :o, 0))"),
                       {"t": str(tenant_id), "s": str(site), "o": decl.outcome_key})
-            same = c.execute(text(f"SELECT {COLUMNS} FROM outcome_objective_revision "
-                                  "WHERE tenant_id = :t AND site_id = :s AND idempotency_key = :k"),
-                             {"t": tenant_id, "s": site, "k": decl.idempotency_key}).first()
+            same = self._same_key(c, tenant_id, site, decl.idempotency_key)
             if same is not None:
+                if same.outcome_key != decl.outcome_key:
+                    raise ObjectiveRefused(409, "IDEMPOTENCY_KEY_REUSED",
+                                           f"Idempotency key {decl.idempotency_key!r} already declared revision "
+                                           f"{same.id} for another outcome at this Site; nothing was written.")
                 if same.payload_sha256 != digest:
                     raise ObjectiveRefused(409, "IDEMPOTENCY_KEY_REUSED",
                                            f"Idempotency key {decl.idempotency_key!r} already declared revision "
@@ -126,7 +131,23 @@ class PostgresObjectiveStore:
                  "sha": digest}).one()
             return _row(stored), True
 
-        return self._run(work)
+        try:
+            return self._run(work)
+        except IntegrityError as error:
+            # Backstop (ruling L2): the advisory lock is per outcome, so two concurrent declarations of one key for
+            # different outcomes at a Site meet only at the unique constraint. Same answer as the check above.
+            if getattr(getattr(error.orig, "diag", None), "constraint_name", None) == IDEMPOTENCY_CONSTRAINT:
+                raise ObjectiveRefused(409, "IDEMPOTENCY_KEY_REUSED",
+                                       f"Idempotency key {decl.idempotency_key!r} is already used at this Site; "
+                                       "nothing was written.") from error
+            raise
+
+    @staticmethod
+    def _same_key(c: Connection, tenant_id: UUID, site: UUID, key: str):
+        """The revision already holding this idempotency key anywhere at the Site (the key is unique per Site)."""
+        return c.execute(text(f"SELECT {COLUMNS} FROM outcome_objective_revision "
+                              "WHERE tenant_id = :t AND site_id = :s AND idempotency_key = :k"),
+                         {"t": tenant_id, "s": site, "k": key}).first()
 
     def revision_id(self, tenant_id: UUID, site_id: UUID, idempotency_key: str) -> UUID | None:
         return self._run(lambda c: c.execute(text(

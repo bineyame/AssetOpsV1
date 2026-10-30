@@ -12,7 +12,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from assetops_backend.financials.assumptions import SYSTEM_CHANNELS, SystemPrincipal
-from assetops_backend.outcomes.objectives import MEASURES, MONEY_UNIT, Measure
+from assetops_backend.outcomes.objectives import AT_LEAST, MEASURES, MONEY_UNIT, Measure
 
 SOURCES = ("DECLARED", "RECORDED")
 CHANNELS = SYSTEM_CHANNELS
@@ -65,6 +65,8 @@ def validate(decl: Declaration) -> None:
         raise _invalid("The target is never negative.")
     if measure.zero_only and decl.target != 0:
         raise _invalid(f"Measure {decl.measure_key!r} admits only a zero target.")
+    if measure.comparison == AT_LEAST and decl.target == 0:
+        raise _invalid(f"Measure {decl.measure_key!r} is an at-least objective; a zero target says nothing.")
     if measure.unit == MONEY_UNIT:
         if decl.currency is None or not re.fullmatch(r"[A-Z]{3}", decl.currency):
             raise _invalid("A money target names a three-letter currency code.")

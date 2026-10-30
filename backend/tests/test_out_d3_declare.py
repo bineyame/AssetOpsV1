@@ -42,6 +42,7 @@ def refused(d: Declaration) -> ObjectiveRefused:
     {"source": "GUESSED"},
     {"source_note": ""},
     {"idempotency_key": "short"},
+    {"outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": Decimal("0")},  # ruling L1
 ])
 def test_validate_refuses(over) -> None:
     refused(decl(**over))

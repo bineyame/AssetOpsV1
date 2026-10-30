@@ -93,6 +93,20 @@ def test_declare_idempotent_chain_reproducible_reads_and_refusals(store, engine,
         reused = refusal(lambda: objectives.declare(tenant_id, replace(v2, target=Decimal("7")), SYSTEM_DECLARER,
                                                     "SYSTEM_CLI"))
         assert (reused.status, reused.code) == (409, "IDEMPOTENCY_KEY_REUSED")
+        # Ruling L2: the key is unique per Site, so reusing MG-2's key for MG-1 is refused at Site level ...
+        mg1 = Declaration("KOBO-001", "MG-1", "productive_use_kwh", Decimal("300"), None, "DECLARED",
+                          "Declared for the demonstration; not a customer target", before["MG-1"]["id"],
+                          "out-d-kobo-001-mg-2-v2")
+        other = refusal(lambda: objectives.declare(tenant_id, mg1, SYSTEM_DECLARER, "SYSTEM_CLI"))
+        assert (other.status, other.code) == (409, "IDEMPOTENCY_KEY_REUSED") and "another outcome" in other.message
+        # ... and, when a race slips past that check, the unique constraint maps to the same 409.
+        original = type(objectives)._same_key
+        type(objectives)._same_key = staticmethod(lambda c, t, s, k: None)
+        try:
+            raced = refusal(lambda: objectives.declare(tenant_id, mg1, SYSTEM_DECLARER, "SYSTEM_CLI"))
+        finally:
+            type(objectives)._same_key = original
+        assert (raced.status, raced.code) == (409, "IDEMPOTENCY_KEY_REUSED") and "already used" in raced.message
         missing = refusal(lambda: objectives.declare(tenant_id, replace(v2, site_code="NOPE-001"), SYSTEM_DECLARER,
                                                      "SYSTEM_CLI"))
         assert (missing.status, missing.code) == (404, "SITE_NOT_FOUND")

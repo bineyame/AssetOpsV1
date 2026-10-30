@@ -69,10 +69,9 @@ CHAMBER_RANGE_TARGET = "Stock kept saleable: chamber held between {low} and {hig
 
 def target_text(measure: Measure, *, target_is_zero: bool, number: str, currency: str | None = None) -> str:
     """The target sentence; `number` is the composer's formatted target (money: currency appended)."""
-    if target_is_zero and measure.unit != MONEY_UNIT:
-        return measure.target_zero
     t = f"{number} {currency}" if currency else number
-    return measure.target_any.replace("{t}", t)
+    template = measure.target_zero if target_is_zero and measure.unit != MONEY_UNIT else measure.target_any
+    return template.replace("{t}", t)   # ruling L1: the target is always substituted, never a bare "{t}"
 
 
 @dataclass(frozen=True)
