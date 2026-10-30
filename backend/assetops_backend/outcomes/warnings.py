@@ -243,7 +243,8 @@ def _connectors(f: WarningFacts) -> list[Warning]:
     out = []
     for asset_id, label, out_text, unknown_text in f.connectors_out:
         lead = f"{out_text} out and {unknown_text} unknown" if unknown_text else f"{out_text} out"
-        out.append(_make(f, CONNECTOR_OUT, asset_id, f"Connector {label} out of service",
+        name = label if label.lower().startswith("connector") else f"Connector {label}"  # "Connector c1" labels
+        out.append(_make(f, CONNECTOR_OUT, asset_id, f"{name} out of service",
                          f"{lead} {_window_text(f)}", f"/sites/{f.site_code}/performance/availability",
                          refs=[{"kind": "ASSET", "id": asset_id, "label": label, "href": None}],
                          subject_label=label))

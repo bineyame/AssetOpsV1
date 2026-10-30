@@ -7,6 +7,7 @@ is never a count source. Closed Findings linked by a case or a domain Action are
 Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b)."""
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
@@ -202,7 +203,14 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                       plans=tuple(plan_fact(p, tz) for p in plans or ()), readiness=readiness,
                       contributors=contributors, options=options, headline=headline, headline_money=headline_money,
                       subline=subline, settled=settled, date_suffix=suffix, findings_settled=findings_ok)
-    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)))
+    extras = {"faults": tuple((str(r["asset_id"]), r.get("label") or "") for r in fault_rows if r.get("asset_id")),
+              "connectors_out": tuple(
+                  (str(x["asset_id"]), x.get("label") or "", duration_text(x.get("known_unavailable_seconds")),
+                   duration_text(x.get("unknown_seconds")) if (x.get("unknown_seconds") or 0) > 0 else None)
+                  for x in out_connectors if x.get("asset_id")
+                  and duration_text(x.get("known_unavailable_seconds")) is not None),
+              "peak": peak_facts(body) if overview is not None else None}
+    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo, **extras)))
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
@@ -251,6 +259,18 @@ def _condition(body: Any, fault_rows: list, rc: Any) -> Contributor:
         return Contributor("charger_condition", "Charger condition",
                            f"Fault recorded on {fault_rows[0].get('label')}", rc)
     return Contributor("charger_condition", "Charger condition", NO_FAULT, rc)
+
+
+def peak_facts(body: dict) -> tuple[float, float, str, str] | None:
+    """(peak, limit, peak text, limit text) only when both are numbers (review L3), else None."""
+    power = body.get("site_power") or {}
+    try:
+        peak, limit = float(Decimal(str(power["observed_peak_kw"]))), float(Decimal(str(power["configured_limit_kw"])))
+    except (KeyError, InvalidOperation, ValueError, TypeError):
+        return None
+    if not (math.isfinite(peak) and math.isfinite(limit)):
+        return None
+    return peak, limit, num(power["observed_peak_kw"]), num(power["configured_limit_kw"])
 
 
 def _site_power(body: dict, ok: bool, rc: Any) -> Contributor:

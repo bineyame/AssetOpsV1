@@ -169,6 +169,8 @@ def test_connector_out_of_service() -> None:
     two_days = facts(EV, connectors_out=(("c1", "1", "2 h", None),), window_days=(DAY, date(2026, 10, 29)))
     (w,) = evaluate(two_days)
     assert w.seen == "2 h out between 28 Oct and 29 Oct" and "None" not in w.seen
+    (w,) = evaluate(facts(EV, connectors_out=(("c1", "Connector c1", "2 h", None),)))
+    assert w.title == "Connector c1 out of service"  # w504 labels already name the connector
 
 
 # ---- PEAK_NEAR_IMPORT_LIMIT

@@ -45,9 +45,11 @@ COST_MONEY = "exposure in this hour"
 FIXED = {
     "cash": "Not available yet · no billing or payment records",
     "earnings": "Not available yet · needs site income, operating cost and capital records",
-    "battery": "Not available yet · battery reserve readings are not read for this view",
     "plan_target": "Not available yet · no target declared for this site",
 }
+#: C (U4): the battery contributor from the dispatch body's binding constraints (no reserve %, R562).
+RESERVE_CONSTRAINTS = ("BATTERY_AT_RESERVE", "BATTERY_NEAR_RESERVE")
+NO_PERIOD_ASSESSED = "Not available yet · no generator period assessed on this day"
 NO_FUEL_BALANCE = "No complete fuel balance yet"
 PRICE_FALLBACK = "Declared price · see Assumptions"
 NO_GEN_PLAN = "No preventive plan recorded"
@@ -283,10 +285,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                            if limitations and limitation_text(limitations[0]) != GAP_GENERIC else GAP_GENERIC)))
 
     rc = readiness_confidence(readiness)
+    reserve = reserve_counts(dispatch)
     contributors = {
         GROW: _grow(c, depth, eligible, assessed, rc),
         COST: _cost(c, dispatch, depth, price, lead, rc),
-        PROTECT: _protect(c, depth, plan_facts, plans is None),
+        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
                         "action_read" in reads.failed or action_rows is None),
     }
@@ -322,7 +325,12 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
                       findings_settled=findings_ok)
     suffix = "" if tz is not None else UTC_SUFFIX
-    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start)))
+    warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
+    w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
+                                       for o in i["outcomes"]))
+    facts = replace(facts, warnings=warnings, headline={
+        **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
+        else PROTECT_HEADLINE})
     failed = tuple(reads.failed)
     diagnostics = unresolved_links(facts) + tuple((aid, ESTATE_ROW_MISSING) for aid in missing_estate)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
@@ -480,8 +488,34 @@ def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | No
     return gen, fuel, fuel_price
 
 
-def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: bool) -> tuple[Contributor, ...]:
-    battery = Contributor("battery", "Battery", FIXED["battery"], None, f"/sites/{c}/health")
+def reserve_counts(dispatch: dict[str, Any] | None) -> tuple[int, int] | None:
+    """(n, m): assessed generator periods whose result names a reserve constraint, of all assessed periods.
+    Read from `binding_constraints` only, never from reason prose; None when the dispatch read failed."""
+    if dispatch is None:
+        return None
+    intervals = list(dispatch.get("intervals") or ())
+    n = sum(1 for x in intervals
+            if set((x.get("result") or {}).get("binding_constraints") or ()) & set(RESERVE_CONSTRAINTS))
+    return n, len(intervals)
+
+
+def _battery(c: str, reserve: tuple[int, int] | None, rc: Any) -> Contributor:
+    href = f"/sites/{c}/health"
+    if reserve is None:
+        return not_available("battery", "Battery", href)
+    n, m = reserve
+    if n >= 1:
+        text = f"At or near the reserve during {n} of {m} assessed generator {plural(m, 'period', 'periods')}"
+    elif m > 0:
+        text = f"No generator period at or near the reserve ({m} assessed)"
+    else:
+        text = NO_PERIOD_ASSESSED
+    return Contributor("battery", "Battery", text, rc, href)
+
+
+def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: bool,
+             reserve: tuple[int, int] | None = None, rc: Any = None) -> tuple[Contributor, ...]:
+    battery = _battery(c, reserve, rc)
     run_hours = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id)) if p.trigger_kind == "RUN_HOURS"]
     if plans_failed:
         generator = not_available("generator", "Generator", "/maintenance/preventive")
