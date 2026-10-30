@@ -188,6 +188,8 @@ class SiteFacts:
     subline: Mapping[str, str | None] = field(default_factory=dict)
     settled: Mapping[str, bool] = field(default_factory=dict)  # per outcome key; absent = not settled
     warnings: tuple = ()               # C
+    #: Addendum 2 item 6: appended to Site-local dates when the Site zone is unavailable (dates are then UTC).
+    date_suffix: str = ""
 
 
 # ---------------------------------------------------------------- helpers
@@ -223,12 +225,12 @@ def unresolved_links(facts: "SiteFacts") -> tuple[tuple[str, str], ...]:
     return tuple(out)
 
 
-def _plan_label(plan: PlanFact) -> str:
+def _plan_label(plan: PlanFact, date_suffix: str = "") -> str:
     if plan.trigger_kind == "RUN_HOURS" and plan.next_due_hours is not None:
         hours = plan.next_due_hours
         return f"Due at {int(hours) if float(hours).is_integer() else hours} operating hours"
     if plan.next_due_at is not None:
-        return f"Due {plan.next_due_at.day} {_MONTHS[plan.next_due_at.month - 1]}"
+        return f"Due {plan.next_due_at.day} {_MONTHS[plan.next_due_at.month - 1]}{date_suffix}"
     return plan.state.replace("_", " ").capitalize()
 
 
@@ -404,7 +406,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     if cat == "PROTECT_ASSET":
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
             if p.state in ("DRAFT", "ACTIVE"):
-                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href, "state_label": _plan_label(p)})
+                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href,
+                                "state_label": _plan_label(p, facts.date_suffix)})
 
     # Must not harm (B-Q19, addendum 1): only where a mini Action verification exists.
     must_not_harm = None
