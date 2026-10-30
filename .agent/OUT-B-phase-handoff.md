@@ -417,3 +417,28 @@ Anchors are relative to backend/assetops_backend.
   `CategoryCards` (`.oc-sitedots` at PortfolioOutcomes.tsx ~173; CSS `:empty{display:none}` in estatePortfolio.css:174);
   Grow card value = first Site's `short_value`, tone green, else the MissingClaim. Register: R529 resolved, R521
   resolved, add R535 and R540-R552 (descriptions in spec §0.3/B rulings Q4 and addenda 2-4; R553-R554 free).
+
+## B5 old-card tests landed (23ba5b0a, 5d?, 074751e8). Packet notes for B5
+- Run-7 Evidence chip check: the chip (`evidenceAggregate`, "Evidence limited/contradictory/unknown/supported") still
+  renders in the cold Evidence route status strip; the 4 Run-7 tests keep their strip assertions (lines ~501-503) and
+  only the Overview Evidence-card word read moved to "board present, cards absent". Not a lost feature.
+- Panel guard (`test/panelStructure.ts`): `section.ob-board` admitted as a leading element on screens mini, cold, ev only
+  (`OUTCOME_BOARD_SCREENS`), its h2 kept out of panel titles and firstPanel, flagged by strayBetweenPanels after a panel.
+  Proven: dropping "cold" from the set fails `stocked: cold` (leading intruder); dropping `precededByPanel` fails the
+  new unit test. Two unit tests added in `test/__tests__/panelStructure.test.ts`.
+- Helper `expectOutcomeBoardReplacesCards(selectors)` in `test/outcomeBoardFixture.ts`; fixture subline changed to the
+  backend-shaped "The generator may have operated longer than needed." (default vocab set flags "ran").
+- Changed tests (card assertions -> board present + old cards absent; all non-card assertions kept):
+  cold: Run-7 chip x4 (overview half), "renders the ledger's strip, five cards..." (card list/cooling/maintenance/R437/
+  temperature/backup card text removed), "a null attention destination..." (temperature/backup card text), w2f
+  (cooling card text -> no "Cooling resumed" on the page), r254 (rewritten: no card links; board gets the window from/to).
+  Cold/EV renders use a moneyless board so the no-amount assertions stay about the domain reads.
+  EV: unknown_pending (card values), all_five_routes (power card), R254 (rewritten as cold r254).
+  mini: W1-UX-02 stale day (Dispatch card line), W1-a Q2/R157/Q48 (rewritten: board gets `date`), W1-a Q2 gray/none
+  (board on both assessment variants), W4-02 x5 card-value tests (shared cutoff/known_at kept; now assert no card value
+  text on the Overview), W4-02 H3 x3 (waits on the reads + strip, not card text). Card-value formatting tests have no
+  subject left (the helpers were deleted in baad3f5d).
+- Removed dead `OVERVIEW_MINI_LOADING`, `OVERVIEW_MINI_UNAVAILABLE` (SiteWindowOverview.tsx).
+- Open copy question: the mini strip still says "Reads on this Overview: ... Each card shows what its selected period
+  supports." (`SiteWindowOverview.tsx` `overviewReadsStrip`, H3 ruling copy) though the cards are gone. Not changed.
+- Register: R437 (cold maintenance card deviation) is moot with the card removed; close it with R540 in B6.
