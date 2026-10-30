@@ -308,6 +308,23 @@ function summaryRow(
   return { category, state, state_label, tone, lead_outcome: lead === null ? null : { key: "X-1", label: lead }, headline: null, short_value };
 }
 
+/** OUT-W: mini reads its day, a cold Site its latest event (the link opens it), an EV Site with no event the period. */
+export const COLD_EVENT_HREF = "/sites/COLD-001?from=2026-10-06T14%3A00%3A00Z&to=2026-10-06T15%3A00%3A00Z";
+
+const SUMMARY_HREF: Record<string, string> = {
+  "KOBO-001": "/sites/KOBO-001",
+  "COLD-001": COLD_EVENT_HREF,
+  "EV-LAB-001": "/sites/EV-LAB-001/ev",
+  "EV-LAB-002": "/sites/EV-LAB-002/ev",
+};
+
+const SUMMARY_WINDOW: Record<string, Pick<EstateOutcomeSummaryBody["sites"][number], "window" | "window_basis">> = {
+  "KOBO-001": { window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z", known_at: null }, window_basis: "DAY" },
+  "COLD-001": { window: { from: "2026-10-06T14:00:00Z", to: "2026-10-06T15:00:00Z", known_at: "2026-10-07T00:00:00Z" }, window_basis: "LATEST_EVENT" },
+  "EV-LAB-001": { window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z", known_at: "2026-10-07T00:00:00Z" }, window_basis: "PERIOD" },
+  "EV-LAB-002": { window: null, window_basis: null },
+};
+
 export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {}): EstateOutcomeSummaryBody {
   const rows: Record<string, EstateOutcomeSummaryRow[]> = {
     "KOBO-001": [
@@ -339,9 +356,10 @@ export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {})
       site_code: s.site_code,
       site_name: s.site_name,
       domain: s.domain,
-      overview_href: s.domain === "EV_CHARGING" ? `/sites/${s.site_code}/ev` : `/sites/${s.site_code}`,
+      overview_href: SUMMARY_HREF[s.site_code],
       read_state: s.site_code === "EV-LAB-002" ? "UNAVAILABLE" : "AVAILABLE",
       rows: rows[s.site_code],
+      ...SUMMARY_WINDOW[s.site_code],
     })),
     categories: SUMMARY_CATEGORIES.map((c) => ({ ...c, icon: c.category, sites_needing_attention: 0, warning_count: 0 })),
     warnings: [],

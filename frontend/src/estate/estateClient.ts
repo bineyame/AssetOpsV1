@@ -468,6 +468,9 @@ export interface EstateOutcomeSummarySite {
   overview_href: string;
   read_state: string;
   rows: EstateOutcomeSummaryRow[];
+  /** OUT-W: the window the Site was judged on (its latest assessed event for cold and EV); never shown. */
+  window: { from: string | null; to: string | null; known_at: string | null } | null;
+  window_basis: "DAY" | "LATEST_EVENT" | "PERIOD" | null;
 }
 
 export interface EstateOutcomeSummaryCategory {

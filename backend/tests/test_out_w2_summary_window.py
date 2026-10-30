@@ -85,7 +85,7 @@ def test_cold_site_board_on_latest_event_and_href(boards):
 
 
 def test_tie_on_end_takes_later_start(boards):
-    summary(Estate([(at(14), at(15)), (at(13), at(15))]), [COLD])
+    summary(Estate([(at(13), at(15)), (at(14), at(15))]), [COLD])  # earlier start first (review L2)
     assert (boards[0]["lo"], boards[0]["hi"]) == (at(14), at(15))
 
 
@@ -143,3 +143,13 @@ def test_warnings_come_from_the_event_window_board(boards):
     counts = {c["category"]: c["warning_count"] for c in out["categories"]}
     assert counts["OPTIMIZE_COST"] == 1
     assert {c["category"]: c["sites_needing_attention"] for c in out["categories"]}["OPTIMIZE_COST"] == 1
+
+
+def test_fallback_logs_site_code_and_type_only(boards, caplog):  # W2 review L1
+    caplog.set_level("WARNING", logger="assetops_backend.site_outcomes.read")
+    summary(Estate(error=RuntimeError("secret-dsn://x")), [COLD])
+    assert [r.getMessage() for r in caplog.records] == [
+        "outcome summary: window choice for COLD-LAB-001 fell back to the period (RuntimeError)"]
+    caplog.clear()
+    summary(None, [COLD])  # no estate configured: silent
+    assert caplog.records == []

@@ -11,6 +11,7 @@ UNKNOWN and `read_state` is PARTIAL. A port whose service is not configured rais
 """
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
@@ -30,6 +31,7 @@ from assetops_backend.site_outcomes.board import assemble
 
 SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
+LOG = logging.getLogger(__name__)
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
                    "warnings": WARNINGS_POLICY}
 #: Stored Site type -> board domain (`mini_depth/read.py:50`, `sites/cold_foundation.py:31`, `sites/ev_foundation.py:36`).
@@ -352,7 +354,12 @@ class SiteOutcomeBoardService:
         try:
             return latest_window(_need(self.s.estate, "estate").site_selected_windows(
                 site.tenant_id, site.site_code, lo, hi, known_at))
-        except Exception:  # noqa: BLE001 - falls back to the period, which reads Unknown where nothing covers it
+        except PortUnavailable:  # no estate configured: the period, silently
+            return None
+        except Exception as error:  # noqa: BLE001 - the period, which reads Unknown where nothing covers it
+            # W2 review L1: the Site code and the exception type only, never the message
+            LOG.warning("outcome summary: window choice for %s fell back to the period (%s)", site.site_code,
+                        type(error).__name__)
             return None
 
     def summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
