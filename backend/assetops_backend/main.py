@@ -623,7 +623,9 @@ def create_app(
     app.router.on_shutdown.append(outcome_board_dispose)
     app.include_router(build_outcome_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
-        access=development_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,)))
+    # addendum 4 #7: the cold and EV routers above get no disclosure argument here, so the board keeps the
+    # allow defaults too; pass the same callables to the board if that changes.
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

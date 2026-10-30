@@ -65,8 +65,6 @@ def build_outcome_board_service(
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
         work_access_basis=ACCESS_BASIS)
-    if actions is not None and getattr(actions, "clock", None) is not None:
-        services.clock = actions.clock
 
     def dispose() -> None:
         if global_work is not None:

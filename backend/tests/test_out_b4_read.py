@@ -93,3 +93,41 @@ def test_summary_order_unavailable_site_and_short_value(monkeypatch) -> None:
     assert odd["read_state"] == read.UNAVAILABLE and [r["state"] for r in odd["rows"]] == ["UNKNOWN"] * 4
     assert [c["category"] for c in out["categories"]] == list(CATEGORIES)
     assert out["window"] == {"from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z"}
+
+
+def test_mini_price_cutoff_is_known_at_or_current_never_a_clock() -> None:  # addendum 4 #4
+    seen: list = []
+
+    class Assumptions:
+        def series(self, t, s, key, *, valid_at, recorded_at):
+            seen.append(recorded_at)
+            return {}
+
+    svc = SiteOutcomeBoardService(BoardServices(assumptions=Assumptions()))
+    known = datetime(2026, 10, 9, 12, tzinfo=UTC)
+    svc.mini_ports(KOBO).assumption(datetime(2026, 10, 6, tzinfo=UTC))
+    svc.mini_ports(KOBO, known).assumption(datetime(2026, 10, 6, tzinfo=UTC))
+    assert seen == [None, known]
+
+
+def test_window_known_at_echoes_the_cutoff_used() -> None:  # addendum 4 #5
+    resolved = "2026-10-08T03:00:00Z"
+    calls: list = []
+
+    class ColdSite:
+        def overview(self, t, s, c, lo, hi, known_at):
+            calls.append(known_at)
+            return {"window": {"from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z", "known_at": resolved}}
+
+    svc = SiteOutcomeBoardService(BoardServices(cold_site=ColdSite()))
+    assert svc.board(COLD)["window"] == {"from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z",
+                                         "known_at": resolved}
+    lo, hi = datetime(2026, 10, 1, tzinfo=UTC), datetime(2026, 10, 8, tzinfo=UTC)
+    assert svc.board(COLD, lo=lo, hi=hi)["window"]["known_at"] == resolved  # a given window, still resolved
+    known = datetime(2026, 10, 7, tzinfo=UTC)
+    assert svc.board(COLD, lo=lo, hi=hi, known_at=known)["window"]["known_at"] == "2026-10-07T00:00:00Z"
+    assert calls[0] is None and calls[-1] == known  # the resolved cutoff is never forwarded (addendum 4 #3)
+    assert set(calls[:-1]) == {None}
+    # mini without a cutoff: null, even when the overview body carries one
+    mini_body = SiteOutcomeBoardService(BoardServices()).board(KOBO, day=date(2026, 10, 6))
+    assert mini_body["window"]["known_at"] is None

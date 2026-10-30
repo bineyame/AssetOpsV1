@@ -12,7 +12,7 @@ UNKNOWN and `read_state` is PARTIAL. A port whose service is not configured rais
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import urlencode
@@ -95,7 +95,6 @@ class BoardServices:
     action_selector: Callable[[UUID | None, datetime | None], Any] | None = None  # actions/lifecycle.py:146
     access_basis: str = ""            # the Finding-route access basis (finding_api.ACCESS_BASIS)
     work_access_basis: str = ""       # work_api.ACCESS_BASIS
-    clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc)
 
 
 def wire(at: datetime | None) -> str | None:
@@ -187,7 +186,7 @@ class SiteOutcomeBoardService:
 
         def assumption(at: datetime) -> dict[str, Any]:
             return jsonable_encoder(_need(s.assumptions, "assumptions").series(
-                t, sid, DIESEL_PRICE_KEY, valid_at=at, recorded_at=known_at or s.clock()))
+                t, sid, DIESEL_PRICE_KEY, valid_at=at, recorded_at=known_at))  # addendum 4 #4: None = current
 
         def finding_index(lo: datetime, hi: datetime, cursor: str | None) -> dict[str, Any]:
             _open(s.finding_index_gate, site, "finding index gate")
@@ -278,14 +277,26 @@ class SiteOutcomeBoardService:
         if domain not in (COLD, EV):
             raise ValueError(f"no outcome board for Site type {site.site_type!r}")
         ports = self.cold_ports(site, known_at) if domain == COLD else self.ev_ports(site, known_at)
+        resolved: dict[str, Any] = {}
         if lo is None or hi is None:
             window = (ports.overview(None, None) or {}).get("window") or {}
+            resolved["known_at"] = window.get("known_at")
             lo, hi = mini.utc(window.get("from")), mini.utc(window.get("to"))
             if lo is None or hi is None:
                 raise PortUnavailable("the overview resolved no window")
+        read_overview = ports.overview
+
+        def overview(a: datetime | None, b: datetime | None) -> dict[str, Any]:
+            body = read_overview(a, b)
+            resolved["known_at"] = ((body or {}).get("window") or {}).get("known_at")
+            return body
+
         composer = cold.compose if domain == COLD else ev.compose
-        comp = composer(ports, site_code=site.site_code, lo=lo, hi=hi, site_timezone=site.timezone)
-        return comp, {"from": lo, "to": hi}
+        comp = composer(replace(ports, overview=overview), site_code=site.site_code, lo=lo, hi=hi,
+                        site_timezone=site.timezone)
+        # addendum 4 #5: the cutoff used is the request's; without one, the overview body's resolved cutoff
+        cutoff = known_at if known_at is not None else mini.utc(resolved.get("known_at"))
+        return comp, {"from": lo, "to": hi, "known_at": cutoff}
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
@@ -302,7 +313,8 @@ class SiteOutcomeBoardService:
             "schema_version": SCHEMA_VERSION, "policy_versions": dict(POLICY_VERSIONS),
             "site_code": site.site_code, "site_id": str(site.site_id), "site_name": site.site_name,
             "domain": site.domain,
-            "window": {"from": wire(window["from"]), "to": wire(window["to"]), "known_at": wire(known_at)},
+            "window": {"from": wire(window["from"]), "to": wire(window["to"]),
+                       "known_at": wire(window.get("known_at", known_at))},
             "read_state": comp.read_state,
             "rows": jsonable_encoder(assemble(comp.facts)),
             "warnings": [],

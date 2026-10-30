@@ -5,10 +5,14 @@
                                                  cold and EV: `from`/`to` (at most 31 days); every domain: `known_at`
     GET /api/estate/outcome-summary              `from`/`to`/`known_at`, parsed as the estate scope root
 
-Admission is the Site read seam of the domain overview routes: `access(request, code)` (401/403) before any lookup,
-then the imported Site from the registry (404 SITE_NOT_FOUND for an unknown code or a Site type with no board).
+Admission (addendum 4, #2 and #7): a Site is admitted only when both the Site read seam of the domain overview
+routes (`access`, `development_access`) and the Work read seam (`work_access`, bound in `main.py` to the
+`site_read_access` the Work pages use) admit it; the first refusal of the two is 401/403 before any lookup. Then
+the imported Site from the registry (404 SITE_NOT_FOUND for an unknown code or a Site type with no board), and for
+a cold or EV Site the cold/EV disclosure check, answered with that gate's own 403 code.
 The estate summary uses the estate authenticate/admit seam of `estate_portfolio_api.py` and the estate scope
-service's authorized Site set, in its `(site_code_key, site_id)` order. The services are called directly, never
+service's authorized Site set, in its `(site_code_key, site_id)` order; a Site that either seam or its domain's
+disclosure refuses is omitted, with no foreign count. The services are called directly, never
 over HTTP; a refused producer read inside a board is that board's PARTIAL, never the route's error.
 """
 from __future__ import annotations
@@ -21,11 +25,12 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
 from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.estate_portfolio_api import refusal as estate_refusal
 from assetops_backend.finding_api import Access, development_access
-from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.catalogue import COLD, EV, MINI
 from assetops_backend.site_outcomes.read import SiteOutcomeBoardService, SiteRef
 from assetops_backend.site_overview.route import selected_day
 from assetops_backend.sites.cutover import ImportedSiteRegistry
@@ -71,16 +76,31 @@ def _public(body: dict[str, Any]) -> dict[str, Any]:
     return jsonable_encoder({k: v for k, v in body.items() if not k.startswith("_")})
 
 
+# The cold and EV gates' own disclosure refusals (cold_site_api.build_cold_gate, ev_assessment_api.ev_gate).
+DISCLOSURE_REFUSAL = {COLD: "COLD_SOURCE_DISCLOSURE_FORBIDDEN", EV: "EV_SOURCE_DISCLOSURE_FORBIDDEN"}
+
+
 def build_outcome_router(service: SiteOutcomeBoardService | None, registry: ImportedSiteRegistry, *,
                          estate: Any = None, tenant: Callable[[], UUID | None] = lambda: None,
                          access: Access = development_access,
+                         work_access: Access = development_access,
+                         cold_disclosure: Disclosure = allow_disclosure,
+                         ev_disclosure: Disclosure = allow_disclosure,
                          authenticate: Authenticate = development_authenticate,
                          unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
     router = APIRouter()
+    disclosures = {COLD: cold_disclosure, EV: ev_disclosure}
+
+    def admitted(request: Request, code: str) -> int | None:
+        return access(request, code) or work_access(request, code)
+
+    def disclosed(ref: SiteRef) -> bool:
+        check = disclosures.get(ref.domain)
+        return check is None or bool(check(ref.site_code, ref.tenant_id, ref.site_id))
 
     @router.get(BOARD_ROUTE)
     def outcome_board(site_code: str, request: Request) -> dict[str, Any]:
-        refusal = access(request, site_code)
+        refusal = admitted(request, site_code)
         if refusal == 401:
             raise _refuse(401, "UNAUTHENTICATED", "Sign in to read the Site outcome board.",
                           {"WWW-Authenticate": "Bearer"})
@@ -108,6 +128,9 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
                 raise _refuse(422, "INVALID_WINDOW", "'from' must be before 'to', at most 31 days apart.")
         if service is None:
             raise _refuse(503, "SITE_OUTCOME_BOARD_UNAVAILABLE", "No product database is configured.")
+        if not disclosed(ref):
+            raise _refuse(403, DISCLOSURE_REFUSAL[ref.domain],
+                          f"The source provenance of Site {site_code!r} may not be disclosed to this caller.")
         try:
             body = service.board(ref, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
         except (SiteStoreUnavailable, *unavailable) as error:
@@ -123,11 +146,11 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             parsed = parse_estate("scope", request.query_params.multi_items())
             if service is None or estate is None:
                 raise EstateStoreUnavailable("No product database is configured.")
-            scope = estate.scope(tenant(), parsed, lambda code: access(request, code) is None)
+            scope = estate.scope(tenant(), parsed, lambda code: admitted(request, code) is None)
             sites = []
             for item in scope["sites"]:
                 site = registry.imported(item["site_code"])
-                if site is not None:
+                if site is not None and disclosed(site_ref(site)):
                     sites.append(site_ref(site))
         except EstateRefusal as error:
             headers = {"WWW-Authenticate": "Bearer"} if error.status == 401 else None
