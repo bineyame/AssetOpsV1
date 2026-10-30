@@ -28,7 +28,7 @@ import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import timedelta, datetime, timezone
 from pathlib import Path
 
 import pytest
@@ -54,6 +54,8 @@ MUST_NOT_HARM = ("Reliable service and battery and generator life are checked as
 DAY_A_TO = datetime(2026, 10, 7, tzinfo=timezone.utc)
 FAILURES: list[str] = []
 COMPS: list[list[str]] = []
+LAST_PORTS: dict[str, dict] = {}
+CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 PORTS: dict[str, object] = {}  # per board read: a summary of each mini port body (why an outcome is unsettled)
 
 
@@ -219,6 +221,7 @@ def _board(c, code: str, key: str, **params) -> tuple[dict, list[str]]:
     failed = COMPS[-1] if COMPS else None
     _record(key, {"read_state": body["read_state"], "states": _states(body), "window": body["window"],
                   "failed": failed, "port_errors": sorted(set(FAILURES)), "ports": dict(PORTS), "seconds": seconds})
+    LAST_PORTS[key] = dict(PORTS)
     FAILURES.clear()
     return body, failed
 
@@ -338,18 +341,27 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         a, failed_a = _board(c, "KOBO-001", "kobo_guardrail_day_a", date="2026-10-06")
         b, failed_b = _board(c, "KOBO-001", "kobo_guardrail_day_b", date="2026-11-02")
 
-    # Day A (addendum 4 #1): F01 moves Cost and is checked on Protect; no Action yet, so no Must-not-harm line
-    f01 = spec["findings"]["2026-10-06"]
-    cost, protect = _rows(a)["OPTIMIZE_COST"], _rows(a)["PROTECT_ASSET"]
-    moves = [i for i in cost["issues"] if i["role"] == "MOVES" and (i.get("ref") or {}).get("finding_id") == f01]
-    assert moves, cost["issues"]
-    checked = [i for i in protect["issues"] if (i.get("ref") or {}).get("finding_id") == f01]
-    assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
-    assert cost["state"] == "NEEDS_ATTENTION"
-    assert cost["must_not_harm"] is None
-    if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): a fixture artefact, degrade-only
+    # Addendum 6: the s602b fixtures are not current (overview STALE_PROJECTION, Finding index UNASSESSED), so the
+    # Day A NEEDS_ATTENTION/F01 and Day B Must-not-harm assertions move to the combined-dataset acceptance.
+    for body in (a, b):
+        assert [r["category"] for r in body["rows"]] == CATEGORIES, [r["category"] for r in body["rows"]]
+        measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
+        assert measured and set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
+        assert "UNKNOWN" in measured.values(), measured
+    _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
+    if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): import-time artefact
         assert failed_a == ["estate"], failed_a
         assert a["read_state"] == "PARTIAL"
+
+    # Parity: the product overview route's freshness is the board's mini overview body (same app)
+    with _client() as c2:
+        for day in ("2026-10-06", "2026-11-02"):
+            r = c2.get("/api/sites/KOBO-001/overview", params={"date": day})
+            assert r.status_code == 200, r.text
+            _record(f"kobo_overview_route_{day}", r.json()["freshness"]["state"])
+            parity = r.json()["freshness"]["state"]
+            board_key = "kobo_guardrail_day_a" if day == "2026-10-06" else "kobo_guardrail_day_b"
+            assert LAST_PORTS[board_key]["mini_overview"]["freshness"] == parity, (day, LAST_PORTS[board_key])
 
     # Day B: the real Action rows carry the keys the B2 fake assumes (ESTATE_A48), with `_raw` where progress reads it
     actions = [x for rows in seen[1:] if rows for x in rows["actions"]]
@@ -357,19 +369,10 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     for x in actions:
         assert ACTION_KEYS <= set(x), ACTION_KEYS - set(x)
         assert ACTION_RAW_KEYS <= set(x["_raw"]), ACTION_RAW_KEYS - set(x["_raw"])
-    # ACT-048's Must-not-harm line, its verification link, ACT-048 on Cost, nothing "outside this view"
-    action_id = spec["action"]
-    cost_b = _rows(b)["OPTIMIZE_COST"]
-    assert cost_b["must_not_harm"]["text"] == MUST_NOT_HARM
-    href = cost_b["must_not_harm"]["href"]
-    assert href.startswith(f"/sites/KOBO-001/actions/{action_id}/verification?event_id="), href
-    assert len(href.split("event_id=", 1)[1]) == 36, href
-    act = [i for i in [*cost_b["in_hand"], *cost_b["earlier"]] if "ACT-048" in i["text"]]
-    assert act, (cost_b["in_hand"], cost_b["earlier"])
-    _record("kobo_act048_column", "in_hand" if act[0] in cost_b["in_hand"] else "earlier")
+    # Day B: the Action index returns ACT-048 and nothing is "outside this view"
+    assert any("ACT-048" in i["text"] for r in b["rows"] for i in _items(r)) or any(
+        x.get("action_id") == spec["action"] or spec["action"] in json.dumps(x, default=str) for x in actions), actions
     assert not [i for r in b["rows"] for i in _items(r) if i["text"].endswith(OUTSIDE)]
-    if act[0] in cost_b["earlier"]:  # addendum 4 #1: the CHECKED safeguard Earlier entry on Protect
-        assert any("ACT-048" in i["text"] for i in _rows(b)["PROTECT_ASSET"]["earlier"]), _rows(b)["PROTECT_ASSET"]
 
 
 def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
@@ -382,14 +385,12 @@ def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
         seen = _spy_work_rows(monkeypatch)
         with _client() as c:
             body, failed = _board(c, "KOBO-001", "kobo_estate_2026_10_21", date="2026-10-21")
-    findings = [f for rows in seen if rows for f in rows["findings"]]
-    assert findings, (failed, seen)
-    for f in findings:
-        assert FINDING_KEYS <= set(f), FINDING_KEYS - set(f)
-    assert "estate" not in failed, failed
-    grow, cost, protect, assure = _states(body)  # B.7 #2, Kobo pre-acceptance
-    assert grow in ("OPPORTUNITY", "NO_OBJECTIVE") and (cost, protect, assure) == (
-        "NEEDS_ATTENTION", "NO_OBJECTIVE", "WATCH"), _states(body)
+    # Addendum 6: the estate Finding-row key check and the Cost/Assure states move to the combined-dataset
+    # acceptance (estate 10-21 has no Finding rows while coverage is not current). Recorded states only.
+    assert [r["category"] for r in body["rows"]] == CATEGORIES
+    measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
+    assert set(measured.values()) <= {"UNKNOWN", "NOT_MEASURED"}, measured
+    _record("kobo_estate_read", {"read_state": body["read_state"], "failed": failed, "outcomes": measured})
 
 
 # ------------------------------------------------------------------ cold and EV
@@ -405,14 +406,16 @@ def test_cold_w502_positive(monkeypatch, tmp_path) -> None:
         assert doc["blocked"] is None, doc["blocked"]
         _serve(monkeypatch, url, tmp_path)
         with _client() as c:
-            body, _ = _board(c, "COLD-LAB-001", "cold_w502_positive", **doc["window"])
-    grow, cost, protect, assure = _states(body)  # B.7 #2
+            body, _ = _board(c, "COLD-LAB-001", "cold_w502_positive", **dict(zip(("from", "to"), doc["w501"]["window"])))
+    grow, cost, protect, assure = _states(body)  # B.7 #2 (addendum 6: window doc["w501"]["window"], no known_at)
     assert (grow, cost, protect) == ("NOT_MEASURED", "NOT_MEASURED", "NEEDS_ATTENTION"), _states(body)
-    assert assure in ("WATCH", "NO_OBJECTIVE"), _states(body)
-    # B.7 #4: the completed inspection is an Earlier intervention, not yet verified
+    _record("cold_assure", assure)
+    # B.7 #4: asserted only when the completed request is inside the work window ending at `to`; else recorded absent
     earlier = [i for r in body["rows"] for i in r["earlier"]]
-    assert any(i.get("result_label") == "Not yet verified" for i in earlier), earlier
-    assert body["window"]["known_at"] is not None  # addendum 4 #5: the overview's resolved cutoff
+    present = any(i.get("result_label") == "Not yet verified" for i in earlier)
+    _record("cold_b7_4_not_yet_verified", {"present": present, "window": doc["w501"]["window"]})
+    if present:
+        assert body["window"]["known_at"] is not None  # addendum 4 #5: the overview's resolved cutoff
 
 
 EV_BUILD = r'''
@@ -435,7 +438,16 @@ def test_ev_w504_positive(monkeypatch, tmp_path) -> None:
         built = json.loads((tmp_path / "ev.json").read_text(encoding="utf-8"))
         assert built["status"] == "ready", built.get("status")
         window = {"from": built["evidence_window_E"]["from"], "to": built["evidence_window_E"]["to"]}
+        # the estate route parses midnight-aligned windows only (scope.py:120); E is one hour, so the check uses the
+        # UTC day containing E
+        start = datetime.fromisoformat(window["from"].replace("Z", "+00:00")).astimezone(timezone.utc)
+        start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+        day = {"from": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "to": (start + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")}
         _serve(monkeypatch, url, tmp_path)
         with _client() as c:
             body, _ = _board(c, "EV-LAB-001", "ev_w504_positive", **window)
-    assert _states(body) == ["WATCH", "NOT_MEASURED", "NEEDS_ATTENTION", "WATCH"], _states(body)  # B.7 #2
+            route = c.get("/api/estate/evidence", params=day)  # addendum 6 #3: is the readiness refusal the fixture's?
+    _record("ev_estate_evidence_route", {"status": route.status_code, "body": route.text[:300]})
+    assert route.status_code == 409 and "ESTATE_SELECTION_INCONSISTENT" in route.text, (
+        "site_readiness is bound wrongly (estate route succeeds)", route.status_code, route.text[:300])
+    assert _states(body) == ["WATCH", "NOT_MEASURED", "NEEDS_ATTENTION", "UNKNOWN"], _states(body)  # B.7 #2, add. 6

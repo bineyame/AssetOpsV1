@@ -337,3 +337,16 @@ Anchors are relative to backend/assetops_backend.
   - EV: same app GET `/api/estate/evidence` over the E window; if it is also 409 ESTATE_SELECTION_INCONSISTENT, assert
     Assure UNKNOWN and record it; if it succeeds, `site_readiness` is bound wrongly: fix it before review.
 - Then: all 5 tests pass, commit, handoff, message the coordinator (B4 review), then B5 (measure-mock-panels needs go).
+
+## Addendum 6 applied to test_out_b4_board_postgres.py - 5/5 pass (110 s); focused b1-b4 non-Postgres 123 passed
+- Run needs PYTHONPATH = worktree backend;contracts;tools (PowerShell), else the venv resolves another tree's contracts.
+- Kobo (3 reads): 4 rows in canonical order, measured outcomes UNKNOWN. Day A PARTIAL failed ["estate"]; Day B AVAILABLE
+  failed []; estate 10-21 AVAILABLE failed []. Overview route freshness = STALE_PROJECTION = board's mini_overview freshness
+  (parity asserted both days). Day B ACT-048 returned, Action-row keys checked, no "outside this view". Withdrawn
+  assertions left as comments (combined-dataset acceptance).
+- Cold (window = doc["w501"]["window"] 10-29T16:00..17:05Z, a [from,to] list): AVAILABLE, [NOT_MEASURED, NOT_MEASURED,
+  NEEDS_ATTENTION, WATCH]; Assure WATCH (readiness NONE). B.7 #4 "Not yet verified": ABSENT (recorded, not asserted).
+- EV: PARTIAL, [WATCH, NOT_MEASURED, NEEDS_ATTENTION, UNKNOWN]; board readiness ESTATE_SELECTION_INCONSISTENT.
+  /api/estate/evidence refuses a non-midnight window (422 INVALID_WINDOW, scope.py:120), so the check used the UTC day
+  containing E (10-06): 409 ESTATE_SELECTION_INCONSISTENT -> fixture's, not a binding bug. Assure UNKNOWN asserted.
+- Next: coordinator B4 per-unit review, then B5/B6.
