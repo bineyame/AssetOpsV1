@@ -1,4 +1,5 @@
-"""OUT-B1: outcome status, policy `outcome-status/1` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17).
+"""OUT-B1: outcome status, policy `outcome-status/2` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17;
+OUT-D U2 adds the declared-objective rules 4c, 7, 7b and 7c, build sheet OUT-D §3 U2).
 
 Pure. The state of one site-level outcome is the first matching rule; a category row rolls its outcomes up by a
 fixed precedence and names the first outcome (catalogue order) holding the winning state. Rows are never combined
@@ -9,9 +10,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from assetops_backend.outcomes.catalogue import SiteOutcome
+from assetops_backend.outcomes.objectives import MET, MISSED, NOT_JUDGED
 from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS
 
-STATUS_POLICY = "outcome-status/1"
+STATUS_POLICY = "outcome-status/2"
 
 NOT_APPLICABLE, NOT_MEASURED, UNKNOWN = "NOT_APPLICABLE", "NOT_MEASURED", "UNKNOWN"
 NEEDS_ATTENTION, WATCH, OPPORTUNITY = "NEEDS_ATTENTION", "WATCH", "OPPORTUNITY"
@@ -51,8 +53,12 @@ def _evidence_outcome(outcome: SiteOutcome) -> bool:
 
 
 def outcome_state(outcome: SiteOutcome, *, settled: bool, signals: Sequence[Signal],
-                  readiness: str | None, applicable: bool = True) -> tuple[str, str]:
-    """(state, reason_code) for one outcome; first match wins (§1.4 rules 1-8)."""
+                  readiness: str | None, applicable: bool = True, objective: str | None = None,
+                  objectives_ok: bool = True) -> tuple[str, str]:
+    """(state, reason_code) for one outcome; first match wins (§1.4 rules 1-8; OUT-D 4c, 7, 7b, 7c).
+
+    `objective` is the declared-objective verdict (MET | MISSED | NOT_JUDGED) or None when no objective applies;
+    `objectives_ok` is False when the objectives read failed. The defaults keep every earlier call unchanged."""
     if not applicable:
         return NOT_APPLICABLE, "CONFIGURATION_NOT_APPLICABLE"
     if not outcome.measured:
@@ -65,6 +71,8 @@ def outcome_state(outcome: SiteOutcome, *, settled: bool, signals: Sequence[Sign
             return NEEDS_ATTENTION, "PRIMARY_FINDING_OPEN"
         if s.kind == WARNING and s.status_effect == NEEDS_ATTENTION:
             return NEEDS_ATTENTION, "WARNING_NEEDS_ATTENTION"
+    if objective == MISSED:
+        return NEEDS_ATTENTION, "OBJECTIVE_MISSED"
     for s in mine:
         if s.kind == FINDING:
             return WATCH, "PRIMARY_FINDING_APPLIED" if s.primary else "SECONDARY_FINDING_OPEN"
@@ -74,6 +82,12 @@ def outcome_state(outcome: SiteOutcome, *, settled: bool, signals: Sequence[Sign
         return WATCH, "EVIDENCE_READINESS_" + readiness
     if any(s.kind == SIGNAL_OPPORTUNITY for s in mine):
         return OPPORTUNITY, "OPPORTUNITY_OPEN"
+    if objective == MET:
+        return ON_TRACK, "OBJECTIVE_MET"
+    if objective == NOT_JUDGED:
+        return UNKNOWN, "OBJECTIVE_NOT_JUDGED"
+    if not objectives_ok:
+        return UNKNOWN, "OBJECTIVES_NOT_READ"
     return NO_OBJECTIVE, "NO_OBJECTIVE_DECLARED"
 
 
