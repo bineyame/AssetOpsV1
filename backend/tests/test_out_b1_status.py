@@ -10,7 +10,7 @@ from assetops_backend.outcomes.status import (
     EVIDENCE_GAP, FINDING, NEEDS_ATTENTION, NO_OBJECTIVE, NOT_APPLICABLE, NOT_MEASURED, OPPORTUNITY, PRECEDENCE,
     SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, UNKNOWN, WARNING, WATCH, Signal, outcome_state, roll_up)
 
-MG2, MG7, MG4, CC1 = (OUTCOME_BY_KEY[k] for k in ("MG-2", "MG-7", "MG-4", "CC-1"))
+MG2, MG7, MG4, MG6, CC1 = (OUTCOME_BY_KEY[k] for k in ("MG-2", "MG-7", "MG-4", "MG-6", "CC-1"))
 
 
 def state(outcome, signals=(), *, settled=True, readiness=None, applicable=True):
@@ -27,8 +27,8 @@ def test_rule1_not_applicable_reserved() -> None:
 
 
 def test_rule2_not_measured_beats_signals() -> None:
-    assert not MG4.measured
-    assert state(MG4, [finding("MG-4")], settled=False) == NOT_MEASURED
+    assert not MG6.measured and MG4.measured  # C: MG-4 is measured (R541 resolved)
+    assert state(MG6, [finding("MG-6")], settled=False) == NOT_MEASURED
     assert state(MG2) != NOT_MEASURED
 
 
@@ -101,6 +101,16 @@ def test_mock_grid_golden_b_column() -> None:
     assert grid(MINI, mini, "LIMITED") == [OPPORTUNITY, NEEDS_ATTENTION, NO_OBJECTIVE, WATCH]
     cold = [finding("CC-6"), finding("CC-1", primary=False),         # F-118
             finding("CC-1")]                                         # F-119
-    assert grid(COLD, cold, "LIMITED") == [NOT_MEASURED, NOT_MEASURED, NEEDS_ATTENTION, WATCH]
+    assert grid(COLD, cold, "LIMITED") == [NOT_MEASURED, NO_OBJECTIVE, NEEDS_ATTENTION, WATCH]  # CC-3 measured (C)
     ev = [finding("EV-1"), finding("EV-3", primary=False)]           # F-130
     assert grid(EV, ev, "LIMITED") == [WATCH, NOT_MEASURED, NEEDS_ATTENTION, WATCH]
+
+
+def test_mock_grid_golden_c_column() -> None:
+    """C: the battery warning moves MG-4 (WATCH) and the repeat-visit warning moves CC-3 (NEEDS_ATTENTION)."""
+    mini = [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True), finding("MG-2"), Signal(EVIDENCE_GAP, "MG-7", True, True),
+            Signal(WARNING, "MG-4", True, True, status_effect=WATCH)]
+    assert grid(MINI, mini, "LIMITED") == [OPPORTUNITY, NEEDS_ATTENTION, WATCH, WATCH]
+    cold = [finding("CC-6"), finding("CC-1", primary=False), finding("CC-1"),
+            Signal(WARNING, "CC-3", True, True, status_effect=NEEDS_ATTENTION)]
+    assert grid(COLD, cold, "LIMITED") == [NOT_MEASURED, NEEDS_ATTENTION, NEEDS_ATTENTION, WATCH]
