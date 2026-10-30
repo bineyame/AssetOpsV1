@@ -14,6 +14,7 @@ import { mechanismWords } from "../portfolioWords";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
 import {
+  COLD_EVENT_HREF,
   COLD_ROW,
   coverageSite,
   loadedPortfolio,
@@ -203,7 +204,7 @@ describe("estate Portfolio page", () => {
     const heads = Array.from(matrix.querySelectorAll("[data-portfolio-matrix-site] a"));
     expect(heads.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
       ["Kobo", "/sites/KOBO-001"],
-      ["GreenHarvest", "/sites/COLD-001"],
+      ["GreenHarvest", COLD_EVENT_HREF],
       ["Depot", "/sites/EV-LAB-001/ev"],
       ["Harbour", "/sites/EV-LAB-002/ev"],
     ]);
@@ -212,6 +213,15 @@ describe("estate Portfolio page", () => {
     expect(lines(cell("KOBO-001", "OPTIMIZE_COST"))).toBe("Needs attention Generator fuel");
     expect(cell("KOBO-001", "OPTIMIZE_COST").className).toBe("oc-cell tone-amber");
     expect(cell("KOBO-001", "OPTIMIZE_COST").getAttribute("href")).toBe("/sites/KOBO-001");
+    // OUT-W: GreenHarvest was judged on its latest event, so its header and every cell open the Site on that window;
+    // Depot (no event, judged on the period) opens with a plain link.
+    expect(COLD_EVENT_HREF).toContain("?from=");
+    const coldCells = Array.from(matrix.querySelectorAll("[data-portfolio-outcome-cell^='COLD-001|']"));
+    expect(coldCells).toHaveLength(4);
+    for (const el of coldCells) expect(el.getAttribute("href")).toBe(COLD_EVENT_HREF);
+    const depotCells = Array.from(matrix.querySelectorAll("[data-portfolio-outcome-cell^='EV-LAB-001|']"));
+    expect(depotCells).toHaveLength(4);
+    for (const el of depotCells) expect(el.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
     expect(lines(cell("COLD-001", "GROW_REVENUE"))).toBe("Not measured yet Product sales");
     expect(cell("COLD-001", "GROW_REVENUE").className).toBe("oc-cell tone-none");
     expect(cell("EV-LAB-001", "ASSURE_PERFORMANCE").className).toBe("oc-cell tone-blue");
