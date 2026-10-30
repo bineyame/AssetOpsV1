@@ -37,7 +37,7 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   pytest, and pytest does not replace it. Run guards directly, e.g.
   `powershell -NoProfile -File tools\check-all.ps1` or
   `tools\check-navigation-truthfulness.ps1`. Never pass an
-  execution-policy override (owner rule, 2026-10-30).
+  execution-policy override (owner rule, 2026-10-30). Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override.
 
 ## The test database
 

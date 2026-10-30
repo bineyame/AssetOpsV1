@@ -23,3 +23,13 @@ The runner is `tools/check-navigation-truthfulness.ps1`, not `tools/checks/...`:
 - check-all: 11/11 PASS, same guard list, "All 11 guards passed.", exit 0. (Worktree needed a temporary junction frontend/node_modules -> plan2's, removed afterwards.)
 - Planted `"/site-details"` in frontend/src/zzPlanted.ts: Architecture seams and Navigation truthfulness FAIL, "Check failed: 2 of 11 guards.", exit 1. File removed.
 - `grep -rn ExecutionPolicy tools/`: only the rule comment in check-all.ps1.
+
+## Fix round 1 (review REVISE, docs only)
+- M1: README (Running things paragraph, check-all, individual guards incl. navigation guard added) and .claude/agents/assetops-reviewer.md now use plain commands. Policy-precondition note (agent env provides it via PSExecutionPolicyPreference; owner sets CurrentUser once; agents never set it or override) added to README, backend/TESTING.md, .ai/ROLE_CONFIG.md.
+- L1: one-line historical notes added under the Bypass quotes in tasks/OPS-03-suite-in-container.md, tasks/G-01-mock-gap-catalogue-and-guard.md, tasks/G-02-v01a-gap-pilot.md.
+- Remaining `git grep ExecutionPolicy` hits and why:
+  - tools/check-all.ps1:13 - the rule comment.
+  - .ai/ROLE_CONFIG.md:647, README.md:150, backend/TESTING.md:40 - docs stating the rule (name the term to forbid it).
+  - three task files above - historical quotes, each with a note.
+  - tasks/archive/pre-site-first-2026-10-07/README.md:160-161 - archived history, left untouched.
+  - .agent/* packets, reviews and briefs - historical records (incl. this packet and the review).

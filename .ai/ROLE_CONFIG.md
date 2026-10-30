@@ -644,7 +644,7 @@ The Architect (UI rulings, cap fallbacks, copy) and Implementers (pre-flight def
 
 ## Guards Run Without An Execution-Policy Override (owner, 2026-10-30)
 
-Run `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1` directly. No agent, script or doc may add `-ExecutionPolicy` (Bypass or otherwise).
+Run `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1` directly. No agent, script or doc may add `-ExecutionPolicy` (Bypass or otherwise). Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override.
 
 ## Updating Bindings
 
