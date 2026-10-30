@@ -8,15 +8,17 @@ Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b).
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
+from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
     plural, site_zone, utc)
@@ -54,10 +56,19 @@ OPTION_LOG = "Record stock and door log"
 #: B-Q23: the asset-type part of a plan's `asset_label` ("{asset_code} · {asset_type}") for each Protect contributor.
 PLAN_TYPE_TOKENS = {"backup_generator": ("GENERATOR",), "compressor": ("COMPRESSOR",)}
 UNKNOWN_CHIP = {"label": "Unknown", "tone": "gray"}
+#: C (U3): the Cost row, measured from catalogue/2 (R541 resolved).
+NO_REPEAT = "No repeated visit without a result in 60 days"
+NO_REPAIR_COST = "No repair or call-out cost recorded"
+NO_COOLING_METER = "Not available yet · no cooling energy meter"
+COST_SUBLINE = "None of the visits resolved the linked finding; repair cost is not recorded"
+#: Rulings C final review H1-3: the subline when the repeat warning names its fault (R572).
+COST_SUBLINE_FAULT = "None of the visits has fixed the {fault} yet; repair cost is not recorded"
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 
 #: Every fixed viewer string, for the vocabulary scan.
-COPY = (PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
+COPY = (NO_REPEAT, NO_REPAIR_COST, NO_COOLING_METER, COST_SUBLINE,
+        COST_SUBLINE_FAULT.format(fault="automatic start failure"),
+        PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
         STORAGE_LEVEL, CHAIN_COMPLETE, NO_CHAIN, LOADING_RECORDS, PROTECT_SUBLINE_START, PROTECT_SUBLINE,
         ASSURE_FULL, ASSURE_PART, ASSURE_SUBLINE, OPTION_START_TEST, OPTION_STOCK, OPTION_LOG)
 
@@ -88,12 +99,10 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
     readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
     plans = reads.call("plans", ports.plans, work_lo, hi)
-    cases: list[CaseFact] = []
-    work_failed = False
-    for kind, case_kind in (("incidents", INCIDENT), ("maintenance", MAINTENANCE_REQUEST)):
-        rows = reads.pages("work_index", ports.work, kind, work_lo, hi)
-        work_failed = work_failed or rows is None
-        cases += [case_fact(r, case_kind, c) for r in rows or ()]
+    incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
+    visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
+    work_failed = incidents is None or visits is None
+    cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
@@ -105,6 +114,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     base = overview is not None and (body.get("currentness") or {}).get("state") in SETTLED_CURRENTNESS
     settled = {o: base for o in ("CC-1", "CC-6", "CC-5")}
     settled["CC-7"] = base and readiness not in (None, "UNKNOWN")
+    settled["CC-3"] = base and findings_ok and visits is not None  # C: repeat visits need visits and Findings
     for key in finding_moved_outcomes(COLD):  # addendum 3 M1
         settled[key] = settled.get(key, False) and findings_ok
 
@@ -123,8 +133,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
         GROW: (), COST: (),
         PROTECT: (_temperature(excursion, claims, high, rc), _backup(body, overview is not None, rc),
                   _cooling(body, overview is not None),
-                  _plan("backup_generator", "Backup generator", plan_facts, labels, plans is None, suffix),
-                  _plan("compressor", "Compressor", plan_facts, labels, plans is None, suffix)),
+                  _plan("backup_generator", "Backup generator", plan_facts, labels, plans is None, suffix, hi),
+                  _plan("compressor", "Compressor", plan_facts, labels, plans is None, suffix, hi)),
         ASSURE: (_verified(cases, work_failed), Contributor("storage_service_level", "Storage service level",
                                                             STORAGE_LEVEL),
                  _chain(strip, gaps, rc), Contributor("loading_door_records", "Loading and door records",
@@ -148,6 +158,18 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
                       findings_settled=findings_ok)
+    wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
+    warnings = evaluate(wf)
+    repeat = next((w for w in warnings if w.kind == REPEATED), None)
+    # H1-4a: the repeat warning reuses Protect's start-test option when the start failure is one of its open Findings.
+    start_linked = (repeat is not None and start_failure is not None and start_href is not None
+                    and any(r["kind"] == "FINDING" and r["id"] == start_failure.finding_id
+                            for r in repeat.evidence_refs))
+    facts = replace(facts, warnings=warnings,
+                    options={**options, COST: (Option(OPTION_START_TEST, start_href),) if start_linked else ()},
+                    contributors={**contributors, COST: _cost(c, wf, repeat, visits is None, rc)},
+                    headline={**headline, COST: _repeat_headline(repeat)},
+                    subline={**subline, COST: _cost_subline(repeat)})
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
@@ -226,8 +248,39 @@ def _cooling(body: dict, ok: bool) -> Contributor:
                        UNKNOWN_CHIP if state == "CONTRADICTORY" else None)
 
 
+def _cost_subline(repeat: Any) -> str | None:
+    if repeat is None:
+        return None
+    fault = repeat.fault_name or LINKED_FINDING
+    return COST_SUBLINE if fault == LINKED_FINDING else COST_SUBLINE_FAULT.format(fault=fault)
+
+
+def _repeat_headline(repeat: Any) -> str | None:
+    return None if repeat is None else f"{repeat.count} repair visits in 60 days without a result"
+
+
+def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[Contributor, ...]:
+    """C (U3) cold Cost contributors: maintenance effectiveness, repair and call-out, cooling energy."""
+    if visits_failed:
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NOT_LOADED)
+    elif repeat is not None:
+        days = sorted((v.occurred_on for v in wf.visits if v.case_id in repeat.visit_ids))
+        dates = ", ".join(day_month(d) for d in days) + wf.date_suffix
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness",
+                             f"{repeat.count} visits ({dates}); the {repeat.fault_name or LINKED_FINDING} is still open",
+                             rc, repeat.href)
+    else:
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
+    done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))
+    repair = Contributor("repair_cost", "Repair and call-out",
+                         f"No cost on work record {done[-1].code}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
+                         f"/sites/{c}/financials")
+    cooling = Contributor("cooling_energy", "Cooling energy", NO_COOLING_METER)
+    return effect, repair, cooling
+
+
 def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, Any], failed: bool,
-          suffix: str) -> Contributor:
+          suffix: str, to: Any = None) -> Contributor:
     href = "/maintenance/preventive"
     if failed:
         return Contributor(key, label, NOT_LOADED, None, href)
@@ -237,7 +290,9 @@ def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, A
     if not match:
         return Contributor(key, label, NO_PLAN_RECORDED, PLAN_RECORD, href)
     p = match[0]
-    if p.next_due_at is not None:
+    if p.next_due_at is not None and p.due_at is not None and to is not None and p.due_at < to:
+        due = f"overdue since {day_month(p.next_due_at)}{suffix}"  # C: the PLAN_OVERDUE cue
+    elif p.next_due_at is not None:
         due = f"due {day_month(p.next_due_at)}{suffix}"
     elif p.next_due_hours is not None:
         due = f"due at {num(p.next_due_hours)} operating {plural(num(p.next_due_hours), 'hour', 'hours')}"

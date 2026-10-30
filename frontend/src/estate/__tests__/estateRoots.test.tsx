@@ -3,7 +3,7 @@
  * roots under a local MemoryRouter (Lane A mounts the shell routes), against the v6.9 panel structure, with every
  * card, column, chip, link, empty/partial/historical/refusal string asserted.
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectV69Panels } from "../../test/panelStructure";
@@ -11,7 +11,9 @@ import { settledScreen } from "../../test/settled";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { F104, NOT_MAPPED } from "../../sites/__tests__/outcomeFixtures";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
-import { createEstateClient, invalidWindowCopy, type EstateClient, type EstateLens } from "../estateClient";
+import { createEstateClient, invalidWindowCopy, type EstateClient, type EstateLens, type EstateOutcomeSummaryBody, type EstateResult } from "../estateClient";
+import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
+import { outcomeSummaryBody } from "./portfolioFixtures";
 import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_LINKED_NOTICE, FINDINGS_NOTICE, FINDINGS_UNLINKED_NOTICE } from "../findingIndex";
 import {
   FROM,
@@ -802,6 +804,73 @@ describe("OUT-A A4 estate Findings category pills", () => {
       const scan = scanProductVocabulary(tagged, "findings", { set: "w1" });
       expect(scan.scanned).toBeGreaterThan(0);
       expect(describeViolations(scan.violations)).toBe("");
+    }
+  });
+});
+
+describe("OUT-C U5 estate Findings early warnings", () => {
+  const warnings = [
+    outcomeWarning(),
+    planWarning(),
+    planWarning({ key: "BATTERY_NEAR_RESERVE:mini", kind: "BATTERY_NEAR_RESERVE", title: "Battery at or near its reserve", site_name: "Kobo Mini-grid" }),
+    planWarning({ key: "CONNECTOR_OUT_OF_SERVICE:c1", kind: "CONNECTOR_OUT_OF_SERVICE", badge: "RISK", title: "Connector c1 out of service", site_name: "Depot Charging" }),
+  ];
+  const withSummary = (summary: EstateResult<EstateOutcomeSummaryBody>) => {
+    const client = fakeClient((lens) => loaded(findingsBody(lens)));
+    const summaryCalls: unknown[] = [];
+    client.getOutcomeSummary = (query) => {
+      summaryCalls.push(query);
+      return Promise.resolve(summary);
+    };
+    return { client, summaryCalls };
+  };
+  const titles = () =>
+    Array.from(document.querySelectorAll("[data-early-warnings] li strong")).map((el) => el.textContent);
+  const flush = () =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+  it("eachLensListsItsWarningsUnderTheTableInsideThePanelFromThePagesOwnWindow", async () => {
+    const expected: Record<EstateLens, string[]> = {
+      all: ["Repeated maintenance without a result", "Coil clean due soon", "Battery at or near its reserve", "Connector c1 out of service"],
+      cost: ["Repeated maintenance without a result"],
+      risks: ["Coil clean due soon", "Battery at or near its reserve", "Connector c1 out of service"],
+      opportunities: [],
+    };
+    for (const lens of LENSES) {
+      const { client, summaryCalls } = withSummary({ status: "loaded", value: outcomeSummaryBody({ warnings }) });
+      const view = renderAt(`${ESTATE_FINDING_LENS_PATHS[lens]}?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}`, client);
+      await settledScreen();
+      await flush();
+      expect(summaryCalls).toEqual([{ from: FROM, to: TO, known_at: KNOWN }]);
+      expect(titles()).toEqual(expected[lens]);
+      const list = document.querySelector("[data-early-warnings]");
+      if (expected[lens].length === 0) {
+        expect(list).toBeNull();
+      } else {
+        expect(list?.closest("section, .panel")?.querySelector("#estate-findings-heading")).not.toBeNull();
+        expect(list?.querySelector("small")?.textContent).toMatch(/^(GreenHarvest|Kobo|Depot) · /);
+        expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(list?.textContent ?? "")).toBe(false);
+        expect(describeViolations(scanProductVocabulary(list as HTMLElement, SCREEN[lens], { set: "w1" }).violations)).toBe("");
+      }
+      view.unmount();
+    }
+  });
+
+  it("refusedOrEmptySummaryShowsNoList", async () => {
+    for (const summary of [
+      { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" } as const,
+      { status: "loaded", value: outcomeSummaryBody() } as const,
+    ]) {
+      const { client, summaryCalls } = withSummary(summary);
+      const view = renderAt(`/findings?${WINDOW}`, client);
+      await settledScreen();
+      await flush();
+      expect(summaryCalls).toHaveLength(1);
+      expect(main().querySelector("tbody tr")).not.toBeNull();
+      expect(document.querySelector("[data-early-warnings]")).toBeNull();
+      view.unmount();
     }
   });
 });

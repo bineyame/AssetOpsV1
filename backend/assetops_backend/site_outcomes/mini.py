@@ -9,7 +9,7 @@ outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
@@ -21,9 +21,11 @@ from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import action_for, workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 WORK_WINDOW = timedelta(days=31)  # the Finding, Action, work and estate reads' maximum (B-Q22, addendum 2 item 4)
@@ -36,6 +38,8 @@ GAP_GENERIC = "An evidence gap limits this conclusion"
 NO_VERIFIED = "No verified result yet"
 GROW_SUBLINE = "Sales to productive users are not metered, so revenue itself is not measured yet"
 PROTECT_HEADLINE = "Battery and generator condition are not assessed"
+#: Rulings C final review L2: the Protect headline when no warning moves MG-4 and m >= 1 periods were assessed.
+PROTECT_CLEAR = "Battery stayed clear of its reserve in {m} assessed generator {periods}"
 PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are early warnings only. Power was "
                    "delivered, but what customers needed is not measured")
 COST_NO_MONEY = "No priced exposure in this hour"
@@ -43,9 +47,11 @@ COST_MONEY = "exposure in this hour"
 FIXED = {
     "cash": "Not available yet · no billing or payment records",
     "earnings": "Not available yet · needs site income, operating cost and capital records",
-    "battery": "Not available yet · battery reserve readings are not read for this view",
     "plan_target": "Not available yet · no target declared for this site",
 }
+#: C (U4): the battery contributor from the dispatch body's binding constraints (no reserve %, R562).
+RESERVE_CONSTRAINTS = ("BATTERY_AT_RESERVE", "BATTERY_NEAR_RESERVE")
+NO_PERIOD_ASSESSED = "Not available yet · no generator period assessed on this day"
 NO_FUEL_BALANCE = "No complete fuel balance yet"
 PRICE_FALLBACK = "Declared price · see Assumptions"
 NO_GEN_PLAN = "No preventive plan recorded"
@@ -82,6 +88,7 @@ ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE, PROTECT_HEADLINE, PROTECT_SUBLINE,
+        PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
         COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
@@ -251,10 +258,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     action_rows = reads.pages("action_index", ports.action_index, work_lo, end)
     price = reads.call("assumptions", ports.assumption, start)
     plans = reads.call("plans", ports.plans, work_lo, end)
-    cases: list[CaseFact] = []
-    for kind, case_kind in (("incidents", INCIDENT), ("maintenance", MAINTENANCE_REQUEST)):
-        rows = reads.pages("work_index", ports.work, kind, work_lo, end)
-        cases += [case_fact(r, case_kind, c) for r in rows or ()]
+    incidents = reads.pages("work_index", ports.work, "incidents", work_lo, end)
+    visits = maintenance_cases(reads, ports.work, c, end)  # C: 60 days by occurrence (R571)
+    cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
@@ -265,7 +271,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     assessment = body.get("assessment") or {}
     base = overview is not None and freshness == "CURRENT" and assessment.get("state") != "CLOSED"
     settled = {"MG-1": base and depth_ok, "MG-6": base, "MG-3": base, "MG-2": base and dispatch is not None,
-               "MG-5": base and depth_ok, "MG-4": base,
+               "MG-5": base and depth_ok, "MG-4": base and dispatch is not None,
                "MG-7": base and readiness not in (None, "UNKNOWN")}
     for key in finding_moved_outcomes(MINI):  # addendum 3 M1: the Finding source is a status producer
         settled[key] = settled.get(key, False) and findings_ok
@@ -282,10 +288,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                            if limitations and limitation_text(limitations[0]) != GAP_GENERIC else GAP_GENERIC)))
 
     rc = readiness_confidence(readiness)
+    reserve = reserve_counts(dispatch)
     contributors = {
         GROW: _grow(c, depth, eligible, assessed, rc),
         COST: _cost(c, dispatch, depth, price, lead, rc),
-        PROTECT: _protect(c, depth, plan_facts, plans is None),
+        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
                         "action_read" in reads.failed or action_rows is None),
     }
@@ -320,6 +327,13 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       signals_extra=signals, headline=headline, headline_money=headline_money, subline=subline,
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
                       findings_settled=findings_ok)
+    suffix = "" if tz is not None else UTC_SUFFIX
+    warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
+    w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
+                                       for o in i["outcomes"]))
+    facts = replace(facts, warnings=warnings, headline={
+        **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
+        else protect_clear(reserve)})
     failed = tuple(reads.failed)
     diagnostics = unresolved_links(facts) + tuple((aid, ESTATE_ROW_MISSING) for aid in missing_estate)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
@@ -428,7 +442,7 @@ def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
     return PlanFact(str(p["canonical_plan_id"]), p.get("code"), p.get("title") or "", p.get("trigger_kind") or "",
                     None if due is None else due.astimezone(tz or timezone.utc).date(),
                     None if hours is None else float(Decimal(str(hours))), p.get("state") or "",
-                    None if p.get("asset_id") is None else str(p["asset_id"]), "/maintenance/preventive")
+                    None if p.get("asset_id") is None else str(p["asset_id"]), "/maintenance/preventive", due)
 
 
 # ---------------------------------------------------------------- contributors (§B.4 mini table)
@@ -477,8 +491,42 @@ def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | No
     return gen, fuel, fuel_price
 
 
-def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: bool) -> tuple[Contributor, ...]:
-    battery = Contributor("battery", "Battery", FIXED["battery"], None, f"/sites/{c}/health")
+def protect_clear(reserve: tuple[int, int] | None) -> str:
+    """L2: the no-warning Protect headline; `PROTECT_HEADLINE` unless m >= 1 periods were assessed."""
+    if reserve is None or reserve[1] < 1:
+        return PROTECT_HEADLINE
+    m = reserve[1]
+    return PROTECT_CLEAR.format(m=m, periods=plural(m, "period", "periods"))
+
+
+def reserve_counts(dispatch: dict[str, Any] | None) -> tuple[int, int] | None:
+    """(n, m): assessed generator periods whose result names a reserve constraint, of all assessed periods.
+    Read from `binding_constraints` only, never from reason prose; None when the dispatch read failed."""
+    if dispatch is None:
+        return None
+    intervals = list(dispatch.get("intervals") or ())
+    n = sum(1 for x in intervals
+            if set((x.get("result") or {}).get("binding_constraints") or ()) & set(RESERVE_CONSTRAINTS))
+    return n, len(intervals)
+
+
+def _battery(c: str, reserve: tuple[int, int] | None, rc: Any) -> Contributor:
+    href = f"/sites/{c}/health"
+    if reserve is None:
+        return not_available("battery", "Battery", href)
+    n, m = reserve
+    if n >= 1:
+        text = f"At or near the reserve during {n} of {m} assessed generator {plural(m, 'period', 'periods')}"
+    elif m > 0:
+        text = f"No generator period at or near the reserve ({m} assessed)"
+    else:
+        text = NO_PERIOD_ASSESSED
+    return Contributor("battery", "Battery", text, rc, href)
+
+
+def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: bool,
+             reserve: tuple[int, int] | None = None, rc: Any = None) -> tuple[Contributor, ...]:
+    battery = _battery(c, reserve, rc)
     run_hours = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id)) if p.trigger_kind == "RUN_HOURS"]
     if plans_failed:
         generator = not_available("generator", "Generator", "/maintenance/preventive")

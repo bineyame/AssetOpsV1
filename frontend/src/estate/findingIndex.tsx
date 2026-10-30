@@ -10,6 +10,9 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";
 import { CategoryTags } from "../sites/outcomeCategories";
+import { EarlyWarningList } from "../sites/EarlyWarnings";
+import type { OutcomeWarning } from "../sites/outcomeBoardClient";
+import { useOutcomeSummary } from "./useOutcomeSummary";
 import {
   createEstateClient,
   type EstateClient,
@@ -59,6 +62,14 @@ const PANEL_TITLE: Readonly<Record<EstateLens, string>> = {
   cost: "Cost lens",
   risks: "Risks lens",
   opportunities: "Opportunities lens",
+};
+
+/** OUT-C U5: which summary warnings each lens lists (All lists every one; none is an Opportunity yet). */
+const LENS_WARNING_FILTER: Readonly<Record<EstateLens, (w: OutcomeWarning) => boolean>> = {
+  all: () => true,
+  cost: (w) => w.lens === "COST",
+  risks: (w) => w.lens === "RISK",
+  opportunities: (w) => w.lens === "OPPORTUNITY",
 };
 
 /** The lens-specific second empty line (dry-read table); All has none. */
@@ -402,6 +413,9 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
   const firstPage = estateHref(path, query, { state: query.state });
   const read = result?.key === `${lens}|${key}` ? result.read : null;
   const body = read?.status === "loaded" ? read.value : null;
+  // OUT-C U5: the early warnings of the page's own window, from the estate outcome summary.
+  const summary = useOutcomeSummary(reads, { from: query.from, to: query.to, known_at: query.known_at });
+  const warnings = summary?.status === "loaded" ? summary.value.warnings.filter(LENS_WARNING_FILTER[lens]) : [];
 
   return (
     <div className="estate-page" data-estate-root={lens}>
@@ -419,7 +433,16 @@ export function EstateFindingsPage({ lens, client }: EstateFindingsPageProps) {
       ) : read.status === "refused" ? (
         <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={firstPage} />
       ) : (
-        <Loaded body={read.value} scope={scopeBody} lens={lens} active={query.state} stateHref={stateHref} path={path} query={query} />
+        <Loaded
+          body={read.value}
+          scope={scopeBody}
+          lens={lens}
+          active={query.state}
+          stateHref={stateHref}
+          path={path}
+          query={query}
+          warnings={warnings}
+        />
       )}
     </div>
   );
@@ -433,6 +456,7 @@ function Loaded({
   path,
   query,
   scope,
+  warnings,
 }: {
   body: EstateFindingsBody;
   scope: EstateScopeBody | null;
@@ -441,6 +465,7 @@ function Loaded({
   stateHref: (state: EstateStateFilter) => string;
   path: string;
   query: ReturnType<typeof queryFromParams>;
+  warnings: readonly OutcomeWarning[];
 }) {
   const linkedIds = miniGridSiteIds(body);
   const anyLinked = body.rows.some((row) => findingLinkLive(row, linkedIds));
@@ -470,6 +495,7 @@ function Loaded({
           </p>
         ))}
         <Pager next={next} first={stateHref(active)} paged={query.cursor !== null} />
+        <EarlyWarningList warnings={warnings} showSite />
       </Panel>
       <LimitationNotice sentences={cause.notice} />
       <Notice tone="blue" data={{ "data-estate-notice": "" }}>

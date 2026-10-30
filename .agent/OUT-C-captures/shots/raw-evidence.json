@@ -1,0 +1,884 @@
+{
+  "runs": [
+    {
+      "targets": ".agent/OUT-C-captures/targets.json",
+      "product_sha": "b6650116",
+      "captured_at": "2026-10-30T19:44:50.782Z",
+      "captures": [
+        {
+          "name": "overview-cold-cost-open",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-cold-cost-open-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-cost-open-1440-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1886,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 313,
+              "height": 646,
+              "headToLastSummaryBottom": 645,
+              "sumLabels": [
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati"
+            ],
+            "mainTextLen": 3328,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5471/favicon.ico"
+            ]
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-cold-cost-open",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-cold-cost-open-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-cost-open-390-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3603,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 539,
+              "height": 1412,
+              "headToLastSummaryBottom": 1411,
+              "sumLabels": [
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati"
+            ],
+            "mainTextLen": 3354,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "findings-cold",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "findings-cold-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold-findings",
+          "mock_image": "findings-cold-1440-mock-v70-cold-findings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [
+              {
+                "row": "Backup generator did not start when the grid failedBegan Not recordedAffects Protect asset and capitalAlso checked under Optimize cost and e",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              },
+              {
+                "row": "Cold room temperature outside its policy bandBegan 16:10–16:15Affects Protect asset and capitalTemperatureNot assessedBoundedOpenAt least 45",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": null,
+            "dots": [],
+            "matrix": [],
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 268,
+                "right": 1388,
+                "width": 1120,
+                "scrollW": 1120,
+                "clientW": 1120,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultOptimize cost and efficiency · generator-1 visited 3 times in 60 days (5 Oct, 18 Oct, 29 Oct); the linked finding is still open",
+                    "left": 268,
+                    "right": 629,
+                    "scrollW": 361,
+                    "clientW": 361,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557"
+                  },
+                  {
+                    "text": "Early warningWitnessed backup start test overdueProtect asset and capital · Planned for 25 Oct, not done",
+                    "left": 647,
+                    "right": 1009,
+                    "scrollW": 361,
+                    "clientW": 361,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "/maintenance/preventive"
+                  },
+                  {
+                    "text": "Early warningCompressor coil cleaning due soonProtect asset and capital · Due 7 Nov",
+                    "left": 1027,
+                    "right": 1388,
+                    "scrollW": 361,
+                    "clientW": 361,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "/maintenance/preventive"
+                  }
+                ],
+                "n": 3,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  24,
+                  24
+                ],
+                "inPanel": true,
+                "panelHeading": "Findings at this site"
+              }
+            ],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [],
+            "mainTextLen": 1518,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 254,
+                "right": 1375,
+                "width": 1121,
+                "scrollW": 1121,
+                "clientW": 1121,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultGreenHarvest · Optimize cost and efficiency · Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed",
+                    "left": 254,
+                    "right": 806,
+                    "scrollW": 552,
+                    "clientW": 552,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "#/wr-overview"
+                  },
+                  {
+                    "text": "Early warningBackup start test overdueGreenHarvest · Protect asset and capital · Monthly test due 2 Oct, not done",
+                    "left": 824,
+                    "right": 1375,
+                    "scrollW": 552,
+                    "clientW": 552,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/maintenance-preventive"
+                  }
+                ],
+                "n": 2,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  22,
+                  22
+                ],
+                "inPanel": true,
+                "panelHeading": "Findings at this site"
+              }
+            ],
+            "board": null,
+            "tagRows": [
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2B",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalTemperatureMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "findings-cold",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "findings-cold-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold-findings",
+          "mock_image": "findings-cold-390-mock-v70-cold-findings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1229,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [
+              {
+                "row": "Backup generator did not start when the grid failedBegan Not recordedAffects Protect asset and capitalAlso checked under Optimize cost and e",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              },
+              {
+                "row": "Cold room temperature outside its policy bandBegan 16:10–16:15Affects Protect asset and capitalTemperatureNot assessedBoundedOpenAt least 45",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": null,
+            "dots": [],
+            "matrix": [],
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 36,
+                "right": 354,
+                "width": 318,
+                "scrollW": 318,
+                "clientW": 318,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultOptimize cost and efficiency · generator-1 visited 3 times in 60 days (5 Oct, 18 Oct, 29 Oct); the linked finding is still open",
+                    "left": 36,
+                    "right": 354,
+                    "scrollW": 318,
+                    "clientW": 318,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557"
+                  },
+                  {
+                    "text": "Early warningWitnessed backup start test overdueProtect asset and capital · Planned for 25 Oct, not done",
+                    "left": 36,
+                    "right": 354,
+                    "scrollW": 318,
+                    "clientW": 318,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "/maintenance/preventive"
+                  },
+                  {
+                    "text": "Early warningCompressor coil cleaning due soonProtect asset and capital · Due 7 Nov",
+                    "left": 36,
+                    "right": 354,
+                    "scrollW": 318,
+                    "clientW": 318,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "/maintenance/preventive"
+                  }
+                ],
+                "n": 3,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  24,
+                  24
+                ],
+                "inPanel": true,
+                "panelHeading": "Findings at this site"
+              }
+            ],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [],
+            "mainTextLen": 1545,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 35,
+                "right": 355,
+                "width": 320,
+                "scrollW": 320,
+                "clientW": 320,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultGreenHarvest · Optimize cost and efficiency · Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed",
+                    "left": 35,
+                    "right": 355,
+                    "scrollW": 320,
+                    "clientW": 320,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "#/wr-overview"
+                  },
+                  {
+                    "text": "Early warningBackup start test overdueGreenHarvest · Protect asset and capital · Monthly test due 2 Oct, not done",
+                    "left": 35,
+                    "right": 355,
+                    "scrollW": 320,
+                    "clientW": 320,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/maintenance-preventive"
+                  }
+                ],
+                "n": 2,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  22,
+                  22
+                ],
+                "inPanel": true,
+                "panelHeading": "Findings at this site"
+              }
+            ],
+            "board": null,
+            "tagRows": [
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2B",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalTemperatureMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "request-latest-cold",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557?site_id=COLD-LAB-001&known_at=2026-10-30T19:38:20.634613Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "request-latest-cold-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/wr-overview",
+          "mock_image": "request-latest-cold-1440-mock-v70-wr-overview.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Starter/control inspection",
+            "location": "/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557?site_id=COLD-LAB-001&known_at=2026-10-30T19:38:20.634613Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": null,
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [
+              {
+                "text": "This is the third visit to generator-1 in 60 days, and the linked finding is still open. Repeated work without a result costs money; no amount is shown because a cost per visit is not set for this site.",
+                "nextIsPair": true,
+                "scrollW": 1158,
+                "clientW": 1158
+              }
+            ],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [],
+            "mainTextLen": 1112,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Starter and control-circuit inspection",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "request-latest-cold",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557?site_id=COLD-LAB-001&known_at=2026-10-30T19:38:20.634613Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outc_test",
+          "ready": true,
+          "app_image": "request-latest-cold-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/wr-overview",
+          "mock_image": "request-latest-cold-390-mock-v70-wr-overview.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1357,
+            "h1": "Starter/control inspection",
+            "location": "/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557?site_id=COLD-LAB-001&known_at=2026-10-30T19:38:20.634613Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": null,
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [
+              {
+                "text": "This is the third visit to generator-1 in 60 days, and the linked finding is still open. Repeated work without a result costs money; no amount is shown because a cost per visit is not set for this site.",
+                "nextIsPair": true,
+                "scrollW": 356,
+                "clientW": 356
+              }
+            ],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [],
+            "mainTextLen": 1112,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Starter and control-circuit inspection",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-ev-depot",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-1440-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1892,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 313,
+              "height": 653,
+              "headToLastSummaryBottom": 652,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff es"
+            ],
+            "mainTextLen": 2901,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5481/favicon.ico"
+            ]
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-ev-depot",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-390-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3241,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 549,
+              "height": 1245,
+              "headToLastSummaryBottom": 1244,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff es"
+            ],
+            "mainTextLen": 2927,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-C-captures/targets-depot.json",
+      "product_sha": "b6650116",
+      "captured_at": "2026-10-30T19:46:00.188Z",
+      "captures": [
+        {
+          "name": "overview-ev-depot",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-1440-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1989,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 313,
+              "height": 749,
+              "headToLastSummaryBottom": 748,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d"
+            ],
+            "mainTextLen": 3139,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5481/favicon.ico"
+            ]
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-ev-depot",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outc_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-390-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3382,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 549,
+              "height": 1386,
+              "headToLastSummaryBottom": 1385,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d"
+            ],
+            "mainTextLen": 3165,
+            "consoleErrors": []
+          },
+          "mock": {
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    }
+  ]
+}

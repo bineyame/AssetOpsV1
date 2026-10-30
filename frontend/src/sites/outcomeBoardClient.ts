@@ -44,7 +44,46 @@ export interface OutcomeIssue {
   role: "MOVES" | "CHECKED" | string;
   text: string;
   href: string | null;
-  ref: Record<string, unknown> | string | null;
+  /** OUT-C: an EARLY_WARNING/RISK issue carries its warning key here. */
+  ref: OutcomeRef | string | null;
+}
+
+/** OUT-C §4: the `categories` object of one warning (the outcome map's MOVES/CHECKED items). */
+export interface OutcomeWarningCategories {
+  policy_version: string;
+  state: "MAPPED" | "NOT_MAPPED" | string;
+  items: { category: string; label: string; role: "MOVES" | "CHECKED" | string; outcomes: OutcomeRef[] }[];
+}
+
+export interface OutcomeWarningRef {
+  kind: string;
+  id: string;
+  label: string | null;
+  href: string | null;
+}
+
+/** OUT-C §4: one early warning, board and estate summary alike. Every text is backend data; no money on it. */
+export interface OutcomeWarning {
+  key: string;
+  kind: string;
+  badge: "RISK" | "EARLY_WARNING" | "OPPORTUNITY" | string;
+  badge_label: string;
+  lens: "COST" | "RISK" | "OPPORTUNITY" | string;
+  title: string;
+  seen: string;
+  persistence: string;
+  persistence_label: string;
+  price_needs: string;
+  status_effect: string;
+  categories: OutcomeWarningCategories;
+  site_code: string;
+  site_name: string;
+  href: string | null;
+  evidence_refs: OutcomeWarningRef[];
+  count: number | null;
+  subject_label: string | null;
+  /** Rulings C final review F1: the open linked fault's noun phrase; non-null only on REPEATED warnings. */
+  fault_name?: string | null;
 }
 
 export interface OutcomeLinkItem {
@@ -102,7 +141,7 @@ export interface OutcomeBoardBody {
   window: { from: string | null; to: string | null; known_at: string | null };
   read_state: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE";
   rows: OutcomeBoardRow[];
-  warnings: unknown[];
+  warnings: OutcomeWarning[];
   links: { self: string };
 }
 

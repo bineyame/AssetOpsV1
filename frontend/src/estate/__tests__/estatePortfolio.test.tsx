@@ -11,6 +11,8 @@ import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioStatus } from "../estateClient";
 import { EstatePortfolioPage } from "../EstatePortfolio";
 import { mechanismWords } from "../portfolioWords";
+import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
+import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
 import {
   COLD_ROW,
   coverageSite,
@@ -981,5 +983,70 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       );
       view.unmount();
     }
+  });
+});
+
+describe("OUT-C U5: Portfolio early warnings", () => {
+  const pulseWarnings = () => text(document.querySelector("[data-portfolio-pulse-warnings]"));
+  const protectDetail = () => text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-detail]"));
+  const withWarnings = (warnings: OutcomeWarning[], protect = 0) => {
+    const base = outcomeSummaryBody();
+    return outcomeSummaryBody({
+      warnings,
+      categories: base.categories.map((c) => (c.category === "PROTECT_ASSET" ? { ...c, warning_count: protect } : c)),
+    });
+  };
+  const five = () => [
+    outcomeWarning(),
+    planWarning(),
+    planWarning({ key: "PLAN_OVERDUE:p2", title: "Filter change overdue", site_name: "Kobo Mini-grid" }),
+    planWarning({ key: "BATTERY_NEAR_RESERVE:b", title: "Battery at or near its reserve", site_name: "Kobo Mini-grid" }),
+    planWarning({ key: "PEAK_NEAR_IMPORT_LIMIT:s", title: "Peak close to the import limit", site_name: "Depot Charging" }),
+  ];
+
+  it("pulseCountsSummaryWarningsAndTheListUnderTheTableShowsAtMostFourWithTheSite", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings(five(), 4) }));
+    await settledScreen();
+    expect(pulseWarnings()).toBe("5 warnings not yet priced");
+    const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
+    expect(pulse.querySelector("[data-portfolio-pulse-warnings] + .pulse-note")).not.toBeNull();
+    expect(pulse.querySelector("[data-portfolio-pulse-warnings] svg")).toBeNull();
+    const list = document.querySelector("[data-portfolio-panel='priority'] [data-early-warnings]") as HTMLElement;
+    expect(list.previousElementSibling?.getAttribute("data-portfolio-scroll")).toBe("findings");
+    const items = Array.from(list.querySelectorAll("li"));
+    expect(items).toHaveLength(4);
+    expect(text(items[0].querySelector("small"))).toMatch(/^GreenHarvest · Optimize cost and efficiency · /);
+    expect(text(items[2].querySelector("small"))).toMatch(/^Kobo · /);
+    expect(text(list)).not.toContain("Peak close to the import limit");
+    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 4 early warnings, counted separately · loss not priced");
+    expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(text(list))).toBe(false);
+    expect(describeViolations(scanProductVocabulary(list, "portfolio", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("oneWarningIsSingularAndZeroIsShownWithNoList", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([planWarning()], 1) }));
+    await settledScreen();
+    expect(pulseWarnings()).toBe("1 warning not yet priced");
+    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 1 early warning, counted separately · loss not priced");
+    cleanup();
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([], 0) }));
+    await settledScreen();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(pulseWarnings()).toBe("0 warnings not yet priced");
+    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 0 early warnings, counted separately · loss not priced");
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
+  });
+
+  it("summaryNotLoadedReadsUnknownAndKeepsTheProtectText", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }));
+    await settledScreen();
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(pulseWarnings()).toBe("Unknown warnings not yet priced");
+    expect(protectDetail()).toBe("Service disruptions recorded in Findings · loss not priced");
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 });

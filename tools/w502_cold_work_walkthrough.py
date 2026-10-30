@@ -95,7 +95,7 @@ import test_w502_cold_scenario_producer as P
 producer = P.producer
 from sqlalchemy import text
 from fastapi.testclient import TestClient
-from test_w401_work_service_postgres import ACTOR, PRINCIPAL, event, incident, record, request
+from test_w401_work_service_postgres import ACTOR, PRINCIPAL, event, incident, plan, record, request
 from test_w502_domain_intent_postgres import criteria, iso, now_utc
 from assetops_backend.config import load_feature_flags
 from assetops_backend.main import create_app
@@ -453,6 +453,53 @@ try:
         got = sorted(x["request_state"] for x in case_reads["worstcase:maintenance"]["row_states"])
         if got != ["COMPLETED", "OPEN", "OPEN", "OPEN", "OPEN"]:
             doc["blocked"] = (doc["blocked"] or "") + f" worstcase WR states {got}"
+    if mode == "positive":
+        # OUT-C U3: two earlier repair visits on generator-1 and two calendar plans, written after every read above
+        # through the same work service and principal, so no existing manifest count or cutoff assertion changes.
+        def visit(n, days, title, note):
+            v_at = wr_at - timedelta(days=days)
+            s, v = work.create_case(built.tenant_id, built.site_id, request(
+                f"w502b-{mode}-wr-e{n}-{tag}", title=title, occurred_at=iso(v_at), asset_id=str(gen.id),
+                finding_links=[]), PRINCIPAL)
+            if s != 201:
+                return None, (s, v)
+            s, r = work.post_record(built.tenant_id, built.site_id, v["id"], record(
+                f"w502b-{mode}-rec-e{n}-{tag}", activity=title, occurred_at=iso(v_at + timedelta(minutes=20)),
+                outcome_note=note), PRINCIPAL)
+            assert s == 201, r
+            s, a = work.post_event(built.tenant_id, built.site_id, v["id"], event(
+                "ASSIGN", {"assignee": "Maintenance lead"}, f"w502b-{mode}-wr-e{n}-assign-{tag}",
+                occurred_at=iso(v_at + timedelta(minutes=21))), PRINCIPAL)
+            assert s == 201, a
+            s, c = work.post_event(built.tenant_id, built.site_id, v["id"], event(
+                "COMPLETE", {"maintenance_record_id": r["id"]}, f"w502b-{mode}-wr-e{n}-complete-{tag}",
+                occurred_at=iso(v_at + timedelta(minutes=22))), PRINCIPAL)
+            assert s == 201 and c["state"] == "COMPLETED", (s, c)
+            return {"id": v["id"], "code": v.get("code"), "record_id": r["id"], "occurred_at": iso(v_at)}, None
+
+        out_c = {"cases": [], "records": [], "plans": [], "backdate": [24, 11]}
+        visits = [(1, "Starter battery replaced", "Battery replaced; automatic start not tested"),
+                  (2, "Control relay reset", "Relay reset; automatic start not tested")]
+        for (n, title, note), days in zip(visits, (24, 11)):
+            got, refused = visit(n, days, title, note)
+            if got is None and "WORK_OCCURRED_AT_TOO_OLD" in json.dumps(refused[1], default=str):
+                out_c["backdate"] = [20, 8]  # sheet fallback, recorded
+                got, refused = visit(n, 20 if n == 1 else 8, title, note)
+            assert got is not None, refused
+            out_c["cases"].append(got["id"])
+            out_c["records"].append(got["record_id"])
+        day0 = wr_at.replace(hour=0, minute=0, second=0, microsecond=0)
+        cmps = [a for a in built.store.registrations(built.tenant_id, built.site_id).assets
+                if a.asset_type == "COMPRESSOR"]
+        assert len(cmps) == 1, [a.asset_code for a in cmps]  # sheet: exactly one compressor registration
+        for key, title, due, asset in (("plan-start", "Witnessed backup start test", day0 - timedelta(days=4), gen),
+                                       ("plan-coil", "Compressor coil cleaning", day0 + timedelta(days=9), cmps[0])):
+            s, pl = work.post_plan(built.tenant_id, built.site_id, plan(
+                f"w502b-{mode}-{key}-{tag}", asset_id=str(asset.id), title=title, trigger_kind="CALENDAR",
+                next_due_at=iso(due), next_due_hours=None, occurred_at=iso(wr_at - timedelta(days=1))), PRINCIPAL)
+            assert s == 201, (key, s, pl)
+            out_c["plans"].append(str(pl.get("canonical_plan_id") or pl.get("id")))
+        doc["out_c"] = out_c
 finally:
     work._store.dispose()
     built.close()
@@ -787,6 +834,10 @@ class Walk:
             for name, rd in details.items():
                 say(f"    {name:<22} detail status={rd['status']} known_at={rd['known_at']} intent={rd['intent']} "
                     f"work={rd['work'].get('request_state')} record={rd['work'].get('record_id')}")
+            oc = doc.get("out_c") or {}
+            if m == "positive" and [len(oc.get(k) or []) for k in ("cases", "records", "plans")] != [2, 2, 2]:
+                failures.append("positive: OUT-C repeat visits and plans (2 cases, 2 records, 2 plans) are not in "
+                                "the manifest")
             if m == "worstcase" and len((doc.get("fixture") or {}).get("extra_cases") or []) != 4:
                 failures.append("worstcase: four extra INC/WR pairs are not in the manifest")
             # K2 ruling 21: no mode is blocked; UNKNOWN has its one ruled link, every other mode both links.

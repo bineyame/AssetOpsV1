@@ -9,7 +9,10 @@
  * link, Warranty is `Warranty not recorded`, a `Latest activity` line carries the real latest record, Lifecycle marks
  * a step only on an exact stored fact (Verified never), and the chart-note states that no outcome evaluator exists.
  */
-import { KeyValues, Panel } from "../ui";
+import { useEffect, useState } from "react";
+
+import { KeyValues, Notice, Panel } from "../ui";
+import type { OutcomeBoardClient, OutcomeBoardRead, OutcomeWarning } from "../sites/outcomeBoardClient";
 import type { GlobalWorkClient, GlobalWorkDetailBody } from "./globalWorkClient";
 import { LinkOrText, MockDeviation, assetWords, joined } from "./globalWorkParts";
 import { WorkRequestFrame, recordHeads } from "./workRequestShared";
@@ -137,9 +140,63 @@ function Lifecycle({ body }: { body: GlobalWorkDetailBody }) {
   );
 }
 
-function OverviewPanels({ body }: { body: GlobalWorkDetailBody | null }) {
+const ORDINAL: Readonly<Record<number, string>> = { 2: "second", 3: "third", 4: "fourth", 5: "fifth" };
+const REPEATED_KIND = "REPEATED_MAINTENANCE_NO_RESULT";
+
+/** OUT-C U6: the repeat-visit notice sentence for a REPEATED warning (Rulings C final review H1-5, exact; R572). */
+export function repeatVisitNotice(count: number, subject: string, faultName?: string | null): string {
+  const ordinal = ORDINAL[count];
+  const head = ordinal === undefined ? `This is visit ${count} to ${subject}` : `This is the ${ordinal} visit to ${subject}`;
+  return (
+    `${head} in 60 days, and the ${faultName ?? "linked finding"} is still open. Repeated work without a result costs ` +
+    "money; no amount is shown because a cost per visit is not set for this site."
+  );
+}
+
+/** The REPEATED warning whose `href` names this case (its path ends with the case id), or null. */
+export function repeatWarningFor(warnings: readonly OutcomeWarning[], caseId: string): OutcomeWarning | null {
+  return (
+    warnings.find((w) => {
+      if (w.kind !== REPEATED_KIND || !w.href) return false;
+      const path = w.href.split(/[?#]/)[0].replace(/\/+$/, "");
+      return path.endsWith(`/${caseId}`);
+    }) ?? null
+  );
+}
+
+/** OUT-C U6: the Site board read with no window (the board's own default, as the Overview page); refused shows nothing. */
+function RepeatVisitNotice({ board, siteCode, caseId }: { board: OutcomeBoardClient; siteCode: string; caseId: string }) {
+  const [read, setRead] = useState<{ key: string; read: OutcomeBoardRead } | null>(null);
+  useEffect(() => {
+    let live = true;
+    void board
+      .getOutcomeBoard(siteCode, {})
+      .then((r) => {
+        if (live) setRead({ key: siteCode, read: r });
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [board, siteCode]);
+  const current = read?.key === siteCode ? read.read : null;
+  if (current?.status !== "loaded") return null;
+  const warning = repeatWarningFor(current.value.warnings ?? [], caseId);
+  if (warning === null || warning.count === null || !warning.subject_label) return null;
+  return (
+    <Notice tone="amber" data={{ "data-work-request-repeat-notice": "" }}>
+      <p>{repeatVisitNotice(warning.count, warning.subject_label, warning.fault_name)}</p>
+    </Notice>
+  );
+}
+
+function OverviewPanels({ body, board }: { body: GlobalWorkDetailBody | null; board?: OutcomeBoardClient }) {
   // Both panels keep their slots in every state; the chart-note stays inside the Lifecycle body (P-C2-8).
   return (
+    <>
+    {body !== null && board !== undefined ? (
+      <RepeatVisitNotice board={board} siteCode={body.selected.site_code} caseId={body.selected.case_id} />
+    ) : null}
     <div className="panel-pair" data-work-request-pair>
       <Panel heading="Work done" headingId="work-request-work-done">
         {body !== null ? <WorkDone body={body} /> : null}
@@ -153,13 +210,14 @@ function OverviewPanels({ body }: { body: GlobalWorkDetailBody | null }) {
         </p>
       </Panel>
     </div>
+    </>
   );
 }
 
-export function WorkRequestOverviewFrame({ client }: { client?: GlobalWorkClient }) {
+export function WorkRequestOverviewFrame({ client, outcomeBoard }: { client?: GlobalWorkClient; outcomeBoard?: OutcomeBoardClient }) {
   return (
     <WorkRequestFrame client={client} rootClass="work-request--overview">
-      {(body) => <OverviewPanels body={body} />}
+      {(body) => <OverviewPanels body={body} board={outcomeBoard} />}
     </WorkRequestFrame>
   );
 }

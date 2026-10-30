@@ -1,0 +1,12 @@
+[
+ {
+  "name": "overview-ev-depot",
+  "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev",
+  "open": true,
+  "producer": "w504 positive",
+  "db": "w504a_positive_outc_test",
+  "ready": "document.querySelector(\"[data-outcome-board] details\")",
+  "openCategory": "PROTECT_ASSET"
+ }
+]

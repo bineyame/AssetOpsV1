@@ -6071,3 +6071,16 @@ Branch `task/OUT-B-site-outcome-board` (head d3554aca before closeout commit; cu
   ESTATE_SELECTION_INCONSISTENT; Kobo estate case lacks evidence migration (captures used the s5 producer).
 - Results: vitest 3496 pass, 4 fail (3 known w1f4 + 1 load flake); backend full 20 failed/8 errors/0 skips, all but the 2 known w303 reproduce on main 32adae2f (identical 23-entry lists, `PowerSite.on` at
   `test_s4_consequence_store_postgres.py:111`; under separate investigation); check-all 11/11.
+
+## OUT-C - early warnings, first set (built, in_review)
+Branch `task/OUT-C-early-warnings` (cut from main e8cf8a36). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-C.md`; packet `.agent/OUT-C-packet.md`; history `.agent/OUT-C-phase-handoff.md`.
+- Backend: `outcomes/warnings.py` pure producer (`early-warnings/1`; seven rules; no money; `subject`/`visit_ids` never on the wire); catalogue/2 measures MG-4, CC-3.
+  `site_outcomes/visits.py` reads maintenance over three recorded-time windows `[to-62,to-31) [to-31,to) [to,to+31)`, filtered by occurrence (60 days);
+  board/summary carry `warnings[]`, summary `categories[].warning_count`; cold/mini/ev composers feed reserve counts, faults, connectors, peak, plans.
+- Data: w502 `positive` authors repeat visits and plans (`doc["out_c"]`) so GreenHarvest Cost reads Needs attention on the w501 window.
+- Frontend: `sites/EarlyWarnings.tsx` (`EarlyWarningList`, `SiteEarlyWarnings`, `miniBoardDay`); `OutcomeBoard.tsx` exports `ISSUE_KIND` and `ExplainerDialog`;
+  `estate/useOutcomeSummary.ts`. Lists on estate Findings lenses, the three Site Findings lists, Portfolio (max 4); pulse warning count; Protect detail clause.
+  Maintenance card 4 is `repeat_visits` (estate summary over covering UTC days); request page amber repeat-visit notice from the Site board.
+- Settled: warnings render only backend text; empty list renders nothing; the frontend adds no "Not available yet" literal.
+- Left open: P-C1 failed (the whole-day estate summary on w502 shows no REPEATED warning), so estate surfaces are vitest-only and carried to the combined
+  dataset; R561, R562, R565, R566, R569 open; full vitest, full backend and captures await the coordinator's go.

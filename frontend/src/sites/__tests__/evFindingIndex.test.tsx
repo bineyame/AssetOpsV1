@@ -11,6 +11,8 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { F130 } from "./outcomeFixtures";
+import { boardBody, fakeOutcomeBoard, planWarning } from "../../test/outcomeBoardFixture";
+import type { OutcomeBoardClient } from "../outcomeBoardClient";
 
 /* post-W6 W2-EV U4 (B9-10/R253): an EV Site's Findings page lists the selected EV Findings read. */
 
@@ -40,7 +42,12 @@ const site = (type: string) =>
     timezone: "Africa/Addis_Ababa", lifecycle_status: "PLANNED", origin: "USER", source: { mode: "SIMULATED" }, template: null, configuration_store: "POSTGRES",
   }) as unknown as SiteDetailReadModel;
 
-function mount(type: string, list: EvRead<EvFindingsRead>, path = `/sites/${CODE}/findings?from=${FROM}&to=${TO}`) {
+function mount(
+  type: string,
+  list: EvRead<EvFindingsRead>,
+  path = `/sites/${CODE}/findings?from=${FROM}&to=${TO}`,
+  outcomeBoard?: OutcomeBoardClient,
+) {
   const s = site(type);
   const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
   const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [s] }) };
@@ -51,7 +58,7 @@ function mount(type: string, list: EvRead<EvFindingsRead>, path = `/sites/${CODE
   const findingIndex = { getFindingIndex: vi.fn(() => Promise.resolve({ status: "not_imported" })) };
   render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evAssessment={client} siteFindingIndex={findingIndex as never} />
+      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evAssessment={client} siteFindingIndex={findingIndex as never} {...(outcomeBoard === undefined ? {} : { outcomeBoard })} />
     </MemoryRouter>,
   );
   return { client, findingIndex };
@@ -133,5 +140,31 @@ describe("EV Site Findings", () => {
     const scan = scanProductVocabulary(document.querySelector("[data-outcome-tags]") as HTMLElement, "sitefindings", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(0);
     expect(describeViolations(scan.violations)).toBe("");
+  });
+});
+
+describe("OUT-C U5 EV Site Findings early warnings", () => {
+  it("lists the board warnings under the list for the page window, with the Site name first (H1-1)", async () => {
+    const warning = planWarning({ key: "CONNECTOR_OUT_OF_SERVICE:c1", badge: "RISK", title: "Connector c1 out of service", seen: "44 min out and 16 min unknown on 6 Oct", site_code: "EV-LAB-001", site_name: "Depot Charging" });
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [warning] }) });
+    mount("EV_CHARGING", ok(findings([item])), undefined, board.client);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-early-warnings]")).not.toBeNull());
+    expect(board.calls).toEqual([{ siteCode: CODE, query: { from: FROM, to: TO, known_at: null } }]);
+    const list = document.querySelector("[data-early-warnings]") as HTMLElement;
+    expect(list.closest("[data-ev-findings-index='loaded']")).not.toBeNull();
+    expect(list.querySelector(".oc-kind")?.className).toBe("oc-kind risk");
+    expect(list.querySelector("small")?.textContent).toBe("Depot · Protect asset and capital · 44 min out and 16 min unknown on 6 Oct");
+    expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("shows no list when the board has no warnings", async () => {
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody() });
+    mount("EV_CHARGING", ok(findings([item])), undefined, board.client);
+    await settledScreen();
+    await waitFor(() => expect(board.calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(document.querySelector("[data-ev-findings-index='loaded']")).not.toBeNull();
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 });

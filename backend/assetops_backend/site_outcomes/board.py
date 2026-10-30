@@ -14,7 +14,9 @@ from assetops_backend.outcomes.catalogue import (
     SiteOutcome, row_not_measured)
 from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
 from assetops_backend.outcomes.status import (
-    EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, Signal, outcome_state, roll_up)
+    EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal, outcome_state,
+    roll_up)
+from assetops_backend.outcomes.warnings import PLAN_DUE_SOON, PLAN_OVERDUE, REPEATED, Warning
 
 OPEN_LIFECYCLES = ("SUPPORTED", "UNCONFIRMED")  # Portfolio membership rule (estate/portfolio.py:38)
 CLOSED_CASE_STATES = ("COMPLETED", "CLOSED", "CANCELLED")
@@ -44,6 +46,9 @@ CASE_STATE_LABEL = {"OPEN": "Open", "IN_PROGRESS": "In progress", "ASSIGNED": "A
 ACTION_RESULT = {"VERIFIED": "Verified on test data", "INEFFECTIVE": "Did not fix it",
                  "INCONCLUSIVE": "Not determined", "PENDING": "Pending", "REASSESSMENT_PENDING": "Pending"}
 REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
+#: C: plan state labels when the plan's due cue fires (the plan itself stays DRAFT; register R08, R10).
+PLAN_CUE_LABEL = {PLAN_OVERDUE: "Overdue", PLAN_DUE_SOON: "Due soon"}
+REPAIR_MUST_NOT_HARM = ": a repair counts only when the fault it answers stops"
 
 #: Evidence link per (domain, category); None where the row is not measured (§B.2 table).
 EVIDENCE_LINK: dict[tuple[str, str], tuple[str, str] | None] = {
@@ -140,6 +145,7 @@ class PlanFact:
     state: str
     asset_id: str | None
     href: str | None
+    due_at: Any = None                 # C: the UTC instant of `next_due_at` (compared only)
 
 
 #: Issue kind of each non-Finding signal (§B.2): headroom is an opportunity, the evidence gap is a gap.
@@ -190,7 +196,7 @@ class SiteFacts:
     headline_money: Mapping[str, Mapping[str, Any] | None] = field(default_factory=dict)  # B-Q14 passthrough
     subline: Mapping[str, str | None] = field(default_factory=dict)
     settled: Mapping[str, bool] = field(default_factory=dict)  # per outcome key; absent = not settled
-    warnings: tuple = ()               # C
+    warnings: tuple[Warning, ...] = ()  # C: `outcomes/warnings.evaluate` order
     #: Addendum 2 item 6: appended to Site-local dates when the Site zone is unavailable (dates are then UTC).
     date_suffix: str = ""
     #: Addendum 3 M1: False when the domain's Finding source was refused, failed or not current.
@@ -281,6 +287,20 @@ class _Roles:
                 and not (exclude_unmeasured and not OUTCOME_BY_KEY[k].measured)]
 
 
+class _WarningRoles:
+    """MOVES/CHECKED outcome keys and categories of one warning, read from its wire `categories`."""
+
+    def __init__(self, w: Warning) -> None:
+        items = w.categories.get("items") or ()
+        self.moves = [o["key"] for i in items if i["role"] == "MOVES" for o in i["outcomes"]]
+        self.checked = [o["key"] for i in items if i["role"] == "CHECKED" for o in i["outcomes"]]
+        self.move_cats = _categories(self.moves)
+        self.checked_cats = [c for c in _categories(self.checked) if c not in self.move_cats]
+
+    def checked_outside(self, category: str) -> list[str]:
+        return [OUTCOME_BY_KEY[k].label for k in self.checked if OUTCOME_BY_KEY[k].category != category]
+
+
 def earlier_result_for_action(action: ActionFact) -> str | None:
     """Result label for a mini Action in Earlier interventions, or None when it is not listed (B-Q18)."""
     if action.is_domain or not action.applied:
@@ -332,15 +352,21 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
         kind = SIGNAL_OPPORTUNITY if s.kind == "OPPORTUNITY" else EVIDENCE_GAP
         for i, key in enumerate(sig_roles[s.signal_key].moves):
             signals.append(Signal(kind, key, i == 0, True, False, None, s.signal_key))
+    warn_roles = [(w, _WarningRoles(w)) for w in facts.warnings]
+    for w, r in warn_roles:  # C: a warning sets status through its MOVES outcomes only
+        for i, key in enumerate(r.moves):
+            signals.append(Signal(WARNING, key, i == 0, True, False, w.status_effect, w.key))
 
     open_findings = sorted((f for f in facts.findings if f.open and f.in_window),
                            key=lambda f: (f.title, f.finding_id))
-    rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, exact_actions) for cat in CATEGORIES]
+    rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, exact_actions, warn_roles)
+            for cat in CATEGORIES]
     return rows
 
 
 def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Roles], by_id: dict[str, FindingFact],
-         open_findings: list[FindingFact], sig_roles: dict[str, _Roles], exact_actions) -> dict[str, Any]:
+         open_findings: list[FindingFact], sig_roles: dict[str, _Roles], exact_actions,
+         warn_roles: Sequence[tuple[Warning, _WarningRoles]] = ()) -> dict[str, Any]:
     domain, code = facts.domain, facts.site_code
     outcomes: list[SiteOutcome] = [o for o in SITE_OUTCOMES if o.domain == domain and o.category == cat]
     states = []
@@ -382,6 +408,15 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     for f in open_findings:
         if f in checked_here:
             issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX))
+    for role in ("MOVES", "CHECKED"):  # C: warnings last, MOVES then CHECKED, in `evaluate` order
+        for w, r in warn_roles:
+            if cat in (r.move_cats if role == "MOVES" else r.checked_cats):
+                issues.append({"kind": w.badge, "role": role, "text": w.title, "href": w.href, "ref": w.key})
+    repeat_cats: dict[str, set[str]] = {}
+    for w, r in warn_roles:
+        if w.kind == REPEATED:
+            for cid in w.visit_ids:
+                repeat_cats.setdefault(cid, set()).update(r.move_cats)
 
     # Already in hand and Earlier interventions (B-Q18).
     in_hand: list[dict[str, Any]] = []
@@ -408,7 +443,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
 
     for case in sorted(facts.cases, key=lambda c: (c.code or "", c.case_id)):
         cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
-        if cat not in cats:
+        if cat not in cats | repeat_cats.get(case.case_id, set()):
             continue
         if case.state not in CLOSED_CASE_STATES:
             label = _case_label(case) + suffix
@@ -416,15 +451,16 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
         cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
         result = earlier_result_for_case(case, facts.cases)
-        if cat in cats and result is not None:
+        if cat in cats | repeat_cats.get(case.case_id, set()) and result is not None:
             earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
                             "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else "")})
 
     if cat == "PROTECT_ASSET":
+        cue = {w.subject: w.kind for w in facts.warnings if w.kind in PLAN_CUE_LABEL}
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
             if p.state in ("DRAFT", "ACTIVE"):
-                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href,
-                                "state_label": _plan_label(p, facts.date_suffix)})
+                label = PLAN_CUE_LABEL[cue[p.plan_id]] if p.plan_id in cue else _plan_label(p, facts.date_suffix)
+                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href, "state_label": label})
 
     # Must not harm (B-Q19, addendum 1): only where a mini Action verification exists.
     must_not_harm = None
@@ -436,6 +472,13 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             must_not_harm = {"text": f"{join_names(names)} are checked as safeguards when {_action_name(a)} is "
                                      "verified; a gain that harms them does not count", "href": a.verification_href}
             break
+    if must_not_harm is None:  # C: a repeat-visit warning moving this row, checked against outcomes elsewhere
+        for w, r in warn_roles:
+            names = r.checked_outside(cat)
+            if w.kind == REPEATED and cat in r.move_cats and names:
+                finding_href = next((x["href"] for x in w.evidence_refs if x["kind"] == "FINDING"), None)
+                must_not_harm = {"text": join_names(names) + REPAIR_MUST_NOT_HARM, "href": finding_href}
+                break
 
     # Headline: the domain table, else the lead Finding's title on a Finding-driven state.
     headline = facts.headline.get(cat)

@@ -14,7 +14,11 @@ import { MAINTENANCE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
-import { GlobalMaintenanceFrame } from "../GlobalMaintenance";
+import { coveringUtcDays, GlobalMaintenanceFrame } from "../GlobalMaintenance";
+import type { EstateClient, EstateOutcomeSummaryBody, EstateOutcomeSummaryRow, EstateResult } from "../../estate/estateClient";
+import { outcomeSummaryBody } from "../../estate/__tests__/portfolioFixtures";
+import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import {
   createGlobalWorkClient,
   type GlobalMaintenanceBody,
@@ -123,11 +127,11 @@ function Where() {
   );
 }
 
-function mount(path: string, reads: GlobalWorkClient) {
+function mount(path: string, reads: GlobalWorkClient, estate?: EstateClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={reads} />} />
+        <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={reads} estate={estate} />} />
       </Routes>
       <Where />
     </MemoryRouter>,
@@ -224,14 +228,15 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
       ["Open work", "5"],
       ["Verification overdue", "Not assessed"],
       ["Preventive due in 30 days", "Not assessed"],
-      ["Repeat findings", "Not assessed"],
+      ["Repeat visits without a result", "Not assessed"],
     ]);
     const notes = Array.from(cards()!.querySelectorAll(".v69-metric__note"));
     expect(text(notes[0])).toBe("5 requests in progress or open");
     expect(text(notes[1])).toBe("No work-outcome verification clock");
     expect(text(notes[2].querySelector("[data-global-work-preventive-note]"))).toBe("See Preventive");
     expect(text(notes[2].querySelector("[data-global-work-preventive-link]"))).toBe("View detail →");
-    expect(text(notes[3])).toBe("No repeat-finding assessment");
+    // OUT-C U6: card 4 is the repeat-visit count; with no outcome summary it is not assessed.
+    expect(text(notes[3])).toBe("Repeat visits could not be checked for this window");
     const overdue = cards()!.querySelector('[data-global-work-card="verification_overdue"]') as HTMLElement;
     expect(overdue.className).toContain("v69-metric--assessment");
     expect(overdue.className).toContain("v69-metric--amber");
@@ -590,5 +595,117 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Corrective work reques
     } finally {
       restore();
     }
+  });
+});
+
+describe("OUT-C U6 Maintenance repeat visits card", () => {
+  const card = () => document.querySelector('[data-global-work-card="repeat_visits"]') as HTMLElement;
+  const value = () => text(card().querySelector(".v69-metric__value"));
+  const note = () => text(card().querySelector(".v69-metric__note"));
+  function estate(answer: EstateResult<EstateOutcomeSummaryBody>) {
+    const calls: unknown[] = [];
+    const reads = {
+      getOutcomeSummary: (query: unknown) => {
+        calls.push(query);
+        return Promise.resolve(answer);
+      },
+    } as unknown as EstateClient;
+    return { reads, calls };
+  }
+
+  /** M2: the fixture's Sites with each one's read state and Cost row state set (unchecked unless AVAILABLE + measured). */
+  function sitesAs(states: Record<string, readonly [string, EstateOutcomeSummaryRow["state"]]>, over: Partial<EstateOutcomeSummaryBody> = {}) {
+    const base = outcomeSummaryBody(over);
+    const sites = base.sites
+      .filter((x) => states[x.site_code] !== undefined)
+      .map((x) => {
+        const [read_state, cost] = states[x.site_code];
+        return { ...x, read_state, rows: x.rows.map((r) => (r.category === "OPTIMIZE_COST" ? { ...r, state: cost } : r)) };
+      });
+    return { ...base, sites };
+  }
+  const ALL_CHECKED = { "KOBO-001": ["AVAILABLE", "NEEDS_ATTENTION"], "COLD-001": ["AVAILABLE", "ON_TRACK"] } as const;
+  const COLD_UNKNOWN = { "KOBO-001": ["AVAILABLE", "NEEDS_ATTENTION"], "COLD-001": ["AVAILABLE", "UNKNOWN"] } as const;
+  const startWarning = () => outcomeWarning({ fault_name: "automatic start failure" });
+  async function show(summary: EstateOutcomeSummaryBody) {
+    const { reads, calls } = estate({ status: "loaded", value: summary });
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }), reads);
+    await settled();
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await waitFor(() => expect(value()).not.toBe("Not assessed"));
+    return calls;
+  }
+
+  it("countsRepeatedWarningsOverTheCoveringUtcDaysAndLinksTheFirst", async () => {
+    const calls = await show(sitesAs(ALL_CHECKED, { warnings: [planWarning(), startWarning()] }));
+    expect(value()).toBe("1");
+    expect(calls).toEqual([{ from: "2026-10-14T00:00:00Z", to: "2026-10-21T00:00:00Z", known_at: null }]);
+    expect(text(card().querySelector(".v69-metric__label"))).toBe("Repeat visits without a result");
+    expect(note()).toBe("generator-1 · 3 visits, automatic start failure still open");
+    expect(card().className).toContain("v69-metric--amber");
+    expect(card().querySelector("[data-global-work-repeat-link]")?.getAttribute("href")).toBe("/maintenance/requests/case-3");
+    expect(document.querySelectorAll("[data-global-work-cards] li.v69-metric")).toHaveLength(4);
+    expect(document.querySelector('[data-global-work-card="repeat_findings"]')).toBeNull();
+    expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("foundWithUncheckedSitesNamesThemAfterTheLinkAndFallsBackToLinkedFinding", async () => {
+    await show(sitesAs(COLD_UNKNOWN, { warnings: [outcomeWarning({ fault_name: null })] }));
+    expect(value()).toBe("1");
+    expect(note()).toBe("generator-1 · 3 visits, linked finding still open · not checked for GreenHarvest");
+    expect(card().className).toContain("v69-metric--amber");
+    expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("zeroRepeatedWarningsSaysNoneInTheLast60DaysOnlyWhenEverySiteWasChecked", async () => {
+    await show(sitesAs(ALL_CHECKED, { warnings: [planWarning()] }));
+    expect(value()).toBe("0");
+    expect(note()).toBe("None in the last 60 days");
+    expect(card().className).not.toContain("v69-metric--amber");
+  });
+
+  it("zeroFoundWithSomeSitesUncheckedIsPartlyChecked", async () => {
+    await show(sitesAs({ ...ALL_CHECKED, "EV-LAB-001": ["AVAILABLE", "NOT_MEASURED"], "EV-LAB-002": ["UNAVAILABLE", "UNKNOWN"] }));
+    expect(value()).toBe("Partly checked");
+    expect(note()).toBe("None found at Kobo and GreenHarvest; not checked for Depot and Harbour");
+    expect(card().className).not.toContain("v69-metric--amber");
+    expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("zeroFoundWithNoSiteCheckedIsNotAssessed", async () => {
+    const { reads, calls } = estate({ status: "loaded", value: sitesAs({ "COLD-001": ["AVAILABLE", "UNKNOWN"], "EV-LAB-002": ["UNAVAILABLE", "UNKNOWN"] }) });
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }), reads);
+    await settled();
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(value()).toBe("Not assessed");
+    expect(note()).toBe("Repeat visits could not be checked for this window");
+  });
+
+  it("aColdSiteWithAnUnknownCostRowNeverShowsNone", async () => {
+    await show(sitesAs(COLD_UNKNOWN));
+    expect(value()).toBe("Partly checked");
+    expect(card().textContent).not.toContain("None in the last 60 days");
+    expect(note()).toBe("None found at Kobo; not checked for GreenHarvest");
+  });
+
+  it("refusedSummaryIsNotAssessedAndNeverSaysNotAvailableYet", async () => {
+    const refused = estate({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" });
+    mount(PAGE, client({ "page-one": loaded(body([row(1)])) }), refused.reads);
+    await settled();
+    await waitFor(() => expect(refused.calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(value()).toBe("Not assessed");
+    expect(note()).toBe("Repeat visits could not be checked for this window");
+    expect(card().textContent).not.toContain("Not available yet");
+  });
+
+  // The page window is always whole UTC days of 1-31 days; the over-31 branch is defensive and proven here.
+  it("coveringUtcDaysFloorsAndCeilsAndCapsAt31Days", () => {
+    const q = (from: string, to: string) => ({ from, to, known_at: null, cursor: null });
+    expect(coveringUtcDays(q("2026-10-14T06:00:00Z", "2026-10-20T18:00:00Z"))).toEqual({ from: "2026-10-14T00:00:00Z", to: "2026-10-21T00:00:00Z" });
+    expect(coveringUtcDays(q("2026-10-01T00:00:00Z", "2026-11-01T00:00:00Z"))).toEqual({ from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:00Z" });
+    expect(coveringUtcDays(q("2026-10-01T00:00:00Z", "2026-11-01T00:00:01Z"))).toBeNull();
+    expect(coveringUtcDays(null)).toBeNull();
   });
 });

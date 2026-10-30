@@ -446,6 +446,7 @@ export function App({
                 sitesPath={SITES_PATH}
                 coldAssessment={coldAssessment}
                 evAssessment={evAssessment}
+                outcomeBoard={outcomeBoard}
               />
             }
           />
@@ -510,11 +511,11 @@ export function App({
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
           <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
           {/* W6-01b: the global Maintenance root, Corrective view (`MAINTENANCE_PATH`). */}
-          <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={globalWork} />} />
+          <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={globalWork} estate={estateIndex} />} />
           {/* W6-01b B3: the global Maintenance root, Preventive view (`MAINTENANCE_PREVENTIVE_PATH`). */}
           <Route path={MAINTENANCE_PREVENTIVE_PATH} element={<GlobalPreventiveFrame client={globalWork} />} />
           {/* W6-01c C2: the work request Overview (`WORK_REQUEST_ROUTE_PATH`, `?site_id={site_code}`). */}
-          <Route path={WORK_REQUEST_ROUTE_PATH} element={<WorkRequestOverviewFrame client={globalWork} />} />
+          <Route path={WORK_REQUEST_ROUTE_PATH} element={<WorkRequestOverviewFrame client={globalWork} outcomeBoard={outcomeBoard} />} />
           {/* W6-01c C3: the work request Maintenance record (`WORK_REQUEST_RECORD_ROUTE_PATH`, same query). */}
           <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
           {/* W6-01d C4: the work request History (`WORK_REQUEST_HISTORY_ROUTE_PATH`, same query). */}

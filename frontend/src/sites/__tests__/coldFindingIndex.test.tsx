@@ -17,6 +17,8 @@ import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { F118, F119 } from "./outcomeFixtures";
+import { boardBody, fakeOutcomeBoard, outcomeWarning } from "../../test/outcomeBoardFixture";
+import type { OutcomeBoardClient } from "../outcomeBoardClient";
 
 afterEach(cleanup);
 
@@ -77,7 +79,12 @@ const site = (type: string) =>
   }) as unknown as SiteDetailReadModel;
 const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
 
-function renderIndex(read: ColdRead<ColdFindingsRead>, path = `/sites/COLD-001/findings${Q}`, type = "COLDCHAIN") {
+function renderIndex(
+  read: ColdRead<ColdFindingsRead>,
+  path = `/sites/COLD-001/findings${Q}`,
+  type = "COLDCHAIN",
+  outcomeBoard?: OutcomeBoardClient,
+) {
   const cold = {
     getTemperature: vi.fn(),
     getBackupChain: vi.fn(),
@@ -95,6 +102,7 @@ function renderIndex(read: ColdRead<ColdFindingsRead>, path = `/sites/COLD-001/f
         siteAnalytics={EMPTY_ANALYTICS_CLIENT}
         coldAssessment={cold}
         siteFindingIndex={findingIndex}
+        {...(outcomeBoard === undefined ? {} : { outcomeBoard })}
       />
     </MemoryRouter>,
   );
@@ -211,5 +219,29 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     const scan = scanProductVocabulary(document.querySelector("main") as HTMLElement, "sitefindings", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(5);
     expect(describeViolations(scan.violations)).toBe("");
+  });
+});
+
+describe("OUT-C U5 cold Site Findings early warnings", () => {
+  it("lists the board warnings under the list for the page window, with the Site name first (H1-1)", async () => {
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [outcomeWarning()] }) });
+    renderIndex(ok(STOCKED), undefined, undefined, board.client);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-early-warnings]")).not.toBeNull());
+    expect(board.calls).toEqual([{ siteCode: "COLD-001", query: { from: FROM, to: TO, known_at: KNOWN } }]);
+    const list = document.querySelector("[data-early-warnings]") as HTMLElement;
+    expect(panel().contains(list)).toBe(true);
+    expect(list.querySelector("small")?.textContent).toMatch(/^GreenHarvest · Optimize cost and efficiency · generator-1 visited 3 times/);
+    expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("shows no list when the board has no warnings", async () => {
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody() });
+    renderIndex(ok(STOCKED), undefined, undefined, board.client);
+    await settledScreen();
+    await waitFor(() => expect(board.calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(panel()).not.toBeNull();
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 });

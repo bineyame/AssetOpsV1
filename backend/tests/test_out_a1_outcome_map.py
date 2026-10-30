@@ -106,7 +106,9 @@ def test_catalogue_copy_passes_vocabulary() -> None:
     assert set(catalogue.CATEGORY_LABEL) == set(CATEGORIES) == set(catalogue.CATEGORY_DEFINITION)
     assert len({o.key for o in SITE_OUTCOMES}) == len(SITE_OUTCOMES)
     assert all(o.measured == (o.missing_records is None) for o in SITE_OUTCOMES)
-    assert not OUTCOME_BY_KEY["MG-4"].measured and not OUTCOME_BY_KEY["CC-3"].measured
+    assert OUTCOME_BY_KEY["MG-4"].measured and OUTCOME_BY_KEY["CC-3"].measured  # C: R541 resolved
+    assert (COLD, "OPTIMIZE_COST") not in catalogue.ROW_NOT_MEASURED
+    assert catalogue.CATALOGUE_VERSION == "outcome-catalogue/2"
 
 
 def test_row_not_measured_sentences() -> None:

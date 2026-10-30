@@ -24,13 +24,14 @@ from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.outcome_map import POLICY_VERSION
 from assetops_backend.outcomes.status import NEEDS_ATTENTION, STATE_LABEL, STATE_TONE, STATUS_POLICY, UNKNOWN
+from assetops_backend.outcomes.warnings import POLICY as WARNINGS_POLICY
 from assetops_backend.site_outcomes import cold, ev, mini
 from assetops_backend.site_outcomes.board import assemble
 
 SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
-                   "warnings": None}
+                   "warnings": WARNINGS_POLICY}
 #: Stored Site type -> board domain (`mini_depth/read.py:50`, `sites/cold_foundation.py:31`, `sites/ev_foundation.py:36`).
 DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI, "COLDCHAIN": COLD, "EV_CHARGING": EV}
 FINDING_INDEX_DOMAIN = "mini-grid-dispatch"
@@ -329,7 +330,7 @@ class SiteOutcomeBoardService:
                        "known_at": wire(window.get("known_at", known_at))},
             "read_state": comp.read_state,
             "rows": jsonable_encoder(assemble(comp.facts)),
-            "warnings": [],
+            "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
         }
@@ -342,6 +343,7 @@ class SiteOutcomeBoardService:
         Portfolio Site order the caller passes. Mini reads the UTC day of `to` (B-Q7); cold and EV `from`/`to`
         unchanged. A Site whose board read fails is UNAVAILABLE with four UNKNOWN rows."""
         out = []
+        warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
         for site in sites:
             try:
                 body = self.board(site, day=mini_summary_day(hi) if site.domain == MINI else None,
@@ -349,6 +351,7 @@ class SiteOutcomeBoardService:
                                   known_at=known_at)
                 rows = [_summary_row(r, body["_short_values"]) for r in body["rows"]]
                 read_state = body["read_state"]
+                warnings += body["warnings"]
             except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
                 rows = [_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
@@ -359,10 +362,12 @@ class SiteOutcomeBoardService:
                        "icon": CATEGORY_ICON[cat],
                        "sites_needing_attention": sum(1 for x in out for r in x["rows"]
                                                       if r["category"] == cat and r["state"] == NEEDS_ATTENTION),
-                       "warning_count": 0} for cat in CATEGORIES]
+                       "warning_count": sum(1 for w in warnings
+                                            if any(i["category"] == cat for i in w["categories"]["items"]))}
+                      for cat in CATEGORIES]
         return {"schema_version": SUMMARY_SCHEMA_VERSION, "policy_versions": dict(POLICY_VERSIONS),
                 "window": {"from": wire(lo), "to": wire(hi)}, "sites": out, "categories": categories,
-                "warnings": []}
+                "warnings": warnings}
 
 
 def _overview_href(site: SiteRef) -> str:

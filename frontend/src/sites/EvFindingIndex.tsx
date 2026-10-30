@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { DataTable, Panel, StatusBar } from "../ui";
@@ -26,6 +26,7 @@ export function EvFindingIndex({
   findingBase,
   sessionsBase,
   tabs,
+  earlyWarnings = null,
 }: {
   siteId: string;
   siteName: string;
@@ -35,6 +36,8 @@ export function EvFindingIndex({
   findingBase: (findingId: string) => string;
   sessionsBase: string;
   tabs: EvTabs;
+  /** OUT-C U5: the Site's early warnings (from its outcome board), under the list. */
+  earlyWarnings?: ReactNode;
 }) {
   const key = `${siteId}|${window.from ?? ""}|${window.to ?? ""}|${window.known_at ?? ""}`;
   const [state, setState] = useState<{ key: string; read: EvRead<EvFindingsRead> } | null>(null);
@@ -128,6 +131,7 @@ export function EvFindingIndex({
             {`Showing the first ${body.items.length} Findings; paging is not available on this page.`}
           </p>
         ) : null}
+        {earlyWarnings}
       </Panel>
     </div>
   );

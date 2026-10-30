@@ -33,6 +33,8 @@ import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../te
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { F104 } from "../../sites/__tests__/outcomeFixtures";
+import { boardBody, fakeOutcomeBoard, planWarning } from "../../test/outcomeBoardFixture";
+import type { OutcomeBoardClient } from "../../sites/outcomeBoardClient";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
@@ -47,7 +49,7 @@ function LocationProbe() {
   return <output data-location>{`${location.pathname}${location.search}`}</output>;
 }
 
-function renderAt(path: string, index: FindingIndexClient) {
+function renderAt(path: string, index: FindingIndexClient, outcomeBoard?: OutcomeBoardClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <App
@@ -57,6 +59,7 @@ function renderAt(path: string, index: FindingIndexClient) {
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteAnalytics={analyticsClient(SITE_ID)}
         siteFindingIndex={index}
+        {...(outcomeBoard === undefined ? {} : { outcomeBoard })}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -613,5 +616,32 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     const link = within(helper).getByRole("link", { name: "open the renewable evaluation" });
     expect(link).toHaveAttribute("href", sitePerformanceHref(SITE_ID, "renewable"));
     expect(link.getAttribute("href")).not.toMatch(/opportunit/i);
+  });
+});
+
+describe("OUT-C U5 mini Site Findings early warnings", () => {
+  it("lists the board warnings under the list for the UTC day of to, with the Site name first (H1-1)", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [planWarning({ title: "Battery at or near its reserve", site_code: "KOBO-001", site_name: "Kobo Mini-grid" })] }) });
+    renderAt(PATH, client, board.client);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-early-warnings]")).not.toBeNull());
+    expect(board.calls).toEqual([{ siteCode: SITE_ID, query: { date: "2026-10-25" } }]);
+    const list = document.querySelector("[data-early-warnings]") as HTMLElement;
+    expect(card().contains(list)).toBe(true);
+    expect(list.querySelector("strong")?.textContent).toBe("Battery at or near its reserve");
+    expect(list.querySelector("small")?.textContent).toBe("Kobo · Protect asset and capital · Due 2 Nov");
+    expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("shows no list when the board has no warnings", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody() });
+    renderAt(PATH, client, board.client);
+    await settledScreen();
+    await waitFor(() => expect(board.calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(card()).not.toBeNull();
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 });

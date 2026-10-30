@@ -68,14 +68,14 @@ def _record(key: str, value: object) -> None:
 # ------------------------------------------------------------------ one database per case (addendum 5 #2)
 
 @contextlib.contextmanager
-def _case_db(case: str):
-    """`assetops_out_b_<case>_test` on the harness server: a clone of this run's migrated template when routed,
-    else created blank and migrated. Dropped (FORCE) on exit."""
+def _case_db(case: str, slice_: str = "b"):
+    """`assetops_out_<slice>_<case>_test` on the harness server: a clone of this run's migrated template when routed,
+    else created blank and migrated. Dropped (FORCE) on exit. OUT-C passes `slice_="c"`."""
     from sqlalchemy import create_engine, text
     from sqlalchemy.engine import make_url
     from sqlalchemy.pool import NullPool
 
-    name = f"assetops_out_b_{case}_test"
+    name = f"assetops_out_{slice_}_{case}_test"
     base = make_url(os.environ.get(pg_harness.BASE_ENV) or URL)
     url = base.set(database=name).render_as_string(hide_password=False)
     engine = None
@@ -458,7 +458,8 @@ def test_cold_w502_positive(monkeypatch, tmp_path) -> None:
             body, _ = _board(c, "COLD-LAB-001", "cold_w502_positive", **dict(zip(("from", "to"), doc["w501"]["window"])))
             _assert_readiness_equals_portfolio(c, "cold_w502_positive", "COLD-LAB-001", body)
     grow, cost, protect, assure = _states(body)  # B.7 #2 (addendum 6: window doc["w501"]["window"], no known_at)
-    assert (grow, cost, protect) == ("NOT_MEASURED", "NOT_MEASURED", "NEEDS_ATTENTION"), _states(body)
+    # OUT-C: CC-3 is measured (catalogue/2) and the authored repeat visits make cold Cost NEEDS_ATTENTION (review L1)
+    assert (grow, cost, protect) == ("NOT_MEASURED", "NEEDS_ATTENTION", "NEEDS_ATTENTION"), _states(body)
     _record("cold_assure", assure)
     # B.7 #4 (L2, evaluated): "Not yet verified" is present exactly when a completed maintenance request is in the
     # work window (the work_index returned one) and no later related request makes it "Did not fix it".
@@ -468,7 +469,9 @@ def test_cold_w502_positive(monkeypatch, tmp_path) -> None:
     completed = sum(COMPLETED_REQUESTS)
     _record("cold_b7_4_not_yet_verified", {"present": present, "completed_requests_in_work_window": completed,
                                            "window": doc["w501"]["window"]})
-    assert present == (completed > 0 and not repeated), (present, repeated, completed)
+    # OUT-C U3: with the authored repeat visits the earlier ones read "Did not fix it" and the latest one
+    # "Not yet verified", so both are present.
+    assert present and repeated and completed > 0, (present, repeated, completed)
     if present:
         assert body["window"]["known_at"] is not None  # addendum 4 #5: the overview's resolved cutoff
 

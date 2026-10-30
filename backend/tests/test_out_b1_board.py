@@ -191,15 +191,21 @@ def cold(**kw) -> SiteFacts:
 
 def test_cold_grid_and_not_measured_rows() -> None:
     rows = rows_by_cat(cold())
-    assert [rows[c]["state"] for c in CATEGORIES] == ["NOT_MEASURED", "NOT_MEASURED", "NEEDS_ATTENTION", "WATCH"]
+    # C: CC-3 is measured (R541 resolved); with no warning the Cost row has no objective declared
+    assert [rows[c]["state"] for c in CATEGORIES] == ["NOT_MEASURED", "NO_OBJECTIVE", "NEEDS_ATTENTION", "WATCH"]
     grow = rows[GROW]
     assert grow["not_measured_text"] == "Needs occupancy, storage contract, income and sales records"
     assert grow["evidence_link"] is None and grow["headline"] is None
     assert grow["earlier"] == [] and grow["earlier_empty_text"] is None and grow["must_not_harm"] is None
     for key in ("contributors", "issues", "options", "in_hand"):
-        assert grow[key] == [] and rows[COST][key] == []
+        assert grow[key] == []
+    for key in ("contributors", "options", "in_hand"):
+        assert rows[COST][key] == []
+    # C: the measured Cost row now lists F-118, which checks CC-3, as a safeguard
+    assert [(i["role"], i["text"]) for i in rows[COST]["issues"]] == [
+        ("CHECKED", "Backup did not start · checked here as a safeguard")]
     assert rows[COST]["evidence_link"] == {"label": "Financial bridge", "href": "/sites/COLD-LAB-001/financials"}
-    assert rows[COST]["not_measured_text"] == "Cost per cooling unit needs cooling energy and repair cost records"
+    assert rows[COST]["not_measured_text"] is None and rows[COST]["headline"] is None
 
 
 def test_cold_protect_lists_domain_action_in_hand_and_completed_request_not_yet_verified() -> None:
@@ -295,9 +301,10 @@ def test_readiness_confidence_chips() -> None:
     assert readiness_confidence(None) == {"label": "Unknown", "tone": "gray"}
 
 
-def test_mini_protect_unmeasured_outcome_never_sets_state() -> None:
-    rows = rows_by_cat(kobo())
-    assert [o["state"] for o in rows[PROTECT]["outcomes"]] == ["NO_OBJECTIVE", "NOT_MEASURED"]
+def test_mini_protect_battery_outcome_measured_without_warning() -> None:
+    rows = rows_by_cat(kobo())  # C: MG-4 is measured (R541 resolved); no warning, so no objective declared
+    assert [(o["key"], o["state"]) for o in rows[PROTECT]["outcomes"]] == [
+        ("MG-5", "NO_OBJECTIVE"), ("MG-4", "NO_OBJECTIVE")]
 
 
 # --------------------------------------------------------------- purity

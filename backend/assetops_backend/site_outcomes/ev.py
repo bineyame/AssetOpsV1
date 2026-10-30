@@ -7,18 +7,21 @@ is never a count source. Closed Findings linked by a case or a domain Action are
 Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b)."""
 from __future__ import annotations
 
+import math
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from assetops_backend.analytics.ev import MECHANISM as EV_MECHANISM
 from assetops_backend.outcomes.catalogue import EV
+from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
-    DECLARED, INCIDENT, MAINTENANCE_REQUEST, CaseFact, Contributor, FindingFact, Option, SiteFacts,
+    DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
     finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action
+from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
     plural, site_zone, utc)
@@ -92,10 +95,9 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
     readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
     plans = reads.call("plans", ports.plans, work_lo, hi)
-    cases: list[CaseFact] = []
-    for kind, case_kind in (("incidents", INCIDENT), ("maintenance", MAINTENANCE_REQUEST)):
-        rows = reads.pages("work_index", ports.work, kind, work_lo, hi)
-        cases += [case_fact(r, case_kind, c) for r in rows or ()]
+    incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
+    visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
+    cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
 
     findings_ok = finding_rows is not None
@@ -163,7 +165,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     out_text = None
     if out_connectors:
         first = out_connectors[0]
-        out_text = (f"Connector {first.get('label')} was out of service for "
+        out_text = (f"{connector_name(first.get('label'))} was out of service for "
                     f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected is "
                     "not known yet.")
     missing_seconds = sum(int(x.get("unknown_seconds") or 0) for x in connectors) if availability else 0
@@ -201,6 +203,14 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                       plans=tuple(plan_fact(p, tz) for p in plans or ()), readiness=readiness,
                       contributors=contributors, options=options, headline=headline, headline_money=headline_money,
                       subline=subline, settled=settled, date_suffix=suffix, findings_settled=findings_ok)
+    extras = {"faults": tuple((str(r["asset_id"]), r.get("label") or "") for r in fault_rows if r.get("asset_id")),
+              "connectors_out": tuple(
+                  (str(x["asset_id"]), x.get("label") or "", duration_text(x.get("known_unavailable_seconds")),
+                   duration_text(x.get("unknown_seconds")) if (x.get("unknown_seconds") or 0) > 0 else None)
+                  for x in out_connectors if x.get("asset_id")
+                  and duration_text(x.get("known_unavailable_seconds")) is not None),
+              "peak": peak_facts(body) if overview is not None else None}
+    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo, **extras)))
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
@@ -233,10 +243,16 @@ def _session_service(ok: bool, fault: Any, unknown: Any, rc: Any) -> Contributor
                        f"{plural(unknown, 'outcome', 'outcomes')} unknown", rc)
 
 
+def connector_name(label: Any) -> str:
+    """No double prefix (the `warnings.py` rule): labels already read "Connector c1"."""
+    text = str(label)
+    return text if text.lower().startswith("connector") else f"Connector {text}"
+
+
 def _availability(body: Any, connectors: list, rc: Any) -> Contributor:
     if body is None:
         return Contributor("connector_availability", "Connector availability", NOT_LOADED)
-    parts = [f"Connector {x.get('label')}: {duration_text(x.get('known_unavailable_seconds') or 0)} out, "
+    parts = [f"{connector_name(x.get('label'))}: {duration_text(x.get('known_unavailable_seconds') or 0)} out, "
              f"{duration_text(x.get('unknown_seconds') or 0)} unknown" for x in connectors
              if (x.get("known_unavailable_seconds") or 0) > 0 or (x.get("unknown_seconds") or 0) > 0]
     return Contributor("connector_availability", "Connector availability", "; ".join(parts) or ALL_AVAILABLE, rc)
@@ -249,6 +265,18 @@ def _condition(body: Any, fault_rows: list, rc: Any) -> Contributor:
         return Contributor("charger_condition", "Charger condition",
                            f"Fault recorded on {fault_rows[0].get('label')}", rc)
     return Contributor("charger_condition", "Charger condition", NO_FAULT, rc)
+
+
+def peak_facts(body: dict) -> tuple[float, float, str, str] | None:
+    """(peak, limit, peak text, limit text) only when both are numbers (review L3), else None."""
+    power = body.get("site_power") or {}
+    try:
+        peak, limit = float(Decimal(str(power["observed_peak_kw"]))), float(Decimal(str(power["configured_limit_kw"])))
+    except (KeyError, InvalidOperation, ValueError, TypeError):
+        return None
+    if not (math.isfinite(peak) and math.isfinite(limit)):
+        return None
+    return peak, limit, num(power["observed_peak_kw"]), num(power["configured_limit_kw"])
 
 
 def _site_power(body: dict, ok: bool, rc: Any) -> Contributor:

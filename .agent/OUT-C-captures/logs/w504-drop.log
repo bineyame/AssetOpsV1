@@ -1,0 +1,10 @@
+stopped positive pid 32152
+stopped zero pid 460
+stopped worstcase pid 19732
+stopped forbidden pid 25780
+stopped unavailable pid 7480
+dropped database w504a_positive_outc_test
+dropped database w504a_zero_outc_test
+dropped database w504a_worstcase_outc_test
+dropped database w504a_unknown_outc_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-outC\var\w504a_outc
