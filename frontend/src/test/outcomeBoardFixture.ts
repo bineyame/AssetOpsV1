@@ -4,6 +4,7 @@ import type {
   OutcomeBoardQuery,
   OutcomeBoardRead,
   OutcomeBoardRow,
+  OutcomeWarning,
 } from "../sites/outcomeBoardClient";
 
 /** OUT-B B5 test fixture: a §B.1 board body with every column shape (backend-shaped texts, no outcome codes). */
@@ -104,6 +105,65 @@ export function boardRows(): OutcomeBoardRow[] {
       not_measured_text: "Targets are not declared for this site",
     }),
   ];
+}
+
+/** OUT-C: one early warning on the §4 wire; texts are the sheet §3 copy. */
+export function outcomeWarning(over: Partial<OutcomeWarning> = {}): OutcomeWarning {
+  return {
+    key: "REPEATED_MAINTENANCE_NO_RESULT:asset-1",
+    kind: "REPEATED_MAINTENANCE_NO_RESULT",
+    badge: "RISK",
+    badge_label: "Risk",
+    lens: "COST",
+    title: "Repeated maintenance without a result",
+    seen: "generator-1 visited 3 times in 60 days (2 Oct, 14 Oct, 28 Oct); the linked finding is still open",
+    persistence: "RECURRING",
+    persistence_label: "Recurring",
+    price_needs: "A cost per visit is not set for this site",
+    status_effect: "NEEDS_ATTENTION",
+    categories: {
+      policy_version: "outcome-map/1",
+      state: "MAPPED",
+      items: [
+        { category: "OPTIMIZE_COST", label: "Optimize cost and efficiency", role: "MOVES", outcomes: [{ key: "CC-3", label: "Cost per cooling unit" }] },
+        { category: "PROTECT_ASSET", label: "Protect asset and capital", role: "CHECKED", outcomes: [{ key: "CC-1", label: "Cooling continuity" }] },
+      ],
+    },
+    site_code: "GH-COLD-01",
+    site_name: "GreenHarvest Cold Store",
+    href: "/work/requests/case-3",
+    evidence_refs: [{ kind: "WORK_CASE", id: "case-3", label: "WR-3", href: "/work/requests/case-3" }],
+    count: 3,
+    subject_label: "generator-1",
+    ...over,
+  };
+}
+
+/** OUT-C: a plan warning (Risk lens, Early warning badge). */
+export function planWarning(over: Partial<OutcomeWarning> = {}): OutcomeWarning {
+  return outcomeWarning({
+    key: "PLAN_DUE_SOON:plan-1",
+    kind: "PLAN_DUE_SOON",
+    badge: "EARLY_WARNING",
+    badge_label: "Early warning",
+    lens: "RISK",
+    title: "Coil clean due soon",
+    seen: "Due 2 Nov",
+    persistence: "OBSERVED",
+    persistence_label: "Observed",
+    price_needs: "Needs repair cost and wear history",
+    status_effect: "WATCH",
+    categories: {
+      policy_version: "outcome-map/1",
+      state: "MAPPED",
+      items: [{ category: "PROTECT_ASSET", label: "Protect asset and capital", role: "MOVES", outcomes: [{ key: "CC-1", label: "Cooling continuity" }] }],
+    },
+    href: "/work/maintenance/plans/plan-1",
+    evidence_refs: [],
+    count: null,
+    subject_label: null,
+    ...over,
+  });
 }
 
 export function boardBody(over: Partial<OutcomeBoardBody> = {}): OutcomeBoardBody {
