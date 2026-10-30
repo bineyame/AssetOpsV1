@@ -116,7 +116,7 @@ class MiniComposition:
     timezone: str | None                           # the Site zone used for local dates, None = UTC fallback
 
 
-class _Reads:
+class Reads:
     def __init__(self) -> None:
         self.failed: list[str] = []
         self.statuses: dict[str, set[str]] = {}
@@ -129,14 +129,15 @@ class _Reads:
                 self.failed.append(name)
             return None
 
-    def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any) -> list[dict[str, Any]] | None:
+    def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any,
+              key: str = "rows") -> list[dict[str, Any]] | None:
         rows: list[dict[str, Any]] = []
         cursor = None
         for _ in range(MAX_PAGES):
             body = self.call(name, fn, *args, cursor)
             if body is None:
                 return None
-            rows += list(body.get("rows") or ())
+            rows += list(body.get(key) or ())
             if body.get("status") is not None:
                 self.statuses.setdefault(name, set()).add(str(body["status"]))
             cursor = body.get("next_cursor")
@@ -161,7 +162,7 @@ def num(value: Any) -> str | None:
     return f"{d.quantize(Decimal('0.1'), rounding=ROUND_HALF_UP).normalize():f}"
 
 
-def _utc(value: Any) -> datetime | None:
+def utc(value: Any) -> datetime | None:
     if value is None or isinstance(value, datetime):
         return value
     text = str(value)
@@ -169,12 +170,20 @@ def _utc(value: Any) -> datetime | None:
     return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
 
 
-def _zone(name: str | None) -> ZoneInfo | None:
+def site_zone(name: str | None) -> ZoneInfo | None:
     """The Site zone through `mini_depth/inputs.py` `zone` (B2 review L2); missing or invalid gives None."""
     try:
         return zone(name)
     except MiniInputsRefused:
         return None
+
+
+MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def day_month(d: Any) -> str:
+    """A Site-local date as "d MMM" (guide §4)."""
+    return f"{d.day} {MONTHS[d.month - 1]}"
 
 
 def plural(n: Any, one: str, many: str) -> str:
@@ -207,7 +216,7 @@ def limitation_text(limitation: str) -> str:
     return GAP_GENERIC
 
 
-def _not_available(key: str, label: str, href: str | None = None) -> Contributor:
+def not_available(key: str, label: str, href: str | None = None) -> Contributor:
     return Contributor(key, label, NOT_LOADED, None, href)
 
 
@@ -218,7 +227,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     Site lookup carries, used only to build the mini depth windows. Local dates use the depth body's own
     `site.timezone`; if depth is refused they are UTC with the suffix (addendum 2 item 6)."""
     c = site_code
-    reads = _Reads()
+    reads = Reads()
     start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
     end = start + timedelta(days=1)
     work_lo = end - WORK_WINDOW
@@ -228,7 +237,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     depth_ok = all(depth.get(d) is not None for d in DEPTH_DOMAINS)
     zone_name = next((b["site"].get("timezone") for b in depth.values()
                       if b is not None and (b.get("site") or {}).get("timezone")), None)
-    tz = _zone(zone_name) if depth_ok else None
+    tz = site_zone(zone_name) if depth_ok else None
     dispatch = reads.call("dispatch", ports.dispatch, day)
     readiness = reads.call("evidence_readiness", ports.readiness, start, end)
     estate = reads.call("estate", ports.estate, work_lo, end)
@@ -243,11 +252,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     cases: list[CaseFact] = []
     for kind, case_kind in (("incidents", INCIDENT), ("maintenance", MAINTENANCE_REQUEST)):
         rows = reads.pages("work_index", ports.work, kind, work_lo, end)
-        cases += [_case(r, case_kind, c) for r in rows or ()]
+        cases += [case_fact(r, case_kind, c) for r in rows or ()]
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
-    plan_facts = tuple(_plan(p, tz) for p in plans or ())
+    plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
     body = overview or {}
     freshness = (body.get("freshness") or {}).get("state")
@@ -315,7 +324,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                            {"from": start, "to": end}, zone_name if tz is not None else None)
 
 
-def _depth(reads: _Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
+def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
     """B-Q6: the Site-local day containing the overview `window.start`; renewable reads that whole local day, the
     hourly domains read its local noon hour (reading recorded in the packet)."""
     try:  # the mini_depth/inputs.py helpers (addendum 2 item 6, B2 review L2); a refusal leaves depth unread
@@ -354,7 +363,7 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
     out = []
     for r in rows:
         episode = r.get("episode") or {}
-        lo, hi = _utc(episode.get("start")), _utc(episode.get("end"))
+        lo, hi = utc(episode.get("start")), utc(episode.get("end"))
         in_window = lo is not None and lo < end and (hi is None or hi > start)
         confidence = None
         er = estate_rows.get(str(r["finding_revision_id"])) if estate is not None else None
@@ -369,7 +378,7 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
     return tuple(out)
 
 
-def _actions(reads: _Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
+def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
              c: str) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
     """Action index rows; the workflow label from the estate Action of the same id fed to `workflow_label`
     unchanged (addendum 2 item 2); verification from the summary; a Foundation change from the Action read."""
@@ -401,17 +410,17 @@ def _actions(reads: _Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] 
     return tuple(out), has_change, tuple(missing)
 
 
-def _case(r: dict[str, Any], kind: str, c: str) -> CaseFact:
+def case_fact(r: dict[str, Any], kind: str, c: str) -> CaseFact:
     cid = str(r["case_id"])
     href = f"/maintenance/requests/{cid}" if kind == MAINTENANCE_REQUEST else f"/sites/{c}/work/incidents"
     fids = tuple(str(x["finding_id"]) for x in r.get("finding_links") or () if x.get("finding_id"))
     return CaseFact(cid, r.get("code"), kind, r.get("title") or "", r.get("state") or "",
                     None if r.get("asset_id") is None else str(r["asset_id"]), r.get("asset_label"), fids,
-                    _utc(r.get("occurred_at")), href)
+                    utc(r.get("occurred_at")), href)
 
 
-def _plan(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
-    due = _utc(p.get("next_due_at"))
+def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
+    due = utc(p.get("next_due_at"))
     hours = p.get("next_due_hours")
     return PlanFact(str(p["canonical_plan_id"]), p.get("code"), p.get("title") or "", p.get("trigger_kind") or "",
                     None if due is None else due.astimezone(tz or timezone.utc).date(),
@@ -424,7 +433,7 @@ def _plan(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
 def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any) -> tuple[Contributor, ...]:
     href = f"/sites/{c}/performance/renewable"
     if depth.get("renewable") is None:
-        use = _not_available("productive_use", "Productive use", href)
+        use = not_available("productive_use", "Productive use", href)
     elif eligible is None or assessed is None:
         use = Contributor("productive_use", "Productive use", SOLAR_NOT_READ, None, href)
     else:
@@ -440,21 +449,21 @@ def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | No
     a, u = _dispatch_minutes(dispatch)
     gen_href = f"/sites/{c}/performance/dispatch"
     if dispatch is None:
-        gen = _not_available("generator_use", "Generator use", gen_href)
+        gen = not_available("generator_use", "Generator use", gen_href)
     else:
         chip = PLACEMENT_CHIP.get(lead.confidence_label) if lead and lead.confidence_label else None
         gen = Contributor("generator_use", "Generator use", f"{num(a)} min avoidable, {num(u)} min unclear",
                           chip, gen_href)
     fuel_href = f"/sites/{c}/performance/fuel"
     if depth.get("fuel") is None:
-        fuel = _not_available("fuel", "Fuel", fuel_href)
+        fuel = not_available("fuel", "Fuel", fuel_href)
     else:
         opening = (depth["fuel"].get("cards") or {}).get("opening_l")
         fuel = (Contributor("fuel", "Fuel", NO_FUEL_BALANCE, UNKNOWN_CHIP, fuel_href) if opening is None else
                 Contributor("fuel", "Fuel", f"{num(opening)} L at the start of the window", rc, fuel_href))
     price_href = f"/sites/{c}/financials/assumptions"
     if price is None:
-        fuel_price = _not_available("fuel_price", "Fuel price", price_href)
+        fuel_price = not_available("fuel_price", "Fuel price", price_href)
     else:
         sel = price.get("selection") or {}
         p = sel.get("price") or {}
@@ -469,7 +478,7 @@ def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: boo
     battery = Contributor("battery", "Battery", FIXED["battery"], None, f"/sites/{c}/health")
     run_hours = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id)) if p.trigger_kind == "RUN_HOURS"]
     if plans_failed:
-        generator = _not_available("generator", "Generator", "/maintenance/preventive")
+        generator = not_available("generator", "Generator", "/maintenance/preventive")
     elif not run_hours:
         generator = Contributor("generator", "Generator", NO_GEN_PLAN, PLAN_RECORD, "/maintenance/preventive")
     else:
@@ -480,14 +489,14 @@ def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: boo
                                 if due is not None else NO_GEN_PLAN, PLAN_RECORD, "/maintenance/preventive")
     svc_href = f"/sites/{c}/performance/service"
     if depth.get("service") is None:
-        service = _not_available("service_delivery", "Service delivery", svc_href)
+        service = not_available("service_delivery", "Service delivery", svc_href)
     elif (depth["service"].get("cards") or {}).get("delivered_load_kw") is None:
         service = Contributor("service_delivery", "Service delivery", SERVICE_NOT_READ, None, svc_href)
     else:
         service = Contributor("service_delivery", "Service delivery", SERVICE_MEASURED, UNKNOWN_CHIP, svc_href)
     bk_href = f"/sites/{c}/performance/backup"
     if depth.get("backup") is None:
-        backup = _not_available("backup_readiness", "Backup readiness", bk_href)
+        backup = not_available("backup_readiness", "Backup readiness", bk_href)
     else:
         cards = depth["backup"].get("cards") or {}
         outages, starts = cards.get("outage_count"), cards.get("start_success_count")
@@ -502,7 +511,7 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
     out: list[Contributor] = []
     mine = sorted((a for a in actions if not a.is_domain), key=lambda a: (a.code or "", a.action_id))
     if actions_failed and not mine:
-        out.append(_not_available("verified_results", "Verified results"))
+        out.append(not_available("verified_results", "Verified results"))
     elif not mine:
         out.append(Contributor("verified_results", "Verified results", NO_VERIFIED))
     for a in mine:
@@ -513,7 +522,7 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
                                PENDING_CHIP if state in PENDING_STATES else None, a.verification_href))
     out.append(Contributor("actual_against_plan", "Actual against plan", FIXED["plan_target"]))
     if not overview_ok:
-        out.append(_not_available("readings", "Readings", f"/sites/{c}/evidence"))
+        out.append(not_available("readings", "Readings", f"/sites/{c}/evidence"))
     else:
         src = ((body.get("money") or {}).get("source_provenance") or {}).get("state")
         word = READINESS_WORD.get(readiness or "UNKNOWN", "Unknown")

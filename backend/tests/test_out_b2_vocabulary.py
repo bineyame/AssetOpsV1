@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from assetops_backend.outcomes import status
-from assetops_backend.site_outcomes import board, mini
+from assetops_backend.site_outcomes import board, cold, ev, mini
 from assetops_backend.site_outcomes.board import assemble
 
 REPO = Path(__file__).resolve().parents[2]
@@ -68,17 +68,18 @@ def _constants() -> list[str]:
     copy += [*board.ISSUE_KIND_LABEL.values(), *board.WORKFLOW_IN_HAND.values(), *board.CASE_STATE_LABEL.values(),
              *board.ACTION_RESULT.values(), *(label for label, _ in board.READINESS_CONFIDENCE.values())]
     copy += [link[0] for link in board.EVIDENCE_LINK.values() if link]
-    copy += list(mini.COPY)
+    copy += list(mini.COPY) + list(cold.COPY) + list(ev.COPY) + [board.NOT_LOADED_LINK_SUFFIX]
     return [c.strip(" ·") for c in copy]
 
 
 def _boards() -> list[str]:
     import test_out_b1_board as b1  # pytest puts tests/ on sys.path (rootdir-relative test modules)
     import test_out_b2_mini as b2
+    import test_out_b3_cold_ev as b3
 
     ev = board.SiteFacts(board.EV, "EV-LAB-001", findings=(b1.F130,), readiness="NONE", settled=b1.settled(board.EV))
     facts = [b1.kobo(), b1.kobo(actions=(b1.act048(applied=True),)), b1.cold(), ev]
-    facts += [comp.facts for comp in b2.vocabulary_compositions()]
+    facts += [comp.facts for comp in b2.vocabulary_compositions() + b3.vocabulary_compositions()]
     out: list[str] = []
     for f in facts:
         _texts(assemble(f), out)
