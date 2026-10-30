@@ -828,7 +828,7 @@ describe("W4-02 Overview mini cards", () => {
 
   // Final review ruling 1 (H3): the strip names only the readable reads, in Service, Dispatch, Fuel, Renewable order.
   const stripText = () => document.querySelector("[data-overview-status]")?.textContent ?? "";
-  const READS = (names: string) => `Reads on this Overview: ${names}. Each card shows what its selected period supports.`;
+  const READS = (names: string) => `Reads on this Overview: ${names}. Each outcome row shows only what these reads support for the selected period.`;
 
   it("H3: a numeric MINIGRID set names every read and states the mini-grid objective", async () => {
     const mini = miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) });

@@ -403,7 +403,7 @@ export function overviewReadsStrip(reads: OverviewReadable): string {
     .filter(([, readable]) => readable)
     .map(([name]) => name);
   if (names.length === 0) return "No objective read is available for this selection.";
-  return `Reads on this Overview: ${names.join(", ")}. Each card shows what its selected period supports.`;
+  return `Reads on this Overview: ${names.join(", ")}. Each outcome row shows only what these reads support for the selected period.`;
 }
 
 /**
