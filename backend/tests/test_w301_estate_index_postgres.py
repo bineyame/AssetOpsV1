@@ -510,7 +510,7 @@ def power_estate(store, engine, capsys, monkeypatch, policy=None):  # noqa: F811
         from test_s405_resolver_postgres import publishing_submit
         monkeypatch.setattr(CaseRunner, "submit", publishing_submit(policy))
     site = PowerSite(store, engine, capsys)
-    pin_read_at(monkeypatch, lambda: site.runner.now + timedelta(minutes=1))
+    pin_read_at(monkeypatch, lambda: max(site.runner.now + timedelta(minutes=1), db_now(engine)))
     imported_before(engine, site.tenant, site.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
     return site, Rig(site, engine), Estate(engine, site.tenant)
 
@@ -604,7 +604,11 @@ def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monke
         none = estate.ok("findings", **other, lens="cost")
         assert none["rows"] == [] and none["total_count"] == 0 and none["coverage"]["state"] == "COMPLETE"
         # An explicit earlier cutoff never makes a current-money claim: UNKNOWN with the same revision, out of Cost.
-        then = iso(site.runner.now)
+        # The consequence is recorded on the database clock, which is not the fixture clock: take the cutoff at its
+        # own recorded instant, so it is stored by then yet earlier than the live read (historical, never current).
+        with engine.connect() as c:
+            then = iso(c.execute(text("SELECT recorded_at FROM financial_consequence_revision WHERE id = :r"),
+                                 {"r": consequence["source_revision_id"]}).scalar_one())
         old_all, old_cost = estate.ok("findings", **day, known_at=then), estate.ok("findings", **day, known_at=then,
                                                                                   lens="cost")
         assert old_all["status"] == "HISTORICAL" and old_cost["rows"] == [] and old_cost["total_count"] == 0

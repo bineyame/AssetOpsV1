@@ -132,11 +132,13 @@ class TestRealRows:
         (unpriced, priced), _ = built(rig)
         eps = timedelta(microseconds=1)
         at_u = ch.instant(unpriced["recorded_at"])
-        # The FindingRevision's application-clock created_at is later than its consequence's database clock.
+        # The FindingRevision's application-clock created_at (fixture clock) and its consequence's database clock
+        # are two different clocks. Their order depends on the wall clock (the fixture clock is a fixed 2026-10-30
+        # morning), so assert only that they differ; the cutoffs below are taken on the consequence's own clock.
         with rig.site.runner.engine.connect() as c:
             created = c.execute(text("SELECT created_at FROM finding_revision WHERE id = :r"),
                                 {"r": unpriced["finding_revision_id"]}).scalar_one()
-        assert created > unpriced["recorded_at"]
+        assert created != unpriced["recorded_at"]
         at = history(rig, at_u)
         assert {r["consequence_revision_id"]: r["at_cutoff"] for r in at["rows"]}[str(unpriced["id"])] == \
             "CURRENT_AT_CUTOFF"

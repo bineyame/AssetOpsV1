@@ -142,6 +142,19 @@ def test_three_domains_same_window_cutoff_and_full_selection_ids(portfolio_fixtu
     public = {r["finding_revision_id"]: r for r in findings["rows"]}
     domains = {"KOBO-001": "MINIGRID", "COLD-LAB-001": "COLDCHAIN", "EV-LAB-001": "EV_CHARGING",
                "EV-LAB-002": "EV_CHARGING"}
+    # CC-R2: each row carries the mechanism stored on its own Finding (a Site can hold several, e.g. cold excursion
+    # and cold start failure); the exact set per Site is pinned below.
+    from sqlalchemy import text
+
+    with fx.engine.connect() as c:
+        mechanisms = {str(r[0]): r[1] for r in c.execute(text(
+            "SELECT r.id, f.mechanism FROM finding_revision r JOIN finding f ON f.id = r.finding_id"))}
+    by_site: dict[str, set[str]] = {}
+    for row in body["rows"]:
+        by_site.setdefault(row["site_code"], set()).add(row["mechanism"])
+    # The EV Sites hold no Portfolio-member Finding here, so they contribute no row.
+    assert by_site == {"KOBO-001": {"GENERATOR_SUPPORT_CANDIDATE"},
+                       "COLD-LAB-001": {"COLD_EXCURSION", "COLD_START_FAILURE"}}, by_site
     proven_queries: dict[str, set[str]] = {}
     for item in evidence["rows"]:
         if item["links"]["site_readiness_label"] is None:
@@ -152,7 +165,9 @@ def test_three_domains_same_window_cutoff_and_full_selection_ids(portfolio_fixtu
         for key in ("site_id", "site_code", "site_name", "finding_label", "title", "lifecycle", "lens_flags",
                     "consequence", "source_provenance", "episode_start"):
             assert row[key] == source[key], key
-        assert row["domain"] == domains[row["site_code"]] and row["mechanism"] is None
+        assert row["domain"] == domains[row["site_code"]]
+        # CC-R2: the stored mechanism of each Site's Finding.
+        assert row["mechanism"] == mechanisms[row["finding_revision_id"]], row["site_code"]
         assert row["episode_end"] == source.get("episode_end", row["episode_end"])
         # B4: the aligned 10-06 window selects no Action, so no row joins one.
         assert (row["action_id"], row["application_state"], row["resolution_state"],
