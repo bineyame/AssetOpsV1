@@ -18,6 +18,8 @@ from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluat
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend.outcomes.objectives import Reading
+from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
@@ -65,8 +67,15 @@ COST_SUBLINE = "None of the visits resolved the linked finding; repair cost is n
 COST_SUBLINE_FAULT = "None of the visits has fixed the {fault} yet; repair cost is not recorded"
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 
+#: OUT-D U4: the objective actual texts.
+CC1_ABOVE = "above {high}°C in this window"
+CC1_HELD = "held in range in this window"
+CC6_FAILED = "automatic start failed"
+CC6_STARTED = "started by itself"
+CC6_NONE = "no backup start in this window"
+
 #: Every fixed viewer string, for the vocabulary scan.
-COPY = (NO_REPEAT, NO_REPAIR_COST, NO_COOLING_METER, COST_SUBLINE,
+COPY = (CC1_ABOVE.format(high="8"), CC1_HELD, CC6_FAILED, CC6_STARTED, CC6_NONE, NO_REPEAT, NO_REPAIR_COST, NO_COOLING_METER, COST_SUBLINE,
         COST_SUBLINE_FAULT.format(fault="automatic start failure"),
         PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
         STORAGE_LEVEL, CHAIN_COMPLETE, NO_CHAIN, LOADING_RECORDS, PROTECT_SUBLINE_START, PROTECT_SUBLINE,
@@ -82,6 +91,7 @@ class ColdPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]          # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                    # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                          # EstateEvidenceService (B4)
+    objectives: Callable[[], list[dict[str, Any]]] = lambda: []                    # OUT-D objective store (current)
 
 
 def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
@@ -102,6 +112,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
     work_failed = incidents is None or visits is None
+    objective_rows = reads.call("objectives", ports.objectives)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())
@@ -154,10 +165,17 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     subline = {PROTECT: PROTECT_SUBLINE_START if start_failure is not None else PROTECT_SUBLINE,
                ASSURE: ASSURE_SUBLINE}
 
+    # OUT-D U4: CC-1 reads the existing chamber range (never stored, R584); stored objectives follow it
+    chamber = objective_facts.chamber_range(body.get("objective"), num) if overview is not None else None
+    objectives = tuple(sorted((*((chamber,) if chamber else ()), *objective_facts.from_rows(objective_rows, num)),
+                              key=lambda o: objective_facts.catalogue_index(o.outcome_key)))
+    readings = cold_readings(body, overview is not None, findings_ok, bool(by_mech[EXCURSION]), high)
+
     facts = SiteFacts(domain=COLD, site_code=c, findings=findings, actions=actions, cases=tuple(cases),
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
-                      findings_settled=findings_ok)
+                      findings_settled=findings_ok, objectives=objectives, readings=readings,
+                      objectives_ok=objective_rows is not None)
     wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
     warnings = evaluate(wf)
     repeat = next((w for w in warnings if w.kind == REPEATED), None)
@@ -226,6 +244,24 @@ def _excursion_headline(f: FindingFact | None, claims: dict, high: Any) -> str |
     longest = (e_hi - s_lo).total_seconds() / 60
     span = (f"{num(shortest)}" if num(shortest) == num(longest) else f"{num(shortest)}–{num(longest)}")
     return f"Chamber above {num(high)}°C for {span} min"
+
+
+def cold_readings(body: dict, ok: bool, findings_ok: bool, excursion_open: bool, high: Any) -> dict[str, Reading]:
+    """OUT-D U4 table: CC-1 an open in-window excursion (complete when the Findings loaded and the chamber range has
+    no limitation); CC-6 the backup start facts of `_backup`, complete when the overview loaded."""
+    if not ok:
+        return {}
+    limitation = (body.get("objective") or {}).get("limitation")
+    cc1 = Reading(1 if excursion_open else 0, findings_ok and limitation is None,
+                  CC1_ABOVE.format(high=num(high)) if excursion_open else CC1_HELD)
+    codes = {str(n.get("code")) for n in body.get("needs_attention") or ()}
+    if START_FAILURE in codes:
+        cc6 = Reading(1, True, CC6_FAILED)
+    elif ((body.get("backup_summary") or {}).get("observed_success") or 0) > 0:
+        cc6 = Reading(0, True, CC6_STARTED)
+    else:
+        cc6 = Reading(None, True, CC6_NONE)
+    return {"CC-1": cc1, "CC-6": cc6}
 
 
 def _backup(body: dict, ok: bool, rc: Any) -> Contributor:

@@ -23,17 +23,18 @@ from fastapi.encoders import jsonable_encoder
 
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
+from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
 from assetops_backend.outcomes.outcome_map import POLICY_VERSION
 from assetops_backend.outcomes.status import NEEDS_ATTENTION, STATE_LABEL, STATE_TONE, STATUS_POLICY, UNKNOWN
 from assetops_backend.outcomes.warnings import POLICY as WARNINGS_POLICY
 from assetops_backend.site_outcomes import cold, ev, mini
-from assetops_backend.site_outcomes.board import assemble
+from assetops_backend.site_outcomes.board import assemble, objectives_wire
 
 SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
 LOG = logging.getLogger(__name__)
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
-                   "warnings": WARNINGS_POLICY}
+                   "warnings": WARNINGS_POLICY, "objectives": OBJECTIVES_POLICY}
 #: Stored Site type -> board domain (`mini_depth/read.py:50`, `sites/cold_foundation.py:31`, `sites/ev_foundation.py:36`).
 DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI, "COLDCHAIN": COLD, "EV_CHARGING": EV}
 FINDING_INDEX_DOMAIN = "mini-grid-dispatch"
@@ -86,6 +87,7 @@ class BoardServices:
     ev_reads: Any = None              # EvReadService findings/finding (postgres_assessment_store.py:3342/3352)
     ev_depth: Any = None              # EvDepthReadService (analytics/ev_depth.py)
     domain_actions: Any = None        # DomainActionReadService (work/domain_action_index.py:375)
+    objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -175,7 +177,8 @@ class SiteOutcomeBoardService:
                 lo, hi = covering_days(lo, hi)
             return _need(s.estate, "estate").site_readiness(t, c, lo, hi, known_at)
 
-        return {"work": work, "plans": plans, "readiness": readiness}
+        return {"work": work, "plans": plans, "readiness": readiness,
+                "objectives": lambda: _need(s.objectives, "objectives").current(t, sid, known_at)}
 
     def _domain_actions(self, site: SiteRef, known_at: datetime | None) -> Callable[..., dict[str, Any]]:
         s = self.s
@@ -240,7 +243,7 @@ class SiteOutcomeBoardService:
         return mini.MiniPorts(overview=overview, depth=depth, dispatch=dispatch, assumption=assumption,
                               finding_index=finding_index, estate=estate, action_index=action_index,
                               verification=verification, action=action, work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"])
+                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"])
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -255,7 +258,7 @@ class SiteOutcomeBoardService:
 
         return cold.ColdPorts(overview=overview, findings=findings,
                               domain_actions=self._domain_actions(site, known_at), work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"])
+                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"])
 
     def ev_ports(self, site: SiteRef, known_at: datetime | None = None) -> ev.EvPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
@@ -280,7 +283,8 @@ class SiteOutcomeBoardService:
 
         return ev.EvPorts(overview=overview, findings=findings, finding=finding, health=health,
                           availability=availability, domain_actions=self._domain_actions(site, known_at),
-                          work=shared["work"], plans=shared["plans"], readiness=shared["readiness"])
+                          work=shared["work"], plans=shared["plans"], readiness=shared["readiness"],
+                          objectives=shared["objectives"])
 
     # ------------------------------------------------------------------ compose
 
@@ -340,6 +344,7 @@ class SiteOutcomeBoardService:
                        "known_at": wire(window.get("known_at", known_at))},
             "read_state": comp.read_state,
             "rows": jsonable_encoder(assemble(comp.facts)),
+            "objectives": jsonable_encoder(objectives_wire(comp.facts)),
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
@@ -369,6 +374,8 @@ class SiteOutcomeBoardService:
         unchanged. A Site whose board read fails is UNAVAILABLE with four UNKNOWN rows."""
         out = []
         warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
+        # OUT-D U4: Sites whose board lists a declared objective; a failed Site counts 0; None when every Site failed
+        read_sites = objective_sites = 0
         for site in sites:
             # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
             # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
@@ -385,6 +392,8 @@ class SiteOutcomeBoardService:
                 warnings += body["warnings"]
                 window: dict[str, Any] | None = body["window"]
                 window_basis: str | None = basis
+                read_sites += 1
+                objective_sites += 1 if body.get("objectives") else 0
             except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
                 rows = [_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
@@ -402,7 +411,7 @@ class SiteOutcomeBoardService:
                       for cat in CATEGORIES]
         return {"schema_version": SUMMARY_SCHEMA_VERSION, "policy_versions": dict(POLICY_VERSIONS),
                 "window": {"from": wire(lo), "to": wire(hi)}, "sites": out, "categories": categories,
-                "warnings": warnings}
+                "warnings": warnings, "objective_site_count": objective_sites if read_sites else None}
 
 
 def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at: datetime | None = None) -> str:

@@ -24,7 +24,9 @@ from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+    PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, readiness_confidence, unresolved_links)
+from assetops_backend.outcomes.objectives import Reading
+from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
@@ -86,8 +88,13 @@ UNSETTLED_INDEX_STATUS = ("FAILED", "STALE", "PENDING")
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
 ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 
+#: OUT-D U4: the objective actual texts that carry no number (the numbered ones are templates in `mini_readings`).
+MG1_ACTUAL = "sales not recorded"
+MG5_UNMEASURED = "critical demand not measured"
+
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
-COPY = (NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE, PROTECT_HEADLINE, PROTECT_SUBLINE,
+COPY = (MG1_ACTUAL, MG5_UNMEASURED, "12 min longer than needed on this day", "5 min not yet clear on this day",
+        "3 kWh not served", *objective_facts.COPY,NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE, PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
         COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
@@ -110,6 +117,7 @@ class MiniPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
+    objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
 
 
 @dataclass(frozen=True)
@@ -261,6 +269,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, end)
     visits = maintenance_cases(reads, ports.work, c, end)  # C: 60 days by occurrence (R571)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
+    objective_rows = reads.call("objectives", ports.objectives)
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
@@ -322,11 +331,21 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                PROTECT: PROTECT_SUBLINE,
                ASSURE: limitation_text(limitations[0]) if limitations else None}
 
+    # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
+    objectives = objective_facts.from_rows(objective_rows, num)
+    readings = mini_readings(dispatch, depth)
+    if objectives:
+        verdicts = [objective_verdict(o, readings, settled) for o in objectives]
+        plan_line = Contributor("actual_against_plan", "Actual against plan", objective_facts.assure_text(verdicts))
+        contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
+                                     for x in contributors[ASSURE])
+
     facts = SiteFacts(domain=MINI, site_code=c, findings=findings, actions=actions, cases=tuple(cases),
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       signals_extra=signals, headline=headline, headline_money=headline_money, subline=subline,
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
-                      findings_settled=findings_ok)
+                      findings_settled=findings_ok, objectives=objectives, readings=readings,
+                      objectives_ok=objective_rows is not None)
     suffix = "" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -356,6 +375,22 @@ def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None)
     windows = {"renewable": (day_lo, day_hi)}
     windows.update({d: (noon.start, noon.end) for d in ("fuel", "service", "backup")})
     return {d: reads.call("mini_depth", ports.depth, d, *windows[d]) for d in DEPTH_DOMAINS}
+
+
+def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]) -> dict[str, Reading]:
+    """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 no sales record,
+    MG-5 the service depth's unserved critical kWh."""
+    out: dict[str, Reading] = {}
+    avoidable, unclear = _dispatch_minutes(dispatch)
+    if avoidable is not None:
+        text = (f"{num(unclear)} min not yet clear on this day" if avoidable == 0 < unclear
+                else f"{num(avoidable)} min longer than needed on this day")
+        out["MG-2"] = Reading(avoidable, unclear == 0, text)
+    out["MG-1"] = Reading(None, False, MG1_ACTUAL)
+    unserved = (((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"))
+    out["MG-5"] = (Reading(None, False, MG5_UNMEASURED) if unserved is None
+                   else Reading(Decimal(str(unserved)), True, f"{num(unserved)} kWh not served"))
+    return out
 
 
 def _dispatch_minutes(dispatch: dict[str, Any] | None) -> tuple[Decimal | None, Decimal | None]:
