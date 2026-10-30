@@ -141,7 +141,6 @@ export const SCOPE_NOTICE =
  * exclusion with any code outside it reads `Excluded from comparison` with the raw codes kept in a detail.
  */
 export const ASSESSMENT_IDS = "Assessment IDs";
-/** Q10: an EV Site has no Backup objective target; any other matrix cell without a destination. */
 export const NO_SELECTED_ASSESSMENT = "No selected assessment";
 export const EXCLUDED_FROM_COMPARISON = "Excluded from comparison";
 

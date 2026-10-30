@@ -240,10 +240,10 @@ def test_depot_board_from_ports() -> None:
     comp, rows = run_ev()
     assert comp.read_state == "AVAILABLE" and comp.failed == ()
     assert outcome(rows[PROTECT], "EV-1") == "NEEDS_ATTENTION"
-    assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh in 4 complete sessions"
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
     assert rows[GROW]["headline"] == "gross tariff estimate"
     assert rows[GROW]["headline_money"] == {"amount_low": "12.40", "amount_high": "12.40", "currency": "USD"}
-    assert rows[GROW]["subline"] == "182.5 kWh delivered in complete sessions"
+    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"
     assert contributor(rows[PROTECT], "session_service")["text"] == "1 fault-aborted session, 1 outcome unknown"
     assert contributor(rows[PROTECT], "connector_availability")["text"] == "Connector C2: 1 h 30 min out, 30 min unknown"
     assert contributor(rows[PROTECT], "charger_condition")["text"] == "Fault recorded on C2"
@@ -263,9 +263,11 @@ def test_depot_board_from_ports() -> None:
 def test_null_denominator_reads_not_available() -> None:
     nulls = dict(EV_OVERVIEW, denominator={k: None for k in EV_OVERVIEW["denominator"]})
     _, rows = run_ev(Fake(ev_overview=nulls))
-    for cat, key in ((PROTECT, "session_service"), (ASSURE, "session_records"), (GROW, "charging_delivered")):
+    for cat, key in ((PROTECT, "session_service"), (ASSURE, "session_records")):
         c = contributor(rows[cat], key)
         assert c["text"] == ev.NO_SESSION_ASSESSMENT and c["confidence"] is None, key
+    # addendum 9 M1: the energy still stands when the session counts are null
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh with a complete meter record"
     assert rows[PROTECT]["headline"] == "Charging interrupted"  # null headline: the board's lead-Finding fallback
 
 
@@ -319,6 +321,61 @@ def test_ev_unpriced_and_declared_limit() -> None:
     assert power["confidence"] == {"label": "Declared", "tone": "neutral"}
     assert contributor(rows[ASSURE], "connector_status")["text"] == (
         "Missing 20 Oct 10:00–20 Oct 10:30 · UTC (Site time zone unavailable)")
+
+
+def test_ev_grow_pairs_meter_record_with_completed_honestly() -> None:  # addendum 9 M1
+    den = dict(EV_OVERVIEW["denominator"], started=1, completed=0)
+    body = dict(EV_OVERVIEW, denominator=den, energy={"complete_kwh": "15"})
+    _, rows = run_ev(Fake(ev_overview=body))
+    assert contributor(rows[GROW], "charging_delivered")["text"] == (
+        "15 kWh with a complete meter record · 0 of 1 session completed")
+    den = dict(den, completed=None)
+    _, rows = run_ev(Fake(ev_overview=dict(body, denominator=den)))
+    assert contributor(rows[GROW], "charging_delivered")["text"] == "15 kWh with a complete meter record"
+    _, rows = run_ev(Fake(ev_overview=dict(body, energy={"complete_kwh": None})))
+    assert rows[GROW]["subline"] is None
+    assert "Not available yet" in contributor(rows[GROW], "charging_delivered")["text"]
+
+
+def test_ev_assure_subline_never_prints_unknown_count() -> None:  # addendum 9 L2
+    def sub(incomplete, avail=AVAIL):
+        den = dict(EV_OVERVIEW["denominator"], incomplete=incomplete)
+        _, rows = run_ev(Fake(ev_overview=dict(EV_OVERVIEW, denominator=den), ev_availability=avail))
+        return rows[ASSURE]["subline"]
+
+    quiet = {"availability": {"connectors": [{"label": "C1", "known_unavailable_seconds": 0, "unknown_seconds": 0,
+                                              "spans": []}]}}
+    assert sub(None) == "30 min of connector status is missing"
+    assert sub(0) == "30 min of connector status is missing"
+    assert sub(2, quiet) == "2 session ends are missing"
+    assert sub(1, quiet) == "1 session end is missing"
+    assert sub(None, quiet) is None
+    assert sub(2) == "2 session ends and 30 min of connector status are missing"
+
+
+def test_ev_status_gap_guards_null_span_bounds() -> None:  # addendum 9 L3
+    avail = {"availability": {"connectors": [
+        {"label": "C2", "known_unavailable_seconds": 0, "unknown_seconds": 1800,
+         "spans": [{"from": None, "to": None, "state": "UNKNOWN"}]}]}}
+    _, rows = run_ev(Fake(ev_availability=avail))
+    text = contributor(rows[ASSURE], "connector_status")["text"]
+    assert text == "Connector status missing for part of this window" and "None" not in text
+    _, rows = run_ev(Fake(ev_availability=avail), tz=None)
+    text = contributor(rows[ASSURE], "connector_status")["text"]
+    assert text.startswith("Connector status missing for part of this window · UTC") and "None" not in text
+
+
+def test_cold_chain_counts_contradictory_steps() -> None:  # addendum 9 L1
+    def chain(strip):
+        _, rows = run_cold(Fake(cold_overview=dict(COLD_OVERVIEW, causal_strip=strip)))
+        return contributor(rows[ASSURE], "event_chain")["text"], rows[ASSURE]["headline"]
+
+    ok, miss, con = ({"step": "A", "state": s} for s in ("OBSERVED", "MISSING", "CONTRADICTORY"))
+    assert chain([ok]) == ("Every step recorded", cold.ASSURE_FULL)
+    assert chain([ok, miss]) == ("1 step not recorded", cold.ASSURE_PART)
+    assert chain([ok, con]) == ("1 step has conflicting records", cold.ASSURE_PART)
+    assert chain([con, con, miss, miss]) == (
+        "2 steps not recorded · 2 steps have conflicting records", cold.ASSURE_PART)
 
 
 def test_cold_and_ev_composers_import_no_adapter_or_composition() -> None:

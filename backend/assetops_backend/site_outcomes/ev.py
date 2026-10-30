@@ -142,7 +142,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
         return f"{day_month(local)} {local:%H:%M}"
 
     contributors = {
-        GROW: (_charging(overview is not None, kwh, completed, rc),
+        GROW: (_charging(overview is not None, kwh, completed, started, rc),
                Contributor("charger_use", "Charger use", CHARGER_USE),
                Contributor("energy_billed", "Energy billed against metered", NO_SETTLEMENT)),
         COST: (),
@@ -168,9 +168,14 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                     "not known yet.")
     missing_seconds = sum(int(x.get("unknown_seconds") or 0) for x in connectors) if availability else 0
     assure_sub = None
-    if (incomplete or 0) > 0 or missing_seconds > 0:
-        assure_sub = (f"{incomplete or 0} {plural(incomplete or 0, 'session end', 'session ends')} and "
+    n = incomplete or 0
+    if n > 0 and missing_seconds > 0:
+        assure_sub = (f"{n} {plural(n, 'session end', 'session ends')} and "
                       f"{duration_text(missing_seconds)} of connector status are missing")
+    elif n > 0:
+        assure_sub = f"{n} {plural(n, 'session end is', 'session ends are')} missing"
+    elif missing_seconds > 0:
+        assure_sub = f"{duration_text(missing_seconds)} of connector status is missing"
     headline = {GROW: TARIFF_ESTIMATE if priced else NO_TARIFF,
                 PROTECT: (None if None in (fault, unknown, started) else
                           f"{fault} interrupted · {unknown} unknown of {started} "
@@ -178,7 +183,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                 ASSURE: EVIDENCE_LIMITED if readiness in ("LIMITED", "NONE") else NO_VERIFIED}
     headline_money = {GROW: ({"amount_low": money.get("amount"), "amount_high": money.get("amount"),
                               "currency": money.get("currency")} if priced else None)}
-    subline = {GROW: f"{kwh} kWh delivered in complete sessions" if kwh is not None else None,
+    subline = {GROW: f"{kwh} kWh with a complete meter record" if kwh is not None else None,
                PROTECT: f"{out_text} {PROTECT_SUBLINE}" if out_text else PROTECT_SUBLINE,
                ASSURE: assure_sub}
 
@@ -207,13 +212,15 @@ def _finding(r: dict[str, Any]) -> FindingFact:
                        r.get("lifecycle") or "", links.get("self") or links.get("finding"))
 
 
-def _charging(ok: bool, kwh: str | None, completed: Any, rc: Any) -> Contributor:
+def _charging(ok: bool, kwh: str | None, completed: Any, started: Any, rc: Any) -> Contributor:
     if not ok:
         return Contributor("charging_delivered", "Charging delivered", NOT_LOADED)
-    if kwh is None or completed is None:
+    if kwh is None:
         return Contributor("charging_delivered", "Charging delivered", NO_SESSION_ASSESSMENT)
-    return Contributor("charging_delivered", "Charging delivered",
-                       f"{kwh} kWh in {completed} complete {plural(completed, 'session', 'sessions')}", rc)
+    text = f"{kwh} kWh with a complete meter record"
+    if completed is not None and started is not None:
+        text += f" · {completed} of {started} {plural(started, 'session', 'sessions')} completed"
+    return Contributor("charging_delivered", "Charging delivered", text, rc)
 
 
 def _session_service(ok: bool, fault: Any, unknown: Any, rc: Any) -> Contributor:
@@ -276,5 +283,8 @@ def _status_gap(body: Any, connectors: list, stamp: Callable[[Any], str | None],
     if not spans:
         return Contributor("connector_status", "Connector status", NO_STATUS_GAP, rc)
     first = spans[0]
-    return Contributor("connector_status", "Connector status",
-                       f"Missing {stamp(first.get('from'))}–{stamp(first.get('to'))}{suffix}", rc)
+    lo, hi = stamp(first.get("from")), stamp(first.get("to"))
+    if lo is None or hi is None:
+        return Contributor("connector_status", "Connector status",
+                           f"Connector status missing for part of this window{suffix}", rc)
+    return Contributor("connector_status", "Connector status", f"Missing {lo}–{hi}{suffix}", rc)

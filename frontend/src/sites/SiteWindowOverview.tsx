@@ -417,7 +417,7 @@ function overviewReadable(state: OverviewMiniState | null): OverviewReadable {
 }
 
 export const MINIGRID_OBJECTIVE =
-  "Objective: serve residential, clinic and productive loads while protecting the battery reserve. Check each card for the supported result and its limits.";
+  "Objective: serve residential, clinic and productive loads while protecting the battery reserve.";
 
 /** The mock's objective line: the assessment states no operating objective, so none is shown. */
 function ObjectiveLine({ summary, minigrid }: { summary: SiteWindowSummary; minigrid: boolean }) {

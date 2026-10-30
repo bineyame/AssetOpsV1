@@ -104,7 +104,7 @@ details.ob[open] > .ob-sum::after { transform: rotate(-135deg); }
 .ob-contrib small { display: block; color: var(--text-secondary); font-size: 11px; }
 .ob-none { font-size: 12px; color: var(--text-muted); font-style: italic; margin: 0; }
 .ob-foot { margin-top: 9px; font-size: 12px; }
-.ob-dialog { max-width: min(640px, calc(100vw - 32px)); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px 18px; background: var(--surface-raised); color: var(--text-primary); }
+.ob-dialog { margin: 0 0 0 auto; height: 100vh; max-height: none; width: min(550px, 95vw); max-width: none; box-sizing: border-box; overflow-y: auto; border: 0; border-left: 1px solid var(--border-subtle); border-radius: 0; padding: 28px; background: var(--surface-raised); color: var(--text-primary); }
 .ob-dialog::backdrop { background: rgba(23, 36, 59, .35); }
 .ob-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
 .ob-dialog-head h2 { font-size: 15px; margin: 0; }

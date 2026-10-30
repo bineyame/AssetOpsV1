@@ -113,7 +113,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     excursion = by_mech[EXCURSION][0] if by_mech[EXCURSION] else None
     start_failure = by_mech[START_FAILURE][0] if by_mech[START_FAILURE] else None
     strip = body.get("causal_strip") if overview is not None else None
-    gaps = None if strip is None else sum(1 for s in strip if s.get("state") == "MISSING")
+    gaps = None if strip is None else (sum(1 for s in strip if s.get("state") == "MISSING"),
+                                       sum(1 for s in strip if s.get("state") == "CONTRADICTORY"))
     suffix = "" if tz is not None else UTC_SUFFIX
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
     labels = {str(p["canonical_plan_id"]): p.get("asset_label") for p in plans or ()}
@@ -139,7 +140,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                ASSURE: (Option(OPTION_LOG, f"/sites/{c}/work"),)}
     headline = {PROTECT: _excursion_headline(excursion, claims, high),
                 ASSURE: (None if strip is None else NO_VERIFIED if not strip
-                         else ASSURE_FULL if gaps == 0 else ASSURE_PART)}
+                         else ASSURE_FULL if gaps == (0, 0) else ASSURE_PART)}
     subline = {PROTECT: PROTECT_SUBLINE_START if start_failure is not None else PROTECT_SUBLINE,
                ASSURE: ASSURE_SUBLINE}
 
@@ -262,13 +263,19 @@ def _verified(cases: list[CaseFact], failed: bool) -> Contributor:
                        PENDING_CHIP, latest.href)
 
 
-def _chain(strip: Any, gaps: int | None, rc: Any) -> Contributor:
+def _chain(strip: Any, gaps: tuple[int, int] | None, rc: Any) -> Contributor:
     label = "Power, backup and cooling chain"
     if strip is None:
         return Contributor("event_chain", label, NOT_LOADED)
     if not strip:
         return Contributor("event_chain", label, NO_CHAIN)
-    if gaps == 0:
+    m, c = gaps if gaps is not None else (0, 0)
+    if m == 0 and c == 0:
         return Contributor("event_chain", label, CHAIN_COMPLETE, rc)
-    return Contributor("event_chain", label, f"{gaps} {plural(gaps, 'step', 'steps')} not recorded", rc)
+    parts = []
+    if m:
+        parts.append(f"{m} {plural(m, 'step', 'steps')} not recorded")
+    if c:
+        parts.append(f"{c} {plural(c, 'step has', 'steps have')} conflicting records")
+    return Contributor("event_chain", label, " · ".join(parts), rc)
 
