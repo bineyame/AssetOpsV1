@@ -136,6 +136,14 @@ def mini_summary_day(to: datetime) -> date:
     return (to - timedelta(days=1)).date() if midnight else to.date()
 
 
+WINDOW_BASIS_DAY, WINDOW_BASIS_EVENT, WINDOW_BASIS_PERIOD = "DAY", "LATEST_EVENT", "PERIOD"
+
+
+def latest_window(windows: list[tuple[datetime, datetime]] | None) -> tuple[datetime, datetime] | None:
+    """OUT-W: the latest assessed event inside the period: max window_end, then max window_start. None for None/[]."""
+    return max(windows, key=lambda w: (w[1], w[0])) if windows else None
+
+
 class SiteOutcomeBoardService:
     def __init__(self, services: BoardServices) -> None:
         self.s = services
@@ -337,6 +345,16 @@ class SiteOutcomeBoardService:
 
     # ------------------------------------------------------------------ estate summary
 
+    def _event_window(self, site: SiteRef, lo: datetime, hi: datetime,
+                      known_at: datetime | None) -> tuple[datetime, datetime] | None:
+        """OUT-W: the latest selected window of a cold or EV Site inside `[lo, hi)`, by the Evidence root's rule.
+        Any failure (unconfigured estate, refusal, store error) is None: the window choice never fails a Site."""
+        try:
+            return latest_window(_need(self.s.estate, "estate").site_selected_windows(
+                site.tenant_id, site.site_code, lo, hi, known_at))
+        except Exception:  # noqa: BLE001 - falls back to the period, which reads Unknown where nothing covers it
+            return None
+
     def summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
                 known_at: datetime | None = None) -> dict[str, Any]:
         """`GET /api/estate/outcome-summary` (§B.1): one board per authorized Site, serially (B-Q8), in the
@@ -345,19 +363,29 @@ class SiteOutcomeBoardService:
         out = []
         warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
         for site in sites:
+            # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
+            # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
+            if site.domain == MINI:
+                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, mini_summary_day(hi), None, None
+            else:
+                ev_win = self._event_window(site, lo, hi, known_at)
+                basis = WINDOW_BASIS_PERIOD if ev_win is None else WINDOW_BASIS_EVENT
+                b_day, (b_lo, b_hi) = None, ((lo, hi) if ev_win is None else ev_win)
             try:
-                body = self.board(site, day=mini_summary_day(hi) if site.domain == MINI else None,
-                                  lo=None if site.domain == MINI else lo, hi=None if site.domain == MINI else hi,
-                                  known_at=known_at)
+                body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at)
                 rows = [_summary_row(r, body["_short_values"]) for r in body["rows"]]
                 read_state = body["read_state"]
                 warnings += body["warnings"]
+                window: dict[str, Any] | None = body["window"]
+                window_basis: str | None = basis
             except Exception:  # noqa: BLE001 - one Site's failure never refuses the summary (§B.1)
                 rows = [_unknown_row(cat) for cat in CATEGORIES]
                 read_state = UNAVAILABLE
+                window, window_basis = None, None
+            href = _overview_href(site, window if window_basis == WINDOW_BASIS_EVENT else None, known_at)
             out.append({"site_id": str(site.site_id), "site_code": site.site_code, "site_name": site.site_name,
-                        "domain": site.domain, "overview_href": _overview_href(site), "read_state": read_state,
-                        "rows": rows})
+                        "domain": site.domain, "overview_href": href, "read_state": read_state,
+                        "rows": rows, "window": window, "window_basis": window_basis})
         categories = [{"category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
                        "icon": CATEGORY_ICON[cat],
                        "sites_needing_attention": sum(1 for x in out for r in x["rows"]
@@ -370,9 +398,16 @@ class SiteOutcomeBoardService:
                 "warnings": warnings}
 
 
-def _overview_href(site: SiteRef) -> str:
-    """The `estate/evidence_money.py` `site_home_href` rule: EV Sites open at `/sites/{code}/ev`."""
-    return f"/sites/{site.site_code}/ev" if site.domain == EV else f"/sites/{site.site_code}"
+def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at: datetime | None = None) -> str:
+    """The `estate/evidence_money.py` `site_home_href` rule: EV Sites open at `/sites/{code}/ev`. OUT-W: with the
+    event window the Site was judged on, the link opens the Site on it (`known_at` only when the request had one)."""
+    base = f"/sites/{site.site_code}/ev" if site.domain == EV else f"/sites/{site.site_code}"
+    if window is None:
+        return base
+    query = [("from", window["from"]), ("to", window["to"])]
+    if known_at is not None:
+        query.append(("known_at", wire(known_at)))
+    return base + "?" + urlencode(query)
 
 
 def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str, Any]:

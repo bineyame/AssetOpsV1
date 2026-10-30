@@ -61,9 +61,12 @@ def svc(snap: FakeSnap) -> EstateEvidenceService:
 
 def test_cold_windows_deduplicated_and_ascending():
     s = site("COLD-LAB-001", "COLDCHAIN")
-    snap = FakeSnap([s], [win(at(14), at(15)), win(at(8), at(9)), win(at(14), at(15), "door")])
+    stale = dict(win(at(16), at(17)), state="STALE_SOURCE")
+    pending = dict(win(at(18), at(19)), state="PENDING_RECOMPUTE")
+    snap = FakeSnap([s], [win(at(14), at(15)), win(at(8), at(9)), win(at(14), at(15), "door"), stale, pending])
     out = svc(snap).site_selected_windows(T, "COLD-LAB-001", D, D + timedelta(days=1))
-    assert out == [(at(8), at(9)), (at(14), at(15))]
+    # any selected window is the event, whatever its state (review L1)
+    assert out == [(at(8), at(9)), (at(14), at(15)), (at(16), at(17)), (at(18), at(19))]
     assert snap.calls == [(T, s["site_id"], "cold_chain", D, D + timedelta(days=1), CUTOFF, READ_AT)]
 
 
