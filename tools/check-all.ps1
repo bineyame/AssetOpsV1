@@ -7,7 +7,10 @@ param(
 # Normal local/CI check command. Runs every repository guard, reports each one,
 # and exits nonzero when any guard fails or a required tool is missing.
 #
-#   powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-all.ps1
+#   powershell -NoProfile -File tools\check-all.ps1
+#
+# Guards run directly with no execution-policy override (owner rule). Never add
+# -ExecutionPolicy to this script or to any guard invocation.
 #
 # A guard that cannot run is a failure, never a skip. Do not weaken a guard to
 # make this pass.
@@ -48,22 +51,12 @@ try {
         }
     }
 
-    $navigationScript = @'
-$ErrorActionPreference = "Stop"
-. (Join-Path $PWD "tools/checks/_common.ps1")
-. (Join-Path $PWD "tools/checks/navigation-truthfulness.ps1")
-$failures = @(Invoke-NavigationTruthfulnessCheck)
-if ($failures.Count -gt 0) { $failures | ForEach-Object { Write-Output "- $_" }; exit 1 }
-Write-Output "Navigation truthfulness check passed."
-'@
-
     # Rule 8 parses backend SQL with Python (OPS-02); it uses the same interpreter as the Python guards.
     $env:ASSETOPS_GUARD_PYTHON = $Python
-    Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-architecture.ps1")
+    Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-File", "tools/check-architecture.ps1")
     Invoke-Guard "Estate guard self-tests (test_pg_reader_import_allowed, test_pg_reader_write_rejected, test_domain_driver_import_rejected)" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider")
-    Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand",
-        [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($navigationScript)))
-    Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-agent-workflow.ps1")
+    Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-File", "tools/checks/check-navigation-truthfulness.ps1")
+    Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-File", "tools/check-agent-workflow.ps1")
     Invoke-Guard "Dependency registry"           $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs")
     Invoke-Guard "Delivery checker fixtures"     $Node @("--test", "frontend/docs/architecture/test_delivery_next_work.cjs")
     Invoke-Guard "Mock-gap catalogue fixtures"   $Node @("--test", "frontend/docs/architecture/test_mock_gaps.cjs")
