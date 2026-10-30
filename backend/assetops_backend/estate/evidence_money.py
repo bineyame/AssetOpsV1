@@ -491,6 +491,24 @@ class EstateEvidenceService(EstateIndexService):
 
         return self._read(lambda snap: financials_body(self, snap, tenant_id, req, admit))
 
+    def site_readiness(self, tenant_id: Any, site_code: str, from_: datetime, to: datetime,
+                       known_at: datetime | None = None) -> str | None:
+        """OUT-B4 (§B.3): the Portfolio's per-Site evidence reduction (`portfolio.evidence_cell_state`) for one
+        Site, over `select_evidence_scope` on the same snapshot, scope and cutoff. Nothing is reduced here. None when
+        the Site is not in the authorized imported set."""
+        from assetops_backend.estate.portfolio import evidence_cell_state
+
+        req = EstateRequest("evidence", from_, to, known_at)
+
+        def work(snap: Any) -> Any:
+            scope = self._scope(snap, tenant_id, req, lambda code: code == site_code)
+            per_site, _ = select_evidence_scope(snap, tenant_id, req, scope)
+            for _, domain, cov, site_rows in per_site:
+                return evidence_cell_state(domain, cov, site_rows, bool(snap.basis_historical))
+            return None
+
+        return self._read(work)
+
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
         k = scope["k"]

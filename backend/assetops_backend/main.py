@@ -187,6 +187,8 @@ from assetops_backend.sites.foundation_service import (
     utc_now,
 )
 from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, SiteTemplateCatalog
+from assetops_backend.outcome_api import build_outcome_router
+from assetops_backend.site_outcomes.composition import build_outcome_board_service
 from assetops_backend.sites_api import build_sites_router
 
 health_router = APIRouter()
@@ -417,6 +419,14 @@ def create_app(
     basis_reader = getattr(foundation_store, "no_legacy_evidence_basis", None)
     if basis_reader is not None:
         site_overview.no_legacy_basis = basis_reader
+    imported_reads = ImportedEvidenceReads(
+        batch_ingestion.ledger,
+        registry.ledger_scope,
+        latest_comparison,
+        current_inventory,
+        environment_identity(database_url()),
+        store_root,
+    )
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -424,14 +434,7 @@ def create_app(
             assessments.card_assessments,
             batch_ingestion=batch_ingestion,
             gateway_principals=gateway_principals,
-            imported_reads=ImportedEvidenceReads(
-                batch_ingestion.ledger,
-                registry.ledger_scope,
-                latest_comparison,
-                current_inventory,
-                environment_identity(database_url()),
-                store_root,
-            ),
+            imported_reads=imported_reads,
             site_overview=site_overview,
         )
     )
@@ -487,8 +490,8 @@ def create_app(
     cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None
     if cold_consequences is not None:
         app.router.on_shutdown.append(cold_consequences.dispose)
-    app.include_router(build_cold_site_router(
-        registry, None if cold_reads is None else ColdSiteReadService(cold_reads, cold_consequences)))
+    cold_site_reads = None if cold_reads is None else ColdSiteReadService(cold_reads, cold_consequences)
+    app.include_router(build_cold_site_router(registry, cold_site_reads))
     # W5-01 C1: the selected cold Cooling depth read over the same W2-03 read service and the W2-04 gate.
     app.include_router(build_cold_depth_router(
         registry, None if cold_reads is None else ColdDepthReadService(cold_reads)))
@@ -541,19 +544,22 @@ def create_app(
         consequences=build_consequence_read_service(database_url()) if database_url() else None,
         consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
     # S4-04 phase 1: the Site Finding index read (D-2026-10-15-s404-contract); typed 503 without a database.
+    finding_index = build_finding_index_service(database_url(), finding_manifest) if database_url() else None
+    finding_index_gate = basis_aware_gate(performance_gate, basis_reader, (SiteStoreUnavailable,))
     app.include_router(build_finding_index_router(
-        build_finding_index_service(database_url(), finding_manifest) if database_url() else None,
+        finding_index,
         registry.ledger_scope, finding_store_unavailable(),
         # Final review ruling 3 (M4): the Overview's Finding list states the empty-legacy reason, never inferred.
-        gate=basis_aware_gate(performance_gate, basis_reader, (SiteStoreUnavailable,))))
+        gate=finding_index_gate))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     actions = (build_action_service(database_url(), finding_reads, registry=registry)
                if finding_reads is not None else None)
     app.include_router(build_action_router(
         actions, registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
     # S6-03: the Site Work Action index over the same Action store (D-2026-10-16-a-action-index).
+    action_index = ActionIndexService(actions.store, clock=actions.clock) if actions is not None else None
     app.include_router(build_action_index_router(
-        ActionIndexService(actions.store, clock=actions.clock) if actions is not None else None,
+        action_index,
         registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE)))
     # W3-01 commit 2 (q5 ruling 5): the read-only estate roots `/api/estate/{scope,findings,actions}`; tenant from the
     # server registry only, per-Site admission through the Finding-route access seam; typed 503 without a database.
@@ -566,22 +572,24 @@ def create_app(
         access=development_access, unavailable=(SiteStoreUnavailable,)))
     # W3-03 run 2 (Lane A, after reviewed 1b): the read-only estate Portfolio root `/api/estate/portfolio`; same
     # tenant/access seams. Its cursor key comes only from ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX (r1b Q-1b-1).
+    estate_portfolio = build_estate_portfolio_service(database_url())
     app.include_router(build_estate_portfolio_router(
-        build_estate_portfolio_service(database_url()), registry_tenant(registry),
+        estate_portfolio, registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,)))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.
+    work_lists = build_work_index_service(database_url()) if database_url() else None
     app.include_router(build_work_router(
         build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
         details=build_work_detail_service(database_url()) if database_url() else None,
-        lists=build_work_index_service(database_url()) if database_url() else None, access=site_read_access))
+        lists=work_lists, access=site_read_access))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(
         build_domain_intent_service(database_url()) if database_url() else None,
         WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), access=site_read_access,
                  principal=domain_work_principal), (WORK_UNAVAILABLE,),
-        reads=build_domain_action_read_service(database_url())))
+        reads=(domain_action_reads := build_domain_action_read_service(database_url()))))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
     # W6-01c (G5): the exact request detail `/api/work/requests/{case_id}?site_id=` on the same router.
@@ -599,9 +607,23 @@ def create_app(
         build_consequence_history_service(database_url()) if database_url() else None,
         registry.ledger_scope, CONSEQUENCE_UNAVAILABLE, gate=performance_gate))
     # S4-02a phase 2: Site price reads (Finding-read scope semantics; typed 503 without a database).
+    assumption_reads = build_assumption_read_service(database_url()) if database_url() else None
     app.include_router(build_financial_read_router(
-        build_assumption_read_service(database_url()) if database_url() else None,
+        assumption_reads,
         registry.ledger_scope, (AssumptionStoreUnavailable,)))
+    # OUT-B4 (§B.3): the Site outcome board and the estate outcome summary over the instances composed above
+    # (no new store except the preventive-plan global work read, disposed at shutdown).
+    outcome_board, outcome_board_dispose = build_outcome_board_service(
+        database_url(), site_overview=site_overview if site_overview_read is not None else None,
+        s2_scope=imported_reads.scope, mini_depth=mini_reads, dispatch=performance_reads,
+        performance_gate=performance_gate, finding_index=finding_index, finding_index_gate=finding_index_gate,
+        assumptions=assumption_reads, actions=actions, action_index=action_index, cold_site=cold_site_reads,
+        cold_reads=cold_reads, ev_site=ev_site_reads, ev_reads=ev_reads, ev_depth=ev_depth_reads,
+        domain_actions=domain_action_reads, work_index=work_lists, estate=estate_portfolio)
+    app.router.on_shutdown.append(outcome_board_dispose)
+    app.include_router(build_outcome_router(
+        outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
+        access=development_access, unavailable=(SiteStoreUnavailable,)))
 
     if resolved_flags.simulator_lab_enabled:
         catalog = (

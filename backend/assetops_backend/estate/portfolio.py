@@ -502,6 +502,25 @@ class EstatePortfolioService(EstateEvidenceService):
     def portfolio(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         return self._read(lambda snap: self._portfolio(snap, tenant_id, req, admit))
 
+    def site_work_rows(self, tenant_id: Any, site_code: str, from_: datetime, to: datetime,
+                       known_at: datetime | None = None) -> dict[str, Any] | None:
+        """OUT-B4 (addendum 3 item 16): one Site's Finding and Action rows exactly as `select_finding_scope` and
+        `select_action_scope` emit them for `_portfolio` (private keys and `_raw` included; condition 1: no shaping
+        or reduction), plus that Site's Finding coverage (`site_cov`, the value `_portfolio` hands `place`). Same
+        `self._read` snapshot and cutoff. None when the Site is not in the authorized imported set. The request kind
+        is "findings" (no cursor is ever passed, so the Portfolio cursor key is not needed)."""
+        req = EstateRequest("findings", from_, to, known_at)
+
+        def work(snap: Any) -> Any:
+            scope = self._scope(snap, tenant_id, req, lambda code: code == site_code)
+            f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
+            _, a_rows = select_action_scope(snap, tenant_id, req, scope)
+            if not f_sites:
+                return None
+            return {"site_cov": f_sites[0][2], "findings": f_rows, "actions": a_rows}
+
+        return self._read(work)
+
     def _portfolio(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)

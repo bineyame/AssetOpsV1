@@ -9,7 +9,7 @@ outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
@@ -114,6 +114,8 @@ class MiniComposition:
     #                                                ESTATE_ROW_MISSING); never on the wire
     window: dict[str, datetime]                    # the overview day {from, to}
     timezone: str | None                           # the Site zone used for local dates, None = UTC fallback
+    #: B-Q27: per category, the Portfolio card's short value ("{low}–{high} kW unused"); mini Grow only.
+    short_values: dict[str, str] = field(default_factory=dict)
 
 
 class Reads:
@@ -321,7 +323,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     failed = tuple(reads.failed)
     diagnostics = unresolved_links(facts) + tuple((aid, ESTATE_ROW_MISSING) for aid in missing_estate)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
-                           {"from": start, "to": end}, zone_name if tz is not None else None)
+                           {"from": start, "to": end}, zone_name if tz is not None else None,
+                           {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {})
 
 
 def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
