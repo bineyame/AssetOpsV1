@@ -442,3 +442,27 @@ Anchors are relative to backend/assetops_backend.
 - Open copy question: the mini strip still says "Reads on this Overview: ... Each card shows what its selected period
   supports." (`SiteWindowOverview.tsx` `overviewReadsStrip`, H3 ruling copy) though the cards are gone. Not changed.
 - Register: R437 (cold maintenance card deviation) is moot with the card removed; close it with R540 in B6.
+
+## B6 landed (2026-10-30; 8a?..be4596bd). Step 3 (heavy runs) waits for the coordinator's go
+- `estate/estateClient.ts`: `OUTCOME_SUMMARY_SCHEMA`, `EstateOutcomeSummary{Row,Site,Category,Body}`, optional
+  `EstateClient.getOutcomeSummary({from,to,known_at})` -> `/api/estate/outcome-summary` (real client implements it).
+- `estate/PortfolioOutcomes.tsx`: `OutcomeMatrix`, `OutcomeMatrixBody` (loading role=status "Loading outcomes across the
+  estate…", failure/absent method role=alert "Outcome status is not available right now"), `OUTCOME_KEY` (six states,
+  mock order), `SiteDots` (`[data-portfolio-card-dots]`, title + hidden ": {state_label}"), `growShortValue` (first
+  Site's Grow `short_value`, tone green; else the A6 MissingClaim).
+- `estate/EstatePortfolio.tsx`: `ObjectivesPanel({summary})` renders the matrix (old body deleted; `objectives` wire
+  unrendered); page fetches the summary in parallel keyed on the window (not re-read on Load more).
+  Dead words removed from `portfolioWords.ts` (OBJECTIVES_PANEL/SUBTITLE/FOOTNOTE, NO_CONFIGURED_OBJECTIVE,
+  OBJECTIVE_DETAIL_UNAVAILABLE). `.objective-matrix` CSS left in estatePortfolio.css (dead, harmless).
+- Panel title map: `test/v69PanelTitles.ts` `"portfolio:2": "Outcomes across the estate"`.
+- Tests: `estate/__tests__/portfolioFixtures.ts` `outcomeSummaryBody`, `withOutcomeSummary`. estatePortfolio.test.tsx:
+  4 changed (rendersFiveObjectiveRows... now asserts the 4xN outcome matrix, cell text/tone/href, key order, no codes,
+  summary window; appendsOnlyFindingRowsOnLoadMore 16 outcome cells + summary read once; rendersMeasuredPanelHierarchy
+  `.oc-matrix` in the objectives scroll; objectiveCellsLink... outcome cells open overview_href, old destinations gone),
+  2 new (dots match matrix + Grow short value; Grow fallback + unavailable/absent-method alert). Mutation: dot tone
+  hard-coded gray fails the dots test.
+- Register: R521, R529 resolved; R437 closed (card removed); R535, R540-R552 added (R541, R535, R552 open; R552
+  carried to the combined dataset task per addendum 6). R553-R554 free.
+- B5 fix: explainer table goes through `DataTable` (check-all shell-overflow guard caught the bare table).
+- Checks: focused vitest 12 files 361 passed; tsc clean; check-all 11/11 (ASSETOPS_GUARD_PYTHON=plan2 venv).
+- Next: full vitest, then backend `-Tier all`, then captures 1440/390 (each needs a go), then step 4 closeout.
