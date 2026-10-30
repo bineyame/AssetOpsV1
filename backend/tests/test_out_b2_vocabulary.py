@@ -29,9 +29,22 @@ def _patterns() -> list[tuple[str, re.Pattern[str]]]:
     for code in data["w1"]["codes"]:
         out.append((code, re.compile(rf"(?<!\w){re.escape(code)}(?!\w)")))
     for p in data["w1"]["patterns"]:
-        if r"\p{" not in p["source"]:
-            out.append((p["name"], re.compile(p["source"])))
+        out.append((p["name"], re.compile(_python_source(p["source"]),
+                                          re.IGNORECASE if "i" in p.get("flags", "") else 0)))
     return out
+
+
+#: B2 review L4: the Unicode property classes the w1 patterns use, in Python `re` form (`\w` minus `_` and digits).
+_PROPERTY_CLASSES = ((r"[\p{L}\p{N}]", r"[^\W_]"), (r"\p{L}", r"[^\W\d_]"), (r"\p{N}", r"\d"))
+
+
+def _python_source(source: str) -> str:
+    r"""A w1 JavaScript pattern as Python `re`; an untranslated `\p{...}` fails loudly instead of being skipped."""
+    for js, py in _PROPERTY_CLASSES:
+        source = source.replace(js, py)
+    if r"\p{" in source or r"\P{" in source:
+        raise AssertionError(f"untranslated Unicode property class in vocabulary pattern: {source}")
+    return source
 
 
 def _texts(node: Any, out: list[str]) -> list[str]:
@@ -84,3 +97,11 @@ def test_scan_is_not_vacuous() -> None:
     patterns = _patterns()
     assert any(p.search("Buses ready to run") for _, p in patterns)
     assert any(p.search("PRIMARY_FINDING_OPEN") for _, p in patterns)  # a raw code in copy is caught
+    assert any(name == "rule or model version" and p.search("Uses outcome-map-v1 rules")
+               for name, p in patterns)  # the translated \p{} pattern is scanned, not skipped (L4)
+
+
+def test_untranslated_property_class_fails_loudly() -> None:
+    import pytest
+    with pytest.raises(AssertionError, match="untranslated"):
+        _python_source(r"(?<!\p{Lu})x")

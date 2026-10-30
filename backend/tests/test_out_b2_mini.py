@@ -131,7 +131,7 @@ def test_kobo_board_from_ports() -> None:
     assert [rows[c]["state"] for c in (GROW, COST, PROTECT, ASSURE)] == [
         "OPPORTUNITY", "NEEDS_ATTENTION", "NO_OBJECTIVE", "WATCH"]
     assert rows[GROW]["headline"] == "18–24.3 kW of daytime solar unused"
-    assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 1 of 1 well-observed days"
+    assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
     assert rows[COST]["headline"] == "exposure in this hour"
     assert rows[COST]["headline_money"] == {"amount_low": "3.31", "amount_high": "3.97", "currency": "USD"}
     assert rows[COST]["subline"] == "Generator stayed on 45 minutes longer than needed"
@@ -264,6 +264,46 @@ def test_degrade_only_ports_never_set_unknown() -> None:
     assert contributor(rows[PROTECT], "generator")["text"] == mini.NOT_LOADED
 
 
+def _assert_finding_source_unsettled(comp, rows) -> None:
+    """Addendum 3 M1: MG-2 UNKNOWN, PARTIAL, the could-not-be-loaded suffix, and no outside-view suffix."""
+    assert comp.read_state == "PARTIAL" and "finding_index" in comp.failed
+    assert outcome(rows[COST], "MG-2") == "UNKNOWN"
+    assert outcome(rows[GROW], "MG-1") == "OPPORTUNITY"  # only the outcomes a mini Finding mechanism moves
+    assert not comp.facts.findings_settled
+    loaded = " · Not available yet · linked finding could not be loaded"
+    assert {"text": "ACT-048", "href": f"/sites/{C}/actions/a48?event_id=e1",
+            "state_label": "Pending" + loaded} in rows[PROTECT]["in_hand"]
+    assert {"text": "IN-1 · Feeder trip", "href": f"/sites/{C}/work/incidents",
+            "state_label": "Open" + loaded} in rows[PROTECT]["in_hand"]
+    assert {"text": "MR-1 · Check generator stop", "href": "/maintenance/requests/mr1",
+            "result_label": "Not yet verified" + loaded} in rows[PROTECT]["earlier"]
+    assert "outside this view" not in str(rows)
+    assert ("a48", "f104") in comp.diagnostics and ("in1", "f-old") in comp.diagnostics
+
+
+def test_refused_finding_index_unsettles_finding_outcomes() -> None:
+    """Negative control of test_degrade_only_ports_never_set_unknown: the Finding source is a status producer."""
+    _assert_finding_source_unsettled(*run(Fake(refuse=("finding_index",))))
+
+
+def test_pending_finding_index_unsettles_finding_outcomes() -> None:
+    for status in ("PENDING", "STALE", "FAILED"):
+        body = {"status": status, "rows": [], "next_cursor": None}
+        _assert_finding_source_unsettled(*run(Fake(finding_index=body)))
+    comp, rows = run(Fake(finding_index={"status": "UNASSESSED", "rows": [F104, F090], "next_cursor": None}))
+    assert comp.facts.findings_settled and outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
+
+
+def test_missing_estate_row_is_partial_and_recorded() -> None:
+    """Addendum 3 L3: the estate read succeeds but lacks the Action, so the text and the notice agree."""
+    estate = {"site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104], "actions": []}
+    comp, rows = run(Fake(estate=estate))
+    assert comp.read_state == "PARTIAL" and comp.failed == ("estate",)
+    assert ("a48", mini.ESTATE_ROW_MISSING) in comp.diagnostics
+    assert rows[COST]["in_hand"][0]["state_label"] == mini.NOT_LOADED
+    assert mini.ESTATE_ROW_MISSING not in str(rows)
+
+
 def test_overview_refusal_or_stale_unsettles_everything_measured() -> None:
     comp, rows = run(Fake(refuse=("overview",)))
     assert comp.read_state == "PARTIAL"
@@ -296,10 +336,37 @@ def test_unpriced_money_and_verified_headline() -> None:
     unpriced = dict(OVERVIEW, money={**OVERVIEW["money"], "state": "NOT_PRICED"})
     _, rows = run(Fake(overview=unpriced, verification={"state": "VERIFIED"}))
     assert rows[COST]["headline"] == "No priced exposure in this hour" and rows[COST]["headline_money"] is None
-    assert rows[ASSURE]["headline"] == "1 verified results"
+    assert rows[ASSURE]["headline"] == "1 verified result"  # addendum 3 L7
     assert contributor(rows[ASSURE], "verified_results") == {
         "key": "verified_results", "label": "Verified results", "text": "ACT-048 verified on test data",
         "confidence": None, "href": f"/sites/{C}/actions/a48/verification?event_id=e1"}
+
+
+def test_declared_price_is_formatted_for_display() -> None:
+    price = {"selection": {"state": "PRICED", "price": {"value": "1.4500", "currency": "USD"}}}
+    _, rows = run(Fake(assumptions=price))
+    assert contributor(rows[COST], "fuel_price")["text"] == "Declared at 1.45 USD per litre"  # B2 review L6
+    assert mini.price_text("2") == "2.00" and mini.price_text("0.1234") == "0.1234"
+
+
+def test_singular_for_one_in_count_templates() -> None:
+    """Addendum 3 L7: n = 1 reads singular in every "{n} ..." template."""
+    cards = {**DEPTH, "backup": {"outage_count": 1, "start_success_count": 1},
+             "renewable": {**DEPTH["renewable"], "eligible_days": 2, "assessed_days": 3}}
+    one_minute = {"intervals": [{"result": {"portions_minutes": {"candidate": "1", "indeterminate": "0"}}}]}
+    plans = [dict(PLANS[0], next_due_hours="1")]
+    _, rows = run(Fake(cards=cards, dispatch=one_minute, plans=plans))
+    assert contributor(rows[PROTECT], "backup_readiness")["text"] == "1 backup start recorded"
+    assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 2 of 3 well-observed days"
+    assert rows[COST]["subline"] == "Generator stayed on 1 minute longer than needed"
+    assert contributor(rows[PROTECT], "generator")["text"].startswith("Service due at 1 operating hour ·")
+    assert any(i["state_label"] == "Due at 1 operating hour" for i in rows[PROTECT]["in_hand"])
+
+
+def test_source_words_match_the_portfolio() -> None:
+    from assetops_backend.estate import placement
+    assert mini.SOURCE_TEXT == placement._SOURCE_TEXT  # noqa: SLF001 - equality pin for the local copy (L1)
+    assert mini.SOURCE_UNRESOLVED == placement._SOURCE_UNRESOLVED_TEXT  # noqa: SLF001
 
 
 def test_backup_starts_and_fuel_opening() -> None:

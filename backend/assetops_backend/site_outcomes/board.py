@@ -12,7 +12,7 @@ from typing import Any
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     SiteOutcome, row_not_measured)
-from assetops_backend.outcomes.outcome_map import finding_signal_key, outcome_roles
+from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
 from assetops_backend.outcomes.status import (
     EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, Signal, outcome_state, roll_up)
 
@@ -24,6 +24,9 @@ NO_PLAN = "NO_PLAN"
 SAFEGUARD_SUFFIX = " · checked here as a safeguard"  # mock outcomes.js:71
 NOT_LINKED_SUFFIX = " · not linked to a finding"
 OUTSIDE_VIEW_SUFFIX = " · linked finding outside this view"  # addendum 2 item 4
+#: Addendum 3 M1: the suffix when the domain's Finding source is unsettled, so an unresolved link is not "outside".
+NOT_LOADED_LINK_SUFFIX = " · Not available yet · linked finding could not be loaded"
+UNRESOLVED_SUFFIXES = (OUTSIDE_VIEW_SUFFIX, NOT_LOADED_LINK_SUFFIX)
 EARLIER_EMPTY_OPEN = "No earlier work has been checked for this"
 EARLIER_EMPTY_NONE = "Not available yet · no completed work or checked change for this outcome"  # addendum 2
 #: Rulings B addendum 1: Must not harm names every CHECKED outcome in another category, measured or not.
@@ -190,6 +193,8 @@ class SiteFacts:
     warnings: tuple = ()               # C
     #: Addendum 2 item 6: appended to Site-local dates when the Site zone is unavailable (dates are then UTC).
     date_suffix: str = ""
+    #: Addendum 3 M1: False when the domain's Finding source was refused, failed or not current.
+    findings_settled: bool = True
 
 
 # ---------------------------------------------------------------- helpers
@@ -212,6 +217,17 @@ def _action_name(a: "ActionFact") -> str:
     return a.code or a.title
 
 
+def finding_moved_outcomes(domain: str) -> frozenset[str]:
+    """Addendum 3 M1: every outcome a `FINDING:*` map entry of `domain` moves (mini MG-2; cold CC-6, CC-1; EV EV-1,
+    EV-3). These are unsettled when the domain's Finding source is."""
+    return frozenset(k for key in ENTRIES if key.startswith("FINDING:") for k in outcome_roles(key, domain)[0])
+
+
+def unresolved_suffix(facts: "SiteFacts") -> str:
+    """The state-label suffix of a case or Action whose linked Finding is absent (addendum 2 item 4, addendum 3 M1)."""
+    return OUTSIDE_VIEW_SUFFIX if facts.findings_settled else NOT_LOADED_LINK_SUFFIX
+
+
 def unresolved_links(facts: "SiteFacts") -> tuple[tuple[str, str], ...]:
     """(holder id, Finding id) for every case or Action link the composer could not resolve (addendum 2 item 4).
     The composer records these as its internal diagnostics; they are never on the wire."""
@@ -228,7 +244,8 @@ def unresolved_links(facts: "SiteFacts") -> tuple[tuple[str, str], ...]:
 def _plan_label(plan: PlanFact, date_suffix: str = "") -> str:
     if plan.trigger_kind == "RUN_HOURS" and plan.next_due_hours is not None:
         hours = plan.next_due_hours
-        return f"Due at {int(hours) if float(hours).is_integer() else hours} operating hours"
+        shown = int(hours) if float(hours).is_integer() else hours
+        return f"Due at {shown} operating {'hour' if float(hours) == 1 else 'hours'}"  # addendum 3 L7
     if plan.next_due_at is not None:
         return f"Due {plan.next_due_at.day} {_MONTHS[plan.next_due_at.month - 1]}{date_suffix}"
     return plan.state.replace("_", " ").capitalize()
@@ -373,7 +390,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         if a.origin_finding_id is None:
             continue
         origin = by_id.get(a.origin_finding_id)
-        suffix = "" if origin is not None else OUTSIDE_VIEW_SUFFIX
+        suffix = "" if origin is not None else unresolved_suffix(facts)
         r = roles[origin.finding_id] if origin is not None else None
         move_cats = r.move_cats if r is not None else ["PROTECT_ASSET"]
         result = earlier_result_for_action(a)
@@ -390,18 +407,18 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label + suffix})
 
     for case in sorted(facts.cases, key=lambda c: (c.code or "", c.case_id)):
-        cats, suffix = _case_placement(case, by_id, roles)
+        cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
         if cat not in cats:
             continue
         if case.state not in CLOSED_CASE_STATES:
             label = _case_label(case) + suffix
             in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label})
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
-        cats, suffix = _case_placement(case, by_id, roles)
+        cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats and result is not None:
             earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
-                            "result_label": result + (suffix if suffix == OUTSIDE_VIEW_SUFFIX else "")})
+                            "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else "")})
 
     if cat == "PROTECT_ASSET":
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
@@ -444,8 +461,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     return row
 
 
-def _case_placement(case: CaseFact, by_id: dict[str, FindingFact],
-                    roles: dict[str, _Roles]) -> tuple[set[str], str]:
+def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[str, _Roles],
+                    unresolved: str = OUTSIDE_VIEW_SUFFIX) -> tuple[set[str], str]:
     """Categories and state-label suffix for a case. No link: PROTECT_ASSET, "not linked". Links that resolve: their
     Findings' MOVES categories. Links none of which resolve: kept under PROTECT_ASSET with the outside-view suffix
     (addendum 2 item 4, replacing review M1's assertion); the composer records them via `unresolved_links`."""
@@ -453,7 +470,7 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact],
         return {"PROTECT_ASSET"}, NOT_LINKED_SUFFIX
     linked = [by_id[fid] for fid in case.finding_ids if fid in by_id]
     if not linked:
-        return {"PROTECT_ASSET"}, OUTSIDE_VIEW_SUFFIX
+        return {"PROTECT_ASSET"}, unresolved
     return {c for f in linked for c in roles[f.finding_id].move_cats}, ""
 
 

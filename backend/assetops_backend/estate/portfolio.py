@@ -134,6 +134,10 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     return min(matches, key=lambda a: (-a["_raw"]["_selected_recorded_at"].timestamp(), a["action_id"]))
 
 
+#: The public name of the exact Finding-to-Action join, for the Site outcome board (OUT-B2 review L1).
+action_for = _action_for
+
+
 def workflow_label(action: dict[str, Any] | None) -> str:
     """Closure 5 S7: the first matching selected fact; table order is precedence."""
     if action is None:

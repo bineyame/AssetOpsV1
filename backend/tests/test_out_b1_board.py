@@ -346,6 +346,8 @@ def test_out_of_window_finding_places_work_but_drives_no_signal_or_issue() -> No
     assert [i["text"] for i in rows[COST]["in_hand"]] == ["ACT-048"]
     assert rows[COST]["earlier_empty_text"] == EARLIER_EMPTY_NONE
     assert board_module.unresolved_links(kobo(findings=(outside,))) == ()
+    # Addendum 3 L5: the Must-not-harm line stays; the Action is in hand on this row and its check exists.
+    assert rows[COST]["must_not_harm"] is not None and "ACT-048" in rows[COST]["must_not_harm"]["text"]
 
 
 def test_closed_linked_finding_keeps_case_in_its_outcome() -> None:
