@@ -265,7 +265,7 @@ describe("estate Portfolio page", () => {
     cleanup();
     // A refused summary and a client without the read both show the panel's alert; the cards keep empty dots.
     for (const client of [
-      withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), refused(503, "ESTATE_STORE_UNAVAILABLE")),
+      withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable.") as never),
       portfolioClient(loadedPortfolio(portfolioBody())),
     ]) {
       renderAt(ENTRY, client);
