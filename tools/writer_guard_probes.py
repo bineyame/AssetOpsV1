@@ -1019,9 +1019,9 @@ def run_guard(seam: bool) -> subprocess.CompletedProcess[str]:
                   '. (Join-Path $PWD "tools/checks/configuration-persistence.ps1"); '
                   '$f = @(Invoke-ConfigurationPersistenceCheck); '
                   'if ($f.Count -gt 0) { $f | ForEach-Object { Write-Output "- $_" }; exit 1 }; Write-Output "passed"')
-        cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script]
+        cmd = ["powershell", "-NoProfile", "-Command", script]
     else:
-        cmd = ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-architecture.ps1"]
+        cmd = ["powershell", "-NoProfile", "-File", "tools/check-architecture.ps1"]
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env=env)
 
 

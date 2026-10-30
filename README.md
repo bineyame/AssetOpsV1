@@ -147,11 +147,7 @@ feature flag, and nothing there takes a shell, mode, or variant prop.
 
 ## Running things
 
-Commands below use invocations that work regardless of the PowerShell execution
-policy. If your policy is `Bypass` or `Unrestricted`, `npm test` and
-`.\tools\check-architecture.ps1` also work directly; under `Restricted` or
-`RemoteSigned` they fail on `npm.ps1` and unsigned `.ps1` files, which is why the
-`npm.cmd` and `-ExecutionPolicy Bypass` forms are given here.
+Guards are run directly, with no execution-policy override. Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override. Under a policy that blocks `npm.ps1`, use the `npm.cmd` forms given here.
 
 Python is not on `PATH` on the current development machine — only a Microsoft
 Store alias. The repository-root `.venv` is the working interpreter.
@@ -274,7 +270,7 @@ missing tool (Node, or the `.venv` Python; override with `-Python`/`-Node`)
 exits nonzero.
 
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-all.ps1
+powershell -NoProfile -File tools\check-all.ps1
 ```
 
 The delivery `next-work` report (PRE-S3-03) is run separately by the
@@ -288,8 +284,9 @@ node frontend\docs\architecture\check_v69_dependency_registry.cjs --verify-repor
 The individual guards remain runnable on their own:
 
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-architecture.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\check-agent-workflow.ps1
+powershell -NoProfile -File tools\check-architecture.ps1
+powershell -NoProfile -File tools\check-agent-workflow.ps1
+powershell -NoProfile -File tools\check-navigation-truthfulness.ps1
 ```
 
 `check-architecture.ps1` enforces the stack and module-direction,

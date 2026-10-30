@@ -22,6 +22,7 @@ Missing-capability states on `sites`, `foundation`, `readiness` and `sld` point 
 ## Review and checks
 
 Independent Reviewer checks the graph, visible placements, 1440/390 pairs and source-to-claim boundaries. Run focused frontend tests/build, registry and ledger checkers, delivery fixtures and `powershell -ExecutionPolicy Bypass -File tools/check-all.ps1`. Owner reviews the four visible missing-state treatments. G-02 closes the pilot mapping, not W1 non-core ranking or full mock completion.
+> Note: the `-ExecutionPolicy Bypass` form above is historical; guards now run with no override (`.ai/ROLE_CONFIG.md`).
 
 ## Review Outcome (recorded by coordinator, 2026-10-13)
 

@@ -22,6 +22,7 @@ An honest missing-capability message in a supported Site view has a stable, insp
 ## Review and checks
 
 Independent review samples catalogue↔panel↔UI joins and the mutation failures. Run focused Vitest, `node frontend/docs/architecture/check_v69_dependency_registry.cjs`, `python frontend/docs/architecture/check_v69_ledger.py`, delivery checker fixtures, and `powershell -ExecutionPolicy Bypass -File tools/check-all.ps1 -Python python`. Show the real Readiness gateway panel with a populated central-contact read and with unknown/unavailable contact while firmware stays explicitly missing, at 1440 and 390 pixels. Owner checks the visible missing-state treatment. No non-core scoring or completion policy is authorized before W1 exit.
+> Note: the `-ExecutionPolicy Bypass` form above is historical; guards now run with no override (`.ai/ROLE_CONFIG.md`).
 
 ## Review Outcome (recorded by coordinator, 2026-10-13)
 

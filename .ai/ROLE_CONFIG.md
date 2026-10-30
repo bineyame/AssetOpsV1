@@ -642,6 +642,10 @@ Architects, Implementers and Reviewers use [the UI/UX decision guide](../fronten
 
 The Architect (UI rulings, cap fallbacks, copy) and Implementers (pre-flight defaults, choices where rulings are silent) ground UI answers in current guidance and practice (WCAG 2.2, Material 3, Apple HIG, GOV.UK/USWDS, Carbon, NN/g heuristics, responsive data-table patterns) and name the pattern relied on. Broadened the same day: "not just when there are questions but state of the art UI/UX should be used(within bounds of demo speed)". It is a standing quality bar for all UI work (Architect specs, Implementer builds, Reviewer checks): hierarchy, readable type, strong 390 px behaviour, WCAG 2.2 AA focus/keyboard, purposeful loading/empty/error states, scroll affordances, plain copy. Bounded by demo speed: prefer cheap local improvements; batch larger ideas as proposals. The v6.9 mock remains the layout spec; layout/content changes it would imply are proposed as labelled D2 departures. Detail: `.agent/owner-ui-ux-guidance-2026-10-25.md`.
 
+## Guards Run Without An Execution-Policy Override (owner, 2026-10-30)
+
+Run `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1` directly. No agent, script or doc may add `-ExecutionPolicy` (Bypass or otherwise). Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record

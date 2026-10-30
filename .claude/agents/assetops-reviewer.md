@@ -35,8 +35,8 @@ Run the checks yourself and report what you actually saw, including failures,
 rather than repeating the packet's numbers.
 
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-architecture.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/check-agent-workflow.ps1
+powershell -NoProfile -File tools/check-architecture.ps1
+powershell -NoProfile -File tools/check-agent-workflow.ps1
 .venv\Scripts\python.exe -m pytest <focused backend test files for the slice> -q
 ```
 
