@@ -82,3 +82,8 @@ The one blocking item is a missing register row. The code, the wire, the tests a
 ## Residual risk
 - These are as the packet states: no combined three-domain estate exists, and the full vitest suite has load-sensitive EV and cold tests.
 - A further risk the packet does not name: the Portfolio Protect count comes from the estate case, which has mini-grid Sites only. So "No sites disrupted" is the only Protect value seen in a capture. The 1, 2 and null forms are proven only in unit tests.
+
+## Coordinator verification, 2026-10-30: ACCEPT
+- H1 closed: register row R529 added (Portfolio card site dots, D5 build order, resolved by OUT-B B6). No code changed.
+- check-all.ps1 run directly with no override: 11/11 passed.
+- L1 ("Candidate" in the Optimize card detail) is logged for the plain-language pass.
