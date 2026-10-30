@@ -1,0 +1,36 @@
+[
+ {
+  "name": "overview-cold-cost-open",
+  "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+  "mock": "cold",
+  "open": true,
+  "openCategory": "OPTIMIZE_COST",
+  "producer": "w502 positive",
+  "db": "w502b_positive_outc_test",
+  "ready": "document.querySelector(\"[data-outcome-board] details\")"
+ },
+ {
+  "name": "findings-cold",
+  "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+  "mock": "cold-findings",
+  "producer": "w502 positive",
+  "db": "w502b_positive_outc_test"
+ },
+ {
+  "name": "request-latest-cold",
+  "url": "http://localhost:5471/maintenance/requests/722623c3-abf1-410a-b04f-36d44d8d9557?site_id=COLD-LAB-001&known_at=2026-10-30T19:38:20.634613Z",
+  "mock": "wr-overview",
+  "producer": "w502 positive",
+  "db": "w502b_positive_outc_test"
+ },
+ {
+  "name": "overview-ev-depot",
+  "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+  "mock": "ev",
+  "open": true,
+  "producer": "w504 positive",
+  "db": "w504a_positive_outc_test",
+  "ready": "document.querySelector(\"[data-outcome-board] details\")",
+  "openCategory": "PROTECT_ASSET"
+ }
+]

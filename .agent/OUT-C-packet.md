@@ -82,3 +82,32 @@ assertion removed): `estatePortfolio`, `estateRoots`, `s404SiteFindingIndex`, `c
 
 Placement of the lists under the tables (estate, Site, Portfolio), the pulse wording, the Maintenance card and the request notice.
 USER_REVIEW_REQUIRED: false for merge; the owner sees it in the post-sprint walkthrough.
+
+## Acceptance #8 (full runs and captures, head b6650116)
+
+- Frontend full vitest (`frontend/`, `npx vitest run`): 3522 passed, 3 failed, 144 files (143 pass, 1 fail), 323 s. The 3 failures are the known
+  `w1f4VerificationStructure` tests; no other failure (a duplicate run started by another agent was stopped by PID before this one finished;
+  no unexpected failures appeared). Log `.agent/vitest-full.log` (ignored).
+- Backend `toolsun-backend-suite-in-container.ps1 -Tier all`: started 21:58 local, 4 workers, postgres-test, wall 2300 s (38m18s),
+  **4338 passed, 0 failed**, JUnit `errors=0 failures=0 skipped=0 tests=4338` (no `<skipped`). Run dir
+  `var/test-results/OPS-03/20261030-215840-fd3ad2` (exit 0). No failure to rerun on main.
+- Captures at 1440 and 390, each with its v70 mock pair, in `.agent/OUT-C-captures/shots/` (tool `capture-outc.mjs`, targets `targets.json`,
+  evidence `shots/raw-evidence.json`, logs `logs/`). Producers: w502 positive (GreenHarvest, DB `w502b_positive_outc_test`, API 8971/Vite 5471),
+  w504 (Depot, `w504a_positive_outc_test`, 8981/5481; other w504 modes prepared by the tool, all dropped). 40/40 then 10/10 claims passed.
+  - `overview-cold-cost-open` (mock `cold`): Cost row open; shows "3 repair visits in 60 days without a result", the Repair and call-out
+    Unknown line, Maintenance effectiveness 3 visits, and the Issues column "Risk Repeated maintenance without a result". No page overflow
+    (1425/1425 at 1440 with scrollbar, 390/390).
+  - `findings-cold` (mock `cold-findings`): `.oc-warn` list inside "Findings at this site" panel, 3 items (Risk + 2 Early warning); 0 items
+    overflow. **Reflow evidence:** 1440: three items side by side (x 268-629, 647-1009, 1027-1388, list 1120 wide); 390: one column
+    (every item x 36-354, list 318 wide), scrollWidth = clientWidth, page scrollWidth 390 = clientWidth 390, no page overflow.
+  - `request-latest-cold` (mock `wr-overview`; URL `/maintenance/requests/722623c3-...?site_id=COLD-LAB-001&known_at=...`): amber notice
+    "This is the third visit to generator-1 in 60 days, and the linked finding is still open. Repeated work ..." directly above the panel pair
+    (`nextIsPair` true), at both widths, no overflow.
+  - `overview-ev-depot` (mock `ev`, w504): Protect row open: "Connector c1 out of service" Risk issue, "2 issues"; no overflow.
+- No estate captures (P-C1 failed). Layout evidence: the measurements above come from the capture tool (CDP), not `layout-evidence.mjs`.
+- Observations (not C defects): the Depot Protect row also shows "Connector Connector c1" in B-owned text (availability line and
+  "Connector Connector c1: 44 min out"); C's own warning title is single-prefixed. Cost row in the GreenHarvest Overview carries the
+  warning in the row's Issues column, not an `.oc-warn` block (so `warnLists` is empty there by design). The Overview and Depot
+  targets needed a custom ready selector because the default "Loading" heuristic stayed false on pages that were fully rendered.
+- toolseck-all.ps1: All 11 guards passed.
+- Cleanup: all `_outc_test` DBs dropped, API/Vite/Chrome stopped by PID, no listeners left on 8971-8987/5471/5481/9621.
