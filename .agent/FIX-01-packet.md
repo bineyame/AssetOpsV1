@@ -1,4 +1,4 @@
-# FIX-01 packet (PARTIAL: regression runs paused at coordinator request)
+# FIX-01 packet (final)
 
 Task: estate day reads 409 when one Finding has two revisions across two selected windows (diagnosis: `.agent/FIX-01-diagnosis.md`).
 
@@ -33,6 +33,15 @@ cold overlap needs a fixture that does not exist; the shared guard is proven on 
 - test_out_b4_board_postgres.py (w504 board, covering-day portfolio): 5 passed (296 s).
 - test_out_c4_ev_warnings_postgres.py (w504 warnings): 1 passed (115 s).
 
-## NOT YET RUN (paused on coordinator hold, OUT-W full run in container)
-w301*/w302*/w303* files, test_post_w6_w3_estate_links, `tools\check-all.ps1`.
-Script to resume: `$TEMP/runall.sh` pattern; run each file in its own invocation.
+## Final regression results (real Postgres, one file at a time, plan2 venv, after OUT-W's run finished)
+All of test_w301_* (8 files), test_w302_* (10 files), test_w303_* (9 files) passed, each in its own run: e.g.
+estate_index_postgres 20 passed, estate_index_ev 4, golden 6, evidence_ev 4, pinned_facades_postgres 8,
+portfolio_comparison 4 (393 s), portfolio_scope_snapshot 10 (718 s). Zero failures, zero errors.
+- `test_post_w6_w3_estate_links.py`: 1 failed on the first run. The test's `window()` double built Finding rows with only
+  `finding_id`; the link now matches on `finding_revision_id` (real window rows always carry it). Fixed the double to
+  carry `finding_revision_id`; 7 passed.
+- `tools\check-all.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv, no -ExecutionPolicy): 9 of 11 guards PASS (estate guard
+  self-tests, navigation, agent workflow, dependency registry incl. register, delivery, mock-gap, evidence width, screen
+  ledger). 2 FAIL, both environmental: "Missing-claim orphan scan" and "Missing-claim scan fixtures" exit 1 with Node
+  MODULE_NOT_FOUND (`frontend/package.json` require stack): this worktree has no installed frontend `node_modules`. They
+  touch no FIX-01 file. Needs `npm ci` in `frontend` (not done here) and a re-run before merge.
