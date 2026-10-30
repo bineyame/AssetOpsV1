@@ -60,7 +60,8 @@ def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
         assert (_utc(depot6["window"]["from"]), _utc(depot6["window"]["to"])) == (
             _utc(window["from"]), _utc(window["to"])), depot6["window"]
         assert depot6["overview_href"].startswith("/sites/EV-LAB-001/ev?from="), depot6["overview_href"]
-        assert "&to=" in depot6["overview_href"], depot6["overview_href"]        assert r8.status_code == 200, r8.text
+        assert "&to=" in depot6["overview_href"], depot6["overview_href"]
+        assert r8.status_code == 200, r8.text
         depot8 = next(x for x in r8.json()["sites"] if x["site_code"] == "EV-LAB-001")
         _record("out_w_ev_summary_day8", {k: depot8[k] for k in ("window", "window_basis", "overview_href")})
         assert depot8["window_basis"] == "PERIOD", depot8
