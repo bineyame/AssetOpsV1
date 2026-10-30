@@ -134,3 +134,17 @@ export function fakeOutcomeBoard(read: OutcomeBoardRead | ((siteCode: string) =>
   };
   return { client, calls };
 }
+
+/**
+ * OUT-B B5 (R540): the Site Overview shows the outcome board in place of the removed objective cards. Asserts the board
+ * region is present with the fixture's rows, and that none of the given old-card selectors render.
+ */
+export function expectOutcomeBoardReplacesCards(oldCardSelectors: readonly string[] = []): void {
+  const region = document.querySelector('section[aria-label="Outcomes at this site"], [role="region"][aria-label="Outcomes at this site"]');
+  if (region === null) throw new Error("outcome board region 'Outcomes at this site' is not rendered");
+  const rows = Array.from(region.querySelectorAll("[data-outcome-row]")).map((r) => r.getAttribute("data-outcome-row"));
+  if (rows.length !== boardRows().length) throw new Error(`outcome board rows ${JSON.stringify(rows)} != ${boardRows().length}`);
+  for (const selector of oldCardSelectors) {
+    if (document.querySelector(selector) !== null) throw new Error(`removed objective card still renders: ${selector}`);
+  }
+}
