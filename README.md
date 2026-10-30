@@ -286,7 +286,7 @@ The individual guards remain runnable on their own:
 ```
 powershell -NoProfile -File tools\check-architecture.ps1
 powershell -NoProfile -File tools\check-agent-workflow.ps1
-powershell -NoProfile -File toolseck-navigation-truthfulness.ps1
+powershell -NoProfile -File tools\check-navigation-truthfulness.ps1
 ```
 
 `check-architecture.ps1` enforces the stack and module-direction,
