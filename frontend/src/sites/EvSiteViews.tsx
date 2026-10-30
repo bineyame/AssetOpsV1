@@ -43,6 +43,8 @@ import { createEvScenariosClient, type EvScenariosClient } from "./evScenariosCl
 import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
+import { OutcomeBoard } from "./OutcomeBoard";
+import type { OutcomeBoardClient } from "./outcomeBoardClient";
 
 /*
  * W2-07 commits 4-5: the five EV Site screens of an EV_CHARGING Site in their exact v69 panel slots
@@ -358,6 +360,8 @@ export interface EvSiteFrameProps {
   timeZone?: string | null;
   /** W5-03b E6: the authored scenario list client (the Scenarios view reads only this). */
   scenarios?: EvScenariosClient;
+  /** OUT-B B5: the Site outcome board read (Overview only); it replaces the old overview cards. */
+  outcomeBoard?: OutcomeBoardClient;
 }
 
 const DEFAULT_SCENARIOS = createEvScenariosClient();
@@ -478,52 +482,6 @@ function objectiveHours(o: EvOverviewRead): string {
   return "Configured service hours vary by connector";
 }
 
-function sessionWord(o: EvOverviewRead): string {
-  if (o.currentness.state === "PENDING_RECOMPUTE") return "Evidence pending";
-  switch (o.status.state) {
-    case "OBSERVED_SESSIONS":
-      return "Sessions observed";
-    case "NO_SESSIONS_OBSERVED":
-      return "No sessions observed";
-    case "CONTRADICTORY":
-      return "Records disagree";
-    default:
-      return "Unknown";
-  }
-}
-
-function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapability[]; routes: EvSiteRoutes }) {
-  const d = o.denominator;
-  const sessionNote =
-    d.started === null
-      ? "Session outcomes not assessed"
-      : `${d.completed ?? "Unknown"} completed · ${plural(d.observed_abort, "observed abort", "observed aborts")} · ${d.incomplete ?? "Unknown"} incomplete · of ${plural(d.started, "attempt", "attempts")}`;
-  const p = o.site_power;
-  const peak = p.observed_peak_kw === null ? "Unknown" : `${p.observed_peak_kw} kW observed peak`;
-  const powerNote = p.observed_peak_kw === null ? (p.limitation ?? "No accepted Site import report") : coverageText(p.coverage, p.limitation);
-  const word = evidenceAggregate(caps);
-  const window = o.window;
-  return (
-    <MetricCards columns={5} label="EV charging conditions">
-      {/* post-W6 W2-EV R254 (Q15, cold Q8): plain labels and a "View detail →" link on every card; a value this read
-          does not carry says "Not summarised here" and names the page that lists it. */}
-      <MetricCard label="Session service" value={sessionWord(o)} note={sessionNote} tone="muted" assessment data={{ "data-ev-card": "sessions" }} link={<Link to={sel(routes.sessions, window)}>View detail →</Link>} />
-      <MetricCard label="Availability" value="Not summarised here" note="Connector availability is listed under Performance" tone="muted" assessment data={{ "data-ev-card": "availability" }} link={<Link to={sel(routes.availability, window)}>View detail →</Link>} />
-      <MetricCard label="Site power" value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} link={<Link to={sel(routes.energy, window)}>View detail →</Link>} />
-      <MetricCard label="Charger condition" value="Not summarised here" note="Charger condition is listed under Health" tone="muted" assessment data={{ "data-ev-card": "charger" }} link={<Link to={sel(routes.health, window)}>View detail →</Link>} />
-      <MetricCard
-        label="Evidence"
-        link={<Link to={sel(routes.evidence, window)}>View detail →</Link>}
-        value={word.replace("Evidence ", "").replace(/^./, (c) => c.toUpperCase())}
-        note={caps.length === 0 ? "Evidence coverage not assessed" : `${CAP_ROWS.length} capabilities · no single score`}
-        tone="muted"
-        assessment
-        data={{ "data-ev-card": "evidence" }}
-      />
-    </MetricCards>
-  );
-}
-
 /*
  * post-W6 W2-EV R283 (Q10): only accepted events and the incomplete-session end gap, never padding slots. Event
  * details is an in-page disclosure with no mounted destination, so every accepted event is rendered (no truncation).
@@ -614,7 +572,9 @@ function OverviewScreen(p: EvSiteFrameProps) {
           <p className="v69-objective" data-ev-objective>
             {`${o.objective.text} ${objectiveHours(o)} · ${limit === null ? "Site limit not declared" : `Site import limit ${limit} kW`}`}
           </p>
-          <OverviewCards o={o} caps={caps} routes={routes} />
+          {p.outcomeBoard === undefined ? null : (
+            <OutcomeBoard client={p.outcomeBoard} siteCode={p.siteId} query={p.window} />
+          )}
         </>
       )}
       <Panel

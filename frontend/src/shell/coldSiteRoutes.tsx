@@ -4,6 +4,7 @@ import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
 import { invalidScope, isUtcInstant } from "../sites/domainActionClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
+import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
 import { ColdSiteFrame, type ColdSiteRoutes, type ColdSiteView } from "../sites/coldSiteViews";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { deriveSiteView } from "../sites/siteViewModel";
@@ -64,6 +65,7 @@ export function coldSiteScreen({
   params,
   coldSite,
   coldAssessment,
+  outcomeBoard,
   tabs,
   sections,
   sitesPath,
@@ -73,6 +75,8 @@ export function coldSiteScreen({
   params: URLSearchParams;
   coldSite: ColdSiteClient;
   coldAssessment: ColdAssessmentClient;
+  /** OUT-B B5: the Site outcome board read (Overview only). */
+  outcomeBoard?: OutcomeBoardClient;
   tabs: ReactNode;
   /** The Financials subtab row, shared with the generic Financials frame (one Scenarios entry). */
   sections?: ReactNode;
@@ -88,6 +92,7 @@ export function coldSiteScreen({
       window={coldWindowFromParams(params)}
       client={coldSite}
       assessment={coldAssessment}
+      outcomeBoard={outcomeBoard}
       routes={coldSiteRoutes(site.site_id)}
       tabs={tabs}
       sections={sections}

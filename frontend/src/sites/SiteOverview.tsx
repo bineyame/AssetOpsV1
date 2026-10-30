@@ -47,6 +47,7 @@ import type {
   SiteWindowSummary,
 } from "./siteOverviewClient";
 import { isSiteWindowSummary } from "./siteOverviewClient";
+import type { OutcomeBoardClient } from "./outcomeBoardClient";
 
 export const SITE_OVERVIEW_LOADING = "Loading the site's overview.";
 
@@ -72,6 +73,8 @@ export interface SiteOverviewProps {
   findingIndex?: FindingIndexClient;
   /** W4-02 B3: the mini-grid reads behind a MINIGRID Site's Service, Fuel and Renewable cards. */
   mini?: OverviewMiniReads;
+  /** OUT-B B5: the Site outcome board read. */
+  outcomeBoard?: OutcomeBoardClient;
 }
 
 /** S5-01: the address parameters an imported Site's Overview keeps across reloads. */
@@ -109,6 +112,7 @@ export function SiteOverview({
   windowLinks,
   findingIndex,
   mini,
+  outcomeBoard,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary> | null>(null);
@@ -227,6 +231,7 @@ export function SiteOverview({
         findingIndex={findingIndex}
         onReload={reload}
         mini={mini}
+        outcomeBoard={outcomeBoard}
       />
     );
   }

@@ -13,6 +13,7 @@ import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import { createFindingIndexClient, type FindingIndexClient } from "../sites/findingIndexClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { miniWindowSearch, type MiniDepthClient } from "../sites/miniDepthClient";
+import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
@@ -104,6 +105,8 @@ export interface SiteDetailFrameProps {
   coldAssessment?: ColdAssessmentClient;
   /** W4-02 B3: the mini-grid reads behind a MINIGRID Overview's Service, Fuel and Renewable cards. */
   miniDepth?: MiniDepthClient;
+  /** OUT-B B5: the Site outcome board read (mini and cold overviews). */
+  outcomeBoard?: OutcomeBoardClient;
 }
 
 const DEFAULT_FINDING_INDEX = createFindingIndexClient();
@@ -118,6 +121,7 @@ export function SiteDetailFrame({
   coldSite,
   coldAssessment,
   miniDepth,
+  outcomeBoard,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -130,6 +134,7 @@ export function SiteDetailFrame({
       params,
       coldSite,
       coldAssessment,
+      outcomeBoard,
       tabs: <OperatorSiteTabs siteId={siteId} current="Overview" search={coldTabSearch(record.site, params)} />,
       sitesPath,
     });
@@ -198,6 +203,7 @@ export function SiteDetailFrame({
               sld: (at) => siteFoundationViewHref(canonicalId, "sld", at),
             }}
             findingIndex={findingIndex}
+            outcomeBoard={outcomeBoard}
             analysisHref={(assessmentId, isFinding) =>
               isFinding
                 ? findingHref(canonicalId, assessmentId, "analysis")
