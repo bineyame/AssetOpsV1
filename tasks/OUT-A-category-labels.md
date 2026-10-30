@@ -1,6 +1,6 @@
 # OUT-A Category labels and links
 
-Status: in_progress
+Status: in_review
 
 Outcome sprint, slice A. Branch `task/OUT-A-category-labels`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outA`, cut from main `287a63a7`.
 Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-spec-outcome-sprint-2026-10-29.md` rev 2, §0, §1.1-1.3, "Pre-flight rulings A (2026-10-29)" and "Slice A". Pre-flight: `.agent/OUT-A-preflight.md`.
