@@ -1,8 +1,8 @@
 # Runs the navigation-truthfulness guard directly:
-#   powershell -NoProfile -File tools\checks\check-navigation-truthfulness.ps1
+#   powershell -NoProfile -File tools\check-navigation-truthfulness.ps1
 # Run from any directory; resolves the repository root from this file. No execution-policy override.
 $ErrorActionPreference = "Stop"
-$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+$repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try {
     . (Join-Path $PWD "tools/checks/_common.ps1")

@@ -55,7 +55,7 @@ try {
     $env:ASSETOPS_GUARD_PYTHON = $Python
     Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-File", "tools/check-architecture.ps1")
     Invoke-Guard "Estate guard self-tests (test_pg_reader_import_allowed, test_pg_reader_write_rejected, test_domain_driver_import_rejected)" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider")
-    Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-File", "tools/checks/check-navigation-truthfulness.ps1")
+    Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-File", "tools/check-navigation-truthfulness.ps1")
     Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-File", "tools/check-agent-workflow.ps1")
     Invoke-Guard "Dependency registry"           $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs")
     Invoke-Guard "Delivery checker fixtures"     $Node @("--test", "frontend/docs/architecture/test_delivery_next_work.cjs")

@@ -3,7 +3,7 @@
 Owner approval: .agent/owner-checkall-no-bypass-2026-10-30.md ("go with your suggestion").
 
 ## Changes
-- New `tools/checks/check-navigation-truthfulness.ps1` (same logic, messages, exit codes as the former inline script; resolves repo root itself).
+- New `tools/check-navigation-truthfulness.ps1` (same logic, messages, exit codes as the former inline script; resolves repo root itself).
 - `tools/check-all.ps1`: inline script and base64 launch removed; all PowerShell guards run as child `powershell -NoProfile -File ...` with no policy override. PASS/FAIL report, count and exit code unchanged.
 - Docs: `backend/TESTING.md`, `.ai/ROLE_CONFIG.md` (new short section). No tools/README exists.
 

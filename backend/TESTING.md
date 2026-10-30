@@ -36,7 +36,7 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
 - `tools/check-all.ps1` is a separate required guard command; it does not run
   pytest, and pytest does not replace it. Run guards directly, e.g.
   `powershell -NoProfile -File tools\check-all.ps1` or
-  `tools\checks\check-navigation-truthfulness.ps1`. Never pass an
+  `tools\check-navigation-truthfulness.ps1`. Never pass an
   execution-policy override (owner rule, 2026-10-30).
 
 ## The test database

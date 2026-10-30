@@ -644,7 +644,7 @@ The Architect (UI rulings, cap fallbacks, copy) and Implementers (pre-flight def
 
 ## Guards Run Without An Execution-Policy Override (owner, 2026-10-30)
 
-Run `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\checks\check-navigation-truthfulness.ps1` directly. No agent, script or doc may add `-ExecutionPolicy` (Bypass or otherwise).
+Run `tools\check-all.ps1`, `tools\check-architecture.ps1`, `tools\check-agent-workflow.ps1` and `tools\check-navigation-truthfulness.ps1` directly. No agent, script or doc may add `-ExecutionPolicy` (Bypass or otherwise).
 
 ## Updating Bindings
 
