@@ -15,6 +15,18 @@
   per DB, not 3 (Known Deviation). Full-log helper: scratchpad `ptlog.ps1 <log> <tests>` (pt.ps1 truncates to 25 lines).
 - Then U6 (captures need coordinator go), register R580-R586, closeout.
 
+## State at f6be0782 (implementer 3): U4 REVISE fixes landed
+- M1 `mini.PLAN_NOT_READ` (in COPY) when `objective_rows is None`; test `test_failed_objectives_read_never_says_no_target_declared`.
+- M2 board body `objectives_read`; `summary()` counts only Sites with board loaded AND objectives read; new
+  `objective_sites_unread = len(sites) - read`; `Boards` fake has an "unread" case. Frontend `assureDetailText`
+  (PortfolioOutcomes.tsx) 4 cases, 4 vitests in estatePortfolio.test.tsx; fixture default unread 0. D5 records unread.
+- L1 `ObjectiveFact.source_note` (last, default None) -> `objectives_wire`; explainer `EXPLAIN[3]` (OutcomeBoard.tsx).
+- Extras: `test_cc1_on_track_with_no_excursion_and_a_complete_window`; mini MG2_LONGER/MG2_UNCLEAR/MG5_UNSERVED
+  templates; `ev.interrupted_text` used by `ev_readings` and COPY.
+- Checks: d4 17 passed; U4 focused set 221 + C set 54 passed; tsc clean; src/sites+src/estate vitest 1914 passed,
+  4 failed = 3 known w1f4 + evEnergy R347 (load flake; 12/12 alone). check-all 11/11 at f6be0782.
+- Next: U6 (each heavy step needs coordinator go), then closeout.
+
 ## State at da1df531 (implementer 2 stopped on context budget; resume HERE)
 Committed: `79c8d40a` U5 frontend; `da1df531` D5 Postgres test (Kobo + cold passed in one run, EV passed on a re-run
 after the R577 handling) + register R580-R586 section at the end of `.agent/mock-departure-register.md` + R542 note.
