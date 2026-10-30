@@ -584,7 +584,7 @@ class TestMigration0020:
                   rows(engine, "SELECT id FROM recompute_job ORDER BY id"))
         with pytest.raises(DBAPIError, match=MINI_REFUSED):
             command.downgrade(_alembic(), "0019_verification_core")
-        assert head(engine) == "0035_w5_ev_work"
+        assert head(engine) == "0038_out_objectives"
         assert (mini_history(engine), rows(engine, "SELECT id FROM accepted_evidence ORDER BY id"),
                 rows(engine, "SELECT id FROM recompute_job ORDER BY id")) == before
 
@@ -635,7 +635,7 @@ class TestMigration0020:
             with pytest.raises(DBAPIError, match=refused):
                 __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0035_w5_ev_work"
+            assert head(engine) == "0038_out_objectives"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -690,7 +690,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0035_w5_ev_work" and v3_reads() == before_reads
+        assert head(engine) == "0038_out_objectives" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

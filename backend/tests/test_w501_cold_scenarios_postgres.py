@@ -25,7 +25,7 @@ if URL:
     from test_w402_migration_postgres import downgrade_config
 
 
-LATEST_HEAD = "0035_w5_ev_work"  # W5-03b: 0034 and 0033 sit above the 0032 migration under test
+LATEST_HEAD = "0038_out_objectives"  # W5-03b: 0034 and 0033 sit above the 0032 migration under test
 COLD_HEAD = "0032_w5_cold_scenarios"
 COLD_PREVIOUS = "0030_w4_mini_decisions"
 COLD_REFUSED = "Downgrade of 0032_w5_cold_scenarios refused: cold scenario history exists"
