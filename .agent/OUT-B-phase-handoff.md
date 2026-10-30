@@ -466,3 +466,14 @@ Anchors are relative to backend/assetops_backend.
 - B5 fix: explainer table goes through `DataTable` (check-all shell-overflow guard caught the bare table).
 - Checks: focused vitest 12 files 361 passed; tsc clean; check-all 11/11 (ASSETOPS_GUARD_PYTHON=plan2 venv).
 - Next: full vitest, then backend `-Tier all`, then captures 1440/390 (each needs a go), then step 4 closeout.
+
+## Full vitest (coordinator go), head 6a706db2, 15:01-15:05 (218.6 s)
+- `npx vitest run` (frontend): 143 files, 3500 tests: 3496 passed, 4 failed.
+- 3 failures are the gate-ignored w1f4 tests (`w1f4VerificationStructure.test.tsx`: historical selection; stocked;
+  planted extra panel before panel 1).
+- 1 not on the ignore list: `coldWorkCases.test.tsx` "W5-02 K3b: every long case cell replaces its preview while
+  open > Incident What happened" (AssertionError: expected <span …> to be null). It passes alone (36/36) and with the
+  cold neighbours (166/166). This slice changes no work-case file, so I read it as a load-timing flake; needs a
+  coordinator ruling before merge.
+- Coordinator: the "Each card shows what its selected period supports." strip copy goes to the Architect; left as
+  is; record in the packet.
