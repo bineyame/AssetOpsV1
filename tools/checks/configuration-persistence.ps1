@@ -174,6 +174,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # OUT-D U3: declared outcome objectives. Database-only; rule 8 confines its PostgreSQL writer. Only its
+            # composition imports the adapter.
+            Name        = "objectives"
+            Package     = "$backendRoot/objectives"
+            Composition = "$backendRoot/objectives/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
