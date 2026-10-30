@@ -14,7 +14,7 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
-from assetops_backend.outcomes.warnings import evaluate
+from assetops_backend.outcomes.warnings import REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
@@ -56,10 +56,16 @@ OPTION_LOG = "Record stock and door log"
 #: B-Q23: the asset-type part of a plan's `asset_label` ("{asset_code} · {asset_type}") for each Protect contributor.
 PLAN_TYPE_TOKENS = {"backup_generator": ("GENERATOR",), "compressor": ("COMPRESSOR",)}
 UNKNOWN_CHIP = {"label": "Unknown", "tone": "gray"}
+#: C (U3): the Cost row, measured from catalogue/2 (R541 resolved).
+NO_REPEAT = "No repeated visit without a result in 60 days"
+NO_REPAIR_COST = "No repair or call-out cost recorded"
+NO_COOLING_METER = "Not available yet · no cooling energy meter"
+COST_SUBLINE = "None of the visits resolved the linked finding; repair cost is not recorded"
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 
 #: Every fixed viewer string, for the vocabulary scan.
-COPY = (PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
+COPY = (NO_REPEAT, NO_REPAIR_COST, NO_COOLING_METER, COST_SUBLINE,
+        PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
         STORAGE_LEVEL, CHAIN_COMPLETE, NO_CHAIN, LOADING_RECORDS, PROTECT_SUBLINE_START, PROTECT_SUBLINE,
         ASSURE_FULL, ASSURE_PART, ASSURE_SUBLINE, OPTION_START_TEST, OPTION_STOCK, OPTION_LOG)
 
@@ -124,8 +130,8 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
         GROW: (), COST: (),
         PROTECT: (_temperature(excursion, claims, high, rc), _backup(body, overview is not None, rc),
                   _cooling(body, overview is not None),
-                  _plan("backup_generator", "Backup generator", plan_facts, labels, plans is None, suffix),
-                  _plan("compressor", "Compressor", plan_facts, labels, plans is None, suffix)),
+                  _plan("backup_generator", "Backup generator", plan_facts, labels, plans is None, suffix, hi),
+                  _plan("compressor", "Compressor", plan_facts, labels, plans is None, suffix, hi)),
         ASSURE: (_verified(cases, work_failed), Contributor("storage_service_level", "Storage service level",
                                                             STORAGE_LEVEL),
                  _chain(strip, gaps, rc), Contributor("loading_door_records", "Loading and door records",
@@ -149,7 +155,13 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
                       findings_settled=findings_ok)
-    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)))
+    wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
+    warnings = evaluate(wf)
+    repeat = next((w for w in warnings if w.kind == REPEATED), None)
+    facts = replace(facts, warnings=warnings,
+                    contributors={**contributors, COST: _cost(c, wf, repeat, visits is None, rc)},
+                    headline={**headline, COST: _repeat_headline(repeat)},
+                    subline={**subline, COST: COST_SUBLINE if repeat is not None else None})
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
@@ -228,8 +240,31 @@ def _cooling(body: dict, ok: bool) -> Contributor:
                        UNKNOWN_CHIP if state == "CONTRADICTORY" else None)
 
 
+def _repeat_headline(repeat: Any) -> str | None:
+    return None if repeat is None else f"{repeat.count} repair visits in 60 days without a result"
+
+
+def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[Contributor, ...]:
+    """C (U3) cold Cost contributors: maintenance effectiveness, repair and call-out, cooling energy."""
+    if visits_failed:
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NOT_LOADED)
+    elif repeat is not None:
+        days = sorted((v.occurred_on for v in wf.visits if v.case_id in repeat.visit_ids))
+        dates = ", ".join(day_month(d) for d in days) + wf.date_suffix
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness",
+                             f"{repeat.count} visits ({dates}); the linked finding is still open", rc, repeat.href)
+    else:
+        effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
+    done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))
+    repair = Contributor("repair_cost", "Repair and call-out",
+                         f"No cost on work record {done[-1].code}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
+                         f"/sites/{c}/financials")
+    cooling = Contributor("cooling_energy", "Cooling energy", NO_COOLING_METER)
+    return effect, repair, cooling
+
+
 def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, Any], failed: bool,
-          suffix: str) -> Contributor:
+          suffix: str, to: Any = None) -> Contributor:
     href = "/maintenance/preventive"
     if failed:
         return Contributor(key, label, NOT_LOADED, None, href)
@@ -239,7 +274,9 @@ def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, A
     if not match:
         return Contributor(key, label, NO_PLAN_RECORDED, PLAN_RECORD, href)
     p = match[0]
-    if p.next_due_at is not None:
+    if p.next_due_at is not None and p.due_at is not None and to is not None and p.due_at < to:
+        due = f"overdue since {day_month(p.next_due_at)}{suffix}"  # C: the PLAN_OVERDUE cue
+    elif p.next_due_at is not None:
         due = f"due {day_month(p.next_due_at)}{suffix}"
     elif p.next_due_hours is not None:
         due = f"due at {num(p.next_due_hours)} operating {plural(num(p.next_due_hours), 'hour', 'hours')}"

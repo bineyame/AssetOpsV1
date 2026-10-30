@@ -332,7 +332,7 @@ export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {})
   };
   return {
     schema_version: "estate-outcome-summary-1",
-    policy_versions: { catalogue: "outcome-catalogue/1" },
+    policy_versions: { catalogue: "outcome-catalogue/2" },
     window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" },
     sites: SITES.map((s) => ({
       site_id: s.site_id,
