@@ -843,6 +843,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $domainIntentTables = @('domain_action', 'domain_action_intent', 'domain_action_case_link')
     $domainIntentInsertsSeen = @{}
     foreach ($table in $domainIntentTables) { $domainIntentInsertsSeen[$table] = 0 }
+    # OUT-D U1 (build sheet OUT-D section 3 U1; migration 0038): the objective store is the sole runtime writer of the
+    # declared outcome objective table, INSERT-only (the 0038 trigger refuses UPDATE/DELETE; no upsert, TRUNCATE,
+    # MERGE, COPY or DDL), and it writes no other table. The table keeps one owner INSERT (anti-vacuity below).
+    $objectiveWriter = "$backendRoot/objectives/adapters/postgres_objective_store.py"
+    $objectiveTables = @('outcome_objective_revision')
+    $objectiveInsertsSeen = @{}
+    foreach ($table in $objectiveTables) { $objectiveInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -851,7 +858,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $evScenarioWriter, $domainIntentWriter)
+        $evScenarioWriter, $domainIntentWriter, $objectiveWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -906,11 +913,11 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
-        $domainIntentWriter = 0 }
+        $domainIntentWriter = 0; $objectiveWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
-        $evScenarioWriter = $false; $domainIntentWriter = $false }
+        $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -978,6 +985,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $domainIntentWriter -and $line -match $actionForbidden) {
                 $failures.Add("The domain-intent store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $objectiveWriter -and $line -match $actionForbidden) {
+                $failures.Add("The objective store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1180,6 +1191,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $domainIntentInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $objectiveWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $objectiveTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The objective store only inserts into $($objectiveTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $objectiveTables -contains $target) {
+                    if ($module.Path -ne $objectiveWriter) {
+                        $failures.Add(("Only $objectiveWriter writes declared objective table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Declared objective table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $objectiveInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1422,6 +1449,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $domainIntentTables) {
         if ($extractorRan -and $domainIntentInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $domainIntentWriter, so the domain Action insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($table in $objectiveTables) {
+        if ($extractorRan -and $objectiveInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $objectiveWriter, so the declared objective insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
