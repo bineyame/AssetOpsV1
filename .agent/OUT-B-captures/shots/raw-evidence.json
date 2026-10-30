@@ -1,0 +1,1157 @@
+{
+  "runs": [
+    {
+      "targets": ".agent/OUT-B-captures/targets-1.json",
+      "product_sha": "d3554acacbd6da065c293b4f685c28cf6d40742c",
+      "captured_at": "2026-10-30T14:12:42.106Z",
+      "captures": [
+        {
+          "name": "overview-cold-greenharvest-closed",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outb_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-closed-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-closed-1440-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1599,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 2,
+              "openRows": 0,
+              "top": 313,
+              "height": 359,
+              "headToLastSummaryBottom": 358,
+              "sumLabels": [
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2487,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5471/favicon.ico"
+            ]
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-cold-greenharvest-closed",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outb_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-closed-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-closed-390-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2907,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 2,
+              "openRows": 0,
+              "top": 539,
+              "height": 716,
+              "headToLastSummaryBottom": 715,
+              "sumLabels": [
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2513,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-cold-greenharvest-open",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outb_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-open-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-open-1440-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1939,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 2,
+              "openRows": 1,
+              "top": 313,
+              "height": 699,
+              "headToLastSummaryBottom": 698,
+              "sumLabels": [
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 3304,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-cold-greenharvest-open",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outb_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-open-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-open-390-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3574,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 2,
+              "openRows": 1,
+              "top": 539,
+              "height": 1383,
+              "headToLastSummaryBottom": 1382,
+              "sumLabels": [
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 3330,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-ev-depot-closed",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outb_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-closed-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-closed-1440-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1649,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 0,
+              "top": 313,
+              "height": 410,
+              "headToLastSummaryBottom": 409,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2415,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5481/favicon.ico"
+            ]
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-ev-depot-closed",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outb_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-closed-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-closed-390-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2757,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 0,
+              "top": 549,
+              "height": 762,
+              "headToLastSummaryBottom": 761,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2441,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-ev-depot-open",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outb_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-open-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-open-1440-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1876,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 313,
+              "height": 637,
+              "headToLastSummaryBottom": 636,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2869,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-ev-depot-open",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outb_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-open-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-open-390-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3225,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 1,
+              "top": 549,
+              "height": 1229,
+              "headToLastSummaryBottom": 1228,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 2895,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": [
+        {
+          "name": "overview-cold-greenharvest-closed 1440: app rendered",
+          "ok": false
+        },
+        {
+          "name": "overview-cold-greenharvest-closed 390: app rendered",
+          "ok": false
+        },
+        {
+          "name": "overview-cold-greenharvest-open 1440: app rendered",
+          "ok": false
+        },
+        {
+          "name": "overview-cold-greenharvest-open 390: app rendered",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "targets": ".agent/OUT-B-captures/targets-2.json",
+      "product_sha": "d3554acacbd6da065c293b4f685c28cf6d40742c",
+      "captured_at": "2026-10-30T14:15:45.527Z",
+      "captures": [
+        {
+          "name": "overview-mini-kobo-closed",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outb",
+          "ready": true,
+          "app_image": "overview-mini-kobo-closed-1440-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-closed-1440-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1745,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 0,
+              "top": 357,
+              "height": 410,
+              "headToLastSummaryBottom": 409,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 3560,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5425/favicon.ico"
+            ]
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-mini-kobo-closed",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outb",
+          "ready": true,
+          "app_image": "overview-mini-kobo-closed-390-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-closed-390-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3032,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 0,
+              "top": 665,
+              "height": 741,
+              "headToLastSummaryBottom": 740,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 3587,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-mini-kobo-open",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outb",
+          "ready": true,
+          "app_image": "overview-mini-kobo-open-1440-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-open-1440-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 2004,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 1,
+              "top": 357,
+              "height": 669,
+              "headToLastSummaryBottom": 668,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 4101,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-mini-kobo-open",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outb",
+          "ready": true,
+          "app_image": "overview-mini-kobo-open-390-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-open-390-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3552,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-23T00%3A00%3A00Z&to=2026-10-24T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 1,
+              "top": 665,
+              "height": 1261,
+              "headToLastSummaryBottom": 1260,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "mainTextLen": 4128,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-B-captures/targets-3.json",
+      "product_sha": "d3554acacbd6da065c293b4f685c28cf6d40742c",
+      "captured_at": "2026-10-30T14:16:38.935Z",
+      "captures": [
+        {
+          "name": "portfolio-estate",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5468/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outb_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-1440-app.png",
+          "mock_url": "http://localhost:5468/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-1440-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1487,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · a43b18e0-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedKobo mini-grid: UnknownOpportunities · revenue not measure",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceKobo mini",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "board": null,
+            "dots": [
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              }
+            ],
+            "matrix": [
+              {
+                "text": "OutcomeKobo mini-gridGrow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownProductive electricity salesOptimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownSup",
+                "scrollW": 275,
+                "clientW": 275
+              }
+            ],
+            "mainTextLen": 4254,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5468/favicon.ico"
+            ]
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "portfolio-estate",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5468/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outb_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-390-app.png",
+          "mock_url": "http://localhost:5468/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-390-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2961,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · a43b18e0-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedKobo mini-grid: UnknownOpportunities · revenue not measure",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceKobo mini",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "board": null,
+            "dots": [
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              }
+            ],
+            "matrix": [
+              {
+                "text": "OutcomeKobo mini-gridGrow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownProductive electricity salesOptimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownSup",
+                "scrollW": 328,
+                "clientW": 328
+              }
+            ],
+            "mainTextLen": 4254,
+            "consoleErrors": []
+          },
+          "mock": {
+            "board": null,
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    }
+  ]
+}

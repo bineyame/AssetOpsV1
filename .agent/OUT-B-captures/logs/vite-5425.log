@@ -1,0 +1,9 @@
+
+> assetops-frontend@0.0.0 dev
+> vite --port 5425 --strictPort
+
+
+  VITE v5.4.21  ready in 792 ms
+
+  ➜  Local:   http://localhost:5425/
+  ➜  Network: use --host to expose

@@ -1,0 +1,5 @@
+﻿=== 1. Private tree (git HEAD) ===
+  C:\Users\assef\Bineyame\AssetOpsV1-outB\var\w502b_outb\tree (code from d3554aca)
+=== 2. positive: database w502b_positive_outb_test ===
+  built positive blocked: None {'positive': ('CURRENT', 1), 'zero': ('CURRENT', 0), 'historical': ('HISTORICAL', 1)}  (41s)
+Manifest: C:\Users\assef\Bineyame\AssetOpsV1-outB\var\w502b_outb\manifest.json

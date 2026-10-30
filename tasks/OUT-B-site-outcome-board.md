@@ -1,6 +1,6 @@
 # OUT-B Site outcome board from existing reads
 
-Status: in_progress
+Status: in_review
 
 Outcome sprint, slice B. Branch `task/OUT-B-site-outcome-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outB`, cut from slice A's head `7b826e97` (main is merged in once A merges).
 Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-spec-outcome-sprint-2026-10-29.md` rev 3: §0, §1, "Pre-flight rulings B (2026-10-30)" (wins over older Slice B text) and "Slice B". Pre-flight: `.agent/OUT-B-preflight.md`.
