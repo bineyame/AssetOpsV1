@@ -59,3 +59,4 @@ def test_ev_two_selected_windows_two_revisions_reads_200(chain) -> None:  # noqa
     assert (exact[1] + timedelta(minutes=5)).strftime(stamp) not in href, href
     # 6 Oct is the only day with rows; the day before is empty and still 200
     assert estate.ok("findings", **{"from": iso(day - timedelta(days=1)), "to": iso(day)})["rows"] == []
+
