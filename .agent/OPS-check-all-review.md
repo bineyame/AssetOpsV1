@@ -40,3 +40,9 @@ The code change is correct and I would accept it as is. The docs are not yet acc
 
 - If a future harness or CI environment does not inherit an allowing policy, every PowerShell guard fails. This is intended fail-closed behaviour, but it will look like a broken guard unless M1's precondition text is in place.
 - `check-all` children inherit the parent's process policy through the environment, so the parent and its children always run under the same policy.
+
+## Coordinator verification of fix round 1 (177b8acd), 2026-10-30: ACCEPT
+- M1 closed. README and the reviewer brief now give plain commands, the navigation guard is listed, and the policy-precondition note appears in README, TESTING.md and ROLE_CONFIG.
+- L1 closed. The historical notes sit under the three quotes.
+- The remaining `ExecutionPolicy` hits are the rule statement, history and archive only.
+- The diff is docs only.
