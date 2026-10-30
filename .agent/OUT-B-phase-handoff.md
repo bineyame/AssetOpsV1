@@ -1,4 +1,4 @@
-# OUT-B handoff (partial, 2026-10-30): B1 accepted; B2 fix round landed (awaiting coordinator check); B3 landed. Resume at B4
+# OUT-B handoff (partial, 2026-10-30): B1-B3 accepted/landed; B4 plumbing landed (cd6b2e62, 6efe8da5). Resume at the B4 Postgres test
 
 Branch `task/OUT-B-site-outcome-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outB`. It is cut from OUT-A head `7b826e97` and has no main merge yet. Merge main in only when the coordinator says A has merged.
 
@@ -206,3 +206,49 @@ Anchors are relative to backend/assetops_backend.
   known_at)`; `EvDepthReadService.availability|health(t, s, code, lo, hi, known_at)`; domain index
   `index(t, s, code, IndexRequest(start, end, limit, known_at, cursor))`. B4 gets a per-unit review.
 - Then B5, B6 (R529 resolved when B6 fills Portfolio site dots; register rows R540-R551), packet, closeout.
+
+## B4 landed so far (cd6b2e62, 6efe8da5) - NOT yet sent for per-unit review (Postgres test missing)
+- `site_outcomes/read.py`: `SiteRef` (from `registry.imported`: tenant_id, id, site_code, name, site_type, timezone),
+  `BoardServices` (every service optional; missing -> `PortUnavailable` -> PARTIAL), `SiteOutcomeBoardService`
+  `.mini_ports/.cold_ports/.ev_ports` (bind services; all bodies `jsonable_encoder`ed except estate rows),
+  `.compose`, `.board` (wire §B.1; private `_short_values` stripped by the route), `.summary` (serial, caller order,
+  failure -> UNAVAILABLE + 4 UNKNOWN rows, `short_value` only on GROW led by MG-1 in OPPORTUNITY), `mini_summary_day`.
+  Requests are built with the routes' own parsers from wire strings (finding index domain "mini-grid-dispatch",
+  limit None = default page, cursor from `next_cursor`). Cold/EV with no from/to: one overview read with (None, None),
+  its `window{from,to}` is used. Gates: dispatch port needs `performance_gate` open, finding index needs
+  `basis_aware_gate` open (else port fails); mini overview port uses composition.overview_source (empty-legacy basis
+  or S2 `imported_reads.scope`, then gate + `basis_reason`, as site_overview/route.py:139-158).
+- `site_outcomes/composition.py` `build_outcome_board_service(url, **instances) -> (service, dispose)`; opens only
+  `build_global_work_read(url)` (preventive plans via `select_preventive` in its `snapshot`, filtered to the Site).
+- `outcome_api.py` `build_outcome_router(service, registry, estate=, tenant=, access=development_access)`: board route
+  (401/403, 503 SITE_STORE_UNAVAILABLE, 404 SITE_NOT_FOUND incl. no-board Site type, mini `selected_day` + pin
+  422s, cold/EV PARTIAL_WINDOW/INVALID_WINDOW ≤31 d, `known_at`), summary route (estate authenticate, `parse_request
+  ("scope")`, `estate.scope(...)["sites"]` order, estate refusal bodies).
+- `main.py`: hoisted `imported_reads`, `cold_site_reads`, `finding_index`, `finding_index_gate`, `action_index`,
+  `estate_portfolio`, `work_lists`, `domain_action_reads` (walrus), `assumption_reads`; router included after the
+  financial read router (assumption service is built there) - record in packet ("next to the estate router" moved).
+- `estate/evidence_money.py` `site_readiness(t, site_code, from, to, known_at=None)`; `estate/portfolio.py`
+  `site_work_rows(...)` (kind "findings", so no Portfolio cursor key needed) - both admit only that site_code.
+- `mini.MiniComposition.short_values` (default {}), mini sets GROW "{lo}–{hi} kW unused".
+- Tests: test_out_b4_imports.py (3, non-vacuous probe built in), test_out_b4_read.py (4). Focused b1-b4: all pass.
+- Smoke: `TestClient(create_app())` without DB -> board 503 SITE_STORE_UNAVAILABLE, summary 503 ESTATE_STORE_UNAVAILABLE.
+
+## B4 resume: `tests/test_out_b4_board_postgres.py` (then message coordinator for B4 review)
+- Kobo: reuse `tools/s602b_test_scoped_cases.py` `build()` steps (test-module builders: `test_s4_finding_store_postgres`
+  CaseRunner/run_case, `test_s6_action_store_postgres.CASES` F01/F02, `test_s6_verification_plan_postgres.verifying`,
+  `test_s6_verification_evaluator_postgres` complete_windows/bound_plan/evaluate) for `guardrail` and `estate`; serve via
+  its `pinned_app(spec)` pattern (patch `main.build_action_service` clock + `_pin_read_clock`, `_cursor_key()`, then
+  `TestClient(lab_app.app)`); GET `/api/sites/KOBO-001/outcome-board?date=...`.
+  - F01 episode 2026-10-06 08:00Z; Action accepted ~2026-11-01, plan/eval to 2026-11-02 (CLOSED 11:00). Action index
+    membership = created_at in window; work window [day_end-31d, day_end). Board day 2026-10-06 sees F01 in window but
+    not the Action (created later); a Nov day sees the Action but F01 is out of `in_window` (no issue/signal). Pick the
+    day per B.7 #3 by tracing; record actual states (B.7 #2 rule: never silently change expectations).
+  - Assert real `site_work_rows` keys ⊇ fake (`test_out_b2_mini.py:44-49`): findings `finding_id, finding_revision_id,
+    lifecycle, source_provenance, consequence, _episode_end, _mechanism`; actions `action_id, source_finding_id,
+    source_finding_revision_id, application_state, resolution_state, verification_outcome, _raw._selected_recorded_at,
+    _raw._verification_window` (index.py:168 wraps coverage row as `_raw`; coverage.py:324 has `_selected_recorded_at`).
+  - Assert Cost Must-not-harm "Reliable service and battery and generator life ..." + verification href (guardrail).
+- Cold w502 `positive` (`tools/w502_cold_work_walkthrough.py`), EV w504 `positive` (`tools/w504_ev_work_cases.py`,
+  `_declare(URL, "positive", ...)` used by test_w504_ev_work_producer_postgres.py:70). Expected states in B.7 #2.
+- Cost check: time the mini board (finding index runs dispatch.window per day over 31 days); record in packet.
+- DBs `assetops_out_b_<x>_test` only; run via `toolsun-host-tests.ps1 -- backend/tests/test_out_b4_board_postgres.py`.
