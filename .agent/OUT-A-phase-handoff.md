@@ -21,3 +21,10 @@ Branch `task/OUT-A-category-labels`, worktree `C:\Users\assef\Bineyame\AssetOpsV
 3. Message the coordinator, then one full backend run `tools\run-backend-suite-in-container.ps1 -Tier fast` (select-tests = full: three fixtures changed); JUnit zero-skip.
 4. Message the coordinator, then captures per A6 (1440 and 390).
 5. Packet `.agent/OUT-A-packet.md` (force-add), CODE_STATE entry, task status `in_review`, ACTIVE_CONTEXT update.
+
+## Update 2026-10-30 (resumed implementer), head after commit 3aeda54b
+- Addendum 2 applied and committed in `3aeda54b`: `element_ids: ["portfolio:3.grow-card-value"]`, `panel_portion_ids: []`; Optimize card without OPERATING_COST renders `OPTIMIZE_COST_MISSING` (Not assessed / "Operating cost is not assessed for this selection" / "No value line" / neutral / `/financials`), test `optimizeCardStaysInUnknownWordingWhenOperatingCostIsMissing` (estatePortfolio.test.tsx 29/29).
+- check-all 11/11 PASS; `check-architecture.ps1` and `check-agent-workflow.ps1` also PASS run directly (no execution-policy override). tsc clean.
+- `coldWorkCases.test.tsx` alone on the branch: 36/36 pass. OUT-A does not touch the Work-cases frame's render code beyond `SiteAnalyticsFrames.tsx` (Finding-frame AffectsLine). Decide in the full run: if the 2 long-text tests fail again, compare against main's full-run record before claiming them.
+- `w1f4VerificationStructure.test.tsx` 3 failures: known on main (addendum 2); list by name, do not fix.
+- Held for the coordinator's go: full vitest, `-Tier fast` backend, A6 captures. Then packet/CODE_STATE/task in_review/ACTIVE_CONTEXT.
