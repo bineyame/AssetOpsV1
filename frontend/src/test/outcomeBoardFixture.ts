@@ -61,7 +61,7 @@ export function boardRows(): OutcomeBoardRow[] {
       lead_outcome: { key: "MG-2", label: "Supply cost per kWh" },
       headline: "exposure in this hour",
       headline_money: { amount_low: "12.40", amount_high: "18.75", currency: "USD" },
-      subline: "Generator ran longer than needed",
+      subline: "The generator may have operated longer than needed.",
       counts: { issues: 2, in_hand: 1 },
       must_not_harm: {
         text: "Reliable service and battery and generator life are checked as safeguards when the trial is verified",

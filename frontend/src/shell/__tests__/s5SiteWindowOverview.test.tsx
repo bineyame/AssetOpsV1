@@ -5,7 +5,7 @@
  * the screen names them, shows an amount only for `PRICED` with both display bounds, keeps the selected day and
  * Finding version in the address across reloads, and links to exact versions.
  */
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -21,12 +21,13 @@ import type {
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
-import { MINIGRID_OBJECTIVE, MONEY_STATE_WORDS, OVERVIEW_MINI_UNAVAILABLE, SiteWindowOverview, overviewReadsStrip } from "../../sites/SiteWindowOverview";
+import { MINIGRID_OBJECTIVE, MONEY_STATE_WORDS, SiteWindowOverview, overviewReadsStrip } from "../../sites/SiteWindowOverview";
 import type { MiniDepthClient, MiniRead, MiniWindowQuery } from "../../sites/miniDepthClient";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -67,6 +68,7 @@ function renderAt(path: string, overview: SiteOverviewClient) {
         siteOverview={overview}
         siteFindingIndex={NO_INDEX}
         miniDepth={NO_MINI}
+        outcomeBoard={fakeOutcomeBoard().client}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -413,9 +415,8 @@ function dayReading(): HTMLElement {
   return document.querySelector('[data-disclosure="window-assessment"]')?.parentElement as HTMLElement;
 }
 
-function dispatchObjective(): string {
-  return document.querySelector('[data-objective-card="dispatch"] .v69-metric__value')?.textContent ?? "";
-}
+// OUT-B B5 (R540): the five mini objective cards are replaced by the Site outcome board.
+const OLD_MINI_CARDS = ["[data-objective-card]", "[data-objective-card-detail]"];
 
 function freshnessCard(): HTMLElement {
   return document.querySelector("[data-freshness-card]") as HTMLElement;
@@ -539,8 +540,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expectFreshnessInStatusbar();
     expect(expectStateLineVisible(moneyCard())).toBe("Upstream out of date");
     expect(expectStateLineVisible(objectiveCard())).toBe("This result may miss newer readings");
-    // W1-F2: the Dispatch objective card names the same not-current state, never a current answer.
-    expect(dispatchObjective()).toBe("This result may miss newer readings");
+    // OUT-B B5 (R540): the Dispatch objective card is gone; the outcome board replaces the five cards.
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().querySelector("[data-value-bars]")).toBeNull();
     expect(container.querySelector("[data-window-timeline-figure] figcaption")?.textContent).toContain("not current");
@@ -735,24 +736,32 @@ describe("W4-02 Overview mini cards", () => {
           siteOverview={client}
           siteFindingIndex={NO_INDEX}
           miniDepth={mini}
+          outcomeBoard={fakeOutcomeBoard().client}
         />
       </MemoryRouter>,
     );
   }
 
-  const card = (key: string) => document.querySelector(`[data-objective-card="${key}"]`) as HTMLElement;
-  const value = (key: string) => card(key).querySelector(".v69-metric__value")?.textContent;
-  const note = (key: string) => card(key).querySelector(".v69-metric__note")?.textContent ?? "";
-  const detail = (key: string) => card(key).querySelector(`[data-objective-card-detail="${key}"]`)?.getAttribute("href") ?? null;
+  // OUT-B B5 (R540): the five mini cards are replaced by the Site outcome board. The mini depth reads stay (the
+  // strip below names the readable ones), so these tests keep the shared-cutoff and never-zero properties and assert
+  // that no card value is rendered on the Overview any more.
+  const main = () => document.querySelector("main") as HTMLElement;
+  const MINI_VALUES = /Delivered \d|Expected use \d|Headroom \d/;
+  const readsSettled = async (mini: ReturnType<typeof miniClient>) => {
+    await waitFor(() => {
+      expect(mini.getService).toHaveBeenCalled();
+      expect(mini.getFuel).toHaveBeenCalled();
+      expect(mini.getRenewable).toHaveBeenCalled();
+    });
+    await settledScreen();
+  };
 
   it("keeps the five mock cards in order and reads Service, Fuel and Renewable with one shared cutoff", async () => {
     const mini = miniClient();
     renderMini(mini);
-    await settledScreen();
-    await screen.findByText("Delivered 12.5 kW");
-    const keys = [...document.querySelectorAll("[data-objective-card]")].map((n) => n.getAttribute("data-objective-card"));
-    expect(keys).toEqual(["service", "dispatch", "battery", "fuel", "renewable"]);
-    expect(document.querySelector('[data-objective-card="backup"]')).toBeNull();
+    await readsSettled(mini);
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(main().textContent).not.toMatch(MINI_VALUES);
     expect(mini.getBackup).not.toHaveBeenCalled();
     expect(mini.getService).toHaveBeenCalledTimes(1);
     const [serviceSite, serviceWindow] = mini.getService.mock.calls[0] as unknown as [string, MiniWindowQuery];
@@ -765,28 +774,6 @@ describe("W4-02 Overview mini cards", () => {
     expect(serviceWindow.known_at).not.toBeNull();
     expect(fuelWindow.known_at).toBe(serviceWindow.known_at);
     expect(renewableWindow.known_at).toBe(serviceWindow.known_at);
-
-    expect(value("service")).toBe("Delivered 12.5 kW");
-    expect(note("service")).toContain("Local 2026-10-23 12:00–13:00 · 60 of 60 min covered");
-    expect(value("fuel")).toBe("Expected use 0–3.3 L");
-    expect(note("fuel")).toContain("Inventory residual unavailable");
-    expect(value("renewable")).toBe("Headroom 1–2 kW");
-    expect(note("renewable")).toContain("Local 2026-10-23 · One selected day; recurrence not established");
-    expect(value("battery")).toBe("Not available");
-    expect(card("dispatch").getAttribute("data-objective-card-state")).toBe(summary("2026-10-23").assessment.state);
-    const known = encodeURIComponent(serviceWindow.known_at as string);
-    expect(detail("service")).toBe(
-      `/sites/${SITE_ID}/performance/service?from=${encodeURIComponent(HOUR.from)}&to=${encodeURIComponent(HOUR.to)}&known_at=${known}`,
-    );
-    expect(detail("renewable")).toBe(
-      `/sites/${SITE_ID}/performance/renewable?from=${encodeURIComponent(DAY.from)}&to=${encodeURIComponent(DAY.to)}&known_at=${known}`,
-    );
-    expect(card("fuel").textContent).toContain("View detail →");
-    // post-W6 W1-a Q2 / R157: the detail link sits in the card's footer slot, never inside the note.
-    for (const key of ["service", "fuel", "renewable"]) {
-      expect(card(key).querySelector(`.v69-metric__link [data-objective-card-detail="${key}"]`)?.textContent).toBe("View detail →");
-      expect(card(key).querySelector(`.v69-metric__note [data-objective-card-detail]`)).toBeNull();
-    }
   });
 
   it("shows Unknown for an unsettled answer and Unavailable without a link for a failed read, never zero", async () => {
@@ -796,17 +783,10 @@ describe("W4-02 Overview mini cards", () => {
       renewable: () => loaded(envelope("renewable", "LIMITED", RENEWABLE)),
     });
     renderMini(mini);
-    await settledScreen();
-    await screen.findByText(OVERVIEW_MINI_UNAVAILABLE, { exact: false });
-    expect(value("service")).toBe("Unknown");
-    expect(detail("service")).not.toBeNull();
-    expect(value("renewable")).toBe("Unknown");
-    expect(detail("renewable")).not.toBeNull();
-    expect(value("fuel")).toBe("Unavailable");
-    expect(note("fuel")).toBe(OVERVIEW_MINI_UNAVAILABLE);
-    expect(detail("fuel")).toBeNull();
-    for (const key of ["service", "fuel", "renewable"]) expect(value(key)).not.toMatch(/^0\b|Delivered 0/);
-    expect(card("dispatch").getAttribute("data-objective-card-state")).toBe(summary("2026-10-23").assessment.state);
+    await readsSettled(mini);
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(main().textContent).not.toMatch(MINI_VALUES);
+    expect(main().textContent).not.toMatch(/Delivered 0/);
   });
 
   it("keeps a null value Unknown even when the read is SUPPORTED", async () => {
@@ -816,10 +796,9 @@ describe("W4-02 Overview mini cards", () => {
       renewable: () => loaded(envelope("renewable", "SUPPORTED", { ...RENEWABLE, headroom_kw: null })),
     });
     renderMini(mini);
-    await settledScreen();
-    await screen.findAllByText("Unknown");
-    expect([value("service"), value("fuel"), value("renewable")]).toEqual(["Unknown", "Unknown", "Unknown"]);
-    expect(note("fuel")).toContain("Inventory residual unavailable");
+    await readsSettled(mini);
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(main().textContent).not.toMatch(MINI_VALUES);
   });
 
   it("q11-1: an unknown selected source withholds the positive headroom value", async () => {
@@ -831,10 +810,9 @@ describe("W4-02 Overview mini cards", () => {
         }),
     });
     renderMini(mini);
-    await settledScreen();
-    await screen.findAllByText("Unknown");
-    expect(value("renewable")).toBe("Unknown");
-    expect(value("service")).toBe("Delivered 12.5 kW");
+    await readsSettled(mini);
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(main().textContent).not.toContain("Headroom 1–2 kW");
   });
 
   it("q12 (q11-5 b, c): a partial service hour and a one-day read without the matching noon row stay Unknown", async () => {
@@ -843,12 +821,9 @@ describe("W4-02 Overview mini cards", () => {
       renewable: () => loaded(renewableEnvelope("SUPPORTED", RENEWABLE, [])),
     });
     renderMini(mini);
-    await settledScreen();
-    await screen.findAllByText("Unknown");
-    expect(value("service")).toBe("Unknown");
-    expect(note("service")).toContain("30 of 60 min covered");
-    expect(value("renewable")).toBe("Unknown");
-    expect(value("fuel")).toBe("Expected use 0–3.3 L");
+    await readsSettled(mini);
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(main().textContent).not.toMatch(MINI_VALUES);
   });
 
   // Final review ruling 1 (H3): the strip names only the readable reads, in Service, Dispatch, Fuel, Renewable order.
@@ -856,40 +831,36 @@ describe("W4-02 Overview mini cards", () => {
   const READS = (names: string) => `Reads on this Overview: ${names}. Each card shows what its selected period supports.`;
 
   it("H3: a numeric MINIGRID set names every read and states the mini-grid objective", async () => {
-    renderMini(miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) }));
-    await settledScreen();
-    await screen.findByText("Delivered 12.5 kW");
-    await screen.findByText("Headroom 1–2 kW");
-    expect(stripText()).toContain(READS("Service, Dispatch, Fuel, Renewable"));
+    const mini = miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) });
+    renderMini(mini);
+    await readsSettled(mini);
+    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch, Fuel, Renewable")));
     expect(stripText()).not.toContain("dispatch only");
     expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
     expect(document.body.textContent).not.toContain("Objective: nothing here is a current answer.");
   });
 
   it("H3: a partial set lists only the readable reads; 409 and 503 are not readable", async () => {
-    renderMini(
-      miniClient({
-        fuel: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "MINI_STORE_UNAVAILABLE", message: null }),
-        renewable: () => Promise.resolve({ status: "refused", httpStatus: 409, code: "MINI_NOT_SETTLED", message: null }),
-      }),
-    );
-    await settledScreen();
-    await screen.findByText("Delivered 12.5 kW");
-    await screen.findAllByText(OVERVIEW_MINI_UNAVAILABLE, { exact: false });
-    expect(stripText()).toContain(READS("Service, Dispatch"));
+    const mini = miniClient({
+      fuel: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "MINI_STORE_UNAVAILABLE", message: null }),
+      renewable: () => Promise.resolve({ status: "refused", httpStatus: 409, code: "MINI_NOT_SETTLED", message: null }),
+    });
+    renderMini(mini);
+    await readsSettled(mini);
+    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch")));
+    expect(stripText()).not.toContain("Fuel");
+    expect(stripText()).not.toContain("Renewable");
   });
 
   it("H3: an UNKNOWN read is listed while its card stays Unknown; malformed reads are not listed", async () => {
-    renderMini(
-      miniClient({
-        service: () => loaded(envelope("service", "UNKNOWN", { ...SERVICE, delivered_load_kw: null })),
-        fuel: () => Promise.resolve({ status: "unavailable", message: "malformed" }),
-      }),
-    );
-    await settledScreen();
-    await screen.findByText("Headroom 1–2 kW");
-    expect(value("service")).toBe("Unknown");
-    expect(stripText()).toContain(READS("Service, Dispatch, Renewable"));
+    const mini = miniClient({
+      service: () => loaded(envelope("service", "UNKNOWN", { ...SERVICE, delivered_load_kw: null })),
+      fuel: () => Promise.resolve({ status: "unavailable", message: "malformed" }),
+    });
+    renderMini(mini);
+    await readsSettled(mini);
+    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch, Renewable")));
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
   });
 
   it("H3: an empty readable set says no objective read is available", () => {
@@ -915,8 +886,6 @@ describe("W4-02 Overview mini cards", () => {
 });
 
 describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-day reasons", () => {
-  const card = (key: string) => document.querySelector(`[data-objective-card="${key}"]`) as HTMLElement;
-  const footerLink = (key: string) => card(key).querySelector(`.v69-metric__link [data-objective-card-detail="${key}"]`);
 
   it("Q1 / R156: the trail is Sites › {site} › Overview with the Site crumb linked", async () => {
     const { client } = clientOf(() => summary("2026-10-23"));
@@ -928,38 +897,34 @@ describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-
     expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe("Overview");
   });
 
+  // OUT-B B5 (R540): the Dispatch and Battery cards, their footer links and tone borders are replaced by the outcome
+  // board; the board receives the Overview's selected day.
   it("Q2 / R157 / Q48: Dispatch and Battery carry a footer View detail link; Dispatch's border follows the stored classification", async () => {
     const { client } = clientOf(() => summary("2026-10-23"));
-    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    const board = fakeOutcomeBoard();
+    render(
+      <MemoryRouter initialEntries={[`/sites/${SITE_ID}?date=2026-10-23`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={DIRECTORY} siteDetail={DETAIL} siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
+          siteOverview={client} siteFindingIndex={NO_INDEX} miniDepth={NO_MINI} outcomeBoard={board.client} />
+      </MemoryRouter>,
+    );
     await settledScreen();
-    expect(footerLink("dispatch")?.textContent).toBe("View detail →");
-    expect(footerLink("dispatch")?.getAttribute("href")).toBe(`/sites/${SITE_ID}/performance/dispatch?day=2026-10-23`);
-    expect(footerLink("battery")?.getAttribute("href")).toBe(`/sites/${SITE_ID}/assets`);
-    // Battery keeps its no-condition value and no tone border; nothing invents an assessment.
-    expect(card("battery").querySelector(".v69-metric__value")?.textContent).toBe("Not available");
-    expect(card("battery").textContent).toContain("No battery condition read on this Overview");
-    expect(card("battery").classList.contains("v69-metric--assessment")).toBe(false);
-    // The fixture's stored classification is CANDIDATE_AVOIDABLE: amber.
-    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(true);
-    expect(card("dispatch").classList.contains("v69-metric--amber")).toBe(true);
-    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("amber");
+    expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+    expect(board.calls.map((c) => c.siteCode)).toContain(summary("2026-10-23").site_code);
+    for (const c of board.calls) expect(c.query.date).toBe("2026-10-23");
   });
 
   it("Q2: a needed day is gray, and a day with no current read has no border", async () => {
-    const needed = clientOf(() => summary("2026-10-23", { assessment: { ...summary().assessment, claim_level: "NECESSARY" } }));
-    const first = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, needed.client);
-    await settledScreen();
-    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(true);
-    expect(card("dispatch").classList.contains("v69-metric--amber")).toBe(false);
-    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("gray");
-    first.unmount();
-    const unassessed = clientOf(() =>
-      summary("2026-10-23", { assessment: { ...summary().assessment, state: "UNKNOWN", claim_level: null, dispatch_intervals: [] } }),
-    );
-    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, unassessed.client);
-    await settledScreen();
-    expect(card("dispatch").classList.contains("v69-metric--assessment")).toBe(false);
-    expect(card("dispatch").getAttribute("data-objective-card-tone")).toBe("none");
+    for (const assessment of [
+      { ...summary().assessment, claim_level: "NECESSARY" },
+      { ...summary().assessment, state: "UNKNOWN", claim_level: null, dispatch_intervals: [] },
+    ]) {
+      const { client } = clientOf(() => summary("2026-10-23", { assessment } as never));
+      const view = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+      await settledScreen();
+      expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
+      view.unmount();
+    }
   });
 
   it("Q3 / R159: Operating context links to the single line diagram at the selected window's end", async () => {

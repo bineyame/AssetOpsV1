@@ -438,11 +438,6 @@ function ObjectiveLine({ summary, minigrid }: { summary: SiteWindowSummary; mini
   );
 }
 
-/** The loading sentence `settledScreen` waits on, shown on a mini card while its read is in flight. */
-export const OVERVIEW_MINI_LOADING = "Loading the site's mini-grid assessment.";
-/** Spec closure 2: a failed Overview mini read (503, transport, malformed) reads as unavailable, never as zero. */
-export const OVERVIEW_MINI_UNAVAILABLE = "Mini-grid evidence is unavailable right now. Try again.";
-
 interface OverviewMiniState {
   key: string;
   localDay: string;
