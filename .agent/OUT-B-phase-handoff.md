@@ -350,3 +350,34 @@ Anchors are relative to backend/assetops_backend.
   /api/estate/evidence refuses a non-midnight window (422 INVALID_WINDOW, scope.py:120), so the check used the UTC day
   containing E (10-06): 409 ESTATE_SELECTION_INCONSISTENT -> fixture's, not a binding bug. Assure UNKNOWN asserted.
 - Next: coordinator B4 per-unit review, then B5/B6.
+
+## B4 fix round (addendum 7 + review OUT-B4-review.md M1-M3, L1-L4)
+- M3 / addendum 7: `estate/scope.py` `check_window` (the one window rule, now used by `parse_request`) and
+  `estate_request(kind, from, to, known_at)`; `site_readiness` (`evidence_money.py`) and `site_work_rows`
+  (`portfolio.py`) build requests through it, so a misaligned or over-31-day window is `EstateRefusal("INVALID_WINDOW")`.
+  The estate methods never widen. `site_outcomes/read.py` `covering_days(lo, hi)` = `[floor_utc_day, ceil_utc_day)`;
+  `_shared(widen=True)` is used by `cold_ports` and `ev_ports` only (mini unchanged). Over 31 covering days: the estate
+  refuses, `evidence_readiness` is a failed port, Assure UNKNOWN, board PARTIAL; board `window` stays the board window.
+- Tests: `test_out_b4_window.py` (10: covering days, misaligned/over-31 refusal on both methods, widening forwarded for
+  cold and EV, over-31 board PARTIAL with unwidened `window`); `test_out_b4_main_binding.py` (M1: `create_app(site_read_access=
+  Grant("COLD-LAB-001"))` -> KOBO board 403 SITE_SCOPE_FORBIDDEN; non-vacuity: removing `work_access=site_read_access` in
+  `main.py` -> 503, test fails; reverted); `test_out_b4_route.py` L3 (registry call counter is 0 on 401/403).
+- Postgres test: M2 `_assert_readiness_equals_portfolio` compares the board's `evidence_readiness` port with the EVIDENCE
+  cell from `GET /api/estate/portfolio` (and `/api/estate/evidence` agreeing) over the covering UTC day; L1 asserts
+  ACT-048's id on the `action_index` port; L2 evaluates B.7 #4 (`present == completed requests in work window and
+  no later related request`).
+- RE-RECORDED: cold w501 window 10-29 16:00-17:05Z -> covering day 10-29: Portfolio cell NONE, board port NONE, states
+  [NOT_MEASURED, NOT_MEASURED, NEEDS_ATTENTION, WATCH] (Assure WATCH unchanged); B.7 #4 absent, 0 completed requests in
+  the work window (consistent). EV w504 E 10-06 08:00-09:00Z -> covering day 10-06: Portfolio route 409
+  ESTATE_SELECTION_INCONSISTENT on both `/api/estate/portfolio` and `/api/estate/evidence`; board port refused the
+  same way -> Assure UNKNOWN, PARTIAL, states [WATCH, NOT_MEASURED, NEEDS_ATTENTION, UNKNOWN]. The refusal is the
+  fixture's (whole-day also refuses): honest UNKNOWN, carried to the combined dataset.
+- Preexisting, unrelated: `test_w301_estate_index_postgres.py` 2 tests (`..._without_mock_seed`, `..._only_exact_eligible_
+  current_rows`) fail with NoResultFound also at d37a2cbd (checked one).
+- L4, packet notes, per-read gate handling (addendum 4 #6; checked by the B4 review against the routes): overview =
+  `site_overview/route.py:137-158` (S2 source + performance gate + basis_reason); dispatch = `performance_gate`; Finding
+  index = `basis_aware_gate` (route 409 -> PortUnavailable); mini depth = no gate (`mini_depth_api.py:6`); Action detail,
+  verification, Action index, assumption series = no gate flag on GET (`action_api.py:212-221`; `source_open` is only on
+  recommendation/accept, which the board never reads); work lists, domain index, global work = `site_read_access`
+  (WorkGate read_scope = board `work_access`); cold/EV reads = access, window, Site type, disclosure (`cold_site_api.py:60-102`,
+  `ev_assessment_api.py:85-118`). Readiness chips describe the covering day(s), which can be wider than a sub-day window.
