@@ -132,6 +132,7 @@ import {
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
+import { AffectsLine, type OutcomeCategories } from "../sites/outcomeCategories";
 
 /**
  * The T028 operator frames: Site > Performance, Site > Findings, the Findings
@@ -821,7 +822,7 @@ export function SiteFindingFrame({
 
 type MiniSelection =
   | { status: "loading" }
-  | { status: "loaded"; revisionId: string; title: string }
+  | { status: "loaded"; revisionId: string; title: string; categories?: OutcomeCategories }
   | { status: "refused" };
 
 /**
@@ -880,7 +881,13 @@ function CanonicalMiniFinding({
         (revisionId === null || read.value.selection.revision_id.toLowerCase() === revisionId.toLowerCase())
       ) {
         settled.current = { key, revisionId: read.value.selection.revision_id };
-        setSelection({ status: "loaded", revisionId: read.value.selection.revision_id, title: read.value.revision.title });
+        // OUT-A A5: the same read carries the Finding's outcome categories; every child tab shows them, no new fetch.
+        setSelection({
+          status: "loaded",
+          revisionId: read.value.selection.revision_id,
+          title: read.value.revision.title,
+          categories: read.value.categories,
+        });
       } else {
         settled.current = null;
         setSelection({ status: "refused" });
@@ -1010,6 +1017,7 @@ function CanonicalMiniFinding({
               {ALTERNATIVES_FINDING_UNAVAILABLE}
             </p>
           ) : null}
+          {selection.status === "loaded" ? <AffectsLine categories={selection.categories} subject="finding" /> : null}
           {view === "alternatives" ? (
             selection.status === "loaded" && revisionId !== null ? (
               <MiniAlternatives

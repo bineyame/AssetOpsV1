@@ -9,6 +9,8 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClie
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { F130 } from "./outcomeFixtures";
 
 /* post-W6 W2-EV U4 (B9-10/R253): an EV Site's Findings page lists the selected EV Findings read. */
 
@@ -116,5 +118,20 @@ describe("EV Site Findings", () => {
     await settledScreen();
     expect(client.listFindings).not.toHaveBeenCalled();
     expect(document.querySelector("[data-ev-findings-index]")).toBeNull();
+  });
+
+  it("OUT-A A4: the interruption row shows two solid pills, Protect then Grow, and no outlined pill", async () => {
+    mount("EV_CHARGING", ok(findings([{ ...item, categories: F130 }])));
+    await settledScreen();
+    await screen.findByRole("link", { name: item.title });
+    const tagsOf = (row: Element | null) =>
+    Array.from(row?.querySelectorAll(".oc-affects") ?? []).map((el) => [el.textContent, el.classList.contains("quiet")]);
+    expect(tagsOf(document.querySelector("[data-ev-finding-row] td:first-child"))).toEqual([
+      ["Affects Protect asset and capital", false],
+      ["Affects Grow revenue", false],
+    ]);
+    const scan = scanProductVocabulary(document.querySelector("[data-outcome-tags]") as HTMLElement, "sitefindings", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(0);
+    expect(describeViolations(scan.violations)).toBe("");
   });
 });

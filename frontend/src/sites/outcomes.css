@@ -1,0 +1,43 @@
+/*
+ * OUT-A A4/A6: outcome category pills, the Affects line and the Portfolio category cards, ported from the
+ * v7.0 mock (frontend/mockups/v70/outcomes.css) with its colours swapped for tokens. Pill text pairs are
+ * chosen for >= 4.5:1 contrast (asserted in sites/__tests__/outcomeCategories.test.tsx):
+ *   solid list pill   --badge-neutral-text (#334155) on --accent-weak (#e8efff)
+ *   quiet list pill   --text-secondary (#617087) on --surface-raised (#ffffff)
+ *   page pill         --text-primary (#17243b) on --accent-weak; small text --status-neutral-text (#475569)
+ *   quiet page pill   --status-neutral-text on --surface-raised
+ */
+.oc-ic { width: 16px; height: 16px; flex: 0 0 auto; display: inline-block; vertical-align: middle; }
+.oc-cat { width: 30px; height: 30px; padding: 6px; border-radius: 8px; background: var(--accent-weak); color: var(--accent); }
+.oc-cat-grow { background: var(--status-green-bg); color: var(--status-green-text); }
+.oc-cat-cost { background: var(--status-amber-bg); color: var(--status-amber-text); }
+.oc-cat-protect { background: var(--accent-weak); color: var(--accent); }
+.oc-cat-assure { background: var(--badge-provenance-bg); color: var(--badge-provenance-text); }
+
+.oc-affectwrap { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.oc-affects {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--badge-neutral-text);
+  background: var(--accent-weak);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: normal;
+}
+.oc-affects.quiet { background: var(--surface-raised); border-color: var(--border-subtle); color: var(--text-secondary); font-weight: 500; }
+
+.oc-affectsline { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin-bottom: 16px; font-size: 12px; }
+.oc-k { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-secondary); font-weight: 600; }
+.oc-pill {
+  background: var(--accent-weak);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 11px;
+}
+.oc-pill.quiet { background: var(--surface-raised); border-color: var(--border-subtle); color: var(--status-neutral-text); font-weight: 500; }
+.oc-pill small { display: block; font-weight: 400; font-size: 10px; color: var(--status-neutral-text); margin-top: 1px; }

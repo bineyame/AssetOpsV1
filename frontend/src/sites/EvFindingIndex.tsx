@@ -9,6 +9,7 @@ import type { EvAssessmentClient, EvFindingsRead, EvRead, EvWindowQuery } from "
 import { renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { RefusedGap, RefusedHead } from "./EvAssessmentViews";
 import { LensChips } from "./SiteFindingIndex";
+import { CategoryTags } from "./outcomeCategories";
 
 export const EV_FINDING_INDEX_HEADING_ID = "ev-finding-index-heading";
 export const EV_FINDING_INDEX_EMPTY = "No Findings at this site in the selected window.";
@@ -107,6 +108,7 @@ export function EvFindingIndex({
                 <tr key={`${i.finding_id}|${i.revision_id}`} className="finding-index-row" data-ev-finding-row={i.finding_id}>
                   <td>
                     <Link to={findingHref(i.finding_id)}>{i.title}</Link>
+                    <CategoryTags categories={i.categories} />
                   </td>
                   <td>
                     <Link to={sessionsHref}>Sessions</Link>

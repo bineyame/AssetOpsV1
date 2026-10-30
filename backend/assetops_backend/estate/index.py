@@ -18,6 +18,7 @@ from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
     portfolio_cursor_key, selection_token, token_time, wire_time)
+from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
@@ -130,6 +131,9 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "lifecycle": r["lifecycle"], "lens_flags": flags, "consequence": r["consequence"],
                 "source_provenance": r["source_provenance"], "episode_start": wire_time(r["episode_start"]),
                 "status": cov["state"],
+                # OUT-A2: the outcome categories of the stored mechanism on the coverage domain (NOT_MAPPED when
+                # either is unknown).
+                "categories": categories_for(finding_signal_key(r.get("mechanism")), domain),
                 "links": _finding_links(code, domain, fid, frid, rec, scope["k"]),
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
                 "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism"),

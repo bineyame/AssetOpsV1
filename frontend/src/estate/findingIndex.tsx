@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";
+import { CategoryTags } from "../sites/outcomeCategories";
 import {
   createEstateClient,
   type EstateClient,
@@ -296,6 +297,7 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
             </span>
           </>
         )}
+        <CategoryTags categories={row.categories} />
         <Disclosure summary={row.finding_label} name={`estate-finding-${row.finding_id}`} variant="inline">
           <span className="estate-cell__detail">
             Finding {row.finding_id} · revision {row.finding_revision_id} · {source.label}

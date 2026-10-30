@@ -6033,3 +6033,26 @@ Lane C, branch `task/CC-R2-placement`. Spec: `.agent/build-spec-commercial-2026-
   - Q2, there is no EV row in the W3-03 fixture;
   - Q3, the stale panel-bottom copy;
   - Q4, there is no Portfolio claim in the s602b capture script.
+
+## OUT-A - outcome category labels and links (built, in_review)
+
+Outcome sprint slice A, branch `task/OUT-A-category-labels` (main `cbc32703` merged in). Spec: `AssetOpsV1-plan2/.agent/build-spec-outcome-sprint-2026-10-29.md` Slice A + rulings A, addenda 1-2. Packet `.agent/OUT-A-packet.md`.
+- Backend:
+  - New pure `outcomes/catalogue.py`, which holds four categories and the site-level outcomes.
+  - New pure `outcomes/outcome_map.py` (`outcome-map/1`: `categories_for(signal, domain)`, `finding_signal_key`, `outcome_roles`). NOT_MAPPED is used when the mechanism or the domain is unknown.
+  - `categories` are on estate index rows (`estate/index.py`), Portfolio rows plus `summary.category_counts` (`estate/portfolio.py`), the mini Finding index and read (`analytics/finding_index.py`, `finding_read.py`), cold and EV Finding reads (`adapters/postgres_assessment_store.py`) and the mini Action read (`actions/service.py`).
+- Fixtures: w301 golden and both S6 contracts were regenerated through write flags. Proof: `.agent/OUT-A-golden-equality.py`, which strips only `categories` and `selection_seq`.
+- Frontend:
+  - `sites/outcomeCategories.tsx` holds `CategoryTags` (solid = moves, outlined = touches), `AffectsLine` (prop `subject`, not `variant`; a guard bans `variant`) and `OutcomeIcon`/`OutcomeGlyph`. Styles are in `sites/outcomes.css`.
+  - Pills are on the estate, Site, cold and EV Findings lists.
+  - One Affects line appears on the mini Finding overview, evidence and history tabs, the cold and EV Finding overviews, and the ACT-048 pages.
+- Portfolio: `estate/PortfolioOutcomes.tsx` renders four category cards in place of the five value cards. The cards not shown stay on the wire.
+  - Grow "Not available yet" renders through gap `G-portfolio-grow-revenue` (registry `portfolio:3.grow-card-value`).
+  - A missing OPERATING_COST gives `OPTIMIZE_COST_MISSING` ("Not assessed").
+- `tools/measure-mock-panels.mjs --mock <dir>`; register R520-R528.
+- Open:
+  - Grow value until OUT-B6 (R524).
+  - Two w303 backend tests fail on main, because they assert `_mechanism is None` after CC-R2. A separate round fixes them.
+  - 3 w1f4 vitest failures are on main.
+  - EV and cold vitest tests are load-flaky in the full suite.
+  - No three-domain demo estate exists (R535).

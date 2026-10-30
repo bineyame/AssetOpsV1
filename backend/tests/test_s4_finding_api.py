@@ -211,3 +211,23 @@ def test_w301_source_provenance_wrappers_pass_public_blocks_and_keep_fail_closed
         for fallback in (finding_provenance(resolver, t, s, fr), consequence_provenance(resolver, t, s, fr, cid)):
             assert fallback["state"] == "UNKNOWN" and fallback["reasons"][0]["code"] == code
             assert not (public_keys & set(fallback))
+
+
+def test_out_a2_finding_detail_carries_categories_of_the_selected_mechanism() -> None:
+    """OUT-A2: the detail's top-level `categories` come from the selected revision's stored mechanism on the
+    mini-grid domain (an unknown mechanism is NOT_MAPPED), and the route passes them through unchanged."""
+    from assetops_backend.analytics.finding_read import FindingReadService
+    from assetops_backend.outcomes.outcome_map import categories_for
+    from test_s4_finding_cause import S, T, Dispatch, Store, rev, seg
+
+    interval = uuid4()
+    unknown = rev(1, interval, [])
+    mapped = {**rev(2, interval, []), "mechanism": "GENERATOR_SUPPORT_CANDIDATE"}
+    service = FindingReadService(Store([unknown, mapped]), Dispatch({str(interval): [seg("CANDIDATE", [])]}))
+    latest = service.finding(T, S, uuid4())
+    assert latest["categories"] == categories_for("FINDING:GENERATOR_SUPPORT_CANDIDATE", "mini_grid")
+    assert latest["categories"]["state"] == "MAPPED"
+    assert service.finding(T, S, uuid4(), unknown["id"])["categories"] == {
+        "policy_version": "outcome-map/1", "state": "NOT_MAPPED", "items": []}
+    out = client(Reads(body={**body(), "categories": latest["categories"]})).get(URL).json()
+    assert out["categories"] == latest["categories"]

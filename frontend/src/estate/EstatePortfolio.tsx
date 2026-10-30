@@ -12,11 +12,9 @@ import {
   type EstateQuery,
   type EstateResult,
   type EstateSourceBlock,
-  type EstateValueCard,
 } from "./estateClient";
 import { EstateDateBar, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
-import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityText } from "./estateFinancialsWords";
-import type { FinancialAmount } from "./estateEvidenceMoneyClient";
+import { moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityText } from "./estateFinancialsWords";
 import {
   ACTION_WINDOW_NOTE,
   ASSESSMENT_IDS,
@@ -26,8 +24,6 @@ import {
   NO_CONFIGURED_OBJECTIVE,
   OBJECTIVE_DETAIL_UNAVAILABLE,
   selectedAssessmentWords,
-  CARD_LABEL,
-  CARD_VALUE,
   CATEGORIES_SEPARATE,
   contextWords,
   CURRENT_SITE_VIEW,
@@ -66,6 +62,8 @@ import {
   VALUE_OWNERSHIP,
 } from "./portfolioWords";
 import "./estatePortfolio.css";
+import { CategoryTags } from "../sites/outcomeCategories";
+import { amountOf, CategoryCards } from "./PortfolioOutcomes";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -91,68 +89,6 @@ export function portfolioHref(window: Window, lens: EstateLens): string {
 /** The shared date bar reads only `status` and `window`; its HISTORICAL line keys off the same status word. */
 function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
   return body === null ? null : (body as unknown as EstateEnvelope);
-}
-
-const amountOf = (value: { low: unknown; high: unknown; currency: string | null } | null | undefined) =>
-  (value ?? null) as FinancialAmount | null;
-
-function cardValue(card: EstateValueCard, body: EstatePortfolioBody): { value: string; detail: string } {
-  const detail = card.detail ?? "";
-  if (card.state === "COMPARABLE_GROUP") {
-    const group = body.money.groups.find((g) => g.group_key === card.group_key);
-    const window = group ? moneyWindowText(group.window_start, group.window_end) : null;
-    return {
-      value: (group && moneyText(amountOf(group.amount), "outward")) ?? NOT_DISPLAYABLE,
-      detail: card.detail ?? `${categoryLabel(group?.category ?? "")} · ${window ?? "Window not recorded"} · ${card.line_keys.length} Site lines`,
-    };
-  }
-  if (card.state === "SITE_OWNED") {
-    const line = body.selected_lines.find((x) => x.line_key === card.line_keys[0]);
-    const rounding = line?.domain === "ev_charging" ? "even2" : "outward";
-    const window = line ? moneyWindowText(line.window_start, line.window_end) : null;
-    return {
-      value: (line && moneyText(amountOf(line.amount), rounding)) ?? NOT_DISPLAYABLE,
-      detail: card.detail ?? `${line?.site_name ?? ""} · ${categoryLabel(line?.category ?? "")} · ${window ?? "Window not recorded"}`,
-    };
-  }
-  return { value: card.display_value ?? CARD_VALUE[card.state] ?? "Not established", detail };
-}
-
-function ValueCard({ card, body, window }: { card: EstateValueCard; body: EstatePortfolioBody; window: Window }) {
-  const { value, detail } = cardValue(card, body);
-  const inner = (
-    <>
-      <div className="value-label">
-        <span>{CARD_LABEL[card.key]}</span>
-      </div>
-      <div className="value-number" data-portfolio-card-value>
-        {value}
-      </div>
-      <p>{detail}</p>
-      <div className="value-basis">{card.basis_text}</div>
-    </>
-  );
-  const props = { className: `value-card ${card.tone}`, "data-portfolio-card": card.key, "data-portfolio-card-state": card.state };
-  if (card.key === "VERIFIED_RECOVERY") {
-    // Closure 1: the recovery card is not a claim; its financial basis is a separate text link.
-    return (
-      <div {...props}>
-        {inner}
-        {card.destination !== null ? (
-          <Link className="value-card__link" to={estateHref(card.destination, window)}>
-            Inspect financial basis
-          </Link>
-        ) : null}
-      </div>
-    );
-  }
-  return card.destination === null ? (
-    <div {...props}>{inner}</div>
-  ) : (
-    <Link {...props} to={estateHref(card.destination, window)}>
-      {inner}
-    </Link>
-  );
 }
 
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
@@ -199,6 +135,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <small>
           Finding {row.site_code} · {row.finding_id} · {mechanismWords(row.mechanism)}
         </small>
+        <CategoryTags categories={row.categories} />
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>
       <td>
@@ -723,11 +660,8 @@ function Loaded({
         </div>
         <ScopeDisclosure body={body} />
       </div>
-      <div className="value-grid" data-portfolio-cards>
-        {body.value_cards.map((card) => (
-          <ValueCard key={card.key} card={card} body={body} window={window} />
-        ))}
-      </div>
+      {/* OUT-A A6: four outcome category cards replace the five value cards (mock pfCard). */}
+      <CategoryCards body={body} window={window} />
       <div className="portfolio-pulse" data-portfolio-pulse>
         <span>
           <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites

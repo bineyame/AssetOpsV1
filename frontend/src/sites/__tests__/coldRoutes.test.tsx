@@ -20,6 +20,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { F118, F119 } from "./outcomeFixtures";
 
 /*
  * W2-03 commit 5 (`.agent/W2-03-build-spec.md` "Commit 5 - exact v69 slots"): a COLDCHAIN Site's
@@ -504,6 +505,43 @@ describe("W2-03: cold Finding detail", () => {
     expect(panelTitled("Bounded conclusion").textContent).toContain("above 4 °C for at least 45 minutes");
     expect(panelTitled("Temperature").querySelectorAll("[data-cold-point]")).toHaveLength(13);
     expect(panelTitled("Recommended next step").querySelector(`[data-finding-link="${START_FINDING}"]`)).not.toBeNull();
+  });
+});
+
+describe("OUT-A A5: the cold Finding page's Affects line (overview only, R527)", () => {
+  const lineText = () =>
+    Array.from(document.querySelectorAll("[data-affects-line]")).map((el) => (el.textContent ?? "").replace(/\s+/g, " ").trim());
+
+  it("the start-failure overview shows one line with every wire item; a refusal and an absent key show none", async () => {
+    const withCategories: Reads = {
+      ...STOCKED,
+      finding: (f) => ok({ ...detailOf(f, f === EXC_FINDING ? "EXCURSION" : "START_RESPONSE"), categories: f === EXC_FINDING ? F119 : F118 }),
+    };
+    renderCold(ROUTES[2][1], withCategories);
+    await settledScreen();
+    expect(lineText()).toEqual([
+      "Affects Protect asset and capital cooling continuity, stock kept saleable Also check Protect asset and capital compressor life Optimize cost and efficiency cost per cooling unit",
+    ]);
+    // Above the Finding state strip, below the section tabs.
+    const line = document.querySelector("[data-affects-line]") as HTMLElement;
+    const tabs = document.querySelector('nav[aria-label="Finding sections"]') as HTMLElement;
+    expect(tabs.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expectV69Panels("cold-finding");
+    const scan = scanProductVocabulary(line, "cold-finding", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(2);
+    expect(describeViolations(scan.violations)).toBe("");
+    cleanup();
+    renderCold(ROUTES[3][1], withCategories);
+    await settledScreen();
+    expect(lineText()).toEqual(["Affects Protect asset and capital stock kept saleable"]);
+    cleanup();
+    renderCold(ROUTES[2][1], STOCKED);
+    await settledScreen();
+    expect(lineText()).toEqual([]);
+    cleanup();
+    renderCold(ROUTES[2][1], REFUSED);
+    await settledScreen();
+    expect(lineText()).toEqual([]);
   });
 });
 

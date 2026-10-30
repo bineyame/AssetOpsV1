@@ -16,6 +16,10 @@ import {
   type RevisionSummary,
 } from "../findingClient";
 import { SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
+import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
+import type { SiteDetailClient } from "../siteDirectoryClient";
+import type { SiteDetailReadModel } from "../siteReadModel";
+import { F104 } from "./outcomeFixtures";
 
 const F = "49281b7c-96ac-456d-ab6b-040bb0760444";
 const PRIOR = "ce269028-d1c0-41cb-9b11-081b2229da03";
@@ -1134,5 +1138,64 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     mount(fake({ status: "not_found", message: null }), "", F, true, { financials: client });
     await settledScreen();
     expect(asked).toEqual([]);
+  });
+});
+
+describe("OUT-A A5: the mini Finding frame's Affects line", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const MINI_SITE = {
+    site_id: "KOBO-001",
+    display_name: "Kobo",
+    site_type: "MINIGRID",
+    location: { country: "Kenya", locality: "Nairobi" },
+    timezone: "Africa/Nairobi",
+    lifecycle_status: "PLANNED",
+    origin: "USER",
+    source: { mode: "SIMULATED" },
+    template: null,
+    configuration_store: "POSTGRES",
+  } as unknown as SiteDetailReadModel;
+
+  function frame(path: string, client: FindingClient) {
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: MINI_SITE }) };
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          {["/sites/:siteId/findings/:findingId", "/sites/:siteId/findings/:findingId/:findingView"].map((p) => (
+            <Route key={p} path={p} element={<SiteFindingFrame detail={detail} sitesPath="/sites" findings={client} />} />
+          ))}
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("overview, evidence and history each show exactly one line with the exact text", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline in tests"))));
+    const client = fake({ status: "loaded", value: body([summary(1, "OPENED")], 1, { categories: F104 }) });
+    for (const view of ["", "/evidence", "/history"]) {
+      const mounted = frame(`/sites/KOBO-001/findings/${F}${view}?revision_id=rev-1`, client);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelectorAll("[data-affects-line]")).toHaveLength(1));
+      expect(document.querySelector('[data-finding-section][aria-current="page"]')?.getAttribute("data-finding-section")).toBe(
+        view === "" ? "finding" : view.slice(1),
+      );
+      const line = document.querySelector("[data-affects-line]") as HTMLElement;
+      expect((line.textContent ?? "").replace(/\s+/g, " ").trim()).toBe(
+        "Affects Optimize cost and efficiency supply cost per kWh Also check Protect asset and capital reliable service, battery and generator life",
+      );
+      const scan = scanProductVocabulary(line, `mini finding${view}`, { set: "w1" });
+      expect(scan.scanned).toBeGreaterThan(2);
+      expect(describeViolations(scan.violations)).toBe("");
+      mounted.unmount();
+    }
+  });
+
+  it("a body without the key shows no line", async () => {
+    vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline in tests"))));
+    frame(`/sites/KOBO-001/findings/${F}?revision_id=rev-1`, fake({ status: "loaded", value: body([summary(1, "OPENED")]) }));
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-finding-section]")).not.toBeNull());
+    expect(document.querySelector("[data-affects-line]")).toBeNull();
   });
 });

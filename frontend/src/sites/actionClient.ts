@@ -20,6 +20,7 @@ import type { SourceProvenance } from "./sourceProvenance";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
 import type { VerificationSummary } from "./verificationClient";
+import type { OutcomeCategories } from "./outcomeCategories";
 
 export interface Refusal {
   status: "refused";
@@ -305,6 +306,8 @@ export interface PolicyChangeBody {
 }
 
 export interface ActionBody {
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
   /** S4-05b phase 2: the pinned origin FindingRevision's stored source (absent on older servers: Source unverified). */
   source_provenance?: SourceProvenance | null;
   accepted_recommendation: {

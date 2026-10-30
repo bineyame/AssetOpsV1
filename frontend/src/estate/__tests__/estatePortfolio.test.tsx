@@ -6,7 +6,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
-import { forbiddenPhrases } from "../../test/productVocabulary";
+import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioStatus } from "../estateClient";
 import { EstatePortfolioPage } from "../EstatePortfolio";
@@ -61,26 +61,24 @@ describe("estate Portfolio page", () => {
     expect(text(context)).toContain("Portfolio: Review selected Sites");
     expect(text(context)).toContain("4 accessible Sites · 1 mini-grid / 1 cold-chain / 2 EV charging");
     expect(text(context)).not.toMatch(/simulated|Needs attention/);
+    // OUT-A A6: four outcome category cards replace the five value cards (canonical order).
     const cards = Array.from(document.querySelectorAll("[data-portfolio-card]"));
     expect(cards.map((c) => c.getAttribute("data-portfolio-card"))).toEqual([
-      "OPERATING_COST",
-      "SERVICE_PRODUCT_RISK",
-      "PRODUCTIVE_USE",
-      "ASSET_LIFE",
-      "VERIFIED_RECOVERY",
+      "GROW_REVENUE",
+      "OPTIMIZE_COST",
+      "PROTECT_ASSET",
+      "ASSURE_PERFORMANCE",
     ]);
-    // R5: the Site-owned value is formatted from the exact selected line (outward to the minor unit).
-    expect(text(cards[0].querySelector("[data-portfolio-card-value]"))).toBe("$3.31–$3.97");
-    expect(text(cards[0])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026 · 14:20–15:20 UTC");
-    expect(cards[0].tagName).toBe("A");
-    expect(cards[0].getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
-    // R6: no reviewed RISK producer, so the risk card is `Not assessed` and links to the risk root, not /findings.
-    expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("Not assessed");
-    expect(cards[1].getAttribute("href")).toMatch(/^\/findings\/risks\?/);
-    expect(cards[2].tagName).toBe("DIV");
-    expect(cards[3].tagName).toBe("DIV");
-    expect(cards[4].tagName).toBe("DIV");
-    expect(within(cards[4] as HTMLElement).getByRole("link", { name: "Inspect financial basis" })).toBeTruthy();
+    // R5: the Site-owned value is formatted from the exact selected line (outward to the minor unit); now on Optimize.
+    expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("$3.31–$3.97");
+    expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026 · 14:20–15:20 UTC");
+    expect(cards[1].tagName).toBe("A");
+    expect(cards[1].getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
+    // R6 / A.4: no category counts on this body, so Protect reads `Not assessed` and links to the risk root.
+    expect(text(cards[2].querySelector("[data-portfolio-card-value]"))).toBe("Not assessed");
+    expect(cards[2].getAttribute("href")).toMatch(/^\/findings\/risks\?/);
+    expect(cards[0].getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
+    expect(cards[3].getAttribute("href")).toMatch(/^\/evidence\?/);
     expect(text(document.body)).not.toMatch(/18–20|kW ×|\$2\.50|battery on watch|ACT-0/);
     const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
     expect(text(pulse)).toContain("Not assessed priority sites");
@@ -113,10 +111,10 @@ describe("estate Portfolio page", () => {
     );
     renderAt(`${ENTRY}&lens=risks`, portfolioClient(loadedPortfolio(portfolioBody({ value_cards: cards, rows: [], total_count: 0, lens: "risks" }))));
     await settledScreen();
-    const first = document.querySelector("[data-portfolio-card='OPERATING_COST']") as HTMLElement;
+    const first = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
     expect(text(first.querySelector("[data-portfolio-card-value]"))).toBe("Unpriced");
     expect(text(first)).toContain("GreenHarvest · consequence recorded without a price");
-    expect(text(document.querySelector("[data-portfolio-card='SERVICE_PRODUCT_RISK'] [data-portfolio-card-value]"))).toBe("Not assessed");
+    expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not assessed");
     expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
     // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
     const bottom = panel("Where management should act first").querySelector(".panel-bottom") as HTMLElement;
@@ -275,7 +273,7 @@ describe("estate Portfolio page", () => {
       fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
     });
     expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
-    expect(document.querySelectorAll("[data-portfolio-card]")).toHaveLength(5);
+    expect(document.querySelectorAll("[data-portfolio-card]")).toHaveLength(4);
     expect(document.querySelectorAll("[data-portfolio-cell]")).toHaveLength(20);
     expect(screen.queryByRole("button", { name: "Load more Findings" })).toBeNull();
   });
@@ -370,7 +368,7 @@ describe("estate Portfolio page", () => {
     });
     renderAt(ENTRY, portfolioClient(loadedPortfolio(withheld)));
     await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-card='OPERATING_COST'] [data-portfolio-card-value]"))).toBe("Not comparable for this selection");
+    expect(text(document.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-value]"))).toBe("Not comparable for this selection");
   });
 
   it("noLineCardUsesExactShortLiteralFromApiAndFallback", async () => {
@@ -380,7 +378,7 @@ describe("estate Portfolio page", () => {
         c.key === "OPERATING_COST" ? { ...c, state: "NO_LINE" as const, display_value, detail: "No selected operating-cost consequence", basis_text: "No value line", tone: "neutral" as const } : c,
       ),
     });
-    const sel = "[data-portfolio-card='OPERATING_COST'] [data-portfolio-card-value]";
+    const sel = "[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-value]";
     const first = renderAt(ENTRY, portfolioClient(loadedPortfolio(noLine("No supported value"))));
     await settledScreen();
     expect(text(document.querySelector(sel))).toBe("No supported value");
@@ -775,5 +773,144 @@ describe("CC-R2-Q1 placement and confidence words", () => {
     const shown = text(priority);
     for (const t of [...REASONS, ...CONFIDENCE.flatMap(([, r]) => r)]) expect(shown).toContain(t);
     expect(forbiddenPhrases(priority.textContent ?? "")).toEqual([]);
+  });
+});
+
+describe("OUT-A A6: Portfolio outcome category cards", () => {
+  const card = (key: string) => document.querySelector(`[data-portfolio-card='${key}']`) as HTMLElement;
+  const value = (key: string) => text(card(key).querySelector("[data-portfolio-card-value]"));
+  const counts = (n: number | null) => ({
+    GROW_REVENUE: { open_findings: null, sites_with_primary_finding: null },
+    OPTIMIZE_COST: { open_findings: null, sites_with_primary_finding: null },
+    PROTECT_ASSET: { open_findings: n, sites_with_primary_finding: n },
+    ASSURE_PERFORMANCE: { open_findings: null, sites_with_primary_finding: null },
+  });
+  const withSummary = (patch: Partial<ReturnType<typeof portfolioBody>["summary"]>, scopeSites?: number) => {
+    const base = portfolioBody();
+    return portfolioBody({
+      summary: { ...base.summary, ...patch },
+      ...(scopeSites === undefined ? {} : { scope: { ...base.scope, authorized_site_count: scopeSites } }),
+    });
+  };
+
+  it("fourCardsInOrderWithIconNameDefinitionAndExactCopy", async () => {
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ category_counts: counts(2) }))));
+    await settledScreen();
+    const cards = Array.from(document.querySelectorAll("[data-portfolio-cards] [data-portfolio-card]"));
+    expect(cards).toHaveLength(4);
+    expect(
+      cards.map((c) => [
+        c.getAttribute("data-portfolio-card"),
+        text(c.querySelector("[data-portfolio-card-name]")),
+        text(c.querySelector("[data-portfolio-card-definition]")),
+        c.querySelector("svg[role='img']")?.getAttribute("aria-label"),
+      ]),
+    ).toEqual([
+      ["GROW_REVENUE", "Grow revenue", "Capture more value from existing infrastructure and expand earning potential", "Grow revenue"],
+      ["OPTIMIZE_COST", "Optimize cost and efficiency", "Eliminate avoidable expenditure and get more output from operational resources", "Optimize cost and efficiency"],
+      ["PROTECT_ASSET", "Protect asset and capital", "Preserve asset value, avoid premature replacement and reduce service disruption", "Protect asset and capital"],
+      ["ASSURE_PERFORMANCE", "Assure performance and returns", "Establish with defensible evidence whether the infrastructure is delivering expected results", "Assure performance and returns"],
+    ]);
+    expect(document.querySelector("[data-portfolio-cards]")?.classList.contains("oc-pfgrid")).toBe(true);
+    // Grow (D1 R524; ruling A-Q9).
+    expect(value("GROW_REVENUE")).toBe("Not available yet");
+    expect(text(card("GROW_REVENUE").querySelector("[data-portfolio-card-detail]"))).toBe("Site income not recorded");
+    expect(text(card("GROW_REVENUE").querySelector("[data-portfolio-card-basis]"))).toBe("Opportunities · revenue not measured yet");
+    expect(card("GROW_REVENUE").className).toContain("neutral");
+    // Protect.
+    expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-detail]"))).toBe("Service disruptions recorded in Findings · loss not priced");
+    expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-basis]"))).toBe("Measured events, counted separately · loss not priced");
+    expect(card("PROTECT_ASSET").className).toContain("red");
+    // Assure: the fixture has 1 evidence gap among 4 Sites.
+    expect(value("ASSURE_PERFORMANCE")).toBe("Not established");
+    expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
+      "No verified result yet · no targets declared · evidence gap at 1 site",
+    );
+    expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-basis]"))).toBe("Completed work does not establish savings");
+    // Window kept on every link.
+    for (const [key, root] of [
+      ["GROW_REVENUE", "/findings/opportunities"],
+      ["OPTIMIZE_COST", "/financials"],
+      ["PROTECT_ASSET", "/findings/risks"],
+      ["ASSURE_PERFORMANCE", "/evidence"],
+    ]) {
+      expect(card(key).getAttribute("href")).toBe(`${root}?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`);
+    }
+    // The w1 scan over the four cards. The Optimize detail is the existing operating-cost card's detail verbatim
+    // (A6 table); its ledger category label ("Candidate operating-cost exposure") predates this slice and is the
+    // only text taken out of the scan.
+    const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
+    grid.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-detail]")?.remove();
+    const scan = scanProductVocabulary(grid, "portfolio", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(10);
+    expect(describeViolations(scan.violations)).toBe("");
+    expectV69Panels("portfolio");
+  });
+
+  it("protectValueForTwoOneZeroAndNullAndAbsentCounts", async () => {
+    const cases: [ReturnType<typeof counts> | undefined, string, string][] = [
+      [counts(2), "2 sites disrupted", "red"],
+      [counts(1), "1 site disrupted", "red"],
+      [counts(0), "No sites disrupted", "neutral"],
+      [counts(null), "Not assessed", "neutral"],
+      [undefined, "Not assessed", "neutral"],
+    ];
+    for (const [category_counts, expected, tone] of cases) {
+      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ category_counts }))));
+      await settledScreen();
+      expect(value("PROTECT_ASSET")).toBe(expected);
+      expect(card("PROTECT_ASSET").classList.contains(tone)).toBe(true);
+      if (expected.endsWith("disrupted") && !expected.startsWith("No")) {
+        expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toMatch(/^sites? disrupted$/);
+      }
+      view.unmount();
+    }
+  });
+
+  it("optimizeValueEqualsTheOldOperatingCostValueByteForByte", async () => {
+    // The old OPERATING_COST card rendered "$3.31–$3.97" for this fixture (rendersContextFiveCardsPulseAndSelectedRows).
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const node = card("OPTIMIZE_COST").querySelector("[data-portfolio-card-value]") as HTMLElement;
+    expect(node.textContent).toBe("$3.31–$3.97");
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
+      "Kobo · Candidate operating-cost exposure · 6 Oct 2026 · 14:20–15:20 UTC",
+    );
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("Site-owned selected consequence");
+    expect(card("OPTIMIZE_COST").className).toContain("amber");
+  });
+
+  it("optimizeCardStaysInUnknownWordingWhenOperatingCostIsMissing", async () => {
+    // Addendum 2: a body without OPERATING_COST is malformed; the card stays, in the unknown wording.
+    const value_cards = portfolioBody().value_cards.filter((c) => c.key !== "OPERATING_COST");
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ value_cards }))));
+    await settledScreen();
+    expect(value("OPTIMIZE_COST")).toBe("Not assessed");
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
+      "Operating cost is not assessed for this selection",
+    );
+    expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("No value line");
+    expect(card("OPTIMIZE_COST").className).toContain("neutral");
+    expect(card("OPTIMIZE_COST").getAttribute("href")).toBe(
+      "/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z",
+    );
+  });
+
+  it("assureGapTextForAllSomeOneZeroAndNull", async () => {
+    const cases: [number | null, number, string][] = [
+      [3, 3, "evidence gaps at all 3 sites"],
+      [2, 4, "evidence gaps at 2 of 4 sites"],
+      [1, 4, "evidence gap at 1 site"],
+      [0, 4, "no evidence gaps"],
+      [null, 4, "evidence gaps not assessed"],
+    ];
+    for (const [gaps, sites, expected] of cases) {
+      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ evidence_gap_site_count: gaps }, sites))));
+      await settledScreen();
+      expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
+        `No verified result yet · no targets declared · ${expected}`,
+      );
+      view.unmount();
+    }
   });
 });

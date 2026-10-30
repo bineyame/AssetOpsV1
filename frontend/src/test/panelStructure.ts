@@ -63,6 +63,10 @@ const LEADING_SELECTOR =
   // post-W6 W4 R325/Q14: the mini Scenarios page-local Window row (MOCK DEVIATION D2 R450), directly in the page body.
   ".mini-scenarios > .mini-scenarios-window-row, " +
 
+  // OUT-A A5: the v7.0 mock's Affects line (`outcomes.js:33-34`, `screens.js:990-991`), after the section tabs and
+  // before the body of a Finding or ACT-048 page.
+  "[data-affects-line], " +
+
   // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
   ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
 /**

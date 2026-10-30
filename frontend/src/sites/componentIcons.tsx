@@ -181,3 +181,67 @@ export function ComponentTypeIcon({ componentType, size = 40 }: { componentType:
     </svg>
   );
 }
+
+/** OUT-A A4: the outcome glyph names (path data from the v7.0 mock, `outcomes.js:37-47`). */
+export type OutcomeGlyphName =
+  | "grow"
+  | "cost"
+  | "protect"
+  | "assure"
+  | "drives"
+  | "issues"
+  | "can"
+  | "hand"
+  | "prev"
+  | "guard";
+
+const OUTCOME_GLYPH_PATHS: Record<OutcomeGlyphName, string> = {
+  grow: "M3 17l6-6 4 4 7-7 M14 8h6v6",
+  cost: "M3.5 17a8.5 8.5 0 0 1 17 0 M12 17l4-5.5 M7 17h.01 M17 17h.01 M12 8.5v1.5",
+  protect: "M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z",
+  assure: "M6 3h8.5L19 7.5V21H6z M14 3v5h5 M9 14.5l2 2 4-4.5",
+  drives: "M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4",
+  issues: "M12 4L3 20h18z M12 10v4 M12 17h.01",
+  can: "M9 18h6 M10 21h4 M12 3a6 6 0 0 0-3.8 10.6c.7.6.8 1.4.8 2.4h6c0-1 .1-1.8.8-2.4A6 6 0 0 0 12 3z",
+  hand: "M8 4h11v17H5V4h3 M9 2h6v4H9z M8.5 13l2.5 2.5 4.5-5",
+  prev: "M12 4a8 8 0 1 1-7.4 5 M4 4v5h5 M12 8v4.5l3 1.5",
+  guard: "M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z M9 12l2 2 4-4",
+};
+
+/**
+ * OUT-A A4: a 24-unit line icon for an outcome category (or a board column), drawn at a fixed size. With a
+ * `label` it is an image named in words (`role="img"` and a `<title>`); without one it is decorative.
+ */
+export function OutcomeGlyph({
+  name,
+  label,
+  className,
+  size = 16,
+}: {
+  name: OutcomeGlyphName;
+  label?: string | null;
+  className?: string;
+  size?: number;
+}) {
+  const named = typeof label === "string" && label.length > 0;
+  return (
+    <svg
+      className={className ? `oc-ic ${className}` : "oc-ic"}
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      role={named ? "img" : undefined}
+      aria-label={named ? label : undefined}
+      aria-hidden={named ? undefined : true}
+      focusable="false"
+    >
+      {named ? <title>{label}</title> : null}
+      <path d={OUTCOME_GLYPH_PATHS[name]} />
+    </svg>
+  );
+}

@@ -1130,6 +1130,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -1191,6 +1223,38 @@
                 "title": "Generator support merits review: bounded candidate avoidable running"
               },
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -1325,6 +1389,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -1456,6 +1552,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -1755,6 +1883,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -1955,6 +2115,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -2016,6 +2208,38 @@
                 "title": "Generator support merits review: bounded candidate avoidable running"
               },
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -2291,6 +2515,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -2438,6 +2694,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -2499,6 +2787,38 @@
                 "title": "Generator support merits review: bounded candidate avoidable running"
               },
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -2982,6 +3302,38 @@
             "order": "episode_start desc, finding_id asc",
             "rows": [
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {
@@ -3043,6 +3395,38 @@
                 "title": "Generator support merits review: bounded candidate avoidable running"
               },
               {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
                 "confidence": null,
                 "confidence_reasons": [],
                 "consequence": {

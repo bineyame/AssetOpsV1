@@ -8,6 +8,8 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { F104, NOT_MAPPED } from "../../sites/__tests__/outcomeFixtures";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
 import { createEstateClient, invalidWindowCopy, type EstateClient, type EstateLens } from "../estateClient";
 import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_LINKED_NOTICE, FINDINGS_NOTICE, FINDINGS_UNLINKED_NOTICE } from "../findingIndex";
@@ -769,6 +771,37 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       expect(px).toHaveLength(7);
       expect(px.reduce((a, b) => a + b, 0)).toBe(672);
       view.unmount();
+    }
+  });
+});
+
+describe("OUT-A A4 estate Findings category pills", () => {
+  it("miniRowShowsSolidOptimizeAndOutlinedProtectNullMechanismNotMappedAbsentKeyNothing", async () => {
+    const rows = [
+      findingRow(1, { categories: F104 }),
+      findingRow(2, { categories: NOT_MAPPED }),
+      findingRow(3),
+    ];
+    const client = fakeClient((lens) => loaded(findingsBody(lens, { rows })));
+    renderAt(`/findings?${WINDOW}`, client);
+    await settledScreen();
+    const trs = Array.from(main().querySelectorAll("tbody tr")) as HTMLElement[];
+    expect(trs).toHaveLength(3);
+    const tags = (tr: HTMLElement) =>
+      Array.from(tr.querySelectorAll(".oc-affects")).map((el) => [el.textContent, el.classList.contains("quiet")]);
+    expect(tags(trs[0])).toEqual([
+      ["Affects Optimize cost and efficiency", false],
+      ["Also checked under Protect asset and capital", true],
+    ]);
+    expect(tags(trs[1])).toEqual([["Category not mapped", true]]);
+    expect(trs[2].querySelector("[data-outcome-tags]")).toBeNull();
+    // The pills sit in the title cell.
+    expect(trs[0].querySelector("td:first-child [data-outcome-tags]")).not.toBeNull();
+    // The w1 scan over the new pills (the row's existing exact-reference disclosure carries fixture ids by design).
+    for (const tagged of Array.from(main().querySelectorAll<HTMLElement>("[data-outcome-tags]"))) {
+      const scan = scanProductVocabulary(tagged, "findings", { set: "w1" });
+      expect(scan.scanned).toBeGreaterThan(0);
+      expect(describeViolations(scan.violations)).toBe("");
     }
   });
 });

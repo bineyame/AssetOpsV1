@@ -109,6 +109,8 @@ from assetops_backend.evidence.public_provenance import (
     ev_session_row_selection,
 )
 from assetops_backend.financials.fuel_cost import iso
+from assetops_backend.outcomes.catalogue import COLD, EV
+from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM, UNMAPPED, categories_for, finding_signal_key
 from assetops_backend.sites.binding_roles import EV_ROLES_1, ROLE_SET_COLD_1, ROLE_SET_EV_1
 from assetops_backend.sites.binding_service import v4_mapping_profile
 
@@ -2351,6 +2353,9 @@ class ColdReadService:
             "links": self._links(snap, row[0], rev[0], rev[8], evidence_ids),
             "as_of": _cold_plain(rev[10]), "limitation": limits[0] if limits else None,
             "source_provenance": source,
+            # OUT-A3: the claim kind's stored mechanism on the cold-chain domain (an unknown kind is NOT_MAPPED).
+            "categories": categories_for(finding_signal_key(COLD_KIND_MECHANISM.get(claim.get("kind"), UNMAPPED)),
+                                         COLD),
         }
 
     def findings(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
@@ -3302,6 +3307,8 @@ class EvReadService:
                     else ev_finding_row_selection(sel["revision_id"], pinned[0], r[1])),
                 "links": {"self": f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(r[0])}{q}", "evidence": None,
                           "analysis": None, "finding": None, "financials": None},
+                # OUT-A3: every EV Finding carries the one EV mechanism (`analytics/ev.py`).
+                "categories": categories_for(finding_signal_key(ev.MECHANISM), EV),
                 "_claim": claim, "_limitations": list(_ev_json(r[10]) or ()), "_sort": (r[9], r[0])})
         return items
 

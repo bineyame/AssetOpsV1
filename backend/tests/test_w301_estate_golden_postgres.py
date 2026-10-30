@@ -21,6 +21,11 @@ The `mixed` branch (q10 ruling 1) calls `pg_harness.fresh_database()` once and t
 made by the cold and EV `Chain.open()`, so the cold, EV and S4 mini-grid chains and the empty test Site share one
 private DB and the one `demo` tenant. The STALE, LEASED and FAILED states are unit proof in
 `test_w301_estate_coverage.py`, not persisted replay coverage (q10 ruling 2). Needs ASSETOPS_TEST_DATABASE_URL.
+
+Rewrite the manifest (OUT-A ruling A-Q6; one run, then commit it):  ASSETOPS_WRITE_W301_GOLDEN=1 pytest <this file>
+Each case's expected body takes the actual normalized response while every existing marker is kept in place (a
+marker must still resolve to the actual value); the test then skips with "golden rewritten". Run once more without
+the flag to verify.
 """
 
 from __future__ import annotations
@@ -40,6 +45,7 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
 MANIFEST = Path(__file__).resolve().parent / "fixtures" / "w3" / "w301-estate-golden.json"
+WRITE_GOLDEN = bool(os.environ.get("ASSETOPS_WRITE_W301_GOLDEN"))
 REPO = Path(__file__).resolve().parents[2]
 SCHEMA = "w301-estate-golden/2"
 BRANCHES = ("mini_grid", "cold", "ev", "mixed")
@@ -586,6 +592,18 @@ def first_difference(actual: Any, expected: Any, where: str = "$") -> str:
     return f"{where}: actual {actual!r} != expected {expected!r}"
 
 
+def keep_markers(actual: Any, expected: Any) -> Any:
+    """ASSETOPS_WRITE_W301_GOLDEN: the actual normalized value, with every marker of `expected` kept where the
+    structure still matches (dict keys by name, lists of equal length by position)."""
+    if is_marker(expected):
+        return expected
+    if isinstance(actual, dict) and isinstance(expected, dict):
+        return {k: keep_markers(v, expected[k]) if k in expected else v for k, v in actual.items()}
+    if isinstance(actual, list) and isinstance(expected, list) and len(actual) == len(expected):
+        return [keep_markers(a, e) for a, e in zip(actual, expected)]
+    return actual
+
+
 def unshift(body: dict, offset: timedelta, only_derived: dict | None = None) -> dict:
     """Subtract the forced-clock offset from the echoed read instants (`window.known_at`, `summary.as_of`, and the
     scope root's `known_at`), in wire seconds. A manifest literal is already on the unshifted scale; only a
@@ -653,7 +671,7 @@ def request_params(req: dict, resolver_values: Callable[[Any], Any]) -> dict:
     return params
 
 
-def replay_case(replay: Replay, case: dict) -> None:
+def replay_case(replay: Replay, case: dict) -> dict:
     req, name = case["request"], case["name"]
     replay.setup(case["setup"])
     plain = Resolver.__new__(Resolver)
@@ -663,7 +681,7 @@ def replay_case(replay: Replay, case: dict) -> None:
         response = replay.estate.get(req["root"], **params)
         got = {"status": response.status_code, "code": response.json()["detail"]["code"]}
         assert got == case["expected"]["refusal"], name
-        return
+        return case["expected"]
     if req["root"] == "scope":
         params.pop("limit")
     known = parse(params["known_at"]) if "known_at" in params else None
@@ -682,10 +700,15 @@ def replay_case(replay: Replay, case: dict) -> None:
         if "known_at" not in params:  # an explicit cutoff is echoed as given; only the default read instant moved
             actual = unshift(actual, replay.offset)
         expected = unshift(expected, replay.offset, only_derived=case["expected"])
+    if WRITE_GOLDEN and not replay.offset:
+        written = keep_markers(actual, case["expected"])
+        assert resolver.resolve(written, digests) == actual, f"{name}: a kept marker no longer resolves"
+        return written
     assert actual == expected, f"{name}: the whole normalized response differs at {first_difference(actual, expected)}"
     for row in actual.get("rows") or ():  # source classifications are literal and every row is attributable
         assert set(row["source_provenance"]) == {"classification", "state", "source_ids", "evidence_ids",
                                                  "basis_sha256", "reasons"}
+    return case["expected"]
 
 
 BRANCH_REPLAY = {
@@ -708,6 +731,8 @@ def test_w301_golden_clock_plus_30_days(branch_name, request, monkeypatch) -> No
     """Forced-clock proof: the read clock, the `Replay` clock and `$derive` timestamps are all 30 days later, so DB-
     clock-stamped rows that fall after the unshifted pin once real time passes 2026-10-30 through 2026-11-02 cannot
     move a branch; the literal manifest, whole normalized responses and rebuilt tokens are unchanged."""
+    if WRITE_GOLDEN:
+        pytest.skip("golden write mode: run without ASSETOPS_WRITE_W301_GOLDEN to verify")
     replay_branch(branch_name, request, monkeypatch, timedelta(days=30))
 
 
@@ -719,10 +744,15 @@ def replay_branch(branch_name, request, monkeypatch, offset: timedelta = NO_OFFS
     replay = (BRANCH_REPLAY[branch_name](request, monkeypatch, branch) if offset == NO_OFFSET
               else BRANCH_REPLAY[branch_name](request, monkeypatch, branch, offset))
     replay.offset = offset
-    for case in branch["cases"]:
-        replay_case(replay, case)
+    written = [{**case, "expected": replay_case(replay, case)} for case in branch["cases"]]
     scope = replay.estate.ok("scope", **{"from": branch["cases"][0]["request"]["from"],
                                           "to": branch["cases"][0]["request"]["to"]})
     assert {s["site_code"] for s in scope["sites"]} <= set(branch["site_codes"])
     if branch_name == "mixed":
         assert_mixed(replay, branch)
+    if WRITE_GOLDEN and offset == NO_OFFSET:
+        current = load_manifest()  # read-modify-write: each parametrized branch rewrites only its own cases
+        current["branches"][branch_name]["cases"] = written
+        validate(current)
+        MANIFEST.write_bytes((json.dumps(current, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        pytest.skip("golden rewritten")

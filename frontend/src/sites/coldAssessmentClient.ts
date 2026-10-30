@@ -14,6 +14,7 @@
 
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { isObject } from "./evidenceRead";
+import type { OutcomeCategories } from "./outcomeCategories";
 
 export type ColdCurrentness = "CURRENT" | "PENDING_RECOMPUTE" | "STALE_SOURCE" | "HISTORICAL" | "UNKNOWN";
 
@@ -136,6 +137,8 @@ export interface ColdBackupRead extends ColdEnvelope {
 
 export interface ColdFindingItem {
   finding_id: string;
+  /** OUT-A: the outcome categories (policy `outcome-map/1`); absent on an older body. */
+  categories?: OutcomeCategories;
   kind: "EXCURSION" | "START_RESPONSE" | string;
   subject_asset_id: string | null;
   revision_id: string;

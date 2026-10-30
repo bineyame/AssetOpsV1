@@ -20,6 +20,8 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { F130 } from "./outcomeFixtures";
 import { plural } from "../EvAssessmentViews";
 
 /*
@@ -802,6 +804,25 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expectV69Panels("ev-finding");
     expectOneRefusal(status, copy, "ev-conclusion");
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
+  });
+});
+
+describe("OUT-A A5: the EV Finding page's Affects line (overview only, R527)", () => {
+  it("one line with Protect and Grow moved and Protect checked; an absent key shows none", async () => {
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, categories: F130 }));
+    await settledScreen();
+    const lines = Array.from(document.querySelectorAll("[data-affects-line]"));
+    expect(lines.map((el) => (el.textContent ?? "").replace(/\s+/g, " ").trim())).toEqual([
+      "Affects Protect asset and capital buses ready for service Grow revenue charger use Also check Protect asset and capital charger life",
+    ]);
+    expectV69Panels("ev-finding");
+    const scan = scanProductVocabulary(lines[0] as HTMLElement, "ev-finding", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(2);
+    expect(describeViolations(scan.violations)).toBe("");
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted));
+    await settledScreen();
+    expect(document.querySelector("[data-affects-line]")).toBeNull();
   });
 });
 

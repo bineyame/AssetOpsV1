@@ -60,6 +60,7 @@ import { NO_COLD_ASSESSMENT, RefusedStrip, RefusedTiles, RequestedWindowBar, sel
 import "./w2-cold-assessment.css";
 import "./w1ux02-findings-index.css";
 import "../ui/mock-deviation.css";
+import { AffectsLine, CategoryTags } from "./outcomeCategories";
 
 /*
  * W2-03 commit 5: the four cold assessment screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -1193,6 +1194,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
         </>
       ) : (
         <>
+          <AffectsLine categories={finding.value.categories} subject="finding" />
           <FindingStatus finding={finding.value} siteName={props.siteName} />
           {isExcursion ? (
             <ExcursionFindingPanels finding={finding.value} temperature={temperature!} findings={loaded(findings)} links={ownLinks} />
@@ -1311,6 +1313,7 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
                       </Link>
                       <br />
                       <small>{episodePeriod(f)}</small>
+                      <CategoryTags categories={f.categories} />
                     </td>
                     <td>
                       {f.kind === "EXCURSION" ? (
