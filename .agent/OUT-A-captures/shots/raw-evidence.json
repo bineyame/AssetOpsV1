@@ -1,0 +1,2107 @@
+{
+  "runs": [
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-s602b-1.json",
+      "product_sha": "a1733184",
+      "captured_at": "2026-10-30T06:42:22.447Z",
+      "captures": [
+        {
+          "name": "portfolio-estate",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": false,
+          "app_image": "portfolio-estate-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-1440-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1273,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · 4683540c-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedOpportunities · revenue not measured yet",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceNo value ",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "mainTextLen": 3771,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5467/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "portfolio-estate",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-390-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2723,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · 4683540c-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedOpportunities · revenue not measured yet",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceNo value ",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "mainTextLen": 3771,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "findings-estate-case",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "findings-estate-case-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/findings",
+          "mock_image": "findings-estate-case-1440-mock-v70-findings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Findings",
+            "location": "/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support candidate unconfirmed by the current assessmentAffects Optimize cost and efficiencyAlso checked under Protect asset and ca",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1152,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysKobo Mini-gridHighLowⓘOpe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyKobo Mini-gridMediumHighOpen30 min cann",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysKobo Mini-",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2G",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-130 · Charging session interruptedProtect asset and capitalGrow revenueConnector 2 status also unknown on 15 SepDepot Charging HubMediumMe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Findings",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "findings-estate-case",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "findings-estate-case-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/findings",
+          "mock_image": "findings-estate-case-390-mock-v70-findings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1207,
+            "h1": "Findings",
+            "location": "/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support candidate unconfirmed by the current assessmentAffects Optimize cost and efficiencyAlso checked under Protect asset and ca",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1152,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysKobo Mini-gridHighLowⓘOpe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyKobo Mini-gridMediumHighOpen30 min cann",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysKobo Mini-",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2G",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-130 · Charging session interruptedProtect asset and capitalGrow revenueConnector 2 status also unknown on 15 SepDepot Charging HubMediumMe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Findings",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "findings-kobo-replay",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5466/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+          "producer": "s602b replay",
+          "db": "assetops_s602b_outa_audit",
+          "ready": true,
+          "app_image": "findings-kobo-replay-1440-app.png",
+          "mock_url": "http://localhost:5466/mockups/v70/index.html#/findings",
+          "mock_image": "findings-kobo-replay-1440-mock-v70-findings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Findings",
+            "location": "/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support merits review: bounded candidate avoidable runningAffects Optimize cost and efficiencyAlso checked under Protect asset and",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1153,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5466/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysKobo Mini-gridHighLowⓘOpe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyKobo Mini-gridMediumHighOpen30 min cann",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysKobo Mini-",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2G",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-130 · Charging session interruptedProtect asset and capitalGrow revenueConnector 2 status also unknown on 15 SepDepot Charging HubMediumMe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Findings",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "findings-kobo-replay",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5466/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+          "producer": "s602b replay",
+          "db": "assetops_s602b_outa_audit",
+          "ready": true,
+          "app_image": "findings-kobo-replay-390-app.png",
+          "mock_url": "http://localhost:5466/mockups/v70/index.html#/findings",
+          "mock_image": "findings-kobo-replay-390-mock-v70-findings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1225,
+            "h1": "Findings",
+            "location": "/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support merits review: bounded candidate avoidable runningAffects Optimize cost and efficiencyAlso checked under Protect asset and",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1153,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysKobo Mini-gridHighLowⓘOpe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyKobo Mini-gridMediumHighOpen30 min cann",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysKobo Mini-",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-118 · Backup response failedProtect asset and capitalOptimize cost and efficiency3 grid losses in 30 days · backup started by itself on 2G",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-119 · Temperature excursionProtect asset and capitalGreenHarvest Cold RoomMediumHighOpen25–35 min above 4°C · peak 8.2°CRisks",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-130 · Charging session interruptedProtect asset and capitalGrow revenueConnector 2 status also unknown on 15 SepDepot Charging HubMediumMe",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Findings",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "sitefindings-kobo-replay",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5466/sites/KOBO-001/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+          "producer": "s602b replay",
+          "db": "assetops_s602b_outa_audit",
+          "ready": true,
+          "app_image": "sitefindings-kobo-replay-1440-app.png",
+          "mock_url": "http://localhost:5466/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-kobo-replay-1440-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 995,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 409 (Conflict) http://localhost:5466/api/sites/KOBO-001/finding-index?domain=mini-grid-dispatch&from=2026-10-13T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "sitefindings-kobo-replay",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5466/sites/KOBO-001/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+          "producer": "s602b replay",
+          "db": "assetops_s602b_outa_audit",
+          "ready": true,
+          "app_image": "sitefindings-kobo-replay-390-app.png",
+          "mock_url": "http://localhost:5466/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-kobo-replay-390-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1068,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1022,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 409 (Conflict) http://localhost:5466/api/sites/KOBO-001/finding-index?domain=mini-grid-dispatch&from=2026-10-13T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": [
+        {
+          "name": "portfolio-estate 1440: app rendered",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-s602b-2.json",
+      "product_sha": "a1733184",
+      "captured_at": "2026-10-30T06:44:31.529Z",
+      "captures": [
+        {
+          "name": "portfolio-estate",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-1440-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1273,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · 4683540c-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedOpportunities · revenue not measured yet",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceNo value ",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "mainTextLen": 3771,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5467/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "portfolio-estate",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-390-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2723,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · 4683540c-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · no targets declared · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedOpportunities · revenue not measured yet",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceNo value ",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · loss not ",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targ"
+            ],
+            "mainTextLen": 3771,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "sitefindings-kobo-estate-case",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/sites/KOBO-001/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "sitefindings-kobo-estate-case-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-kobo-estate-case-1440-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support review: not confirmed · Version 2Affects Optimize cost and efficiencyAlso checked under Protect asset and capitalDispatchN",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1409,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "sitefindings-kobo-estate-case",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/sites/KOBO-001/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outa_audit_estate",
+          "ready": true,
+          "app_image": "sitefindings-kobo-estate-case-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-kobo-estate-case-390-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1281,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Generator support review: not confirmed · Version 2Affects Optimize cost and efficiencyAlso checked under Protect asset and capitalDispatchN",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1436,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-s602b-3.json",
+      "product_sha": "a1733184",
+      "captured_at": "2026-10-30T06:46:23.514Z",
+      "captures": [
+        {
+          "name": "act048-overview-guardrail",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994",
+          "producer": "s602b guardrail case",
+          "db": "assetops_s602b_outa_audit_guardrail",
+          "ready": true,
+          "app_image": "act048-overview-guardrail-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/action-overview",
+          "mock_image": "act048-overview-guardrail-1440-mock-v70-action-overview.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "ACT-000001 · Battery reserve trial",
+            "location": "/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency supply cost per kWh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital reliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [
+              "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life"
+            ],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1357,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5467/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhSafeguards checkedProtect asset and capitalreliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "ACT-048 · Generator policy review",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "act048-overview-guardrail",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994",
+          "producer": "s602b guardrail case",
+          "db": "assetops_s602b_outa_audit_guardrail",
+          "ready": true,
+          "app_image": "act048-overview-guardrail-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/action-overview",
+          "mock_image": "act048-overview-guardrail-390-mock-v70-action-overview.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1101,
+            "h1": "ACT-000001 · Battery reserve trial",
+            "location": "/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency supply cost per kWh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital reliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [
+              "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life"
+            ],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1357,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhSafeguards checkedProtect asset and capitalreliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "ACT-048 · Generator policy review",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "act048-verification-guardrail",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994/verification",
+          "producer": "s602b guardrail case",
+          "db": "assetops_s602b_outa_audit_guardrail",
+          "ready": true,
+          "app_image": "act048-verification-guardrail-1440-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/verification",
+          "mock_image": "act048-verification-guardrail-1440-mock-v70-verification.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1490,
+            "h1": "ACT-000001 · Battery reserve trial",
+            "location": "/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994/verification",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency supply cost per kWh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital reliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [
+              "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life"
+            ],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 3002,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhSafeguards checkedProtect asset and capitalreliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Reduce extended generator support",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "act048-verification-guardrail",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994/verification",
+          "producer": "s602b guardrail case",
+          "db": "assetops_s602b_outa_audit_guardrail",
+          "ready": true,
+          "app_image": "act048-verification-guardrail-390-app.png",
+          "mock_url": "http://localhost:5467/mockups/v70/index.html#/verification",
+          "mock_image": "act048-verification-guardrail-390-mock-v70-verification.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 2778,
+            "h1": "ACT-000001 · Battery reserve trial",
+            "location": "/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994/verification",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency supply cost per kWh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital reliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [
+              "Affects Optimize cost and efficiency supply cost per kWh Safeguards checked Protect asset and capital reliable service, battery and generator life"
+            ],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 3002,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhSafeguards checkedProtect asset and capitalreliable service, battery and generator life",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Reduce extended generator support",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    }
+  ]
+}

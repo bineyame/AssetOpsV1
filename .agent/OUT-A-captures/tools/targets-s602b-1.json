@@ -1,0 +1,6 @@
+[
+ {"name":"portfolio-estate","url":"http://localhost:5467/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z","mock":"portfolio","producer":"s602b estate case","db":"assetops_s602b_outa_audit_estate"},
+ {"name":"findings-estate-case","url":"http://localhost:5467/findings?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z","mock":"findings","producer":"s602b estate case","db":"assetops_s602b_outa_audit_estate"},
+ {"name":"findings-kobo-replay","url":"http://localhost:5466/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z","mock":"findings","producer":"s602b replay","db":"assetops_s602b_outa_audit"},
+ {"name":"sitefindings-kobo-replay","url":"http://localhost:5466/sites/KOBO-001/findings?from=2026-10-13T00:00:00Z&to=2026-10-14T00:00:00Z","mock":"sitefindings","producer":"s602b replay","db":"assetops_s602b_outa_audit"}
+]

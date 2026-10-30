@@ -1,0 +1,4 @@
+[
+ {"name":"act048-overview-guardrail","url":"http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994","mock":"action-overview","producer":"s602b guardrail case","db":"assetops_s602b_outa_audit_guardrail"},
+ {"name":"act048-verification-guardrail","url":"http://localhost:5467/sites/KOBO-001/actions/8309c7d7-7603-4ad4-9513-9c2ea7f42994/verification","mock":"verification","producer":"s602b guardrail case","db":"assetops_s602b_outa_audit_guardrail"}
+]
