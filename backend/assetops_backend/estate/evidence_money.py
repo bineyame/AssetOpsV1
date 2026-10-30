@@ -510,6 +510,33 @@ class EstateEvidenceService(EstateIndexService):
 
         return self._read(work)
 
+    def site_selected_windows(self, tenant_id: Any, site_code: str, from_: datetime, to: datetime,
+                              known_at: datetime | None = None) -> list[tuple[datetime, datetime]] | None:
+        """OUT-W (P-C1 option A): the exact selected windows of one cold or EV Site that intersect [from_, to), by the
+        W3-01 rule the Evidence root reads (`site_coverage` -> `snap.selected_windows`), on one snapshot, scope and
+        cutoff. Distinct (window_start, window_end), ascending; only forward spans of at most MAX_WINDOW. [] for a
+        mini-grid or unsupported Site, a Site with no evidence cutoff, or no window. None when the Site is not in the
+        authorized imported set."""
+        req = estate_request("evidence", from_, to, known_at)  # INVALID_WINDOW over 31 days or not midnight
+
+        def work(snap: Any) -> Any:
+            scope = self._scope(snap, tenant_id, req, lambda code: code == site_code)
+            for site in scope["sites"]:
+                domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+                if domain not in (COLD, EV):
+                    return []
+                cutoff = snap.evidence_cutoff(tenant_id, site["site_id"], scope["k"])
+                if cutoff is None:
+                    return []
+                wins = snap.selected_windows(tenant_id, site["site_id"], domain, req.from_, req.to, cutoff,
+                                             scope["k"])
+                return sorted({(w["window_start"], w["window_end"]) for w in wins
+                               if w["window_start"] < w["window_end"]
+                               and w["window_end"] - w["window_start"] <= MAX_WINDOW})
+            return None
+
+        return self._read(work)
+
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
         k = scope["k"]
