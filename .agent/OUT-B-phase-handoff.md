@@ -1,4 +1,4 @@
-# OUT-B handoff (partial, 2026-10-30): B1-B3 accepted/landed; B4 plumbing landed (cd6b2e62, 6efe8da5). Resume at the B4 Postgres test
+# OUT-B handoff (partial, 2026-10-30): B1-B3 landed; B4 addendum 4 landed (f8012282); B4 Postgres test WIP (aaebaa7f). Resume at "B4 addendum 4 landed"
 
 Branch `task/OUT-B-site-outcome-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outB`. It is cut from OUT-A head `7b826e97` and has no main merge yet. Merge main in only when the coordinator says A has merged.
 
@@ -252,3 +252,43 @@ Anchors are relative to backend/assetops_backend.
   `_declare(URL, "positive", ...)` used by test_w504_ev_work_producer_postgres.py:70). Expected states in B.7 #2.
 - Cost check: time the mini board (finding index runs dispatch.window per day over 31 days); record in packet.
 - DBs `assetops_out_b_<x>_test` only; run via `toolsun-host-tests.ps1 -- backend/tests/test_out_b4_board_postgres.py`.
+
+## B4 addendum 4 landed (f8012282) - resume the Postgres test below
+- `outcome_api.build_outcome_router(..., work_access=development_access, cold_disclosure=, ev_disclosure=)`
+  (`allow_disclosure` defaults from `cold_assessment_api`). `admitted()` = `access or work_access` (first refusal,
+  401/403 before lookup); `disclosed(ref)` after the 503 service check -> 403 `COLD_SOURCE_DISCLOSURE_FORBIDDEN` /
+  `EV_SOURCE_DISCLOSURE_FORBIDDEN` (the gates' own codes); summary admit = `admitted(...) is None`, refused-disclosure
+  Sites dropped after `registry.imported`. `main.py:626` passes `work_access=site_read_access` (comment: cold/EV
+  routers get no disclosure arg, so defaults).
+- `read.py`: `BoardServices.clock` and the composition clock wiring removed; price `recorded_at=known_at` (#4).
+  `compose` wraps cold/EV `ports.overview` (dataclasses.replace) to capture body `window.known_at`; window
+  `known_at` = request's, else overview's (cold/EV), mini null (#5). Overview still never gets the resolved cutoff.
+- Tests: `test_out_b4_route.py` (5; non-vacuity shown: reverting `admitted`/`disclosed` -> 3 failed), read tests +2.
+  Focused b4 route/read/imports: 14 passed.
+- Packet: gate list (#6): overview = S2 source + perf gate + basis_reason (as route); dispatch = performance_gate;
+  finding index = basis_aware_gate (route 409 -> port PartUnavailable); action detail/verification/action index/
+  assumption series/mini depth: routes pass no gate flag (`source_open` is only on recommendation/accept, which the
+  board does not read); work lists / domain index / global work: WorkGate read_scope only (= work_access at the
+  board); cold/EV reads: gate = access + window + Site type + disclosure (board route does access, window, disclosure).
+
+## B4 Postgres test WIP (aaebaa7f) - `backend/tests/test_out_b4_board_postgres.py`
+- Runner: `tools/run-host-tests.ps1` is blocked by execution policy (no override). Equivalent sh wrapper: PYTHONPATH
+  = worktree backend;contracts;simulator;gateway;host;field, ASSETOPS_TEST_DATABASE_URL default
+  `.../55432/assetops_test`, `plan2/.venv/Scripts/python.exe -m pytest <file> -q -s -p no:cacheprovider`.
+- Kobo: `app_env` re-clones (`pg_harness.fresh_database`), child `-c` calls `s602b_test_scoped_cases.build(URL, tmp,
+  'guardrail')` (its `main` refuses `*_test`; record in packet), then in-process `performance_migration` with
+  `json_evidence_store.EVIDENCE_STORE_ROOT` monkeypatched to tmp (never the worktree var/evidence - a stray
+  var/evidence I created was deleted). `_pin_kobo` = pinned_app via monkeypatch. `FAILURES` prints port errors.
+- CURRENT RESULT: both days PARTIAL, all four rows UNKNOWN. Port failures:
+  1. `mini_overview: AwaitingComparison` (no S2 legacy comparison record; the s602b walkthrough never ran
+     evidence_migration either). Options: run `evidence_migration` in process with BOTH
+     `json_evidence_store.EVIDENCE_STORE_ROOT` and `legacy_comparison_file.EVIDENCE_STORE_ROOT` patched (empty legacy
+     set may not PASS against a non-empty ledger), or a NO_LEGACY_EVIDENCE basis (`site_overview/route.py:138-145`,
+     `no_legacy_basis`), or w403/s502 pattern (`create_app(legacy_documents=kobo_documents())`, test_w403 :60-65).
+     Unsettled overview -> all UNKNOWN, which breaks the day-A Cost NEEDS_ATTENTION assertion -> may need an
+     Architect question if no honest way to open S2 on this fixture.
+  2. `estate: the Site is not in the estate scope` on one day; the other day's `site_work_rows` had 0 findings,
+     1 action. Trace `estate/portfolio.py:505` admit (Site/evidence scope for that window) before asking.
+- Not yet run: cold (`-c w502.BUILD positive <dir>` child, window = doc["window"]) and EV (in-process
+  native_replay + _declare, window = evidence_window_E). Mini timing so far: day-B board 2.0 s (PARTIAL).
+- Then: message coordinator for B4 per-unit review; B5/B6 (B5 measure-mock-panels needs go), packet, closeout.
