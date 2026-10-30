@@ -323,3 +323,17 @@ Anchors are relative to backend/assetops_backend.
   hold on them; (2) cold: is `doc["window"]` the right board window (no Findings, currentness UNKNOWN) - the cold
   Finding's evidence window may be another key; (3) EV readiness ESTATE_SELECTION_INCONSISTENT over a 1-hour E window.
 - Resume: after the ruling, adjust fixtures/windows, rerun this file, then B4 per-unit review, then B5.
+
+## Next (partial handoff, context limit): apply addendum 6 to `test_out_b4_board_postgres.py`
+- Read only addendum 6 and the amended B.7 #2-#4 in plan2 `.agent/build-spec-outcome-sprint-2026-10-29.md`.
+- Coordinator's summary of the ruling:
+  - Kobo: assert the honest states (4 rows in order, measured outcomes UNKNOWN, read_state/failed as recorded,
+    Day A failed ["estate"]). Day B: the Action index returns ACT-048, keep the Action-row key check, no "outside
+    this view". Parity: same app, GET `/api/sites/KOBO-001/overview?date=...`; its `freshness.state` equals the
+    board's overview body (PORTS["mini_overview"]["freshness"]). Drop Day A NEEDS_ATTENTION/F01, Day B Must-not-harm,
+    and the estate Finding-row key check (moved to the combined-dataset task).
+  - Cold: board on `doc["w501"]["window"]`, no known_at; assert Protect NEEDS_ATTENTION, Grow/Cost NOT_MEASURED,
+    record Assure; B.7 #4 only if the completed request is in the work window, else record it absent.
+  - EV: same app GET `/api/estate/evidence` over the E window; if it is also 409 ESTATE_SELECTION_INCONSISTENT, assert
+    Assure UNKNOWN and record it; if it succeeds, `site_readiness` is bound wrongly: fix it before review.
+- Then: all 5 tests pass, commit, handoff, message the coordinator (B4 review), then B5 (measure-mock-panels needs go).
