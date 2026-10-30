@@ -31,7 +31,8 @@ cold overlap needs a fixture that does not exist; the shared guard is proven on 
 ## Checks run so far (real Postgres, one file at a time, plan2 venv)
 - test_fix01_estate_two_revisions_postgres.py: 1 passed. test_fix01_cold_estate_postgres.py: 1 passed. Units: 11 passed.
 - test_out_b4_board_postgres.py (w504 board, covering-day portfolio): 5 passed (296 s).
+- test_out_c4_ev_warnings_postgres.py (w504 warnings): 1 passed (115 s).
 
 ## NOT YET RUN (paused on coordinator hold, OUT-W full run in container)
-test_out_c4_ev_warnings_postgres, w301*/w302*/w303* files, test_post_w6_w3_estate_links, `tools\check-all.ps1`.
+w301*/w302*/w303* files, test_post_w6_w3_estate_links, `tools\check-all.ps1`.
 Script to resume: `$TEMP/runall.sh` pattern; run each file in its own invocation.
