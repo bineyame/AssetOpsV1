@@ -116,3 +116,11 @@ There is one High finding, a mock departure that is not registered, and it is ch
 ## Residual risk
 - R552 and the Kobo demo data: on the s602b and s5 producers, every Kobo measured outcome is Unknown. The board as captured shows no Kobo story. This is carried to the combined dataset.
 - The Portfolio capture has only the Kobo column (R535), so the matrix and dots are untested in a browser on a three-domain estate.
+
+## Coordinator verification of the final-review fix round (6959fca1, 484c4ea4) and the main merge (84cd47ba, 57fa9206), 2026-10-30: ACCEPT
+- H1 closed: `.ob-dialog` is now the right-hand drawer, full height, min(550px,95vw), border-left only. It is still a native dialog.
+- M1 closed: the addendum 9 EV strings are in ev.py, and R553 is registered.
+- M2 closed: "Check each card" no longer appears in SiteWindowOverview.tsx.
+- M3 closed by passing rather than by comparison. After merging main e07fd204 (the clock fix), every file that failed in OUT-B's full run passes on the branch, run one file per DB with the cache off: 89 Postgres tests across 13 files. test_out_b4_board_postgres passes 5. Non-Postgres b1-b4: 138. tsc is clean and check-all is 11/11.
+- L1-L4 fixed. L5 (open captures show only the first row) and L6 (the subtitle, v70 copy) are deferred to the W1 copy and capture pass.
+- Nothing is tracked under var/.
