@@ -41,7 +41,7 @@ GAP = SignalFact("SIGNAL:EVIDENCE_GAP", True, "Battery output not reported limit
 
 
 def act048(**kw) -> ActionFact:
-    base = dict(action_id="a48", code="ACT-048", title="Trial a lower generator stop setting",
+    base = dict(action_id="a48", code="ACT-048", title="",  # no stored Action title (addendum 2 item 1)
                 origin_finding_id="f104", origin_revision_id="f104r", applied=False, open=True,
                 verification_state="PENDING", href="/sites/KOBO-001/actions/a48",
                 workflow_label="Recommendation not accepted",
@@ -107,7 +107,7 @@ def test_absent_settled_key_reads_unknown() -> None:
 
 def test_pre_applied_action_is_in_hand_only_with_plan_ready() -> None:
     rows = rows_by_cat(kobo())
-    assert rows[COST]["in_hand"] == [{"text": "ACT-048 · Trial a lower generator stop setting",
+    assert rows[COST]["in_hand"] == [{"text": "ACT-048",
                                       "href": "/sites/KOBO-001/actions/a48", "state_label": "Plan ready"}]
     assert rows[COST]["earlier"] == [] and rows[COST]["earlier_empty_text"] == EARLIER_EMPTY_OPEN
     assert rows[PROTECT]["earlier"] == [] and rows[PROTECT]["earlier_empty_text"] == EARLIER_EMPTY_NONE
@@ -118,12 +118,11 @@ def test_applied_action_moves_to_earlier_with_checked_entry() -> None:
     rows = rows_by_cat(kobo(actions=(act048(applied=True, workflow_label="Outcome pending"),)))
     assert rows[COST]["state"] == "WATCH"  # D4 (R542)
     assert rows[COST]["in_hand"] == []
-    assert rows[COST]["earlier"] == [{"text": "ACT-048 · Trial a lower generator stop setting",
+    assert rows[COST]["earlier"] == [{"text": "ACT-048",
                                       "href": "/sites/KOBO-001/actions/a48", "result_label": "Pending"}]
     assert rows[COST]["earlier_empty_text"] is None
     assert rows[PROTECT]["earlier"] == [{
-        "text": "Reliable service and battery and generator life checked as safeguards in "
-                "Trial a lower generator stop setting",
+        "text": "Reliable service and battery and generator life checked as safeguards in ACT-048",
         "href": "/sites/KOBO-001/actions/a48/verification?event_id=e1", "result_label": "Pending"}]
 
 
@@ -153,8 +152,8 @@ def test_awaiting_verification_label_rename() -> None:
 def test_must_not_harm_present_with_verification_and_absent_without() -> None:
     rows = rows_by_cat(kobo())
     assert rows[COST]["must_not_harm"] == {
-        "text": "Reliable service and battery and generator life are checked as safeguards in "
-                "Trial a lower generator stop setting; a gain that harms them does not count",
+        "text": "Reliable service and battery and generator life are checked as safeguards when ACT-048 is "
+                "verified; a gain that harms them does not count",
         "href": "/sites/KOBO-001/actions/a48/verification?event_id=e1"}
     assert rows[PROTECT]["must_not_harm"] is None
     assert rows_by_cat(kobo(actions=(act048(verification_state="NO_PLAN"),)))[COST]["must_not_harm"] is None
@@ -314,15 +313,39 @@ def test_board_imports_only_outcomes_and_stdlib() -> None:
                 assert alias.name in allowed, alias.name
 
 
-# --------------------------------------------------------------- linked Findings must be supplied (review M1)
+# --------------------------------------------------------------- unresolved links (addendum 2 item 4, replaces M1)
 
-def test_unresolved_linked_finding_fails_loudly() -> None:
+def test_unresolved_linked_finding_is_kept_under_protect_with_suffix() -> None:
     orphan_case = request("mr9", "OPEN", 6, findings=("missing",))
-    with pytest.raises(AssertionError, match="mr9 links Finding missing"):
-        assemble(cold(cases=(orphan_case,)))
+    facts = cold(cases=(orphan_case,))
+    rows = rows_by_cat(facts)
+    assert {"text": "MR9 · Inspect mr9", "href": "/maintenance/requests/mr9",
+            "state_label": "Open · linked finding outside this view"} in rows[PROTECT]["in_hand"]
+    assert board_module.unresolved_links(facts) == (("mr9", "missing"),)
+    done = request("mr8", "COMPLETED", 2, findings=("missing",))
+    rows = rows_by_cat(cold(cases=(done,)))
+    assert [e["result_label"] for e in rows[PROTECT]["earlier"]] == ["Not yet verified · linked finding outside this view"]
+
     orphan_action = replace(COLD_ACTION, origin_finding_id="missing")
-    with pytest.raises(AssertionError, match="da1 links Finding missing"):
-        assemble(cold(actions=(orphan_action,), cases=()))
+    facts = cold(actions=(orphan_action,), cases=())
+    rows = rows_by_cat(facts)
+    assert [i["state_label"] for i in rows[PROTECT]["in_hand"]] == ["Open · linked finding outside this view"]
+    assert board_module.unresolved_links(facts) == (("da1", "missing"),)
+    mini = kobo(findings=(), actions=(act048(origin_finding_id="gone"),), signals_extra=())
+    rows = rows_by_cat(mini)
+    assert rows[PROTECT]["in_hand"] == [{"text": "ACT-048", "href": "/sites/KOBO-001/actions/a48",
+                                         "state_label": "Plan ready · linked finding outside this view"}]
+    assert rows[COST]["in_hand"] == [] and rows[COST]["must_not_harm"] is None
+
+
+def test_out_of_window_finding_places_work_but_drives_no_signal_or_issue() -> None:
+    outside = replace(F104, in_window=False)
+    rows = rows_by_cat(kobo(findings=(outside,), signals_extra=()))
+    assert rows[COST]["issues"] == [] and rows[PROTECT]["issues"] == []
+    assert rows[COST]["state"] != "NEEDS_ATTENTION"
+    assert [i["text"] for i in rows[COST]["in_hand"]] == ["ACT-048"]
+    assert rows[COST]["earlier_empty_text"] == EARLIER_EMPTY_NONE
+    assert board_module.unresolved_links(kobo(findings=(outside,))) == ()
 
 
 def test_closed_linked_finding_keeps_case_in_its_outcome() -> None:

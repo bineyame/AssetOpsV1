@@ -1,4 +1,4 @@
-"""OUT-B1: pure assembly of the Site outcome board (build spec §B.2; rulings B-Q14/Q18/Q19/Q20/Q28, addendum 1).
+"""OUT-B1: pure assembly of the Site outcome board (build spec §B.2; rulings B-Q14/Q18/Q19/Q20/Q28, addenda 1-2).
 
 It imports only `outcomes/`. The domain composer (B2/B3) reads the ports and hands this module a `SiteFacts`. This
 module attributes Findings, signals, Actions, cases and plans to the four category rows. It sets each outcome's state
@@ -23,6 +23,7 @@ NO_PLAN = "NO_PLAN"
 
 SAFEGUARD_SUFFIX = " · checked here as a safeguard"  # mock outcomes.js:71
 NOT_LINKED_SUFFIX = " · not linked to a finding"
+OUTSIDE_VIEW_SUFFIX = " · linked finding outside this view"  # addendum 2 item 4
 EARLIER_EMPTY_OPEN = "No earlier work has been checked for this"
 EARLIER_EMPTY_NONE = "Not available yet · no completed work or checked change for this outcome"  # addendum 2
 #: Rulings B addendum 1: Must not harm names every CHECKED outcome in another category, measured or not.
@@ -85,6 +86,9 @@ class FindingFact:
     href: str | None
     asset_id: str | None = None
     confidence_label: str | None = None
+    #: Addendum 2 item 4: False for a Finding read only to resolve a link (outside the overview day). Such a
+    #: Finding places linked work but drives no signal, issue or headline.
+    in_window: bool = True
 
     @property
     def open(self) -> bool:
@@ -196,7 +200,27 @@ def join_names(labels: Sequence[str]) -> str:
 
 
 def _item_text(code: str | None, title: str) -> str:
-    return f"{code} · {title}" if code else title
+    """"{code} · {title}"; an item with no stored title (every mini Action, addendum 2 item 1) reads its code."""
+    if code and title:
+        return f"{code} · {title}"
+    return code or title
+
+
+def _action_name(a: "ActionFact") -> str:
+    return a.code or a.title
+
+
+def unresolved_links(facts: "SiteFacts") -> tuple[tuple[str, str], ...]:
+    """(holder id, Finding id) for every case or Action link the composer could not resolve (addendum 2 item 4).
+    The composer records these as its internal diagnostics; they are never on the wire."""
+    known = {f.finding_id for f in facts.findings}
+    out: list[tuple[str, str]] = []
+    for a in sorted(facts.actions, key=lambda a: a.action_id):
+        if a.origin_finding_id is not None and a.origin_finding_id not in known:
+            out.append((a.action_id, a.origin_finding_id))
+    for c in sorted(facts.cases, key=lambda c: c.case_id):
+        out.extend((c.case_id, fid) for fid in c.finding_ids if fid not in known)
+    return tuple(out)
 
 
 def _plan_label(plan: PlanFact) -> str:
@@ -277,6 +301,8 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     # status signals
     signals: list[Signal] = []
     for f in facts.findings:
+        if not f.in_window:
+            continue
         applied = any(a.applied for a in exact_actions(f))
         for i, key in enumerate(roles[f.finding_id].moves):
             signals.append(Signal(FINDING, key, i == 0, f.open, applied, None, f.finding_id))
@@ -288,7 +314,8 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
         for i, key in enumerate(sig_roles[s.signal_key].moves):
             signals.append(Signal(kind, key, i == 0, True, False, None, s.signal_key))
 
-    open_findings = sorted((f for f in facts.findings if f.open), key=lambda f: (f.title, f.finding_id))
+    open_findings = sorted((f for f in facts.findings if f.open and f.in_window),
+                           key=lambda f: (f.title, f.finding_id))
     rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, exact_actions) for cat in CATEGORIES]
     return rows
 
@@ -343,35 +370,36 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     for a in sorted(facts.actions, key=lambda a: (a.code or "", a.action_id)):
         if a.origin_finding_id is None:
             continue
-        origin = _resolve_finding(by_id, a.origin_finding_id, f"Action {a.action_id}")
-        r = roles[origin.finding_id]
+        origin = by_id.get(a.origin_finding_id)
+        suffix = "" if origin is not None else OUTSIDE_VIEW_SUFFIX
+        r = roles[origin.finding_id] if origin is not None else None
+        move_cats = r.move_cats if r is not None else ["PROTECT_ASSET"]
         result = earlier_result_for_action(a)
         if result is not None:
-            if cat in r.move_cats:
-                earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result})
-            elif cat in r.checked_cats:
+            if cat in move_cats:
+                earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result + suffix})
+            elif r is not None and cat in r.checked_cats:
                 names = r.checked_in(cat, exclude_unmeasured=MUST_NOT_HARM_EXCLUDES_UNMEASURED)
                 if names:
-                    earlier.append({"text": f"{join_names(names)} checked as safeguards in {a.title}",
+                    earlier.append({"text": f"{join_names(names)} checked as safeguards in {_action_name(a)}",
                                     "href": a.verification_href or a.href, "result_label": result})
-        elif a.open and cat in r.move_cats:
+        elif a.open and cat in move_cats:
             label = "Open" if a.is_domain else WORKFLOW_IN_HAND.get(a.workflow_label or "", a.workflow_label or "Open")
-            in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label})
+            in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label + suffix})
 
     for case in sorted(facts.cases, key=lambda c: (c.code or "", c.case_id)):
-        linked = [_resolve_finding(by_id, fid, f"case {case.case_id}") for fid in case.finding_ids]
-        cats = {c for f in linked for c in roles[f.finding_id].move_cats} if linked else {"PROTECT_ASSET"}
+        cats, suffix = _case_placement(case, by_id, roles)
         if cat not in cats:
             continue
         if case.state not in CLOSED_CASE_STATES:
-            label = _case_label(case) + ("" if linked else NOT_LINKED_SUFFIX)
+            label = _case_label(case) + suffix
             in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label})
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
-        linked = [_resolve_finding(by_id, fid, f"case {case.case_id}") for fid in case.finding_ids]
-        cats = {c for f in linked for c in roles[f.finding_id].move_cats} if linked else {"PROTECT_ASSET"}
+        cats, suffix = _case_placement(case, by_id, roles)
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats and result is not None:
-            earlier.append({"text": _item_text(case.code, case.title), "href": case.href, "result_label": result})
+            earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
+                            "result_label": result + (suffix if suffix == OUTSIDE_VIEW_SUFFIX else "")})
 
     if cat == "PROTECT_ASSET":
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
@@ -385,8 +413,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         names = roles[f.finding_id].checked_outside(cat, exclude_unmeasured=MUST_NOT_HARM_EXCLUDES_UNMEASURED)
         if checks and names:
             a = checks[0]
-            must_not_harm = {"text": f"{join_names(names)} are checked as safeguards in {a.title}; "
-                                     "a gain that harms them does not count", "href": a.verification_href}
+            must_not_harm = {"text": f"{join_names(names)} are checked as safeguards when {_action_name(a)} is "
+                                     "verified; a gain that harms them does not count", "href": a.verification_href}
             break
 
     # Headline: the domain table, else the lead Finding's title on a Finding-driven state.
@@ -408,18 +436,22 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "options": [{"text": o.text, "href": o.href} for o in facts.options.get(cat, ())],
         "in_hand": in_hand, "earlier": earlier,
         "earlier_empty_text": None if earlier else (
-            EARLIER_EMPTY_OPEN if any(f.open for f in moves_here) else EARLIER_EMPTY_NONE),
+            EARLIER_EMPTY_OPEN if any(f.open and f.in_window for f in moves_here) else EARLIER_EMPTY_NONE),
     })
     return row
 
 
-def _resolve_finding(by_id: dict[str, FindingFact], finding_id: str, holder: str) -> FindingFact:
-    """A linked Finding must be in `facts.findings` (closed heads included; review M1). A miss is a composer bug:
-    it fails loudly rather than filing the item under the wrong outcome or as "not linked"."""
-    found = by_id.get(finding_id)
-    if found is None:
-        raise AssertionError(f"{holder} links Finding {finding_id}, which the composer did not supply")
-    return found
+def _case_placement(case: CaseFact, by_id: dict[str, FindingFact],
+                    roles: dict[str, _Roles]) -> tuple[set[str], str]:
+    """Categories and state-label suffix for a case. No link: PROTECT_ASSET, "not linked". Links that resolve: their
+    Findings' MOVES categories. Links none of which resolve: kept under PROTECT_ASSET with the outside-view suffix
+    (addendum 2 item 4, replacing review M1's assertion); the composer records them via `unresolved_links`."""
+    if not case.finding_ids:
+        return {"PROTECT_ASSET"}, NOT_LINKED_SUFFIX
+    linked = [by_id[fid] for fid in case.finding_ids if fid in by_id]
+    if not linked:
+        return {"PROTECT_ASSET"}, OUTSIDE_VIEW_SUFFIX
+    return {c for f in linked for c in roles[f.finding_id].move_cats}, ""
 
 
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
