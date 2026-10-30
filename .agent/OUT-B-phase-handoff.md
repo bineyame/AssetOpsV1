@@ -381,3 +381,39 @@ Anchors are relative to backend/assetops_backend.
   recommendation/accept, which the board never reads); work lists, domain index, global work = `site_read_access`
   (WorkGate read_scope = board `work_access`); cold/EV reads = access, window, Site type, disclosure (`cold_site_api.py:60-102`,
   `ev_assessment_api.py:85-118`). Readiness chips describe the covering day(s), which can be wider than a sub-day window.
+
+## B5 partial (2026-10-30, context limit). Resume at "B5 next" below
+- Step 1 done: `.agent/OUT-mock-measurements.md` (7a501d2d, force-added). Closed-board caps: 1440 -> 450 px, 390 -> 800 px
+  (calculation in the file). Chrome closed by the tool; no 9488 process remained.
+- Landed (baad3f5d, then the tests commit):
+  - `frontend/src/sites/outcomeBoardClient.ts` (wire types, `createOutcomeBoardClient`, `outcomeBoardSearch`; refusal code
+    from `detail.code`).
+  - `frontend/src/sites/OutcomeBoard.tsx` (`OutcomeBoard({client, siteCode, query})`, `boardMoneyText` = the mini money
+    slot text "{low} to {high} {currency}", one amount when equal; `countsText`; local `<dialog>` explainer with
+    showModal fallback, Tab wrap, Escape, focus return). Board CSS + matrix/key/dots CSS appended to `sites/outcomes.css`
+    (tokens; blue = accent pair; class `.oc-hidden` for visually hidden text).
+  - Plumbing: `App.tsx` prop `outcomeBoard` (default real client) -> `SiteDetailFrame` -> `SiteOverview` ->
+    `SiteWindowOverview` (query `{date: utc_date, finding_id/revision from known_finding}` = the served selection) and
+    -> `coldSiteScreen` -> `ColdSiteFrame` (`p.outcomeBoard`, query `p.window`); `SiteEvFrame` -> `EvSiteFrame` (same).
+    Views render no board when the prop is undefined (direct renders).
+  - Removed: mini `ObjectiveCards` + `MiniObjectiveCard`/`serviceWords`/`fuelWords`/`renewableWords` and helpers (the
+    mini depth reads stay: `DayStatus` uses `overviewReadable(miniState)`); cold `OverviewCards`; EV `OverviewCards`,
+    `sessionWord`. R540.
+  - Tests: `sites/__tests__/outcomeBoard.test.tsx` (13 pass), fixture `test/outcomeBoardFixture.ts`
+    (`boardBody`, `boardRows`, `fakeOutcomeBoard`); `test/settled.ts` LOADING gains "how this site is doing" and
+    "outcomes across the estate". Note: "load" is a w1 forbidden word (mock subline text trips it).
+- B5 next: 25 old-card tests fail (log: `.agent/OUT-B5-old-card-test-failures.log`, git-ignored): s5SiteWindowOverview
+  12 (W4-02 mini cards H3 etc., W1-a Q2/R157/Q48 card tones), coldSiteViews 10 (Run-7 Evidence status chip x4, five
+  cards, v69 panel structure, r254 links, w2f copy), evSiteMoneyRoutes 3 (all_five_routes, unknown_pending, R254 cards).
+  coldRoutes and evAssessmentRoutes passed. For each: pass `outcomeBoard={fakeOutcomeBoard().client}` to `<App>`,
+  assert the board present (region "Outcomes at this site", 4 rows) and old cards absent; keep every non-card assertion;
+  where a test's subject was only card content, replace it with the board equivalent and list it in the packet
+  (no weakening). Check whether the Run-7 Evidence chip logic is still rendered elsewhere before rewriting those 4.
+- Then B6 (not started): `getOutcomeSummary` optional on `EstateClient` (`estate/estateClient.ts`; schema
+  `estate-outcome-summary-1`; GET `/api/estate/outcome-summary` with from/to/known_at; rows carry `short_value`,
+  `lead_outcome` may be null), `OutcomeMatrix` in `PortfolioOutcomes.tsx` replacing `ObjectivesPanel` body
+  (`EstatePortfolio.tsx:305`), panel title "Outcomes across the estate", note "How each site is doing on what matters",
+  loading "Loading outcomes across the estate…", failure alert "Outcome status is not available right now"; dots in
+  `CategoryCards` (`.oc-sitedots` at PortfolioOutcomes.tsx ~173; CSS `:empty{display:none}` in estatePortfolio.css:174);
+  Grow card value = first Site's `short_value`, tone green, else the MissingClaim. Register: R529 resolved, R521
+  resolved, add R535 and R540-R552 (descriptions in spec §0.3/B rulings Q4 and addenda 2-4; R553-R554 free).
