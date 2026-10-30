@@ -1,4 +1,4 @@
-# OUT-C phase handoff (partial: U1-U4 landed, resume at U5)
+# OUT-C phase handoff (U1-U6 landed; closeout written; heavy jobs pending)
 
 Sheet (wins): C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-C.md (§2 U5/U6, §3 copy, §4 wire,
 §7 acceptance, §8 register). U1 review: AssetOpsV1-plan2\.agent\OUT-C1-review.md (ACCEPT, L1-L3 done).
@@ -43,3 +43,7 @@ to the combined dataset. Board on the W5-01 window passes all acceptance-3 board
 - w504 E window: one CONNECTOR_OUT_OF_SERVICE ("44 min out and 16 min unknown on 6 Oct"), no PEAK (60/80),
   no CHARGER_FAULT (no plan, R569). EV board read_state PARTIAL from evidence_readiness ESTATE_SELECTION_INCONSISTENT
   (pre-existing B behaviour).
+
+## U5/U6 landed (c7ca6ffe, 26448b3b, 5d57a6a3, 86fc3e59)
+- U5 list/lenses/Site lists/Portfolio; U6 card + notice; register; U2-review L1 anchor tests (L2 already covered). Packet `.agent/OUT-C-packet.md`.
+- Next (coordinator go): full vitest, backend `-Tier all`, captures 1440/390 vs v70 into `.agent/OUT-C-captures/` (no estate captures: P-C1).
