@@ -3,7 +3,9 @@
 Reviewer: fresh Claude reviewer (did not author). Branch `task/FIX-clock-dependent-power-fixture`,
 `git diff 32adae2f..70b00b73` (commits 44c09c5c, 70b00b73). Test code only; no product code changed.
 
-## Verdict: __VERDICT__
+## Verdict: ACCEPT
+
+The four Low findings are optional. Fixing them on the branch is welcome but does not block the merge.
 
 ## Per-question findings
 
@@ -98,7 +100,17 @@ No High or Medium findings.
 
 ## Checks run (reviewer, this revision 70b00b73)
 
-__RESULTS__
+One combined host pass over the 10 packet files plus the two other changed files (resolver, consequence history).
+- Setup: interpreter `AssetOpsV1-plan2\.venv`, PYTHONPATH set to the worktree's backend, contracts, tools, simulator,
+  gateway, host and field. `ASSETOPS_SETUP_CACHE=0` and no cache dir (cache off). `-p no:cacheprovider`. Private base
+  database `assetops_clockrev_test` on 127.0.0.1:55432 (dropped afterwards, along with its run-owned clones), with the
+  keep-awake helper running. No other pytest or browser job was running at the start. Run on 2026-10-30 from about
+  19:19 local, which is after 09:00 UTC, so in the failing regime.
+- Result: **80 passed, 0 failed, 0 skipped, 0 errors in 1650.5 s (27 min 30 s)**. JUnit had 80 cases.
+- Cases per file: s405_resolver 9, s4_consequence_history 7, cc_placement 2, s4_power_demo_case 8, w301_estate_index 20,
+  w301_provenance_dto 7, w301_w1_money_snapshot_helpers 6, w303_portfolio_comparison 4, w303_portfolio_fixture 2,
+  w303_portfolio_scope_snapshot 10, w303_selectors 3, w403_replay 2.
+- These match the packet's per-file counts.
 
 Not run: `tools/check-architecture.ps1` and `check-agent-workflow.ps1` are not relevant to a test-only diff of
 backend tests and were not run. There is no frontend change.
