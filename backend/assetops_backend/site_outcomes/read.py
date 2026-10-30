@@ -195,8 +195,8 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.finding_index, "finding_index").read(
                 t, sid, c, req, access_basis=s.access_basis))
 
-        def estate(lo: datetime, hi: datetime) -> dict[str, Any]:
-            rows = _need(s.estate, "estate").site_work_rows(t, c, lo, hi, known_at)
+        def estate(day_lo: datetime, day_hi: datetime, work_lo: datetime, work_hi: datetime) -> dict[str, Any]:
+            rows = _need(s.estate, "estate").site_work_rows(t, c, day_lo, day_hi, work_lo, work_hi, known_at)
             if rows is None:
                 raise PortUnavailable("the Site is not in the estate scope")
             return rows

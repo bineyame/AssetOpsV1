@@ -96,7 +96,7 @@ class MiniPorts:
     dispatch: Callable[[date], dict[str, Any]]                                   # analytics/dispatch_read.py:123
     assumption: Callable[[datetime], dict[str, Any]]                             # diesel_price_per_litre series
     finding_index: Callable[[datetime, datetime, str | None], dict[str, Any]]    # analytics/finding_index.py:262
-    estate: Callable[[datetime, datetime], dict[str, Any]]                       # {site_cov, findings, actions}
+    estate: Callable[[datetime, datetime, datetime, datetime], dict[str, Any]]   # day lo/hi, work lo/hi (add. 5 #2)
     action_index: Callable[[datetime, datetime, str | None], dict[str, Any]]     # actions/site_index.py:160
     verification: Callable[[str], dict[str, Any]]                                # actions/verification.py:966
     action: Callable[[str, str], dict[str, Any] | None]                          # actions/service.py:653
@@ -242,7 +242,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     tz = site_zone(zone_name) if depth_ok else None
     dispatch = reads.call("dispatch", ports.dispatch, day)
     readiness = reads.call("evidence_readiness", ports.readiness, start, end)
-    estate = reads.call("estate", ports.estate, work_lo, end)
+    estate = reads.call("estate", ports.estate, start, end, work_lo, end)  # Findings: the day; Actions: 31 days
     finding_rows = reads.pages("finding_index", ports.finding_index, work_lo, end)
     findings_ok = finding_rows is not None and not (reads.statuses.get("finding_index", set())
                                                     & set(UNSETTLED_INDEX_STATUS))

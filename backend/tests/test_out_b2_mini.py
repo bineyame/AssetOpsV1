@@ -94,8 +94,8 @@ class Fake:
             assumption=lambda at: self._go("assumptions", {"selection": {"state": "PRICED", "price": {
                 "value": "1.45", "currency": "USD"}}}, at),
             finding_index=finding_index,
-            estate=lambda lo, hi: self._go("estate", {"site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104],
-                                                      "actions": [ESTATE_A48]}, lo, hi),
+            estate=lambda lo, hi, wlo, whi: self._go("estate", {
+                "site_cov": {"state": "CURRENT"}, "findings": [ESTATE_F104], "actions": [ESTATE_A48]}, lo, hi, wlo, whi),
             action_index=lambda lo, hi, cur: self._go("action_index", {"rows": [A48], "next_cursor": None}, lo, hi),
             verification=lambda aid: self._go("verification", {"state": "PENDING"}, aid),
             action=lambda aid, ev: self._go("action", {"change": {"id": "ch1"}}, aid, ev),
@@ -172,9 +172,11 @@ def test_depth_windows_follow_the_site_local_day() -> None:
 def test_work_window_is_31_days_ending_with_the_day() -> None:
     fake = Fake()
     run(fake)
-    for name in ("finding_index", "action_index", "estate", "plans"):
+    for name in ("finding_index", "action_index", "plans"):
         args = next(a for n, a in fake.calls if n == name)
         assert args[:2] == (T(21) - timedelta(days=31), T(21)), name
+    # addendum 5 #2: estate Finding rows and coverage over the board day, Action rows over the work window
+    assert next(a for n, a in fake.calls if n == "estate") == (T(20), T(21), T(21) - timedelta(days=31), T(21))
 
 
 # --------------------------------------------------------------- M1b and unresolved links (addendum 2 #4)

@@ -63,7 +63,8 @@ def test_ports_forward_site_tenant_cutoff_and_pin() -> None:
     assert seen["depth"]["known_at"] == known and seen["depth"]["site_id"] == S
     assert seen["readiness"] == (T, "KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
                                  known)
-    assert seen["estate"][1:3] == ("KOBO-001", datetime(2026, 9, 6, tzinfo=UTC)) and seen["estate"][4] == known
+    assert seen["estate"][1:] == ("KOBO-001", datetime(2026, 10, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC),
+                                  datetime(2026, 9, 6, tzinfo=UTC), datetime(2026, 10, 7, tzinfo=UTC), known)
     assert body["window"]["known_at"] == "2026-10-09T12:00:00Z"
     assert "finding_id=" in body["links"]["self"] and "known_at=" in body["links"]["self"]
 
