@@ -30,7 +30,8 @@ from assetops_backend.estate.coverage import (
     not_applicable, site_coverage)
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
-from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, token_time, wire_time
+from assetops_backend.estate.scope import (
+    EstateRequest, estate_request, resume_after, selection_token, token_time, wire_time)
 from assetops_backend.sites.binding_roles import COLD_ROLES_1, MINIGRID_ROLES
 
 EVIDENCE_SCHEMA = "estate-evidence-1"
@@ -498,7 +499,7 @@ class EstateEvidenceService(EstateIndexService):
         the Site is not in the authorized imported set."""
         from assetops_backend.estate.portfolio import evidence_cell_state
 
-        req = EstateRequest("evidence", from_, to, known_at)
+        req = estate_request("evidence", from_, to, known_at)  # addendum 7: the estate window rule, never widened
 
         def work(snap: Any) -> Any:
             scope = self._scope(snap, tenant_id, req, lambda code: code == site_code)

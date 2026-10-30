@@ -30,7 +30,7 @@ from assetops_backend.estate.placement import GROUPS, place
 from assetops_backend.outcomes.catalogue import CATEGORIES, OUTCOME_BY_KEY
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, outcome_roles
 from assetops_backend.estate.scope import (
-    SITE_TOKEN_ARRAYS, EstateRequest, resume_after, selection_token, wire_time)
+    SITE_TOKEN_ARRAYS, EstateRequest, estate_request, resume_after, selection_token, wire_time)
 
 PORTFOLIO_SCHEMA = "estate-portfolio-1"
 #: CC-R2 (R5.4): placement group first, then the existing most-recent-first order.
@@ -512,8 +512,8 @@ class EstatePortfolioService(EstateEvidenceService):
         rows only when every requested day is selected, `estate/coverage.py:91-133`); the Action rows cover the
         31-day work window. One `self._read` snapshot and cutoff for both. None when the Site is not in the
         authorized imported set for the board day. The request kind is "findings" (no cursor is ever passed)."""
-        day = EstateRequest("findings", day_from, day_to, known_at)
-        work_req = EstateRequest("findings", work_from, work_to, known_at)
+        day = estate_request("findings", day_from, day_to, known_at)  # addendum 7: the estate window rule
+        work_req = estate_request("findings", work_from, work_to, known_at)
         admit = lambda code: code == site_code  # noqa: E731 - one-Site admit
 
         def work(snap: Any) -> Any:

@@ -19,10 +19,15 @@ WINDOW = "from=2026-10-01T00:00:00Z&to=2026-10-08T00:00:00Z"
 
 
 class Registry:
+    def __init__(self) -> None:
+        self.calls = 0
+
     def tenant(self):
+        self.calls += 1
         return SimpleNamespace(id=T)
 
     def imported(self, code):
+        self.calls += 1
         return SITES.get(code)
 
 
@@ -45,9 +50,12 @@ class Service:
 
 def client(**kw) -> tuple[TestClient, Service]:
     service = Service()
+    registry = Registry()
     app = FastAPI()
-    app.include_router(build_outcome_router(service, Registry(), estate=Estate(), tenant=lambda: T, **kw))
-    return TestClient(app), service
+    app.include_router(build_outcome_router(service, registry, estate=Estate(), tenant=lambda: T, **kw))
+    c = TestClient(app)
+    c.registry = registry  # type: ignore[attr-defined]
+    return c, service
 
 
 def refuse(code: str):
@@ -66,12 +74,13 @@ def test_work_access_refusal_is_403_before_lookup_and_omits_the_site() -> None:
     c, service = client(work_access=refuse("KOBO-001"))
     r = c.get("/api/sites/KOBO-001/outcome-board?date=2026-10-06")
     assert r.status_code == 403 and r.json()["detail"]["code"] == "SITE_SCOPE_FORBIDDEN"
-    assert service.boards == []
+    assert service.boards == [] and c.registry.calls == 0  # L3: refused before any registry lookup
     assert c.get(f"/api/estate/outcome-summary?{WINDOW}").json()["sites"] == ["COLD-LAB-001", "EV-LAB-001"]
     # 401 from the Work seam while the Site seam admits
     c, _ = client(work_access=lambda request, code: 401)
     r = c.get("/api/sites/KOBO-001/outcome-board?date=2026-10-06")
     assert r.status_code == 401 and r.json()["detail"]["code"] == "UNAUTHENTICATED"
+    assert c.registry.calls == 0
 
 
 def test_site_access_refusal_still_refuses() -> None:

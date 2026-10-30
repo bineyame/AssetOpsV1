@@ -118,6 +118,16 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
         raise PortUnavailable(f"{name} closed: {reason}")
 
 
+def covering_days(lo: datetime, hi: datetime) -> tuple[datetime, datetime]:
+    """OUT-B addendum 7: `[floor_utc_day(lo), ceil_utc_day(hi))`. A bound already at midnight is unchanged. The estate
+    methods never widen; only the composer does, and the estate then applies its own window rule (over 31 days
+    refuses INVALID_WINDOW)."""
+    lo, hi = lo.astimezone(timezone.utc), hi.astimezone(timezone.utc)
+    floor = lo.replace(hour=0, minute=0, second=0, microsecond=0)
+    ceil = hi.replace(hour=0, minute=0, second=0, microsecond=0)
+    return floor, (ceil if ceil == hi else ceil + timedelta(days=1))
+
+
 def mini_summary_day(to: datetime) -> date:
     """B-Q7: the UTC day of the Portfolio `to`, the previous day when `to` is midnight."""
     to = to.astimezone(timezone.utc)
@@ -131,7 +141,7 @@ class SiteOutcomeBoardService:
 
     # ------------------------------------------------------------------ ports
 
-    def _shared(self, site: SiteRef, known_at: datetime | None) -> dict[str, Callable[..., Any]]:
+    def _shared(self, site: SiteRef, known_at: datetime | None, widen: bool = False) -> dict[str, Callable[..., Any]]:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
         known = [] if known_at is None else [wire(known_at)]
 
@@ -150,6 +160,8 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.global_work, "global_work").snapshot(read))
 
         def readiness(lo: datetime, hi: datetime) -> str | None:
+            if widen:  # cold and EV: the covering UTC days (addendum 7); mini windows are already whole days
+                lo, hi = covering_days(lo, hi)
             return _need(s.estate, "estate").site_readiness(t, c, lo, hi, known_at)
 
         return {"work": work, "plans": plans, "readiness": readiness}
@@ -221,7 +233,7 @@ class SiteOutcomeBoardService:
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
-        shared = self._shared(site, known_at)
+        shared = self._shared(site, known_at, widen=True)
 
         def overview(lo: datetime | None, hi: datetime | None) -> dict[str, Any]:
             return jsonable_encoder(_need(s.cold_site, "cold_overview").overview(t, sid, c, lo, hi, known_at))
@@ -236,7 +248,7 @@ class SiteOutcomeBoardService:
 
     def ev_ports(self, site: SiteRef, known_at: datetime | None = None) -> ev.EvPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
-        shared = self._shared(site, known_at)
+        shared = self._shared(site, known_at, widen=True)
 
         def overview(lo: datetime | None, hi: datetime | None) -> dict[str, Any]:
             return jsonable_encoder(_need(s.ev_site, "ev_overview").overview(t, sid, c, lo, hi, known_at))
