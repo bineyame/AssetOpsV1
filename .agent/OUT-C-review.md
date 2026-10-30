@@ -175,3 +175,10 @@ compose cold and EV Sites on their latest selected window inside `[lo, hi)`. Tha
   lack of demo data.
 - The full vitest number is the implementer's alone.
 - No Portfolio, estate Findings or Maintenance capture exists, so placement on those three screens is proven only in vitest.
+
+## Coordinator verification of the final-review fix round (04fa0d8a..7025a040), 2026-10-30: ACCEPT
+- H1: rulings applied verbatim, with R572/R573 registered. The Site-name prefix is restored through SiteEarlyWarnings.
+- M1: .pyc tracking matches main (4 paths, all under .agent). A pytest run leaves git status clean.
+- M2: six-state card 4 with the never-"None" case; mutation-checked by the implementer (R574).
+- L1 (no "Connector Connector"), L2 and L4 are done. R575 (P-C1) is open and owned by the OUT-W follow-up slice, which the owner approved as option A.
+- Implementer checks: 196 non-Postgres pytest, c3 Postgres 1/1, vitest 9 files 200/200, tsc clean, check-all 11/11 run directly. The full suites were green at b6650116 (backend 4338/0, vitest 3522 with the 3 known w1f4 failures); the fix round is copy, register and tests on top of that.
