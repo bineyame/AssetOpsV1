@@ -2102,6 +2102,938 @@
         }
       ],
       "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-w502.json",
+      "product_sha": "8b4c52dc",
+      "captured_at": "2026-10-30T07:34:11.415Z",
+      "captures": [
+        {
+          "name": "sitefindings-greenharvest-w502",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-greenharvest-w502-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-greenharvest-w502-1440-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 646,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5471/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "sitefindings-greenharvest-w502",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-greenharvest-w502-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-greenharvest-w502-390-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 900,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 673,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "finding-greenharvest-startfailure-w502",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings/cefe3a64-6cba-4019-8ff5-50226df5be5c?revision_id=b20fa037-ee4c-4b46-a616-994c7c28118e&from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "finding-greenharvest-startfailure-w502-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/finding",
+          "mock_image": "finding-greenharvest-startfailure-w502-1440-mock-v70-finding.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Backup generator did not start when the grid failed",
+            "location": "/sites/COLD-LAB-001/findings/cefe3a64-6cba-4019-8ff5-50226df5be5c?revision_id=b20fa037-ee4c-4b46-a616-994c7c28118e&from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Protect asset and capital cooling continuity, stock kept saleable Also check Protect asset and capital compressor life Optimize cost and efficiency cost per cooling unit",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital cooling continuity, stock kept saleable",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital compressor life",
+                    "solid": false
+                  },
+                  {
+                    "text": "Optimize cost and efficiency cost per cooling unit",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1057,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhAlso checkProtect asset and capitalreliable service, battery and generator lifeSeen on 24 of the last 30 days",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Generator support merits review",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "finding-greenharvest-startfailure-w502",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings/cefe3a64-6cba-4019-8ff5-50226df5be5c?revision_id=b20fa037-ee4c-4b46-a616-994c7c28118e&from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "finding-greenharvest-startfailure-w502-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/finding",
+          "mock_image": "finding-greenharvest-startfailure-w502-390-mock-v70-finding.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1293,
+            "h1": "Backup generator did not start when the grid failed",
+            "location": "/sites/COLD-LAB-001/findings/cefe3a64-6cba-4019-8ff5-50226df5be5c?revision_id=b20fa037-ee4c-4b46-a616-994c7c28118e&from=2026-10-29T00:00:00Z&to=2026-10-31T00:00:00Z",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Protect asset and capital cooling continuity, stock kept saleable Also check Protect asset and capital compressor life Optimize cost and efficiency cost per cooling unit",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital cooling continuity, stock kept saleable",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital compressor life",
+                    "solid": false
+                  },
+                  {
+                    "text": "Optimize cost and efficiency cost per cooling unit",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1084,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhAlso checkProtect asset and capitalreliable service, battery and generator lifeSeen on 24 of the last 30 days",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Generator support merits review",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-w502-list.json",
+      "product_sha": "8b4c52dc",
+      "captured_at": "2026-10-30T07:35:40.893Z",
+      "captures": [
+        {
+          "name": "sitefindings-greenharvest-w502-assessed",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-greenharvest-w502-assessed-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-greenharvest-w502-assessed-1440-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [
+              {
+                "row": "Backup generator did not start when the grid failedBegan Not recordedAffects Protect asset and capitalAlso checked under Optimize cost and e",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              },
+              {
+                "row": "Cold room temperature outside its policy bandBegan 16:10–16:15Affects Protect asset and capitalTemperatureNot assessedBoundedOpenAt least 45",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1119,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5471/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "sitefindings-greenharvest-w502-assessed",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-greenharvest-w502-assessed-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-greenharvest-w502-assessed-390-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 982,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001/findings?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [
+              {
+                "row": "Backup generator did not start when the grid failedBegan Not recordedAffects Protect asset and capitalAlso checked under Optimize cost and e",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              },
+              {
+                "row": "Cold room temperature outside its policy bandBegan 16:10–16:15Affects Protect asset and capitalTemperatureNot assessedBoundedOpenAt least 45",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1146,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": ".agent/OUT-A-captures/tools/targets-w504.json",
+      "product_sha": "8b4c52dc",
+      "captured_at": "2026-10-30T07:39:41.773Z",
+      "captures": [
+        {
+          "name": "sitefindings-depot-w504",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-depot-w504-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-depot-w504-1440-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 1440,
+            "clientWidth": 1440,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1000,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+            "tagRows": [
+              {
+                "row": "Observed EV charging interruptionAffects Protect asset and capitalAffects Grow revenueSessionsNot assessedObservedOpenNot in this listNot as",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 711,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5481/favicon.ico"
+            ]
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "sitefindings-depot-w504",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outa_test",
+          "ready": true,
+          "app_image": "sitefindings-depot-w504-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/sitefindings",
+          "mock_image": "sitefindings-depot-w504-390-mock-v70-sitefindings.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 900,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+            "tagRows": [
+              {
+                "row": "Observed EV charging interruptionAffects Protect asset and capitalAffects Grow revenueSessionsNot assessedObservedOpenNot in this listNot as",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": "MOVES"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 738,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [
+              {
+                "row": "F-104 · Generator support reviewOptimize cost and efficiencyProtect asset and capitalSeen on 24 of the last 30 daysDispatchHighLowⓘOpen$3.31",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-108 · Battery output-limit report missingAssure performance and returnsOptimize cost and efficiencyEvidenceMediumHighOpen30 min cannot be ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "F-109 · Productive-use headroomGrow revenueOptimize cost and efficiencyProtect asset and capitalSpare on 3 of 5 well-observed daysRenewableM",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "finding-depot-interruption-w504",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001/findings/a6d14b5a-1be0-43c3-aa4d-ee7e96fcb98e?revision_id=8b54a9bc-3fc4-40ed-a47e-e34cc0439614&from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outa_test",
+          "ready": true,
+          "app_image": "finding-depot-interruption-w504-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/finding",
+          "mock_image": "finding-depot-interruption-w504-1440-mock-v70-finding.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1005,
+            "h1": "Observed EV charging interruption",
+            "location": "/sites/EV-LAB-001/findings/a6d14b5a-1be0-43c3-aa4d-ee7e96fcb98e?revision_id=8b54a9bc-3fc4-40ed-a47e-e34cc0439614&from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Protect asset and capital buses ready for service Grow revenue charger use Also check Protect asset and capital charger life",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital buses ready for service",
+                    "solid": true
+                  },
+                  {
+                    "text": "Grow revenue charger use",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital charger life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1322,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhAlso checkProtect asset and capitalreliable service, battery and generator lifeSeen on 24 of the last 30 days",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Generator support merits review",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "finding-depot-interruption-w504",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001/findings/a6d14b5a-1be0-43c3-aa4d-ee7e96fcb98e?revision_id=8b54a9bc-3fc4-40ed-a47e-e34cc0439614&from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outa_test",
+          "ready": true,
+          "app_image": "finding-depot-interruption-w504-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/finding",
+          "mock_image": "finding-depot-interruption-w504-390-mock-v70-finding.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 1527,
+            "h1": "Observed EV charging interruption",
+            "location": "/sites/EV-LAB-001/findings/a6d14b5a-1be0-43c3-aa4d-ee7e96fcb98e?revision_id=8b54a9bc-3fc4-40ed-a47e-e34cc0439614&from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "Affects Protect asset and capital buses ready for service Grow revenue charger use Also check Protect asset and capital charger life",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital buses ready for service",
+                    "solid": true
+                  },
+                  {
+                    "text": "Grow revenue charger use",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capital charger life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "mainTextLen": 1349,
+            "consoleErrors": []
+          },
+          "mock": {
+            "tagRows": [],
+            "affectsLines": [
+              {
+                "text": "AffectsOptimize cost and efficiencysupply cost per kwhAlso checkProtect asset and capitalreliable service, battery and generator lifeSeen on 24 of the last 30 days",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiencysupply cost per kwh",
+                    "solid": true
+                  },
+                  {
+                    "text": "Protect asset and capitalreliable service, battery and generator life",
+                    "solid": false
+                  }
+                ]
+              }
+            ],
+            "mockCards": [],
+            "h1": "Generator support merits review",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
     }
   ]
 }

@@ -1,0 +1,4 @@
+[
+ {"name":"sitefindings-depot-w504","url":"http://localhost:5481/sites/EV-LAB-001/findings?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z","mock":"sitefindings","producer":"w504 positive","db":"w504a_positive_outa_test"},
+ {"name":"finding-depot-interruption-w504","url":"http://localhost:5481/sites/EV-LAB-001/findings/a6d14b5a-1be0-43c3-aa4d-ee7e96fcb98e?revision_id=8b54a9bc-3fc4-40ed-a47e-e34cc0439614&from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z","mock":"finding","producer":"w504 positive","db":"w504a_positive_outa_test"}
+]
