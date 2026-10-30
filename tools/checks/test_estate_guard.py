@@ -46,7 +46,7 @@ def run_seam(cwd: Path) -> subprocess.CompletedProcess[str]:
               '$f = @(Invoke-ConfigurationPersistenceCheck); '
               'if ($f.Count -gt 0) { $f | ForEach-Object { Write-Output "- $_" }; exit 1 }; Write-Output "passed"')
     env = dict(os.environ, ASSETOPS_GUARD_PYTHON=sys.executable)
-    return subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+    return subprocess.run(["powershell", "-NoProfile", "-Command", script],
                           cwd=cwd, capture_output=True, text=True, env=env)
 
 
