@@ -57,8 +57,10 @@ def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
         assert r6.status_code == 200, r6.text
         depot6 = next(x for x in r6.json()["sites"] if x["site_code"] == "EV-LAB-001")
         assert depot6["window_basis"] == "LATEST_EVENT", depot6
-        assert (_utc(depot6["window"]["from"]), _utc(depot6["window"]["to"])) == (
-            _utc(window["from"]), _utc(window["to"])), depot6["window"]
+        # The latest selected window by the Evidence rule (max end): the reselected window, which starts at E and ends at
+        # or after E's end (here 09:05, the window holding the superseding revision), not E's own 09:00.
+        assert _utc(depot6["window"]["from"]) == _utc(window["from"]), depot6["window"]
+        assert _utc(depot6["window"]["to"]) >= _utc(window["to"]), depot6["window"]
         assert depot6["overview_href"].startswith("/sites/EV-LAB-001/ev?from="), depot6["overview_href"]
         assert "&to=" in depot6["overview_href"], depot6["overview_href"]
         assert r8.status_code == 200, r8.text
