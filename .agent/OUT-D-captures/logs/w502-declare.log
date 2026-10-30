@@ -1,0 +1,7 @@
+{"site_code": "KOBO-001", "outcome_key": "MG-2", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "KOBO-001", "outcome_key": "MG-1", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "KOBO-001", "outcome_key": "MG-5", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "COLD-LAB-001", "outcome_key": "CC-6", "revision_id": "f127856b-155d-472a-85a3-e24c4cfea3d1", "revision_no": 1, "measure_key": "backup_start_failures", "target": "0", "inserted": true, "recorded_at": "2026-10-30T23:44:01.985100+00:00", "actor_id": "service:assetops-objective-declarer"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-1", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-2", "skipped": "SITE_NOT_IMPORTED"}
+exit 0

@@ -6099,3 +6099,22 @@ Branch `task/OUT-W-estate-event-windows` (cut from main 833e7c95). Contract `Ass
 - Left open: R577 (Depot 6 Oct estate reads refuse 409 ESTATE_SELECTION_INCONSISTENT, a Finding with two selected revisions at one cutoff; FIX-01); the
   6 Oct EV assertion flips to LATEST_EVENT when FIX-01 lands. R576 standing (earlier events in a longer period do not affect cold/EV cells).
   Maintenance card 4 reads "Not assessed" while the summary is loading (pre-existing OUT-C behaviour, observed in capture).
+
+## OUT-D - declared objectives and status (built, in_review)
+Branch `task/OUT-D-declared-objectives` (from main 833e7c95, OUT-W merged in). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-D.md`; packet
+`.agent/OUT-D-packet.md`; history `.agent/OUT-D-phase-handoff.md`; U4 review `AssetOpsV1-plan2/.agent/OUT-D4-review.md` (REVISE, fixed f6be0782).
+- Schema: migration `0038_out_objectives` (head; append-only objective revisions, named CHECKs, site FK, UPDATE/DELETE trigger). 20 head-literal
+  test files name it; downgrade targets untouched. Writer guard `configuration-persistence.ps1` registers the store (anti-vacuity counter) and an
+  `objectives` configuration domain.
+- `outcomes/objectives.py` (pure: POLICY `outcome-objectives/1`, MEASURES, `judge` MET/MISSED/NOT_JUDGED, `ObjectiveFact` with `source_note` last);
+  `outcomes/status.py` -> `outcome-status/2` (rules 4c/7/7b/7c; a failed objectives read is UNKNOWN / OBJECTIVES_NOT_READ, never NO_OBJECTIVE).
+- `objectives/` package: `model.py` (validate -> 422 OBJECTIVE_INVALID), `adapters/postgres_objective_store.py` (`declare`, `current`),
+  `composition.py`; `declare_objective.py` CLI (`fixture --file`, `declare`); demo file `backend/conversions/demo-objectives.json` (6 objectives).
+- Board: `site_outcomes/objective_facts.py` (rows -> facts; CC-1 from the cold chamber range, never stored, R584); composers build `Reading`s;
+  "Declared objective" contributor after domain contributors; wire `objectives[]` (verdict, source_note) and `objectives_read`. Mini Assure
+  "Actual against plan": "{met} of {n} declared objectives met · {u} not checked yet"; failed read -> `mini.PLAN_NOT_READ`.
+- Summary: `objective_site_count` counts Sites whose board and objectives were read (None when none was); `objective_sites_unread` the rest.
+  Portfolio `assureDetailText` (PortfolioOutcomes.tsx): "targets declared at {n} sites[, {u} sites not checked]" / "no targets declared" only
+  when all read / no clause otherwise. Explainer paragraph: a declared objective is not the customer's target.
+- Left open: no On track on the demo data (R585; CC-1 On track proven on fakes only); `objective_site_count` is 1 per producer DB, never 3
+  (no combined dataset, R535); Depot estate summary 409 (R577, FIX-01). Register R580-R586 + R542 note.

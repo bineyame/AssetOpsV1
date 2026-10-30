@@ -1,0 +1,7 @@
+{"site_code": "KOBO-001", "outcome_key": "MG-2", "revision_id": "4dc7f04e-a940-4283-8ea3-ad543cb1d0db", "revision_no": 1, "measure_key": "avoidable_generator_minutes", "target": "0", "inserted": true, "recorded_at": "2026-10-30T23:47:56.927015+00:00", "actor_id": "service:assetops-objective-declarer"}
+{"site_code": "KOBO-001", "outcome_key": "MG-1", "revision_id": "ad139aa5-64ce-4dd3-8eb1-9aa2fbc03f50", "revision_no": 1, "measure_key": "productive_use_kwh", "target": "300", "inserted": true, "recorded_at": "2026-10-30T23:47:56.962002+00:00", "actor_id": "service:assetops-objective-declarer"}
+{"site_code": "KOBO-001", "outcome_key": "MG-5", "revision_id": "307fda48-c663-4073-8d00-fa805e5a519d", "revision_no": 1, "measure_key": "unserved_critical_kwh", "target": "0", "inserted": true, "recorded_at": "2026-10-30T23:47:56.997601+00:00", "actor_id": "service:assetops-objective-declarer"}
+{"site_code": "COLD-LAB-001", "outcome_key": "CC-6", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-1", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-2", "skipped": "SITE_NOT_IMPORTED"}
+exit 0

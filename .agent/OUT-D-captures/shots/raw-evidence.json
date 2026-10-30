@@ -1,0 +1,2193 @@
+{
+  "runs": [
+    {
+      "targets": "targets-1.json",
+      "product_sha": "b4e834f9",
+      "captured_at": "2026-10-30T23:48:12.557Z",
+      "captures": [
+        {
+          "name": "overview-cold-greenharvest",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outd_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-1440-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-1440-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 2637,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 3,
+              "top": 313,
+              "height": 1397,
+              "headToLastSummaryBottom": 1128,
+              "sumLabels": [
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "NOT_MEASURED",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialNot measured yetNeeds occupancy, storage contract, income and sales records",
+                "lines": []
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesNeeds attention3 repair visits in 60 days without a result2 issues",
+                "lines": [
+                  {
+                    "label": "Maintenance effectiveness",
+                    "text": "3 visits (5 Oct, 18 Oct, 29 Oct); the automatic start failure is still open",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Repair and call-out",
+                    "text": "No cost on work record WR-000002",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Cooling energy",
+                    "text": "Not available yet · no cooling energy meter",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionNeeds attentionCold room temperature outside its policy band5 issues · ",
+                "lines": [
+                  {
+                    "label": "Chamber temperature",
+                    "text": "Peak 4.9°C against a 4°C limit",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Backup start",
+                    "text": "Automatic start failed; started by hand",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Cooling recovery",
+                    "text": "Not available yet · no reading confirms that cooling restarted and the chamber returned to its limits",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup generator",
+                    "text": "Witnessed backup start test overdue since 25 Oct",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Compressor",
+                    "text": "Compressor coil cleaning due 7 Nov",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Stock kept saleable: chamber held between 2 and 4°C · above 4°C in this window",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Cooling continuity: every backup start succeeds by itself · automatic start failed",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "WATCH",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsWatchEvent partly reconstructed · no verified re",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "WR-000002 completed; not yet verified",
+                    "chip": "Pending",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Storage service level",
+                    "text": "Not available yet · no storage contract recorded",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Power, backup and cooling chain",
+                    "text": "1 step not recorded",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Loading and door records",
+                    "text": "Not available yet",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5311,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5471/favicon.ico"
+            ]
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-cold-greenharvest",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+          "producer": "w502 positive",
+          "db": "w502b_positive_outd_test",
+          "ready": false,
+          "app_image": "overview-cold-greenharvest-390-app.png",
+          "mock_url": "http://localhost:5471/mockups/v70/index.html#/cold",
+          "mock_image": "overview-cold-greenharvest-390-mock-v70-cold.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 5118,
+            "h1": "Cold replay lab",
+            "location": "/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 3,
+              "top": 539,
+              "height": 2927,
+              "headToLastSummaryBottom": 2382,
+              "sumLabels": [
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "NOT_MEASURED",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialNot measured yetNeeds occupancy, storage contract, income and sales records",
+                "lines": []
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesNeeds attention3 repair visits in 60 days without a result2 issues",
+                "lines": [
+                  {
+                    "label": "Maintenance effectiveness",
+                    "text": "3 visits (5 Oct, 18 Oct, 29 Oct); the automatic start failure is still open",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Repair and call-out",
+                    "text": "No cost on work record WR-000002",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Cooling energy",
+                    "text": "Not available yet · no cooling energy meter",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionNeeds attentionCold room temperature outside its policy band5 issues · ",
+                "lines": [
+                  {
+                    "label": "Chamber temperature",
+                    "text": "Peak 4.9°C against a 4°C limit",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Backup start",
+                    "text": "Automatic start failed; started by hand",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Cooling recovery",
+                    "text": "Not available yet · no reading confirms that cooling restarted and the chamber returned to its limits",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup generator",
+                    "text": "Witnessed backup start test overdue since 25 Oct",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Compressor",
+                    "text": "Compressor coil cleaning due 7 Nov",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Stock kept saleable: chamber held between 2 and 4°C · above 4°C in this window",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Cooling continuity: every backup start succeeds by itself · automatic start failed",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "WATCH",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsWatchEvent partly reconstructed · no verified re",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "WR-000002 completed; not yet verified",
+                    "chip": "Pending",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Storage service level",
+                    "text": "Not available yet · no storage contract recorded",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Power, backup and cooling chain",
+                    "text": "1 step not recorded",
+                    "chip": "Low",
+                    "chipClass": "oc-conf tone-amber"
+                  },
+                  {
+                    "label": "Loading and door records",
+                    "text": "Not available yet",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5337,
+            "consoleErrors": []
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "GreenHarvest Cold Room",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "name": "overview-ev-depot",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outd_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-1440-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-1440-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 2571,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 3,
+              "top": 313,
+              "height": 1332,
+              "headToLastSummaryBottom": 1048,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff es",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "WATCH",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff estimate not available yet1 issue",
+                "lines": [
+                  {
+                    "label": "Charging delivered",
+                    "text": "15 kWh with a complete meter record · 0 of 1 session completed",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Charger use",
+                    "text": "Not available yet · connector capacity not read",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Energy billed against metered",
+                    "text": "Not available yet · no settlement records",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "NOT_MEASURED",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesNot measured yetEnergy cost per km needs odometer readings; a tari",
+                "lines": []
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionNeeds attention1 interrupted · 0 unknown of 1 session2 issues",
+                "lines": [
+                  {
+                    "label": "Session service",
+                    "text": "1 fault-aborted session, 0 outcomes unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Connector availability",
+                    "text": "Connector c1: 44 min out, 16 min unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Charger condition",
+                    "text": "Fault recorded on Connector c1",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Site power",
+                    "text": "Peak 60 kW of the 80 kW import limit",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Warranty",
+                    "text": "Not available yet · no warranty record",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Buses ready for service: no interrupted charging sessions · 1 interrupted",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Departures against the timetable",
+                    "text": "Not available yet · no bus roster connected",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Energy billed against metered",
+                    "text": "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Session records",
+                    "text": "Every session has an accepted end",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Connector status",
+                    "text": "Missing 6 Oct 08:00–6 Oct 08:16",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 4290,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5481/favicon.ico"
+            ]
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-ev-depot",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+          "producer": "w504 positive",
+          "db": "w504a_positive_outd_test",
+          "ready": true,
+          "app_image": "overview-ev-depot-390-app.png",
+          "mock_url": "http://localhost:5481/mockups/v70/index.html#/ev",
+          "mock_image": "overview-ev-depot-390-mock-v70-ev.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 4449,
+            "h1": "EV charging lab",
+            "location": "/sites/EV-LAB-001/ev?from=2026-10-06T08%3A00%3A00Z&to=2026-10-06T09%3A00%3A00Z",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 3,
+              "openRows": 3,
+              "top": 549,
+              "height": 2454,
+              "headToLastSummaryBottom": 1909,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff es",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "WATCH",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialWatchGross tariff estimate not available yet1 issue",
+                "lines": [
+                  {
+                    "label": "Charging delivered",
+                    "text": "15 kWh with a complete meter record · 0 of 1 session completed",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Charger use",
+                    "text": "Not available yet · connector capacity not read",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Energy billed against metered",
+                    "text": "Not available yet · no settlement records",
+                    "chip": null,
+                    "chipClass": null
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "NOT_MEASURED",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesNot measured yetEnergy cost per km needs odometer readings; a tari",
+                "lines": []
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "NEEDS_ATTENTION",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionNeeds attention1 interrupted · 0 unknown of 1 session2 issues",
+                "lines": [
+                  {
+                    "label": "Session service",
+                    "text": "1 fault-aborted session, 0 outcomes unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Connector availability",
+                    "text": "Connector c1: 44 min out, 16 min unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Charger condition",
+                    "text": "Fault recorded on Connector c1",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Site power",
+                    "text": "Peak 60 kW of the 80 kW import limit",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Warranty",
+                    "text": "Not available yet · no warranty record",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Buses ready for service: no interrupted charging sessions · 1 interrupted",
+                    "chip": "Missed",
+                    "chipClass": "oc-conf tone-amber"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Departures against the timetable",
+                    "text": "Not available yet · no bus roster connected",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Energy billed against metered",
+                    "text": "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Session records",
+                    "text": "Every session has an accepted end",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Connector status",
+                    "text": "Missing 6 Oct 08:00–6 Oct 08:16",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 4316,
+            "consoleErrors": []
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Depot Charging Hub",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": [
+        {
+          "name": "overview-cold-greenharvest 1440: app rendered",
+          "ok": false
+        },
+        {
+          "name": "overview-cold-greenharvest 390: app rendered",
+          "ok": false
+        }
+      ]
+    },
+    {
+      "targets": "targets-2.json",
+      "product_sha": "b4e834f9",
+      "captured_at": "2026-10-30T23:50:35.997Z",
+      "captures": [
+        {
+          "name": "overview-mini-kobo",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outd_audit",
+          "ready": true,
+          "app_image": "overview-mini-kobo-1440-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-1440-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 2966,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 4,
+              "top": 357,
+              "height": 1630,
+              "headToLastSummaryBottom": 1414,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issue",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issues",
+                "lines": [
+                  {
+                    "label": "Productive use",
+                    "text": "Not available yet · solar headroom not read for this day",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Cash collected",
+                    "text": "Not available yet · no billing or payment records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Site earnings",
+                    "text": "Not available yet · needs site income, operating cost and capital records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownNo priced exposure in this hourNo open issues",
+                "lines": [
+                  {
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "chip": "Declared",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed · 0 min longer than needed on this day",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionUnknownBattery and generator condition are not assessedNo open issues",
+                "lines": [
+                  {
+                    "label": "Battery",
+                    "text": "Not available yet · no generator period assessed on this day",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Generator",
+                    "text": "No preventive plan recorded",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Service delivery",
+                    "text": "Not available yet · delivered power not read for this hour",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served · critical demand not measured",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "No verified result yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met · 3 not checked yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Readings",
+                    "text": "Source not resolved · readiness Unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5827,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5425/favicon.ico"
+            ]
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-mini-kobo",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5425/sites/KOBO-001?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outd_audit",
+          "ready": true,
+          "app_image": "overview-mini-kobo-390-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-390-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 5234,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&date=2026-10-30",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 4,
+              "top": 649,
+              "height": 2959,
+              "headToLastSummaryBottom": 2499,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issue",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issues",
+                "lines": [
+                  {
+                    "label": "Productive use",
+                    "text": "Not available yet · solar headroom not read for this day",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Cash collected",
+                    "text": "Not available yet · no billing or payment records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Site earnings",
+                    "text": "Not available yet · needs site income, operating cost and capital records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownNo priced exposure in this hourNo open issues",
+                "lines": [
+                  {
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "chip": "Declared",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed · 0 min longer than needed on this day",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionUnknownBattery and generator condition are not assessedNo open issues",
+                "lines": [
+                  {
+                    "label": "Battery",
+                    "text": "Not available yet · no generator period assessed on this day",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Generator",
+                    "text": "No preventive plan recorded",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Service delivery",
+                    "text": "Not available yet · delivered power not read for this hour",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served · critical demand not measured",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "No verified result yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met · 3 not checked yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Readings",
+                    "text": "Source not resolved · readiness Unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5854,
+            "consoleErrors": []
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": "targets-2b.json",
+      "product_sha": "b4e834f9",
+      "captured_at": "2026-10-30T23:51:29.375Z",
+      "captures": [
+        {
+          "name": "overview-mini-kobo-date",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5425/sites/KOBO-001?date=2026-10-21",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outd_audit",
+          "ready": true,
+          "app_image": "overview-mini-kobo-date-1440-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-date-1440-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 2966,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?date=2026-10-21",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 4,
+              "top": 357,
+              "height": 1630,
+              "headToLastSummaryBottom": 1414,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 1145,
+              "clientW": 1145
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issue",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issues",
+                "lines": [
+                  {
+                    "label": "Productive use",
+                    "text": "Not available yet · solar headroom not read for this day",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Cash collected",
+                    "text": "Not available yet · no billing or payment records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Site earnings",
+                    "text": "Not available yet · needs site income, operating cost and capital records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownNo priced exposure in this hourNo open issues",
+                "lines": [
+                  {
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "chip": "Declared",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed · 0 min longer than needed on this day",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionUnknownBattery and generator condition are not assessedNo open issues",
+                "lines": [
+                  {
+                    "label": "Battery",
+                    "text": "Not available yet · no generator period assessed on this day",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Generator",
+                    "text": "No preventive plan recorded",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Service delivery",
+                    "text": "Not available yet · delivered power not read for this hour",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served · critical demand not measured",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "No verified result yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met · 3 not checked yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Readings",
+                    "text": "Source not resolved · readiness Unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5827,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5425/favicon.ico"
+            ]
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "overview-mini-kobo-date",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5425/sites/KOBO-001?date=2026-10-21",
+          "producer": "s501 overview walkthrough",
+          "db": "assetops_s501_owner_outd_audit",
+          "ready": true,
+          "app_image": "overview-mini-kobo-date-390-app.png",
+          "mock_url": "http://localhost:5425/mockups/v70/index.html#/mini",
+          "mock_image": "overview-mini-kobo-date-390-mock-v70-mini.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 5234,
+            "h1": "Kobo mini-grid",
+            "location": "/sites/KOBO-001?date=2026-10-21",
+            "tagRows": [],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [],
+            "mockCards": [],
+            "board": {
+              "status": "loaded",
+              "rows": 4,
+              "openRows": 4,
+              "top": 649,
+              "height": 2959,
+              "headToLastSummaryBottom": 2499,
+              "sumLabels": [
+                "Grow revenueGrow revenueCapture more value from existing infrastructure and expa",
+                "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expe",
+                "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid pr",
+                "Assure performance and returnsAssure performance and returnsEstablish with defen"
+              ],
+              "scrollW": 358,
+              "clientW": 358
+            },
+            "dots": [],
+            "matrix": [],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "",
+            "openRows": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issue",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operati",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service d",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructur"
+            ],
+            "contributors": [
+              {
+                "row": "GROW_REVENUE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownNo open issues",
+                "lines": [
+                  {
+                    "label": "Productive use",
+                    "text": "Not available yet · solar headroom not read for this day",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Cash collected",
+                    "text": "Not available yet · no billing or payment records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Site earnings",
+                    "text": "Not available yet · needs site income, operating cost and capital records",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "OPTIMIZE_COST",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownNo priced exposure in this hourNo open issues",
+                "lines": [
+                  {
+                    "label": "Generator use",
+                    "text": "0 min avoidable, 0 min unclear",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Fuel",
+                    "text": "No complete fuel balance yet",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Fuel price",
+                    "text": "Declared at 1.25 USD per litre",
+                    "chip": "Declared",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Supply cost per kWh: no generator time longer than needed · 0 min longer than needed on this day",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "PROTECT_ASSET",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruptionUnknownBattery and generator condition are not assessedNo open issues",
+                "lines": [
+                  {
+                    "label": "Battery",
+                    "text": "Not available yet · no generator period assessed on this day",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Generator",
+                    "text": "No preventive plan recorded",
+                    "chip": "Plan record",
+                    "chipClass": "oc-conf tone-neutral"
+                  },
+                  {
+                    "label": "Service delivery",
+                    "text": "Not available yet · delivered power not read for this hour",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Backup readiness",
+                    "text": "No backup event in this window",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  },
+                  {
+                    "label": "Declared objective",
+                    "text": "Reliable service: all critical demand served · critical demand not measured",
+                    "chip": "Not checked yet",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              },
+              {
+                "row": "ASSURE_PERFORMANCE",
+                "state": "UNKNOWN",
+                "open": true,
+                "summary": "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsUnknownNo verified result yetNo open issues",
+                "lines": [
+                  {
+                    "label": "Verified results",
+                    "text": "No verified result yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Actual against plan",
+                    "text": "0 of 3 declared objectives met · 3 not checked yet",
+                    "chip": null,
+                    "chipClass": null
+                  },
+                  {
+                    "label": "Readings",
+                    "text": "Source not resolved · readiness Unknown",
+                    "chip": "Unknown",
+                    "chipClass": "oc-conf tone-gray"
+                  }
+                ]
+              }
+            ],
+            "matrixCells": [],
+            "mainTextLen": 5854,
+            "consoleErrors": []
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [],
+            "board": null,
+            "tagRows": [],
+            "affectsLines": [],
+            "mockCards": [],
+            "h1": "Kobo Mini-grid",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    },
+    {
+      "targets": "targets-3.json",
+      "product_sha": "b4e834f9",
+      "captured_at": "2026-10-30T23:55:09.491Z",
+      "captures": [
+        {
+          "name": "portfolio-estate",
+          "width": 1440,
+          "height": 1000,
+          "url": "http://localhost:5468/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outd_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-1440-app.png",
+          "mock_url": "http://localhost:5468/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-1440-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 1425,
+            "clientWidth": 1425,
+            "overflowX": false,
+            "innerWidth": 1440,
+            "pageH": 1487,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · a1072493-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · 0 early warnings, counted separately · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · targets declared at 1 site · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedKobo mini-grid: UnknownOpportunities · revenue not measure",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceKobo mini",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · 0 early w",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · targets"
+            ],
+            "board": null,
+            "dots": [
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              }
+            ],
+            "matrix": [
+              {
+                "text": "OutcomeKobo mini-gridGrow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownProductive electricity salesOptimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownSup",
+                "scrollW": 275,
+                "clientW": 275
+              }
+            ],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "0 warnings not yet priced",
+            "openRows": [],
+            "contributors": [],
+            "matrixCells": [
+              {
+                "cell": "KOBO-001|GROW_REVENUE|gray",
+                "text": "UnknownProductive electricity sales"
+              },
+              {
+                "cell": "KOBO-001|OPTIMIZE_COST|gray",
+                "text": "UnknownSupply cost per kWh"
+              },
+              {
+                "cell": "KOBO-001|PROTECT_ASSET|gray",
+                "text": "UnknownReliable service"
+              },
+              {
+                "cell": "KOBO-001|ASSURE_PERFORMANCE|gray",
+                "text": "UnknownEvidence quality"
+              }
+            ],
+            "mainTextLen": 4326,
+            "consoleErrors": [
+              "[log] Failed to load resource: the server responded with a status of 404 (Not Found) http://localhost:5468/favicon.ico"
+            ]
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 251,
+                "right": 1053,
+                "width": 802,
+                "scrollW": 802,
+                "clientW": 802,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultGreenHarvest · Optimize cost and efficiency · Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed",
+                    "left": 251,
+                    "right": 643,
+                    "scrollW": 392,
+                    "clientW": 392,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "#/wr-overview"
+                  },
+                  {
+                    "text": "Early warningBattery below its reserveKobo · Protect asset and capital · 5 of the last 30 days · lowest 22%",
+                    "left": 661,
+                    "right": 1053,
+                    "scrollW": 392,
+                    "clientW": 392,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/asset-overview"
+                  },
+                  {
+                    "text": "Early warningBackup start test overdueGreenHarvest · Protect asset and capital · Monthly test due 2 Oct, not done",
+                    "left": 251,
+                    "right": 643,
+                    "scrollW": 392,
+                    "clientW": 392,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/maintenance-preventive"
+                  },
+                  {
+                    "text": "Early warningCharger fault and overdue inspectionDepot · Protect asset and capital · Connector 2 fault on 6 Oct · inspection overdue since 30 Sep",
+                    "left": 661,
+                    "right": 1053,
+                    "scrollW": 392,
+                    "clientW": 392,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/ev-health"
+                  }
+                ],
+                "n": 4,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  22,
+                  22
+                ],
+                "inPanel": true,
+                "panelHeading": "Where management should act first"
+              }
+            ],
+            "board": null,
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 1425,
+            "clientWidth": 1425
+          }
+        },
+        {
+          "name": "portfolio-estate",
+          "width": 390,
+          "height": 900,
+          "url": "http://localhost:5468/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+          "producer": "s602b estate case",
+          "db": "assetops_s602b_outd_audit_estate",
+          "ready": true,
+          "app_image": "portfolio-estate-390-app.png",
+          "mock_url": "http://localhost:5468/mockups/v70/index.html#/portfolio",
+          "mock_image": "portfolio-estate-390-mock-v70-portfolio.png",
+          "app": {
+            "scrollWidth": 390,
+            "clientWidth": 390,
+            "overflowX": false,
+            "innerWidth": 390,
+            "pageH": 3019,
+            "h1": "Portfolio Value & Operations",
+            "location": "/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z",
+            "tagRows": [
+              {
+                "row": "Kobo mini-gridMini-gridOpens current Site viewGenerator support candidate unconfirmed by the current assessmentFinding KOBO-001 · a1072493-9",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": "MOVES"
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": "CHECKED"
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "safeguards": [],
+            "cards": [
+              {
+                "key": "GROW_REVENUE",
+                "name": "Grow revenue",
+                "definition": "Capture more value from existing infrastructure and expand earning potential",
+                "value": "Not available yet",
+                "detail": "Site income not recorded",
+                "basis": "Opportunities · revenue not measured yet",
+                "icon": true,
+                "href": "/findings/opportunities?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "OPTIMIZE_COST",
+                "name": "Optimize cost and efficiency",
+                "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+                "value": "No supported value",
+                "detail": "No selected operating-cost consequence",
+                "basis": "No value line",
+                "icon": true,
+                "href": "/financials?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "PROTECT_ASSET",
+                "name": "Protect asset and capital",
+                "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+                "value": "No sites disrupted",
+                "detail": "Service disruptions recorded in Findings · 0 early warnings, counted separately · loss not priced",
+                "basis": "Measured events, counted separately · loss not priced",
+                "icon": true,
+                "href": "/findings/risks?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              },
+              {
+                "key": "ASSURE_PERFORMANCE",
+                "name": "Assure performance and returns",
+                "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+                "value": "Not established",
+                "detail": "No verified result yet · targets declared at 1 site · no evidence gaps",
+                "basis": "Completed work does not establish savings",
+                "icon": true,
+                "href": "/evidence?from=2026-10-21T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z"
+              }
+            ],
+            "mockCards": [
+              "Grow revenueGrow revenue→Capture more value from existing infrastructure and expand earning potentialNot available yetSite income not recordedKobo mini-grid: UnknownOpportunities · revenue not measure",
+              "Optimize cost and efficiencyOptimize cost and efficiency→Eliminate avoidable expenditure and get more output from operational resourcesNo supported valueNo selected operating-cost consequenceKobo mini",
+              "Protect asset and capitalProtect asset and capital→Preserve asset value, avoid premature replacement and reduce service disruptionNo sites disruptedService disruptions recorded in Findings · 0 early w",
+              "Assure performance and returnsAssure performance and returns→Establish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · targets"
+            ],
+            "board": null,
+            "dots": [
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              },
+              {
+                "n": 1,
+                "text": "Kobo mini-grid: Unknown"
+              }
+            ],
+            "matrix": [
+              {
+                "text": "OutcomeKobo mini-gridGrow revenueGrow revenueCapture more value from existing infrastructure and expand earning potentialUnknownProductive electricity salesOptimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resourcesUnknownSup",
+                "scrollW": 328,
+                "clientW": 328
+              }
+            ],
+            "warnLists": [],
+            "notice": [],
+            "repeatCard": [],
+            "pulse": "0 warnings not yet priced",
+            "openRows": [],
+            "contributors": [],
+            "matrixCells": [
+              {
+                "cell": "KOBO-001|GROW_REVENUE|gray",
+                "text": "UnknownProductive electricity sales"
+              },
+              {
+                "cell": "KOBO-001|OPTIMIZE_COST|gray",
+                "text": "UnknownSupply cost per kWh"
+              },
+              {
+                "cell": "KOBO-001|PROTECT_ASSET|gray",
+                "text": "UnknownReliable service"
+              },
+              {
+                "cell": "KOBO-001|ASSURE_PERFORMANCE|gray",
+                "text": "UnknownEvidence quality"
+              }
+            ],
+            "mainTextLen": 4326,
+            "consoleErrors": []
+          },
+          "mock": {
+            "contributors": [],
+            "warnLists": [
+              {
+                "heading": "Early warnings · not priced yet",
+                "left": 26,
+                "right": 364,
+                "width": 338,
+                "scrollW": 338,
+                "clientW": 338,
+                "items": [
+                  {
+                    "text": "RiskRepeated maintenance without a resultGreenHarvest · Optimize cost and efficiency · Backup generator visited 3 times in 60 days (14 Aug, 18 Sep, 6 Oct); the automatic start still failed",
+                    "left": 26,
+                    "right": 364,
+                    "scrollW": 338,
+                    "clientW": 338,
+                    "kind": "Risk",
+                    "kindClass": "oc-kind risk",
+                    "link": "#/wr-overview"
+                  },
+                  {
+                    "text": "Early warningBattery below its reserveKobo · Protect asset and capital · 5 of the last 30 days · lowest 22%",
+                    "left": 26,
+                    "right": 364,
+                    "scrollW": 338,
+                    "clientW": 338,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/asset-overview"
+                  },
+                  {
+                    "text": "Early warningBackup start test overdueGreenHarvest · Protect asset and capital · Monthly test due 2 Oct, not done",
+                    "left": 26,
+                    "right": 364,
+                    "scrollW": 338,
+                    "clientW": 338,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/maintenance-preventive"
+                  },
+                  {
+                    "text": "Early warningCharger fault and overdue inspectionDepot · Protect asset and capital · Connector 2 fault on 6 Oct · inspection overdue since 30 Sep",
+                    "left": 26,
+                    "right": 364,
+                    "scrollW": 338,
+                    "clientW": 338,
+                    "kind": "Early warning",
+                    "kindClass": "oc-kind stress",
+                    "link": "#/ev-health"
+                  }
+                ],
+                "n": 4,
+                "itemsOverflow": 0,
+                "infoSize": [
+                  22,
+                  22
+                ],
+                "inPanel": true,
+                "panelHeading": "Where management should act first"
+              }
+            ],
+            "board": null,
+            "tagRows": [
+              {
+                "row": "GreenHarvestCold-chainBackup response failedF-118 · Automatic start failed; cooling interruptedProtect asset and capitalOptimize cost and ef",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridExtended generator supportF-104 · 30 min candidate; charging trade-off remainsOptimize cost and efficiencyProtect asset and cap",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "DepotEV chargingCharging session interruptedF-130 · Fault-aborted session; root cause unknownProtect asset and capitalGrow revenue1 interrup",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "GreenHarvestCold-chainTemperature excursionF-119 · Chamber above 4°C after backup failedProtect asset and capital25–35 min above policyMeasu",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": true,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridBattery output-limit report missingF-108 · One 14:50 report absent from the battery controllerAssure performance and returnsOpt",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Assure performance and returns",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              },
+              {
+                "row": "KoboMini-gridProductive-use headroomF-109 · Recurring renewable capacity availableGrow revenueOptimize cost and efficiencyProtect asset and ",
+                "rowTag": "TR",
+                "pills": [
+                  {
+                    "text": "Grow revenue",
+                    "solid": true,
+                    "role": null
+                  },
+                  {
+                    "text": "Optimize cost and efficiency",
+                    "solid": false,
+                    "role": null
+                  },
+                  {
+                    "text": "Protect asset and capital",
+                    "solid": false,
+                    "role": null
+                  }
+                ]
+              }
+            ],
+            "affectsLines": [],
+            "mockCards": [
+              "Grow revenueGrow revenueCapture more value from existing infrastructure and expand earning potential18–20 kW unusedProductive use at Kobo · idle chargers at Depot · site income not recordedKoboGreenHa",
+              "Optimize cost and efficiencyOptimize cost and efficiencyEliminate avoidable expenditure and get more output from operational resources$3.31–3.97Kobo generator time, 1 trial in hand · 3 repair visits w",
+              "Protect asset and capitalProtect asset and capitalPreserve asset value, avoid premature replacement and reduce service disruption2 sites disruptedCold-room exposure · interrupted charging · 4 early wa",
+              "Assure performance and returnsAssure performance and returnsEstablish with defensible evidence whether the infrastructure is delivering expected resultsNot establishedNo verified result yet · no targe"
+            ],
+            "h1": "Portfolio Value & Operations",
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "failed_claims": []
+    }
+  ]
+}

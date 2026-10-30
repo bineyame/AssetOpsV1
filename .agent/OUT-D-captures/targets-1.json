@@ -1,0 +1,4 @@
+[
+ {"name":"overview-cold-greenharvest","url":"http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z","mock":"cold","open":"all","producer":"w502 positive","db":"w502b_positive_outd_test"},
+ {"name":"overview-ev-depot","url":"http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z","mock":"ev","open":"all","producer":"w504 positive","db":"w504a_positive_outd_test"}
+]
