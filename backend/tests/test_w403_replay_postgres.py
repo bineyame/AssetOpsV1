@@ -177,15 +177,13 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
     with engine.connect() as c:
         future = c.execute(text("SELECT min(created_at) > clock_timestamp() FROM finding_revision WHERE id = :r"),
                            {"r": record["finding"][1]}).scalar_one()
-    # u9 PR-11.1: the replay decided the branch at POST time; a revision visible then is still visible now.
-    if not record["alternative_basis_visible"]:
-        assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED")
-        assert "id" not in alt["body"]
-        assert pos["alternatives"]["status"] != 200 or pos["alternatives"]["body"]["rows"] == []
-    else:
-        assert not future
-        assert alt["status"] == 201 and [r["revision_id"] for r in pos["alternatives"]["body"]["rows"]] == [
-            alt["body"]["revision_id"]]
+    # u9 PR-11.1: the replay decided the branch at POST time. The F02 revision carries the fixed fixture time
+    # SETUP_AT (2026-10-29), which is in the past on every run date, so the revision is visible and the write is a 201.
+    # The not-yet-visible exit (409 DECISION_BASIS_CHANGED) needs a future fixture time and is no longer exercised
+    # here (a stale-basis 409 is covered by test_w403_alternative_postgres.py); no branch on the wall clock remains.
+    assert record["alternative_basis_visible"] and not future
+    assert alt["status"] == 201 and [r["revision_id"] for r in pos["alternatives"]["body"]["rows"]] == [
+        alt["body"]["id"]]
 
     # Late contradictory evidence: pending before the rerun, a new head after it, the old cutoff keeps history.
     pending = record["late_pending"]["opportunity"]
@@ -227,7 +225,13 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
                 "pinned_mini_revision_ids")
     assert [{k: r[k] for k in authored} for r in again["scenarios"]["rows"]] == [
         {k: r[k] for k in authored} for r in pos["scenarios"]["rows"]]
-    assert again["alternatives"] == pos["alternatives"]
+    # A default read stamps its own live `known_at` (database clock) and the selection token that digests it,
+    # so only those two fields may differ.
+    def without_read_time(read):
+        body = {**read["body"], "window": {**read["body"]["window"], "known_at": None}, "selection_token": None}
+        return {**read, "body": body}
+
+    assert without_read_time(again["alternatives"]) == without_read_time(pos["alternatives"])
     assert again["opportunity"]["history"] == settled["history"]
     assert again["contexts"]["contexts"] == contexts
 

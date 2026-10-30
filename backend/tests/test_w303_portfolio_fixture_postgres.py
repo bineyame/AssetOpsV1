@@ -259,6 +259,10 @@ def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "excu
     windowed = [cold.site_id, first.site_id, second.site_id]
     frozen = max(power.runner.now + timedelta(minutes=1), db_now(eng),
                  latest_recorded(eng, windowed) + timedelta(microseconds=1))
+    # Whole seconds: the public `known_at` is second-precision, and `iso(fx.frozen)` must match it exactly once the
+    # real database clock (microseconds) is the latest candidate. Rounded UP so every recorded row stays visible.
+    if frozen.microsecond:
+        frozen = frozen.replace(microsecond=0) + timedelta(seconds=1)
     pin_snapshots(monkeypatch, lambda: frozen)
     return PortfolioFixture(engine=eng, tenant_id=power.tenant, site_ids=site_ids, cold=cold, evs=(first, second),
                             tariffs=tariffs, power=power, rig=rig, power_revision=power_revision, frozen=frozen)

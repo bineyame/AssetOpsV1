@@ -215,7 +215,8 @@ def publishing_submit(policy):
     """`CaseRunner.submit` that first publishes each exact sealed batch per `policy(device, texts)` -> fixture or
     None (unbound), so the real Finding/consequence pipeline cites bound evidence."""
     def submit(self, envelopes, decided_at):
-        service = BatchIngestionService(PostgresEvidenceLedger(URL), Clock(decided_at))
+        service = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=Clock(decided_at)),
+                                         Clock(decided_at))
         by_device: dict[str, list[str]] = {}
         for device, text_ in envelopes:
             by_device.setdefault(device, []).append(text_)
