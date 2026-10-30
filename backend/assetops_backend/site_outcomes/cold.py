@@ -8,15 +8,17 @@ Dates use the route Site record's zone, else UTC with the suffix (addendum 3 b).
 from __future__ import annotations
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
+from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
+from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
     plural, site_zone, utc)
@@ -88,12 +90,10 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
     readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
     plans = reads.call("plans", ports.plans, work_lo, hi)
-    cases: list[CaseFact] = []
-    work_failed = False
-    for kind, case_kind in (("incidents", INCIDENT), ("maintenance", MAINTENANCE_REQUEST)):
-        rows = reads.pages("work_index", ports.work, kind, work_lo, hi)
-        work_failed = work_failed or rows is None
-        cases += [case_fact(r, case_kind, c) for r in rows or ()]
+    incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
+    visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
+    work_failed = incidents is None or visits is None
+    cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
@@ -105,6 +105,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     base = overview is not None and (body.get("currentness") or {}).get("state") in SETTLED_CURRENTNESS
     settled = {o: base for o in ("CC-1", "CC-6", "CC-5")}
     settled["CC-7"] = base and readiness not in (None, "UNKNOWN")
+    settled["CC-3"] = base and findings_ok and visits is not None  # C: repeat visits need visits and Findings
     for key in finding_moved_outcomes(COLD):  # addendum 3 M1
         settled[key] = settled.get(key, False) and findings_ok
 
@@ -148,6 +149,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       headline=headline, subline=subline, settled=settled, date_suffix=suffix,
                       findings_settled=findings_ok)
+    facts = replace(facts, warnings=evaluate(warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)))
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)

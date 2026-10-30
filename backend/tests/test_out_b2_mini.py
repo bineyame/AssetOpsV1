@@ -128,8 +128,10 @@ def vocabulary_compositions():
 def test_kobo_board_from_ports() -> None:
     comp, rows = run()
     assert comp.read_state == "AVAILABLE" and comp.failed == () and comp.timezone == ZONE
+    # C: PM-2 (calendar, due 1 Nov) is due within 14 days, an early warning moving MG-4, so Protect is Watch
     assert [rows[c]["state"] for c in (GROW, COST, PROTECT, ASSURE)] == [
-        "OPPORTUNITY", "NEEDS_ATTENTION", "NO_OBJECTIVE", "WATCH"]
+        "OPPORTUNITY", "NEEDS_ATTENTION", "WATCH", "WATCH"]
+    assert [w.kind for w in comp.facts.warnings] == ["PLAN_DUE_SOON"]
     assert rows[GROW]["headline"] == "18–24.3 kW of daytime solar unused"
     assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
     assert rows[COST]["headline"] == "exposure in this hour"
@@ -220,9 +222,11 @@ def test_depth_refusal_sets_mg1_mg5_unknown_and_utc_dates() -> None:
     assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
     assert contributor(rows[GROW], "productive_use")["text"] == mini.NOT_LOADED
     plan = next(i for i in rows[PROTECT]["in_hand"] if i["text"] == "PM-2 · Battery check")
-    assert plan["state_label"] == "Due 31 Oct · UTC (Site time zone unavailable)"
-    _, ok = run()
-    assert next(i for i in ok[PROTECT]["in_hand"] if i["text"] == "PM-2 · Battery check")["state_label"] == "Due 1 Nov"
+    assert plan["state_label"] == "Due soon"  # C: the due cue fires; its date moves to the warning
+    assert [w.seen for w in comp.facts.warnings] == ["Due 31 Oct · UTC (Site time zone unavailable)"]
+    ok_comp, ok = run()
+    assert next(i for i in ok[PROTECT]["in_hand"] if i["text"] == "PM-2 · Battery check")["state_label"] == "Due soon"
+    assert [w.seen for w in ok_comp.facts.warnings] == ["Due 1 Nov"]
 
 
 def test_one_depth_domain_refused_is_partial_and_unsettles() -> None:
@@ -258,8 +262,9 @@ def test_degrade_only_ports_never_set_unknown() -> None:
     for port in ("work", "plans", "assumptions", "verification", "action", "action_index"):
         comp, rows = run(Fake(refuse=(port,)))
         assert comp.read_state == "PARTIAL", port
+        # C: Protect is Watch from the PM-2 due cue unless the plan read itself is refused
         assert [rows[c]["state"] for c in (GROW, COST, PROTECT)] == [
-            "OPPORTUNITY", "NEEDS_ATTENTION", "NO_OBJECTIVE"], port
+            "OPPORTUNITY", "NEEDS_ATTENTION", "NO_OBJECTIVE" if port == "plans" else "WATCH"], port
     _, rows = run(Fake(refuse=("assumptions",)))
     assert contributor(rows[COST], "fuel_price")["text"] == mini.NOT_LOADED
     _, rows = run(Fake(refuse=("plans",)))

@@ -148,8 +148,8 @@ def test_charger_fault_needs_overdue_plan_on_same_asset() -> None:
     soon = evaluate(facts(EV, faults=fault, plans=(plan(TO + timedelta(days=4), asset="c1"),)))
     assert kinds(soon) == [PLAN_DUE_SOON]
     ws = evaluate(facts(EV, faults=fault, plans=(plan(TO - timedelta(days=4), asset="c1"),)))
-    assert kinds(ws) == [CHARGER_FAULT, PLAN_OVERDUE]
-    w = ws[0]
+    assert kinds(ws) == [PLAN_OVERDUE, CHARGER_FAULT]  # KINDS order (L2)
+    w = ws[1]
     assert w.seen == "Connector 1 fault recorded in this window · inspection overdue since 25 Oct"
     assert (w.key, w.href, w.subject_label) == (f"{CHARGER_FAULT}:S1:c1", "/sites/S1/health", "Connector 1")
     assert [r["kind"] for r in w.evidence_refs] == ["PLAN", "ASSET"]
@@ -192,11 +192,24 @@ def test_sort_order_and_price_needs_closed() -> None:
     ws = evaluate(facts(EV, peak=(76.0, 80.0, "76", "80"), connectors_out=(("c1", "1", "2 h", "1 min"),),
                         faults=(("c1", "1"),), plans=(plan(TO - timedelta(days=1), asset="c1"),
                                                       plan(TO + timedelta(days=1), pid="p2"))))
-    assert kinds(ws) == [CONNECTOR_OUT, PEAK, CHARGER_FAULT, PLAN_DUE_SOON, PLAN_OVERDUE]
+    assert kinds(ws) == [CONNECTOR_OUT, PEAK, PLAN_OVERDUE, PLAN_DUE_SOON, CHARGER_FAULT]  # KINDS order (L2)
     for w in ws:
         assert w.price_needs == PRICE_NEEDS[w.kind]
         assert w.persistence == "OBSERVED"
     assert set(PRICE_NEEDS) == {REPEATED, PLAN_OVERDUE, PLAN_DUE_SOON, BATTERY, CHARGER_FAULT, CONNECTOR_OUT, PEAK}
+
+
+def test_kinds_order_overdue_first_and_repeat_before_connector_and_peak() -> None:
+    from assetops_backend.outcomes.warnings import KINDS
+    assert KINDS.index(PLAN_OVERDUE) < KINDS.index(PLAN_DUE_SOON)
+    assert KINDS.index(REPEATED) < KINDS.index(CONNECTOR_OUT) < KINDS.index(PEAK)
+    # a due-soon plan whose key sorts first still follows an overdue one
+    ws = evaluate(facts(plans=(plan(TO + timedelta(days=1), pid="a"), plan(TO - timedelta(days=1), pid="z"))))
+    assert kinds(ws) == [PLAN_OVERDUE, PLAN_DUE_SOON]
+    vs = (visit(1, TO - timedelta(days=5)), visit(2, TO - timedelta(days=2)))
+    ws = evaluate(facts(EV, visits=vs, open_findings={"f1": (outcome_roles("FINDING:EV_INTERRUPTION", EV)[0], None)},
+                        peak=(76.0, 80.0, "76", "80"), connectors_out=(("c1", "1", "2 h", None),)))
+    assert kinds(ws) == [REPEATED, CONNECTOR_OUT, PEAK]
 
 
 def test_wire_keys() -> None:

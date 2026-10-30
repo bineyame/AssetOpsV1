@@ -20,6 +20,8 @@ BATTERY = "BATTERY_NEAR_RESERVE"
 CHARGER_FAULT = "CHARGER_FAULT_OVERDUE_INSPECTION"
 CONNECTOR_OUT = "CONNECTOR_OUT_OF_SERVICE"
 PEAK = "PEAK_NEAR_IMPORT_LIMIT"
+#: Sort order inside a badge (ruling L2): overdue before due soon, the repeat warning before connector and peak, so
+#: a list cut to its first few entries never drops an overdue plan for a due-soon one.
 KINDS = (REPEATED, PLAN_OVERDUE, PLAN_DUE_SOON, BATTERY, CHARGER_FAULT, CONNECTOR_OUT, PEAK)
 
 #: A peak strictly closer than this fraction of the configured import limit fires.
@@ -259,6 +261,6 @@ def _peak(f: WarningFacts) -> list[Warning]:
 
 
 def evaluate(f: WarningFacts) -> tuple[Warning, ...]:
-    """Every warning that fires, sorted by badge (RISK, EARLY_WARNING, OPPORTUNITY), kind, then key."""
+    """Every warning that fires, sorted by badge (RISK, EARLY_WARNING, OPPORTUNITY), position in KINDS, then key."""
     found = _repeated(f) + _plans(f) + _battery(f) + _faults(f) + _connectors(f) + _peak(f)
-    return tuple(sorted(found, key=lambda w: (BADGE_ORDER.index(w.badge), w.kind, w.key)))
+    return tuple(sorted(found, key=lambda w: (BADGE_ORDER.index(w.badge), KINDS.index(w.kind), w.key)))
