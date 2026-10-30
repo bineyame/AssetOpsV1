@@ -35,7 +35,7 @@ describe("OUT-C U5 early-warning list", () => {
     expect(items[1].querySelector(".oc-kind")?.className).toBe("oc-kind stress");
     expect(items[1].querySelector(".oc-kind")?.textContent).toBe("Early warning");
     const link = within(items[0] as HTMLElement).getByRole("link");
-    expect(link).toHaveAttribute("href", "/work/requests/case-3");
+    expect(link).toHaveAttribute("href", "/maintenance/requests/case-3");
     expect(link.querySelector("strong")?.textContent).toBe("Repeated maintenance without a result");
     expect(items[0].querySelector("small")?.textContent).toBe(
       "GreenHarvest · Optimize cost and efficiency · generator-1 visited 3 times in 60 days (2 Oct, 14 Oct, 28 Oct); the linked finding is still open",

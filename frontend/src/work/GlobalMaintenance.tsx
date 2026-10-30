@@ -11,6 +11,8 @@
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { Link } from "react-router-dom";
+import type { EstateClient } from "../estate/estateClient";
+import { useOutcomeSummary } from "../estate/useOutcomeSummary";
 import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
@@ -225,7 +227,61 @@ function PreventiveCardNote({ query }: { query: GlobalWorkQuery | null }) {
   );
 }
 
-function Cards({ body, query }: { body: GlobalMaintenanceBody; query: GlobalWorkQuery | null }) {
+const DAY_MS = 86_400_000;
+/** OUT-C U6: the estate summary's own maximum window (days). */
+const SUMMARY_MAX_DAYS = 31;
+export const REPEAT_VISITS_LABEL = "Repeat visits without a result";
+export const REPEAT_VISITS_NONE = "None in the last 60 days";
+export const REPEAT_VISITS_UNCHECKED = "Repeat visits could not be checked for this window";
+const REPEATED_KIND = "REPEATED_MAINTENANCE_NO_RESULT";
+
+/**
+ * OUT-C U6: the covering UTC days of the page window, `[floor(from), ceil(to))`; null when the instants do not parse
+ * or the covering window is longer than the summary allows.
+ */
+export function coveringUtcDays(query: GlobalWorkQuery | null): { from: string; to: string } | null {
+  if (query === null) return null;
+  const from = Date.parse(query.from);
+  const to = Date.parse(query.to);
+  if (Number.isNaN(from) || Number.isNaN(to) || to <= from) return null;
+  const lo = Math.floor(from / DAY_MS) * DAY_MS;
+  const hi = Math.ceil(to / DAY_MS) * DAY_MS;
+  if (hi - lo > SUMMARY_MAX_DAYS * DAY_MS) return null;
+  const iso = (ms: number) => `${new Date(ms).toISOString().slice(0, 10)}T00:00:00Z`;
+  return { from: iso(lo), to: iso(hi) };
+}
+
+/** OUT-C U6 (replaces the retired "Repeat findings" card): REPEATED warnings in the estate summary. */
+function RepeatVisitsCard({ estate, query }: { estate: Pick<EstateClient, "getOutcomeSummary">; query: GlobalWorkQuery | null }) {
+  const days = coveringUtcDays(query);
+  const summary = useOutcomeSummary(estate, days === null ? null : { ...days, known_at: query?.known_at ?? null });
+  const data = { "data-global-work-card": "repeat_visits" };
+  if (days === null || summary === null || summary.status !== "loaded") {
+    return <MetricCard label={REPEAT_VISITS_LABEL} value="Not assessed" word note={REPEAT_VISITS_UNCHECKED} data={data} />;
+  }
+  const repeated = summary.value.warnings.filter((w) => w.kind === REPEATED_KIND);
+  const first = repeated[0];
+  const note =
+    first === undefined ? (
+      REPEAT_VISITS_NONE
+    ) : (
+      <LinkOrText
+        link={{ label: `${first.subject_label ?? ""} · ${first.count ?? ""} visits, linked finding still open`, href: first.href }}
+        data={{ "data-global-work-repeat-link": "" }}
+      />
+    );
+  return <MetricCard label={REPEAT_VISITS_LABEL} value={String(repeated.length)} note={note} data={data} />;
+}
+
+function Cards({
+  body,
+  query,
+  estate,
+}: {
+  body: GlobalMaintenanceBody;
+  query: GlobalWorkQuery | null;
+  estate: Pick<EstateClient, "getOutcomeSummary">;
+}) {
   const open = body.state_counts.OPEN + body.state_counts.IN_PROGRESS;
   return (
     <MetricCards label="Maintenance summary" data={{ "data-global-work-cards": "" }}>
@@ -250,18 +306,14 @@ function Cards({ body, query }: { body: GlobalMaintenanceBody; query: GlobalWork
         note={<PreventiveCardNote query={query} />}
         data={{ "data-global-work-card": "preventive_due" }}
       />
-      <MetricCard
-        label="Repeat findings"
-        value="Not assessed"
-        word
-        note="No repeat-finding assessment"
-        data={{ "data-global-work-card": "repeat_findings" }}
-      />
+      <RepeatVisitsCard estate={estate} query={query} />
     </MetricCards>
   );
 }
 
-export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient }) {
+const NO_SUMMARY: Pick<EstateClient, "getOutcomeSummary"> = {};
+
+export function GlobalMaintenancePage({ client, estate = NO_SUMMARY }: { client?: GlobalWorkClient; estate?: Pick<EstateClient, "getOutcomeSummary"> }) {
   const page = useGlobalWorkPage<GlobalMaintenanceBody>(PAGE_PATH, client, (reads, query) =>
     reads.maintenance ? reads.maintenance(query) : null,
   );
@@ -276,7 +328,7 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
       <GlobalWorkSlot
         page={page}
         loading={GLOBAL_MAINTENANCE_LOADING}
-        cards={(value) => <Cards body={value} query={query} />}
+        cards={(value) => <Cards body={value} query={query} estate={estate} />}
       />
       <Panel heading="Corrective work requests" headingId={TABLE_HEADING_ID} description={CORRECTIVE_REQUESTS_FOOTER}>
         {shown && body !== null ? (
@@ -304,7 +356,8 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
             </>
           )
         ) : null}
-        {/* MOCK DEVIATION D1 (R358): cards 2-4 state "Not assessed" where no stored assessment exists. */}
+        {/* MOCK DEVIATION D1 (R358): cards 2-3 state "Not assessed" where no stored assessment exists (OUT-C: card 4
+            is the repeat-visit count). */}
         {shown ? <MockDeviation category="D1" id="R358" /> : null}
       </Panel>
       <Notice tone="blue" data={{ "data-global-work-notice": "" }}>
@@ -315,10 +368,10 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
 }
 
 /** The routed frame: the page in its `<main>` landmark, named by the page heading. */
-export function GlobalMaintenanceFrame({ client }: { client?: GlobalWorkClient }) {
+export function GlobalMaintenanceFrame({ client, estate }: { client?: GlobalWorkClient; estate?: EstateClient }) {
   return (
     <main aria-labelledby={GLOBAL_MAINTENANCE_HEADING_ID}>
-      <GlobalMaintenancePage client={client} />
+      <GlobalMaintenancePage client={client} estate={estate} />
     </main>
   );
 }

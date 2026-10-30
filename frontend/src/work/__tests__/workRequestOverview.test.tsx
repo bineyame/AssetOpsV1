@@ -20,7 +20,10 @@ import {
   type GlobalWorkDetailResult,
   type WorkCaseDetailEvent,
 } from "../globalWorkClient";
-import { WorkRequestOverviewFrame } from "../WorkRequestOverview";
+import { repeatVisitNotice, WorkRequestOverviewFrame } from "../WorkRequestOverview";
+import { boardBody, fakeOutcomeBoard, outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
+import type { OutcomeBoardClient } from "../../sites/outcomeBoardClient";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 
 const CASE = "6f1c2d3e-4a5b-4c6d-8e7f-001122334455";
 const ROUTE = WORK_REQUEST_ROUTE_PATH;
@@ -143,11 +146,11 @@ function client(answer: GlobalWorkDetailResult, gate?: Promise<void>): GlobalWor
 
 const loaded = (value: GlobalWorkDetailBody): GlobalWorkDetailResult => ({ status: "loaded", value });
 
-function mount(path: string, reads: GlobalWorkClient) {
+function mount(path: string, reads: GlobalWorkClient, outcomeBoard?: OutcomeBoardClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
-        <Route path={ROUTE} element={<WorkRequestOverviewFrame client={reads} />} />
+        <Route path={ROUTE} element={<WorkRequestOverviewFrame client={reads} outcomeBoard={outcomeBoard} />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -679,5 +682,51 @@ describe("Post-W6 W6: work request Overview corrections", () => {
     await settledScreen();
     const main = screen.getByRole("main", { name: "Page not available" });
     expect(within(main).queryByRole("link")).toBeNull();
+  });
+});
+
+describe("OUT-C U6 request page repeat-visit notice", () => {
+  const notice = () => document.querySelector("[data-work-request-repeat-notice]") as HTMLElement | null;
+  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+  const THIRD =
+    "This is the third visit to generator-1 in 60 days, and the linked finding is still open. Repeated work without a " +
+    "result costs money; no amount is shown because a cost per visit is not set for this site.";
+
+  it("showsTheThirdVisitNoticeAboveThePairWhenTheRepeatWarningNamesThisCase", async () => {
+    const board = fakeOutcomeBoard({
+      status: "loaded",
+      value: boardBody({ warnings: [planWarning(), outcomeWarning({ href: `/maintenance/requests/${CASE}` })] }),
+    });
+    mount(PAGE, client(loaded(detail())), board.client);
+    await settled();
+    await waitFor(() => expect(notice()).not.toBeNull());
+    expect(board.calls).toEqual([{ siteCode: "KOBO-001", query: {} }]);
+    expect(text(notice())).toBe(THIRD);
+    expect(notice()!.nextElementSibling?.hasAttribute("data-work-request-pair")).toBe(true);
+    expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(text(notice()))).toBe(false);
+    expect(describeViolations(scanProductVocabulary(notice()!, "work-request", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("showsNothingForAnotherCaseOrARefusedBoard", async () => {
+    for (const read of [
+      { status: "loaded", value: boardBody({ warnings: [outcomeWarning({ href: "/maintenance/requests/another-case" })] }) } as const,
+      { status: "refused", httpStatus: 503, code: "OUTCOME_BOARD_UNAVAILABLE" } as const,
+    ]) {
+      const board = fakeOutcomeBoard(read);
+      const view = mount(PAGE, client(loaded(detail())), board.client);
+      await settled();
+      await waitFor(() => expect(board.calls).toHaveLength(1));
+      await flush();
+      expect(document.querySelector("[data-work-request-pair]")).not.toBeNull();
+      expect(notice()).toBeNull();
+      view.unmount();
+    }
+  });
+
+  it("ordinalsRunSecondToFifthThenVisitN", () => {
+    expect(repeatVisitNotice(2, "coil-1")).toMatch(/^This is the second visit to coil-1 in 60 days, /);
+    expect(repeatVisitNotice(4, "coil-1")).toMatch(/^This is the fourth visit to coil-1 in 60 days, /);
+    expect(repeatVisitNotice(5, "coil-1")).toMatch(/^This is the fifth visit to coil-1 in 60 days, /);
+    expect(repeatVisitNotice(6, "coil-1")).toMatch(/^This is visit 6 to coil-1 in 60 days, and the linked finding is still open\. /);
   });
 });
