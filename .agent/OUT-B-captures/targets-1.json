@@ -1,0 +1,6 @@
+[
+ {"name":"overview-cold-greenharvest-closed","url":"http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z","mock":"cold","open":false,"producer":"w502 positive","db":"w502b_positive_outb_test"},
+ {"name":"overview-cold-greenharvest-open","url":"http://localhost:5471/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z","mock":"cold","open":true,"producer":"w502 positive","db":"w502b_positive_outb_test"},
+ {"name":"overview-ev-depot-closed","url":"http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z","mock":"ev","open":false,"producer":"w504 positive","db":"w504a_positive_outb_test"},
+ {"name":"overview-ev-depot-open","url":"http://localhost:5481/sites/EV-LAB-001?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z","mock":"ev","open":true,"producer":"w504 positive","db":"w504a_positive_outb_test"}
+]

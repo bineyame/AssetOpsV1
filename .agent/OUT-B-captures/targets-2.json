@@ -1,0 +1,4 @@
+[
+ {"name":"overview-mini-kobo-closed","url":"http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z","mock":"mini","open":false,"producer":"s501 overview walkthrough","db":"assetops_s501_owner_outb"},
+ {"name":"overview-mini-kobo-open","url":"http://localhost:5425/sites/KOBO-001?from=2026-10-23T00:00:00Z&to=2026-10-24T00:00:00Z","mock":"mini","open":true,"producer":"s501 overview walkthrough","db":"assetops_s501_owner_outb"}
+]

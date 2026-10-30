@@ -103,6 +103,20 @@ def _instant(value: str, code: str) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
+def check_window(from_: datetime, to: datetime) -> None:
+    """The estate window rule, shared by `parse_request` and the one-Site estate methods (OUT-B addendum 7):
+    midnight-aligned bounds, from < to, at most MAX_DAYS days. Refuses with INVALID_WINDOW."""
+    midnight = all(x.hour == x.minute == x.second == x.microsecond == 0 for x in (from_, to))
+    if not midnight or from_ >= to or to - from_ > timedelta(days=MAX_DAYS):
+        raise EstateRefusal("INVALID_WINDOW")
+
+
+def estate_request(kind: str, from_: datetime, to: datetime, known_at: datetime | None = None) -> EstateRequest:
+    """An `EstateRequest` for a one-Site read, through the estate's own window rule (addendum 7). Never widens."""
+    check_window(from_, to)
+    return EstateRequest(kind, from_, to, known_at)
+
+
 def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
     """The strict shared parser. Window keys missing or repeated: INVALID_WINDOW; any other repeated or unknown
     key: INVALID_CURSOR. Validation order: window, known_at, lens/state, limit, cursor shape."""
@@ -117,9 +131,7 @@ def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
         raise EstateRefusal("INVALID_CURSOR")
     one = {k: v[0] for k, v in seen.items()}
     from_, to = _instant(one["from"], "INVALID_WINDOW"), _instant(one["to"], "INVALID_WINDOW")
-    midnight = all(x.hour == x.minute == x.second == x.microsecond == 0 for x in (from_, to))
-    if not midnight or from_ >= to or to - from_ > timedelta(days=MAX_DAYS):
-        raise EstateRefusal("INVALID_WINDOW")
+    check_window(from_, to)
     known_at = None if "known_at" not in one else _instant(one["known_at"], "INVALID_KNOWN_AT")
     lens = state_filter = None
     if kind == "portfolio":

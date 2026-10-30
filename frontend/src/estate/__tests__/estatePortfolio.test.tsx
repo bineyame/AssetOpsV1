@@ -2,7 +2,7 @@
  * W3-03 run 2: the estate Portfolio page under a local MemoryRouter (Lane A mounts the shell route), against the
  * v69 `portfolio` panels and `.agent/W3-03-build-spec.md` closures 1-5, r1a, r1b, r1b2 and r1b4 literals.
  */
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -20,7 +20,9 @@ import {
   refused,
   row,
   SITES,
+  outcomeSummaryBody,
   STATUS_BODIES,
+  withOutcomeSummary,
 } from "./portfolioFixtures";
 
 const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
@@ -176,35 +178,105 @@ describe("estate Portfolio page", () => {
     expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost", "risks", "opportunities"]);
   });
 
+  // OUT-B B6 (R521): the five-row objectives matrix is replaced by the four-row outcome matrix from the outcome summary
+  // read; the portfolio body's `objectives` wire is no longer rendered.
   it("rendersFiveObjectiveRowsForEveryAuthorizedSite", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    const client = withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())));
+    renderAt(`${ENTRY}&known_at=2026-10-07T00:00:00Z`, client);
     await settledScreen();
-    const objectives = panel("Objectives across the estate");
-    expect(Array.from(objectives.querySelectorAll("[data-portfolio-objective]")).map((r) => r.getAttribute("data-portfolio-objective"))).toEqual([
-      "SERVICE_PRODUCT",
-      "BACKUP",
-      "ASSET_CONDITION",
-      "COST_CONTROL",
-      "EVIDENCE",
+    const outcomes = panel("Outcomes across the estate");
+    expect(text(outcomes)).toContain("How each site is doing on what matters");
+    const matrix = within(outcomes).getByRole("table", { name: "Outcomes across the estate" });
+    expect(Array.from(matrix.querySelectorAll("[data-portfolio-outcome-row]")).map((r) => r.getAttribute("data-portfolio-outcome-row"))).toEqual([
+      "GROW_REVENUE",
+      "OPTIMIZE_COST",
+      "PROTECT_ASSET",
+      "ASSURE_PERFORMANCE",
     ]);
-    expect(Array.from(objectives.querySelectorAll("[data-portfolio-matrix-site]")).map((e) => `${e.firstChild?.textContent} ${text(e.querySelector("small"))}`)).toEqual([
-      "Kobo KOBO-001",
-      "GreenHarvest COLD-001",
-      "Depot EV-LAB-001",
-      "Harbour EV-LAB-002",
+    const defs = outcomeSummaryBody().categories;
+    within(matrix).getAllByRole("rowheader").forEach((h, i) => {
+      expect(text(h.querySelector("span:not(.oc-hidden)"))).toBe(defs[i].label);
+      expect(text(h.querySelector(".oc-hidden"))).toBe(defs[i].definition);
+    });
+    const heads = Array.from(matrix.querySelectorAll("[data-portfolio-matrix-site] a"));
+    expect(heads.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      ["Kobo", "/sites/KOBO-001"],
+      ["GreenHarvest", "/sites/COLD-001"],
+      ["Depot", "/sites/EV-LAB-001/ev"],
+      ["Harbour", "/sites/EV-LAB-002/ev"],
     ]);
-    expect(objectives.querySelectorAll("[data-portfolio-cell]")).toHaveLength(20);
-    const cell = (code: string, key: string) => objectives.querySelector(`[data-portfolio-cell^='${code}|${key}|']`) as HTMLElement;
-    expect(text(cell("KOBO-001", "COST_CONTROL"))).toBe("ReviewSite detail unavailable");
-    expect(text(cell("COLD-001", "COST_CONTROL"))).toBe("N/ASite detail unavailable");
-    expect(text(cell("COLD-001", "EVIDENCE"))).toBe("LimitedSite detail unavailable");
-    expect(text(cell("EV-LAB-001", "EVIDENCE"))).toBe("FullSite detail unavailable");
-    expect(cell("KOBO-001", "SERVICE_PRODUCT").getAttribute("aria-description")).toBe("No reviewed objective assessment");
-    expect(objectives.querySelector("a")).toBeNull();
-    expect(text(objectives)).toContain(
-      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.",
-    );
-    expect(text(objectives)).not.toContain("Select a linked cell for context.");
+    expect(matrix.querySelectorAll("[data-portfolio-outcome-cell]")).toHaveLength(16);
+    const cell = (code: string, cat: string) => matrix.querySelector(`[data-portfolio-outcome-cell^='${code}|${cat}|']`) as HTMLElement;
+    expect(lines(cell("KOBO-001", "OPTIMIZE_COST"))).toBe("Needs attention Generator fuel");
+    expect(cell("KOBO-001", "OPTIMIZE_COST").className).toBe("oc-cell tone-amber");
+    expect(cell("KOBO-001", "OPTIMIZE_COST").getAttribute("href")).toBe("/sites/KOBO-001");
+    expect(lines(cell("COLD-001", "GROW_REVENUE"))).toBe("Not measured yet Product sales");
+    expect(cell("COLD-001", "GROW_REVENUE").className).toBe("oc-cell tone-none");
+    expect(cell("EV-LAB-001", "ASSURE_PERFORMANCE").className).toBe("oc-cell tone-blue");
+    // A Site whose board read failed: Unknown, no lead outcome line.
+    expect(lines(cell("EV-LAB-002", "PROTECT_ASSET"))).toBe("Unknown");
+    expect(cell("EV-LAB-002", "PROTECT_ASSET").querySelector("small")).toBeNull();
+    expect(Array.from(outcomes.querySelectorAll("[data-portfolio-outcome-key] > span")).map((k) => [text(k), k.querySelector("i")?.className])).toEqual([
+      ["Needs attention", "tone-amber"],
+      ["Watch", "tone-blue"],
+      ["Opportunity", "tone-green"],
+      ["On track", "tone-green"],
+      ["Unknown", "tone-gray"],
+      ["Not measured yet", "tone-none"],
+    ]);
+    // The old objectives wire is not rendered, and no outcome code reaches the screen.
+    expect(outcomes.querySelectorAll("[data-portfolio-cell], [data-portfolio-objective]")).toHaveLength(0);
+    expect(text(outcomes)).not.toContain("Site-owned assessments");
+    expect(text(outcomes)).not.toMatch(/NEEDS_ATTENTION|NOT_MEASURED|NO_OBJECTIVE|GROW_REVENUE|X-1/);
+    // Read in parallel with the portfolio, for the same window.
+    expect(client.summaryCalls).toEqual([{ from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z", known_at: "2026-10-07T00:00:00Z" }]);
+  });
+
+  it("outcomeCardDotsMatchTheMatrixAndGrowTakesTheShortValue", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
+    await settledScreen();
+    const matrix = screen.getByRole("table", { name: "Outcomes across the estate" });
+    for (const cat of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
+      const dots = Array.from(document.querySelectorAll(`[data-portfolio-card-dots='${cat}'] > span`));
+      expect(dots.map((d) => text(d))).toEqual(["Kobo: ", "GreenHarvest: ", "Depot: ", "Harbour: "].map((n, i) => n + text(matrix.querySelectorAll(`[data-portfolio-outcome-row='${cat}'] [data-portfolio-outcome-cell] b`)[i])));
+      // Each dot's tone is the matrix cell's tone for the same Site.
+      for (const d of dots) {
+        const [code, tone] = (d.getAttribute("data-portfolio-dot") ?? "").split("|");
+        expect(d.className).toBe(`tone-${tone}`);
+        expect(matrix.querySelector(`[data-portfolio-outcome-cell='${code}|${cat}|${tone}']`)).not.toBeNull();
+      }
+    }
+    const kobo = document.querySelector("[data-portfolio-card-dots='OPTIMIZE_COST'] > span") as HTMLElement;
+    expect(kobo.getAttribute("title")).toBe("Kobo: Needs attention");
+    const grow = document.querySelector("[data-portfolio-card='GROW_REVENUE']") as HTMLElement;
+    expect(text(grow.querySelector("[data-portfolio-card-value]"))).toBe("18–20 kW unused");
+    expect(grow.className).toContain("green");
+    expect(grow.querySelector("[data-missing-claim], .missing-claim")).toBeNull();
+  });
+
+  it("growKeepsTheMissingClaimWithoutAShortValueAndTheMatrixStatesUnavailable", async () => {
+    const noShort = outcomeSummaryBody();
+    noShort.sites = noShort.sites.map((site) => ({ ...site, rows: site.rows.map((r) => ({ ...r, short_value: null })) }));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: noShort }));
+    await settledScreen();
+    const grow = document.querySelector("[data-portfolio-card='GROW_REVENUE']") as HTMLElement;
+    expect(text(grow.querySelector("[data-portfolio-card-value]"))).toBe("Not available yet");
+    expect(grow.className).toContain("neutral");
+    cleanup();
+    // A refused summary and a client without the read both show the panel's alert; the cards keep empty dots.
+    for (const client of [
+      withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable.") as never),
+      portfolioClient(loadedPortfolio(portfolioBody())),
+    ]) {
+      renderAt(ENTRY, client);
+      await settledScreen();
+      const outcomes = panel("Outcomes across the estate");
+      expect(within(outcomes).getByRole("alert").textContent).toBe("Outcome status is not available right now");
+      expect(outcomes.querySelector("[role='table']")).toBeNull();
+      expect(document.querySelectorAll("[data-portfolio-dot]")).toHaveLength(0);
+      expect(text(document.querySelector("[data-portfolio-card='GROW_REVENUE'] [data-portfolio-card-value]"))).toBe("Not available yet");
+      cleanup();
+    }
   });
 
   it("rendersTypedEvidencePromptAndExactDestinations", async () => {
@@ -266,7 +338,7 @@ describe("estate Portfolio page", () => {
   it("appendsOnlyFindingRowsOnLoadMore", async () => {
     const extra = row({ finding_id: "f3f3f3f3-0000-4000-8000-000000000003", finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003" });
     const pageTwo = portfolioBody({ rows: [extra], next_cursor: null, value_cards: [], objectives: [] });
-    const client = portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo));
+    const client = withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo)));
     renderAt(ENTRY, client);
     await settledScreen();
     await act(async () => {
@@ -274,7 +346,9 @@ describe("estate Portfolio page", () => {
     });
     expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
     expect(document.querySelectorAll("[data-portfolio-card]")).toHaveLength(4);
-    expect(document.querySelectorAll("[data-portfolio-cell]")).toHaveLength(20);
+    // OUT-B B6 (R521): the outcome matrix (4 categories x 4 Sites) stays; Load more does not re-read the summary.
+    expect(document.querySelectorAll("[data-portfolio-outcome-cell]")).toHaveLength(16);
+    expect(client.summaryCalls).toHaveLength(1);
     expect(screen.queryByRole("button", { name: "Load more Findings" })).toBeNull();
   });
 
@@ -444,7 +518,7 @@ describe("estate Portfolio page", () => {
       finding_revision_id: "e1e1e1e1-0000-4000-8000-0000000000aa",
       links: { ...row().links, finding: "/sites/KOBO-001/findings/aa" },
     });
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] }))));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] })))));
     await settledScreen();
     const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
     expect(new Set(labels).size).toBe(2);
@@ -466,7 +540,9 @@ describe("estate Portfolio page", () => {
     expect(side.querySelector("[data-portfolio-panel='objectives']")).not.toBeNull();
     expect(side.querySelector("[data-portfolio-prompt]")).not.toBeNull();
     expect(main.querySelector("[data-portfolio-scroll='findings'] table")).not.toBeNull();
-    expect(main.querySelector("[data-portfolio-scroll='objectives'] .objective-matrix")).not.toBeNull();
+    // OUT-B B6 (R521): the outcome matrix replaces the objectives matrix in the same scroll container.
+    expect(main.querySelector("[data-portfolio-scroll='objectives'] .oc-matrix")).not.toBeNull();
+    expect(main.querySelector(".objective-matrix")).toBeNull();
     expect(Array.from(main.querySelectorAll(".portfolio-bottom > section.panel")).map((p) => p.getAttribute("data-portfolio-panel"))).toEqual([
       "opportunity",
       "progress",
@@ -502,36 +578,29 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     },
   };
 
+  // OUT-B B6 (R521): the objectives wire (with its per-objective destinations) is no longer rendered; every outcome cell
+  // opens its Site's overview at the server's `overview_href`, EV Sites at `/ev`.
   it("objectiveCellsLinkServerDestinationsAndEvBackupHasNoConfiguredObjective", async () => {
     const base = portfolioBody();
     const objectives = base.objectives.slice(0, 3).map((site) => ({
       ...site,
       cells: site.cells.map((cell) => ({ ...cell, destination: ROUTES[site.domain][cell.key] })),
     }));
-    // A non-EV cell the server leaves without a destination keeps the labelled unavailable detail.
-    objectives[1] = { ...objectives[1], cells: objectives[1].cells.map((c) => (c.key === "BACKUP" ? { ...c, destination: null } : c)) };
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ objectives }))));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ objectives })))));
     await settledScreen();
-    const matrix = panel("Objectives across the estate");
-    const cell = (code: string, key: string) => matrix.querySelector(`[data-portfolio-cell^='${code}|${key}|']`) as HTMLElement;
-    for (const site of objectives) {
-      for (const c of site.cells) {
-        const el = cell(site.site_code, c.key);
-        expect(el.getAttribute("title")).toBe(c.reason);
-        expect(el.getAttribute("aria-description")).toBe(c.reason);
-        if (c.destination !== null) {
-          expect(el.tagName).toBe("A");
-          expect(el.getAttribute("href")).toBe(c.destination);
-          expect(el.textContent).toBe(c.label);
-        } else {
-          expect(el.tagName).toBe("SPAN");
-          expect(el.querySelector("a")).toBeNull();
-        }
+    const outcomes = panel("Outcomes across the estate");
+    expect(outcomes.querySelectorAll("[data-portfolio-cell-link]")).toHaveLength(0);
+    for (const site of objectives) for (const c of site.cells) if (c.destination !== null) expect(outcomes.querySelector(`a[href='${c.destination}']`)).toBeNull();
+    const summary = outcomeSummaryBody();
+    for (const site of summary.sites) {
+      const cells = Array.from(outcomes.querySelectorAll(`[data-portfolio-outcome-cell^='${site.site_code}|']`));
+      expect(cells).toHaveLength(4);
+      for (const el of cells) {
+        expect(el.tagName).toBe("A");
+        expect(el.getAttribute("href")).toBe(site.overview_href);
       }
     }
-    expect(text(cell("EV-LAB-001", "BACKUP"))).toBe("UnknownNo configured objective");
-    expect(text(cell("COLD-001", "BACKUP"))).toBe("UnknownSite detail unavailable");
-    expect(matrix.querySelectorAll("[data-portfolio-cell-link]")).toHaveLength(13);
+    expect(text(outcomes)).not.toContain("No configured objective");
   });
 
   it("coldAndEvFindingTitlesAreLiveOnlyWithAServerWindowedLink", async () => {

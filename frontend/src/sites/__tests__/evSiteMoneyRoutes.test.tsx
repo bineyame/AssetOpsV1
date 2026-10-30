@@ -24,6 +24,8 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import type { OutcomeBoardClient } from "../outcomeBoardClient";
+import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import koboDetail from "../../shell/__tests__/kobo-site-detail.json";
 
 /*
@@ -254,10 +256,15 @@ const PATHS = {
   "ev-assumptions": `/sites/${CODE}/ev/financial-assumptions`,
 } as const;
 
-async function renderAt(path: string, evSite: EvSiteClient) {
+// OUT-B B5 (R540): the EV Overview shows the outcome board in place of the five objective cards. The board here
+// carries no amount, so the money-free assertions stay about the EV reads.
+const EV_BOARD = boardBody({ site_code: CODE, rows: boardRows().map((r) => ({ ...r, headline_money: null })) });
+const OLD_EV_CARDS = ["[data-ev-card]"];
+
+async function renderAt(path: string, evSite: EvSiteClient, outcomeBoard: OutcomeBoardClient = fakeOutcomeBoard({ status: "loaded", value: EV_BOARD }).client) {
   render(
     <MemoryRouter initialEntries={[`${path}${Q}`]}>
-      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} />
+      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={evSite} outcomeBoard={outcomeBoard} />
     </MemoryRouter>,
   );
   await settledScreen();
@@ -428,9 +435,8 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client({ empty: true, state: "UNKNOWN", consequence: null }));
     expectV69Panels("ev");
     expect(strip()).toContain("Evidence unknown");
-    const values = Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__value")).map((x) => x.textContent);
-    expect(values).toEqual(["Unknown", "Not summarised here", "Unknown", "Not summarised here", "Unknown"]);
-    expect(main().querySelector('[data-ev-card="sessions"]')?.textContent).toContain("Session outcomes not assessed");
+    // OUT-B B5 (R540): the five cards are replaced by the outcome board.
+    expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
     expect(panelTitled("Bounded money consequence").textContent).toContain("No gross tariff scenario assessed");
     expect(panelTitled("Needs attention").textContent).toContain("No recorded attention item for this window");
     expect(panelTitled("Next step").textContent).toContain("No recorded next step");
@@ -616,7 +622,8 @@ describe("W2-07 EV Site routes", () => {
     expect(power.textContent).toContain("Power is operating context, not proof of charger condition or cause.");
     // W2-F M8: the built Foundation SLD is a live link (exact proof in `w2f_overview_sld_link_is_real`).
     expect(within(power).getByRole("link", { name: "Single line diagram →" })).toBeTruthy();
-    expect(main().querySelector('[data-ev-card="power"]')?.textContent).toContain("60 kW observed peak3600/3900 s of selected window covered");
+    // OUT-B B5 (R540): the Site power card is replaced by the outcome board.
+    expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
     expect(main().textContent).not.toMatch(/Healthy/);
     expect(panelTitled("Needs attention").textContent).toContain("End record missing");
     const money = panelTitled("Bounded money consequence");
@@ -996,23 +1003,19 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
     }
   });
 
+  // OUT-B B5 (R540): the five cards and their View detail links are replaced by the outcome board, which receives
+  // the Overview's own window.
   it("R254 (Q15): every Overview card has a plain label and View detail at the window", async () => {
-    await renderAt(PATHS.ev, client());
-    const card = (k: string) => main().querySelector(`[data-ev-card="${k}"]`) as HTMLElement;
-    const expected: [string, string, string][] = [
-      ["sessions", "Session service", `/sites/${CODE}/performance/sessions${Q}`],
-      ["availability", "Availability", `/sites/${CODE}/performance/availability${Q}`],
-      ["power", "Site power", `/sites/${CODE}/performance/energy${Q}`],
-      ["charger", "Charger condition", `/sites/${CODE}/health${Q}`],
-      ["evidence", "Evidence", `/sites/${CODE}/ev/evidence${Q}`],
-    ];
-    for (const [k, label, href] of expected) {
-      expect(card(k).querySelector(".v69-metric__label")?.textContent, k).toBe(label);
-      expect(card(k).querySelector(".v69-metric__label a"), k).toBeNull();
-      expect(within(card(k)).getByRole("link", { name: "View detail →" }).getAttribute("href"), k).toBe(href);
+    const board = fakeOutcomeBoard({ status: "loaded", value: EV_BOARD });
+    await renderAt(PATHS.ev, client(), board.client);
+    expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
+    expect(main().querySelectorAll("[data-ev-card] a")).toHaveLength(0);
+    const params = new URLSearchParams(Q);
+    expect(board.calls.map((c) => c.siteCode)).toContain(CODE);
+    for (const c of board.calls) {
+      expect(c.query.from).toBe(params.get("from"));
+      expect(c.query.to).toBe(params.get("to"));
     }
-    expect(card("availability").textContent).toContain("Not summarised here");
-    expect(card("charger").textContent).toContain("Charger condition is listed under Health");
   });
 
   it("R258 (Q15): Portfolio evidence, Review energy, Review work and only recorded next-evidence rows", async () => {

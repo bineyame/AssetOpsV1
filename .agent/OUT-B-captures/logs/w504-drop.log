@@ -1,0 +1,10 @@
+﻿stopped positive pid 20192
+stopped zero pid 13236
+stopped worstcase pid 15948
+stopped forbidden pid 8752
+stopped unavailable pid 8628
+dropped database w504a_positive_outb_test
+dropped database w504a_zero_outb_test
+dropped database w504a_worstcase_outb_test
+dropped database w504a_unknown_outb_test
+removed C:\Users\assef\Bineyame\AssetOpsV1-outB\var\w504a_outb

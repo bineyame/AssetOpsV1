@@ -30,7 +30,8 @@ from assetops_backend.estate.coverage import (
     not_applicable, site_coverage)
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
-from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, token_time, wire_time
+from assetops_backend.estate.scope import (
+    EstateRequest, estate_request, resume_after, selection_token, token_time, wire_time)
 from assetops_backend.sites.binding_roles import COLD_ROLES_1, MINIGRID_ROLES
 
 EVIDENCE_SCHEMA = "estate-evidence-1"
@@ -490,6 +491,24 @@ class EstateEvidenceService(EstateIndexService):
         from assetops_backend.estate.financials import financials_body
 
         return self._read(lambda snap: financials_body(self, snap, tenant_id, req, admit))
+
+    def site_readiness(self, tenant_id: Any, site_code: str, from_: datetime, to: datetime,
+                       known_at: datetime | None = None) -> str | None:
+        """OUT-B4 (§B.3): the Portfolio's per-Site evidence reduction (`portfolio.evidence_cell_state`) for one
+        Site, over `select_evidence_scope` on the same snapshot, scope and cutoff. Nothing is reduced here. None when
+        the Site is not in the authorized imported set."""
+        from assetops_backend.estate.portfolio import evidence_cell_state
+
+        req = estate_request("evidence", from_, to, known_at)  # addendum 7: the estate window rule, never widened
+
+        def work(snap: Any) -> Any:
+            scope = self._scope(snap, tenant_id, req, lambda code: code == site_code)
+            per_site, _ = select_evidence_scope(snap, tenant_id, req, scope)
+            for _, domain, cov, site_rows in per_site:
+                return evidence_cell_state(domain, cov, site_rows, bool(snap.basis_historical))
+            return None
+
+        return self._read(work)
 
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)

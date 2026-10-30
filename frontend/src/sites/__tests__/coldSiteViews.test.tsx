@@ -21,6 +21,13 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import type { OutcomeBoardClient } from "../outcomeBoardClient";
+import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
+
+// OUT-B B5 (R540): the cold Overview shows the outcome board in place of the five objective cards. The cold board
+// carries no amount (its cost row is not measured), so the money-free assertions below stay meaningful.
+const COLD_BOARD = boardBody({ site_code: "COLD-001", rows: boardRows().map((r) => ({ ...r, headline_money: null })) });
+const OLD_COLD_CARDS = ["[data-cold-card]", "[data-cold-card-link]", '[data-mock-deviation="R437"]'];
 
 /*
  * W2-04 commit 4: the five cold Site routes (`.agent/W2-04-build-spec.md` "v69 panel contract and UI" and the
@@ -287,7 +294,7 @@ const SITE = {
 const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: SITE }) };
 const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }) };
 
-function renderCold(path: string, reads: Reads) {
+function renderCold(path: string, reads: Reads, outcomeBoard: OutcomeBoardClient = fakeOutcomeBoard({ status: "loaded", value: COLD_BOARD }).client) {
   const coldSite: ColdSiteClient = {
     getOverview: vi.fn(() => Promise.resolve(reads.overview)),
     getEvidence: vi.fn(() => Promise.resolve(reads.evidence)),
@@ -318,7 +325,7 @@ function renderCold(path: string, reads: Reads) {
   };
   render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={reads.site === undefined ? detail : { getSite: () => Promise.resolve({ status: "loaded", site: reads.site! }) }} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} />
+      <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={reads.site === undefined ? detail : { getSite: () => Promise.resolve({ status: "loaded", site: reads.site! }) }} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldSite={coldSite} coldAssessment={coldAssessment} outcomeBoard={outcomeBoard} />
     </MemoryRouter>,
   );
   return { coldSite, coldAssessment };
@@ -495,16 +502,18 @@ describe("W2-04: Run-7 Evidence status chip", () => {
     ["any Contradictory row wins over Limited", { TRANSFER_POSITION: "UNAVAILABLE", COOLING_RESPONSE: "CONTRADICTORY" }, "Evidence contradictory", "2 full · 1 limited · 0 none · 1 contradictory", "Contradictory"],
     ["a None row without Limited is unknown", { COOLING_RESPONSE: "UNAVAILABLE" }, "Evidence unknown", "3 full · 0 limited · 1 none", "Unknown"],
     ["all four rows Full", {}, "Evidence supported", "4 full · 0 limited · 0 none", "Supported"],
-  ])("%s", async (_name, states, chip, counts, card) => {
+  ])("%s", async (_name, states, chip, counts, _card) => {
     renderCold(ROUTES[1][1], withCaps(states));
     await settledScreen();
     const strip = text(document.querySelector(".status-strip")!);
     expect(strip).toContain(chip);
     expect(strip).toContain(`4 capabilities · ${counts} · no single score`);
     cleanup();
+    // OUT-B B5 (R540): the Overview's Evidence card is gone; the chip above stays on the Evidence route, and the
+    // Overview shows the outcome board instead of the card.
     renderCold(ROUTES[0][1], withCaps(states));
     await settledScreen();
-    expect(text(document.querySelector('[data-cold-card="evidence"]')!)).toContain(card);
+    expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
   });
 });
 
@@ -518,20 +527,8 @@ describe("W2-04: cold Overview", () => {
     expect(strip).toContain("Potential product exposure");
     expect(strip).not.toContain("Selected evidence through");
     expect(document.querySelector("[data-cold-objective]")?.textContent).toBe(STOCKED_OVERVIEW.objective.text);
-    expect(Array.from(document.querySelectorAll("[data-cold-card]")).map((c) => c.getAttribute("data-cold-card"))).toEqual([
-      "temperature",
-      "backup",
-      "cooling",
-      "maintenance",
-      "evidence",
-    ]);
-    expect(text(document.querySelector('[data-cold-card="cooling"]')!)).toContain("Recovery comparison not assessed");
-    expect(text(document.querySelector('[data-cold-card="cooling"]')!)).not.toContain("Not available yet");
-    // Q8: no false maintenance summary from the overview DTO; the cases are under Work.
-    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not summarised here");
-    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Maintenance cases are listed under Work");
-    expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).not.toContain("No maintenance work record");
-    expect(text(document.querySelector('[data-mock-deviation="R437"]')!)).toBe("MOCK DEVIATION D1 (R437)");
+    // OUT-B B5 (R540): the outcome board replaces the five cards and their R437 maintenance line.
+    expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
     expect(text(happened)).toContain("No accepted transfer to backup report for this chain");
@@ -550,8 +547,6 @@ describe("W2-04: cold Overview", () => {
     expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Open Finding →");
     expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.textContent).toBe("Open Finding →");
     expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.textContent).toBe("Performance › Backup →");
-    expect(text(document.querySelector('[data-cold-card="temperature"]')!)).toContain("1 excursion · latest 4.6 °C · policy 2–4 °C · coverage 13 / 13 readings");
-    expect(text(document.querySelector('[data-cold-card="backup"]')!)).toContain("1 start attempt · 0 started · 1 failed");
     expect(Array.from(happened.querySelectorAll("[data-timeline-event]")).map((e) => text(e))[0]).toContain("16:11 UTC");
     expect(panelTitled("Chamber temperature").querySelectorAll("[data-cold-point]").length).toBe(4);
   });
@@ -570,10 +565,8 @@ describe("W2-04: cold Overview", () => {
     expect(noop.textContent).toBe("No linked page for this item");
     expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Transfer-switch position was not observed");
     expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Performance › Backup →");
-    const temp = text(document.querySelector('[data-cold-card="temperature"]')!);
-    expect(temp).not.toContain("coverage");
-    expect(temp).not.toContain("?");
-    expect(text(document.querySelector('[data-cold-card="backup"]')!)).toContain("Backup result not observed");
+    // OUT-B B5 (R540): the temperature and backup cards are gone; the board replaces them.
+    expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
   });
 
   it("pending: withholds the money consequence and states the waiting evidence", async () => {
@@ -964,10 +957,9 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     cleanup();
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();
-    const cooling = text(document.querySelector('[data-cold-card="cooling"]')!);
-    expect(cooling).toContain("Limited");
-    expect(cooling).toContain("Cooling recovery is not established by the selected start chain. · Recovery comparison not assessed");
-    expect(cooling).not.toMatch(/Supported|Cooling resumed/);
+    // OUT-B B5 (R540): the cooling card is gone; the board replaces it, and the Overview never claims recovery.
+    expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
+    expect(text(main())).not.toMatch(/Cooling resumed/);
     expect(text(document.querySelector("[data-cold-money-basis]")!)).toBe("Consequence basis: at least 50 °C·min; upper bound not established");
   });
 
@@ -1253,17 +1245,20 @@ describe("W2-cold unit 2: cold Overview", () => {
       contradictions: [],
     } as ColdBackupRead);
 
+  // OUT-B B5 (R540): the five cards and their View detail links are replaced by the outcome board, which receives
+  // the Overview's own window.
   it("r254_five_view_detail_links_at_the_window", async () => {
-    renderCold(ROUTES[0][1], STOCKED);
+    const board = fakeOutcomeBoard({ status: "loaded", value: COLD_BOARD });
+    renderCold(ROUTES[0][1], STOCKED, board.client);
     await settledScreen();
-    const links = Array.from(document.querySelectorAll("[data-cold-card-link]"));
-    expect(links.map((a) => a.getAttribute("data-cold-card-link"))).toEqual(["temperature", "backup", "cooling", "maintenance", "evidence"]);
-    for (const a of links) expect(a.textContent).toBe("View detail →");
-    const href = (k: string) => document.querySelector(`[data-cold-card-link="${k}"]`)!.getAttribute("href");
-    expect(href("cooling")).toBe(`/sites/COLD-001/performance/cooling${Q}`);
-    expect(href("maintenance")).toBe(`/sites/COLD-001/work/maintenance${Q}`);
-    // Labels are plain text; the link is the card's own `View detail →`.
-    for (const card of Array.from(document.querySelectorAll("[data-cold-card]"))) expect(card.querySelectorAll("a")).toHaveLength(1);
+    expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
+    expect(document.querySelectorAll("[data-cold-card-link]")).toHaveLength(0);
+    const params = new URLSearchParams(Q);
+    expect(board.calls.map((c) => c.siteCode)).toContain("COLD-001");
+    for (const c of board.calls) {
+      expect(c.query.from).toBe(params.get("from"));
+      expect(c.query.to).toBe(params.get("to"));
+    }
   });
 
   it("r255_steps_join_outcomes_by_record_in_order", async () => {

@@ -5,6 +5,7 @@ import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentC
 import { invalidScope, isUtcInstant } from "../sites/domainActionClient";
 import { EV_SITE_HEADING_ID, EvSiteFrame, type EvSiteRoutes, type EvSiteView } from "../sites/EvSiteViews";
 import type { EvSiteClient } from "../sites/evSiteClient";
+import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
 import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
@@ -78,6 +79,7 @@ export function SiteEvFrame({
   view,
   evSite,
   evScenarios,
+  outcomeBoard,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
@@ -85,6 +87,8 @@ export function SiteEvFrame({
   evSite: EvSiteClient;
   /** W5-03b E6: the authored EV scenario list client for the Scenarios view. */
   evScenarios?: EvScenariosClient;
+  /** OUT-B B5: the Site outcome board read (Overview only). */
+  outcomeBoard?: OutcomeBoardClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -109,6 +113,7 @@ export function SiteEvFrame({
             timeZone={site.timezone}
             scenarios={evScenarios}
             client={evSite}
+            outcomeBoard={outcomeBoard}
             routes={evSiteRoutes(site.site_id)}
             tabs={(search) => <OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} hrefs={EV_SITE_TAB_HREFS} search={search} />}
             parentTrail={[

@@ -6,6 +6,7 @@
  */
 
 import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
+import type { OutcomeRef, OutcomeState, OutcomeTone } from "../sites/outcomeBoardClient";
 
 export const ESTATE_API_PATH = "/api/estate";
 
@@ -444,12 +445,57 @@ export interface EstateFindingsQuery extends EstateQuery {
   state: EstateStateFilter;
 }
 
+/** OUT-B B6: `GET /api/estate/outcome-summary` (§B.1), one outcome row per category for each authorized Site. */
+export const OUTCOME_SUMMARY_SCHEMA = "estate-outcome-summary-1";
+
+export interface EstateOutcomeSummaryRow {
+  category: OutcomeCategoryKey;
+  state: OutcomeState;
+  state_label: string;
+  tone: OutcomeTone;
+  /** Null when the Site's board read failed (UNKNOWN row). */
+  lead_outcome: OutcomeRef | null;
+  headline: string | null;
+  /** B-Q27: set only on a Grow row whose lead is in Opportunity with a headroom bound, e.g. "18–20 kW unused". */
+  short_value: string | null;
+}
+
+export interface EstateOutcomeSummarySite {
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  domain: string;
+  overview_href: string;
+  read_state: string;
+  rows: EstateOutcomeSummaryRow[];
+}
+
+export interface EstateOutcomeSummaryCategory {
+  category: OutcomeCategoryKey;
+  label: string;
+  definition: string;
+  icon: string;
+  sites_needing_attention: number;
+  warning_count: number;
+}
+
+export interface EstateOutcomeSummaryBody {
+  schema_version: typeof OUTCOME_SUMMARY_SCHEMA;
+  policy_versions: Record<string, string | null>;
+  window: { from: string | null; to: string | null };
+  sites: EstateOutcomeSummarySite[];
+  categories: EstateOutcomeSummaryCategory[];
+  warnings: unknown[];
+}
+
 export interface EstateClient {
   findings(query: EstateFindingsQuery): Promise<EstateResult<EstateFindingsBody>>;
   actions(query: EstateQuery): Promise<EstateResult<EstateActionsBody>>;
   scope(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateScopeBody>>;
   /** W3-03: `/api/estate/portfolio`; never sends `state`, passes the opaque cursor unchanged. */
   portfolio(query: EstatePortfolioQuery): Promise<EstateResult<EstatePortfolioBody>>;
+  /** OUT-B B6: optional so existing fakes stay valid; an absent method reads as unavailable. */
+  getOutcomeSummary?(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateOutcomeSummaryBody>>;
 }
 
 function unavailable<T>(): EstateResult<T> {
@@ -528,6 +574,12 @@ export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateCl
           cursor: query.cursor,
         })}`,
         PORTFOLIO_SCHEMA,
+        query,
+      ),
+    getOutcomeSummary: (query) =>
+      readEstate(
+        `${basePath}/outcome-summary${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at })}`,
+        OUTCOME_SUMMARY_SCHEMA,
         query,
       ),
   };

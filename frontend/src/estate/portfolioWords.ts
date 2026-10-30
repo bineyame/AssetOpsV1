@@ -50,10 +50,6 @@ export const PLACEMENT_POLICY_LINES = [
 ] as const;
 export const PLACEMENT_POLICY_FOOTER =
   "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.";
-export const OBJECTIVES_PANEL = "Objectives across the estate";
-export const OBJECTIVES_SUBTITLE = "Operating condition, not a composite health score";
-export const OBJECTIVES_FOOTNOTE =
-  "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.";
 export const EVIDENCE_ASIDE = "Evidence that would change a decision";
 export const OPPORTUNITY_PANEL = "An opportunity beyond reducing cost";
 export const PROGRESS_PANEL = "What changed in this review";
@@ -145,9 +141,6 @@ export const SCOPE_NOTICE =
  * exclusion with any code outside it reads `Excluded from comparison` with the raw codes kept in a detail.
  */
 export const ASSESSMENT_IDS = "Assessment IDs";
-/** Q10: an EV Site has no Backup objective target; any other matrix cell without a destination. */
-export const NO_CONFIGURED_OBJECTIVE = "No configured objective";
-export const OBJECTIVE_DETAIL_UNAVAILABLE = "Site detail unavailable";
 export const NO_SELECTED_ASSESSMENT = "No selected assessment";
 export const EXCLUDED_FROM_COMPARISON = "Excluded from comparison";
 

@@ -98,6 +98,7 @@ import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFou
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
+import { createOutcomeBoardClient, type OutcomeBoardClient } from "./sites/outcomeBoardClient";
 import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
 import { createEvDepthClient, type EvDepthClient } from "./sites/evDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
@@ -162,6 +163,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
+const defaultOutcomeBoard = createOutcomeBoardClient();
 const defaultColdDepth = createColdDepthClient();
 const defaultEvDepth = createEvDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
@@ -260,6 +262,8 @@ export interface AppProps {
   evScenarioList?: EvScenariosClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
   coldSite?: ColdSiteClient;
+  /** OUT-B B5: the Site outcome board read behind the three overviews. */
+  outcomeBoard?: OutcomeBoardClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -302,6 +306,7 @@ export function App({
   coldScenarioList = defaultColdScenarioList,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
+  outcomeBoard = defaultOutcomeBoard,
   evScenarioList = defaultEvScenarioList,
   siteTemplateLineage,
   now,
@@ -347,6 +352,7 @@ export function App({
                 coldSite={coldSite}
                 coldAssessment={coldAssessment}
                 miniDepth={miniDepth}
+                outcomeBoard={outcomeBoard}
               />
             }
           />
@@ -396,7 +402,7 @@ export function App({
               [SITE_EV_SCENARIOS_ROUTE_PATH, "scenarios"],
             ] as const
           ).map(([path, view]) => (
-            <Route key={path} path={path} element={<SiteEvFrame detail={siteDetail} sitesPath={SITES_PATH} view={view} evSite={evSite} evScenarios={evScenarioList} />} />
+            <Route key={path} path={path} element={<SiteEvFrame detail={siteDetail} sitesPath={SITES_PATH} view={view} evSite={evSite} evScenarios={evScenarioList} outcomeBoard={outcomeBoard} />} />
           ))}
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}

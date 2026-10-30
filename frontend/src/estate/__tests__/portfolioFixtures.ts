@@ -5,6 +5,9 @@
 import type {
   EstateClient,
   EstateCoverageSite,
+  EstateOutcomeSummaryBody,
+  EstateOutcomeSummaryRow,
+  EstateQuery,
   EstatePortfolioBody,
   EstatePortfolioQuery,
   EstatePortfolioRow,
@@ -281,4 +284,82 @@ export function portfolioClient(...answers: EstateResult<EstatePortfolioBody>[])
       return Promise.resolve(answers[Math.min(calls.length - 1, answers.length - 1)]);
     },
   };
+}
+
+/**
+ * OUT-B B6: a `estate-outcome-summary-1` body for the four fixture Sites (backend-shaped texts; no outcome codes on
+ * screen). Kobo's Grow row carries the B-Q27 `short_value`; Harbour's board read failed (four UNKNOWN rows).
+ */
+const SUMMARY_CATEGORIES = [
+  { category: "GROW_REVENUE", label: "Grow revenue", definition: "Capture more income from energy and assets" },
+  { category: "OPTIMIZE_COST", label: "Optimize cost", definition: "Spend less to deliver the same service" },
+  { category: "PROTECT_ASSET", label: "Protect assets", definition: "Keep equipment and service safe" },
+  { category: "ASSURE_PERFORMANCE", label: "Assure performance", definition: "Show that changes worked" },
+] as const;
+
+function summaryRow(
+  category: EstateOutcomeSummaryRow["category"],
+  state: EstateOutcomeSummaryRow["state"],
+  state_label: string,
+  tone: EstateOutcomeSummaryRow["tone"],
+  lead: string | null,
+  short_value: string | null = null,
+): EstateOutcomeSummaryRow {
+  return { category, state, state_label, tone, lead_outcome: lead === null ? null : { key: "X-1", label: lead }, headline: null, short_value };
+}
+
+export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {}): EstateOutcomeSummaryBody {
+  const rows: Record<string, EstateOutcomeSummaryRow[]> = {
+    "KOBO-001": [
+      summaryRow("GROW_REVENUE", "OPPORTUNITY", "Opportunity", "green", "Unused solar", "18–20 kW unused"),
+      summaryRow("OPTIMIZE_COST", "NEEDS_ATTENTION", "Needs attention", "amber", "Generator fuel"),
+      summaryRow("PROTECT_ASSET", "NO_OBJECTIVE", "No objective declared", "gray", "Battery life"),
+      summaryRow("ASSURE_PERFORMANCE", "WATCH", "Watch", "blue", "Evidence coverage"),
+    ],
+    "COLD-001": [
+      summaryRow("GROW_REVENUE", "NOT_MEASURED", "Not measured yet", "none", "Product sales"),
+      summaryRow("OPTIMIZE_COST", "NOT_MEASURED", "Not measured yet", "none", "Repair spend"),
+      summaryRow("PROTECT_ASSET", "NEEDS_ATTENTION", "Needs attention", "amber", "Product kept cold"),
+      summaryRow("ASSURE_PERFORMANCE", "ON_TRACK", "On track", "green", "Evidence coverage"),
+    ],
+    "EV-LAB-001": [
+      summaryRow("GROW_REVENUE", "WATCH", "Watch", "blue", "Charger use"),
+      summaryRow("OPTIMIZE_COST", "NOT_MEASURED", "Not measured yet", "none", "Energy cost"),
+      summaryRow("PROTECT_ASSET", "NEEDS_ATTENTION", "Needs attention", "amber", "Charging service"),
+      summaryRow("ASSURE_PERFORMANCE", "WATCH", "Watch", "blue", "Evidence coverage"),
+    ],
+    "EV-LAB-002": SUMMARY_CATEGORIES.map((c) => summaryRow(c.category, "UNKNOWN", "Unknown", "gray", null)),
+  };
+  return {
+    schema_version: "estate-outcome-summary-1",
+    policy_versions: { catalogue: "outcome-catalogue/1" },
+    window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z" },
+    sites: SITES.map((s) => ({
+      site_id: s.site_id,
+      site_code: s.site_code,
+      site_name: s.site_name,
+      domain: s.domain,
+      overview_href: s.domain === "EV_CHARGING" ? `/sites/${s.site_code}/ev` : `/sites/${s.site_code}`,
+      read_state: s.site_code === "EV-LAB-002" ? "UNAVAILABLE" : "AVAILABLE",
+      rows: rows[s.site_code],
+    })),
+    categories: SUMMARY_CATEGORIES.map((c) => ({ ...c, icon: c.category, sites_needing_attention: 0, warning_count: 0 })),
+    warnings: [],
+    ...over,
+  };
+}
+
+/** A portfolio fake that also answers the outcome summary read, recording its windows. */
+export function withOutcomeSummary<C extends EstateClient>(
+  client: C,
+  answer: EstateResult<EstateOutcomeSummaryBody> = { status: "loaded", value: outcomeSummaryBody() },
+): C & { summaryCalls: Pick<EstateQuery, "from" | "to" | "known_at">[] } {
+  const summaryCalls: Pick<EstateQuery, "from" | "to" | "known_at">[] = [];
+  return Object.assign(client, {
+    summaryCalls,
+    getOutcomeSummary: (query: Pick<EstateQuery, "from" | "to" | "known_at">) => {
+      summaryCalls.push(query);
+      return Promise.resolve(answer);
+    },
+  });
 }

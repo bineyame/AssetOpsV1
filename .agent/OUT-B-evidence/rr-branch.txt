@@ -1,0 +1,45 @@
+﻿>               alt["body"]["revision_id"]]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'revision_id'
+
+backend\tests\test_w403_replay_postgres.py:188: KeyError
+============================== warnings summary ===============================
+..\AssetOpsV1-plan2\.venv\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+..\AssetOpsV1-plan2\.venv\Lib\site-packages\starlette\testclient.py:53
+  C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Lib\site-packages\starlette\testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+tests/test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal
+tests/test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal
+  C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Lib\site-packages\alembic\config.py:604: DeprecationWarning: No path_separator found in configuration; falling back to legacy splitting on spaces, commas, and colons for prepend_sys_path.  Consider adding path_separator=os to Alembic config.
+    util.warn_deprecated(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source[a_lineless_cold]
+FAILED backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source[b_historical]
+FAILED backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source[c2_mixed]
+FAILED backend\tests\test_w303_selectors_postgres.py::test_portfolio_row_facts_and_verification_ids_match_stored_rows
+FAILED backend\tests\test_w301_estate_index_postgres.py::test_cost_risk_opportunity_eligibility_without_mock_seed
+FAILED backend\tests\test_w301_estate_index_postgres.py::test_cost_lens_only_exact_eligible_current_rows
+FAILED backend\tests\test_w301_provenance_dto_postgres.py::test_w1_revision_selection_sets_and_estate_projection
+FAILED backend\tests\test_w301_provenance_dto_postgres.py::test_w1_cold_ev_exact_cited_id_mapping[w1]
+FAILED backend\tests\test_w301_w1_money_snapshot_helpers_postgres.py::test_money_source_gate_exact_citations
+FAILED backend\tests\test_w301_w1_money_snapshot_helpers_postgres.py::test_money_source_gate_mixed_union_withholds
+FAILED backend\tests\test_s4_power_demo_case_postgres.py::test_s405b_fresh_p01_publication_binds_every_cited_and_power_id
+FAILED backend\tests\test_s4_power_demo_case_postgres.py::test_source_state_compatibility_all_w1_consumers
+FAILED backend\tests\test_s4_power_demo_case_postgres.py::test_s405b_an_ordinary_contextual_id_makes_the_finding_and_union_mixed
+FAILED backend\tests\test_cc_placement_postgres.py::test_cold_ev_placement_risks_lens_and_paging
+FAILED backend\tests\test_w403_replay_postgres.py::test_positive_missing_late_replay_and_fresh_reload
+ERROR backend\tests\test_w303_portfolio_comparison_postgres.py::test_operating_cost_first_match_wins_across_partitions
+ERROR backend\tests\test_w303_portfolio_comparison_postgres.py::test_ineligible_overlap_and_unknown_coverage_decline_total
+ERROR backend\tests\test_w303_portfolio_comparison_postgres.py::test_ev_window_money_has_no_finding_attribution
+ERROR backend\tests\test_w303_portfolio_fixture_postgres.py::test_one_day_three_domain_fixture_public_roots
+ERROR backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids
+ERROR backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_foreign_tenant_missing_site_and_grant_fence
+ERROR backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_page_size_does_not_change_cards_matrix_or_money
+ERROR backend\tests\test_w303_portfolio_scope_snapshot_postgres.py::test_ev_footer_first_eligible_and_coverage_warning
+15 failed, 41 passed, 4 warnings, 8 errors in 1594.08s (0:26:34)

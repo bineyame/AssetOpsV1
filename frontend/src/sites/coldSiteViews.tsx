@@ -36,7 +36,6 @@ import type {
   ColdAnalysisRead,
   ColdAssumptionsRead,
   ColdCapability,
-  ColdEvidenceRead,
   ColdOverviewRead,
   ColdSiteClient,
   ColdSource,
@@ -49,6 +48,8 @@ import { roleLabel } from "./ColdFoundationViews";
 import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, degreeMinutes, hm, windowText } from "./coldFormat";
 import "./w2-cold-site.css";
 import "../ui/mock-deviation.css";
+import { OutcomeBoard } from "./OutcomeBoard";
+import type { OutcomeBoardClient } from "./outcomeBoardClient";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -388,6 +389,8 @@ export interface ColdSiteFrameProps {
   parentTrail: Crumb[];
   /** post-W6 W2-cold R259 (Q11): the Site's IANA timezone; missing or invalid falls back to UTC, stated in the headers. */
   timeZone?: string | null;
+  /** OUT-B B5: the Site outcome board read (Overview only); it replaces the old overview cards. */
+  outcomeBoard?: OutcomeBoardClient;
 }
 
 const DESCRIPTION: Record<ColdSiteView, string> = {
@@ -531,87 +534,6 @@ function overviewStateChip(o: ColdOverviewRead): string {
   return "Unknown";
 }
 
-function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence: ColdEvidenceRead | null; routes: ColdSiteRoutes }) {
-  const t = o.temperature_summary;
-  const proved = o.status.state === "OBSERVED_EXCURSION" && (o.status.claim_level === "OBSERVED" || o.status.claim_level === "BOUNDED");
-  const gap = o.needs_attention.some((n) => n.code === "COLD_PROBE_GAP");
-  const tempChip = proved ? "Needs attention" : gap ? "Limited" : o.status.state === "NO_EXCURSION_OBSERVED" ? "No excursion observed" : "Unknown";
-  const policy =
-    o.objective.policy_low_deg_c !== null && o.objective.policy_high_deg_c !== null
-      ? `policy ${decimal(o.objective.policy_low_deg_c)}–${decimal(o.objective.policy_high_deg_c)} °C`
-      : null;
-  // Run-7 card copy: each unavailable clause is omitted rather than rendered as null, zero or a placeholder.
-  const coverage =
-    t.coverage.known_points === null || t.coverage.expected_points === null ? null : `coverage ${t.coverage.known_points} / ${t.coverage.expected_points} readings`;
-  const tempNote =
-    t.latest_deg_c === null
-      ? "No chamber reading for this window"
-      : [`${t.episode_count} ${t.episode_count === 1 ? "excursion" : "excursions"}`, `latest ${decimal(t.latest_deg_c)} °C`, policy, coverage].filter(Boolean).join(" · ");
-  const b = o.backup_summary;
-  const backupChip = b.observed_failure > 0 ? "Degraded" : b.observed_success > 0 ? "Observed start" : "Unknown";
-  // Run-7 card copy: actual zero counts only from an assessed selected summary.
-  const backupAssessed = isSelected(o) && b.as_of !== null;
-  const backupNote = !backupAssessed
-      ? "Backup result not observed"
-      : `${b.attempts} ${b.attempts === 1 ? "start attempt" : "start attempts"} · ${b.observed_success} started · ${b.observed_failure} failed`;
-  // W2-F S2: cooling recovery is never supported in W2 (no ordered-recovery assessment), so no supported chip exists.
-  const coolingChip = ({ LIMITED: "Limited", CONTRADICTORY: "Contradictory" } as Record<string, string>)[o.cooling.state] ?? "Unknown";
-  const caps = evidence?.capabilities ?? [];
-  // The same row-based rule as the Evidence status chip (Run-7), so Overview and Evidence agree.
-  const evidenceChip = evidenceState(caps);
-  // R254: plain labels; each card's own `View detail →` link (mock 539), at the read's selected window.
-  const detail = (key: string, href: string | null) =>
-    href === null ? undefined : (
-      <Link to={href} data-cold-card-link={key}>
-        View detail →
-      </Link>
-    );
-  return (
-    <MetricCards columns={5} label="Cold room conditions">
-      <MetricCard label="Temperature" value={tempChip} note={tempNote} tone={proved ? "amber" : "muted"} assessment data={{ "data-cold-card": "temperature" }} link={detail("temperature", coldUiHref(o.links.temperature, routes))} />
-      <MetricCard label="Backup" value={backupChip} note={backupNote} tone={b.observed_failure > 0 ? "red" : "muted"} assessment data={{ "data-cold-card": "backup" }} link={detail("backup", coldUiHref(o.links.backup, routes))} />
-      <MetricCard
-        label="Cooling"
-        value={coolingChip}
-        note={`${o.cooling.text} · Recovery comparison not assessed`}
-        tone="muted"
-        assessment
-        data={{ "data-cold-card": "cooling" }}
-        link={detail("cooling", selected(routes.cooling, o.window))}
-      />
-      {/* Q8: the overview read carries no maintenance summary; the cases are listed under Work. */}
-      <MetricCard
-        label="Maintenance"
-        value="Not summarised here"
-        note={
-          // MOCK DEVIATION D1 (R437): the mock card shows a status and an inspection outcome; the overview read has
-          // no maintenance summary, so the card points to the cases under Work. Labelled visibly inside the card.
-          <>
-            Maintenance cases are listed under Work
-            <br />
-            <span className="mock-deviation-line" data-mock-deviation="R437">
-              MOCK DEVIATION D1 (R437)
-            </span>
-          </>
-        }
-        tone="muted"
-        assessment
-        data={{ "data-cold-card": "maintenance" }}
-        link={detail("maintenance", selected(routes.workMaintenance, o.window))}
-      />
-      <MetricCard
-        label="Evidence"
-        link={detail("evidence", coldUiHref(o.links.evidence, routes))}
-        value={evidenceChip}
-        note={caps.length === 0 ? "Evidence coverage not assessed" : countSentence(caps)}
-        tone="muted"
-        assessment
-        data={{ "data-cold-card": "evidence" }}
-      />
-    </MetricCards>
-  );
-}
-
 /**
  * R255 (Q9): the overview strip omits each step's outcome, so an observed step is joined to the selected backup-chain
  * step with the same accepted record (`evidence_id`): `{stepLabel} · {outcomeText}`, danger on an adverse outcome and
@@ -689,7 +611,9 @@ function OverviewScreen(p: ScreenProps) {
           <p className="v69-objective" data-cold-objective>
             {o.objective.text}
           </p>
-          <OverviewCards o={o} evidence={value(evidence)} routes={p.routes} />
+          {p.outcomeBoard === undefined ? null : (
+            <OutcomeBoard client={p.outcomeBoard} siteCode={p.siteId} query={p.window} />
+          )}
         </>
       )}
       <Panel

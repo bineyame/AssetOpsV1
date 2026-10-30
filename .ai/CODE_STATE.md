@@ -6056,3 +6056,18 @@ Outcome sprint slice A, branch `task/OUT-A-category-labels` (main `cbc32703` mer
   - 3 w1f4 vitest failures are on main.
   - EV and cold vitest tests are load-flaky in the full suite.
   - No three-domain demo estate exists (R535).
+
+## OUT-B - Site outcome board and Portfolio outcome matrix (built, in_review)
+Branch `task/OUT-B-site-outcome-board` (head d3554aca before closeout commit; cut from OUT-A 7b826e97). Packet `.agent/OUT-B-packet.md`; history `.agent/OUT-B-phase-handoff.md`.
+- Backend: `outcomes/status.py` (roll-up of outcome states); `site_outcomes/` (`board.py` facts -> four-outcome board, `mini.py`/`cold.py`/`ev.py` composers over bound `*Ports`,
+  `read.py` binds the real reads incl. covering-day widening for cold/EV). Routes `GET /api/sites/{site}/outcome-board` (`site-outcome-board-1`) and `GET /api/estate/outcome-summary`
+  (`estate-outcome-summary-1`). The board reads existing sources only; nothing stored. Read gates per source are listed in the packet and bound in `main.py` (`work_access=site_read_access`).
+- Estate: `estate/scope.py` `check_window` (the one window rule) and `estate_request`; `site_readiness` and `site_work_rows` build requests through it (INVALID_WINDOW on misaligned or over-31-day).
+- Frontend: `sites/OutcomeBoard.tsx` + `outcomeBoardClient.ts` replace the mini/cold/EV objective cards (closed rows by default, explainer dialog); `estate/PortfolioOutcomes.tsx`
+  `OutcomeMatrix`, `SiteDots`, Grow short value; `getOutcomeSummary` optional on `EstateClient`. Panel guard admits `section.ob-board` on mini/cold/ev only.
+- Settled: measured outcomes with no real source read UNKNOWN/NOT_MEASURED; Must-not-harm drops the NOT_MEASURED exclusion; closed-board height within 450 (1440) / 800 (390); register R521/R529 resolved,
+  R437 closed, R535 and R540-R552 added.
+- Left open: R541, R535, R552 (R552 to the combined dataset); combined-dataset assertions withdrawn as comments in `test_out_b4_board_postgres.py`; cold B.7 #4; EV Assure UNKNOWN on the fixture's
+  ESTATE_SELECTION_INCONSISTENT; Kobo estate case lacks evidence migration (captures used the s5 producer).
+- Results: vitest 3496 pass, 4 fail (3 known w1f4 + 1 load flake); backend full 20 failed/8 errors/0 skips, all but the 2 known w303 reproduce on main 32adae2f (identical 23-entry lists, `PowerSite.on` at
+  `test_s4_consequence_store_postgres.py:111`; under separate investigation); check-all 11/11.

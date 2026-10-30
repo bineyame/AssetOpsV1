@@ -30,7 +30,7 @@ from assetops_backend.estate.placement import GROUPS, place
 from assetops_backend.outcomes.catalogue import CATEGORIES, OUTCOME_BY_KEY
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key, outcome_roles
 from assetops_backend.estate.scope import (
-    SITE_TOKEN_ARRAYS, EstateRequest, resume_after, selection_token, wire_time)
+    SITE_TOKEN_ARRAYS, EstateRequest, estate_request, resume_after, selection_token, wire_time)
 
 PORTFOLIO_SCHEMA = "estate-portfolio-1"
 #: CC-R2 (R5.4): placement group first, then the existing most-recent-first order.
@@ -132,6 +132,10 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     if any(a["_raw"].get("_selected_recorded_at") is None for a in matches):
         raise ActionSelectionError("A matching Action has no selected event time.")
     return min(matches, key=lambda a: (-a["_raw"]["_selected_recorded_at"].timestamp(), a["action_id"]))
+
+
+#: The public name of the exact Finding-to-Action join, for the Site outcome board (OUT-B2 review L1).
+action_for = _action_for
 
 
 def workflow_label(action: dict[str, Any] | None) -> str:
@@ -497,6 +501,29 @@ class EstatePortfolioService(EstateEvidenceService):
 
     def portfolio(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         return self._read(lambda snap: self._portfolio(snap, tenant_id, req, admit))
+
+    def site_work_rows(self, tenant_id: Any, site_code: str, day_from: datetime, day_to: datetime,
+                       work_from: datetime, work_to: datetime, known_at: datetime | None = None
+                       ) -> dict[str, Any] | None:
+        """OUT-B4 (addendum 3 item 16, signature per addendum 5 point 2): one Site's Finding and Action rows exactly
+        as `select_finding_scope` and `select_action_scope` emit them for `_portfolio` (private keys and `_raw`
+        included; condition 1: no shaping or reduction), plus that Site's Finding coverage (`site_cov`, the value
+        `_portfolio` hands `place`). The Finding rows and `site_cov` cover the board day (estate coverage yields
+        rows only when every requested day is selected, `estate/coverage.py:91-133`); the Action rows cover the
+        31-day work window. One `self._read` snapshot and cutoff for both. None when the Site is not in the
+        authorized imported set for the board day. The request kind is "findings" (no cursor is ever passed)."""
+        day = estate_request("findings", day_from, day_to, known_at)  # addendum 7: the estate window rule
+        work_req = estate_request("findings", work_from, work_to, known_at)
+        admit = lambda code: code == site_code  # noqa: E731 - one-Site admit
+
+        def work(snap: Any) -> Any:
+            f_sites, f_rows = select_finding_scope(snap, tenant_id, day, self._scope(snap, tenant_id, day, admit))
+            if not f_sites:
+                return None
+            _, a_rows = select_action_scope(snap, tenant_id, work_req, self._scope(snap, tenant_id, work_req, admit))
+            return {"site_cov": f_sites[0][2], "findings": f_rows, "actions": a_rows}
+
+        return self._read(work)
 
     def _portfolio(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)

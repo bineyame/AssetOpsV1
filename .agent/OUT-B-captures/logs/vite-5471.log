@@ -1,0 +1,10 @@
+
+> assetops-frontend@0.0.0 dev
+> vite --port 5471 --strictPort
+
+Re-optimizing dependencies because vite config has changed
+
+  VITE v5.4.21  ready in 773 ms
+
+  ➜  Local:   http://localhost:5471/
+  ➜  Network: use --host to expose

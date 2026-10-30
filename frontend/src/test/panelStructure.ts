@@ -93,6 +93,22 @@ const SCREEN_LEADING: Record<string, string> = {
   "ev-action": "[data-domain-action-currentness]",
 };
 
+/**
+ * OUT-B B5 (R540): the v7.0 mock's Site outcome board (`outcomes.js:116-124`) replaces the v69 objective cards on the
+ * three Site overview screens, between the objective line and panel 1. Its own "How this site is doing" heading is
+ * the board's, not a v69 panel title. It is admitted as a leading element on these screens only; anywhere else, or
+ * between or after panels, it is an intruder.
+ */
+const OUTCOME_BOARD_SELECTOR = "section.ob-board";
+const OUTCOME_BOARD_SCREENS: ReadonlySet<string> = new Set(["mini", "cold", "ev"]);
+const precededByPanel = (element: Element): boolean => {
+  for (let node = element.previousElementSibling; node !== null; node = node.previousElementSibling) {
+    if (node.matches(PANEL_SELECTOR) || node.querySelector(PANEL_SELECTOR) !== null) return true;
+  }
+  return false;
+};
+const inOutcomeBoard = (element: Element): boolean => element.closest(OUTCOME_BOARD_SELECTOR) !== null;
+
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
 
@@ -106,6 +122,7 @@ function describe(element: Element): string {
 function firstPanel(root: Element): Element | null {
   for (const element of Array.from(root.querySelectorAll(`h2, ${PANEL_SELECTOR}`))) {
     if (hiddenOrCollapsed(element, root)) continue;
+    if (inOutcomeBoard(element)) continue;
     if (element.tagName === "H2") return element.closest(PANEL_SELECTOR) ?? element;
     return element;
   }
@@ -126,6 +143,7 @@ export function leadingIntruders(scope?: HTMLElement, screenId?: string): string
     for (let sibling: Element | null = node.previousElementSibling; sibling !== null; sibling = sibling.previousElementSibling) {
       if (hiddenOrCollapsed(sibling, root)) continue;
       if (sibling.matches(CHROME_SELECTOR) || sibling.matches(LEADING_SELECTOR)) continue;
+      if (screenId !== undefined && OUTCOME_BOARD_SCREENS.has(screenId) && sibling.matches(OUTCOME_BOARD_SELECTOR)) continue;
       if (
         optional !== undefined &&
         sibling.matches(optional) &&
@@ -145,7 +163,8 @@ export function leadingIntruders(scope?: HTMLElement, screenId?: string): string
 /** Section-like elements outside every panel, leading pattern and chrome. */
 export function strayOutsidePanels(scope?: HTMLElement): string[] {
   const root = scope ?? document.querySelector("main") ?? document.body;
-  const container = `${PANEL_SELECTOR}, ${LEADING_SELECTOR}, ${CHROME_SELECTOR}`;
+  // The board's own sections sit inside it; its placement is policed by leadingIntruders and strayBetweenPanels.
+  const container = `${PANEL_SELECTOR}, ${LEADING_SELECTOR}, ${CHROME_SELECTOR}, ${OUTCOME_BOARD_SELECTOR}`;
   return Array.from(root.querySelectorAll(STRAY_SELECTOR))
     .filter((element) => !element.matches(PANEL_SELECTOR))
     .filter((element) => !hiddenOrCollapsed(element, root))
@@ -199,6 +218,8 @@ export function strayBetweenPanels(scope?: HTMLElement): string[] {
       if (sibling.matches(PANEL_SELECTOR) || sibling.querySelector(PANEL_SELECTOR) !== null) continue;
       if (sibling.matches(CHROME_SELECTOR) || sibling.matches(LEADING_SELECTOR) || sibling.matches(ALLOWED_BETWEEN_SELECTOR)) continue;
       if (sibling.closest(".status-strip") !== null) continue;
+      // OUT-B B5: the outcome board is a leading element (screen-scoped in leadingIntruders); after a panel it strays.
+      if (sibling.matches(OUTCOME_BOARD_SELECTOR) && !precededByPanel(sibling)) continue;
       if (text(sibling) === "" && sibling.querySelector("img, svg, input, select, button") === null) continue;
       found.add(sibling);
     }
@@ -213,6 +234,7 @@ export function renderedPanelTitles(scope?: HTMLElement): string[] {
   const candidates = root.querySelectorAll(`h2, ${PANEL_SELECTOR}`);
   for (const element of Array.from(candidates)) {
     if (hiddenOrCollapsed(element, root)) continue;
+    if (inOutcomeBoard(element)) continue;
     if (element.tagName === "H2") {
       const owner = element.closest("section.panel, .panel, [data-headline-card]");
       if (owner !== null && root.contains(owner)) seenPanels.add(owner);

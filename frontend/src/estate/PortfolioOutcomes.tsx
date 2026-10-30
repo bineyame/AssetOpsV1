@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
 import { MissingClaim } from "../ui";
-import type { EstatePortfolioBody, EstateQuery, EstateValueCard } from "./estateClient";
+import type { EstateOutcomeSummaryBody, EstatePortfolioBody, EstateQuery, EstateResult, EstateValueCard } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE } from "./estateFinancialsWords";
 import { estateHref } from "./estateShared";
@@ -101,9 +101,28 @@ interface CardContent {
   tone: string;
 }
 
-function content(key: OutcomeCategoryKey, body: EstatePortfolioBody): CardContent {
+/** B-Q27 (R549): the first Site's Grow `short_value`, when the outcome summary carries one. */
+export function growShortValue(summary: EstateOutcomeSummaryBody | null): string | null {
+  for (const site of summary?.sites ?? []) {
+    const value = site.rows.find((r) => r.category === "GROW_REVENUE")?.short_value ?? null;
+    if (value !== null && value !== "") return value;
+  }
+  return null;
+}
+
+function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {
   const card = (k: EstateValueCard["key"]) => body.value_cards.find((c) => c.key === k);
   if (key === "GROW_REVENUE") {
+    const short = growShortValue(summary);
+    if (short !== null) {
+      return {
+        value: short,
+        detail: "Site income not recorded",
+        basis: "Opportunities · revenue not measured yet",
+        destination: "/findings/opportunities",
+        tone: "green",
+      };
+    }
     return {
       value: (
         <MissingClaim as="span" gapId="G-portfolio-grow-revenue" placement="portfolio.outcomes.grow-value">
@@ -145,15 +164,47 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody): CardConten
   };
 }
 
+/** OUT-B B6: one dot per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`). */
+function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary: EstateOutcomeSummaryBody | null }) {
+  return (
+    <div className="oc-sitedots" data-portfolio-card-dots={category}>
+      {(summary?.sites ?? []).map((site) => {
+        const row = site.rows.find((r) => r.category === category);
+        if (row === undefined) return null;
+        return (
+          <span
+            key={site.site_id}
+            className={`tone-${row.tone}`}
+            title={`${site.site_name}: ${row.state_label}`}
+            data-portfolio-dot={`${site.site_code}|${row.tone}`}
+          >
+            <i aria-hidden="true"></i>
+            {site.site_name}
+            <span className="oc-hidden">: {row.state_label}</span>
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 /**
  * OUT-A A6: the Portfolio's four outcome category cards (mock `pfCard`, `outcomes.js:144-151`), replacing the five
- * value cards. Only existing fields feed them; the per-Site dots stay empty until B6 fills them.
+ * value cards. OUT-B B6 fills the per-Site dots and the Grow value from the outcome summary.
  */
-export function CategoryCards({ body, window }: { body: EstatePortfolioBody; window: Window }) {
+export function CategoryCards({
+  body,
+  window,
+  summary = null,
+}: {
+  body: EstatePortfolioBody;
+  window: Window;
+  summary?: EstateOutcomeSummaryBody | null;
+}) {
   return (
     <div className="value-grid oc-pfgrid" data-portfolio-cards>
       {OUTCOME_CATEGORY_CARDS.map(({ key, name, definition }) => {
-        const c = content(key, body);
+        const c = content(key, body, summary);
         const inner = (
           <>
             <div className="value-label">
@@ -170,7 +221,7 @@ export function CategoryCards({ body, window }: { body: EstatePortfolioBody; win
               {c.value}
             </div>
             <p data-portfolio-card-detail>{c.detail}</p>
-            <div className="oc-sitedots" />
+            <SiteDots category={key} summary={summary} />
             <div className="value-basis" data-portfolio-card-basis>
               {c.basis}
             </div>
@@ -189,4 +240,83 @@ export function CategoryCards({ body, window }: { body: EstatePortfolioBody; win
       })}
     </div>
   );
+}
+
+/** The six states of the matrix colour key, in the mock order (`outcomes.js:154`). */
+export const OUTCOME_KEY: readonly { label: string; tone: string }[] = [
+  { label: "Needs attention", tone: "amber" },
+  { label: "Watch", tone: "blue" },
+  { label: "Opportunity", tone: "green" },
+  { label: "On track", tone: "green" },
+  { label: "Unknown", tone: "gray" },
+  { label: "Not measured yet", tone: "none" },
+];
+export const OUTCOME_MATRIX_LABEL = "Outcomes across the estate";
+export const OUTCOME_MATRIX_NOTE = "How each site is doing on what matters";
+export const OUTCOME_MATRIX_LOADING = "Loading outcomes across the estate…";
+export const OUTCOME_MATRIX_UNAVAILABLE = "Outcome status is not available right now";
+
+/**
+ * OUT-B B6: the Portfolio outcome matrix (mock `portfolioOutcomes`, `outcomes.js:153-154`): a header row of Site
+ * links, one row per outcome category, and the colour key. Labels and state words come from the summary read.
+ */
+export function OutcomeMatrix({ summary }: { summary: EstateOutcomeSummaryBody }) {
+  const columns = { "--oc-sites": String(Math.max(summary.sites.length, 1)) } as CSSProperties;
+  return (
+    <>
+      <div className="oc-matrix" role="table" aria-label={OUTCOME_MATRIX_LABEL} style={columns} data-portfolio-outcome-matrix>
+        <div className="oc-mrow oc-mhead" role="row">
+          <span role="columnheader" className="oc-hidden">
+            Outcome
+          </span>
+          {summary.sites.map((site) => (
+            <span key={site.site_id} role="columnheader" data-portfolio-matrix-site={site.site_code}>
+              <Link to={site.overview_href}>{site.site_name}</Link>
+            </span>
+          ))}
+        </div>
+        {summary.categories.map((category) => (
+          <div key={category.category} className="oc-mrow" role="row" data-portfolio-outcome-row={category.category}>
+            <span role="rowheader" className="oc-orow" title={category.definition}>
+              <OutcomeIcon icon={category.category} label={category.label} />
+              <span>{category.label}</span>
+              <span className="oc-hidden">{category.definition}</span>
+            </span>
+            {summary.sites.map((site) => {
+              const row = site.rows.find((r) => r.category === category.category);
+              if (row === undefined) return <span key={site.site_id} role="cell" />;
+              return (
+                <span key={site.site_id} role="cell">
+                  <Link
+                    className={`oc-cell tone-${row.tone}`}
+                    to={site.overview_href}
+                    title={`${site.site_name} · ${category.label}: ${row.lead_outcome?.label ?? row.state_label}`}
+                    data-portfolio-outcome-cell={`${site.site_code}|${category.category}|${row.tone}`}
+                  >
+                    <b>{row.state_label}</b>
+                    {row.lead_outcome === null ? null : <small>{row.lead_outcome.label}</small>}
+                  </Link>
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="oc-key" data-portfolio-outcome-key>
+        {OUTCOME_KEY.map(({ label, tone }) => (
+          <span key={label}>
+            <i className={`tone-${tone}`} aria-hidden="true"></i>
+            {label}
+          </span>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/** The matrix panel body for one summary read: loading, unavailable, or the matrix. */
+export function OutcomeMatrixBody({ read }: { read: EstateResult<EstateOutcomeSummaryBody> | null }) {
+  if (read === null) return <p role="status">{OUTCOME_MATRIX_LOADING}</p>;
+  if (read.status !== "loaded") return <p role="alert">{OUTCOME_MATRIX_UNAVAILABLE}</p>;
+  return <OutcomeMatrix summary={read.value} />;
 }

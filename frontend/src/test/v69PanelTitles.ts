@@ -30,6 +30,9 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   // W1-F5a, PROPOSED on the same basis as evidence-analysis:2 and pending the coordinator's ruling: "claim" is on
   // the W1 vocabulary list (D-2026-10-16-w1-ux), so the plain variant of "Condition evidence and claim boundary".
   "asset:3": "Condition evidence and its limits",
+  // OUT-B B6 (R521): the v7.0 mock's Portfolio panel title (`portfolio.js:50`); the outcome matrix replaces the v69
+  // objectives matrix in the same slot.
+  "portfolio:2": "Outcomes across the estate",
 };
 
 function need(values: Record<string, string>, key: string): string {
