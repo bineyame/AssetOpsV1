@@ -70,6 +70,8 @@ const PanelControls = createContext<ReactNode>(null);
 const LensRow = createContext<ReactNode>(null);
 /** post-W6 W1-a Q18: the estate Findings list the scope strip hands off to. */
 const ManageHref = createContext<string | null>(null);
+/** OUT-C U5: the Site's early-warning list, rendered under the list inside the panel. */
+const PanelWarnings = createContext<ReactNode>(null);
 
 /**
  * The mock's `All | Cost | Risks | Opportunities` lens row. `All` is the selected live view; the other lenses
@@ -176,6 +178,8 @@ export interface SiteFindingIndexProps {
   fallback: ReactNode;
   /** W4-03 S11: a MINIGRID Site states where its typed five-day opportunity is reached. */
   opportunityHelper?: boolean;
+  /** OUT-C U5: the Site's early warnings (from its outcome board), under the list. */
+  earlyWarnings?: ReactNode;
 }
 
 const HEADING_ID = "site-finding-index-heading";
@@ -619,6 +623,7 @@ function View({
   const controls = useContext(PanelControls);
   const lenses = useContext(LensRow);
   const manage = useContext(ManageHref);
+  const warnings = useContext(PanelWarnings);
   return (
     <div className="site-findings-view" data-finding-index-state={state} {...attributes}>
       {lenses}
@@ -638,6 +643,7 @@ function View({
         {controls}
         {body}
         {references ?? null}
+        {warnings}
       </Panel>
       {notice === undefined ? null : (
         <Notice tone="blue" data={{ "data-site-findings-notice": "" }}>
@@ -915,7 +921,16 @@ function Refused({ result, scope, links }: { result: FindingIndexResult; scope: 
   }
 }
 
-export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallback, opportunityHelper = false }: SiteFindingIndexProps) {
+export function SiteFindingIndex({
+  siteId,
+  client,
+  scope,
+  links,
+  onScope,
+  fallback,
+  opportunityHelper = false,
+  earlyWarnings = null,
+}: SiteFindingIndexProps) {
   const [result, setResult] = useState<FindingIndexResult | null>(null);
   const { domain, from, to, limit, cursor } = scope;
   useEffect(() => {
@@ -937,6 +952,7 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
   return (
     <div className="finding-index" data-findings-index="site-window">
       <ManageHref.Provider value={links.manage ?? null}>
+      <PanelWarnings.Provider value={result.status === "loaded" ? earlyWarnings : null}>
       <LensRow.Provider value={<LensChips />}>
       <PanelControls.Provider
         value={
@@ -954,6 +970,7 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
         )}
       </PanelControls.Provider>
       </LensRow.Provider>
+      </PanelWarnings.Provider>
       </ManageHref.Provider>
     </div>
   );

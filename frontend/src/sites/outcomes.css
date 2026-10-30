@@ -129,6 +129,19 @@ details.ob[open] > .ob-sum::after { transform: rotate(-135deg); }
 }
 @media print { .oc-info { display: none; } }
 
+/* OUT-C U5: the early-warning list (mock outcomes.css .oc-warn*, tokens); 24 px targets, 390 px reflow. */
+.oc-warn { margin-top: 16px; border-top: 1px solid var(--border-subtle); padding-top: 12px; min-width: 0; }
+.oc-warn-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.oc-warn h3 { font-size: 12px; margin: 0; color: var(--text-secondary); }
+.oc-warn .oc-info { width: 24px; height: 24px; }
+.oc-warn ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 8px 18px; }
+.oc-warn li { display: flex; gap: 9px; align-items: flex-start; font-size: 12px; line-height: 1.45; min-width: 0; }
+.oc-warn li > div { min-width: 0; overflow-wrap: anywhere; }
+.oc-warn li a { display: inline-block; min-height: 24px; }
+.oc-warn li a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.oc-warn small { display: block; color: var(--text-secondary); font-size: 11px; margin-top: 1px; }
+@media screen and (max-width: 760px) { .oc-warn ul { grid-template-columns: 1fr; } }
+
 /* OUT-B B6: the Portfolio outcome matrix, its colour key and the card site dots (mock portfolioOutcomes). */
 .oc-matrix { font-size: 11px; }
 .oc-mrow { display: grid; grid-template-columns: repeat(var(--oc-sites, 3), minmax(0, 1fr)); gap: 4px; align-items: stretch; padding: 3px 0; }

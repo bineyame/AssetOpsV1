@@ -446,6 +446,7 @@ export function App({
                 sitesPath={SITES_PATH}
                 coldAssessment={coldAssessment}
                 evAssessment={evAssessment}
+                outcomeBoard={outcomeBoard}
               />
             }
           />

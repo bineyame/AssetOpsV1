@@ -44,7 +44,7 @@ export const EMPTY = {
 } as const;
 
 /** §B.1 issue kinds: label and the mock `.oc-kind` class (ruling B-Q29: `finding` and `gap` are neutral). */
-const ISSUE_KIND: Record<string, [string, string]> = {
+export const ISSUE_KIND: Record<string, [string, string]> = {
   FINDING: ["Finding", "finding"],
   EVIDENCE_GAP: ["Evidence gap", "gap"],
   RISK: ["Risk", "risk"],
@@ -216,8 +216,25 @@ function Row({ row }: { row: OutcomeBoardRow }) {
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/** The board explainer: a native `<dialog>`, modal when supported; Escape closes and focus returns to the opener. */
-function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose: () => void; opener: HTMLButtonElement | null }) {
+/**
+ * The outcome explainer shell: a native `<dialog>`, modal when supported; Tab is trapped inside, Escape closes and
+ * focus returns to the opener. Shared by the board and (OUT-C U5) the early-warning list.
+ */
+export function ExplainerDialog({
+  title,
+  titleId,
+  onClose,
+  opener,
+  marker,
+  children,
+}: {
+  title: string;
+  titleId: string;
+  onClose: () => void;
+  opener: HTMLButtonElement | null;
+  marker: string;
+  children: ReactNode;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -257,20 +274,29 @@ function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose
     <dialog
       ref={ref}
       className="ob-dialog"
-      aria-labelledby="ob-dialog-title"
+      aria-labelledby={titleId}
       onKeyDown={onKeyDown}
       onCancel={(e) => {
         e.preventDefault();
         onClose();
       }}
-      data-outcome-explainer
+      {...{ [marker]: "" }}
     >
       <div className="ob-dialog-head">
-        <h2 id="ob-dialog-title">{BOARD_TITLE}</h2>
+        <h2 id={titleId}>{title}</h2>
         <button type="button" ref={closeRef} className="ob-dialog-close" onClick={onClose} aria-label="Close">
           ×
         </button>
       </div>
+      {children}
+    </dialog>
+  );
+}
+
+/** The board explainer (mock `explainBoard`). */
+function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose: () => void; opener: HTMLButtonElement | null }) {
+  return (
+    <ExplainerDialog title={BOARD_TITLE} titleId="ob-dialog-title" onClose={onClose} opener={opener} marker="data-outcome-explainer">
       <p className="prose">{EXPLAIN[0]}</p>
       <div className="ob-dialog-table">
         <DataTable>
@@ -297,7 +323,7 @@ function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose
       </div>
       <p className="prose">{EXPLAIN[1]}</p>
       <p className="prose">{EXPLAIN[2]}</p>
-    </dialog>
+    </ExplainerDialog>
   );
 }
 

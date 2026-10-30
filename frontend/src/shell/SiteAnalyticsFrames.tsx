@@ -133,6 +133,8 @@ import {
   type FindingTab,
 } from "./operatorSiteRoutes";
 import { AffectsLine, type OutcomeCategories } from "../sites/outcomeCategories";
+import { miniBoardDay, SiteEarlyWarnings } from "../sites/EarlyWarnings";
+import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
 
 /**
  * The T028 operator frames: Site > Performance, Site > Findings, the Findings
@@ -468,11 +470,14 @@ export function SiteFindingsFrame({
   findingIndex = DEFAULT_FINDING_INDEX,
   coldAssessment,
   evAssessment,
+  outcomeBoard,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  /** OUT-C U5: the Site board, for the early-warning list under the Findings list. */
+  outcomeBoard?: OutcomeBoardClient;
   /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
   coldAssessment?: ColdAssessmentClient;
   evAssessment?: EvAssessmentClient;
@@ -515,6 +520,11 @@ export function SiteFindingsFrame({
               client={coldAssessment}
               routes={coldSiteRoutes(site.site_id)}
               lenses={<LensChips />}
+              earlyWarnings={
+                outcomeBoard === undefined ? null : (
+                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
+                )
+              }
             />
             </>
           ) : site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
@@ -526,6 +536,11 @@ export function SiteFindingsFrame({
               findingBase={(id) => siteFindingHref(site.site_id, id)}
               sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
               tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
+              earlyWarnings={
+                outcomeBoard === undefined ? null : (
+                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
+                )
+              }
             />
           ) : (
           <>
@@ -535,6 +550,11 @@ export function SiteFindingsFrame({
             opportunityHelper={site.site_type === "MINIGRID"}
             client={findingIndex}
             scope={scope}
+            earlyWarnings={
+              outcomeBoard === undefined || site.site_type !== "MINIGRID" ? null : (
+                <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={{ date: miniBoardDay(scope.to) }} />
+              )
+            }
             links={{
               scope: (next) => `${siteFindingsHref(site.site_id)}?${findingIndexScopeQuery(next)}`,
               finding: (id, revisionId) => siteFindingHref(site.site_id, id, revisionId),

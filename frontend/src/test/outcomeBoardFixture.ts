@@ -109,7 +109,7 @@ export function boardRows(): OutcomeBoardRow[] {
 export function boardBody(over: Partial<OutcomeBoardBody> = {}): OutcomeBoardBody {
   return {
     schema_version: "site-outcome-board-1",
-    policy_versions: { catalogue: "outcome-catalogue/2", outcome_map: "outcome-map/1", status: "outcome-status/1", warnings: null },
+    policy_versions: { catalogue: "outcome-catalogue/2", outcome_map: "outcome-map/1", status: "outcome-status/1", warnings: "early-warnings/1" },
     site_code: "KOBO-001",
     site_id: "site-1",
     site_name: "Kobo Mini-grid",

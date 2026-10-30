@@ -59,6 +59,8 @@ import {
 } from "./portfolioWords";
 import "./estatePortfolio.css";
 import { CategoryTags } from "../sites/outcomeCategories";
+import { EarlyWarningList } from "../sites/EarlyWarnings";
+import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 
 /**
@@ -212,6 +214,7 @@ function PriorityPanel({
   onLens,
   window,
   loadMore,
+  warnings,
 }: {
   body: EstatePortfolioBody;
   rows: EstatePortfolioRow[];
@@ -219,6 +222,7 @@ function PriorityPanel({
   onLens: (lens: EstateLens) => void;
   window: Window;
   loadMore: (() => void) | null;
+  warnings: readonly OutcomeWarning[];
 }) {
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
   const incomplete = body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN";
@@ -274,6 +278,7 @@ function PriorityPanel({
           </tbody>
         </DataTable>
       </div>
+      <EarlyWarningList warnings={warnings} max={4} showSite />
       <details className="placement-policy" data-placement-policy>
         <summary>{PLACEMENT_POLICY_SUMMARY}</summary>
         <ul>
@@ -601,6 +606,9 @@ function Loaded({
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const s = body.summary;
+  // OUT-C U5: the estate summary's early warnings; Unknown until the summary loads.
+  const warnings = summary?.status === "loaded" ? summary.value.warnings : null;
+  const warningCount = warnings === null ? null : warnings.length;
   return (
     <>
       <div className="portfolio-context" data-portfolio-context={body.status}>
@@ -628,10 +636,21 @@ function Loaded({
         <span>
           <strong>{countText(s.accepted_action_count, "Unknown")}</strong> accepted actions
         </span>
+        <span data-portfolio-pulse-warnings>
+          <strong>{countText(warningCount, "Unknown")}</strong> {warningCount === 1 ? "warning" : "warnings"} not yet priced
+        </span>
         <span className="pulse-note">{PULSE_NOTE}</span>
       </div>
       <div className="portfolio-main">
-        <PriorityPanel body={body} rows={rows} lens={lens} onLens={onLens} window={window} loadMore={loadMore} />
+        <PriorityPanel
+          body={body}
+          rows={rows}
+          lens={lens}
+          onLens={onLens}
+          window={window}
+          loadMore={loadMore}
+          warnings={warnings ?? []}
+        />
         <aside className="portfolio-side" data-portfolio-side>
           <ObjectivesPanel summary={summary} />
           <EvidenceAside body={body} window={window} />

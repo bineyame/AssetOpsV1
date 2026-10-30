@@ -6,7 +6,7 @@
  */
 
 import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
-import type { OutcomeRef, OutcomeState, OutcomeTone } from "../sites/outcomeBoardClient";
+import type { OutcomeRef, OutcomeState, OutcomeTone, OutcomeWarning } from "../sites/outcomeBoardClient";
 
 export const ESTATE_API_PATH = "/api/estate";
 
@@ -485,7 +485,7 @@ export interface EstateOutcomeSummaryBody {
   window: { from: string | null; to: string | null };
   sites: EstateOutcomeSummarySite[];
   categories: EstateOutcomeSummaryCategory[];
-  warnings: unknown[];
+  warnings: OutcomeWarning[];
 }
 
 export interface EstateClient {

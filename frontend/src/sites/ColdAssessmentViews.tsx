@@ -1222,6 +1222,8 @@ export interface ColdFindingIndexProps {
   routes: ColdSiteRoutes;
   /** The shared lens row (`LensChips` from the mini index), so the closed chip set gains no literal. */
   lenses: ReactNode;
+  /** OUT-C U5: the Site's early warnings (from its outcome board), under the list. */
+  earlyWarnings?: ReactNode;
 }
 
 /** The Finding's episode period, from its stored bounds. */
@@ -1354,6 +1356,7 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
             )}
           </>
         )}
+        {props.earlyWarnings ?? null}
       </Panel>
     </>
   );

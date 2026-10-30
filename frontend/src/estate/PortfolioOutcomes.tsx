@@ -62,6 +62,13 @@ export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: s
 ];
 
 export const PROTECT_DETAIL = "Service disruptions recorded in Findings · loss not priced";
+/** OUT-C U5: the Protect detail once the outcome summary is loaded; the early warnings are a separate clause. */
+export function protectDetailText(summary: EstateOutcomeSummaryBody | null): string {
+  const category = summary?.categories.find((c) => c.category === "PROTECT_ASSET");
+  if (summary === null || category === undefined) return PROTECT_DETAIL;
+  const w = category.warning_count;
+  return `Service disruptions recorded in Findings · ${w} early ${w === 1 ? "warning" : "warnings"}, counted separately · loss not priced`;
+}
 export const PROTECT_BASIS = "Measured events, counted separately · loss not priced";
 export const ASSURE_BASIS = "Completed work does not establish savings";
 export const OPTIMIZE_COST_MISSING = {
@@ -147,7 +154,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
     const n = body.summary.category_counts?.PROTECT_ASSET?.sites_with_primary_finding ?? null;
     return {
       value: protectValue(n),
-      detail: PROTECT_DETAIL,
+      detail: protectDetailText(summary),
       basis: PROTECT_BASIS,
       destination: "/findings/risks",
       tone: n !== null && n >= 1 ? "red" : "neutral",
