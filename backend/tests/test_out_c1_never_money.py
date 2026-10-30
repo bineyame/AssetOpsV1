@@ -46,7 +46,8 @@ def every_rule() -> list[Any]:
     plans = (PlanCue("p1", "PM-1", "Coil cleaning", TO - timedelta(days=2), date(2026, 10, 27), "c1"),
              PlanCue("p2", "PM-2", "Coil cleaning", TO + timedelta(days=2), date(2026, 10, 31), "a1"))
     out = list(evaluate(WarningFacts(COLD, visits=visits, plans=plans,
-                                     open_findings={"f1": (keys[0] + keys[1], "/f/f1")}, **base)))
+                                     open_findings={"f1": (keys[0] + keys[1], "/f/f1")},
+                                     fault_names={"f1": "automatic start failure"}, **base)))
     out += evaluate(WarningFacts(MINI, reserve=(2, 3), **base))
     out += evaluate(WarningFacts(EV, plans=plans, faults=(("c1", "1"),), connectors_out=(("c1", "1", "2 h", "1 min"),),
                                  peak=(76.0, 80.0, "76", "80"), **base))
@@ -55,6 +56,9 @@ def every_rule() -> list[Any]:
 
 def test_every_rule_fires_without_money() -> None:
     ws = every_rule()
+    assert "fault_name" not in MONEY_KEYS
+    assert [w.wire("X", "Y")["fault_name"] for w in ws if w.kind == "REPEATED_MAINTENANCE_NO_RESULT"] == [
+        "automatic start failure"]  # the key walk covers the populated value
     assert {w.kind for w in ws} == set(KINDS)  # every rule's positive output is covered
     for w in ws:
         body = w.wire("X", "Y")

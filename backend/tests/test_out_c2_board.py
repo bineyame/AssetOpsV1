@@ -220,7 +220,7 @@ def test_board_and_summary_wire(monkeypatch) -> None:
     w = body["warnings"][0]
     assert set(w) == {"key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                       "persistence_label", "price_needs", "status_effect", "categories", "site_code", "site_name",
-                      "href", "evidence_refs", "count", "subject_label"}
+                      "href", "evidence_refs", "count", "subject_label", "fault_name"}
     assert (w["site_code"], w["site_name"]) == ("COLD-LAB-001", "GreenHarvest")
     assert money_hits(body["warnings"]) == []
 

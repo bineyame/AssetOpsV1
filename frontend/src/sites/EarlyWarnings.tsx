@@ -146,5 +146,6 @@ export function SiteEarlyWarnings({
   }, [client, key]);
   const current = read?.key === key ? read.read : null;
   if (current?.status !== "loaded") return null;
-  return <EarlyWarningList warnings={current.value.warnings ?? []} showSite={false} />;
+  // Rulings C final review H1-1: the Site lists print the Site's first word, as the mock's `warningList` does.
+  return <EarlyWarningList warnings={current.value.warnings ?? []} showSite />;
 }

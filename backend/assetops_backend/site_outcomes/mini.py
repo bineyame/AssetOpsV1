@@ -38,6 +38,8 @@ GAP_GENERIC = "An evidence gap limits this conclusion"
 NO_VERIFIED = "No verified result yet"
 GROW_SUBLINE = "Sales to productive users are not metered, so revenue itself is not measured yet"
 PROTECT_HEADLINE = "Battery and generator condition are not assessed"
+#: Rulings C final review L2: the Protect headline when no warning moves MG-4 and m >= 1 periods were assessed.
+PROTECT_CLEAR = "Battery stayed clear of its reserve in {m} assessed generator {periods}"
 PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are early warnings only. Power was "
                    "delivered, but what customers needed is not measured")
 COST_NO_MONEY = "No priced exposure in this hour"
@@ -86,6 +88,7 @@ ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE, PROTECT_HEADLINE, PROTECT_SUBLINE,
+        PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
         COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
@@ -330,7 +333,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                                        for o in i["outcomes"]))
     facts = replace(facts, warnings=warnings, headline={
         **headline, PROTECT: f"{w} early {plural(w, 'warning', 'warnings')} on battery and generator" if w
-        else PROTECT_HEADLINE})
+        else protect_clear(reserve)})
     failed = tuple(reads.failed)
     diagnostics = unresolved_links(facts) + tuple((aid, ESTATE_ROW_MISSING) for aid in missing_estate)
     return MiniComposition(facts, "PARTIAL" if failed else "AVAILABLE", failed, diagnostics,
@@ -486,6 +489,14 @@ def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | No
                 if sel.get("state") == "PRICED" and shown is not None else PRICE_FALLBACK)
         fuel_price = Contributor("fuel_price", "Fuel price", text, DECLARED, price_href)
     return gen, fuel, fuel_price
+
+
+def protect_clear(reserve: tuple[int, int] | None) -> str:
+    """L2: the no-warning Protect headline; `PROTECT_HEADLINE` unless m >= 1 periods were assessed."""
+    if reserve is None or reserve[1] < 1:
+        return PROTECT_HEADLINE
+    m = reserve[1]
+    return PROTECT_CLEAR.format(m=m, periods=plural(m, "period", "periods"))
 
 
 def reserve_counts(dispatch: dict[str, Any] | None) -> tuple[int, int] | None:

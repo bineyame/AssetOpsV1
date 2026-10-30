@@ -15,7 +15,7 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { coveringUtcDays, GlobalMaintenanceFrame } from "../GlobalMaintenance";
-import type { EstateClient, EstateOutcomeSummaryBody, EstateResult } from "../../estate/estateClient";
+import type { EstateClient, EstateOutcomeSummaryBody, EstateOutcomeSummaryRow, EstateResult } from "../../estate/estateClient";
 import { outcomeSummaryBody } from "../../estate/__tests__/portfolioFixtures";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
@@ -613,27 +613,80 @@ describe("OUT-C U6 Maintenance repeat visits card", () => {
     return { reads, calls };
   }
 
-  it("countsRepeatedWarningsOverTheCoveringUtcDaysAndLinksTheFirst", async () => {
-    const summary = outcomeSummaryBody({ warnings: [planWarning(), outcomeWarning()] });
+  /** M2: the fixture's Sites with each one's read state and Cost row state set (unchecked unless AVAILABLE + measured). */
+  function sitesAs(states: Record<string, readonly [string, EstateOutcomeSummaryRow["state"]]>, over: Partial<EstateOutcomeSummaryBody> = {}) {
+    const base = outcomeSummaryBody(over);
+    const sites = base.sites
+      .filter((x) => states[x.site_code] !== undefined)
+      .map((x) => {
+        const [read_state, cost] = states[x.site_code];
+        return { ...x, read_state, rows: x.rows.map((r) => (r.category === "OPTIMIZE_COST" ? { ...r, state: cost } : r)) };
+      });
+    return { ...base, sites };
+  }
+  const ALL_CHECKED = { "KOBO-001": ["AVAILABLE", "NEEDS_ATTENTION"], "COLD-001": ["AVAILABLE", "ON_TRACK"] } as const;
+  const COLD_UNKNOWN = { "KOBO-001": ["AVAILABLE", "NEEDS_ATTENTION"], "COLD-001": ["AVAILABLE", "UNKNOWN"] } as const;
+  const startWarning = () => outcomeWarning({ fault_name: "automatic start failure" });
+  async function show(summary: EstateOutcomeSummaryBody) {
     const { reads, calls } = estate({ status: "loaded", value: summary });
     mount(PAGE, client({ "page-one": loaded(body([row(1)])) }), reads);
     await settled();
-    await waitFor(() => expect(value()).toBe("1"));
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await waitFor(() => expect(value()).not.toBe("Not assessed"));
+    return calls;
+  }
+
+  it("countsRepeatedWarningsOverTheCoveringUtcDaysAndLinksTheFirst", async () => {
+    const calls = await show(sitesAs(ALL_CHECKED, { warnings: [planWarning(), startWarning()] }));
+    expect(value()).toBe("1");
     expect(calls).toEqual([{ from: "2026-10-14T00:00:00Z", to: "2026-10-21T00:00:00Z", known_at: null }]);
     expect(text(card().querySelector(".v69-metric__label"))).toBe("Repeat visits without a result");
-    expect(note()).toBe("generator-1 · 3 visits, linked finding still open");
+    expect(note()).toBe("generator-1 · 3 visits, automatic start failure still open");
+    expect(card().className).toContain("v69-metric--amber");
     expect(card().querySelector("[data-global-work-repeat-link]")?.getAttribute("href")).toBe("/maintenance/requests/case-3");
     expect(document.querySelectorAll("[data-global-work-cards] li.v69-metric")).toHaveLength(4);
     expect(document.querySelector('[data-global-work-card="repeat_findings"]')).toBeNull();
     expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
   });
 
-  it("zeroRepeatedWarningsSaysNoneInTheLast60Days", async () => {
-    const { reads } = estate({ status: "loaded", value: outcomeSummaryBody({ warnings: [planWarning()] }) });
+  it("foundWithUncheckedSitesNamesThemAfterTheLinkAndFallsBackToLinkedFinding", async () => {
+    await show(sitesAs(COLD_UNKNOWN, { warnings: [outcomeWarning({ fault_name: null })] }));
+    expect(value()).toBe("1");
+    expect(note()).toBe("generator-1 · 3 visits, linked finding still open · not checked for GreenHarvest");
+    expect(card().className).toContain("v69-metric--amber");
+    expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("zeroRepeatedWarningsSaysNoneInTheLast60DaysOnlyWhenEverySiteWasChecked", async () => {
+    await show(sitesAs(ALL_CHECKED, { warnings: [planWarning()] }));
+    expect(value()).toBe("0");
+    expect(note()).toBe("None in the last 60 days");
+    expect(card().className).not.toContain("v69-metric--amber");
+  });
+
+  it("zeroFoundWithSomeSitesUncheckedIsPartlyChecked", async () => {
+    await show(sitesAs({ ...ALL_CHECKED, "EV-LAB-001": ["AVAILABLE", "NOT_MEASURED"], "EV-LAB-002": ["UNAVAILABLE", "UNKNOWN"] }));
+    expect(value()).toBe("Partly checked");
+    expect(note()).toBe("None found at Kobo and GreenHarvest; not checked for Depot and Harbour");
+    expect(card().className).not.toContain("v69-metric--amber");
+    expect(describeViolations(scanProductVocabulary(card(), "maintenance", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("zeroFoundWithNoSiteCheckedIsNotAssessed", async () => {
+    const { reads, calls } = estate({ status: "loaded", value: sitesAs({ "COLD-001": ["AVAILABLE", "UNKNOWN"], "EV-LAB-002": ["UNAVAILABLE", "UNKNOWN"] }) });
     mount(PAGE, client({ "page-one": loaded(body([row(1)])) }), reads);
     await settled();
-    await waitFor(() => expect(value()).toBe("0"));
-    expect(note()).toBe("None in the last 60 days");
+    await waitFor(() => expect(calls).toHaveLength(1));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(value()).toBe("Not assessed");
+    expect(note()).toBe("Repeat visits could not be checked for this window");
+  });
+
+  it("aColdSiteWithAnUnknownCostRowNeverShowsNone", async () => {
+    await show(sitesAs(COLD_UNKNOWN));
+    expect(value()).toBe("Partly checked");
+    expect(card().textContent).not.toContain("None in the last 60 days");
+    expect(note()).toBe("None found at Kobo; not checked for GreenHarvest");
   });
 
   it("refusedSummaryIsNotAssessedAndNeverSaysNotAvailableYet", async () => {

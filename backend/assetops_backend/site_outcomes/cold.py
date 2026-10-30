@@ -14,7 +14,7 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
-from assetops_backend.outcomes.warnings import REPEATED, evaluate
+from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
     INCIDENT, MAINTENANCE_REQUEST, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SiteFacts, finding_moved_outcomes, readiness_confidence, unresolved_links)
@@ -61,10 +61,13 @@ NO_REPEAT = "No repeated visit without a result in 60 days"
 NO_REPAIR_COST = "No repair or call-out cost recorded"
 NO_COOLING_METER = "Not available yet · no cooling energy meter"
 COST_SUBLINE = "None of the visits resolved the linked finding; repair cost is not recorded"
+#: Rulings C final review H1-3: the subline when the repeat warning names its fault (R572).
+COST_SUBLINE_FAULT = "None of the visits has fixed the {fault} yet; repair cost is not recorded"
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 
 #: Every fixed viewer string, for the vocabulary scan.
 COPY = (NO_REPEAT, NO_REPAIR_COST, NO_COOLING_METER, COST_SUBLINE,
+        COST_SUBLINE_FAULT.format(fault="automatic start failure"),
         PEAK_NOT_READ, START_FAILED, START_RECORDED, NO_START, *COOLING_TEXT.values(), NO_PLAN_RECORDED, NO_VERIFIED,
         STORAGE_LEVEL, CHAIN_COMPLETE, NO_CHAIN, LOADING_RECORDS, PROTECT_SUBLINE_START, PROTECT_SUBLINE,
         ASSURE_FULL, ASSURE_PART, ASSURE_SUBLINE, OPTION_START_TEST, OPTION_STOCK, OPTION_LOG)
@@ -158,10 +161,15 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     wf = warning_facts(facts, to=hi, tz=tz, suffix=suffix, lo=lo)
     warnings = evaluate(wf)
     repeat = next((w for w in warnings if w.kind == REPEATED), None)
+    # H1-4a: the repeat warning reuses Protect's start-test option when the start failure is one of its open Findings.
+    start_linked = (repeat is not None and start_failure is not None and start_href is not None
+                    and any(r["kind"] == "FINDING" and r["id"] == start_failure.finding_id
+                            for r in repeat.evidence_refs))
     facts = replace(facts, warnings=warnings,
+                    options={**options, COST: (Option(OPTION_START_TEST, start_href),) if start_linked else ()},
                     contributors={**contributors, COST: _cost(c, wf, repeat, visits is None, rc)},
                     headline={**headline, COST: _repeat_headline(repeat)},
-                    subline={**subline, COST: COST_SUBLINE if repeat is not None else None})
+                    subline={**subline, COST: _cost_subline(repeat)})
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
                        {"from": lo, "to": hi}, site_timezone if tz is not None else None)
@@ -240,6 +248,13 @@ def _cooling(body: dict, ok: bool) -> Contributor:
                        UNKNOWN_CHIP if state == "CONTRADICTORY" else None)
 
 
+def _cost_subline(repeat: Any) -> str | None:
+    if repeat is None:
+        return None
+    fault = repeat.fault_name or LINKED_FINDING
+    return COST_SUBLINE if fault == LINKED_FINDING else COST_SUBLINE_FAULT.format(fault=fault)
+
+
 def _repeat_headline(repeat: Any) -> str | None:
     return None if repeat is None else f"{repeat.count} repair visits in 60 days without a result"
 
@@ -252,7 +267,8 @@ def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[C
         days = sorted((v.occurred_on for v in wf.visits if v.case_id in repeat.visit_ids))
         dates = ", ".join(day_month(d) for d in days) + wf.date_suffix
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness",
-                             f"{repeat.count} visits ({dates}); the linked finding is still open", rc, repeat.href)
+                             f"{repeat.count} visits ({dates}); the {repeat.fault_name or LINKED_FINDING} is still open",
+                             rc, repeat.href)
     else:
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
     done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))

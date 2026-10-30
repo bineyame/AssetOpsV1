@@ -51,6 +51,10 @@ def asset_name(label: str | None) -> str:
     return (label or "").split(" · ", 1)[0]
 
 
+#: Rulings C final review F1: the fault noun phrase for an open linked Finding's mechanism.
+FAULT_NAMES = {"COLD_START_FAILURE": "automatic start failure"}
+
+
 def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix: str, lo: datetime,
                   **extras: Any) -> WarningFacts:
     """Visits, calendar plan cues and open Findings from the composed `SiteFacts`; `extras` carries the domain's
@@ -65,11 +69,14 @@ def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix
                 asset_id=p.asset_id, href=p.href)
         for p in facts.plans if p.trigger_kind == "CALENDAR" and p.due_at is not None and p.next_due_at is not None)
     open_findings: dict[str, tuple[tuple[str, ...], str | None]] = {}
+    fault_names: dict[str, str] = {}
     for f in facts.findings:
         if f.open:
             moves, checked = outcome_roles(finding_signal_key(f.mechanism), facts.domain)
             open_findings[f.finding_id] = (moves + checked, f.href)
+            if f.mechanism in FAULT_NAMES:
+                fault_names[f.finding_id] = FAULT_NAMES[f.mechanism]
     days = (_local_date(lo, tz), _local_date(to - timedelta(microseconds=1), tz))
     return WarningFacts(domain=facts.domain, site_code=facts.site_code, to=to, visits_from=to - VISIT_LOOKBACK,
                         soon_until=to + SOON, window_days=days, date_suffix=suffix, visits=visits, plans=plans,
-                        open_findings=open_findings, **extras)
+                        open_findings=open_findings, fault_names=fault_names, **extras)

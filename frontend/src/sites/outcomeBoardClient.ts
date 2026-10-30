@@ -82,6 +82,8 @@ export interface OutcomeWarning {
   evidence_refs: OutcomeWarningRef[];
   count: number | null;
   subject_label: string | null;
+  /** Rulings C final review F1: the open linked fault's noun phrase; non-null only on REPEATED warnings. */
+  fault_name?: string | null;
 }
 
 export interface OutcomeLinkItem {

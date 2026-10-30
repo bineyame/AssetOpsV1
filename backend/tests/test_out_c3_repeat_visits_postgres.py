@@ -54,6 +54,17 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
     assert cost["state"] == "NEEDS_ATTENTION" and cost["lead_outcome"] == {"key": "CC-3",
                                                                            "label": "Cost per cooling unit"}
     assert cost["headline"] == "3 repair visits in 60 days without a result"
+    # Rulings C final review F1/H1: the authored data names the open start-failure Finding (R572)
+    assert repeats[0]["fault_name"] == "automatic start failure", repeats[0]
+    assert repeats[0]["seen"].endswith("; the automatic start failure is still open"), repeats[0]["seen"]
+    assert repeats[0]["badge"] == "RISK"
+    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair cost is not "
+                               "recorded"), cost["subline"]
+    effect = next(x for x in cost["contributors"] if x["key"] == "maintenance_effectiveness")
+    assert effect["text"].endswith("; the automatic start failure is still open"), effect["text"]
+    start_option = [o for o in protect["options"] if o["text"] == "Witnessed automatic-start test"]
+    assert [o["text"] for o in cost["options"]] == ["Witnessed automatic-start test"], cost["options"]
+    assert cost["options"][0]["href"] == start_option[0]["href"], (cost["options"], protect["options"])
     assert [e["result_label"] for e in cost["earlier"]] == ["Did not fix it", "Did not fix it", "Not yet verified"]
     assert cost["must_not_harm"] is not None and cost["must_not_harm"]["href"], cost["must_not_harm"]
     assert cost["must_not_harm"]["text"].endswith(": a repair counts only when the fault it answers stops")

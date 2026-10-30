@@ -27,9 +27,16 @@ def test_repeat_visits_fill_the_cost_row() -> None:
     cost = rows[COST]
     assert cost["state"] == "NEEDS_ATTENTION" and cost["lead_outcome"]["key"] == "CC-3"
     assert cost["headline"] == "3 repair visits in 60 days without a result"
-    assert cost["subline"] == "None of the visits resolved the linked finding; repair cost is not recorded"
+    assert cost["subline"] == ("None of the visits has fixed the automatic start failure yet; repair cost is not "
+                               "recorded")
     eff = contributor(cost, "maintenance_effectiveness")
-    assert eff["text"] == "3 visits (2 Oct, 12 Oct, 20 Oct); the linked finding is still open"
+    assert eff["text"] == "3 visits (2 Oct, 12 Oct, 20 Oct); the automatic start failure is still open"
+    # H1-4a: the repeat warning reuses Protect's start-test option (same href)
+    assert [(o["text"], o["href"]) for o in cost["options"]] == [
+        ("Witnessed automatic-start test", f"/sites/{C}/actions/da1")]
+    (w,) = [w for w in comp.facts.warnings if w.kind == "REPEATED_MAINTENANCE_NO_RESULT"]
+    assert w.fault_name == "automatic start failure" and w.badge == "RISK"
+    assert w.seen.endswith("; the automatic start failure is still open")
     assert eff["confidence"] == {"label": "Limited", "tone": "amber"} and eff["href"] == "/maintenance/requests/mr5"
     rep = contributor(cost, "repair_cost")
     assert (rep["text"], rep["confidence"], rep["href"]) == (
@@ -44,6 +51,7 @@ def test_no_repeat_and_failed_visits() -> None:
     _, rows = run([MR5])
     cost = rows[COST]
     assert cost["headline"] is None and cost["subline"] is None
+    assert cost["options"] == []  # no repeat warning: nothing proposed under Cost
     assert contributor(cost, "maintenance_effectiveness")["text"] == cold.NO_REPEAT
     _, rows = run([])
     assert contributor(rows[COST], "repair_cost")["text"] == cold.NO_REPAIR_COST
@@ -64,7 +72,16 @@ def test_no_repeat_and_failed_visits() -> None:
 def test_utc_suffix_on_visit_dates() -> None:
     _, rows = run([E1, E2, MR5], tz=None)
     assert contributor(rows[COST], "maintenance_effectiveness")["text"] == (
-        "3 visits (2 Oct, 12 Oct, 20 Oct · UTC (Site time zone unavailable)); the linked finding is still open")
+        "3 visits (2 Oct, 12 Oct, 20 Oct · UTC (Site time zone unavailable)); the automatic start failure is still open")
+
+
+def test_cost_subline_falls_back_without_a_fault_name() -> None:
+    class W:
+        fault_name = "linked finding"
+    assert cold._cost_subline(W()) == cold.COST_SUBLINE
+    W.fault_name = None
+    assert cold._cost_subline(W()) == cold.COST_SUBLINE
+    assert cold._cost_subline(None) is None
 
 
 def test_overdue_plan_contributor_text() -> None:

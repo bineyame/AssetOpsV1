@@ -82,6 +82,9 @@ class PlanCue:
     href: str | None = PLAN_HREF
 
 
+LINKED_FINDING = "linked finding"     # fault_name fallback (Rulings C final review F1)
+
+
 @dataclass(frozen=True)
 class WarningFacts:
     domain: str
@@ -98,6 +101,7 @@ class WarningFacts:
     faults: tuple[tuple[str, str], ...] = ()                     # EV: (asset_id, label)
     connectors_out: tuple[tuple[str, str, str, str | None], ...] = ()  # EV: (asset_id, label, out, unknown)
     peak: tuple[float, float, str, str] | None = None            # EV: (peak, limit, peak text, limit text)
+    fault_names: Mapping[str, str] = field(default_factory=dict)  # open Finding id -> fault noun phrase
 
 
 @dataclass(frozen=True)
@@ -118,6 +122,7 @@ class Warning:
     count: int | None = None
     subject_label: str | None = None
     visit_ids: tuple[str, ...] = ()      # not on the wire
+    fault_name: str | None = None        # REPEATED only
 
     def wire(self, site_code: str, site_name: str) -> dict[str, Any]:
         return {"key": self.key, "kind": self.kind, "badge": self.badge, "badge_label": BADGE_LABEL[self.badge],
@@ -125,7 +130,7 @@ class Warning:
                 "persistence_label": PERSISTENCE_LABEL[self.persistence], "price_needs": self.price_needs,
                 "status_effect": self.status_effect, "categories": self.categories, "site_code": site_code,
                 "site_name": site_name, "href": self.href, "evidence_refs": [dict(r) for r in self.evidence_refs],
-                "count": self.count, "subject_label": self.subject_label}
+                "count": self.count, "subject_label": self.subject_label, "fault_name": self.fault_name}
 
 
 def day_text(day: Any) -> str:
@@ -146,13 +151,15 @@ def _window_text(f: WarningFacts) -> str:
 
 def _make(f: WarningFacts, kind: str, subject: str, title: str, seen: str, href: str | None, *,
           linked: tuple[str, ...] = (), refs: list[dict[str, Any]] | None = None, count: int | None = None,
-          subject_label: str | None = None, visit_ids: tuple[str, ...] = ()) -> Warning:
+          subject_label: str | None = None, visit_ids: tuple[str, ...] = (),
+          fault_name: str | None = None) -> Warning:
     badge, lens, effect = RULE[kind]
     return Warning(kind=kind, key=f"{kind}:{f.site_code}:{subject}", subject=subject, badge=badge, lens=lens,
                    title=title, seen=seen, persistence=RECURRING if kind == REPEATED else OBSERVED,
                    price_needs=PRICE_NEEDS[kind], status_effect=effect,
                    categories=categories_for("WARNING:" + kind, f.domain, linked), href=href,
-                   evidence_refs=tuple(refs or ()), count=count, subject_label=subject_label, visit_ids=visit_ids)
+                   evidence_refs=tuple(refs or ()), count=count, subject_label=subject_label, visit_ids=visit_ids,
+                   fault_name=fault_name)
 
 
 def _repeated(f: WarningFacts) -> list[Warning]:
@@ -181,13 +188,15 @@ def _repeated(f: WarningFacts) -> list[Warning]:
                     linked.append(k)
         latest = done[-1]
         name = latest.asset_name
+        names = {f.fault_names.get(fid) for fid in open_ids}
+        fault = names.pop() if len(names) == 1 and None not in names else LINKED_FINDING
         seen = (f"{name} visited {len(done)} times in 60 days ({_dates(f, [v.occurred_on for v in done])}); "
-                "the linked finding is still open")
+                f"the {fault} is still open")
         refs = [{"kind": "WORK_CASE", "id": v.case_id, "label": v.code, "href": v.href} for v in done]
         refs += [{"kind": "FINDING", "id": fid, "label": None, "href": f.open_findings[fid][1]} for fid in open_ids]
         out.append(_make(f, REPEATED, asset_id, "Repeated maintenance without a result", seen, latest.href,
                          linked=tuple(linked), refs=refs, count=len(done), subject_label=name,
-                         visit_ids=tuple(v.case_id for v in done)))
+                         visit_ids=tuple(v.case_id for v in done), fault_name=fault))
     return out
 
 

@@ -144,8 +144,8 @@ describe("EV Site Findings", () => {
 });
 
 describe("OUT-C U5 EV Site Findings early warnings", () => {
-  it("lists the board warnings under the list for the page window, without the Site name", async () => {
-    const warning = planWarning({ key: "CONNECTOR_OUT_OF_SERVICE:c1", badge: "RISK", title: "Connector c1 out of service", seen: "44 min out and 16 min unknown on 6 Oct" });
+  it("lists the board warnings under the list for the page window, with the Site name first (H1-1)", async () => {
+    const warning = planWarning({ key: "CONNECTOR_OUT_OF_SERVICE:c1", badge: "RISK", title: "Connector c1 out of service", seen: "44 min out and 16 min unknown on 6 Oct", site_code: "EV-LAB-001", site_name: "Depot Charging" });
     const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [warning] }) });
     mount("EV_CHARGING", ok(findings([item])), undefined, board.client);
     await settledScreen();
@@ -154,7 +154,7 @@ describe("OUT-C U5 EV Site Findings early warnings", () => {
     const list = document.querySelector("[data-early-warnings]") as HTMLElement;
     expect(list.closest("[data-ev-findings-index='loaded']")).not.toBeNull();
     expect(list.querySelector(".oc-kind")?.className).toBe("oc-kind risk");
-    expect(list.querySelector("small")?.textContent).toBe("Protect asset and capital · 44 min out and 16 min unknown on 6 Oct");
+    expect(list.querySelector("small")?.textContent).toBe("Depot · Protect asset and capital · 44 min out and 16 min unknown on 6 Oct");
     expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
   });
 

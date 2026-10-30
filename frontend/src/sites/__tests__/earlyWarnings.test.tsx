@@ -113,7 +113,7 @@ describe("OUT-C U5 early-warning list", () => {
     );
     await settledScreen();
     expect(loaded.calls).toEqual([{ siteCode: "GH-COLD-01", query: { from: "a", to: "b", known_at: null } }]);
-    expect(list().querySelector("small")?.textContent).toBe("Protect asset and capital · Due 2 Nov");
+    expect(list().querySelector("small")?.textContent).toBe("GreenHarvest · Protect asset and capital · Due 2 Nov"); // H1-1
     first.unmount();
     for (const read of [
       { status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" } as const,

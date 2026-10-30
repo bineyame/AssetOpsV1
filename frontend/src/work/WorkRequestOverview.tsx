@@ -143,13 +143,13 @@ function Lifecycle({ body }: { body: GlobalWorkDetailBody }) {
 const ORDINAL: Readonly<Record<number, string>> = { 2: "second", 3: "third", 4: "fourth", 5: "fifth" };
 const REPEATED_KIND = "REPEATED_MAINTENANCE_NO_RESULT";
 
-/** OUT-C U6: the repeat-visit notice sentence for a REPEATED warning (sheet U6, exact). */
-export function repeatVisitNotice(count: number, subject: string): string {
+/** OUT-C U6: the repeat-visit notice sentence for a REPEATED warning (Rulings C final review H1-5, exact; R572). */
+export function repeatVisitNotice(count: number, subject: string, faultName?: string | null): string {
   const ordinal = ORDINAL[count];
   const head = ordinal === undefined ? `This is visit ${count} to ${subject}` : `This is the ${ordinal} visit to ${subject}`;
   return (
-    `${head} in 60 days, and the linked finding is still open. Repeated work without a result costs money; no amount ` +
-    "is shown because a cost per visit is not set for this site."
+    `${head} in 60 days, and the ${faultName ?? "linked finding"} is still open. Repeated work without a result costs ` +
+    "money; no amount is shown because a cost per visit is not set for this site."
   );
 }
 
@@ -185,7 +185,7 @@ function RepeatVisitNotice({ board, siteCode, caseId }: { board: OutcomeBoardCli
   if (warning === null || warning.count === null || !warning.subject_label) return null;
   return (
     <Notice tone="amber" data={{ "data-work-request-repeat-notice": "" }}>
-      <p>{repeatVisitNotice(warning.count, warning.subject_label)}</p>
+      <p>{repeatVisitNotice(warning.count, warning.subject_label, warning.fault_name)}</p>
     </Notice>
   );
 }

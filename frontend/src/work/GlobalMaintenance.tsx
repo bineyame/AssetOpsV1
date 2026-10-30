@@ -11,7 +11,7 @@
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { Link } from "react-router-dom";
-import type { EstateClient } from "../estate/estateClient";
+import type { EstateClient, EstateOutcomeSummarySite } from "../estate/estateClient";
 import { useOutcomeSummary } from "../estate/useOutcomeSummary";
 import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
@@ -251,26 +251,58 @@ export function coveringUtcDays(query: GlobalWorkQuery | null): { from: string; 
   return { from: iso(lo), to: iso(hi) };
 }
 
-/** OUT-C U6 (replaces the retired "Repeat findings" card): REPEATED warnings in the estate summary. */
+/** Site first words joined as "A", "A and B" or "A, B and C" (Rulings C final review M2). */
+export function joinSiteNames(names: readonly string[]): string {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
+/**
+ * M2: a Site counts as checked for repeat visits when its board read is AVAILABLE and its Cost row is neither
+ * UNKNOWN nor NOT_MEASURED (R574). Returns the checked and unchecked Sites' first words.
+ */
+export function repeatCheckSites(sites: readonly EstateOutcomeSummarySite[]): { checked: string[]; unchecked: string[] } {
+  const checked: string[] = [];
+  const unchecked: string[] = [];
+  for (const s of sites) {
+    const cost = s.rows.find((r) => r.category === "OPTIMIZE_COST");
+    const ok = s.read_state === "AVAILABLE" && cost !== undefined && cost.state !== "UNKNOWN" && cost.state !== "NOT_MEASURED";
+    (ok ? checked : unchecked).push(s.site_name.split(" ")[0]);
+  }
+  return { checked, unchecked };
+}
+
+/** OUT-C U6 (replaces the retired "Repeat findings" card): REPEATED warnings in the estate summary (M2 states). */
 function RepeatVisitsCard({ estate, query }: { estate: Pick<EstateClient, "getOutcomeSummary">; query: GlobalWorkQuery | null }) {
   const days = coveringUtcDays(query);
   const summary = useOutcomeSummary(estate, days === null ? null : { ...days, known_at: query?.known_at ?? null });
   const data = { "data-global-work-card": "repeat_visits" };
-  if (days === null || summary === null || summary.status !== "loaded") {
-    return <MetricCard label={REPEAT_VISITS_LABEL} value="Not assessed" word note={REPEAT_VISITS_UNCHECKED} data={data} />;
-  }
+  const notAssessed = <MetricCard label={REPEAT_VISITS_LABEL} value="Not assessed" word note={REPEAT_VISITS_UNCHECKED} data={data} />;
+  if (days === null || summary === null || summary.status !== "loaded") return notAssessed;
   const repeated = summary.value.warnings.filter((w) => w.kind === REPEATED_KIND);
+  const { checked, unchecked } = repeatCheckSites(summary.value.sites);
   const first = repeated[0];
-  const note =
-    first === undefined ? (
-      REPEAT_VISITS_NONE
-    ) : (
+  if (first === undefined) {
+    if (checked.length === 0) return notAssessed;
+    if (unchecked.length > 0) {
+      const note = `None found at ${joinSiteNames(checked)}; not checked for ${joinSiteNames(unchecked)}`;
+      return <MetricCard label={REPEAT_VISITS_LABEL} value="Partly checked" word note={note} data={data} />;
+    }
+    return <MetricCard label={REPEAT_VISITS_LABEL} value="0" note={REPEAT_VISITS_NONE} data={data} />;
+  }
+  const note = (
+    <>
       <LinkOrText
-        link={{ label: `${first.subject_label ?? ""} · ${first.count ?? ""} visits, linked finding still open`, href: first.href }}
+        link={{
+          label: `${first.subject_label ?? ""} · ${first.count ?? ""} visits, ${first.fault_name ?? "linked finding"} still open`,
+          href: first.href,
+        }}
         data={{ "data-global-work-repeat-link": "" }}
       />
-    );
-  return <MetricCard label={REPEAT_VISITS_LABEL} value={String(repeated.length)} note={note} data={data} />;
+      {unchecked.length > 0 ? ` · not checked for ${joinSiteNames(unchecked)}` : null}
+    </>
+  );
+  return <MetricCard label={REPEAT_VISITS_LABEL} value={String(repeated.length)} tone="amber" note={note} data={data} />;
 }
 
 function Cards({

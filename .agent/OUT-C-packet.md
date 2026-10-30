@@ -66,7 +66,7 @@ assertion removed): `estatePortfolio`, `estateRoots`, `s404SiteFindingIndex`, `c
 
 - No OUT-C task file existed; `tasks/OUT-C-early-warnings.md` was created as a pointer to the sheet so it can carry `Status`.
 - WR notice reads `body.selected.site_code` (the sheet says `body.site_code`; the wire nests it under `selected`).
-- The list's category text is the backend category label ("Optimize cost and efficiency"); the mock prints short names.
+- The list's category text is the backend category label ("Optimize cost and efficiency"). This matches the mock: its `CATN` uses the full category names (`outcomes.js:11-16`). (Corrected in the final-review fix round, L4; the earlier "short names" claim was wrong.)
 - Maintenance "window over 31 days": the page parser already refuses such a window, so that branch is defensive and proven only
   by the `coveringUtcDays` unit test.
 - R358 row describes Incidents; a Maintenance note ("cards 2-3", R571) was appended instead of rewriting the row.
@@ -75,7 +75,7 @@ assertion removed): `estatePortfolio`, `estateRoots`, `s404SiteFindingIndex`, `c
 
 ## Residual risk
 
-- Estate surfaces have no real-data proof (P-C1 failed: the whole-day estate summary on w502 shows no REPEATED warning); carried to the combined dataset.
+- Estate surfaces have no real-data proof (P-C1 failed: the whole-day estate summary on w502 shows no REPEATED warning). P-C1 is structural, not a data gap: the cold read selects only a run whose window covers the request, so a combined dataset alone will not fix it. It is R575 (open), owned by the follow-up slice (Rulings C final review, P-C1 option A).
 - Full suites not yet run on this head; the Kobo b4 Postgres tests after the U4 MG-4 change are covered only by the U4 run.
 
 ## User-review focus
@@ -88,7 +88,8 @@ USER_REVIEW_REQUIRED: false for merge; the owner sees it in the post-sprint walk
 - Frontend full vitest (`frontend/`, `npx vitest run`): 3522 passed, 3 failed, 144 files (143 pass, 1 fail), 323 s. The 3 failures are the known
   `w1f4VerificationStructure` tests; no other failure (a duplicate run started by another agent was stopped by PID before this one finished;
   no unexpected failures appeared). Log `.agent/vitest-full.log` (ignored).
-- Backend `toolsun-backend-suite-in-container.ps1 -Tier all`: started 21:58 local, 4 workers, postgres-test, wall 2300 s (38m18s),
+- Backend `tools
+un-backend-suite-in-container.ps1 -Tier all`: started 21:58 local, 4 workers, postgres-test, wall 2300 s (38m18s),
   **4338 passed, 0 failed**, JUnit `errors=0 failures=0 skipped=0 tests=4338` (no `<skipped`). Run dir
   `var/test-results/OPS-03/20261030-215840-fd3ad2` (exit 0). No failure to rerun on main.
 - Captures at 1440 and 390, each with its v70 mock pair, in `.agent/OUT-C-captures/shots/` (tool `capture-outc.mjs`, targets `targets.json`,

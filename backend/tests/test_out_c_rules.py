@@ -52,6 +52,23 @@ def test_repeat_needs_two_completed_visits() -> None:
     assert w.evidence_refs[0] == {"kind": "WORK_CASE", "id": "c1", "label": "WR-1", "href": "/work/c1"}
     assert w.evidence_refs[2] == {"kind": "FINDING", "id": "f1", "label": None, "href": "/findings/f1"}
     assert w.visit_ids == ("c1", "c2")
+    assert w.fault_name == "linked finding"  # no fault name on record: the fallback
+
+
+def test_repeat_fault_name_only_when_every_open_link_agrees() -> None:
+    """Rulings C final review F1: one shared fault name, else "linked finding"."""
+    vs = (visit(1, TO - timedelta(days=5), links=("f1", "f2")), visit(2, TO - timedelta(days=2)))
+    two = {"f1": (F_KEYS, "/findings/f1"), "f2": (F_KEYS, "/findings/f2")}
+    start = "automatic start failure"
+    (w,) = evaluate(facts(visits=vs, open_findings=two, fault_names={"f1": start, "f2": start}))
+    assert w.fault_name == start
+    assert w.seen == f"generator-1 visited 2 times in 60 days (24 Oct, 27 Oct); the {start} is still open"
+    assert w.wire("S1", "x")["fault_name"] == start
+    (w,) = evaluate(facts(visits=vs, open_findings=two, fault_names={"f1": start}))
+    assert w.fault_name == "linked finding" and w.seen.endswith("the linked finding is still open")
+    (w,) = evaluate(facts(visits=vs, open_findings=two, fault_names={"f1": start, "f2": "other fault"}))
+    assert w.fault_name == "linked finding"
+    assert all(x.fault_name is None for x in evaluate(facts(MINI, reserve=(2, 3))))  # only REPEATED sets it
 
 
 def test_repeat_needs_an_open_linked_finding() -> None:
@@ -219,6 +236,6 @@ def test_wire_keys() -> None:
     body = w.wire("S1", "Kobo Mini-grid")
     assert list(body) == ["key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                           "persistence_label", "price_needs", "status_effect", "categories", "site_code",
-                          "site_name", "href", "evidence_refs", "count", "subject_label"]
+                          "site_name", "href", "evidence_refs", "count", "subject_label", "fault_name"]
     assert "subject" not in body and "visit_ids" not in body and "source_label" not in body
     assert (body["badge_label"], body["persistence_label"]) == ("Early warning", "Observed")

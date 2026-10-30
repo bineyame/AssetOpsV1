@@ -165,7 +165,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     out_text = None
     if out_connectors:
         first = out_connectors[0]
-        out_text = (f"Connector {first.get('label')} was out of service for "
+        out_text = (f"{connector_name(first.get('label'))} was out of service for "
                     f"{duration_text(first.get('known_unavailable_seconds'))}; which departures were affected is "
                     "not known yet.")
     missing_seconds = sum(int(x.get("unknown_seconds") or 0) for x in connectors) if availability else 0
@@ -243,10 +243,16 @@ def _session_service(ok: bool, fault: Any, unknown: Any, rc: Any) -> Contributor
                        f"{plural(unknown, 'outcome', 'outcomes')} unknown", rc)
 
 
+def connector_name(label: Any) -> str:
+    """No double prefix (the `warnings.py` rule): labels already read "Connector c1"."""
+    text = str(label)
+    return text if text.lower().startswith("connector") else f"Connector {text}"
+
+
 def _availability(body: Any, connectors: list, rc: Any) -> Contributor:
     if body is None:
         return Contributor("connector_availability", "Connector availability", NOT_LOADED)
-    parts = [f"Connector {x.get('label')}: {duration_text(x.get('known_unavailable_seconds') or 0)} out, "
+    parts = [f"{connector_name(x.get('label'))}: {duration_text(x.get('known_unavailable_seconds') or 0)} out, "
              f"{duration_text(x.get('unknown_seconds') or 0)} unknown" for x in connectors
              if (x.get("known_unavailable_seconds") or 0) > 0 or (x.get("unknown_seconds") or 0) > 0]
     return Contributor("connector_availability", "Connector availability", "; ".join(parts) or ALL_AVAILABLE, rc)

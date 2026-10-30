@@ -64,7 +64,17 @@ def test_protect_headline_counts_mg4_warnings() -> None:
     assert rows[PROTECT]["headline"] == "2 early warnings on battery and generator"
     assert rows[PROTECT]["state"] == "WATCH"
     _, rows = b2.run(b2.Fake(refuse=("plans",), dispatch={"intervals": [interval()]}))
+    assert rows[PROTECT]["headline"] == "Battery stayed clear of its reserve in 1 assessed generator period"
+    _, rows = b2.run(b2.Fake(refuse=("plans", "dispatch")))
     assert rows[PROTECT]["headline"] == mini.PROTECT_HEADLINE
+
+
+def test_protect_clear_headline() -> None:
+    """Rulings C final review L2."""
+    assert mini.protect_clear((0, 24)) == "Battery stayed clear of its reserve in 24 assessed generator periods"
+    assert mini.protect_clear((0, 1)) == "Battery stayed clear of its reserve in 1 assessed generator period"
+    assert mini.protect_clear((0, 0)) == mini.PROTECT_HEADLINE
+    assert mini.protect_clear(None) == mini.PROTECT_HEADLINE
 
 
 # --------------------------------------------------------------- EV
@@ -96,6 +106,17 @@ def test_connector_out_of_service_exactly_when_unavailable_time_exists() -> None
         ("Connector C2 out of service", "1 h 30 min out and 30 min unknown between 20 Oct and 21 Oct"),
         ("Connector C3 out of service", "10 min out between 20 Oct and 21 Oct")]
     assert all("None" not in w.seen for w in comp.facts.warnings)
+
+
+def test_connector_text_has_no_double_prefix() -> None:
+    """OUT-C review L1: labels that already read "Connector c1" are not prefixed again."""
+    assert ev.connector_name("Connector c1") == "Connector c1" and ev.connector_name("C2") == "Connector C2"
+    avail = {"availability": {"connectors": [
+        {"asset_id": "a-c1", "label": "Connector c1", "known_unavailable_seconds": 600, "unknown_seconds": 0}]}}
+    _, rows = ev_run(ev_availability=avail)
+    text = b3.contributor(rows[ev.PROTECT], "connector_availability")["text"]
+    assert text.startswith("Connector c1: 10 min out") and "Connector Connector" not in text
+    assert rows[ev.PROTECT]["subline"].startswith("Connector c1 was out of service for 10 min")
 
 
 def test_peak_fires_only_close_to_the_limit_and_needs_both_numbers() -> None:

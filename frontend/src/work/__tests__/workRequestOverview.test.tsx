@@ -689,13 +689,13 @@ describe("OUT-C U6 request page repeat-visit notice", () => {
   const notice = () => document.querySelector("[data-work-request-repeat-notice]") as HTMLElement | null;
   const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
   const THIRD =
-    "This is the third visit to generator-1 in 60 days, and the linked finding is still open. Repeated work without a " +
+    "This is the third visit to generator-1 in 60 days, and the automatic start failure is still open. Repeated work without a " +
     "result costs money; no amount is shown because a cost per visit is not set for this site.";
 
   it("showsTheThirdVisitNoticeAboveThePairWhenTheRepeatWarningNamesThisCase", async () => {
     const board = fakeOutcomeBoard({
       status: "loaded",
-      value: boardBody({ warnings: [planWarning(), outcomeWarning({ href: `/maintenance/requests/${CASE}` })] }),
+      value: boardBody({ warnings: [planWarning(), outcomeWarning({ href: `/maintenance/requests/${CASE}`, fault_name: "automatic start failure" })] }),
     });
     mount(PAGE, client(loaded(detail())), board.client);
     await settled();
@@ -728,5 +728,7 @@ describe("OUT-C U6 request page repeat-visit notice", () => {
     expect(repeatVisitNotice(4, "coil-1")).toMatch(/^This is the fourth visit to coil-1 in 60 days, /);
     expect(repeatVisitNotice(5, "coil-1")).toMatch(/^This is the fifth visit to coil-1 in 60 days, /);
     expect(repeatVisitNotice(6, "coil-1")).toMatch(/^This is visit 6 to coil-1 in 60 days, and the linked finding is still open\. /);
+    expect(repeatVisitNotice(3, "generator-1", null)).toContain(", and the linked finding is still open. ");
+    expect(repeatVisitNotice(3, "generator-1", "automatic start failure")).toContain(", and the automatic start failure is still open. ");
   });
 });

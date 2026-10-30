@@ -223,7 +223,7 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
 });
 
 describe("OUT-C U5 cold Site Findings early warnings", () => {
-  it("lists the board warnings under the list for the page window, without the Site name", async () => {
+  it("lists the board warnings under the list for the page window, with the Site name first (H1-1)", async () => {
     const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [outcomeWarning()] }) });
     renderIndex(ok(STOCKED), undefined, undefined, board.client);
     await settledScreen();
@@ -231,7 +231,7 @@ describe("OUT-C U5 cold Site Findings early warnings", () => {
     expect(board.calls).toEqual([{ siteCode: "COLD-001", query: { from: FROM, to: TO, known_at: KNOWN } }]);
     const list = document.querySelector("[data-early-warnings]") as HTMLElement;
     expect(panel().contains(list)).toBe(true);
-    expect(list.querySelector("small")?.textContent).toMatch(/^Optimize cost and efficiency · generator-1 visited 3 times/);
+    expect(list.querySelector("small")?.textContent).toMatch(/^GreenHarvest · Optimize cost and efficiency · generator-1 visited 3 times/);
     expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
   });
 
