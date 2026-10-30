@@ -1,12 +1,13 @@
 """OUT-C U3: GreenHarvest repeat visits on real Postgres (build sheet OUT-C §2 U3, acceptance 3 and P-C1).
 
 BUILDs the w502 `positive` dataset (with the OUT-C authored visits and plans) in `assetops_out_c_cold_test`, reads
-the board on the W5-01 window with no `known_at`, and records P-C1: the estate summary over the covering UTC day
-`[D, D+1)`. P-C1 is asserted only when GreenHarvest's summary Cost row reads NEEDS_ATTENTION with one warning;
-otherwise the honest state is printed and estate acceptance is carried to the combined dataset."""
+the board on the W5-01 window with no `known_at`, and asserts P-C1 (OUT-W, option A): the estate summary over the
+day `[D, D+1)` and the week `[D-6, D+1)` judges GreenHarvest on its latest selected window, where the Cost row reads
+NEEDS_ATTENTION with exactly one repeat warning and the Portfolio link opens the Site on that window."""
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime, timedelta, timezone
 
 from test_out_b4_board_postgres import _board, _case_db, _child, _client, _record, _serve, _states
@@ -37,12 +38,13 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
         assert [len(oc[k]) for k in ("cases", "records", "plans")] == [2, 2, 2], oc
         _record("out_c_authored", oc)
         _serve(monkeypatch, url, tmp_path)
+        windows = _spy_selected_windows(monkeypatch)
         lo, hi = doc["w501"]["window"]
         with _client() as c:
             body, _ = _board(c, "COLD-LAB-001", "out_c_cold_board", **{"from": lo, "to": hi})
             day = _day(lo)  # D: the w502 day (the W5-01 window lies inside it)
-            r = c.get("/api/estate/outcome-summary", params={"from": _z(day), "to": _z(day + timedelta(days=1))})
-            summary = (r.status_code, r.json())
+            summary = _summary(c, day, day + timedelta(days=1))
+            week = _summary(c, day - timedelta(days=6), day + timedelta(days=1))
 
     # the board (acceptance 3)
     warnings = body["warnings"]
@@ -77,19 +79,62 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
                 if any(k in w for w in warnings)]
     _record("out_c_cold_warnings", [(w["kind"], w["title"], w["seen"]) for w in warnings])
 
-    # P-C1: record, then branch
-    status, sbody = summary
-    site = next((s for s in sbody.get("sites") or () if s["site_code"] == "COLD-LAB-001"), None) if status == 200 \
-        else None
-    site_cost = next((r for r in (site or {}).get("rows") or () if r["category"] == "OPTIMIZE_COST"), None)
-    site_warnings = [w for w in sbody.get("warnings") or () if w["site_code"] == "COLD-LAB-001"] \
-        if status == 200 else []
-    passed = (site_cost is not None and site_cost["state"] == "NEEDS_ATTENTION"
-              and [w["kind"] for w in site_warnings].count(REPEATED) == 1)
-    _record("P-C1", {"status": status, "day": _z(day), "cost": site_cost, "warnings": [
-        (w["kind"], w["title"]) for w in site_warnings], "passed": passed,
-        "categories": sbody.get("categories") if status == 200 else sbody})
-    if passed:
+    # P-C1 (OUT-W): asserted on the day and on the week ending D
+    latest = {}
+    for key, (status, sbody, seconds) in (("day", summary), ("week", week)):
+        assert status == 200, sbody
+        site = next(x for x in sbody["sites"] if x["site_code"] == "COLD-LAB-001")
+        chosen = [w for w in windows if w["site_code"] == "COLD-LAB-001" and w["from"] == sbody["window"]["from"]]
+        assert len(chosen) == 1, windows
+        latest[key] = max(chosen[0]["windows"], key=lambda w: (w[1], w[0]))
+        site_cost = next(r for r in site["rows"] if r["category"] == "OPTIMIZE_COST")
+        site_warnings = [w for w in sbody["warnings"] if w["site_code"] == "COLD-LAB-001"]
+        _record("P-C1", {"period": key, "status": status, "day": _z(day), "window": site["window"],
+                         "window_basis": site["window_basis"], "overview_href": site["overview_href"],
+                         "w501_window": [lo, hi], "selected": chosen[0]["windows"], "cost": site_cost,
+                         "warnings": [(w["kind"], w["title"]) for w in site_warnings],
+                         "summary_seconds": seconds, "windows_read_seconds": chosen[0]["seconds"],
+                         "categories": sbody["categories"]})
+        assert site["window_basis"] == "LATEST_EVENT", site
+        assert (site["window"]["from"], site["window"]["to"]) == latest[key], (site["window"], latest[key])
+        assert site_cost["state"] == "NEEDS_ATTENTION" and site_cost["lead_outcome"]["key"] == "CC-3", site_cost
+        assert [w["kind"] for w in site_warnings].count(REPEATED) == 1, site_warnings
         counts = {x["category"]: x["warning_count"] for x in sbody["categories"]}
         assert counts["OPTIMIZE_COST"] >= 1
+        assert site["overview_href"].startswith("/sites/COLD-LAB-001?from="), site["overview_href"]
+        assert "known_at" not in site["overview_href"]
         assert money_hits(sbody["warnings"]) == []
+        assert chosen[0]["seconds"] < 2.0, chosen[0]  # sheet §7: the windows read adds under 2 s per Site
+    # the latest event in the week is still D's; record whether it is the W5-01 window itself
+    assert latest["week"] == latest["day"], latest
+    _record("P-C1 w501", {"latest": latest["day"], "w501": [lo, hi],
+                          "is_w501": latest["day"] == (_w(lo), _w(hi))})
+
+
+def _w(text: str) -> str:
+    return _z(datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc))
+
+
+def _summary(c, lo: datetime, hi: datetime) -> tuple[int, dict, float]:
+    start = time.perf_counter()
+    r = c.get("/api/estate/outcome-summary", params={"from": _z(lo), "to": _z(hi)})
+    return r.status_code, r.json(), round(time.perf_counter() - start, 3)
+
+
+def _spy_selected_windows(monkeypatch) -> list[dict]:
+    """Every `site_selected_windows` call the summary makes, with its wire-text result and its own wall time."""
+    from assetops_backend.estate.evidence_money import EstateEvidenceService
+
+    seen: list[dict] = []
+    real = EstateEvidenceService.site_selected_windows
+
+    def spy(self, tenant_id, site_code, from_, to, known_at=None):
+        start = time.perf_counter()
+        out = real(self, tenant_id, site_code, from_, to, known_at)
+        seen.append({"site_code": site_code, "from": _z(from_), "to": _z(to),
+                     "windows": None if out is None else [(_z(a), _z(b)) for a, b in out],
+                     "seconds": round(time.perf_counter() - start, 3)})
+        return out
+
+    monkeypatch.setattr(EstateEvidenceService, "site_selected_windows", spy)
+    return seen

@@ -1,0 +1,5 @@
+[
+ {"name": "maintenance", "url": "http://localhost:5471/maintenance", "mock": "maintenance",
+  "producer": "w502 positive", "db": "w502b_positive_outw_test",
+  "ready": "(() => { const c = document.querySelector('[data-global-work-card=\"repeat_visits\"]'); return !!c && !/Not assessed/.test(c.textContent); })()"}
+]

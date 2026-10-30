@@ -1,0 +1,13 @@
+[
+ {"name": "portfolio-day", "url": "http://localhost:5471/portfolio?from=2026-10-29T00:00:00Z&to=2026-10-30T00:00:00Z", "mock": "portfolio",
+  "producer": "w502 positive", "db": "w502b_positive_outw_test",
+  "click": "[data-portfolio-outcome-cell^='COLD-LAB-001|OPTIMIZE_COST|']", "expectHrefPrefix": "/sites/COLD-LAB-001?from=",
+  "clickOpenCategory": "OPTIMIZE_COST", "clickMock": "cold"},
+ {"name": "portfolio-week", "url": "http://localhost:5471/portfolio?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z", "mock": "portfolio",
+  "producer": "w502 positive", "db": "w502b_positive_outw_test",
+  "click": "[data-portfolio-outcome-cell^='COLD-LAB-001|OPTIMIZE_COST|']", "expectHrefPrefix": "/sites/COLD-LAB-001?from="},
+ {"name": "findings-cost-day", "url": "http://localhost:5471/findings/cost?from=2026-10-29T00:00:00Z&to=2026-10-30T00:00:00Z", "mock": "findings",
+  "producer": "w502 positive", "db": "w502b_positive_outw_test"},
+ {"name": "maintenance", "url": "http://localhost:5471/maintenance", "mock": "maintenance",
+  "producer": "w502 positive", "db": "w502b_positive_outw_test"}
+]

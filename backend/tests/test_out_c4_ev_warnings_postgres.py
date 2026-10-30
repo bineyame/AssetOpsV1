@@ -1,14 +1,21 @@
 """OUT-C U4: Depot (w504 positive) early warnings on real Postgres (build sheet OUT-C §2 U4, acceptance 4).
 
 Board on the E window: no PEAK warning (60 of 80 kW, R563); CONNECTOR_OUT_OF_SERVICE exactly when an availability
-connector has known unavailable time; whether CHARGER_FAULT fires is recorded (it cannot: no plan, R569)."""
+connector has known unavailable time; whether CHARGER_FAULT fires is recorded (it cannot: no plan, R569). OUT-W: the
+estate summary on 8 Oct (no event) judges Depot on the period with a plain link; on 6 Oct it refuses 409 (R577)."""
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import replace
+from datetime import datetime, timezone
 
 from test_out_b4_board_postgres import EV_BUILD, ROOT, _board, _case_db, _child, _client, _record, _serve
 from test_out_c1_never_money import money_hits
+
+
+def _utc(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00")).astimezone(timezone.utc)
 
 
 def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
@@ -36,6 +43,28 @@ def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
         monkeypatch.setattr(ev, "compose", compose)
         with _client() as c:
             body, _ = _board(c, "EV-LAB-001", "out_c_ev_board", **window)
+            monkeypatch.setattr(ev, "compose", spied)  # the summary's boards must not overwrite the E reads above
+            # OUT-W: the summary over 6 Oct (window E) and over 8 Oct (no event)
+            start = time.perf_counter()
+            r6 = c.get("/api/estate/outcome-summary", params={"from": "2026-10-06T00:00:00Z",
+                                                             "to": "2026-10-07T00:00:00Z"})
+            seconds = round(time.perf_counter() - start, 3)
+            r8 = c.get("/api/estate/outcome-summary", params={"from": "2026-10-08T00:00:00Z",
+                                                             "to": "2026-10-09T00:00:00Z"})
+        # Architect ruling (a), 2026-10-31, R577: on 6 Oct the estate scope read refuses for this build (a Finding
+        # in it has two selected revisions at one cutoff), so the summary honestly refuses 409 before composing a Site.
+        # FIX-01 owns the duplicate selected revision; once it lands, this flips to 200 with Depot LATEST_EVENT on
+        # window E: window == E, overview_href starting "/sites/EV-LAB-001/ev?from=", Protect equal to `body`'s.
+        _record("out_w_ev_summary_day6", {"status": r6.status_code, "body": r6.json(), "seconds": seconds})
+        assert r6.status_code == 409, r6.text
+        assert r6.json()["detail"]["code"] == "ESTATE_SELECTION_INCONSISTENT", r6.text
+        assert r8.status_code == 200, r8.text
+        depot8 = next(x for x in r8.json()["sites"] if x["site_code"] == "EV-LAB-001")
+        _record("out_w_ev_summary_day8", {k: depot8[k] for k in ("window", "window_basis", "overview_href")})
+        assert depot8["window_basis"] == "PERIOD", depot8
+        assert (_utc(depot8["window"]["from"]), _utc(depot8["window"]["to"])) == (
+            _utc("2026-10-08T00:00:00Z"), _utc("2026-10-09T00:00:00Z")), depot8["window"]
+        assert depot8["overview_href"] == "/sites/EV-LAB-001/ev", depot8["overview_href"]
 
     kinds = [w["kind"] for w in body["warnings"]]
     connectors = (((seen.get("availability") or {}).get("availability") or {}).get("connectors") or [])
