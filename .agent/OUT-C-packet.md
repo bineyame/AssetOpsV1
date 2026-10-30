@@ -112,3 +112,39 @@ un-backend-suite-in-container.ps1 -Tier all`: started 21:58 local, 4 workers, po
   targets needed a custom ready selector because the default "Loading" heuristic stayed false on pages that were fully rendered.
 - toolseck-all.ps1: All 11 guards passed.
 - Cleanup: all `_outc_test` DBs dropped, API/Vite/Chrome stopped by PID, no listeners left on 8971-8987/5471/5481/9621.
+
+## Final-review fix round (Rulings C, final review; review `OUT-C-review.md` at 0297540a)
+
+Commits: `04fa0d8a` (M1), `4b42b2ca` (rulings), and this packet commit.
+
+| Item | Done |
+|---|---|
+| F1 `fault_name` | `visits.py` `FAULT_NAMES` fills `WarningFacts.fault_names`; `warnings.py` `_repeated` sets `Warning.fault_name` when every open linked id maps to one name, else `LINKED_FINDING`; wire key `fault_name` (null off REPEATED); `OutcomeWarning.fault_name`. No new read; schema versions unchanged. |
+| H1-1 | `SiteEarlyWarnings` passes `showSite` (`EarlyWarnings.tsx`); the three Site Findings lists render through it. |
+| H1-2/3/5/6 | R572 copy: seen line, Cost contributor, `COST_SUBLINE_FAULT` (else `COST_SUBLINE`), `repeatVisitNotice(count, subject, faultName)`, card note. |
+| H1-4a | `cold.py`: `options[COST]` = the start-test option with Protect's `start_href` only when the start failure is a FINDING ref of the repeat warning. |
+| H1-4b / H1-6 | Risk badge kept (R573); card 4 `tone="amber"` when the count is >= 1. |
+| M2 | `repeatCheckSites` + six states in `RepeatVisitsCard`; "None in the last 60 days" only with every Site checked (R574). |
+| L2 | `mini.protect_clear`; strings in `COPY`. |
+| L1 | `ev.connector_name` at both sites. |
+| M1 | 648 paths untracked; 4 tracked remain, all also tracked on main e8cf8a36. |
+| L4 | Known deviations corrected (full names match the mock's `CATN`; P-C1 is structural, R575). |
+| Register | R572-R575 added; R575 open, owned by the P-C1 follow-up slice. |
+
+Checks (on 4b42b2ca plus the s404 test-expectation edit in this commit):
+- pytest, every non-Postgres `test_out_*` (plan2 venv, worktree PYTHONPATH): **196 passed**. Run once without
+  `PYTHONDONTWRITEBYTECODE`: `git status --short` empty afterwards (M1 confirmed).
+- `test_out_c3_repeat_visits_postgres.py` alone on `assetops_out_c_cold_test`: **1 passed** (28 s). It now asserts the
+  authored-data copy: `fault_name`, seen tail, Risk badge, Cost subline and contributor, Cost option href = Protect's.
+- vitest on 9 files (earlyWarnings, globalMaintenance, workRequestOverview, coldFindingIndex, evFindingIndex,
+  s404SiteFindingIndex, outcomeBoard, estatePortfolio, estateRoots): **200 passed**. `tsc --noEmit`: exit 0.
+- New vitest cases: one per M2 state (refused = existing case; no Site checked; partly checked; all checked = "0";
+  found + all checked, amber; found + unchecked, amber + " · not checked for GreenHarvest") and the cold-Site UNKNOWN
+  Cost never-"None" case. Pytest: fault_name agreement/fallback, Cost option present/absent, subline fallback,
+  `protect_clear` m = 24/1/0/None, no double "Connector" prefix, `fault_name` in the never-money walk.
+- Non-vacuity: weakening `repeatCheckSites` to `read_state === "AVAILABLE"` failed 4 card cases (including the
+  never-"None" case); reverted with `git checkout`, tree clean.
+- `tools\check-all.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv, no policy flag): **All 11 guards passed**.
+- Vocabulary scan (terms + w1.terms + w1.codes + w1 patterns, 107 patterns) on all 19 new viewer strings: 0 hits.
+- Not run, as instructed: full suites, browser and layout evidence. The card-4 amber tone and the Site-name prefix
+  are proven in vitest only; no new capture.

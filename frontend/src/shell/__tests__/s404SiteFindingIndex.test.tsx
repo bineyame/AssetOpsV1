@@ -620,9 +620,9 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
 });
 
 describe("OUT-C U5 mini Site Findings early warnings", () => {
-  it("lists the board warnings under the list for the UTC day of to, without the Site name", async () => {
+  it("lists the board warnings under the list for the UTC day of to, with the Site name first (H1-1)", async () => {
     const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
-    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [planWarning({ title: "Battery at or near its reserve" })] }) });
+    const board = fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [planWarning({ title: "Battery at or near its reserve", site_code: "KOBO-001", site_name: "Kobo Mini-grid" })] }) });
     renderAt(PATH, client, board.client);
     await settledScreen();
     await waitFor(() => expect(document.querySelector("[data-early-warnings]")).not.toBeNull());
@@ -630,7 +630,7 @@ describe("OUT-C U5 mini Site Findings early warnings", () => {
     const list = document.querySelector("[data-early-warnings]") as HTMLElement;
     expect(card().contains(list)).toBe(true);
     expect(list.querySelector("strong")?.textContent).toBe("Battery at or near its reserve");
-    expect(list.querySelector("small")?.textContent).toBe("Protect asset and capital · Due 2 Nov");
+    expect(list.querySelector("small")?.textContent).toBe("Kobo · Protect asset and capital · Due 2 Nov");
     expect(describeViolations(scanProductVocabulary(list, "site-findings", { set: "w1" }).violations)).toBe("");
   });
 
