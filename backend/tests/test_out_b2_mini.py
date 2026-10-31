@@ -83,7 +83,8 @@ class Fake:
             page = self._go("finding_index", None, lo, hi, cursor)
             if page is not None:
                 return page
-            return ({"rows": [F104], "next_cursor": "c2"} if cursor is None else {"rows": [F090], "next_cursor": None})
+            return ({"status": "CURRENT", "gaps": [], "rows": [F104], "next_cursor": "c2"} if cursor is None
+                    else {"status": "CURRENT", "gaps": [], "rows": [F090], "next_cursor": None})
 
         return MiniPorts(
             overview=lambda d: self._go("overview", OVERVIEW, d),
@@ -206,7 +207,7 @@ def test_unresolved_link_is_kept_and_recorded_not_on_the_wire() -> None:
 
 def test_out_of_window_finding_drives_no_issue() -> None:
     later = dict(F104, episode={"start": iso(T(10, 6)), "end": iso(T(10, 9))})
-    fake = Fake(finding_index={"rows": [later, F090], "next_cursor": None})
+    fake = Fake(finding_index={"status": "CURRENT", "rows": [later, F090], "next_cursor": None})
     comp, rows = run(fake)
     assert not any(i["kind"] == "FINDING" for r in rows.values() for i in r["issues"])
     assert [i["text"] for i in rows[COST]["in_hand"]] == ["ACT-048"]
@@ -293,12 +294,39 @@ def test_refused_finding_index_unsettles_finding_outcomes() -> None:
     _assert_finding_source_unsettled(*run(Fake(refuse=("finding_index",))))
 
 
+def _gap(day: str, state: str, reason: str = "NOT_CURRENT") -> dict:
+    return {"day": day, "state": state, "reason": reason}
+
+
+#: IDX-GAPS U2: the 31 requested days of the board's Finding window, ending on the board day DAY.
+REQUESTED = [(DAY - timedelta(days=30 - n)).isoformat() for n in range(31)]
+
+
 def test_pending_finding_index_unsettles_finding_outcomes() -> None:
-    for status in ("PENDING", "STALE", "FAILED"):
+    for status in ("PENDING", "STALE", "STALE_PROJECTION", "FAILED"):
         body = {"status": status, "rows": [], "next_cursor": None}
         _assert_finding_source_unsettled(*run(Fake(finding_index=body)))
-    comp, rows = run(Fake(finding_index={"status": "UNASSESSED", "rows": [F104, F090], "next_cursor": None}))
-    assert comp.facts.findings_settled and outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
+    # IDX-GAPS U2: an UNASSESSED body no longer settles as zero (v1 settled it with no rows)
+    unassessed = {"status": "UNASSESSED", "rows": [], "next_cursor": None, "withheld": False,
+                  "discovery": {"requested_days": REQUESTED}, "gaps": [_gap(d, "UNASSESSED") for d in REQUESTED]}
+    comp, rows = run(Fake(finding_index=unassessed))
+    _assert_finding_source_unsettled(comp, rows)
+    assert comp.facts.finding_gaps == {"text": "Not available yet · 31 of 31 days have no assessed readings",
+                                       "days": REQUESTED}
+    # PARTIAL whose gaps name the board day: unsettled
+    on_day = {"status": "PARTIAL", "rows": [], "next_cursor": None, "withheld": True,
+              "discovery": {"requested_days": REQUESTED},
+              "gaps": [_gap(DAY.isoformat(), "CURRENT", "WITHHELD_FINDING"), _gap(REQUESTED[3], "PENDING")]}
+    _assert_finding_source_unsettled(*run(Fake(finding_index=on_day)))
+    # PARTIAL with the board day CURRENT: settled on its true rows, and the gap line names the other days
+    other = {"status": "PARTIAL", "rows": [F104], "next_cursor": None, "withheld": False,
+             "discovery": {"requested_days": REQUESTED},
+             "gaps": [_gap(REQUESTED[0], "UNASSESSED"), _gap(REQUESTED[1], "UNASSESSED")]}
+    comp, rows = run(Fake(finding_index=other))
+    assert comp.facts.findings_settled and "finding_index" not in comp.failed
+    assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
+    assert comp.facts.finding_gaps == {"text": "Not available yet · 2 of 31 days have no assessed readings",
+                                       "days": REQUESTED[:2]}
 
 
 def test_missing_estate_row_is_partial_and_recorded() -> None:

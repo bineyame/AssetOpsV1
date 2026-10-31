@@ -66,6 +66,13 @@ const CURRENTNESS: Readonly<Record<string, Entry>> = {
     sentence: "This answer uses the latest readings that have been checked.",
     tone: "positive",
   },
+  PARTIAL: {
+    label: "Some days are not checked yet",
+    sentence:
+      "This list uses the days that have been checked. The days not checked yet are named below, and nothing is concluded about them.",
+    next: "Look again after the remaining days have been checked.",
+    tone: "limited",
+  },
   PENDING_REASSESSMENT: {
     label: "New readings call for another assessment",
     sentence: "Newer readings mean this period should be checked again. Until it is, the earlier answer is not current.",

@@ -342,6 +342,12 @@ function OutcomeBoardView({ body }: { body: OutcomeBoardBody }) {
       {body.rows.map((row) => (
         <Row key={row.category} row={row} />
       ))}
+      {/* IDX-GAPS (R610): the backend's note naming the days without assessed readings; never counted as none. */}
+      {body.finding_gaps ? (
+        <p className="v69-chart-note" data-outcome-finding-gaps>
+          {body.finding_gaps.text}
+        </p>
+      ) : null}
     </>
   );
 }
