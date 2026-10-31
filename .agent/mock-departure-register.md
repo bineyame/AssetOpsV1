@@ -1,4 +1,4 @@
-﻿# V69 mock departure register
+# V69 mock departure register
 
 Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final-review housekeeping). Register rows: 405 (R01 to R470; the ID gaps are reserved blocks). Status: 144 closed or resolved, 1 withdrawn, 1 superseded (R395), 1 duplicate (R224 of R207), 255 standing departures (D1 132, D2 69, D4 53, D5 1; "standing (owner)" means built, merged and still a departure), 1 backlog item (R386), and 2 open D3 rows (R328 backend public-code dependency, R374 security audit). D3 rows close only on a reviewed fix and paired recapture; a split parent row is closed with a pointer to the child row that carries the live departure.
 
