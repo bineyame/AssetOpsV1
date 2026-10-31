@@ -6166,3 +6166,16 @@ Branch `task/IDX-GAPS-finding-index-v2` (from main ca6d7d61b). Contract `AssetOp
 - Left open: R613 (estate Findings keep the all-days rule). Residual risk (probe, v1-identical): an unmatched cross-midnight Candidate block
   whose start day is a gap leaves the end day reading CURRENT 0 alone. b4 `two_board_days` Day A Cost NEEDS_ATTENTION, Day B Must-not-harm,
   ACT-048 checks stay with DEMO-SPARSE CO-1.
+
+## FIX-S4-DOMAIN - mini matcher reads only mini_grid / dispatch Findings (built, in_review)
+Branch `task/FIX-S4-domain-filter` (from main ee678cbe5). Ruling: `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` Addendum 3 ruling 1;
+packet `.agent/FIX-S4-DOMAIN-packet.md`.
+- `analytics/adapters/postgres_finding_store.py` `episodes(tenant_id, site_id, domain=DOMAIN, analytic_id=DISPATCH_ANALYTIC_ID)`
+  ("mini_grid" / "dispatch"); WHERE gains `f.domain = :d AND f.analytic_id = :a` (the `_index_snapshot` predicate). `FindingMatcher.match`
+  and the s4 test `stale_plan` call it with the defaults; no other implementer of `episodes` exists. `plan_pass` unchanged: a NULL
+  `episode_end` on a mini episode still fails loudly.
+- Tests: `test_s4_finding_domain_filter.py` (pure, recording connection: default and explicit params) and
+  `test_s4_finding_domain_filter_postgres.py` (open cold excursion Finding beside the F01 mini window; pass plans only the mini OPENED;
+  on the old store it failed with TypeError at `finding_episode.py:287`). The fixture disables the cold-consequence enqueue trigger inside
+  its own insert transaction (the mini Site has no COLD_ROOM).
+- Left open: the `_fence` revision count still spans every domain on the Site (a cold revision moves the mini fence; harmless re-plan).
