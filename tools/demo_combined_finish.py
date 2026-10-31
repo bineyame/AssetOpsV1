@@ -136,22 +136,25 @@ def co1(ctx: Ctx) -> dict:
     checked = [i for i in finding_issues(protect, k["finding"]) if i["text"].endswith(SAFEGUARD)]
     assert moves, cost["issues"]
     assert checked, protect["issues"]
-    # Addendum 3 ruling 2 (R552 open, pending the owner): the Action was accepted on the Finding's first revision; the
-    # post-apply assess refreshes day S's basis (revision 2, BASIS_REFRESHED), and the board links an Action only to
-    # its exact origin revision (`site_outcomes/board.py:468-470`). So day S's Cost row shows neither the Action's
-    # link on the Finding nor its Must-not-harm line: asserted as today's behaviour and recorded. The Action's own
-    # verification result still lists under `earlier` (CO-3's line); that is not the exact-revision link.
+    # Original §5 text, restored by LINK-LINEAGE §5: the board links the Action across the post-apply
+    # BASIS_REFRESHED revision of the same Finding (D-2026-10-31 refresh lineage), so day S's Cost row carries the
+    # Action's Must-not-harm line with its verification href and the Action itself.
     mnh = cost.get("must_not_harm") or {}
-    assert k["action"] not in (mnh.get("href") or ""), mnh
-    linked = [*cost.get("issues", []), *cost.get("in_hand", [])]
-    assert not any(k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "")
-                   for i in linked), linked
-    earlier = [i["text"] for i in cost.get("earlier", []) if k["action"] in (i.get("href") or "")]
+    href = mnh.get("href") or ""
+    assert k["action"] in href and "/verification?event_id=" in href, mnh
+    on_cost_row = [i["text"] for i in items(cost)
+                   if k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "")]
+    assert on_cost_row, items(cost)
     outside = [i["text"] for x in body["rows"] for i in items(x) if i["text"].endswith(OUTSIDE)]
-    assert not outside, outside
-    return {"cost_state": cost["state"], "finding": k["finding"], "must_not_harm": mnh or None,
-            "action_linked_on_cost_row": False, "action_in_earlier": earlier,
-            "r552": "open: exact-revision link (board.py:468-470), BASIS_REFRESHED split"}
+    assert outside == [], outside
+    outcomes = {o["key"]: (o["state"], o.get("reason")) for o in cost["outcomes"]}
+    mg2 = outcomes.get("MG-2")
+    branches = {"PRIMARY_FINDING_APPLIED": "WATCH", "OBJECTIVE_MISSED": "NEEDS_ATTENTION"}
+    assert mg2 is not None and mg2[1] in branches, outcomes
+    assert cost["state"] == branches[mg2[1]], (cost["state"], mg2)
+    return {"cost_state": cost["state"], "finding": k["finding"], "must_not_harm": mnh,
+            "action_on_cost_row": on_cost_row, "mg2": mg2, "branch": mg2[1],
+            "r552": "resolved: refresh lineage"}
 
 
 @row("CO-2", idx=True)
@@ -323,10 +326,12 @@ def _cov(c: dict | None) -> dict | None:
 
 @row("CO-6", idx=True)
 def co6(ctx: Ctx) -> dict:
-    """Addendum 2 ruling (i): the week S-6d..S+1d. It always holds the EV fault Tuesday (Tue <= S), so cold and EV
-    read their LATEST_EVENT; Kobo's estate coverage is UNKNOWN by the all-days rule (`estate/coverage.py:98-100`,
-    R613: a requested day with no available selection), so the Portfolio status is UNKNOWN; Kobo's outcome cells
-    are its day-S board (`mini_summary_day(to)` = S for the midnight `to`, `site_outcomes/read.py:138`)."""
+    """Addendum 2 ruling (i) with COV-PARTIAL §6: the week S-6d..S+1d. It always holds the EV fault Tuesday (Tue <= S),
+    so cold and EV read their LATEST_EVENT. Kobo's estate coverage on `estate-coverage/2` is PARTIAL: the checked days
+    are counted and every day with no run is named in `days.gaps`. The Portfolio status is PARTIAL or UNKNOWN, never
+    CURRENT, and since FIX-COLD-DRAIN never PENDING on undrained cold/EV money. Kobo's outcome cells are its day-S
+    board (`mini_summary_day(to)` = S for the midnight `to`, `site_outcomes/read.py:138`)."""
+    from assetops_backend.estate.coverage import DAYS_CHECKED, DAYS_WITHHELD
     from assetops_backend.estate.money_invariants import double_count_violations
 
     body, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
@@ -336,21 +341,36 @@ def co6(ctx: Ctx) -> dict:
     assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == basis.get(EV) == "LATEST_EVENT", basis
-    # the reason, from the data: Kobo days in the week with no run (so no available selection)
+    # the gap days, from the data: Kobo days in the week with no run (so no available selection)
     ran = {d["day"] for d in ctx.site_days("kobo") if d["kind"] != "missing"}
     week = [(ctx.day(n)).date().isoformat() for n in range(-6, 1)]
     unassessed = [d for d in week if d not in ran]
     assert unassessed, (week, sorted(ran))
     kobo = coverage.get(KOBO)
-    assert kobo is not None and kobo["state"] == "UNKNOWN" and kobo["source_freshness"] == "UNKNOWN", _cov(kobo)
-    assert body["status"] == "UNKNOWN", (body["status"], body.get("coverage", {}).get("state"))
+    assert kobo is not None, coverage
+    days = kobo.get("days") or {}
+    assert kobo["state"] == "PARTIAL", (_cov(kobo), days)
+    assert [g["day"] for g in days.get("gaps", [])] == unassessed, (days.get("gaps"), unassessed)
+    assert days.get("requested") == 7 and days.get("checked") == 7 - len(unassessed), days
+    g = len(unassessed)
+    text = DAYS_CHECKED.format(c=7 - g, n=7, g=g, unit="day" if g == 1 else "days")
+    if days.get("withheld"):
+        text += DAYS_WITHHELD
+    assert days.get("text") == text, (days.get("text"), text)
+    assert body["status"] in ("PARTIAL", "UNKNOWN") and body["status"] != "CURRENT", (
+        body["status"], body.get("coverage", {}).get("state"))
+    listed = [r["finding_id"] for r in body.get("rows", []) if r.get("site_code") == KOBO]
+    finding_listed = ctx.docs["kobo"]["finding"] in listed
+    if not days.get("withheld"):
+        assert finding_listed, (listed, body.get("total_count"))
     assert basis.get(KOBO) == "DAY" and (by_code[KOBO].get("window") or {}).get("from") == iso(ctx.S), by_code[KOBO]
     board = {r["category"]: r["state"] for r in _kobo_board_s(ctx)["rows"]}
     cells = {r["category"]: r["state"] for r in by_code[KOBO]["rows"]}
     assert cells == board, (cells, board)
-    return {"status": body["status"], "kobo_coverage": _cov(kobo), "kobo_unassessed_days": unassessed,
-            "reason": "a requested day has no available selection (estate/coverage.py:98-100, R613)",
-            "window_basis": basis, "kobo_cells_from_day_S": cells}
+    others = {code: _cov(coverage.get(code)) for code in (COLD, EV)}
+    return {"status": body["status"], "kobo_coverage": _cov(kobo), "kobo_days": days,
+            "kobo_unassessed_days": unassessed, "kobo_finding_in_rows": finding_listed,
+            "cold_ev_coverage": others, "window_basis": basis, "kobo_cells_from_day_S": cells}
 
 
 @row("CO-6b", idx=True)
@@ -360,6 +380,7 @@ def co6b(ctx: Ctx) -> dict:
     body, summary, coverage, by_code = _estate(ctx, ctx.S, ctx.day(1))
     kobo = coverage.get(KOBO)
     assert kobo is not None and kobo["state"] == "CURRENT", _cov(kobo)
+    assert (kobo.get("days") or {}).get("gaps") == [], kobo.get("days")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == "LATEST_EVENT", basis
     ev_on_s = any(d["day"] == ctx.S.date().isoformat() and d["kind"] != "missing" for d in ctx.site_days("ev"))
