@@ -220,3 +220,48 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(describeViolations(scan.violations)).toBe("");
   });
 });
+
+describe("OUT-E Earlier entry detail", () => {
+  const DETAIL =
+    "Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand · " +
+    "Supply cost per kWh before the trial: missed · after: met";
+
+  function withEarlier(earlier: { text: string; href: string | null; result_label: string | null; detail?: string | null }[]) {
+    const rows = boardRows();
+    rows[1] = { ...rows[1], earlier };
+    return { status: "loaded" as const, value: boardBody({ rows }) };
+  }
+
+  it("showsTheDetailAfterTheResultInsideTheEntry", async () => {
+    await renderBoard(withEarlier([
+      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on test data", detail: DETAIL },
+    ]));
+    const item = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='prev'] li") as HTMLElement;
+    expect(item.querySelector("small")?.textContent).toBe(DETAIL);
+    expect(item.querySelector(".oc-state")?.textContent).toBe("Verified on test data");
+    expect(item.textContent).toBe(`ACT-048 · Generator stop trial Verified on test data ${DETAIL}`);
+  });
+
+  it("rendersNoDetailWhenNullOrAbsent", async () => {
+    await renderBoard(withEarlier([
+      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Pending", detail: null },
+      { text: "Generator inspection", href: "/maintenance/requests/c-1", result_label: "Did not fix it" },
+    ]));
+    expect(rowEl("OPTIMIZE_COST").querySelectorAll("[data-outcome-col='prev'] li small")).toHaveLength(0);
+  });
+
+  it("detailPassesTheVocabularyScanAndSavesOnlyInNotRealisedSavings", async () => {
+    await renderBoard(withEarlier([
+      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on test data", detail: DETAIL },
+      { text: "ACT-049 · Generator stop trial", href: "/sites/KOBO-001/actions/a-2", result_label: "Not determined",
+        detail: "Modelled change not calculated: the trial result is not determined · Status changed; not attributed" },
+    ]));
+    const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
+    expect(describeViolations(scan.violations)).toBe("");
+    const text = board().textContent ?? "";
+    const hits = Array.from(text.matchAll(/sav(e|ed|ing)s?/gi)).map((m) => text.slice(Math.max(0, (m.index ?? 0) - 13), (m.index ?? 0) + m[0].length));
+    expect(hits.length).toBeGreaterThan(0);
+    expect(hits.every((h) => h === "not realised savings")).toBe(true);
+    for (const code of ["MODELLED_IMPROVEMENT", "OUTCOME_INCONCLUSIVE", "UNAVAILABLE", "candidate"]) expect(text).not.toContain(code);
+  });
+});

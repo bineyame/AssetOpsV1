@@ -111,7 +111,10 @@ def verification_ports(database_url: str | None) -> VerificationPorts:
     def provenance(tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> dict[str, Any]:
         return resolver.resolve(tenant_id, site_id, evidence_ids)
 
-    return VerificationPorts(day_status=day_status, provenance=provenance)
+    from assetops_backend.financials.composition import build_trial_comparison_ports
+
+    return VerificationPorts(day_status=day_status, provenance=provenance,
+                             trial_comparison=build_trial_comparison_ports(database_url))
 
 
 def build_action_service(database_url: str | None, finding_reads: Any,

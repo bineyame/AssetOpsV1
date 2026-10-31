@@ -97,6 +97,8 @@ export interface OutcomeInHandItem extends OutcomeLinkItem {
 
 export interface OutcomeEarlierItem extends OutcomeLinkItem {
   result_label: string | null;
+  /** OUT-E: the trial's modelled cost change and before/after line, joined by " · "; null when none applies. */
+  detail?: string | null;
 }
 
 export interface OutcomeMoney {

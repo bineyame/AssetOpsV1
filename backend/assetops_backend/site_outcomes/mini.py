@@ -24,7 +24,8 @@ from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
-    PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, readiness_confidence, unresolved_links)
+    PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
+    unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -69,6 +70,8 @@ OPTION_RESTORE = "Restore battery reporting"
 VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} not yet verified",
                      "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified on test data",
                      "INEFFECTIVE": "{code} did not meet its target", "INCONCLUSIVE": "{code} result not determined"}
+#: OUT-E E4: the Verified results line of a VERIFIED Action whose stored cost check shows a modelled improvement.
+VERIFIED_WITH_COST = "{code} verified on test data · modelled change {amount} {currency} less per kWh of feeder demand"
 PENDING_STATES = ("PENDING", "NO_PLAN", "REASSESSMENT_PENDING")
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 HIGH_CHIP = {"label": "High", "tone": "green"}
@@ -469,7 +472,9 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             None if origin.get("finding_revision_id") is None else str(origin["finding_revision_id"]),
             state.get("application") == "APPLIED", is_open, None if summary is None else summary.get("state"),
             (r.get("links") or {}).get("selected_event") or f"/sites/{c}/actions/{aid}?event_id={event_id}",
-            workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}"))
+            workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}",
+            cost_check=None if summary is None else summary.get("cost_check"),
+            trial_hours=None if summary is None else summary.get("trial_hours")))
     return tuple(out), has_change, tuple(missing)
 
 
@@ -614,6 +619,10 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
     for a in mine:
         state = a.verification_state
         text = VERIFICATION_TEXT.get(state or "", None)
+        cc = a.cost_check or {}
+        if state == "VERIFIED" and cc.get("state") == "MODELLED_IMPROVEMENT":
+            text = VERIFIED_WITH_COST.replace("{amount}", per_kwh_amount(cc)).replace(
+                "{currency}", cc.get("currency") or "")
         out.append(Contributor("verified_results", "Verified results",
                                text.format(code=a.code) if text else NOT_LOADED,
                                PENDING_CHIP if state in PENDING_STATES else None, a.verification_href))

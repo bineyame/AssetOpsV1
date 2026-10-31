@@ -2535,6 +2535,7 @@
       }
      },
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -2546,7 +2547,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -4309,6 +4311,7 @@
       }
      },
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -4320,7 +4323,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -6749,6 +6753,7 @@
       }
      },
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -6760,7 +6765,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -8598,6 +8604,7 @@
       }
      },
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -8609,7 +8616,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -10368,6 +10376,7 @@
       }
      },
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -10379,7 +10388,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -10476,6 +10486,7 @@
      },
      "site_code": "KOBO-001",
      "verification": {
+      "cost_check": null,
       "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
       "links": {
        "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -10487,7 +10498,8 @@
       "plan_id": null,
       "reasons": [],
       "state": "NO_PLAN",
-      "statement": "No verification plan is frozen for this Action."
+      "statement": "No verification plan is frozen for this Action.",
+      "trial_hours": null
      }
     },
     "request": {
@@ -12903,6 +12915,7 @@
      "unavailable": null,
      "verification": {
       "2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51": {
+       "cost_check": null,
        "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
        "links": {
         "evidence": "/api/sites/KOBO-001/actions/2ff40e70-da8c-45d8-a9f9-a0e4f7ec5a51/verification/evidence",
@@ -12914,7 +12927,8 @@
        "plan_id": null,
        "reasons": [],
        "state": "NO_PLAN",
-       "statement": "No verification plan is frozen for this Action."
+       "statement": "No verification plan is frozen for this Action.",
+       "trial_hours": null
       }
      }
     },

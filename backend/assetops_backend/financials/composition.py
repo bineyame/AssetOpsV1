@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Callable
+from uuid import UUID
 
 from assetops_backend.financials.adapters.postgres_assumption_store import (
     AssumptionStoreUnavailable,
@@ -25,7 +28,7 @@ __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailabl
            "PostgresConsequenceStore", "Published", "build_assumption_read_service", "build_assumption_store",
            "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
            "build_cold_consequence_store", "build_cold_consequence_worker", "build_ev_consequence_store",
-           "build_ev_consequence_worker",
+           "build_ev_consequence_worker", "build_trial_comparison_ports", "TrialComparisonPorts",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -125,3 +128,27 @@ def build_ev_depth_read_service(database_url: str):
 
     reads = build_ev_read_service(database_url)
     return EvDepthReadService(reads, EvSiteReads(reads, EvMoneyReads(build_link_rows_reader())))
+
+
+@dataclass(frozen=True)
+class TrialComparisonPorts:
+    """OUT-E E3: the trial cost-check store and the window price selection the verification hook reads."""
+
+    store: Any
+    price_selection: Callable[[UUID, UUID, datetime, datetime, datetime], Any]
+
+
+def build_trial_comparison_ports(database_url: str | None) -> TrialComparisonPorts:
+    """The cost-check store (sole writer of `trial_cost_comparison_revision`) and `price_selection(tenant, site,
+    start, end, known_at)`: the one diesel price over `[start, end)` from the assignments and revisions known at
+    `known_at` (`fuel_cost.select_window_price`)."""
+    from assetops_backend.financials import fuel_cost
+    from assetops_backend.financials.adapters.postgres_trial_comparison_store import PostgresTrialComparisonStore
+
+    prices = PostgresAssumptionStore(database_url)
+
+    def price_selection(tenant_id: UUID, site_id: UUID, start: datetime, end: datetime, known_at: datetime):
+        snap = prices.snapshot(tenant_id, site_id, fuel_cost.PRICE_KEY, known_at, 0, 1)
+        return fuel_cost.select_window_price(snap["timeline"], snap["cited"], start, end)
+
+    return TrialComparisonPorts(PostgresTrialComparisonStore(database_url), price_selection)

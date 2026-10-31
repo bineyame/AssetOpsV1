@@ -1,0 +1,41 @@
+API for assetops_s602b_oute_audit on http://127.0.0.1:8986
+API for assetops_s602b_oute_audit_guardrail (TEST-SCOPED guardrail) on http://127.0.0.1:8987
+Frontends, each in its own PowerShell window, from frontend/:
+  $env:ASSETOPS_API_PORT="8986"; npm.cmd run dev -- --port 5486 --strictPort
+  $env:ASSETOPS_API_PORT="8987"; npm.cmd run dev -- --port 5487 --strictPort
+Replayed Action ACT-000001 (e6cd917b-2efe-4ac8-a1e3-7482c86ed490), manifest backend/conversions/d-verification-window-v2.json
+  Finding (origin version)
+    http://localhost:5486/sites/KOBO-001/findings/a3a6d19e-fb14-4f7a-8070-dfaed247a60d?revision_id=5502e5fa-bb7a-4710-b20a-22888693e5d8
+  Recommendation with success panels
+    http://localhost:5486/sites/KOBO-001/findings/a3a6d19e-fb14-4f7a-8070-dfaed247a60d/recommendation?revision_id=5502e5fa-bb7a-4710-b20a-22888693e5d8
+  Action overview
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490
+  Plan (current)
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/plan
+  Evidence (current)
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/evidence
+  Verification (current: VERIFIED)
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/verification
+  Verification, exact outcome (Historical label)
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/verification?outcome_id=6156d81f-48dd-4975-ac0a-e1c176dba501
+  Plan, exact plan
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/plan?plan_revision_id=e7873ffc-3bfd-4262-bef5-9cc4958ef55d
+  Selector conflict
+    http://localhost:5486/sites/KOBO-001/actions/e6cd917b-2efe-4ac8-a1e3-7482c86ed490/verification?outcome_id=6156d81f-48dd-4975-ac0a-e1c176dba501&recorded_at=2026-10-16T01:00:00+00:00
+  Foundation change (later effect)
+    http://localhost:5486/sites/KOBO-001/foundation/changes/deeb1ad2-abd1-486b-ae56-f2e09c4a6c26
+TEST-SCOPED examples (not Lab runs) on the second frontend, port 5487, one case at a time (serve --case NAME):
+  [target_miss] TEST-SCOPED: Target not met (INEFFECTIVE, TARGET_MISS) - authored complete windows
+    http://localhost:5487/sites/KOBO-001/actions/7dd0486b-abc5-470f-b744-5db0059ffa84/verification
+  [guardrail] TEST-SCOPED: Trial missed a safety or service limit (INEFFECTIVE, GUARDRAIL_FAIL) and the hold on a different Finding - authored complete windows
+    http://localhost:5487/sites/KOBO-001/actions/13fb86b7-6bc2-4a8a-9e88-91d4a7a397c8/verification
+    hold: http://localhost:5487/sites/KOBO-001/findings/291b8eac-033c-4fec-a80a-b7ba9a6deb02/recommendation?revision_id=eb4aa688-d847-4502-b2ff-277b99fa1cd7
+  [inconclusive] TEST-SCOPED: Could not conclude (INCONCLUSIVE) - the real roles-2 windows are incomplete; no fake
+    http://localhost:5487/sites/KOBO-001/actions/57a27432-ecda-4f8f-8b03-9879baf5c250/verification
+  [withdrawn] TEST-SCOPED: VERIFIED, then late evidence: resolution withdrawn, overlap hold, re-settled INCONCLUSIVE - authored complete windows plus the real late reading
+    http://localhost:5487/sites/KOBO-001/actions/63de77a2-0d8e-4357-a4ab-0e0602cb6954/verification
+    hold: http://localhost:5487/sites/KOBO-001/findings/a0577cfe-5742-4a8c-aef0-06fb97840d28/recommendation?revision_id=6b526db3-ff3e-4d96-89f2-e757dc5e1795
+  [estate] TEST-SCOPED: Portfolio placement (CC-R2): the unconfirmed Finding on test-scoped readings; source not resolved, no Action
+    http://localhost:5487/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z
+  [verified] TEST-SCOPED: VERIFIED with the cost check (OUT-E): authored complete windows, generator 40 then 28 kWh, feeder 120 then 126 kWh, diesel price v1; stops at the first VERIFIED evaluation
+    http://localhost:5487/sites/KOBO-001/actions/4b110a47-974e-4c63-bcd3-2d8ee18a6bdd/verification

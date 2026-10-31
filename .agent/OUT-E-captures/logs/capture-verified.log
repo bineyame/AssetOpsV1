@@ -1,0 +1,4 @@
+chrome pid 7484
+FAIL  kobo-overview-verified 1440: shows "ACT-000001 verified on test data · modelled change 0.042–0.0"
+FAIL  kobo-overview-verified 390: shows "ACT-000001 verified on test data · modelled change 0.042–0.0"
+16/18 claims passed; captures 2

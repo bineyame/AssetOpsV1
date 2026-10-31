@@ -277,7 +277,7 @@ def test_closed_linked_finding_resolved_through_single_read() -> None:
     assert [args[0] for name, args in fake.calls if name == "ev_finding"] == ["f120"]  # only the missing link
     assert {f.finding_id for f in comp.facts.findings} == {"f130", "f120"} and comp.diagnostics == ()
     assert {"text": "MR-9 · Replace connector latch", "href": "/maintenance/requests/mr9",
-            "result_label": "Not yet verified"} in rows[PROTECT]["earlier"]
+            "result_label": "Not yet verified", "detail": None} in rows[PROTECT]["earlier"]
     assert "outside this view" not in str(rows)
 
 

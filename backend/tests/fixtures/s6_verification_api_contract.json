@@ -1841,6 +1841,14 @@
     }
    },
    "verification": {
+    "cost_check": {
+     "currency": null,
+     "nominal": null,
+     "reason": "PRICE_MISSING",
+     "recorded_at": "2026-11-02T12:00:00+00:00",
+     "state": "UNAVAILABLE",
+     "upper": null
+    },
     "label": "Simulated or authored policy trial verification. It compares two observed windows under a frozen plan; it makes no causal or savings claim, and a later RESOLVED can be withdrawn.",
     "last_outcome": "VERIFIED",
     "links": {
@@ -1855,7 +1863,11 @@
      "TARGET_AND_GUARDRAILS_PASS"
     ],
     "state": "VERIFIED",
-    "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim."
+    "statement": "Current outcome of a simulated/authored policy trial; no causal or savings claim.",
+    "trial_hours": {
+     "after_seconds": 0,
+     "before_seconds": 2700
+    }
    }
   },
   "evaluate_resettled": {
@@ -3281,6 +3293,7 @@
       "test-scoped-20261006T0800-108"
      ],
      "feeder_demand_kwh": "20",
+     "generator_kwh": "20",
      "guardrail_basis": "FIVE_MINUTE_SAMPLED",
      "guardrail_label": "five-minute sampled guardrail, not continuous physical SOC proof",
      "initial_soc": "50",
@@ -4685,6 +4698,7 @@
       "test-scoped-20261102T0800-108"
      ],
      "feeder_demand_kwh": "20",
+     "generator_kwh": "20",
      "guardrail_basis": "FIVE_MINUTE_SAMPLED",
      "guardrail_label": "five-minute sampled guardrail, not continuous physical SOC proof",
      "initial_soc": "50",

@@ -1,0 +1,22 @@
+﻿=== 1. Private tree (git HEAD) with its own var/ ===
+  C:\Users\assef\Bineyame\AssetOpsV1-outE\var\s602b_oute\tree (code from e18c6e225)
+=== 2. Databases assetops_s602b_oute_audit, assetops_s602b_oute_audit_target_miss, assetops_s602b_oute_audit_guardrail, assetops_s602b_oute_audit_inconclusive, assetops_s602b_oute_audit_withdrawn, assetops_s602b_oute_audit_estate, assetops_s602b_oute_audit_verified ===
+  created
+=== 3. Public replay of d-verification-window-v2 (about 4 minutes) ===
+  replay: VERIFIED e6cd917b-2efe-4ac8-a1e3-7482c86ed490 6156d81f-48dd-4975-ac0a-e1c176dba501
+=== 4. Test-scoped cases (S6-02a evaluator builders; not Lab runs), one database each ===
+  case target_miss: INEFFECTIVE ['TARGET_MISS'] action 7dd0486b-abc5-470f-b744-5db0059ffa84
+  case guardrail: INEFFECTIVE ['GUARDRAIL_FAIL', 'GUARDRAIL:below_reserve_seconds', 'GUARDRAIL:terminal_soc'] action 13fb86b7-6bc2-4a8a-9e88-91d4a7a397c8
+  case inconclusive: INCONCLUSIVE ['COMPARABILITY_UNKNOWN', 'GUARDRAIL_UNKNOWN:unserved_critical_energy', 'INCOMPLETE_BASELINE_WINDOW', 'INCOMPLETE_LATER_WINDOW', 'SOURCE_NOT_COHERENT'] action 57a27432-ecda-4f8f-8b03-9879baf5c250
+  case withdrawn: INCONCLUSIVE ['GUARDRAIL_UNKNOWN:below_reserve_seconds', 'INCOMPLETE_LATER_WINDOW'] action 63de77a2-0d8e-4357-a4ab-0e0602cb6954
+  case estate: no Action (CC-R2-Q6); ('NEEDS_INVESTIGATION', ['EVIDENCE_SOURCE_UNKNOWN', 'LIFECYCLE_UNCONFIRMED'])
+  case verified: VERIFIED ['TARGET_AND_GUARDRAILS_PASS'] action 4b110a47-974e-4c63-bcd3-2d8ee18a6bdd
+=== 5. Performance comparison (releases the Finding reads) ===
+  assetops_s602b_oute_audit: Performance cutover: permitted
+  assetops_s602b_oute_audit_target_miss: Performance cutover: permitted
+  assetops_s602b_oute_audit_guardrail: Performance cutover: permitted
+  assetops_s602b_oute_audit_inconclusive: Performance cutover: permitted
+  assetops_s602b_oute_audit_withdrawn: Performance cutover: permitted
+  assetops_s602b_oute_audit_estate: Performance cutover: permitted
+  assetops_s602b_oute_audit_verified: Performance cutover: permitted
+Prepared. Next: serve, then capture.

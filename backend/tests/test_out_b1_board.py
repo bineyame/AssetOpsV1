@@ -119,11 +119,13 @@ def test_applied_action_moves_to_earlier_with_checked_entry() -> None:
     assert rows[COST]["state"] == "WATCH"  # D4 (R542)
     assert rows[COST]["in_hand"] == []
     assert rows[COST]["earlier"] == [{"text": "ACT-048",
-                                      "href": "/sites/KOBO-001/actions/a48", "result_label": "Pending"}]
+                                      "href": "/sites/KOBO-001/actions/a48", "result_label": "Pending",
+                                      "detail": None}]
     assert rows[COST]["earlier_empty_text"] is None
     assert rows[PROTECT]["earlier"] == [{
         "text": "Reliable service and battery and generator life checked as safeguards in ACT-048",
-        "href": "/sites/KOBO-001/actions/a48/verification?event_id=e1", "result_label": "Pending"}]
+        "href": "/sites/KOBO-001/actions/a48/verification?event_id=e1", "result_label": "Pending",
+        "detail": None}]
 
 
 def test_earlier_result_labels_for_mini_action() -> None:
@@ -215,7 +217,7 @@ def test_cold_protect_lists_domain_action_in_hand_and_completed_request_not_yet_
     assert p["in_hand"] == [{"text": "DA-1 · Witnessed automatic-start test", "href": "/sites/C/actions/da1",
                              "state_label": "Open"}]
     assert p["earlier"] == [{"text": "MR1 · Inspect mr1", "href": "/maintenance/requests/mr1",
-                             "result_label": "Not yet verified"}]
+                             "result_label": "Not yet verified", "detail": None}]
 
 
 def test_later_request_on_same_asset_marks_earlier_did_not_fix_it() -> None:

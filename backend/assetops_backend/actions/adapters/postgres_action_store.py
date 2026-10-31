@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
@@ -39,6 +40,9 @@ from assetops_backend.actions.reserve_trial import (
 )
 
 RESERVE_TYPE = "BATTERY"
+#: OUT-E E3: the generator fuel rate `sfc_history` reads (`financials.fuel_cost.SFC_PROPERTY`/`SFC_UNIT`)
+SFC_FIELD = "specific-fuel-consumption"
+SFC_UNIT = "L/kWh"
 
 ACTION_COLUMNS = ("id, tenant_id, site_id, action_no, action_code, recommendation_key, acceptance_key, "
                   "acceptance_payload_sha256, origin_finding_id, origin_finding_revision_id, "
@@ -606,6 +610,35 @@ class PostgresActionStore:
             return out
         return self._read(work)
 
+    def sfc_history(self, tenant_id: UUID, site_id: UUID, generator_asset_id: Any, start: datetime, end: datetime,
+                    known_at: datetime) -> list[Any]:
+        """OUT-E E3: the generator's `specific-fuel-consumption` (L/kWh) on each FoundationRevision overlapping
+        `[start, end)` as known at `known_at` (the `reserve_history` shape), as `mini_depth.rules.SfcValue` with that
+        revision's validity. A revision whose generator component lacks exactly one L/kWh value gives no entry."""
+        from assetops_backend.mini_depth.rules import SfcValue
+
+        def work(c):
+            codes = {r.id: r.asset_code for r in c.execute(text(
+                "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"),
+                {"t": tenant_id, "s": site_id})}
+            code = next((v for k, v in codes.items() if str(k) == str(generator_asset_id)), None)
+            rows = self._rows(c.execute(text(
+                "SELECT id, version, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t "
+                "AND site_id = :s AND valid_from < :hi AND (valid_to IS NULL OR valid_to > :lo) "
+                "AND recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k) ORDER BY valid_from"),
+                {"t": tenant_id, "s": site_id, "lo": start, "hi": end, "k": known_at}))
+            out = []
+            for row in rows if code is not None else ():
+                found = [p for comp in (row["content"] or {}).get("components") or ()
+                         if str(comp.get("component_id")) == str(code)
+                         for p in comp.get("properties") or () if p.get("property_key") == SFC_FIELD]
+                value = finite_decimal(found[0].get("value")) if len(found) == 1 else None
+                if value is None or found[0].get("unit") != SFC_UNIT:
+                    continue  # none, several, wrong unit or malformed: the cost check reads SFC_MISSING
+                out.append(SfcValue(row["id"], value, row["valid_from"], row["valid_to"]))
+            return out
+        return self._read(work)
+
     def freeze_plan(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], *,
                     check: Callable[[Any, list[dict[str, Any]]], None]) -> tuple[dict[str, Any], bool]:
         """Insert one immutable plan revision under the battery trial lock, or return the plan already frozen
@@ -936,6 +969,17 @@ class PostgresActionStore:
             f"WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi{created}"
             f"{recorded} ORDER BY e.recorded_at, e.id"), p))
         return {"actions": actions, "events": events}
+
+
+def finite_decimal(value: Any) -> Decimal | None:
+    """OUT-E E3 review L2: an authored numeric value as a finite Decimal, else None (`mini_depth.inputs._decimal`)."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        out = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    return out if out.is_finite() else None
 
 
 def _basis(row: dict[str, Any], assets: dict[str, UUID]) -> FoundationBasis:

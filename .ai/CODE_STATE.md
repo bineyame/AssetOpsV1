@@ -6118,3 +6118,22 @@ Branch `task/OUT-D-declared-objectives` (from main 833e7c95, OUT-W merged in). C
   when all read / no clause otherwise. Explainer paragraph: a declared objective is not the customer's target.
 - Left open: no On track on the demo data (R585; CC-1 On track proven on fakes only); `objective_site_count` is 1 per producer DB, never 3
   (no combined dataset, R535); Depot estate summary 409 (R577, FIX-01). Register R580-R586 + R542 note.
+
+## OUT-E - cost check after the generator trial (built, in_review)
+Branch `task/OUT-E-cost-proof` (from main b94aee17). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-E.md`; packet `.agent/OUT-E-packet.md`;
+history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/OUT-E2-3-review.md` (REVISE, fixed); E4 Architect ruling option b.
+- Schema: CC-M merged (0036 productive-use kind, 0037 `trial_cost_comparison_revision`); empty merge `0039_merge_objectives_cc` (down 0037+0038) is
+  the head; the 20 head-literal files and `mini_depth_probe` name it; 0036/0037 docstrings reworded only.
+- `verification_rules.window_evidence` returns `generator_kwh` (outside `plan_sha256` and stored `details`; served on the evidence read).
+- `financials/trial_fuel_comparison.py` (pure, Fraction): `compare()` per kWh of feeder demand, 11 reasons in 0037 order, `basis_sha256`.
+- Writer `financials/adapters/postgres_trial_comparison_store.py` (INSERT-only, idempotent on basis and on key+payload; recorded at the service
+  clock); `financials/composition.build_trial_comparison_ports`; `VerificationPorts.trial_comparison`; guard `$trialComparisonWriter` + probes
+  in `tools/checks/test_estate_guard.py`.
+- Hook (no route): `VerificationService.evaluate` -> `_after_new_outcome` on a non-replayed new VERIFIED/INEFFECTIVE/INCONCLUSIVE outcome;
+  `_window_replay` + `_cost_check` (key `auto:{outcome_id}`, cost 0, SYSTEM demo actor); failures logged, never a rollback.
+  `PostgresActionStore.sfc_history` (+ `finite_decimal`). Every evaluator test now appends one revision (PRICE_MISSING without a price).
+- Read: `summary()` adds `cost_check`, `trial_hours`; board Earlier items carry `detail` (ACT in a MOVES row: Cost line on Optimize cost,
+  before/after on a zero MG-2 target, attributed only on VERIFIED); mini Assure `VERIFIED_WITH_COST`; frontend renders `detail` as `<small>`.
+- s602b case `verified` (40/28 kW generator, 60/63 kW loads, price v1); `complete_windows` gains 4 kW params and carries `trial_comparison`.
+- Left open: R595 - on real s602b data the board day's Finding index is UNASSESSED, so the Action sits under Protect with no detail; the
+  Cost-row line is proven on fakes only until the combined dataset. No re-run command (R592).
