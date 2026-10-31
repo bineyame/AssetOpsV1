@@ -139,3 +139,23 @@ Guards: `check-all.ps1` 11/11 at `f320ac636`; `test_demo_story_days.py` 18 passe
 
 Resume: wait for the coordinator (new Kobo trial scenario from the SCN lane, IDX-GAPS merge); then the full
 three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeout as listed above.
+
+## State 2026-10-31 (third implementer, after Addendum 1 of the DEMO-SPARSE sheet)
+
+- `2d836485e` merged main `89280952d` (IDX-GAPS): `finding_index.POLICY_VERSION == "finding-index/2"`, so the [IDX]
+  rows of `demo_combined_finish.py` and `test_demo_combined_postgres.py` now run (no skip). One conflict, in
+  `.agent/mock-departure-register.md`: took main's R595 (resolved by IDX-GAPS) + R610-R613, kept R615/R616/R618, and
+  added **R619** (Depot's story hour on the Tuesday on or before S; Portfolio/links on the week period).
+- `be0d21b88` Addendum 1 (a): CO-6 reads `/api/estate/portfolio` and `/outcome-summary` over `from=S-6d&to=S+1d`;
+  `links` prints the Portfolio on that week and, per Site, every story day from `days.json` with its kind and board
+  URL (EV shows its Tuesdays). `mini_summary_day(to)` (`site_outcomes/read.py:138`) returns the previous day for a
+  midnight `to`, so `to = S+1d 00:00` resolves Kobo to S: confirmed by reading the code. On the EV build the week
+  outcome-summary gives EV `LATEST_EVENT` (read, 200).
+- **Predicted CO-6 risk, not forced:** `estate/coverage.py:98-100` marks the Site `UNKNOWN` when any day in the
+  period has no available selection (R613's all-days rule). Kobo has runs only on S-3 and S inside S-6d..S+1d, so
+  CO-6's `body["status"] == "CURRENT"` may fail on the full build. If it does, record it with this cause and take it
+  to the Architect; do not loosen the row.
+- (b) `ev-interrupted`: CO-9 and the EV half of CO-10 held on the single-site build (above). Cold degraded Finding
+  kept; SP-2 stays on S-7. Overcast day list unchanged (720-min change withdrawn).
+- Guards: `check-all.ps1` 11/11 at `be0d21b88`; `test_demo_story_days.py` 18 passed.
+- Next: wait for the coordinator (the SCN trial result decides the trial kinds); then the full three-site prepare.
