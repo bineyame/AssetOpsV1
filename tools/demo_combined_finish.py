@@ -195,7 +195,7 @@ def sp3(ctx: Ctx) -> dict:
     gaps = next((n["finding_gaps"] for n in walk(body) if isinstance(n.get("finding_gaps"), dict)), None)
     assert gaps is not None, "no finding_gaps on the Kobo board"
     lo = ctx.day(-30).date()
-    assessed = {d["day"] for d in ctx.site_days("kobo") if d["has_run"] and lo <= at(d["day"] + "T00:00:00Z").date()
+    assessed = {d["day"] for d in ctx.site_days("kobo") if d["received_at"] is not None and lo <= at(d["day"] + "T00:00:00Z").date()
                 <= ctx.S.date()}
     g = 31 - len(assessed)
     assert gaps["text"] == GAPS_TEXT.format(g=g), (gaps["text"], g)
@@ -324,7 +324,7 @@ def co6(ctx: Ctx) -> dict:
     body, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     codes = sorted({o["site_code"] for o in body["objectives"]})
     assert codes == sorted([KOBO, COLD, EV]), codes
-    assert double_count_violations(body, financials_body=None) == []
+    assert double_count_violations(body, financials=None) == []
     assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
     basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == basis.get(EV) == "LATEST_EVENT", basis
