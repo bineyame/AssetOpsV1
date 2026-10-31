@@ -20,9 +20,10 @@ T, S = UUID(int=1), UUID(int=2)
 def test_limits_and_lease_budget() -> None:
     limits = TickLimits()
     assert (limits.opportunity_jobs_per_site, limits.opportunity_seconds) == (10, 120)
-    assert limits.site_lease_seconds == 120 + 120 + 120 + 120 + 60 + 60
+    # FIX-COLD-DRAIN adds the two 120 s cold/EV assessment and the two 60 s cold/EV drain bounds.
+    assert limits.site_lease_seconds == 120 + 120 + 120 + 120 + 60 + 2 * 120 + 2 * 60 + 60
     # u4b: the literal default, so a future stage change forces an explicit budget review.
-    assert limits.site_lease_seconds == 600
+    assert limits.site_lease_seconds == 960
     assert OPPORTUNITY_JOB_LEASE_SECONDS == 300 == MiniOpportunityWorker(None, None).lease.total_seconds()
     for bad in (0, -1, 300, 301):
         with pytest.raises(ValueError, match="OPPORTUNITY stage bound"):
@@ -38,9 +39,11 @@ def test_order_args_and_counts() -> None:
     runner = FakeRunner({"opportunity": {"code": "OK", "processed": 2, "deferred": 1, "failed": 1}})
     store = FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "mini", "opportunity", "s4", "consequence"]
-    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "MINI", "OPPORTUNITY", "S4", "CONSEQUENCE"]
-    _, args, seconds = runner.calls[2]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
+                                          "ev_consequence"]
+    assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "OPPORTUNITY", "S4",
+                                                               "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE"]
+    _, args, seconds = runner.calls[4]
     assert args == {"tenant_id": str(T), "site_id": str(S), "limit": 10} and seconds == 120
     assert ("record_opportunity", (2, 1, 1)) in store.calls
     assert site.result == "COMPLETED" and site.stages["opportunity"]["processed"] == 2
@@ -50,7 +53,8 @@ def test_order_args_and_counts() -> None:
 def test_failed_stage_is_reported_without_counts_and_later_stages_run(code) -> None:
     runner, store = FakeRunner({"opportunity": {"code": code, "error": "child died"}}), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "mini", "opportunity", "s4", "consequence"]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
+                                          "ev_consequence"]
     assert not [c for c in store.calls if c[0] == "record_opportunity"]  # the prior durable counts are kept
     assert site.failure == ("OPPORTUNITY", code, "child died") and site.result == "FAILED"
     assert store.calls[-1] == ("release", ("OPPORTUNITY", code, "child died"))
@@ -62,7 +66,8 @@ def test_failed_stage_is_reported_without_counts_and_later_stages_run(code) -> N
 def test_lost_claim_stops_before_the_opportunity_stage() -> None:
     runner, store = FakeRunner(), FakeStore(lose="OPPORTUNITY")
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "mini"] and site.result == "CLAIM_LOST"
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini"]
+    assert site.result == "CLAIM_LOST"
     assert site.failure[0] == "OPPORTUNITY" and not [c for c in store.calls if c[0] == "release"]
 
 
