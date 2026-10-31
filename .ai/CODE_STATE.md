@@ -6179,3 +6179,22 @@ packet `.agent/FIX-S4-DOMAIN-packet.md`.
   on the old store it failed with TypeError at `finding_episode.py:287`). The fixture disables the cold-consequence enqueue trigger inside
   its own insert transaction (the mini Site has no COLD_ROOM).
 - Left open: the `_fence` revision count still spans every domain on the Site (a cold revision moves the mini fence; harmless re-plan).
+
+## LINK-LINEAGE - the board links an Action across basis-only Finding revisions (built, in_review)
+Branch `task/LINK-LINEAGE-board-action` (from main 15eed62c8). Sheet `AssetOpsV1-plan2/.agent/build-sheet-LINK-LINEAGE.md`;
+decision `D-2026-10-31-board-action-refresh-lineage`; packet `.agent/LINK-LINEAGE-packet.md`.
+- `site_outcomes/board.py`: pure `refresh_chain(revisions, origin_id, shown_id)` (sheet §2; reads only revisions up to
+  the shown one) and `BASIS_REFRESHED`; `FindingFact.refreshed_from: tuple[str, ...] = ()` (last field);
+  `assemble`'s join is `linked_actions` (exact revision or `origin_revision_id in f.refreshed_from`), used only by the
+  applied signal and Must-not-harm. Earlier lists keep their `origin_finding_id` join.
+- `site_outcomes/mini.py`: `MiniPorts.finding_history` (default `lambda f, r: None`) and `_lineage` after `_actions`:
+  one `finding_history` read per Finding, only when a non-domain Action points at another revision of it; a raise is a
+  `failed` port (PARTIAL), None links nothing. Cold/EV unchanged (domain Actions only, never joined).
+- `site_outcomes/read.py`: `BoardServices.finding_reads` and the `finding_history` port (finding-index gate, then
+  `FindingReadService.history` paged at 500 through `jsonable_encoder`); `composition.py`/`main.py` pass the app's
+  `finding_reads`.
+- Tests: `test_link_lineage.py` (P1-P3, N1-N11, B1-B3, N6), `test_out_b2_mini.py` M1-M6b (M6 crosses the real
+  `FindingReadService.history` and the B4 port), `test_out_b4_main_binding.py` (wiring), b4/e4 Postgres pins compute
+  the rule inline from the history route (`_expected_link`).
+- Open: estate Finding->Action join stays exact (C5); R552 stays open until DEMO-SPARSE CO-1 passes on the combined
+  dataset (DEMO-A edits `tools/demo_combined_finish.py` co1 after this merges).
