@@ -499,8 +499,12 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
                 </td>
                 <td data-portfolio-scope-coverage>
                   {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}
+                  {/* COV-PARTIAL MOCK DEVIATION R620: the unchecked days on their own line; v70 has no day gaps. */}
                   {s.coverage.state === "PARTIAL" && (s.coverage.days?.gaps.length ?? 0) > 0 ? (
-                    <small data-portfolio-scope-gaps> Days not checked yet: {gapDayList(s.coverage.days)}</small>
+                    <>
+                      <br />
+                      <small data-portfolio-scope-gaps>Days not checked yet: {gapDayList(s.coverage.days)}</small>
+                    </>
                   ) : null}
                   {s.source_provenance === null ? <small> · No selected source basis</small> : null}
                 </td>

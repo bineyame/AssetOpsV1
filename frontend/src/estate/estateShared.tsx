@@ -155,6 +155,7 @@ const SITE_STATE_WORDS: Readonly<Partial<Record<EstateSiteState, { text: string;
   STALE_SOURCE: { text: "This result may miss newer readings.", tone: "amber" },
   HISTORICAL: { text: "Earlier evidence cutoff", tone: "neutral" },
   UNKNOWN: { text: "Not yet assessed", tone: "amber" },
+  // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
   PARTIAL: { text: "Some days not checked yet", tone: "amber" },
 };
 
@@ -182,6 +183,7 @@ export function limitationSentences(body: EstateEnvelope, partial: string): stri
   if (body.status === "HISTORICAL") out.push(EARLIER_CUTOFF);
   if (states.has("PENDING_RECOMPUTE")) out.push(PENDING_EVIDENCE);
   if (states.has("STALE_SOURCE")) out.push("Some sites' results may miss newer readings.");
+  // COV-PARTIAL MOCK DEVIATION R622: the mock has no day gaps.
   if (states.has("PARTIAL")) out.push("Some sites have days not checked yet.");
   if (body.coverage.state !== "COMPLETE") out.push(partial);
   return out;

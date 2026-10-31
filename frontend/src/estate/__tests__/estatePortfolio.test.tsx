@@ -1121,7 +1121,12 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(context.querySelectorAll("[data-portfolio-partial]")).toHaveLength(1);
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
     const kobo = drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]");
-    expect(text(kobo)).toBe("Mini-grid · Partly checked Days not checked yet: 11 Oct, 12 Oct");
+    // review L1: the unchecked days sit on their own line under the coverage words
+    const beforeBreak = Array.from(kobo?.childNodes ?? []);
+    expect(beforeBreak.slice(0, beforeBreak.findIndex((n) => n.nodeName === "BR")).map((n) => n.textContent).join("")).toBe(
+      "Mini-grid · Partly checked",
+    );
+    expect(kobo?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
     expect(text(kobo?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Days not checked yet: 11 Oct, 12 Oct");
     expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Partly checked · Value withheld");
     // no state code on screen, in a title or in an aria-label
@@ -1140,6 +1145,16 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     );
     expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe(
       "Days not checked yet: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct, 8 Oct",
+    );
+  });
+
+  // review L7: exactly 7 unchecked days still list them in the note (the switch is > 7)
+  it("partlyCheckedSiteWithSevenGapsStillListsTheDays", async () => {
+    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"];
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
+    await settledScreen();
+    expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
+      "Kobo: 7 of 14 days checked · 7 days not available yet · not checked: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct",
     );
   });
 

@@ -115,7 +115,7 @@ export function consequenceWords(consequence: EstateConsequence, rowStatus: stri
   if (consequence.state === "PRICED" && consequence.amount_low !== null && consequence.amount_high !== null) {
     return `${consequence.amount_low}–${consequence.amount_high} ${consequence.currency ?? ""}`.trim();
   }
-  // COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none).
+  // COV-PARTIAL MOCK DEVIATION R622: a partly checked Site's row never shows an amount (the backend sends none).
   if (rowStatus === "PARTIAL") {
     return `Partly checked · ${consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "Value withheld"}`;
   }
@@ -242,7 +242,7 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
   const missing = body.coverage.sites.filter(
     (site) => !(site.state === "PENDING_RECOMPUTE" && site.selection_id !== null) && (site.state === "UNKNOWN" || site.selection_id === null),
   );
-  // COV-PARTIAL: partly checked Sites name their checked days from the backend's `days.text`.
+  // COV-PARTIAL MOCK DEVIATION R622: partly checked Sites name their checked days from the backend's `days.text`.
   const partial = body.coverage.sites.filter((site) => site.state === "PARTIAL" && site.days?.text);
   if ([...pending, ...missing, ...partial].some((site) => !names.has(site.site_id))) return generic;
   const partialNames = partial.map((site) => names.get(site.site_id));
