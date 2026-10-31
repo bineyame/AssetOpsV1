@@ -21,7 +21,7 @@ Sources: `AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md` (wins where it dif
   110 s/run + 60 before U6), total 813 s, cap 1480 s. **Still to do in U3:** the child's unit check
   (`GET /api/sites/KOBO-001/finding-index?domain=mini-grid-dispatch&from=S&to=S+1` holds the accepted Finding).
 - **U4: code committed, not exercised yet**: `add-day` command (`demo_combined.py`, `.busy` lock, delivered-days query), Kobo child
-  `add-day` (the dev `days.json` predates the `doc` key: rebuild or add `doc` before trying add-day); `links` lists story days + boards S/S-7/S-28; `serve` prints next-day `add-day` commands.
+  `add-day`; `links` lists story days + boards S/S-7/S-28; `serve` prints next-day `add-day` commands.
 - U5 (cold, EV on the day list), U6 (self-check child `tools/demo_combined_finish.py`, slow build test, register
   R615/R616/R618, carry-over R535/R552/R569/R595): not started.
 
