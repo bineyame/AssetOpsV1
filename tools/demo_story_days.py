@@ -31,6 +31,17 @@ PAST_MARGIN = timedelta(minutes=5)
 ADD_DAY_KINDS = {"kobo": ("normal", "overuse", "overcast", "late", "missing", "degraded"),
                  "cold": ("normal", "degraded", "late"), "ev": ("normal", "late")}
 LATE_AS = ("normal", "overuse")
+#: A Site whose registered model admits only one weekday: its story days fall back to that weekday on or before
+#: the listed day (Monday = 0). ev-charger/1 is ruled TUESDAY 08:00-16:00 and refuses any other day
+#: (`host/ev_publication.py` `ev_parameters`, "the run window ... is not within one TUESDAY").
+SITE_WEEKDAY = {"ev": 1}
+
+
+def weekday_offset(site: str, S: datetime, offset: int) -> int:
+    """`offset` moved back to the Site's ruled weekday (unchanged for a Site without one)."""
+    if site not in SITE_WEEKDAY:
+        return offset
+    return offset - ((S + timedelta(days=offset)).weekday() - SITE_WEEKDAY[site]) % 7
 DEFAULT_KNOWN_AT = "D-1d 12:00"
 _DAY = re.compile(r"^S([+-]\d+)d$")
 _TIME = re.compile(r"^D([+-]\d+)d (\d{2}):(\d{2})$")
@@ -96,7 +107,7 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
     kind = entry.get("kind")
     if kind not in kinds:
         raise StoryDaysError("UNKNOWN_KIND", f"{site} kind {kind!r} is not one of {sorted(kinds)}")
-    off = day_offset(entry["day"])
+    off = weekday_offset(site, S, day_offset(entry["day"]))
     D = S + timedelta(days=off)
     spec = dict(kinds[kind])
     as_kind = None
@@ -192,7 +203,8 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
         raise StoryDaysError("PREPARE_ONLY_KIND", f"{site} kind {kind!r} carries work rows or Actions; add-day takes "
                                                   f"only {ADD_DAY_KINDS[site]}")
     mine = [r for r in current if r.site == site]
-    offset = day_offset(day) if day else (max(r.offset for r in mine) + 1 if mine else 0)
+    step = 7 if site in SITE_WEEKDAY else 1  # the next free ruled weekday
+    offset = weekday_offset(site, S, day_offset(day) if day else (max(r.offset for r in mine) + step if mine else 0))
     D = S + timedelta(days=offset)
     date = D.date().isoformat()
     if date in delivered_days:

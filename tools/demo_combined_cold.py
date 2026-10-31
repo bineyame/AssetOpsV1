@@ -14,7 +14,10 @@ alone (no work rows). No test module is edited; this child swaps, in its own pro
 - `producer.target_delta` -> the day's 16:00 start; `producer.BASE_SCENARIO` -> the kind's registered scenario;
 - `producer.shifted_case` -> always the `ordinary` mode, while the chain's `case` carries the day's unique epoch
   (gateway epoch `cold-ordinary-day-<n>`, attestation keys), so several days share one Site;
-- the w202 Batch V2 ingestion clock -> the day's `received_at` (D 17:05) instead of wall time.
+- the w202 Batch V2 ingestion clock -> the day's `received_at` (D 17:05) instead of wall time;
+- `ShiftedChain.attest`'s recording instant (`datetime.now`) -> the day's setup instant (start - 1 h): with the
+  knowledge cutoff at `received_at`, an attestation recorded at wall time is not yet known, so every reading
+  would be excluded `CLOCK_UNATTESTED` and no Finding written (first dev prepare, 2026-10-31).
 
 The Site is installed once at `cold.install_at` (S-26d 06:00); each later `install_cold_lab` is idempotent.
 """
@@ -25,7 +28,7 @@ import json
 import os
 import sys
 import tempfile
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import demo_story_days as sd
@@ -64,7 +67,22 @@ def _day_swaps(P, w202, base, day: "sd.DayRun"):
     w202.PostgresEvidenceLedger = lambda u, **kw: PostgresEvidenceLedger(
         u, **{"test_decision_clock_override": lambda: received, **kw})
     w202.BatchIngestionService = lambda ledger, _clock: BatchIngestionService(ledger, lambda: received)
-    P.ShiftedChain = lambda m, tmp: base(f"{m}-{day.epoch}", tmp)
+    recorded = day.start - timedelta(hours=1)
+
+    class _RecordedNow(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return recorded.astimezone(tz or timezone.utc)
+
+    class DayChain(base):
+        def attest(self) -> None:
+            saved, P.datetime = P.datetime, _RecordedNow
+            try:
+                super().attest()
+            finally:
+                P.datetime = saved
+
+    P.ShiftedChain = lambda m, tmp: DayChain(f"{m}-{day.epoch}", tmp)
     return P.ShiftedChain
 
 

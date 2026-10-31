@@ -99,8 +99,10 @@ def _restore(registered, P, saved: dict) -> None:
     registered.RunSetupService = saved["_RunSetupService"]
 
 
-def write_work(url: str, built, story: dict, asset_id: str, tag: str) -> dict:
-    """The fault day's connector visits and plan (`story.json` `ev`), the Kobo child's `write_work` pattern."""
+def write_work(url: str, built, story: dict, asset_id: str, tag: str, shift: timedelta = timedelta(0)) -> dict:
+    """The fault day's connector visits and plan (`story.json` `ev`), the Kobo child's `write_work` pattern.
+    `shift` is the fault day's move back to the ruled Tuesday (`demo_story_days.SITE_WEEKDAY`): the story's S-relative
+    instants move with it, so the visits and the plan keep their places before the fault."""
     from test_w401_work_service_postgres import PRINCIPAL, event, plan, record, request
     from assetops_backend.work.composition import build_work_service
 
@@ -110,7 +112,7 @@ def write_work(url: str, built, story: dict, asset_id: str, tag: str) -> dict:
     out = {"asset_id": asset_id, "visits": [], "plans": []}
     try:
         for v in e["visits"]:
-            when, key = at(v["at"]), f"demo3-ev-{v['key']}-{tag}"
+            when, key = at(v["at"]) + shift, f"demo3-ev-{v['key']}-{tag}"
             s, case = work.create_case(tenant, site, request(key, title=v["title"], occurred_at=iso(when),
                                                              asset_id=asset_id, finding_links=[]), PRINCIPAL)
             assert s == 201, (v["key"], s, case)
@@ -129,6 +131,8 @@ def write_work(url: str, built, story: dict, asset_id: str, tag: str) -> dict:
             out["visits"].append({"key": v["key"], "id": case["id"], "code": case.get("code"),
                                   "record_id": rec["id"], "occurred_at": iso(when)})
         for p in e["plans"]:
+            p = {**p, "at": iso(at(p["at"]) + shift),
+                 "due_at": None if p["due_at"] is None else iso(at(p["due_at"]) + shift)}
             s, pl = work.post_plan(tenant, site, plan(
                 f"demo3-ev-{p['key']}-{tag}", asset_id=asset_id, title=p["title"], trigger_kind=p["trigger_kind"],
                 next_due_at=p["due_at"], next_due_hours=p["due_hours"], occurred_at=p["at"]), PRINCIPAL)
@@ -153,7 +157,7 @@ def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: d
                        "raised_at": declared["R"]}, "intent_id": declared["intent"].get("id"),
             "finding_id": declared["selection"]["finding_id"],
             "finding_revision_id": declared["selection"]["finding_revision_id"],
-            "work": write_work(url, built, story, asset_id, tag)}
+            "work": write_work(url, built, story, asset_id, tag, timedelta(days=day.offset))}
 
 
 def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: dict | None = None) -> dict:

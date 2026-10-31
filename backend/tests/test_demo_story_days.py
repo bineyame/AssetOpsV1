@@ -60,6 +60,23 @@ def test_default_file_validates_on_relative_dates(s):
     assert sum(r.has_run for r in runs if r.site == "kobo") == 7
 
 
+@pytest.mark.parametrize("s", [S, datetime(2026, 11, 3, tzinfo=timezone.utc), datetime(2027, 3, 1, tzinfo=timezone.utc)])
+def test_ev_days_fall_back_to_the_ruled_tuesday(s):
+    """ev-charger/1 runs only on a TUESDAY (`host/ev_publication.py` `ev_parameters`): each EV day is the Tuesday on
+    or before its listed day; other Sites keep the listed day."""
+    runs = sd.resolve(sd.load(), s)
+    ev = {r.kind: r for r in runs if r.site == "ev"}
+    for r in ev.values():
+        assert datetime.fromisoformat(r.day).weekday() == 1 and r.start.weekday() == 1, (r.kind, r.day)
+    assert -6 <= ev["fault"].offset <= 0 and ev["normal"].offset == ev["fault"].offset - 7
+    assert s.weekday() != 1 or ev["fault"].offset == 0
+    cold = {r.kind: r for r in runs if r.site == "cold"}
+    assert cold["failure"].offset == 0 and cold["normal"].offset == -7
+    current = [r for r in runs]
+    nxt = sd.plan_add_day(sd.load(), current, "ev", "normal", s, s + timedelta(days=30))
+    assert nxt.offset == ev["fault"].offset + 7 and datetime.fromisoformat(nxt.day).weekday() == 1
+
+
 def test_unknown_kind():
     doc = copy.deepcopy(sd.load())
     doc["sites"]["kobo"].append({"day": "S-5d", "kind": "sunny"})
