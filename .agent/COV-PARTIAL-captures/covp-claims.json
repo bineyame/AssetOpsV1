@@ -1,0 +1,176 @@
+[
+  {
+    "name": "API: Portfolio status PARTIAL with at least one partly checked Site",
+    "ok": true,
+    "detail": {
+      "status": "PARTIAL",
+      "sites": [
+        [
+          "KOBO-001",
+          "MINIGRID",
+          "PARTIAL",
+          "3 of 7 days checked · 4 days not available yet",
+          [
+            "2026-10-16",
+            "2026-10-17",
+            "2026-10-18",
+            "2026-10-20"
+          ]
+        ]
+      ]
+    }
+  },
+  {
+    "name": "API: estate Findings root status not CURRENT",
+    "ok": true,
+    "detail": {
+      "status": "UNKNOWN",
+      "total_count": null,
+      "rows": 4
+    }
+  },
+  {
+    "name": "loaded http://localhost:5444/portfolio?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop Portfolio partial note",
+    "ok": true,
+    "detail": {
+      "badge": "Some days not checked yet",
+      "sentence": "Portfolio: Partly checked",
+      "notes": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet · not checked: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "overflow": -15,
+      "lines": 1,
+      "expectNotes": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet · not checked: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "codes": null
+    }
+  },
+  {
+    "name": "desktop scope drawer gap list",
+    "ok": true,
+    "detail": {
+      "cells": [
+        "Mini-grid · Partly checked Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "gaps": [
+        "Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "overflow": -15,
+      "expectGaps": [
+        "Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "codes": null
+    }
+  },
+  {
+    "name": "loaded http://localhost:5444/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop estate Findings partly checked line",
+    "ok": true,
+    "detail": {
+      "panel": [
+        "Kobo mini-grid is partly checked; totals are unknown."
+      ],
+      "expectPanel": "Kobo mini-grid is partly checked; totals are unknown.",
+      "expectNotice": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet."
+      ],
+      "rowsPartly": [
+        "Partly checked · No consequence recorded"
+      ],
+      "overflow": -15,
+      "codes": null
+    }
+  },
+  {
+    "name": "loaded http://localhost:5444/portfolio?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow Portfolio partial note",
+    "ok": true,
+    "detail": {
+      "badge": "Some days not checked yet",
+      "sentence": "Portfolio: Partly checked",
+      "notes": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet · not checked: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "overflow": 0,
+      "lines": 2,
+      "expectNotes": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet · not checked: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "codes": null
+    }
+  },
+  {
+    "name": "narrow scope drawer gap list",
+    "ok": true,
+    "detail": {
+      "cells": [
+        "Mini-grid · Partly checked Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "gaps": [
+        "Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "overflow": 0,
+      "expectGaps": [
+        "Days not checked yet: 16 Oct, 17 Oct, 18 Oct, 20 Oct"
+      ],
+      "codes": null
+    }
+  },
+  {
+    "name": "loaded http://localhost:5444/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow estate Findings partly checked line",
+    "ok": true,
+    "detail": {
+      "panel": [
+        "Kobo mini-grid is partly checked; totals are unknown."
+      ],
+      "expectPanel": "Kobo mini-grid is partly checked; totals are unknown.",
+      "expectNotice": [
+        "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet."
+      ],
+      "rowsPartly": [
+        "Partly checked · No consequence recorded"
+      ],
+      "overflow": 0,
+      "codes": null
+    }
+  }
+]

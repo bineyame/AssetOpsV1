@@ -4349,6 +4349,9 @@ Owner approval (verbatim, `.agent/owner-client-demo-sequence-2026-10-30.md`): "a
 Board exception (the single approved change to the board rules): the mini board settles its Finding source on PARTIAL only when the board day itself is not a gap, and shows the backend gap line "Not available yet · {g} of {n} days ..."; categories, statuses, Must-not-harm and placement are unchanged.
 Estate unchanged: estate Findings over a multi-day period keep the all-days rule (register R613, open); the Portfolio mini cells follow the board.
 Register: R610-R613 added; R595 resolved by IDX-GAPS (400d1096b).
+
+Decision: `D-2026-10-31-estate-coverage-v2` (Architect: Claude, build sheet COV-PARTIAL). Owner, verbatim (`.agent/owner-client-demo-sequence-2026-10-31.md`): "yes to both, go ahead". A live mini-grid Site whose estate period has at least one day without an assessed selection and whose selected days are all current is PARTIAL, with `days {requested, checked, gaps[], withheld, text}`; it lists Findings from checked days (withholding any that touch a gap day) with no amount, contributes no money, count or covered Site, makes every estate root status Unknown and the Portfolio status Partial (never Current). Any gap beside pending, stale or unknown work, and any historical gap, keeps Unknown. No schema bump (policy `estate-coverage/2` on the wire). Resolves R613; adds R620-R622.
+
 Decision: `D-2026-10-31-board-action-refresh-lineage` (Architect: Claude, build sheet LINK-LINEAGE). Owner, verbatim
 (`.agent/owner-client-demo-sequence-2026-10-31.md`): "yes to both, go ahead". The Site outcome board links a mini
 Action to the shown revision of its origin Finding also when every revision after the origin, up to the shown one, is

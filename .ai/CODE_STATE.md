@@ -6179,6 +6179,31 @@ packet `.agent/FIX-S4-DOMAIN-packet.md`.
   on the old store it failed with TypeError at `finding_episode.py:287`). The fixture disables the cold-consequence enqueue trigger inside
   its own insert transaction (the mini Site has no COLD_ROOM).
 - Left open: the `_fence` revision count still spans every domain on the Site (a cold revision moves the mini fence; harmless re-plan).
+## COV-PARTIAL - estate coverage estate-coverage/2 (built, in_review)
+Branch `task/COV-PARTIAL-estate-coverage` (from main 15eed62c8). Contract `AssetOpsV1-plan2/.agent/build-sheet-COV-PARTIAL.md`
+plus Addendum 1. Packet `.agent/COV-PARTIAL-packet.md`. Decision `D-2026-10-31-estate-coverage-v2`.
+- `estate/coverage.py` `_mini_grid_basis` adds `PARTIAL` (not in `COVERED`). An unchecked day sets `gap`. PARTIAL needs
+  all four: a live read, `len(days) == _requested_days(from, to)`, at least one selected day, and every selected day
+  clean. Any other gap folds into `unknown`, which is today's rule byte for byte.
+- PARTIAL rows: every head `analytics.finding_index.touched` puts on a gap day is dropped (open end read as `k`). The
+  rest go through `_mini_grid_money(..., withhold=True)`, so a PRICED row reads UNKNOWN with its revision and no amount.
+- `days` sits on every mini-grid coverage and is None on a day-count mismatch, for cold, EV and Actions, and on
+  `not_applicable()`. `text` comes from `DAYS_CHECKED`/`DAYS_WITHHELD` and is only set when PARTIAL.
+- `estate/index.py` `_status`: PARTIAL ranks as UNKNOWN. `_coverage_site` projects `days`. Scope `covered_site_count`
+  still counts only COVERED, so a PARTIAL Site is shown but not counted.
+- `estate/portfolio.py`: `PARTIAL_STATUS`, placed after PENDING. It applies when some Site has F, E and M all PARTIAL and
+  every other Site has no U unit.
+- Frontend: `EstateSiteState` and `EstatePortfolioStatus` gain PARTIAL; `EstateCoverageSite.days?` is
+  `EstateCoverageDays`. New: the `gapDayList` helper, the Portfolio context note `[data-portfolio-partial]` (R620),
+  the drawer `[data-portfolio-scope-gaps]` and `partialConsequence`. On the Findings side: "Partly checked · ..." in
+  `consequenceWords`, plus the `findingCauseCopy` panel and per-Site notice (R622).
+- Tests: `test_cov_partial.py` (T1-T12), `test_cov_partial_portfolio.py` (S1-S6, X1, X2), `test_cov_partial_postgres.py`;
+  vitest blocks in `estatePortfolio.test.tsx` and `estateRoots.test.tsx`.
+- Golden `w301-estate-golden.json`: 39 added `days` keys, plus the KOBO-001 flips in scope-mixed and findings-mixed-week
+  (Addendum 1 Q1).
+- Open: CO-6 in `tools/demo_combined_finish.py` belongs to DEMO-A. Evidence and Financials show a PARTIAL Site through
+  their existing "Some Sites are still being assessed" line; their rows carry day states, never PARTIAL. R621 means a
+  historical gap stays Unknown.
 
 ## LINK-LINEAGE - the board links an Action across basis-only Finding revisions (built, in_review)
 Branch `task/LINK-LINEAGE-board-action` (from main 15eed62c8). Sheet `AssetOpsV1-plan2/.agent/build-sheet-LINK-LINEAGE.md`;

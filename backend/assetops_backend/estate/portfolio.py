@@ -17,7 +17,7 @@ from typing import Any, Iterable
 from urllib.parse import quote
 
 from assetops_backend.estate.coverage import (
-    COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PENDING)
+    COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
     CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope,
     site_home_href)
@@ -40,6 +40,8 @@ PORTFOLIO_ORDER = ("group_rank asc, episode_start desc nulls last, site_code_key
 MEMBERS = ("SUPPORTED", "UNCONFIRMED")
 COMPLETE, PARTIAL, UNKNOWN_STATE = "COMPLETE", "PARTIAL", "UNKNOWN"
 CURRENT_STATUS, HISTORICAL_STATUS, PENDING_STATUS, UNKNOWN_STATUS = "CURRENT", "HISTORICAL", "PENDING", "UNKNOWN"
+#: COV-PARTIAL §3: some Site is partly checked and every other Site is settled; never Current.
+PARTIAL_STATUS = "PARTIAL"
 #: Closure 5 S4 unit classes: settled and known, unresolved, proven non-applicable.
 G, U, N = "G", "U", "N"
 _UNSETTLED_JOBS = ("PENDING", "FAILED", "NONE")
@@ -510,7 +512,8 @@ class EstatePortfolioService(EstateEvidenceService):
         included; condition 1: no shaping or reduction), plus that Site's Finding coverage (`site_cov`, the value
         `_portfolio` hands `place`). The Finding rows and `site_cov` cover the board day (estate coverage yields
         rows only when every requested day is selected, `estate/coverage.py:91-133`); the Action rows cover the
-        31-day work window. One `self._read` snapshot and cutoff for both. None when the Site is not in the
+        31-day work window. COV-PARTIAL: one board day is never PARTIAL (`test_cov_partial.py` T10). One
+        `self._read` snapshot and cutoff for both. None when the Site is not in the
         authorized imported set for the board day. The request kind is "findings" (no cursor is ever passed)."""
         day = estate_request("findings", day_from, day_to, known_at)  # addendum 7: the estate window rule
         work_req = estate_request("findings", work_from, work_to, known_at)
@@ -537,6 +540,7 @@ class EstatePortfolioService(EstateEvidenceService):
 
         units, token_sites, covered = {"F": [], "E": [], "M": []}, [], 0
         pending = False
+        partial_sites, settled_or_partial = 0, True
         for site, domain, cov in f_sites:
             sid = str(site["site_id"])
             _, e_domain, e_cov, e_rows = evidence_by[sid]
@@ -547,7 +551,11 @@ class EstatePortfolioService(EstateEvidenceService):
             units["F"].append(f)
             units["E"].append(e)
             units["M"] += m
-            covered += all(c != U for c in (f, e, *m))
+            all_g = all(c != U for c in (f, e, *m))
+            partial = cov["state"] == e_cov["state"] == m_cov["state"] == PARTIAL
+            covered += all_g
+            partial_sites += partial
+            settled_or_partial = settled_or_partial and (all_g or partial)
             pending = pending or money_pending(m_cov, m_lines) or any(
                 c["state"] == PENDING or c["job_state"] == "PENDING" for c in (cov, e_cov, m_cov))
             token_sites.append(token_site(site, domain, cov, [
@@ -560,6 +568,8 @@ class EstatePortfolioService(EstateEvidenceService):
             status = HISTORICAL_STATUS
         elif pending:
             status = PENDING_STATUS
+        elif partial_sites and settled_or_partial:
+            status = PARTIAL_STATUS
         elif any(state != COMPLETE for state in states.values()):
             status = UNKNOWN_STATUS
         else:

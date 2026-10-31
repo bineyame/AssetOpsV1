@@ -244,7 +244,7 @@ def test_w302_evidence_authorized_scope_and_placeholders(coverage) -> None:
     assert body["summary"]["unknown_count"] == 9 and body["summary"]["limited_count"] == 1
     assert [s["site_id"] for s in body["coverage"]["sites"]] == [str(MG), str(CO), str(EVS)]
     assert set(body["coverage"]["sites"][0]) == {"site_id", "state", "committed_watermark", "selection_id",
-                                                 "match_state", "job_state", "source_freshness"}
+                                                 "match_state", "job_state", "source_freshness", "days"}
     # Partial coverage: total_count still counts display rows; truth-dependent counts are null.
     coverage[EVS] = "UNKNOWN"
     partial = get(client(FakeStore(FakeSnapshot(cold_pins=[], ev_pins=[]))), WINDOW).json()

@@ -47,6 +47,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -122,6 +123,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -195,6 +197,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -267,6 +270,7 @@
               "sites": [
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -338,6 +342,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -420,6 +425,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -434,6 +440,7 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -598,6 +605,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:EV-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -673,6 +681,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:EV-LAB-001"
                   },
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -746,6 +755,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:EV-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -818,6 +828,7 @@
               "sites": [
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -889,6 +900,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:EV-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -971,6 +983,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:EV-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -985,6 +998,7 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -1110,6 +1124,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -1366,6 +1388,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -1532,6 +1562,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -1731,6 +1769,7 @@
               "sites": [
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -1796,6 +1835,20 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 0,
+                    "gaps": [
+                      {
+                        "day": "2026-10-12",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -1863,6 +1916,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T15:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2026,6 +2087,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T15:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2095,6 +2164,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2355,6 +2432,20 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 0,
+                    "gaps": [
+                      {
+                        "day": "2026-10-21",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -2426,6 +2517,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T16:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "PENDING",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2495,6 +2594,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T15:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2662,6 +2769,14 @@
               "sites": [
                 {
                   "committed_watermark": "2026-10-30T16:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -2676,6 +2791,20 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": {
+                    "checked": 0,
+                    "gaps": [
+                      {
+                        "day": "2026-10-11",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -2988,7 +3117,7 @@
                 "site_name": "EV charging lab"
               },
               {
-                "coverage_state": "UNKNOWN",
+                "coverage_state": "PARTIAL",
                 "site_code": "KOBO-001",
                 "site_id": {
                   "$public": "site:KOBO-001"
@@ -3027,6 +3156,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -3041,6 +3171,7 @@
                 },
                 {
                   "committed_watermark": "2026-10-06T09:00:00Z",
+                  "days": null,
                   "job_state": "SETTLED",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": {
@@ -3055,6 +3186,40 @@
                 },
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [
+                      {
+                        "day": "2026-10-06",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-07",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-08",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-09",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-10",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 6,
+                    "text": "1 of 6 days checked · 5 days not available yet",
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -3064,11 +3229,50 @@
                   "site_id": {
                     "$public": "site:KOBO-001"
                   },
-                  "source_freshness": "UNKNOWN",
-                  "state": "UNKNOWN"
+                  "source_freshness": "RECENT",
+                  "state": "PARTIAL"
                 },
                 {
                   "committed_watermark": null,
+                  "days": {
+                    "checked": 0,
+                    "gaps": [
+                      {
+                        "day": "2026-10-06",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-07",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-08",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-09",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-10",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      },
+                      {
+                        "day": "2026-10-11",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 6,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -3085,7 +3289,338 @@
             "lens": "all",
             "next_cursor": null,
             "order": "episode_start desc, finding_id asc",
-            "rows": [],
+            "rows": [
+              {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": "00000001-0000-4000-8000-0000000004cf",
+                "finding_label": "Finding 00000001",
+                "finding_revision_id": "00000001-0000-4000-8000-0000000004d1",
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004cf?revision_id=00000001-0000-4000-8000-0000000004d1",
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": "00000001-0000-4000-8000-0000000003de",
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": "sha256:ac8a1473263f060fb393df624d709aeacc669eab7092f04d3db688642d5623a9",
+                  "classification": "UNKNOWN",
+                  "evidence_ids": [
+                    "00000001-0000-4000-8000-000000000479",
+                    "00000001-0000-4000-8000-00000000047a",
+                    "00000001-0000-4000-8000-00000000047b",
+                    "00000001-0000-4000-8000-00000000047c",
+                    "00000001-0000-4000-8000-00000000047d",
+                    "00000001-0000-4000-8000-00000000047e",
+                    "00000001-0000-4000-8000-00000000047f",
+                    "00000001-0000-4000-8000-000000000488",
+                    "00000001-0000-4000-8000-000000000489",
+                    "00000001-0000-4000-8000-00000000048a",
+                    "00000001-0000-4000-8000-00000000048b",
+                    "00000001-0000-4000-8000-00000000048c",
+                    "00000001-0000-4000-8000-00000000048d",
+                    "00000001-0000-4000-8000-00000000048e",
+                    "00000001-0000-4000-8000-000000000497",
+                    "00000001-0000-4000-8000-000000000498",
+                    "00000001-0000-4000-8000-000000000499",
+                    "00000001-0000-4000-8000-00000000049a",
+                    "00000001-0000-4000-8000-00000000049b",
+                    "00000001-0000-4000-8000-00000000049c",
+                    "00000001-0000-4000-8000-00000000049d",
+                    "00000001-0000-4000-8000-0000000004a6",
+                    "00000001-0000-4000-8000-0000000004a7",
+                    "00000001-0000-4000-8000-0000000004a8",
+                    "00000001-0000-4000-8000-0000000004a9",
+                    "00000001-0000-4000-8000-0000000004aa",
+                    "00000001-0000-4000-8000-0000000004ab",
+                    "00000001-0000-4000-8000-0000000004ac",
+                    "00000001-0000-4000-8000-0000000004bc",
+                    "00000001-0000-4000-8000-0000000004bd",
+                    "00000001-0000-4000-8000-0000000004be",
+                    "00000001-0000-4000-8000-0000000004bf",
+                    "00000001-0000-4000-8000-0000000004c0",
+                    "00000001-0000-4000-8000-0000000004c1",
+                    "00000001-0000-4000-8000-0000000004c2",
+                    "00000001-0000-4000-8000-0000000004c3",
+                    "00000001-0000-4000-8000-0000000004c4",
+                    "00000001-0000-4000-8000-0000000004c5",
+                    "00000001-0000-4000-8000-0000000004c6",
+                    "00000001-0000-4000-8000-0000000004c7",
+                    "00000001-0000-4000-8000-0000000004c8",
+                    "00000001-0000-4000-8000-0000000004c9"
+                  ],
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": [
+                        "00000001-0000-4000-8000-000000000479",
+                        "00000001-0000-4000-8000-00000000047a",
+                        "00000001-0000-4000-8000-00000000047b",
+                        "00000001-0000-4000-8000-00000000047c",
+                        "00000001-0000-4000-8000-00000000047d",
+                        "00000001-0000-4000-8000-00000000047e",
+                        "00000001-0000-4000-8000-00000000047f",
+                        "00000001-0000-4000-8000-000000000488",
+                        "00000001-0000-4000-8000-000000000489",
+                        "00000001-0000-4000-8000-00000000048a",
+                        "00000001-0000-4000-8000-00000000048b",
+                        "00000001-0000-4000-8000-00000000048c",
+                        "00000001-0000-4000-8000-00000000048d",
+                        "00000001-0000-4000-8000-00000000048e",
+                        "00000001-0000-4000-8000-000000000497",
+                        "00000001-0000-4000-8000-000000000498",
+                        "00000001-0000-4000-8000-000000000499",
+                        "00000001-0000-4000-8000-00000000049a",
+                        "00000001-0000-4000-8000-00000000049b",
+                        "00000001-0000-4000-8000-00000000049c",
+                        "00000001-0000-4000-8000-00000000049d",
+                        "00000001-0000-4000-8000-0000000004a6",
+                        "00000001-0000-4000-8000-0000000004a7",
+                        "00000001-0000-4000-8000-0000000004a8",
+                        "00000001-0000-4000-8000-0000000004a9",
+                        "00000001-0000-4000-8000-0000000004aa",
+                        "00000001-0000-4000-8000-0000000004ab",
+                        "00000001-0000-4000-8000-0000000004ac",
+                        "00000001-0000-4000-8000-0000000004bc",
+                        "00000001-0000-4000-8000-0000000004bd",
+                        "00000001-0000-4000-8000-0000000004be",
+                        "00000001-0000-4000-8000-0000000004bf",
+                        "00000001-0000-4000-8000-0000000004c0",
+                        "00000001-0000-4000-8000-0000000004c1",
+                        "00000001-0000-4000-8000-0000000004c2",
+                        "00000001-0000-4000-8000-0000000004c3",
+                        "00000001-0000-4000-8000-0000000004c4",
+                        "00000001-0000-4000-8000-0000000004c5",
+                        "00000001-0000-4000-8000-0000000004c6",
+                        "00000001-0000-4000-8000-0000000004c7",
+                        "00000001-0000-4000-8000-0000000004c8",
+                        "00000001-0000-4000-8000-0000000004c9"
+                      ],
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": [
+                    "00000001-0000-4000-8000-0000000003eb",
+                    "00000001-0000-4000-8000-0000000003ed",
+                    "00000001-0000-4000-8000-0000000003f0",
+                    "00000001-0000-4000-8000-0000000003f1",
+                    "00000001-0000-4000-8000-0000000003f2"
+                  ],
+                  "state": "UNKNOWN"
+                },
+                "status": "PARTIAL",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              },
+              {
+                "categories": {
+                  "items": [
+                    {
+                      "category": "OPTIMIZE_COST",
+                      "label": "Optimize cost and efficiency",
+                      "outcomes": [
+                        {
+                          "key": "MG-2",
+                          "label": "Supply cost per kWh"
+                        }
+                      ],
+                      "role": "MOVES"
+                    },
+                    {
+                      "category": "PROTECT_ASSET",
+                      "label": "Protect asset and capital",
+                      "outcomes": [
+                        {
+                          "key": "MG-5",
+                          "label": "Reliable service"
+                        },
+                        {
+                          "key": "MG-4",
+                          "label": "Battery and generator life"
+                        }
+                      ],
+                      "role": "CHECKED"
+                    }
+                  ],
+                  "policy_version": "outcome-map/1",
+                  "state": "MAPPED"
+                },
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": "00000001-0000-4000-8000-0000000004ce",
+                "finding_label": "Finding 00000001",
+                "finding_revision_id": "00000001-0000-4000-8000-0000000004d0",
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004ce?revision_id=00000001-0000-4000-8000-0000000004d0",
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": "00000001-0000-4000-8000-0000000003de",
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": "sha256:3f497ec8e8e7b8ac8a1a8d0719f8e958b972832fd79ae40410bacf6fc0e76147",
+                  "classification": "UNKNOWN",
+                  "evidence_ids": [
+                    "00000001-0000-4000-8000-000000000472",
+                    "00000001-0000-4000-8000-000000000473",
+                    "00000001-0000-4000-8000-000000000474",
+                    "00000001-0000-4000-8000-000000000475",
+                    "00000001-0000-4000-8000-000000000476",
+                    "00000001-0000-4000-8000-000000000477",
+                    "00000001-0000-4000-8000-000000000478",
+                    "00000001-0000-4000-8000-000000000481",
+                    "00000001-0000-4000-8000-000000000482",
+                    "00000001-0000-4000-8000-000000000483",
+                    "00000001-0000-4000-8000-000000000484",
+                    "00000001-0000-4000-8000-000000000485",
+                    "00000001-0000-4000-8000-000000000486",
+                    "00000001-0000-4000-8000-000000000487",
+                    "00000001-0000-4000-8000-000000000490",
+                    "00000001-0000-4000-8000-000000000491",
+                    "00000001-0000-4000-8000-000000000492",
+                    "00000001-0000-4000-8000-000000000493",
+                    "00000001-0000-4000-8000-000000000494",
+                    "00000001-0000-4000-8000-000000000495",
+                    "00000001-0000-4000-8000-000000000496",
+                    "00000001-0000-4000-8000-00000000049f",
+                    "00000001-0000-4000-8000-0000000004a0",
+                    "00000001-0000-4000-8000-0000000004a1",
+                    "00000001-0000-4000-8000-0000000004a2",
+                    "00000001-0000-4000-8000-0000000004a3",
+                    "00000001-0000-4000-8000-0000000004a4",
+                    "00000001-0000-4000-8000-0000000004a5",
+                    "00000001-0000-4000-8000-0000000004ae",
+                    "00000001-0000-4000-8000-0000000004af",
+                    "00000001-0000-4000-8000-0000000004b0",
+                    "00000001-0000-4000-8000-0000000004b1",
+                    "00000001-0000-4000-8000-0000000004b2",
+                    "00000001-0000-4000-8000-0000000004b3",
+                    "00000001-0000-4000-8000-0000000004b4",
+                    "00000001-0000-4000-8000-0000000004b5",
+                    "00000001-0000-4000-8000-0000000004b6",
+                    "00000001-0000-4000-8000-0000000004b7",
+                    "00000001-0000-4000-8000-0000000004b8",
+                    "00000001-0000-4000-8000-0000000004b9",
+                    "00000001-0000-4000-8000-0000000004ba",
+                    "00000001-0000-4000-8000-0000000004bb"
+                  ],
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": [
+                        "00000001-0000-4000-8000-000000000472",
+                        "00000001-0000-4000-8000-000000000473",
+                        "00000001-0000-4000-8000-000000000474",
+                        "00000001-0000-4000-8000-000000000475",
+                        "00000001-0000-4000-8000-000000000476",
+                        "00000001-0000-4000-8000-000000000477",
+                        "00000001-0000-4000-8000-000000000478",
+                        "00000001-0000-4000-8000-000000000481",
+                        "00000001-0000-4000-8000-000000000482",
+                        "00000001-0000-4000-8000-000000000483",
+                        "00000001-0000-4000-8000-000000000484",
+                        "00000001-0000-4000-8000-000000000485",
+                        "00000001-0000-4000-8000-000000000486",
+                        "00000001-0000-4000-8000-000000000487",
+                        "00000001-0000-4000-8000-000000000490",
+                        "00000001-0000-4000-8000-000000000491",
+                        "00000001-0000-4000-8000-000000000492",
+                        "00000001-0000-4000-8000-000000000493",
+                        "00000001-0000-4000-8000-000000000494",
+                        "00000001-0000-4000-8000-000000000495",
+                        "00000001-0000-4000-8000-000000000496",
+                        "00000001-0000-4000-8000-00000000049f",
+                        "00000001-0000-4000-8000-0000000004a0",
+                        "00000001-0000-4000-8000-0000000004a1",
+                        "00000001-0000-4000-8000-0000000004a2",
+                        "00000001-0000-4000-8000-0000000004a3",
+                        "00000001-0000-4000-8000-0000000004a4",
+                        "00000001-0000-4000-8000-0000000004a5",
+                        "00000001-0000-4000-8000-0000000004ae",
+                        "00000001-0000-4000-8000-0000000004af",
+                        "00000001-0000-4000-8000-0000000004b0",
+                        "00000001-0000-4000-8000-0000000004b1",
+                        "00000001-0000-4000-8000-0000000004b2",
+                        "00000001-0000-4000-8000-0000000004b3",
+                        "00000001-0000-4000-8000-0000000004b4",
+                        "00000001-0000-4000-8000-0000000004b5",
+                        "00000001-0000-4000-8000-0000000004b6",
+                        "00000001-0000-4000-8000-0000000004b7",
+                        "00000001-0000-4000-8000-0000000004b8",
+                        "00000001-0000-4000-8000-0000000004b9",
+                        "00000001-0000-4000-8000-0000000004ba",
+                        "00000001-0000-4000-8000-0000000004bb"
+                      ],
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": [
+                    "00000001-0000-4000-8000-0000000003eb",
+                    "00000001-0000-4000-8000-0000000003ed",
+                    "00000001-0000-4000-8000-0000000003f0",
+                    "00000001-0000-4000-8000-0000000003f1",
+                    "00000001-0000-4000-8000-0000000003f2"
+                  ],
+                  "state": "UNKNOWN"
+                },
+                "status": "PARTIAL",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
             "schema_version": "estate-finding-index-2",
             "scope": {
               "access_basis": {
@@ -3139,6 +3674,7 @@
               "sites": [
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -3151,6 +3687,7 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -3163,6 +3700,7 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -3175,6 +3713,7 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": null,
                   "job_state": "NOT_APPLICABLE",
                   "match_state": "NOT_APPLICABLE",
                   "selection_id": null,
@@ -3246,6 +3785,7 @@
                     "$derive": "wire_second",
                     "from": "watermark:COLD-LAB-001"
                   },
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -3258,6 +3798,7 @@
                 },
                 {
                   "committed_watermark": "2026-10-06T09:00:00Z",
+                  "days": null,
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,
@@ -3270,6 +3811,14 @@
                 },
                 {
                   "committed_watermark": "2026-10-30T10:00:00Z",
+                  "days": {
+                    "checked": 1,
+                    "gaps": [],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "SETTLED",
                   "match_state": "COMPLETE",
                   "selection_id": {
@@ -3284,6 +3833,20 @@
                 },
                 {
                   "committed_watermark": null,
+                  "days": {
+                    "checked": 0,
+                    "gaps": [
+                      {
+                        "day": "2026-10-11",
+                        "reason": "NO_ASSESSED_SELECTION",
+                        "state": "UNASSESSED"
+                      }
+                    ],
+                    "policy": "estate-coverage/2",
+                    "requested": 1,
+                    "text": null,
+                    "withheld": false
+                  },
                   "job_state": "NONE",
                   "match_state": "MISSING",
                   "selection_id": null,

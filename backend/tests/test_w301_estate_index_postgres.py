@@ -184,7 +184,8 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
     assert body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
     assert site == {"site_id": str(built.site_id), "state": "CURRENT", "selection_id": pinned["selection_id"],
                     "committed_watermark": site["committed_watermark"], "match_state": "NOT_APPLICABLE",
-                    "job_state": "SETTLED", "source_freshness": "RECENT"}
+                    "job_state": "SETTLED", "source_freshness": "RECENT",
+                    "days": None}  # COV-PARTIAL: additive key, None for cold (sheet §2.6)
     assert body["scope"]["authorized_site_count"] == body["scope"]["covered_site_count"] == 1
     heads = stored_cold_heads(built.engine, built.site_id)
     assert body["rows"] and {r["finding_id"]: r["finding_revision_id"] for r in body["rows"]} == heads
@@ -555,10 +556,15 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
             assert body["lens"] == lens and body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
             assert body["rows"] == [] and body["total_count"] == 0 and body["summary"]["supported_findings"] == 0
             assert body["coverage"] == bodies["all"]["coverage"]
-        # The three-day read: the 2026-10-07 day has no assessment, so the Site is UNKNOWN and no lens is a zero.
+        # The three-day read: the 2026-10-07 day has no assessment and the checked days are current, so the Site is
+        # partly checked (COV-PARTIAL, Addendum 1 Q2): no lens is a zero and the root is never CURRENT.
         for lens in LENSES:
             gap = estate.ok("findings", **days, lens=lens)
-            assert gap["coverage"]["sites"][0]["state"] == "UNKNOWN" and gap["total_count"] is None
+            (site_cov,) = gap["coverage"]["sites"]
+            assert site_cov["state"] == "PARTIAL" and gap["total_count"] is None and gap["status"] == "UNKNOWN"
+            assert (site_cov["days"]["requested"], site_cov["days"]["checked"]) == (3, 2)
+            assert [g["day"] for g in site_cov["days"]["gaps"]] == ["2026-10-07"]
+            assert all(r["consequence"]["amount"] is None for r in gap["rows"])
         # No mock seed: real labels only, no F-code, no risk/opportunity flag on any row.
         state_day = estate.ok("findings", **{"from": iso(STATE_DAY), "to": iso(STATE_DAY + timedelta(days=1))})
         for body in (*bodies.values(), state_day):
