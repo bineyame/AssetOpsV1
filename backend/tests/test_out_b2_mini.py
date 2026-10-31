@@ -417,3 +417,154 @@ def test_mini_composer_imports_no_adapter_or_composition() -> None:
     tree = ast.parse(Path(mini.__file__).read_text(encoding="utf-8"))
     names = [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module]
     assert not [n for n in names if ".adapters" in n or n.endswith(".composition")]
+
+
+# --------------------------------------------------------------- LINK-LINEAGE U2 (refresh lineage)
+def _rev(rid: str, no: int, transition: str = "BASIS_REFRESHED", lifecycle: str = "SUPPORTED",
+         end: str | None = None) -> dict:
+    return {"id": rid, "revision_no": no, "transition": transition, "lifecycle": lifecycle,
+            "episode": {"start": iso(T(20, 6)), "end": end or iso(T(20, 9))}}
+
+
+def _lineage_fake(origin: str = "f104r0", shown: str = "f104r", fid: str = "f104", **over: Any) -> Fake:
+    """The happy-path fake with A48 raised on an earlier revision `origin` of the shown Finding revision."""
+    f = {**F104, "finding_id": fid, "finding_revision_id": shown}
+    est_f = {**ESTATE_F104, "finding_id": fid, "finding_revision_id": shown}
+    est_a = {**ESTATE_A48, "source_finding_id": fid, "source_finding_revision_id": origin}
+    a = {**A48, "origin": {"finding_id": fid, "finding_revision_id": origin}}
+    return Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [f], "next_cursor": None},
+                estate={"site_cov": {"state": "CURRENT"}, "findings": [est_f], "actions": [est_a]},
+                action_index={"rows": [a], "next_cursor": None}, **over)
+
+
+def _run_with_history(fake: Fake, history):
+    calls: list[tuple[str, str]] = []
+
+    def port(fid: str, rid: str):
+        calls.append((fid, rid))
+        return history(fid, rid)
+
+    ports = replace(fake.ports(), finding_history=port)
+    comp = compose(ports, site_code=C, day=DAY, site_timezone=ZONE)
+    return comp, {r["category"]: r for r in assemble(comp.facts)}, calls
+
+
+def _never(f: str, r: str):  # pragma: no cover - M1 must never call the port
+    raise AssertionError("finding_history must not be called on an exact match")
+
+
+def test_m1_exact_match_never_reads_history() -> None:
+    comp, rows, calls = _run_with_history(Fake(), _never)
+    assert calls == [] and rows[COST]["must_not_harm"] is not None and comp.failed == ()
+
+
+def test_m2_refreshed_chain_links_and_must_not_harm() -> None:
+    comp, rows, calls = _run_with_history(_lineage_fake(), lambda f, r: [_rev("f104r0", 1, "CREATED"),
+                                                                         _rev("f104r", 2)])
+    assert calls == [("f104", "f104r")]
+    assert comp.read_state == "AVAILABLE" and comp.failed == ()
+    assert rows[COST]["must_not_harm"]["href"] == f"/sites/{C}/actions/a48/verification?event_id=e1"
+    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
+    assert f.refreshed_from == ("f104r0",)
+
+
+def test_m2b_changed_episode_lifecycle_transition_or_gap_never_links() -> None:
+    for shape in ([_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, end=iso(T(20, 10)))],
+                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, lifecycle="UNCONFIRMED")],
+                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 3)],
+                  [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2, "SUPPORT_CHANGED")]):
+        comp, rows, _ = _run_with_history(_lineage_fake(), lambda f, r, x=shape: x)
+        assert rows[COST]["must_not_harm"] is None and comp.failed == ()
+
+
+def test_m3_failed_history_read_is_partial_and_links_nothing() -> None:
+    def boom(f: str, r: str):
+        raise RuntimeError("history refused")
+    comp, rows, _ = _run_with_history(_lineage_fake(), boom)
+    assert "finding_history" in comp.failed and comp.read_state == "PARTIAL"
+    assert rows[COST]["must_not_harm"] is None
+
+
+def test_m4_default_port_links_nothing_and_records_no_failure() -> None:
+    comp, rows = run(_lineage_fake())
+    assert "finding_history" not in comp.failed and rows[COST]["must_not_harm"] is None
+
+
+def test_m5_two_actions_on_one_finding_read_history_once() -> None:
+    fake = _lineage_fake()
+    a2 = {**A48, "action_id": "a49", "action_code": "ACT-049",
+          "origin": {"finding_id": "f104", "finding_revision_id": "f104rX"},
+          "links": {"selected_event": f"/sites/{C}/actions/a49?event_id=e1"}}
+    fake.over["action_index"] = {"rows": [fake.over["action_index"]["rows"][0], a2], "next_cursor": None}
+    comp, _, calls = _run_with_history(fake, lambda f, r: [_rev("f104r0", 1, "CREATED"), _rev("f104r", 2)])
+    assert calls == [("f104", "f104r")]
+    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
+    assert f.refreshed_from == ("f104r0",)  # f104rX is not in the history: no link
+
+
+
+def test_m7_malformed_history_row_is_partial_not_a_failed_board() -> None:
+    """Review L2: a history row without `revision_no` makes `refresh_chain` raise inside `reads.call`."""
+    comp, rows, _ = _run_with_history(_lineage_fake(), lambda f, r: [{"id": "f104r0"}, {"id": "f104r"}])
+    assert "finding_history" in comp.failed and comp.read_state == "PARTIAL"
+    assert rows[COST]["must_not_harm"] is None
+    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
+    assert f.refreshed_from == ()
+
+# M6: the same shapes through the real FindingReadService.history and the B4 port binding (paging, encoding).
+def _real_history_port(shapes: list[tuple[int, str, str, datetime]], gate_open: bool = True):
+    from uuid import uuid4
+
+    from assetops_backend.analytics.finding_read import FindingReadService
+    from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
+
+    fid = uuid4()
+    ids = [uuid4() for _ in shapes]
+    raw = [{"id": i, "revision_no": no, "created_at": T(20, 10), "transition": tr, "lifecycle": lc,
+            "claim_level": "CANDIDATE", "model_version": "m", "matcher_version": "x", "episode_start": T(20, 6),
+            "episode_end": end, "candidate_minutes": 45, "necessary_minutes": 10, "indeterminate_minutes": 12,
+            "basis_sha256": "b", "support_sha256": "s", "assessment_revision_id": uuid4(), "assessments": [],
+            "cited_evidence_count": 0, "claim": {}} for i, (no, tr, lc, end) in zip(ids, shapes)]
+    root = {k: None for k in ("finding_key", "domain", "mechanism", "analytic_id", "generator_asset_id",
+                              "anchor_start", "anchor_assessment_revision_id", "cohort_sha256", "matcher_version",
+                              "opened_at", "recurs_after_finding_id", "split_from_finding_id")}
+
+    class Store:
+        def finding_detail(self, t, s, f):
+            assert f == fid
+            return {"finding": {**root, "id": fid}, "revisions": raw,
+                    "relations": {"merged_into": [], "merged_from": [], "split_parts": [], "recurred_by": []}}
+
+        def revision_times(self, t, s, f):
+            return {}
+
+    site = SiteRef(uuid4(), uuid4(), C, "Kobo", "MINIGRID", ZONE)
+    svc = SiteOutcomeBoardService(BoardServices(finding_reads=FindingReadService(Store(), None),
+                                                finding_index_gate=lambda c, t, s: (gate_open, "closed")))
+    return svc.mini_ports(site).finding_history, str(fid), [str(i) for i in ids]
+
+
+def test_m6_real_reader_negatives_never_link_and_p1_links() -> None:
+    e, later = T(20, 9), T(20, 9) + timedelta(minutes=5)
+    cases = {
+        "P1": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e)], True),
+        "N1": ([(1, "CREATED", "SUPPORTED", e), (2, "SUPPORT_CHANGED", "SUPPORTED", e)], False),
+        "N2": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "UNCONFIRMED", e)], False),
+        "N3": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", later)], False),
+        "N5": ([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e),
+                (3, "NO_LONGER_SUPPORTED", "SUPPORTED", e)], False),
+        "GAP": ([(1, "CREATED", "SUPPORTED", e), (3, "BASIS_REFRESHED", "SUPPORTED", e)], False),
+    }
+    for name, (shapes, linked) in cases.items():
+        port, fid, ids = _real_history_port(shapes)
+        comp, rows, _ = _run_with_history(_lineage_fake(origin=ids[0], shown=ids[-1], fid=fid), port)
+        assert comp.failed == (), name
+        assert (rows[COST]["must_not_harm"] is not None) is linked, name
+
+
+def test_m6b_closed_finding_index_gate_refuses_the_port_and_links_nothing() -> None:
+    e = T(20, 9)
+    port, fid, ids = _real_history_port([(1, "CREATED", "SUPPORTED", e), (2, "BASIS_REFRESHED", "SUPPORTED", e)],
+                                        gate_open=False)
+    comp, rows, _ = _run_with_history(_lineage_fake(origin=ids[0], shown=ids[-1], fid=fid), port)
+    assert "finding_history" in comp.failed and rows[COST]["must_not_harm"] is None

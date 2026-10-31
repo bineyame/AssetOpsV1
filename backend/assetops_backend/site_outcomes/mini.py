@@ -25,7 +25,7 @@ from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
-    unresolved_links)
+    refresh_chain, unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -144,6 +144,8 @@ class MiniPorts:
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
+    #: LINK-LINEAGE: (Finding ID, shown revision ID) -> every history row (analytics/finding_read.py:570), or None.
+    finding_history: Callable[[str, str], list[dict[str, Any]] | None] = lambda f, r: None
 
 
 @dataclass(frozen=True)
@@ -333,6 +335,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
+    findings = _lineage(reads, ports, findings, actions)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
     body = overview or {}
@@ -493,6 +496,25 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
         out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), title, FINDING_MECHANISM,
                                r["lifecycle"], (r.get("links") or {}).get("selected_revision"),
                                confidence_label=confidence, in_window=in_window))
+    return tuple(out)
+
+
+def _lineage(reads: Reads, ports: MiniPorts, findings: tuple[FindingFact, ...],
+             actions: tuple[ActionFact, ...]) -> tuple[FindingFact, ...]:
+    """LINK-LINEAGE (D-2026-10-31-board-action-refresh-lineage): per Finding, the origin revisions of mini Actions
+    that a basis-only refresh chain links to the shown revision. One history read per Finding, only when some
+    Action points at an earlier revision; a failed read links nothing."""
+    out = []
+    for f in findings:
+        origins = {a.origin_revision_id for a in actions if not a.is_domain and a.origin_finding_id == f.finding_id
+                   and a.origin_revision_id and a.origin_revision_id != f.revision_id}
+        if origins:
+            rows = reads.call("finding_history", ports.finding_history, f.finding_id, f.revision_id)
+            # a malformed history row is a failed read (PARTIAL, no link), never a failed board
+            kept = reads.call("finding_history", lambda r=rows, s=f.revision_id: tuple(
+                sorted(o for o in origins if refresh_chain(r, o, s))))
+            f = replace(f, refreshed_from=kept or ())
+        out.append(f)
     return tuple(out)
 
 
