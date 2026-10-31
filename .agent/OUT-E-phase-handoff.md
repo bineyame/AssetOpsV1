@@ -1,6 +1,6 @@
 # OUT-E phase handoff (task/OUT-E-cost-proof)
 
-Sheet: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-E.md`. Status: E1-E4 code committed; DB proofs running.
+Sheet: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-E.md`. Status: E1-E5 built; review fixes in (2862e0b2); packet `.agent/OUT-E-packet.md`; only the `-Tier all` result line remains.
 
 ## Landed
 - E1 `8e39626d`: CC-M merged; `0039_merge_objectives_cc` (down 0037+0038, empty); 20 head literals plus `mini_depth_probe` set to 0039;
