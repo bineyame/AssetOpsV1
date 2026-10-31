@@ -155,3 +155,8 @@ There are no High or Medium findings. The four Low findings below do not block.
   evidence gap at 1 site". It was not captured at 390. The card text wraps, so the risk is low.
 - The "MOCK DEVIATION D2 (R453)" line visible at the top of the Site page is pre-existing (`operatorSiteTabs.tsx:153`)
   and not part of this slice.
+
+## Coordinator merge verification, 2026-10-31: ACCEPT
+- Main df954b49 (OUT-W and FIX-01) merged into the branch at 083b90a1. read.py auto-merged; the only conflict was the register, which keeps FIX-01's resolved R577 plus OUT-D's R580-R586.
+- On the merged head: all non-Postgres test_out_* plus fix01 dedupe = 298 passed; test_out_c4_ev_warnings_postgres + test_out_d5_objectives_postgres = 4 passed; check-all 11/11.
+- Review Lows L1-L4 (capture ready-check regex, packet dataset labels, R580/R586 wording, test tidy) are logged for the fix round.
