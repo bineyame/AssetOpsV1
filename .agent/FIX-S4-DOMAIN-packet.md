@@ -89,4 +89,6 @@ rebuilt once.
 
 ## Closeout checks
 
-(Filled in after the check-all rerun.)
+I reran `tools\check-all.ps1 -Python <plan2 venv>` on `5fd7a0fdb`, after adding the `frontend/node_modules`
+junction. Result: **all 11 guards passed**, exit 0. The estate guard self-tests passed 7 of 7, and the missing-claim
+scan reported 43 tagged uses and 10 baselined occurrences.
