@@ -66,7 +66,21 @@ crash line is 287, a None/datetime comparison in the same NULL-end family. The r
   fixtures failed with `MODULE_NOT_FOUND typescript`, because the worktree had no `frontend/node_modules`. This was an
   environment precondition, not a code failure. I added a junction to plan2's `frontend/node_modules`, which git
   ignores, and reran check-all. The rerun result is under Closeout checks.
-- **`-Tier all`** has not been run. It waits for the coordinator's go, as the brief requires.
+- **`-Tier all`** ran on the coordinator's go, on `fdc852515`. Command:
+  `tools\run-backend-suite-in-container.ps1 -Tier all`. Run `20261031-134829-7b9013`, 4 workers. Wall time 2916 s
+  (`wall-time.txt`); the pytest wall was 2913.67 s and the outer wall 2937 s. JUnit counts: **tests 4568, failures 1,
+  errors 0, skipped 0** (zero-skip holds). Exit 1.
+  - The failure is `test_w301_estate_index_postgres.py::test_historical_minigrid_outstanding_marker_page_two_keeps_basis`.
+    It raises `EstateRefusal: INVALID_CURSOR` at `:897`, because page one with `limit=1` returned
+    `next_cursor = None`.
+  - **The failure does not come from this fix.** That file was rerun alone on this branch (run
+    `20261031-143747-633536`) and then on the pre-fix store from `ee678cbe5` (run `20261031-144123-c6ea50`, with
+    `git checkout ee678cbe5 -- <store>` and a restore afterwards). Both reruns gave the same 2 failed, 18 passed:
+    - the same `INVALID_CURSOR` test;
+    - `test_cold_revision_waits_for_its_selected_assessment`, with a `KeyError` at `:952`, which passed in the full
+      run.
+  - Both failures therefore come from main, are timing- or order-sensitive, and do not depend on the `episodes` change.
+    This needs a register entry or owner triage, outside this slice's scope.
 
 ## Known deviations
 
