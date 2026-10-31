@@ -100,7 +100,7 @@ def test_declare_idempotent_chain_reproducible_reads_and_refusals(store, engine,
         other = refusal(lambda: objectives.declare(tenant_id, mg1, SYSTEM_DECLARER, "SYSTEM_CLI"))
         assert (other.status, other.code) == (409, "IDEMPOTENCY_KEY_REUSED") and "another outcome" in other.message
         # ... and, when a race slips past that check, the unique constraint maps to the same 409.
-        original = type(objectives)._same_key
+        original = type(objectives).__dict__["_same_key"]  # the staticmethod itself, so the restore keeps it static
         type(objectives)._same_key = staticmethod(lambda c, t, s, k: None)
         try:
             raced = refusal(lambda: objectives.declare(tenant_id, mg1, SYSTEM_DECLARER, "SYSTEM_CLI"))
