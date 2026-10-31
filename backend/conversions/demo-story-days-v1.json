@@ -22,7 +22,7 @@
     },
     "ev": {
       "normal": {"scenario_id": "ev-complete", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "build", "note": "charging session completed"},
-      "fault": {"scenario_id": "ev-fault", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "build", "note": "charger fault"},
+      "fault": {"scenario_id": "ev-interrupted", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "build", "note": "charging session ended by a charger fault (w504 positive scenario; ev-fault.yaml faults before any session and gives no Finding, first dev prepare 2026-10-31)"},
       "late": {"scenario_id": "ev-late-record", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "tick", "note": "a session record delivered late"},
       "missing": {"note": "no run, no delivery"}
     }

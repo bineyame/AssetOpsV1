@@ -133,8 +133,8 @@ def findings_on(url: str, day: str) -> list[str]:
         with engine.connect() as c:
             rows = c.execute(text(
                 "SELECT DISTINCT f.finding_id FROM finding_revision f JOIN site s ON s.id = f.site_id "
-                "WHERE s.site_code = 'COLD-LAB-001' AND f.episode_start < :hi AND f.episode_end > :lo "
-                "ORDER BY f.finding_id"), {"lo": lo, "hi": lo + timedelta(days=1)}).fetchall()
+                "WHERE s.site_code = 'COLD-LAB-001' AND f.episode_start < :hi "
+                "AND (f.episode_end IS NULL OR f.episode_end > :lo) ORDER BY f.finding_id"), {"lo": lo, "hi": lo + timedelta(days=1)}).fetchall()
     finally:
         engine.dispose()
     return [str(r[0]) for r in rows]

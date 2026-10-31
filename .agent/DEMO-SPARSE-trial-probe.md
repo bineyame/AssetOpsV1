@@ -28,6 +28,21 @@ heavy demand"); S-28 and S-21 carry the same run on two days. No beat is dropped
 The overcast scenario's refusal is the sheet's fixed 8-hour interval; a longer interval was not tried (the sheet
 allows only the listed alternative).
 
+### P1 re-run: overcast on the longer interval (SCN sheet "Overcast", 2026-10-31)
+
+Day-list change only (`build-sheet-SCN-kobo-reserve.md` Consumption): `kobo-daytime-overcast` v2, interval D 03:00-15:00
+(720 min), received D 16:00, mini-grid v5, publication v4, scenario file untouched. Run through the real child:
+`prepare --sites kobo --no-finish --days <scratch copy of the day list with only this overcast row at S-21d plus the
+trial pair>` on `assetops_demo3_probe5_test`, tree `git archive` of `c81b062d8`, DB now 2026-10-31, day 2026-10-08.
+
+| Kind | Candidate | Day | Draft | Dispatch | Finding | Matches meaning |
+|---|---|---|---|---|---|---|
+| overcast | `kobo-daytime-overcast` v2, D 03:00-15:00 | 10-08 | **BLOCKED** `INITIAL_VALUE_NOT_RESOLVED` x2: "Model profile mini-grid version 5 needs fuel-tank-volume@fuel-tank initialized at run start, and this scenario states no value for it ..." and the same for `generator-state@generator` | - | - | no |
+
+The 720-minute interval cleared the earlier interval refusal; the scenario states no run-start value for the fuel
+tank or the generator, which mini-grid v5 requires. Not READY, so by the SCN rule overcast keeps the already-taken
+`kobo-s3-dispatch-necessary-run` v1 (no further fallback); the day list is unchanged.
+
 ## P2 episode edges
 
 Every Finding episode in P1 lies inside [00:20, 23:40] UTC of its day: 05:05-07:10, 04:35-07:55 (the
