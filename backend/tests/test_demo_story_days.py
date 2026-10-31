@@ -31,7 +31,7 @@ def test_offsets_resolve_against_s_and_the_entry_day():
     assert normal.received_at == datetime(2026, 10, 1, 12, tzinfo=timezone.utc)
     late = runs[("kobo", -3)]
     assert late.as_kind == "normal" and late.scenario == normal.scenario
-    assert late.received_at == datetime(2026, 10, 28, 12, tzinfo=timezone.utc)
+    assert late.received_at == datetime(2026, 10, 28, 12, 30, tzinfo=timezone.utc)  # after S-1's 12:00 delivery
     gap = runs[("kobo", -10)]
     assert gap.kind == "missing" and not gap.has_run and gap.epoch is None and gap.scenario is None
 
@@ -93,6 +93,13 @@ def test_duplicate_day():
     doc = copy.deepcopy(sd.load())
     doc["sites"]["kobo"].append({"day": "S-14d", "kind": "normal"})
     assert _codes(doc) == "DUPLICATE_DAY"
+
+
+def test_duplicate_received_at():
+    # S-3 late (D+2d) set back to 12:00 shares S-1 normal's 12:00 delivery; acceptance is counted by received_at
+    doc = copy.deepcopy(sd.load())
+    doc["kinds"]["kobo"]["late"]["received_at"] = "D+2d 12:00"
+    assert _codes(doc) == "DUPLICATE_RECEIVED_AT"
 
 
 @pytest.mark.parametrize("change", ["drop_after", "after_not_next_day", "two_before"])

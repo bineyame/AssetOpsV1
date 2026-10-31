@@ -165,7 +165,15 @@ def validate(runs: list[DayRun], S: datetime, *, db_now: datetime | None = None,
     if kobo and not (len(before) == 1 and len(after) == 1 and after[0].offset == before[0].offset + 1):
         raise StoryDaysError("TRIAL_PAIR_INVALID", "Kobo needs exactly one trial-before on D and one trial-after "
                                                    f"on D+1 (got {[r.day for r in before]} / {[r.day for r in after]})")
+    shared: dict[datetime, DayRun] = {}
     for r in runs:
+        if r.has_run and r.received_at in shared:
+            # each run's acceptance is counted by its `received_at` (`_publish_and_accept`), so two runs may not share one
+            raise StoryDaysError("DUPLICATE_RECEIVED_AT", f"{r.site} {r.day} and {shared[r.received_at].site} "
+                                                          f"{shared[r.received_at].day} are both received "
+                                                          f"{iso(r.received_at)}")
+        if r.has_run:
+            shared[r.received_at] = r
         if r.offset < -BOARD_WINDOW_DAYS:
             raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{r.site} {r.day} is earlier than S-{BOARD_WINDOW_DAYS}d")
         if installs and r.site in installs and r.has_run and r.start < installs[r.site] + INSTALL_LEAD:
