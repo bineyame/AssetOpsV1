@@ -262,15 +262,21 @@ class Demo:
         (self.work / ".busy").write_text(f"prepare pid={os.getpid()}\n", encoding="utf-8")
         self.holds_busy = True
         self.tree.mkdir()
-        archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", "backend", "gateway", "host", "simulator",
-                                  "contracts", "config", "contract-fixtures", "tools"], cwd=REPO,
-                                 capture_output=True, check=True).stdout
-        with tarfile.open(fileobj=io.BytesIO(archive)) as tar:
-            tar.extractall(self.tree, filter="data")
+        parts = ("backend", "gateway", "host", "simulator", "contracts", "config", "contract-fixtures", "tools")
+        archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", *parts], cwd=REPO, capture_output=True,
+                                 check=False) if shutil.which("git") else None
+        if archive is not None and archive.returncode == 0:
+            with tarfile.open(fileobj=io.BytesIO(archive.stdout)) as tar:
+                tar.extractall(self.tree, filter="data")
+        else:  # no git here (the test container mounts the worktree without its .git): copy the checked-out files
+            skip = shutil.ignore_patterns("__pycache__", "*.pyc", ".pytest_cache", "node_modules")
+            for part in parts:
+                shutil.copytree(REPO / part, self.tree / part, ignore=skip)
         (self.tree / "var" / "sites").mkdir(parents=True)
         shutil.copy2(self.tree / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml",
                      self.tree / "var" / "sites" / "kobo-001.yaml")
-        head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True, text=True)
+        head = (subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True, text=True)
+                if shutil.which("git") else subprocess.CompletedProcess([], 0, stdout="checked-out-copy"))
         if days_file is None:
             shipped = self.tree / sd.DEFAULT_FILE.relative_to(REPO)
             if not shipped.is_file() or sd.load(shipped) != days_doc:

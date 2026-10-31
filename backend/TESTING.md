@@ -324,6 +324,8 @@ them out (`-m "not slow"`, a deselection, never a skip):
 - `test_s4_schedule_health_postgres.py::TestTickCost::test_measure_a_real_child_tick_over_one_and_four_sites` (about 150 s)
 - `test_s4_schedule_health_postgres.py::TestStaleWithoutJob::test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued` (about 130 s; the 120 s stale wait)
 - `test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed_its_job_lease_is_exposed_and_a_db_stall_is_a_typed_timeout` (about 140 s)
+- `test_demo_combined_postgres.py` (DEMO-SPARSE U6: one three-Site `tools/demo_combined.py prepare`, about 20-25 min,
+  then the §5 acceptance rows on its own `assetops_demo3_t<run>_test` database)
 - `host/tests/test_field_modbus_tcp_acceptance_postgres.py`, both TEL acceptance tests (60x real time, 9-12 min each; not part of the backend suite)
 
 Until the revised policy takes effect (D4), a full backend run is `-Tier all`
