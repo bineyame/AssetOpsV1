@@ -31,8 +31,9 @@ import {
   type FindingIndexClient,
   type FindingIndexResult,
   type FindingIndexScope,
+  listsRows,
 } from "./findingIndexClient";
-import { utcText } from "./SiteFindingIndex";
+import { OVERVIEW_PARTIAL, utcText } from "./SiteFindingIndex";
 import { LIFECYCLE_WORDS } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 
@@ -86,7 +87,7 @@ export function compareParity(summary: SiteWindowSummary, body: FindingIndexBody
   const reasons: string[] = [];
   const k = summary.known_finding;
   const first = body.rows[0];
-  if (body.status !== "CURRENT" || !body.is_current || first === undefined) {
+  if (!listsRows(body) || first === undefined) {
     return { state: "not-compared", reasons: ["The list is not current or has no first row."] };
   }
   if (k === null) return { state: "not-compared", reasons: ["The Overview selected no Finding for this day."] };
@@ -273,13 +274,29 @@ function Loaded({
 }) {
   const full = links.findingList({ ...scope, limit: null, cursor: null });
   const chosenLine = chosen?.node ?? null;
-  if (body.status !== "CURRENT" || !body.is_current || body.total_count === null) {
+  if (!listsRows(body) || body.total_count === null) {
     return (
       <>
       {chosenLine}
       <div data-overview-finding-list={body.status}>
         <ProductStatus words={listWords(body)} scope={listScope(summary)} asOf={body.knowledge_at} />
         <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
+        <FullList href={full} />
+        <ListReferences summary={summary} body={body} withBasis={false} />
+      </div>
+      </>
+    );
+  }
+  if (body.status === "PARTIAL" && body.total_count === 0) {
+    // IDX-GAPS: a Finding reaching into a neighbouring day not checked yet was left out; never the proved-empty words.
+    return (
+      <>
+      {chosenLine}
+      <div data-overview-finding-list="partial-empty">
+        <ProductStatus words={currentnessWords("PARTIAL")} scope={listScope(summary)} asOf={body.knowledge_at} />
+        <p>
+          <strong>No Findings on the assessed days.</strong> {OVERVIEW_PARTIAL}
+        </p>
         <FullList href={full} />
         <ListReferences summary={summary} body={body} withBasis={false} />
       </div>
@@ -378,6 +395,11 @@ function Loaded({
         <span data-overview-finding-count>
           {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
         </span>{" "}
+        {body.status === "PARTIAL" ? (
+          <>
+            <span data-overview-finding-partial>{OVERVIEW_PARTIAL}</span>{" "}
+          </>
+        ) : null}
         <span data-overview-finding-shown={partial ? "first-page" : "all"}>
           {partial
             ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.`

@@ -20,7 +20,15 @@ import type { OutcomeCategories } from "./outcomeCategories";
 /** The one supported domain token (`mini_grid` / `dispatch` on the server). */
 export const FINDING_INDEX_DOMAIN = "mini-grid-dispatch";
 
-export type FindingIndexStatus = "CURRENT" | "PENDING" | "UNASSESSED" | "STALE_PROJECTION" | "FAILED";
+export type FindingIndexStatus = "CURRENT" | "PARTIAL" | "PENDING" | "UNASSESSED" | "STALE_PROJECTION" | "FAILED";
+
+/** IDX-GAPS: one named gap day of the index (`finding-index/2`). */
+export interface FindingIndexGap {
+  day: string;
+  state: FindingIndexStatus;
+  /** NOT_CURRENT | EDGE_NEXT_TO_GAP | WITHHELD_FINDING */
+  reason: string;
+}
 
 export interface FindingIndexScope {
   domain: string;
@@ -85,7 +93,8 @@ export interface FindingIndexRow {
 }
 
 export interface FindingIndexBody {
-  schema_version: "site-finding-index-1";
+  schema_version: "site-finding-index-2";
+  policy_version: string;
   site_code: string;
   site_id: string;
   access_basis: string;
@@ -109,6 +118,10 @@ export interface FindingIndexBody {
   total_count: number | null;
   next_cursor: string | null;
   rows_statement: string | null;
+  /** IDX-GAPS: every gap day (sorted); `[]` when CURRENT. */
+  gaps: FindingIndexGap[];
+  /** IDX-GAPS: true when a Finding touching a gap day was left out of a PARTIAL list. */
+  withheld: boolean;
   source_gate?: { permitted: boolean; reason: string };
 }
 
@@ -134,10 +147,21 @@ export interface FindingIndexClient {
   getFindingIndex(siteId: string, scope: FindingIndexScope): Promise<FindingIndexResult>;
 }
 
+/** IDX-GAPS: a body that lists rows: a current CURRENT read, or a PARTIAL read (rows from assessed days only). */
+export function listsRows(body: FindingIndexBody): boolean {
+  return (body.status === "CURRENT" && body.is_current) || body.status === "PARTIAL";
+}
+
+/** IDX-GAPS: the requested days of the window whose index state is not CURRENT. */
+export function gapDays(body: FindingIndexBody): FindingIndexGap[] {
+  const requested = new Set(body.discovery.requested_days);
+  return (body.gaps ?? []).filter((g) => requested.has(g.day) && g.state !== "CURRENT");
+}
+
 function isIndexBody(value: unknown): value is FindingIndexBody {
   return (
     hasKeys(value, ["schema_version", "status", "rows", "total_count", "watermarks", "window", "selection_token"]) &&
-    (value as { schema_version: unknown }).schema_version === "site-finding-index-1" &&
+    (value as { schema_version: unknown }).schema_version === "site-finding-index-2" &&
     Array.isArray((value as { rows: unknown }).rows)
   );
 }
