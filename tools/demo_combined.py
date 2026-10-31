@@ -173,6 +173,7 @@ class Demo:
         self.url = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{db}"
         self.deadline: float | None = None
         self.started: list[int] = []
+        self.holds_busy = False
 
     # ---- environment -------------------------------------------------------------------------------------------
     def env(self, *, keys: bool = False) -> dict[str, str]:
@@ -243,6 +244,8 @@ class Demo:
         cap = 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0))
         self.deadline = time.monotonic() + cap
         began = time.monotonic()
+        if (self.work / ".busy").exists():
+            raise SystemExit(f"Refused: another prepare/add-day holds {self.work / '.busy'}")
         if self.work.exists() and any(self.work.iterdir()) and not self.owned():
             raise SystemExit(f"Refused: {self.work} exists, is not empty and was not made by this tool")
         with psycopg.connect(PG_ADMIN, autocommit=True) as c:
@@ -256,6 +259,8 @@ class Demo:
                     shutil.rmtree(child) if child.is_dir() else child.unlink()
         self.work.mkdir(parents=True, exist_ok=True)
         (self.work / MARKER).write_text(f"created by tools/demo_combined.py\ndb={self.db}\n", encoding="utf-8")
+        (self.work / ".busy").write_text(f"prepare pid={os.getpid()}\n", encoding="utf-8")
+        self.holds_busy = True
         self.tree.mkdir()
         archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", "backend", "gateway", "host", "simulator",
                                   "contracts", "config", "contract-fixtures", "tools"], cwd=REPO,
@@ -285,7 +290,7 @@ class Demo:
         days = story.pop("days")
         (self.work / "days.json").write_text(json.dumps(
             {"schema": days_doc["schema"], "source": str(days_path), "S": story["S"], "trial": days_doc["trial"],
-             "days": days}, indent=2), encoding="utf-8")
+             "days": days, "doc": days_doc}, indent=2), encoding="utf-8")
         story["code"] = head.stdout.strip()
         story["sites"] = [s for s in story["install_order"] if s in sites]
         (self.work / "story.json").write_text(json.dumps(story, indent=2), encoding="utf-8")
@@ -345,6 +350,79 @@ class Demo:
                            label="performance", check=False)
             say("  performance: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
 
+    # ---- add-day (DEMO-SPARSE U4) -----------------------------------------------------------------------------
+    def delivered_days(self, site_code: str) -> set[str]:
+        """UTC days holding delivered (accepted) evidence for the Site: the append-only refusal basis."""
+        import psycopg
+
+        with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
+            rows = c.execute(
+                "SELECT DISTINCT to_char(e.source_time AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM accepted_evidence e "
+                "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                "JOIN site s ON s.id = e.site_id WHERE s.site_code = %s", (site_code,)).fetchall()
+        return {r[0] for r in rows}
+
+    def db_now(self) -> datetime:
+        import psycopg
+
+        with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
+            return c.execute("SELECT clock_timestamp()").fetchone()[0]
+
+    def add_day(self, site_code: str, kind: str, day: str | None = None, as_kind: str | None = None,
+                assess_now: bool = False) -> dict:
+        """Append one story day, live on real time (sheet U4). Refuses with a `StoryDaysError` code."""
+        story = self.story()
+        site = sd.CODE_SITE.get(site_code)
+        if site is None:
+            raise sd.StoryDaysError("UNKNOWN_KIND", f"--site must be one of {sorted(sd.CODE_SITE)}")
+        if assess_now and kind == "late":
+            raise sd.StoryDaysError("UNKNOWN_KIND", "--assess-now is for non-late kinds; a late day waits for a tick")
+        busy = self.work / ".busy"
+        try:
+            fd = os.open(busy, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            raise SystemExit(f"Refused: another prepare/add-day holds {busy}")
+        try:
+            os.write(fd, f"add-day {site_code} {kind} pid={os.getpid()}\n".encode())
+            os.close(fd)
+            days_path = self.work / "days.json"
+            doc = json.loads(days_path.read_text(encoding="utf-8"))
+            current = sd.from_payload(doc["days"])
+            planned = sd.plan_add_day(doc["doc"], current, site, kind, at(story["S"]), self.db_now(), day=day,
+                                      as_kind=as_kind, delivered_days=self.delivered_days(site_code),
+                                      installs={n: at(v) for n, v in story["installs"].items()})
+            if assess_now and planned.has_run:
+                planned = sd.DayRun(**{**planned.__dict__, "assess": "build"})
+            out: dict = {"day": planned.day, "kind": planned.kind, "assess": planned.assess}
+            if planned.has_run:
+                child = self.tree / "tools" / f"demo_combined_{site}.py"
+                if site != "kobo" and not child.is_file():
+                    raise SystemExit(f"add-day for {site_code} is not built yet")
+                self.deadline = time.monotonic() + 2 * 140
+                done = self.py(str(child), "add-day", self.url, str(self.work), json.dumps(planned.payload()),
+                               cwd=self.tree / "backend" / "tests", label=f"add-day-{site}")
+                line = [x for x in done.stdout.splitlines() if x.startswith('{"added"')]
+                out.update(json.loads(line[-1]) if line else {})
+            doc["days"].append(planned.payload())
+            days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
+            say(f"added {site_code} {planned.day} {planned.kind}" +
+                ("" if not planned.has_run else
+                 " (assessed now)" if planned.assess == "build" else " (not checked yet: the next serve tick assesses it)"))
+            return out
+        finally:
+            busy.unlink(missing_ok=True)
+
+    def next_free_days(self) -> list[str]:
+        story, doc = self.story(), json.loads((self.work / "days.json").read_text(encoding="utf-8"))
+        current = sd.from_payload(doc["days"])
+        lines = []
+        for site in story["sites"]:
+            mine = [r.offset for r in current if r.site == site]
+            nxt = (max(mine) + 1) if mine else 0
+            lines.append(f"python tools/demo_combined.py --db {self.db} --work {self.work.relative_to(REPO).as_posix()} "
+                         f"add-day --site {SITE_CODE[site]} --kind normal --day S{nxt:+d}d")
+        return lines
+
     # ---- reading -----------------------------------------------------------------------------------------------
     def links(self, web: int) -> None:
         story = self.story()
@@ -353,7 +431,10 @@ class Demo:
         base = f"http://localhost:{web}"
         rows = [("Portfolio, story day S", f"{base}/portfolio?from={frm}&to={to}")]
         for site in story["sites"]:
-            rows.append((f"{SITE_CODE[site]} outcome board, day S", f"{base}/sites/{SITE_CODE[site]}/outcomes?from={frm}&to={to}"))
+            for off in (0, -7, -28):
+                day = S + timedelta(days=off)
+                rows.append((f"{SITE_CODE[site]} outcome board, day S{off:+d}d ({day.date().isoformat()})",
+                             f"{base}/sites/{SITE_CODE[site]}/outcomes?from={iso(day)}&to={iso(day + timedelta(days=1))}"))
         kobo = self.work / "kobo.json"
         if kobo.is_file():
             k = json.loads(kobo.read_text(encoding="utf-8"))
@@ -363,6 +444,14 @@ class Demo:
         say(f"Story day S = {story['S_date']} (dates move on every rebuild; quote them from here). Code {story['code']}.")
         for label, url in rows:
             say(f"  {label}\n    {url}")
+        days_path = self.work / "days.json"
+        if days_path.is_file():
+            say("Story days (kind per day; missing = no run, no delivery):")
+            current = sd.from_payload(json.loads(days_path.read_text(encoding="utf-8"))["days"])
+            for site in story["sites"]:
+                cells = [f"{r.day} S{r.offset:+d}d {r.kind}" + (f" (as {r.as_kind})" if r.as_kind else "")
+                         for r in sorted((r for r in current if r.site == site), key=lambda r: r.offset)]
+                say(f"  {SITE_CODE[site]}: " + "; ".join(cells))
 
     def serve(self, port: int, web: int) -> None:
         self.story()
@@ -389,6 +478,10 @@ class Demo:
             f"{TICK_EVERY_SECONDS} s, then the Performance comparison; it stops with serve.")
         say(f'Frontend, from frontend/:  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
         self.links(web)
+        if (self.work / "days.json").is_file():
+            say("Add a story day live (it shows as not checked yet until the next tick):")
+            for line in self.next_free_days():
+                say(f"  {line}")
         try:
             while api.poll() is None:
                 self.tick()
@@ -449,6 +542,12 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
     sub.add_parser("tick")
+    ad = sub.add_parser("add-day")
+    ad.add_argument("--site", required=True, choices=sorted(SITE_CODE.values()))
+    ad.add_argument("--kind", required=True)
+    ad.add_argument("--day", default=None, help="S[+-]Nd; default the day after the Site's last story day")
+    ad.add_argument("--as", dest="as_kind", default=None, choices=sd.LATE_AS, help="late Kobo day: the run it carries")
+    ad.add_argument("--assess-now", action="store_true", help="non-late kinds: assess and match in process")
     sub.add_parser("drop")
     args = parser.parse_args(argv)
     demo = Demo(args.db, args.work)
@@ -456,11 +555,17 @@ def main(argv: list[str] | None = None) -> None:
         sites = tuple(s for s in args.sites.split(",") if s)
         if not set(sites) <= set(SITES):
             raise SystemExit(f"--sites must be a subset of {SITES}")
-        demo.prepare(sites, finish=not args.no_finish, days_file=args.days)
+        try:
+            demo.prepare(sites, finish=not args.no_finish, days_file=args.days)
+        finally:
+            if demo.holds_busy:
+                (demo.work / ".busy").unlink(missing_ok=True)
     elif args.cmd == "links":
         demo.links(args.web_port)
     elif args.cmd == "serve":
         demo.serve(args.port, args.web_port)
+    elif args.cmd == "add-day":
+        demo.add_day(args.site, args.kind, day=args.day, as_kind=args.as_kind, assess_now=args.assess_now)
     elif args.cmd == "tick":
         demo.story()
         demo.tick()

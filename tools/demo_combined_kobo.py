@@ -380,8 +380,42 @@ def _trial_chain(store, runner, h, tmp: Path, M: dict, published: dict) -> dict:
     return ids
 
 
+def add_day(url: str, work: Path, planned: dict) -> dict:
+    """`demo_combined.py add-day` for KOBO-001: one registered Lab run on a day the calendar does not hold yet,
+    delivered on real time (`received_at` = the DB now the parent read). Assessed in process only for `--assess-now`
+    (`assess == "build"`); otherwise the running `serve` loop's next tick assesses it."""
+    import types
+
+    import pg_harness
+    import test_s6_verification_publication as pub
+    import test_s6_verification_replay as rp
+    from sqlalchemy import create_engine
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+
+    day = sd.from_payload([planned])[0]
+    engine = create_engine(url)
+    store = PostgresFoundationStore(url)
+    foundation = pub.registered.FoundationService(store, "demo", pub.registered.Clock(day.received_at))
+    tenant = foundation.tenant()
+    result = types.SimpleNamespace(tenant=tenant, site=foundation.site(tenant, "KOBO-001"))
+    runner = rp.LabRunner(store, engine, result, day.received_at)
+    tmp = Path(tempfile.mkdtemp(prefix="kobo-add-day-", dir=str(work)))
+    try:
+        out = run_day(store, runner, tmp, day, rp.MANIFESTS["v2"])
+        out["findings"] = findings_on(engine, result.site.id, day.day) if day.assess == "build" else []
+    finally:
+        pg_harness.dispose(runner.findings)
+        pg_harness.dispose(store)
+        engine.dispose()
+    print(json.dumps({"added": day.day, "kind": day.kind, **{k: out[k] for k in ("run_id", "findings")}}))
+    return out
+
+
 if __name__ == "__main__":
+    if len(sys.argv) == 5 and sys.argv[1] == "add-day":
+        add_day(sys.argv[2], Path(sys.argv[3]), json.loads(sys.argv[4]))
+        raise SystemExit(0)
     if len(sys.argv) != 4 or sys.argv[1] != "build":
-        raise SystemExit("usage: demo_combined_kobo.py build <database-url> <work>")
+        raise SystemExit("usage: demo_combined_kobo.py build|add-day <database-url> <work> [<day-json>]")
     work_dir = Path(sys.argv[3])
     build(sys.argv[2], work_dir, json.loads((work_dir / "story.json").read_text(encoding="utf-8")))
