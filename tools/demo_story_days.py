@@ -147,8 +147,8 @@ def _day_start(run: DayRun) -> datetime:
 
 
 def validate(runs: list[DayRun], S: datetime, *, db_now: datetime | None = None,
-             installs: dict[str, datetime] | None = None) -> None:
-    kobo = [r for r in runs if r.site == "kobo"]
+             installs: dict[str, datetime] | None = None, trial_pair: bool = True) -> None:
+    kobo = [r for r in runs if r.site == "kobo"] if trial_pair else []
     before = [r for r in kobo if r.kind == "trial-before"]
     after = [r for r in kobo if r.kind == "trial-after"]
     if kobo and not (len(before) == 1 and len(after) == 1 and after[0].offset == before[0].offset + 1):
@@ -176,3 +176,42 @@ def from_payload(rows: list[dict]) -> list[DayRun]:
     return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"]),
                            "known_at": t(r.get("known_at"))})
             for r in rows]
+
+
+def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S: datetime, db_now: datetime, *,
+                 day: str | None = None, as_kind: str | None = None, delivered_days: set[str] = frozenset(),
+                 installs: dict[str, datetime] | None = None) -> DayRun:
+    """The one entry `add-day` appends (sheet U4), live on real time: `received_at` and the Foundation knowledge
+    are DB now; the run interval is the kind's on its day. Refuses with a `StoryDaysError` code; writes nothing."""
+    if site not in SITES:
+        raise StoryDaysError("UNKNOWN_KIND", f"site {site!r} is not one of {SITES}")
+    kinds = days_doc["kinds"].get(site, {})
+    if kind not in kinds:
+        raise StoryDaysError("UNKNOWN_KIND", f"{site} kind {kind!r} is not one of {sorted(kinds)}")
+    if kind not in ADD_DAY_KINDS[site]:
+        raise StoryDaysError("PREPARE_ONLY_KIND", f"{site} kind {kind!r} carries work rows or Actions; add-day takes "
+                                                  f"only {ADD_DAY_KINDS[site]}")
+    mine = [r for r in current if r.site == site]
+    offset = day_offset(day) if day else (max(r.offset for r in mine) + 1 if mine else 0)
+    D = S + timedelta(days=offset)
+    date = D.date().isoformat()
+    if any(r.day == date for r in mine):
+        raise StoryDaysError("DUPLICATE_DAY", f"{site} already has a {next(r.kind for r in mine if r.day == date)} "
+                                              f"entry on {date}")
+    if date in delivered_days:
+        raise StoryDaysError("DAY_HAS_EVIDENCE", f"{site} {date} already holds delivered evidence (append-only)")
+    if offset < -BOARD_WINDOW_DAYS:
+        raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{site} {date} is earlier than S-{BOARD_WINDOW_DAYS}d")
+    entry = {"day": f"S{offset:+d}d", "kind": kind}
+    if kind == "late" and "scenario_id" not in kinds["late"]:
+        entry["as"] = as_kind or "normal"
+    planned = _entry(days_doc, site, entry, S)
+    if D.date() > db_now.date() or (planned.end is not None and planned.end > db_now - PAST_MARGIN):
+        raise StoryDaysError("DAY_NOT_IN_PAST", f"{site} {date} ends after DB now - {PAST_MARGIN} ({iso(db_now)})")
+    if planned.has_run:
+        epochs = [int(r.epoch.split("-")[1]) for r in current if r.epoch]
+        planned = DayRun(**{**planned.__dict__, "received_at": db_now, "known_at": db_now,
+                            "epoch": f"day-{max(epochs, default=0) + 1}",
+                            "assess": "tick"})
+    validate([planned], S, installs=installs, trial_pair=False)
+    return planned

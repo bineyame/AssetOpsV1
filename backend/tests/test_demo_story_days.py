@@ -117,3 +117,45 @@ def test_outside_board_window():
 def test_payload_round_trip():
     runs = sd.resolve(sd.load(), S)
     assert sd.from_payload([r.payload() for r in runs]) == runs
+
+
+# ---- U4: add-day planning (refusals; the live path runs once in the slow build test) --------------------------
+NOW = S + timedelta(days=2, hours=4)
+INSTALLS = {"kobo": S + timedelta(days=-29, hours=11), "cold": S + timedelta(days=-26, hours=6),
+            "ev": S + timedelta(days=-26, hours=6, minutes=30)}
+
+
+def _plan(site, kind, **kw):
+    doc = sd.load()
+    current = sd.resolve(doc, S, db_now=NOW, installs=INSTALLS)
+    return sd.plan_add_day(doc, current, site, kind, S, kw.pop("db_now", NOW), installs=INSTALLS, **kw)
+
+
+def _refused(site, kind, **kw):
+    with pytest.raises(sd.StoryDaysError) as err:
+        _plan(site, kind, **kw)
+    return err.value.error_code
+
+
+def test_add_day_defaults_to_the_next_free_day_on_real_time():
+    later = S + timedelta(days=2, hours=12)  # the default day S+2 is today; its 03:00-11:00 run has ended
+    planned = _plan("kobo", "late", db_now=later)
+    assert planned.day == (S + timedelta(days=2)).date().isoformat() and planned.as_kind == "normal"
+    assert planned.received_at == later and planned.known_at == later and planned.assess == "tick"
+    assert planned.epoch == "day-13"  # after the 12 prepared runs (7 Kobo, 3 cold, 2 EV)
+    gap = _plan("cold", "normal", day="S-10d")
+    assert gap.day == "2026-10-19" and gap.has_run
+    assert not _plan("kobo", "missing", day="S-11d").has_run
+
+
+def test_add_day_refusals():
+    assert _refused("kobo", "normal", day="S-14d") == "DUPLICATE_DAY"
+    assert _refused("kobo", "normal", day="S-11d", delivered_days={"2026-10-18"}) == "DAY_HAS_EVIDENCE"
+    assert _refused("kobo", "normal", day="S+3d") == "DAY_NOT_IN_PAST"
+    assert _refused("kobo", "normal", db_now=S + timedelta(days=2, hours=11)) == "DAY_NOT_IN_PAST"  # run ends 11:00
+    assert _refused("cold", "normal", day="S-27d") == "DAY_BEFORE_INSTALL"
+    assert _refused("kobo", "sunny") == "UNKNOWN_KIND"
+    assert _refused("kobo", "trial-before", day="S-1d") == "PREPARE_ONLY_KIND"
+    assert _refused("cold", "failure", day="S-1d") == "PREPARE_ONLY_KIND"
+    assert _refused("ev", "fault", day="S-1d") == "PREPARE_ONLY_KIND"
+    assert _refused("kobo", "normal", day="S-31d") == "OUTSIDE_BOARD_WINDOW"
