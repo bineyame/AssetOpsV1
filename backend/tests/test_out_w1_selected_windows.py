@@ -23,6 +23,9 @@ def at(h: int, m: int = 0, day: datetime = D) -> datetime:
     return day + timedelta(hours=h, minutes=m)
 
 
+SELECTED = datetime(2026, 10, 6, 9, 5, tzinfo=timezone.utc)
+
+
 class FakeSnap:
     def __init__(self, sites: list[dict], windows: list[dict], cutoff: datetime | None = CUTOFF) -> None:
         self.read_at, self._sites, self._windows, self._cutoff = READ_AT, sites, windows, cutoff
@@ -52,7 +55,13 @@ def site(code: str, site_type: str) -> dict:
 
 
 def win(lo: datetime, hi: datetime, analytic: str = "temperature") -> dict:
-    return {"window_start": lo, "window_end": hi, "state": "CURRENT", "analytic_id": analytic}
+    return {"window_start": lo, "window_end": hi, "state": "CURRENT", "analytic_id": analytic,
+            "selected_at": SELECTED, "seq": 1, "selection_id": f"sel-{analytic}"}
+
+
+def keys(out):
+    """The (start, end) of each returned window dict, in order."""
+    return [(w["window_start"], w["window_end"]) for w in out]
 
 
 def svc(snap: FakeSnap) -> EstateEvidenceService:
@@ -66,7 +75,8 @@ def test_cold_windows_deduplicated_and_ascending():
     snap = FakeSnap([s], [win(at(14), at(15)), win(at(8), at(9)), win(at(14), at(15), "door"), stale, pending])
     out = svc(snap).site_selected_windows(T, "COLD-LAB-001", D, D + timedelta(days=1))
     # any selected window is the event, whatever its state (review L1)
-    assert out == [(at(8), at(9)), (at(14), at(15)), (at(16), at(17)), (at(18), at(19))]
+    assert keys(out) == [(at(8), at(9)), (at(14), at(15)), (at(14), at(15)), (at(16), at(17)), (at(18), at(19))]
+    assert {w["selection_id"] for w in out} == {"sel-temperature", "sel-door"}  # one dict per distinct selection
     assert snap.calls == [(T, s["site_id"], "cold_chain", D, D + timedelta(days=1), CUTOFF, READ_AT)]
 
 
@@ -75,7 +85,8 @@ def test_ev_window_and_exact_arguments():
     known = datetime(2026, 10, 7, 10, tzinfo=timezone.utc)
     snap = FakeSnap([s], [win(at(8), at(9))])
     out = svc(snap).site_selected_windows(T, "EV-LAB-001", D, D + timedelta(days=1), known)
-    assert out == [(at(8), at(9))]
+    assert keys(out) == [(at(8), at(9))]
+    assert set(out[0]) == {"window_start", "window_end", "selected_at", "seq", "selection_id"}
     assert snap.calls == [(T, s["site_id"], "ev_charging", D, D + timedelta(days=1), CUTOFF, known)]
 
 
@@ -101,7 +112,7 @@ def test_long_and_zero_length_windows_dropped():
                     [win(at(0) - timedelta(days=31), at(1)), win(at(9), at(9)), win(at(10), at(9)),
                      win(at(0) - timedelta(days=30), at(0) + timedelta(days=1)), win(at(8), at(9))])
     out = svc(snap).site_selected_windows(T, "COLD-LAB-001", D, D + timedelta(days=1))
-    assert out == [(at(0) - timedelta(days=30), at(0) + timedelta(days=1)), (at(8), at(9))]
+    assert keys(out) == [(at(0) - timedelta(days=30), at(0) + timedelta(days=1)), (at(8), at(9))]
 
 
 def test_known_at_after_read_at_refuses():
