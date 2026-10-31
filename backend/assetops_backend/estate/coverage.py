@@ -13,11 +13,12 @@ Run 7 q7-1 (the requested cutoff and the Site evidence cutoff are separate).
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
 
 from assetops_backend.actions import lifecycle
+from assetops_backend.analytics.finding_index import touched
 from assetops_backend.evidence.provenance_read import source_gate
 from assetops_backend.estate.scope import EstateSelectionInconsistent
 from assetops_backend.evidence.public_provenance import estate_projection
@@ -27,6 +28,12 @@ DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI_GRID, "COLDCHAIN": COLD, "EV_CHARGING": 
 CURRENT, PENDING, STALE, HISTORICAL, UNKNOWN, NOT_APPLICABLE = (
     "CURRENT", "PENDING_RECOMPUTE", "STALE_SOURCE", "HISTORICAL", "UNKNOWN", "NOT_APPLICABLE")
 COVERED = (CURRENT, HISTORICAL)
+# COV-PARTIAL (D-2026-10-31-estate-coverage-v2): a live mini-grid period with unchecked days and clean checked days.
+# Not in COVERED: every consumer still reads it as not covered (no money, no count, no covered Site).
+PARTIAL = "PARTIAL"
+DAYS_POLICY = "estate-coverage/2"
+DAYS_CHECKED = "{c} of {n} days checked · {g} {unit} not available yet"
+DAYS_WITHHELD = "; Findings next to those days are not shown yet"
 _S3_CURRENT, _S3_PENDING, _S3_STALE, _S3_FAILED = "CURRENT", "PENDING", "STALE_PROJECTION", "FAILED"
 VERIFIED_LOOKBACK = timedelta(days=30)
 
@@ -36,7 +43,7 @@ def _empty(state: str, **values: Any) -> dict[str, Any]:
            "source_freshness": "UNKNOWN", "state": state, "rows": [],
            "selected_finding_revision_ids": [], "selected_action_event_ids": [],
            "selected_assessment_revision_ids": [], "selected_consequence_revision_ids": [],
-           "selected_assumption_revision_ids": [], "cited_accepted_evidence_ids": []}
+           "selected_assumption_revision_ids": [], "cited_accepted_evidence_ids": [], "days": None}
     out.update(values)
     return out
 
@@ -84,10 +91,11 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     index = snapshot.finding_index(t, s, k)
     match_pass = index.get("match_pass")
     deferred = set(index.get("deferred_windows") or ())
-    unknown = pending = stale = unmatched = False
+    unknown = pending = stale = unmatched = gap = False
     provable = True
     statuses: set[str] = set()
     selected_days = []
+    gap_days: list[date] = []
     for day in days:
         day_jobs = {j.get("status") for j in day.get("jobs") or ()}
         statuses |= day_jobs
@@ -97,7 +105,9 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
             pending = True
         selection = day.get("selection")
         if not day.get("available") or selection is None:
-            unknown, provable = True, False
+            # COV-PARTIAL §2.2: an unchecked day sets `gap`, not `unknown`; `provable` falls as before.
+            gap, provable = True, False
+            gap_days.append(_day_of(day))
             continue
         selected_days.append(day)
         matched = (match_pass is not None and match_pass["matched_through_selection_seq"] >= int(selection["seq"])
@@ -111,12 +121,18 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         elif day.get("status") != _S3_CURRENT:
             unknown = True
     match_state = "MISSING" if match_pass is None or not selected_days else "PENDING" if unmatched else "COMPLETE"
+    aligned = len(days) == _requested_days(from_, to)
+    # §2.3: PARTIAL only on a live, day-aligned read whose checked days are all clean. Any other gap is today's
+    # rule byte for byte (C2, C4/R621, C5): the gap reads as `unknown`.
+    partial = gap and aligned and not historical and bool(selected_days) and not (unknown or pending or stale)
+    unknown = unknown or (gap and not partial)
     freshness = "UNKNOWN" if unknown or not selected_days else "STALE" if stale else "RECENT"
     if historical:
         # Reading 4: a provable as-of selection is HISTORICAL; an outstanding marker stays in job_state only.
         state = HISTORICAL if provable and days else UNKNOWN
     else:
-        state = UNKNOWN if unknown or not days else PENDING if pending else STALE if stale else CURRENT
+        state = (UNKNOWN if unknown or not days else PENDING if pending else STALE if stale
+                 else PARTIAL if partial else CURRENT)
     last = max(selected_days, key=lambda d: d["window_start"], default=None)
     out = _empty(state, watermark=watermark, match_state=match_state,
                  job_state=_job_state(statuses, bool(selected_days)), source_freshness=freshness,
@@ -127,10 +143,18 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         if day.get("window_assessment_revision_id") is not None:
             assessments.add(str(day["window_assessment_revision_id"]))
     out["selected_assessment_revision_ids"] = sorted(assessments)
-    if state not in COVERED:  # reading 6: mini-grid rows only from a CURRENT or provable HISTORICAL Site
+    withheld = False
+    if state not in COVERED and state != PARTIAL:  # reading 6: rows only from a CURRENT, PARTIAL or HISTORICAL Site
+        out["days"] = _days_block(state, aligned, len(days), len(selected_days), gap_days, withheld)
         return out
     heads = [h for h in index.get("heads") or () if h.get("merged_into_finding_id") is None
              and _intersects(h.get("episode_start"), h.get("episode_end"), from_, to, k)]
+    if state == PARTIAL:  # §2.5: drop every head that touches an unchecked day (open end read through `k`)
+        kept = [h for h in heads if not touched(
+            {"episode_start": h["episode_start"], "episode_end": k if h.get("episode_end") is None
+             else h["episode_end"]}, gap_days)]
+        withheld, heads = len(kept) != len(heads), kept
+    out["days"] = _days_block(state, aligned, len(days), len(selected_days), gap_days, withheld)
     lineage = snapshot.finding_lineage(t, s, [h["finding_revision_id"] for h in heads], k) if heads else {}
     cited_by: dict[str, list[str]] = {}
     for row in lineage.get("evidence") or ():
@@ -142,7 +166,8 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     for h in heads:
         frid = str(h["finding_revision_id"])
         cited |= set(cited_by.get(frid, ()))
-        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []))
+        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []),
+                                       withhold=state == PARTIAL)
         if consequence.pop("_id", None) is not None:
             consequences.add(consequence["source_revision_id"])
         assumptions |= set(consequence.pop("_assumptions", ()))
@@ -163,6 +188,43 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     return out
 
 
+def _requested_days(from_: datetime, to: datetime) -> int:
+    """C5: the number of UTC midnights in `[from_, to)`."""
+    first = datetime.combine(from_.astimezone(timezone.utc).date(), datetime.min.time(), tzinfo=timezone.utc)
+    if first < from_:
+        first += timedelta(days=1)
+    return 0 if first >= to else (to - first - timedelta(microseconds=1)) // timedelta(days=1) + 1
+
+
+def _day_of(day: dict[str, Any]) -> date:
+    value = day.get("day")
+    if isinstance(value, datetime):
+        return value.astimezone(timezone.utc).date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        return date.fromisoformat(value[:10])
+    return day["window_start"].astimezone(timezone.utc).date()
+
+
+def _days_block(state: str, aligned: bool, requested: int, checked: int, gaps: list[date],
+                withheld: bool) -> dict[str, Any] | None:
+    """§2.6: the mini-grid `days` block (any state); `text` only when PARTIAL; `None` on a day-count mismatch (C5,
+    Addendum 1 Q3: no day count is published from a mismatched read)."""
+    if not aligned:
+        return None
+    gaps = sorted(gaps)
+    text_value = None
+    if state == PARTIAL:
+        g = len(gaps)
+        text_value = DAYS_CHECKED.format(c=checked, n=requested, g=g, unit="day" if g == 1 else "days")
+        if withheld:
+            text_value += DAYS_WITHHELD
+    return {"policy": DAYS_POLICY, "requested": requested, "checked": checked,
+            "gaps": [{"day": d.isoformat(), "state": "UNASSESSED", "reason": "NO_ASSESSED_SELECTION"} for d in gaps],
+            "withheld": withheld, "text": text_value}
+
+
 def _consequence(state: str, source_revision_id: Any = None, **extra: Any) -> dict[str, Any]:
     """Finding wire v2 (Run 8 ruling 3): `amount_low`/`amount_high` are the stored interval bounds for PRICED, both
     null otherwise; `amount` is the compatibility alias of `amount_low`; neither bound is a point estimate."""
@@ -171,7 +233,7 @@ def _consequence(state: str, source_revision_id: Any = None, **extra: Any) -> di
 
 
 def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: datetime, historical: bool,
-                     finding_cited: list[str]) -> dict[str, Any]:
+                     finding_cited: list[str], withhold: bool = False) -> dict[str, Any]:
     """Run 6 Blocker 2: PRICED (and the COST flag) only for a CURRENT, ELIGIBLE, source-permitted exact selected
     consequence at the live cutoff; an unpriced stored row is UNPRICED; any other selected row is UNKNOWN with its
     revision ID; no stored row is UNPRICED with a null source (`No consequence recorded`)."""
@@ -184,7 +246,7 @@ def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: dat
              "_cited": [str(x) for x in cited.get("power_evidence_ids") or ()]}
     if selected.get("consequence_state") != "PRICED":
         return _consequence("UNPRICED", cid, **extra)
-    if historical:  # a prior selected amount is never a current-money claim
+    if historical or withhold:  # a prior amount, or one from a partly checked period (C6), is never current money
         return _consequence("UNKNOWN", cid, **extra)
     block = snapshot.consequence_provenance(t, s, cid, head["finding_revision_id"],
                                             sorted({*finding_cited, *extra["_cited"]}))
