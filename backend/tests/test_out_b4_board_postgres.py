@@ -316,6 +316,67 @@ def _build_kobo(url: str, work: Path, case: str) -> tuple[dict, list]:
     return json.loads((work / f"case-{case}.json").read_text(encoding="utf-8")), imported
 
 
+def _spy_lineage(monkeypatch) -> list[dict]:
+    """LINK-LINEAGE U3: per mini board read, the shown Finding revisions and the Actions' origin revisions the
+    composer handed to `_lineage` (the decision itself is recomputed by `_expected_link` from the history route)."""
+    from assetops_backend.site_outcomes import mini
+
+    seen: list[dict] = []
+    real = mini._lineage
+
+    def spy(reads, ports, findings, actions):
+        seen.append({"findings": {f.finding_id: f.revision_id for f in findings},
+                     "actions": {a.action_id: (a.origin_finding_id, a.origin_revision_id, a.verification_state,
+                                               a.verification_href) for a in actions}})
+        return real(reads, ports, findings, actions)
+
+    monkeypatch.setattr(mini, "_lineage", spy)
+    return seen
+
+
+def _expected_link(c, finding_id: str, shown: str | None, origin: str | None) -> tuple[bool, list]:
+    """The rule computed independently from `GET .../findings/{id}/history?revision_id=<shown>` (every page):
+    exact revision, or every revision after the origin up to the shown one BASIS_REFRESHED with the origin's
+    lifecycle and episode. Returns the decision and the recorded transitions between them."""
+    if not shown or not origin:
+        return False, []
+    revs, after = [], 0
+    while after is not None:
+        r = c.get(f"/api/sites/KOBO-001/findings/{finding_id}/history",
+                  params={"revision_id": shown, "after_revision_no": after, "limit": 500})
+        assert r.status_code == 200, r.text
+        revs += r.json()["revisions"]
+        after = r.json()["page"]["next_after_revision_no"]
+    by = {x["id"]: x for x in revs}
+    if origin == shown:
+        return True, []
+    if origin not in by or shown not in by:
+        return False, []
+    o, s = by[origin], by[shown]
+    mid = [x for x in revs if o["revision_no"] < x["revision_no"] <= s["revision_no"]]
+    chain = (len(mid) == s["revision_no"] - o["revision_no"] > 0
+             and all(x["transition"] == "BASIS_REFRESHED" and x["lifecycle"] == o["lifecycle"]
+                     and x["episode"] == o["episode"] for x in mid))
+    return chain, [(x["revision_no"], x["transition"], x["lifecycle"]) for x in mid]
+
+
+def _assert_lineage_must_not_harm(c, key: str, seen: dict, finding_id: str, action_id: str, row: dict) -> bool:
+    """Record shown revision, origin revision, transitions and the rule; then the Cost Must-not-harm follows it."""
+    shown = seen["findings"].get(finding_id)
+    origin_f, origin, state, href = seen["actions"].get(action_id, (None, None, None, None))
+    linked, transitions = _expected_link(c, finding_id, shown, origin if origin_f == finding_id else None)
+    _record(f"{key}_lineage", {"shown": shown, "origin": origin, "verification_state": state,
+                               "transitions": transitions, "refresh_chain": linked,
+                               "must_not_harm": row["must_not_harm"]})
+    if linked:
+        assert row["must_not_harm"] is not None, (key, row["must_not_harm"])
+        assert row["must_not_harm"]["href"] == href, (key, row["must_not_harm"], href)
+        assert "checked as safeguards" in row["must_not_harm"]["text"], row["must_not_harm"]
+    else:
+        assert row["must_not_harm"] is None, (key, row["must_not_harm"])
+    return linked
+
+
 def _pin_kobo(monkeypatch, spec: dict) -> None:
     """`tools/s602b_test_scoped_cases.pinned_app`, with monkeypatch so nothing leaks past this test."""
     import assetops_backend.actions.composition as composition
@@ -386,12 +447,20 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     _serve(monkeypatch, url, work)
     _pin_kobo(monkeypatch, spec)
     seen = _spy_work_rows(monkeypatch)
+    lineage = _spy_lineage(monkeypatch)
+    f01 = spec["findings"]["2026-10-06"]
     with _client() as c:
         a, failed_a = _board(c, "KOBO-001", "kobo_guardrail_day_a", date="2026-10-06")
         b, failed_b = _board(c, "KOBO-001", "kobo_guardrail_day_b", date="2026-11-02")
+        # LINK-LINEAGE U3: Must-not-harm on both days follows the refresh-lineage rule, computed in the test from
+        # the Finding history route (D-2026-10-31-board-action-refresh-lineage)
+        assert len(lineage) == 2, lineage
+        for key, body, seen_ in (("kobo_guardrail_day_a", a, lineage[0]), ("kobo_guardrail_day_b", b, lineage[1])):
+            _assert_lineage_must_not_harm(c, key, seen_, f01, spec["action"], _rows(body)["OPTIMIZE_COST"])
 
     # Addendum 6: the s602b overview is STALE_PROJECTION, so the outcomes stay UNKNOWN/NOT_MEASURED. The Day A F01
-    # checks are restored below (IDX-GAPS); Day A NEEDS_ATTENTION and Day B Must-not-harm stay with DEMO-SPARSE CO-1.
+    # checks are restored below (IDX-GAPS); Must-not-harm on both days follows LINK-LINEAGE (above); Day A
+    # NEEDS_ATTENTION stays with DEMO-SPARSE CO-1.
     for body in (a, b):
         assert [r["category"] for r in body["rows"]] == CATEGORIES, [r["category"] for r in body["rows"]]
         measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
@@ -423,16 +492,14 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     assert sum(p["rows"] for p in index) >= 1 and any(p["ids"] and spec["action"] in p["ids"] for p in index), index
     assert not [i for r in b["rows"] for i in _items(r) if i["text"].endswith(OUTSIDE)]
     # IDX-GAPS (R595): the board day's index is PARTIAL with Day A assessed, so the addendum 6 Day A Finding checks
-    # pass again unmodified. Still left to DEMO-SPARSE CO-1 (they fail on the s602b data): Day A Cost
-    # NEEDS_ATTENTION, Day B Must-not-harm text and href, ACT-048 on Cost and on Protect (the fixture's Action is
-    # ACT-000001).
-    f01 = spec["findings"]["2026-10-06"]
+    # pass again unmodified. Must-not-harm (both days) is asserted above by the LINK-LINEAGE rule. Still left to
+    # DEMO-SPARSE CO-1 (they fail on the s602b data): Day A Cost NEEDS_ATTENTION, ACT-048 on Cost and on Protect
+    # (the fixture's Action is ACT-000001).
     cost, protect = _rows(a)["OPTIMIZE_COST"], _rows(a)["PROTECT_ASSET"]
     moves = [i for i in cost["issues"] if i["role"] == "MOVES" and (i.get("ref") or {}).get("finding_id") == f01]
     assert moves, cost["issues"]
     checked = [i for i in protect["issues"] if (i.get("ref") or {}).get("finding_id") == f01]
     assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
-    assert cost["must_not_harm"] is None
 
 
 def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
