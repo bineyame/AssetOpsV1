@@ -231,3 +231,12 @@ three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeou
   to the coordinator per the FYI stop rule (next day's run readings), not acted on; no run is split across days.
 - Next (after FIX-S4-DOMAIN merges, on the coordinator's word): merge main, drop `assetops_demo3_full_test`, rebuild
   the full prepare, build test, U6.
+
+## State 2026-10-31 (sixth implementer: merge main, rebuild, U6)
+
+- `feec73b2f` merged main `15eed62c8` (FIX-S4-DOMAIN), clean; `test_demo_story_days.py` 18 passed; check-all 11/11.
+- First full prepare at `feec73b2f` failed after 678 s on the Kobo S-1 normal day: `_publish_and_accept` counts
+  acceptance by `received_at` and got `(1164, 2072, 0, 0, 0)`: the late S-3 day (`D+2d 12:00`) and S-1 normal
+  (`D+0d 12:00`) share 2026-10-28 12:00 (collision created by Addendum 3's S-1 day). Fix `20f83276b`: late Kobo
+  delivery `D+2d 12:30`; `validate` refuses `DUPLICATE_RECEIVED_AT` (test proven non-vacuous). Sheet §2 deviation.
+- Rebuild on `assetops_demo3_full_test` / `var/demo3_full` at `20f83276b` running (log in the session scratchpad).
