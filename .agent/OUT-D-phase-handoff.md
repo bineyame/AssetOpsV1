@@ -15,6 +15,17 @@
   per DB, not 3 (Known Deviation). Full-log helper: scratchpad `ptlog.ps1 <log> <tests>` (pt.ps1 truncates to 25 lines).
 - Then U6 (captures need coordinator go), register R580-R586, closeout.
 
+## State at closeout (implementer 3): slice built, in_review
+- **U6:**
+  - Captures at eeef72a8: 48/50 claims passed. The 2 failures are the cold READY wait, as in OUT-B.
+  - Full vitest: 3531 passed, 3 failed (the known w1f4 tests).
+  - `-Tier all`: 4455 passed, 3 failed. The 3 failures were d5, caused by d3 store test pollution. Fixed in dd22af4f;
+    the rerun passed 4/4.
+  - check-all: 11/11.
+- **Closeout:** done. The task file is in_review; packet `.agent/OUT-D-packet.md`; CODE_STATE has "OUT-D"; ACTIVE_CONTEXT
+  has its line.
+- **Next:** a fresh slice review.
+
 ## State at f6be0782 (implementer 3): U4 REVISE fixes landed
 - M1 `mini.PLAN_NOT_READ` (in COPY) when `objective_rows is None`; test `test_failed_objectives_read_never_says_no_target_declared`.
 - M2 board body `objectives_read`; `summary()` counts only Sites with board loaded AND objectives read; new

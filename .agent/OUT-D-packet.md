@@ -71,7 +71,30 @@ never says "no targets" for a Site it could not read.
   are the known `w1f4VerificationStructure` tests.
   - An earlier unplanned run of `src/sites` and `src/estate` also failed evEnergy R347 under load. It passed 12/12 alone,
     and the full run passed it.
-- **Full backend:** `tools\run-backend-suite-in-container.ps1 -Tier all` at eeef72a8. Result: BACKEND_RESULT.
+- **Full backend:** `toolsun-backend-suite-in-container.ps1 -Tier all` at eeef72a8.
+  - Run `20261031-030148-43b8cd`: 4 workers, postgres-test, wall 2295 s (38 min).
+  - JUnit: 4458 tests, of which 4455 passed and 3 failed, with 0 errors and 0 skipped.
+  - All 3 failures were in d5: `_same_key() takes 4 positional arguments but 5 were given`. This was test pollution.
+    `test_out_d3_objective_store_postgres.py` saved `type(store)._same_key`, which is the unwrapped function, and restored
+    it as a plain method, so later tests in the same worker called it with `self`.
+  - Fixed in dd22af4f, which touches only that test file: it now saves `__dict__["_same_key"]`.
+  - Rerun of d3 store and d5 in one worker, in the triggering order (run `20261031-034147-0a63eb`): 4 passed, 76 s.
+  - The 20 head-literal Postgres files all passed in the full run: 266 tests, 0 skips.
+
+    | File | Tests | File | Tests |
+    |---|---|---|---|
+    | d1 schema | 23 | w203 | 5 |
+    | s1 bindings | 16 | w204 | 11 |
+    | s2 ledger | 33 | w205a | 3 |
+    | s405 | 21 | w206 | 7 |
+    | s4 store | 13 | w207 | 14 |
+    | s4 work | 13 | w401 | 2 |
+    | w200 | 14 | w402 | 14 |
+    | w201 | 18 | w403 | 11 |
+    | w501 | 7 | w503 | 15 |
+    | w502 | 11 | w504 | 15 |
+
+  - check-all is 11/11 at dd22af4f.
 - **Captures:** 48 of 50 claims passed. Both failures are the cold "app rendered" READY wait, as in OUT-B: the board had
   loaded and every row was measured. No page overflow, at 1425/1425 for 1440 and 390/390 for 390. The only console error
   is a favicon 404. Every DB was dropped, and every server was stopped by PID (`.agent/OUT-D-captures/README.txt`).
