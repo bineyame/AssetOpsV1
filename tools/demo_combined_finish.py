@@ -299,23 +299,67 @@ def co10(ctx: Ctx) -> dict:
 
 # ---- estate and every Site -------------------------------------------------------------------------------------
 
+def _estate(ctx: Ctx, lo: datetime, hi: datetime) -> tuple[dict, dict, dict, dict]:
+    """(portfolio, outcome summary, Finding coverage by Site code, summary Site by code) over [lo, hi)."""
+    days = {"from": iso(lo), "to": iso(hi)}
+    body = ctx.get("/api/estate/portfolio", **days)
+    summary = ctx.get("/api/estate/outcome-summary", **days)
+    code_of = {o["site_id"]: o["site_code"] for o in body["objectives"]}
+    coverage = {code_of.get(c["site_id"], c["site_id"]): c for c in (body.get("coverage") or {}).get("sites", [])}
+    return body, summary, coverage, {x["site_code"]: x for x in summary["sites"]}
+
+
+def _cov(c: dict | None) -> dict | None:
+    return None if c is None else {k: c.get(k) for k in ("state", "source_freshness", "match_state", "job_state")}
+
+
 @row("CO-6", idx=True)
 def co6(ctx: Ctx) -> dict:
+    """Addendum 2 ruling (i): the week S-6d..S+1d. It always holds the EV fault Tuesday (Tue <= S), so cold and EV
+    read their LATEST_EVENT; Kobo's estate coverage is UNKNOWN by the all-days rule (`estate/coverage.py:98-100`,
+    R613: a requested day with no available selection), so the Portfolio status is UNKNOWN; Kobo's outcome cells
+    are its day-S board (`mini_summary_day(to)` = S for the midnight `to`, `site_outcomes/read.py:138`)."""
     from assetops_backend.estate.money_invariants import double_count_violations
 
-    # Addendum 1 (a): the week period S-6d..S+1d always holds the EV fault Tuesday (Tue <= S), so EV's LATEST_EVENT
-    # window resolves; mini still reads `mini_summary_day(to)` = S (`to` is midnight S+1d).
-    days = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}
-    body = ctx.get("/api/estate/portfolio", **days)
-    assert body["status"] == "CURRENT", body["status"]
+    body, summary, coverage, by_code = _estate(ctx, ctx.day(-6), ctx.day(1))
     codes = sorted({o["site_code"] for o in body["objectives"]})
     assert codes == sorted([KOBO, COLD, EV]), codes
     assert double_count_violations(body, financials_body=None) == []
-    summary = ctx.get("/api/estate/outcome-summary", **days)
     assert summary["objective_site_count"] == 3, summary.get("objective_site_count")
-    basis = {s["site_code"]: s.get("window_basis") for s in summary["sites"]}
+    basis = {code: x.get("window_basis") for code, x in by_code.items()}
     assert basis.get(COLD) == basis.get(EV) == "LATEST_EVENT", basis
-    return {"sites": codes, "window_basis": basis}
+    # the reason, from the data: Kobo days in the week with no run (so no available selection)
+    ran = {d["day"] for d in ctx.site_days("kobo") if d["kind"] != "missing"}
+    week = [(ctx.day(n)).date().isoformat() for n in range(-6, 1)]
+    unassessed = [d for d in week if d not in ran]
+    assert unassessed, (week, sorted(ran))
+    kobo = coverage.get(KOBO)
+    assert kobo is not None and kobo["state"] == "UNKNOWN" and kobo["source_freshness"] == "UNKNOWN", _cov(kobo)
+    assert body["status"] == "UNKNOWN", (body["status"], body.get("coverage", {}).get("state"))
+    assert basis.get(KOBO) == "DAY" and (by_code[KOBO].get("window") or {}).get("from") == iso(ctx.S), by_code[KOBO]
+    board = {r["category"]: r["state"] for r in _kobo_board_s(ctx)["rows"]}
+    cells = {r["category"]: r["state"] for r in by_code[KOBO]["rows"]}
+    assert cells == board, (cells, board)
+    return {"status": body["status"], "kobo_coverage": _cov(kobo), "kobo_unassessed_days": unassessed,
+            "reason": "a requested day has no available selection (estate/coverage.py:98-100, R613)",
+            "window_basis": basis, "kobo_cells_from_day_S": cells}
+
+
+@row("CO-6b", idx=True)
+def co6b(ctx: Ctx) -> dict:
+    """Addendum 2: the day S. Kobo coverage CURRENT; cold LATEST_EVENT (the S failure night); EV reads what it reads
+    with no event on S (PERIOD unless S is a Tuesday): recorded and asserted as given, never forced."""
+    body, summary, coverage, by_code = _estate(ctx, ctx.S, ctx.day(1))
+    kobo = coverage.get(KOBO)
+    assert kobo is not None and kobo["state"] == "CURRENT", _cov(kobo)
+    basis = {code: x.get("window_basis") for code, x in by_code.items()}
+    assert basis.get(COLD) == "LATEST_EVENT", basis
+    ev_on_s = any(d["day"] == ctx.S.date().isoformat() and d["kind"] != "missing" for d in ctx.site_days("ev"))
+    assert basis.get(EV) == ("LATEST_EVENT" if ev_on_s else "PERIOD"), (basis, ev_on_s)
+    ev_cells = {r["category"]: r["state"] for r in by_code[EV]["rows"]}
+    ev_portfolio = {x["key"]: x["state"] for o in body["objectives"] if o["site_code"] == EV for x in o["cells"]}
+    return {"status": body["status"], "kobo_coverage": _cov(kobo), "window_basis": basis, "ev_event_on_S": ev_on_s,
+            "ev_cells": ev_cells, "ev_portfolio_cells": ev_portfolio}
 
 
 @row("CO-8")
