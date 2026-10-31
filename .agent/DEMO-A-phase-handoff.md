@@ -158,4 +158,25 @@ three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeou
 - (b) `ev-interrupted`: CO-9 and the EV half of CO-10 held on the single-site build (above). Cold degraded Finding
   kept; SP-2 stays on S-7. Overcast day list unchanged (720-min change withdrawn).
 - Guards: `check-all.ps1` 11/11 at `be0d21b88`; `test_demo_story_days.py` 18 passed.
+- `b9f4dab72` **Addendum 2 ruling (i)** (`demo_combined_finish.py`, both rows auto-collected by the slow build test,
+  19 collected):
+  - **CO-6** (week `S-6d..S+1d`): 3 Sites; `objective_site_count == 3`; `double_count_violations == []`; cold and EV
+    `LATEST_EVENT`; the Kobo days of the week with no run are listed (non-empty: the reason, R613 /
+    `estate/coverage.py:98-100` "a requested day has no available selection"); Kobo coverage `state` and
+    `source_freshness` UNKNOWN; Portfolio `status` UNKNOWN; Kobo summary `window_basis` DAY with `window.from` == S
+    and its four category states equal to the day-S Kobo board's. The replaced `status == "CURRENT"` assert is gone.
+  - **CO-6b** (day `S..S+1d`): Kobo coverage CURRENT; cold LATEST_EVENT; EV `PERIOD` unless an EV story day is S
+    (then LATEST_EVENT); EV summary cells and Portfolio cells recorded, not asserted. Read on the EV build: PERIOD,
+    Grow/Protect/Assure UNKNOWN, Cost NOT_MEASURED; EV coverage UNKNOWN, `source_freshness` NOT_APPLICABLE.
+  - Untested until the full build: the Kobo coverage values and the overall `status` (assumed `UNKNOWN`, not
+    `PENDING`: a pending job anywhere would make it PENDING). If either differs, record the measured value and the
+    cause and take it to the Architect; do not loosen the row.
+- **Demo-script note for the packet (Addendum 2, sequence step 4):** open the Portfolio on the week (`links` prints
+  it). Lead with each Site's four outcome cells: Kobo's come from day S, GreenHarvest's and Depot's from their latest
+  events. Say plainly why Kobo's weekly evidence reads Unknown: most days that week have no assessed readings. Present
+  it as a pilot ask: "a gateway that reports every day turns this into a weekly verdict". Then click into Kobo, which
+  opens on day S with the gap line ("Not available yet · {g} of 31 days have no assessed readings"). Do not lead
+  with the Portfolio on day S: Depot reads Unknown there. Open owner question (R613): estate coverage on the
+  finding-index/2 rule (PARTIAL with named gaps), a separate slice of about 2 builder days.
+- Guards: `check-all.ps1` 11/11 at `b9f4dab72`; `test_demo_story_days.py` 18 passed; build test collects 19.
 - Next: wait for the coordinator (the SCN trial result decides the trial kinds); then the full three-site prepare.
