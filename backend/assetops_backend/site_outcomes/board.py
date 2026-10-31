@@ -13,7 +13,7 @@ from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     SiteOutcome, row_not_measured)
 from assetops_backend.outcomes.objectives import (
-    CONTRIBUTOR_LABEL, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge)
+    CONTRIBUTOR_LABEL, MET, MISSED, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge)
 from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
 from assetops_backend.outcomes.status import (
     EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal, outcome_state,
@@ -48,6 +48,31 @@ CASE_STATE_LABEL = {"OPEN": "Open", "IN_PROGRESS": "In progress", "ASSIGNED": "A
 ACTION_RESULT = {"VERIFIED": "Verified on test data", "INEFFECTIVE": "Did not fix it",
                  "INCONCLUSIVE": "Not determined", "PENDING": "Pending", "REASSESSMENT_PENDING": "Pending"}
 REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
+#: OUT-E E4 (build sheet OUT-E section 4): the Earlier entry's cost-check and before/after detail lines.
+COST_PREFIX = "Modelled change after the trial · not realised savings: "
+COST_CHANGE = COST_PREFIX + "{amount} {currency} less per kWh of feeder demand"
+COST_NO_CHANGE = COST_PREFIX + "no lower cost per kWh of feeder demand"
+COST_NOT_CALCULATED = "Modelled change not calculated: {words}"
+COST_NOT_YET = "Not calculated yet"
+TRIAL_ATTRIBUTED = "{label} before the trial: {before} · after: {after}"
+TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
+TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
+TRIAL_VERDICT = {MET: "met", MISSED: "missed"}
+COST_REASON_WORDS = {
+    "OUTCOME_INCONCLUSIVE": "the trial result is not determined",
+    "WINDOW_INCOMPLETE": "a comparison hour is incomplete",
+    "NOT_COMPARABLE": "the two hours are not comparable",
+    "SOURCE_NOT_COHERENT": "the two hours come from different sources",
+    "EVIDENCE_REPLAY_MISMATCH": "the readings changed after the result was recorded",
+    "GENERATOR_KWH_UNKNOWN": "generator energy is not known for both hours",
+    "ZERO_DEMAND": "an hour had no demand",
+    "SFC_MISSING": "the generator fuel rate is not recorded",
+    "SFC_DIFFERS": "the generator fuel rate differs between the hours",
+    "PRICE_MISSING": "no diesel price covers both hours",
+    "PRICE_BASIS_DIFFERS": "the two hours were priced from different diesel price records",
+}
+FINAL_VERIFICATION = ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE")
+TRIAL_MEASURE = "avoidable_generator_minutes"  # the MG-2 objective (R593: before/after only on a zero target)
 #: C: plan state labels when the plan's due cue fires (the plan itself stays DRAFT; register R08, R10).
 PLAN_CUE_LABEL = {PLAN_OVERDUE: "Overdue", PLAN_DUE_SOON: "Due soon"}
 REPAIR_MUST_NOT_HARM = ": a repair counts only when the fault it answers stops"
@@ -120,6 +145,9 @@ class ActionFact:
     workflow_label: str | None = None  # mini: estate/portfolio.py:137 text
     verification_href: str | None = None  # /sites/{c}/actions/{id}/verification?event_id=...
     is_domain: bool = False            # cold/EV domain Action: in hand only, never applied
+    # OUT-E E4: the verification summary's stored cost check and trial hours of the current outcome (last, defaulted)
+    cost_check: Mapping[str, Any] | None = None   # {state, reason, nominal, upper, currency, recorded_at}
+    trial_hours: Mapping[str, Any] | None = None  # {before_seconds, after_seconds}
 
 
 @dataclass(frozen=True)
@@ -315,6 +343,73 @@ def earlier_result_for_action(action: ActionFact) -> str | None:
     return ACTION_RESULT.get(action.verification_state or NO_PLAN)
 
 
+def per_kwh_amount(cost_check: Mapping[str, Any]) -> str:
+    """`lo–hi` (one figure when equal): the stored nominal and upper change rounded to 3 decimals, half-even."""
+    lo, hi = (_round3(cost_check[k]) for k in ("nominal", "upper"))
+    return lo if lo == hi else f"{lo}–{hi}"
+
+
+def _ratio(text: str) -> tuple[int, int]:
+    """An exact `fmt` string (decimal or `p/q`) as (numerator, denominator); board.py stays stdlib-minimal."""
+    text = str(text).strip()
+    if "/" in text:
+        p, q = text.split("/")
+        return int(p), int(q)
+    negative = text.startswith("-")
+    whole, _, frac = text.lstrip("-").partition(".")
+    num = int(whole or "0") * 10 ** len(frac) + int(frac or "0")
+    return (-num if negative else num), 10 ** len(frac)
+
+
+def _round3(text: str) -> str:
+    """Exact half-even rounding to 3 decimals: 1/24 -> 0.042, 11/240 -> 0.046."""
+    num, den = _ratio(text)
+    q, r = divmod(num * 1000, den)
+    if 2 * r > den or (2 * r == den and q % 2 == 1):
+        q += 1
+    sign, q = ("-" if q < 0 else ""), abs(q)
+    return f"{sign}{q // 1000}.{q % 1000:03d}"
+
+
+def cost_line(a: ActionFact) -> str | None:
+    """OUT-E E4 Cost line (Optimize cost row): the stored cost check of the Action's current outcome, read as stored."""
+    cc = a.cost_check
+    if cc is None:
+        return COST_NOT_YET if a.verification_state in FINAL_VERIFICATION else None
+    if cc.get("state") == "MODELLED_IMPROVEMENT":
+        return COST_CHANGE.format(amount=per_kwh_amount(cc), currency=cc.get("currency") or "")
+    if cc.get("state") == "MODELLED_NO_IMPROVEMENT":
+        return COST_NO_CHANGE
+    words = COST_REASON_WORDS.get(cc.get("reason") or "")
+    return COST_NOT_CALCULATED.format(words=words) if words else COST_NOT_YET
+
+
+def trial_line(a: ActionFact, objective: ObjectiveFact | None) -> str | None:
+    """OUT-E E4 before/after line: the row's MG-2 objective (zero target only, R593) judged on the trial's two stored
+    hours; attributed to the trial only when its verification passed."""
+    hours = a.trial_hours or {}
+    before, after = hours.get("before_seconds"), hours.get("after_seconds")
+    if objective is None or not objective.target_is_zero or before is None or after is None:
+        return None
+    b, l = (judge(objective, Reading(s / 60, True, None)) for s in (before, after))  # zero target: sign only
+    if b not in TRIAL_VERDICT or l not in TRIAL_VERDICT:
+        return None
+    label = OUTCOME_BY_KEY[objective.outcome_key].label
+    if a.verification_state == "VERIFIED":
+        return TRIAL_ATTRIBUTED.format(label=label, before=TRIAL_VERDICT[b], after=TRIAL_VERDICT[l])
+    if b != l:
+        return TRIAL_NOT_ATTRIBUTED
+    return TRIAL_UNCHANGED.format(label=label, verdict=TRIAL_VERDICT[b])
+
+
+def action_detail(a: ActionFact, cat: str, facts: SiteFacts) -> str | None:
+    """The Earlier ACT entry's `detail` in a MOVES row: the parts that apply, joined by " · "; None when none."""
+    objective = next((o for o in facts.objectives if o.measure_key == TRIAL_MEASURE
+                      and OUTCOME_BY_KEY[o.outcome_key].category == cat), None)
+    parts = [cost_line(a) if cat == "OPTIMIZE_COST" else None, trial_line(a, objective)]
+    return " · ".join(p for p in parts if p) or None
+
+
 def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | None:
     """§B.2: a COMPLETED request is "Did not fix it" when another request on the same asset, or sharing a Finding,
     occurred later; otherwise "Not yet verified". Incidents and open requests are not listed."""
@@ -473,12 +568,13 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         result = earlier_result_for_action(a)
         if result is not None:
             if cat in move_cats:
-                earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result + suffix})
+                earlier.append({"text": _item_text(a.code, a.title), "href": a.href, "result_label": result + suffix,
+                                "detail": action_detail(a, cat, facts)})
             elif r is not None and cat in r.checked_cats:
                 names = r.checked_in(cat, exclude_unmeasured=MUST_NOT_HARM_EXCLUDES_UNMEASURED)
                 if names:
                     earlier.append({"text": f"{join_names(names)} checked as safeguards in {_action_name(a)}",
-                                    "href": a.verification_href or a.href, "result_label": result})
+                                    "href": a.verification_href or a.href, "result_label": result, "detail": None})
         elif a.open and cat in move_cats:
             label = "Open" if a.is_domain else WORKFLOW_IN_HAND.get(a.workflow_label or "", a.workflow_label or "Open")
             in_hand.append({"text": _item_text(a.code, a.title), "href": a.href, "state_label": label + suffix})
@@ -495,7 +591,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats | repeat_cats.get(case.case_id, set()) and result is not None:
             earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
-                            "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else "")})
+                            "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else ""), "detail": None})
 
     if cat == "PROTECT_ASSET":
         cue = {w.subject: w.kind for w in facts.warnings if w.kind in PLAN_CUE_LABEL}

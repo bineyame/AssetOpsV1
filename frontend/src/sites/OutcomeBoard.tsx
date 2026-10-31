@@ -107,7 +107,7 @@ function ItemList({
   items,
   empty,
 }: {
-  items: (OutcomeLinkItem & { note?: string | null })[];
+  items: (OutcomeLinkItem & { note?: string | null; detail?: string | null })[];
   empty: string;
 }) {
   if (items.length === 0) return <p className="ob-none">{empty}</p>;
@@ -117,6 +117,7 @@ function ItemList({
         <li key={i}>
           <To href={item.href}>{item.text}</To>
           {item.note ? <> <span className="oc-state">{item.note}</span></> : null}
+          {item.detail ? <> <small>{item.detail}</small></> : null}
         </li>
       ))}
     </ul>

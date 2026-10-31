@@ -192,7 +192,7 @@ def test_every_linked_finding_is_supplied_closed_included() -> None:
         fid for case in comp.facts.cases if case.case_id == "mr1" for fid in case.finding_ids}
     assert linked <= set(ids)
     assert rows[COST]["earlier"] == [{"text": "MR-1 · Check generator stop", "href": "/maintenance/requests/mr1",
-                                      "result_label": "Not yet verified"}]
+                                      "result_label": "Not yet verified", "detail": None}]
     assert not [i for i in rows[COST]["issues"] if i["ref"] and i["ref"]["finding_id"] == "f090"]
 
 
@@ -283,7 +283,7 @@ def _assert_finding_source_unsettled(comp, rows) -> None:
     assert {"text": "IN-1 · Feeder trip", "href": f"/sites/{C}/work/incidents",
             "state_label": "Open" + loaded} in rows[PROTECT]["in_hand"]
     assert {"text": "MR-1 · Check generator stop", "href": "/maintenance/requests/mr1",
-            "result_label": "Not yet verified" + loaded} in rows[PROTECT]["earlier"]
+            "result_label": "Not yet verified" + loaded, "detail": None} in rows[PROTECT]["earlier"]
     assert "outside this view" not in str(rows)
     assert ("a48", "f104") in comp.diagnostics and ("in1", "f-old") in comp.diagnostics
 

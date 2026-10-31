@@ -1047,7 +1047,33 @@ class VerificationService:
         state = self.current_state(tenant_id, site_id, action_id)
         base = f"/api/sites/{site_code}/actions/{action_id}/verification"
         return {"label": LABEL, **state, "links": {"plan": f"{base}/plan", "outcome": f"{base}/outcome",
-                                                   "history": f"{base}/history", "evidence": f"{base}/evidence"}}
+                                                   "history": f"{base}/history", "evidence": f"{base}/evidence"},
+                **self._cost_check_read(tenant_id, site_id, action_id, state.get("outcome_id"))}
+
+    def _cost_check_read(self, tenant_id: UUID, site_id: UUID, action_id: UUID,
+                         outcome_id: str | None) -> dict[str, Any]:
+        """OUT-E E4 (additive): the stored cost check and the two trial hours' stored avoidable-generator seconds of
+        the outcome the current state names; both null when there is none. Never recomputed on read."""
+        if outcome_id is None:
+            return {"cost_check": None, "trial_hours": None}
+        ports = self._ports().trial_comparison
+        row = None if ports is None else ports.store.latest(tenant_id, site_id, UUID(str(outcome_id)))
+        cost = None
+        if row is not None:
+            change = (row["result"] or {}).get("change_per_demand_kwh") or {}
+            price = (row["result"] or {}).get("price") or {}
+            cost = {"state": row["state"], "reason": row["reason"], "nominal": change.get("nominal"),
+                    "upper": change.get("upper"), "currency": price.get("currency"),
+                    "recorded_at": _wire(row["recorded_at"])}
+        outcome = next((o for o in self.store.outcomes(tenant_id, site_id, action_id)
+                        if str(o["id"]) == str(outcome_id)), None)
+        seconds: dict[str, int | None] = {"BASELINE": None, "LATER": None}
+        for m in (outcome or {}).get("metrics") or ():
+            known = m["window_name"] in seconds and m["value_text"] is not None
+            if m["metric_key"] == "candidate_avoidable_seconds" and known:
+                seconds[m["window_name"]] = int(m["value_text"])
+        return {"cost_check": cost,
+                "trial_hours": {"before_seconds": seconds["BASELINE"], "after_seconds": seconds["LATER"]}}
 
 
 def _source_wire(resolution: dict[str, Any]) -> dict[str, Any]:
