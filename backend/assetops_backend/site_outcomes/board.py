@@ -236,6 +236,8 @@ class SiteFacts:
     objectives: tuple[ObjectiveFact, ...] = ()
     readings: Mapping[str, Reading] = field(default_factory=dict)
     objectives_ok: bool = True
+    #: IDX-GAPS U2: mini only, the Finding index gap line `{text, days}` under the rows; None = no gap day.
+    finding_gaps: Mapping[str, Any] | None = None
 
 
 # ---------------------------------------------------------------- helpers

@@ -94,6 +94,15 @@ def test_board_and_status_copy_pass_vocabulary() -> None:
     assert hits == []
 
 
+def test_finding_gap_line_strings_are_scanned() -> None:
+    """IDX-GAPS U2: the three board gap strings are in the scanned set."""
+    copy = _constants()
+    for text in ("Not available yet · 23 of 31 days have no assessed readings",
+                 "Not available yet · 2 of 31 days are not assessed yet",
+                 "; Findings next to those days are not shown yet"):
+        assert text.strip(" ·") in copy, text
+
+
 def test_scan_is_not_vacuous() -> None:
     patterns = _patterns()
     assert any(p.search("Buses ready to run") for _, p in patterns)
