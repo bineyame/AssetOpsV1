@@ -2,7 +2,7 @@
 
 Board on the E window: no PEAK warning (60 of 80 kW, R563); CONNECTOR_OUT_OF_SERVICE exactly when an availability
 connector has known unavailable time; whether CHARGER_FAULT fires is recorded (it cannot: no plan, R569). OUT-W: the
-estate summary on 8 Oct (no event) judges Depot on the period with a plain link; on 6 Oct it refuses 409 (R577)."""
+estate summary on 8 Oct (no event) judges Depot on the period with a plain link; on 6 Oct it judges Depot on window E (R577, resolved by FIX-01)."""
 from __future__ import annotations
 
 import json
@@ -51,13 +51,17 @@ def test_ev_w504_positive_warnings(monkeypatch, tmp_path) -> None:
             seconds = round(time.perf_counter() - start, 3)
             r8 = c.get("/api/estate/outcome-summary", params={"from": "2026-10-08T00:00:00Z",
                                                              "to": "2026-10-09T00:00:00Z"})
-        # Architect ruling (a), 2026-10-31, R577: on 6 Oct the estate scope read refuses for this build (a Finding
-        # in it has two selected revisions at one cutoff), so the summary honestly refuses 409 before composing a Site.
-        # FIX-01 owns the duplicate selected revision; once it lands, this flips to 200 with Depot LATEST_EVENT on
-        # window E: window == E, overview_href starting "/sites/EV-LAB-001/ev?from=", Protect equal to `body`'s.
+        # R577 (resolved by FIX-01): on 6 Oct two selected EV windows held two revisions of one Finding; the highest
+        # revision now wins, so the summary reads 200 and judges Depot on its event (window E).
         _record("out_w_ev_summary_day6", {"status": r6.status_code, "body": r6.json(), "seconds": seconds})
-        assert r6.status_code == 409, r6.text
-        assert r6.json()["detail"]["code"] == "ESTATE_SELECTION_INCONSISTENT", r6.text
+        assert r6.status_code == 200, r6.text
+        depot6 = next(x for x in r6.json()["sites"] if x["site_code"] == "EV-LAB-001")
+        assert depot6["window_basis"] == "LATEST_EVENT", depot6
+        # Depot's window is E exactly: the reselected window [08:00, 09:00) (selected later) supersedes [08:00, 09:05).
+        assert (_utc(depot6["window"]["from"]), _utc(depot6["window"]["to"])) == (
+            _utc(window["from"]), _utc(window["to"])), depot6["window"]
+        assert depot6["overview_href"].startswith("/sites/EV-LAB-001/ev?from="), depot6["overview_href"]
+        assert "&to=" in depot6["overview_href"], depot6["overview_href"]
         assert r8.status_code == 200, r8.text
         depot8 = next(x for x in r8.json()["sites"] if x["site_code"] == "EV-LAB-001")
         _record("out_w_ev_summary_day8", {k: depot8[k] for k in ("window", "window_basis", "overview_href")})

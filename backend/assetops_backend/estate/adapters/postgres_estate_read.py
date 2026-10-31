@@ -266,7 +266,8 @@ class EstateSnapshot:
                 "SELECT id FROM cold_consequence_revision WHERE tenant_id = :t AND site_id = :s "
                 "AND finding_revision_id = :r AND created_at <= :k ORDER BY revision_no DESC, id DESC LIMIT 1"),
                 {"t": t, "s": s, "r": rev[0], "k": k}).scalar_one_or_none()
-            findings.append({"finding_id": str(row[0]), "finding_revision_id": str(rev[0]), "lifecycle": rev[3],
+            findings.append({"finding_id": str(row[0]), "finding_revision_id": str(rev[0]),
+                             "revision_no": int(rev[1]), "lifecycle": rev[3],
                              "title": rev[5], "episode_start": anchor, "episode_end": rev[14],
                              "evidence_ids": _uuids(item["evidence_ids"]),
                              "source_provenance": estate_projection(item["source_provenance"]),
@@ -306,7 +307,8 @@ class EstateSnapshot:
             if bounds is None:
                 raise EstateSelectionInconsistent(f"EV Finding {r['finding_id']} names no stored session.")
             findings.append({"finding_id": str(r["finding_id"]), "finding_revision_id": str(r["revision_id"]),
-                             "lifecycle": r["lifecycle"], "title": r["title"], "episode_start": bounds[0],
+                             "revision_no": int(r["revision_no"]), "lifecycle": r["lifecycle"],
+                             "title": r["title"], "episode_start": bounds[0],
                              "episode_end": bounds[1], "evidence_ids": _uuids(r["source_provenance"]["evidence_ids"]),
                              "source_provenance": estate_projection(r["source_provenance"]),
                              "consequence_revision_id": None})

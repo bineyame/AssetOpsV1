@@ -86,7 +86,7 @@ def test_cold_repeat_visits_board_and_estate(monkeypatch, tmp_path) -> None:
         site = next(x for x in sbody["sites"] if x["site_code"] == "COLD-LAB-001")
         chosen = [w for w in windows if w["site_code"] == "COLD-LAB-001" and w["from"] == sbody["window"]["from"]]
         assert len(chosen) == 1, windows
-        latest[key] = max(chosen[0]["windows"], key=lambda w: (w[1], w[0]))
+        latest[key] = chosen[0]["latest"]
         site_cost = next(r for r in site["rows"] if r["category"] == "OPTIMIZE_COST")
         site_warnings = [w for w in sbody["warnings"] if w["site_code"] == "COLD-LAB-001"]
         _record("P-C1", {"period": key, "status": status, "day": _z(day), "window": site["window"],
@@ -124,6 +124,7 @@ def _summary(c, lo: datetime, hi: datetime) -> tuple[int, dict, float]:
 def _spy_selected_windows(monkeypatch) -> list[dict]:
     """Every `site_selected_windows` call the summary makes, with its wire-text result and its own wall time."""
     from assetops_backend.estate.evidence_money import EstateEvidenceService
+    from assetops_backend.site_outcomes.read import latest_window
 
     seen: list[dict] = []
     real = EstateEvidenceService.site_selected_windows
@@ -132,7 +133,8 @@ def _spy_selected_windows(monkeypatch) -> list[dict]:
         start = time.perf_counter()
         out = real(self, tenant_id, site_code, from_, to, known_at)
         seen.append({"site_code": site_code, "from": _z(from_), "to": _z(to),
-                     "windows": None if out is None else [(_z(a), _z(b)) for a, b in out],
+                     "windows": None if out is None else [(_z(w["window_start"]), _z(w["window_end"])) for w in out],
+                     "latest": None if not out else tuple(_z(x) for x in latest_window(out)),
                      "seconds": round(time.perf_counter() - start, 3)})
         return out
 

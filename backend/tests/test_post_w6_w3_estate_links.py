@@ -89,7 +89,7 @@ def _recorded(windows, cutoff=CUT) -> _WindowRecorder:
 
 def window(lo, days=1, fids=(FID,)):
     return {"window_start": lo, "window_end": lo + timedelta(days=days),
-            "findings": [{"finding_id": f} for f in fids]}
+            "findings": [{"finding_id": f, "finding_revision_id": FRID} for f in fids]}
 
 
 def test_finding_links_per_domain() -> None:

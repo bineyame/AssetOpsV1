@@ -27,9 +27,20 @@ def at(h: int, m: int = 0) -> datetime:
     return D + timedelta(hours=h, minutes=m)
 
 
+def sw(lo, hi, sel_h=10, seq=1, sid="s"):
+    """A selected-window dict as `site_selected_windows` returns it."""
+    return {"window_start": lo, "window_end": hi, "selected_at": at(sel_h), "seq": seq, "selection_id": sid}
+
+
+def pairs(ws):
+    return [sw(a, b) for a, b in ws]
+
+
 class Estate:
     def __init__(self, windows=None, error: Exception | None = None) -> None:
-        self.windows, self.error, self.calls = windows, error, []
+        # tuples become selected-window dicts selected in list order (a later entry is selected later)
+        self.windows = None if windows is None else [sw(a, b, sid=f"s{i}") for i, (a, b) in enumerate(windows)]
+        self.error, self.calls = error, []
 
     def site_selected_windows(self, *a):
         self.calls.append(a)
@@ -67,8 +78,28 @@ def summary(estate, sites, known_at=None):
 
 def test_latest_window_helper():
     assert latest_window(None) is None and latest_window([]) is None
-    assert latest_window([(at(14), at(15)), (at(8), at(9))]) == (at(14), at(15))
-    assert latest_window([(at(13), at(15)), (at(14), at(15)), (at(8), at(9))]) == (at(14), at(15))
+    assert latest_window(pairs([(at(14), at(15)), (at(8), at(9))])) == (at(14), at(15))
+    # one event (they overlap), same selection time: the later selection id breaks the tie
+    assert latest_window([sw(at(13), at(15), sid="a"), sw(at(14), at(15), sid="b"), sw(at(8), at(9))]) == (at(14), at(15))
+
+
+def test_overlapping_windows_later_selected_wins_even_with_earlier_end():
+    # FIX-01 / R577: the reselected window [08:00, 09:00) supersedes the earlier [08:00, 09:05) of the same event
+    old, new = sw(at(8), at(9, 5), sel_h=9, seq=1, sid="a"), sw(at(8), at(9), sel_h=10, seq=2, sid="b")
+    assert latest_window([old, new]) == (at(8), at(9))
+    assert latest_window([new, old]) == (at(8), at(9))
+    # equal selected_at: seq, then selection_id, decide
+    assert latest_window([sw(at(8), at(9, 5), seq=1), sw(at(8), at(9), seq=2)]) == (at(8), at(9))
+    assert latest_window([sw(at(8), at(9, 5), sid="a"), sw(at(8), at(9), sid="b")]) == (at(8), at(9))
+
+
+def test_separate_events_later_event_wins_despite_older_selection():
+    early_reselected = sw(at(8), at(9), sel_h=20)  # selected last, but a different (earlier) event
+    late = sw(at(14), at(15), sel_h=9)
+    assert latest_window([early_reselected, late]) == (at(14), at(15))
+    assert latest_window([late, early_reselected]) == (at(14), at(15))
+    # touching ends are separate events, not one
+    assert latest_window([sw(at(8), at(9), sel_h=20), sw(at(9), at(10), sel_h=1)]) == (at(9), at(10))
 
 
 def test_cold_site_board_on_latest_event_and_href(boards):

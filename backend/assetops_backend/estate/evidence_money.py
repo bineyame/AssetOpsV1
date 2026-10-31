@@ -511,10 +511,10 @@ class EstateEvidenceService(EstateIndexService):
         return self._read(work)
 
     def site_selected_windows(self, tenant_id: Any, site_code: str, from_: datetime, to: datetime,
-                              known_at: datetime | None = None) -> list[tuple[datetime, datetime]] | None:
+                              known_at: datetime | None = None) -> list[dict[str, Any]] | None:
         """OUT-W (P-C1 option A): the exact selected windows of one cold or EV Site that intersect [from_, to), by the
         W3-01 rule the Evidence root reads (`site_coverage` -> `snap.selected_windows`), on one snapshot, scope and
-        cutoff. Distinct (window_start, window_end), ascending; only forward spans of at most MAX_WINDOW. [] for a
+        cutoff. Distinct (window_start, window_end, selected_at, seq, selection_id) dicts, ascending; only forward spans of at most MAX_WINDOW. [] for a
         mini-grid or unsupported Site, a Site with no evidence cutoff, or no window. None when the Site is not in the
         authorized imported set."""
         req = estate_request("evidence", from_, to, known_at)  # INVALID_WINDOW over 31 days or not midnight
@@ -530,9 +530,11 @@ class EstateEvidenceService(EstateIndexService):
                     return []
                 wins = snap.selected_windows(tenant_id, site["site_id"], domain, req.from_, req.to, cutoff,
                                              scope["k"])
-                return sorted({(w["window_start"], w["window_end"]) for w in wins
-                               if w["window_start"] < w["window_end"]
-                               and w["window_end"] - w["window_start"] <= MAX_WINDOW})
+                keep = {(w["window_start"], w["window_end"], w["selected_at"], w["seq"], w["selection_id"])
+                        for w in wins
+                        if w["window_start"] < w["window_end"] and w["window_end"] - w["window_start"] <= MAX_WINDOW}
+                return [dict(zip(("window_start", "window_end", "selected_at", "seq", "selection_id"), k))
+                        for k in sorted(keep, key=lambda k: (k[0], k[1], k[2], k[3], str(k[4])))]
             return None
 
         return self._read(work)

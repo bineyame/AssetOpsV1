@@ -141,9 +141,21 @@ def mini_summary_day(to: datetime) -> date:
 WINDOW_BASIS_DAY, WINDOW_BASIS_EVENT, WINDOW_BASIS_PERIOD = "DAY", "LATEST_EVENT", "PERIOD"
 
 
-def latest_window(windows: list[tuple[datetime, datetime]] | None) -> tuple[datetime, datetime] | None:
-    """OUT-W: the latest assessed event inside the period: max window_end, then max window_start. None for None/[]."""
-    return max(windows, key=lambda w: (w[1], w[0])) if windows else None
+def latest_window(windows: list[dict[str, Any]] | None) -> tuple[datetime, datetime] | None:
+    """OUT-W: the Site's latest assessed event inside the period. Selected windows that overlap one another are one
+    event; the event with the latest end wins; inside it the most recently selected window (selected_at, seq,
+    selection_id) is the answer. Selection recency never crosses separate events. None for None/[]."""
+    if not windows:
+        return None
+    events: list[list[dict[str, Any]]] = []  # overlapping windows chain into one event (touching ends are separate)
+    for w in sorted(windows, key=lambda w: (w["window_start"], w["window_end"])):
+        if events and w["window_start"] < max(x["window_end"] for x in events[-1]):
+            events[-1].append(w)
+        else:
+            events.append([w])
+    event = max(events, key=lambda e: (max(x["window_end"] for x in e), min(x["window_start"] for x in e)))
+    best = max(event, key=lambda w: (w["selected_at"], w["seq"], str(w["selection_id"])))
+    return best["window_start"], best["window_end"]
 
 
 class SiteOutcomeBoardService:
