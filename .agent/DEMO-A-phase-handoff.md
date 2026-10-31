@@ -96,3 +96,46 @@ of polling, so **nothing below has run on a DB**. Dev DB `assetops_demo3_dev_tes
 - **Runbook caution for the packet:** `add-day --assess-now` assesses the whole Site, and while a live late day is
   pending (before a tick), other one-day windows read `STALE_PROJECTION`; during a live demo add a late day only after
   the boards you will show have been opened, or tick before showing other days.
+
+## State 2026-10-31 (third implementer: single-site dev prepares run)
+
+Old dev DB `assetops_demo3_dev_test` / `var/demo3_dev` dropped. Kept for inspection: `assetops_demo3_cold_test` /
+`var/demo3_cold` and `assetops_demo3_ev_test` / `var/demo3_ev` (both `--no-finish`, built at `f320ac636`; drop with
+the tool's `drop`). Probe DB `assetops_demo3_probe5_test` dropped.
+
+- `c81b062d8` **Cold attestation instant**: first run wrote no Finding on the failure day; every reading was
+  `CLOCK_UNATTESTED` because `ShiftedChain.attest` records at `datetime.now` (wall), after the `received_at`
+  knowledge cutoff. The cold child's `DayChain.attest` swaps the producer module's `datetime.now` to the day's setup
+  instant (start - 1 h) for that call only. `received_at` == window end (17:05) is fine (all accepted).
+  `install_cold_lab` re-open at start-4 h is idempotent (3 days ran).
+- `c81b062d8` **EV days on Tuesday**: ev-charger/1 refuses any window not on a TUESDAY
+  (`host/ev_publication.py` `ev_parameters`). `demo_story_days.SITE_WEEKDAY = {"ev": 1}` + `weekday_offset`: each EV
+  day falls back to the Tuesday on or before its listed day (S = 10-29 Thu -> fault 10-27, normal 10-20); `add-day`
+  for EV defaults to last + 7. The EV work rows (S-relative visits/plan in `story.json` `ev`) move by the same shift
+  (`write_work(shift=)`), so they keep their places before the fault. Test `test_ev_days_fall_back_to_the_ruled_tuesday`.
+  SHEET DEVIATION (record in the packet): sheet §2 puts EV on S-7 / S; they are on the Tuesday on or before.
+- `f320ac636` **EV fault scenario**: `ev-fault.yaml` faults before any session starts and gives no EV Finding, so
+  w504 `_declare` refused ("expected one SUPPORTED EV Finding on a fault-ended selected session, found 0"). The
+  `fault` kind now uses `ev-interrupted` v1 (w504's own `POSITIVE_SCENARIO`, unchanged). SHEET DEVIATION: sheet §2
+  table names `ev-fault.yaml`; reported to the coordinator.
+- `f320ac636` cold `findings_on` now counts open episodes (`episode_end IS NULL`); cold.json `findings` was [] before.
+- Overcast (SCN sheet): 720-min `kobo-daytime-overcast` v2 re-run is **BLOCKED** `INITIAL_VALUE_NOT_RESOLVED`
+  (fuel-tank-volume@fuel-tank, generator-state@generator not stated by the scenario; mini-grid v5 needs them).
+  Overcast keeps `kobo-s3-dispatch-necessary-run`; day list unchanged; row in `DEMO-SPARSE-trial-probe.md`.
+
+Real-data results (single-site, no objectives declared since `finish` needs all three Sites):
+- Cold: normal 10-22 (no Finding), degraded 10-26 (`cold-missing-probe`: a COLD_START_FAILURE Finding, Protect
+  NEEDS_ATTENTION; real data, not a beat the sheet promised either way), failure 10-29 (COLD_EXCURSION +
+  COLD_START_FAILURE, w502 positive work: 2 cases, 2 records, 2 plans). BUILD's own index reads at DB now +-1 d
+  record `blocked` (expected, not fatal). 126.6 s for 3 runs.
+- Self-check rows on the single-site builds (scratch driver calling the unmodified row functions):
+  SP-2 pass (Protect NO_OBJECTIVE here; CC-1 ON_TRACK; **re-check on the full build**, where objectives exist);
+  CO-7 pass; CO-9 pass (Assure WATCH, Portfolio EVIDENCE LIMITED); CO-10 EV half pass with the plan on the
+  session's connector (PLAN_OVERDUE "Connector inspection overdue" + CHARGER_FAULT_OVERDUE_INSPECTION; no asset
+  change needed). EV: 143.2 s for 2 runs; Action raised, visits 10-12/10-22, plan due 10-21.
+- Not run (need all three Sites / Kobo / IDX): CO-1..3, SP-1, SP-3..7, CO-6, CO-8, CO-11, CO-12, Kobo half of CO-10.
+
+Guards: `check-all.ps1` 11/11 at `f320ac636`; `test_demo_story_days.py` 18 passed.
+
+Resume: wait for the coordinator (new Kobo trial scenario from the SCN lane, IDX-GAPS merge); then the full
+three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeout as listed above.
