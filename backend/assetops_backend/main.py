@@ -619,7 +619,8 @@ def create_app(
         performance_gate=performance_gate, finding_index=finding_index, finding_index_gate=finding_index_gate,
         assumptions=assumption_reads, actions=actions, action_index=action_index, cold_site=cold_site_reads,
         cold_reads=cold_reads, ev_site=ev_site_reads, ev_reads=ev_reads, ev_depth=ev_depth_reads,
-        domain_actions=domain_action_reads, work_index=work_lists, estate=estate_portfolio)
+        domain_actions=domain_action_reads, work_index=work_lists, estate=estate_portfolio,
+        finding_reads=finding_reads)
     app.router.on_shutdown.append(outcome_board_dispose)
     app.include_router(build_outcome_router(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
