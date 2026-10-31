@@ -6179,3 +6179,17 @@ packet `.agent/FIX-S4-DOMAIN-packet.md`.
   on the old store it failed with TypeError at `finding_episode.py:287`). The fixture disables the cold-consequence enqueue trigger inside
   its own insert transaction (the mini Site has no COLD_ROOM).
 - Left open: the `_fence` revision count still spans every domain on the Site (a cold revision moves the mini fence; harmless re-plan).
+## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (built, in_review)
+Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed62c8` merged). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
++ Addenda 1-3 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
+- `tools/demo_combined.py` `prepare | links | serve | tick | add-day | drop` on a private `assetops_demo3_<name>_test` DB; children
+  `demo_combined_kobo.py` (day runs + the S/S+1 trial chain), `_cold.py` (ShiftedChain per night, attest at setup instant), `_ev.py`
+  (Tuesday days, w504 work rows), `_finish.py` (`check`: CO-1..CO-12 + SP-1..SP-7 via `host/lab_app.py`, `<work>/check.json`).
+- `tools/demo_story_days.py` resolves `backend/conversions/demo-story-days-v1.json` (8 Kobo runs incl. S-1d normal, 3 cold, 2 EV);
+  `validate` refuses DUPLICATE_DAY, TRIAL_PAIR_INVALID, OUTSIDE_BOARD_WINDOW, DAY_BEFORE_INSTALL, DAY_NOT_IN_PAST and
+  DUPLICATE_RECEIVED_AT (acceptance is counted by `received_at`); late Kobo delivery D+2d 12:30.
+- Final build `20f83276b` kept as `assetops_demo3_full_test` / `var/demo3_full`: 1105 s, self-check 16/17; trial (a) 06:00, 0 USD (R617).
+- Slow build test `backend/tests/test_demo_combined_postgres.py` (19): fixture prepare aborts on any self-check fail (rows error at setup).
+- Left open: CO-6 Portfolio week reads PENDING (not UNKNOWN): no runtime path drains `cold_consequence_work` (tick consequence stage
+  runs only the mini recompute worker, `scheduling/stages.py:186-198`), so the cold money window stays withheld; R535 open on it.
+  R552 open (CO-1 lineage, owner). Reads go stale 300 s after the last tick (heartbeat): run `serve` or `tick` before a demo.

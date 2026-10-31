@@ -240,3 +240,10 @@ three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeou
   (`D+0d 12:00`) share 2026-10-28 12:00 (collision created by Addendum 3's S-1 day). Fix `20f83276b`: late Kobo
   delivery `D+2d 12:30`; `validate` refuses `DUPLICATE_RECEIVED_AT` (test proven non-vacuous). Sheet §2 deviation.
 - Rebuild on `assetops_demo3_full_test` / `var/demo3_full` at `20f83276b` running (log in the session scratchpad).
+- Rebuild at `20f83276b`: 1105 s, self-check 16 pass / 1 fail CO-6 (`PENDING`/`PARTIAL`). Cause: 8 `cold_consequence_work`
+  rows never attempted; the tick's consequence stage runs only the mini recompute worker (`scheduling/stages.py:186-198`),
+  nothing at runtime runs `ColdConsequenceWorker`. Reported for a ruling, row not weakened. KEPT `assetops_demo3_full_test`.
+- Slow build test: 1143 s, 19 errors at setup (fixture prepare raised SELF-CHECK FAILED on CO-6; in-process 16/1).
+- Staleness: 25 min after the last tick 14/17 (heartbeat 300 s: SCHEDULE_STOPPED); one `tick` -> 16/17. Runbook: `serve` first.
+- U6 closeout done: packet `.agent/DEMO-A-packet.md`, task file in_review, R569 resolved, R535/R552 open, CODE_STATE, ACTIVE_CONTEXT.
+- Next: Architect ruling on the cold drain (CO-6), then rebuild + build test green, `-Tier all`, review.
