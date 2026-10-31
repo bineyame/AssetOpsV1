@@ -24,6 +24,7 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 from assetops_backend.analytics.assessment_inputs import sha256_json
 from assetops_backend.analytics import ev
 from assetops_backend.analytics.cold import plain
+from assetops_backend.analytics.dispatch import ANALYTIC_ID as DISPATCH_ANALYTIC_ID
 from assetops_backend.analytics.dispatch import CANDIDATE, INDETERMINATE, NECESSARY
 from assetops_backend.analytics.finding_episode import (
     DOMAIN,
@@ -129,15 +130,19 @@ class PostgresFindingStore:
             "AND analytic_id = :a ORDER BY window_start"), {"t": tenant_id, "s": site_id, "a": analytic_id}).all())
         return [r[0].date() for r in rows]
 
-    def episodes(self, tenant_id: UUID, site_id: UUID) -> list[Episode]:
+    def episodes(self, tenant_id: UUID, site_id: UUID, domain: str = DOMAIN,
+                 analytic_id: str = DISPATCH_ANALYTIC_ID) -> list[Episode]:
+        # FIX-S4-DOMAIN: the matcher's episodes are one domain's and analytic's only (the `_index_snapshot`
+        # predicate). A Site also holding cold Findings, whose open episodes have no end, must not reach it.
         rows = self._read(lambda c: c.execute(text(
             "SELECT DISTINCT ON (f.id) f.id, f.generator_asset_id, f.anchor_start, r.lifecycle, r.episode_start, "
             "r.episode_end, r.basis_sha256, r.model_version, r.support_sha256, "
             "(SELECT o.claim -> 'recurrence' FROM finding_revision o WHERE o.finding_id = f.id "
             "ORDER BY o.revision_no LIMIT 1) FROM finding f "
             "JOIN finding_revision r "
-            "ON r.finding_id = f.id WHERE f.tenant_id = :t AND f.site_id = :s ORDER BY f.id, r.revision_no DESC"),
-            {"t": tenant_id, "s": site_id}).all())
+            "ON r.finding_id = f.id WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.analytic_id = :a "
+            "ORDER BY f.id, r.revision_no DESC"),
+            {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id}).all())
         return [Episode(str(r[0]), r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9]) for r in rows]
 
     def apply(self, tenant_id: UUID, site_id: UUID, analytic_id: str, writes: list[Write], fence: Fence,
