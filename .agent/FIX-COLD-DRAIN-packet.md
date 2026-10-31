@@ -75,15 +75,25 @@ un-backend-suite-in-container.ps1 -Tier fast -Targets '<selected>'`, run `202610
 - `tools\check-all.ps1 -Python <plan2 .venv>`: All 11 guards passed (architecture seams, agent workflow, estate guard
   self-tests, navigation truthfulness and the rest).
 - Not run:
-  - `-Tier all`: waits for the coordinator's go. A clean scoped rerun is not done either, because another lane's
-    container suite (`assetops-ops03-20261031-175151-7959ea`) started at 17:51.
+  - A clean scoped rerun: the full `-Tier all` run below supersedes it.
   - The frontend suite: there is no frontend change.
 
 - Review fold-in (review ACCEPT, plan2 `.agent/FIX-COLD-DRAIN-review.md`):
   - L1: P4 now asserts `site.result == "COMPLETED" and site.failure is None`.
   - L2: the long lines are wrapped, and the `stages.py` usage docstring is fixed.
   - Rerun of the three stage files and the P-file: 42 passed (254 s).
-- check-all rerun on an idle machine (the reviewer saw rule 8 flake under load): pending, before the full run.
+- check-all rerun on an idle machine (no `ops03` container, before the full run), revision `185485221`:
+  - All 11 guards passed, including Architecture seams (rule 8, the statement-level writer guard), with no missing
+    consequence INSERTs.
+  - The reviewer's rule-8 failures were under load, so they look like load flakiness rather than a defect in this slice.
+- **Full backend `-Tier all`**:
+  - Command: `toolsun-backend-suite-in-container.ps1 -Tier all`, run `20261031-191430-4386b3`, revision `185485221`,
+    4 workers, `postgres-test`, derived 2x cap.
+  - Wall time: 3339 s (pytest 3336 s, 55:36). Exit 0.
+  - JUnit: tests 4591, failures 0, errors 0, skipped 0, so zero skips.
+  - No failure of the reviewer's residual-risk pattern (a tick test expecting COMPLETED on a shared DB whose schema is
+    behind) appeared.
+  - It also covers the 7 `test_w601e` tests the capped scoped run left unrun.
 
 ## Known deviations
 
