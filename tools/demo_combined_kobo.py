@@ -269,7 +269,7 @@ def build(url: str, work: Path, story: dict) -> dict:
     publish_price(url, at(k["price_recorded_at"]))
     first = next(d.received_at for d in days if d.has_run)
     runner = rp.LabRunner(store, engine, result, first + timedelta(minutes=5))
-    h = verifying(runner)
+    harness: list = []  # the S6 harness, opened by the trial chain once the trial-day Finding exists
     published, records, ids = {}, [], {}
     try:
         for n, day in enumerate(days):
@@ -280,7 +280,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                 continue  # run by the trial-before entry's chain, next in the build order
             if day.kind == "trial-before":
                 assert days[n + 1].kind == "trial-after", "the trial pair must be adjacent in the Kobo build order"
-                ids = _trial_chain(store, runner, h, tmp, M, published)
+                ids = _trial_chain(store, runner, harness, verifying, tmp, M, published)
                 for d, name in ((day, "baseline"), (days[n + 1], "later")):
                     records.append({**entry, "day": d.day, "offset": d.offset, "kind": d.kind,
                                     "received_at": iso(d.received_at),
@@ -297,7 +297,8 @@ def build(url: str, work: Path, story: dict) -> dict:
                                        "ASSESSED" if r["assess"] == "build" else "AWAITING_TICK")
         work_rows = write_work(url, store, result, story)
     finally:
-        h.close()
+        for h in harness:
+            h.close()
         pg_harness.dispose(runner.findings)
         pg_harness.dispose(store)
         engine.dispose()
@@ -312,7 +313,7 @@ def build(url: str, work: Path, story: dict) -> dict:
     return ids
 
 
-def _trial_chain(store, runner, h, tmp: Path, M: dict, published: dict) -> dict:
+def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, published: dict) -> dict:
     """The DEMO-A chain (s602b REPLAY body) at the trial pair's place: baseline run, accept, apply, freeze, later
     run, evaluation through the real Action API."""
     import test_s6_verification_replay as rp
@@ -324,6 +325,10 @@ def _trial_chain(store, runner, h, tmp: Path, M: dict, published: dict) -> dict:
                                                    rp._at(spec["received_at"]))
     runner.now = max(runner.now, rp._at(spec["received_at"]) + timedelta(minutes=5))
     runner.step({"do": "assess"}); runner.step({"do": "match"})
+    # The harness's SYSTEM demonstration grant lists the Site's Findings when it opens (fixture_grants snapshot),
+    # so it opens after the trial-day Finding is matched, as in the DEMO-A chain.
+    h = verifying(runner)
+    harness.append(h)
     h.clock.at = rp._at(act["accept_at"])
     finding = h.findings()[act["finding_anchor_day"]]
     rec = h.recommendation(finding).json()
