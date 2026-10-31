@@ -5,9 +5,9 @@
   "kinds": {
     "kobo": {
       "normal": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "generator needed throughout the run"},
-      "overcast": {"scenario_id": "kobo-daytime-overcast", "scenario_version": 2, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "heavy cloud; weather explains the generator"},
+      "overcast": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "overcast morning with heavy demand; the generator is needed (U1 P1: kobo-daytime-overcast refused the 8-hour interval)"},
       "overuse": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "generator kept running under the 30 % reserve"},
-      "degraded": {"scenario_id": "kobo-mini-grid-degraded-evidence", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "imperfect reporting path"},
+      "degraded": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "delivery": "first_half", "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4)"},
       "late": {"received_at": "D+2d 12:00", "assess": "build", "note": "delivered late; assessed after its delivery"},
       "missing": {"note": "gateway offline: no run, no delivery"},
       "trial-before": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "foundation_known_at": "D-6d 12:00", "assess": "build", "note": "reserve trial baseline (30 %)"},
@@ -48,5 +48,5 @@
       {"day": "S+0d", "kind": "fault"}
     ]
   },
-  "trial": {"window_hour": "06:00", "probe_ref": ".agent/DEMO-SPARSE-trial-probe.md"}
+  "trial": {"window_hour": "06:00", "chosen": "a", "probe_ref": ".agent/DEMO-SPARSE-trial-probe.md"}
 }

@@ -164,6 +164,70 @@ def findings_on(engine, site_id, day: str) -> list[str]:
     return [str(r[0]) for r in rows]
 
 
+def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime) -> dict:
+    """`rp._publish_and_accept` for the `degraded` kind's U1 fallback (a gateway outage): the run publishes through
+    a real gateway, but only the first half of its sealed batches reaches S2 before the gateway stops. The rest is
+    never delivered (append-only: nothing is withdrawn)."""
+    import secrets
+    from uuid import UUID
+
+    import test_s6_verification_publication as pub
+    import test_s6_verification_replay as rp
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger import GatewayPrincipal
+    from assetops_backend.evidence.ledger_service import BatchIngestionService
+    from assetops_backend.evidence.publication import register_run
+    from assetops_backend.runs.source_publication import run_attestation
+    from assetops_contracts.ingestion_receipt_v2 import canonical_receipt_v2_text
+    from assetops_gateway.credential_protection import restrict_to_current_user
+    from fake_central import CERT, FakeCentral
+    from gateway_publication import RegisteredGatewayPublisher
+
+    doc = json.loads(run.registered_basis.snapshot_canonical)
+    principal = GatewayPrincipal(tenant_id=UUID(doc["tenant_id"]), site_id=UUID(doc["site"]["site_id"]),
+                                 gateway_id=UUID(doc["gateway"]["gateway_id"]), mode=doc["gateway"]["mode"])
+    received = pub.registered.Clock(received_at)
+    ingestion = BatchIngestionService(PostgresEvidenceLedger(rp.URL, test_decision_clock_override=received), received)
+    statuses: list[str] = []
+
+    def respond(path, headers, body):
+        if path.split("?")[0] != "/api/ingestion/batches":
+            return 201, b"{}"
+        answer = ingestion.submit(principal, body)
+        statuses.append(answer.receipt.status)
+        return answer.status, canonical_receipt_v2_text(answer.receipt).encode("utf-8")
+
+    token = f"aog1.{secrets.token_hex(16)}.{secrets.token_urlsafe(32)}"
+    (tmp_path / "gateway").mkdir(parents=True)
+    (tmp_path / "gateway" / "upload.credential").write_text(token, encoding="ascii")
+    restrict_to_current_user(tmp_path / "gateway" / "upload.credential")
+    central = FakeCentral(respond)
+    upload = {"server_url": central.url, "upload_credential_file": "upload.credential", "ca_file": str(CERT),
+              "interval_seconds": 3600}
+    process = rp._gateway(tmp_path, run, epoch, upload)
+    try:
+        port = pub._host(tmp_path / "h", process.link)
+        port.start(run)
+        assert port.run_to_end(run).status == "COMPLETED"
+        stage = port.registered_stage(run)
+        assert stage.status == "STAGED", stage.status
+        register_run(PostgresEvidenceLedger(rp.URL), run_attestation(run, stage))
+        port.release_registered(run)
+        half = len(stage.batches) // 2
+        publisher, sent = RegisteredGatewayPublisher(process.link), 0
+        while sent < half:
+            attempted = publisher.deliver(min(50, half - sent))["batches"]["attempted"]
+            if not attempted:
+                break
+            sent += attempted
+    finally:
+        process.kill()
+        central.close()
+    assert statuses and set(statuses) == {"COMPLETED"}, statuses
+    return {"batches": len(stage.batches), "delivered_batches": sent, "envelopes": len(stage.envelopes),
+            "delivery": "first half of the sealed batches (gateway outage)"}
+
+
 def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     """One registered Lab run on its story day: draft -> real gateway -> S2 acceptance at `received_at`; when the
     kind assesses at build, S3 assess + S4 match at `received_at + 5 min` (a `tick` day waits for the schedule)."""
@@ -172,8 +236,8 @@ def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     M = day_manifest(base, day)
     spec = M["runs"]["day"]
     run, _ = rp._draft(store, spec, M)
-    published = rp._publish_and_accept(tmp / f"{day.day}-{day.kind}", run, spec["sequence_epoch"],
-                                       rp._at(spec["received_at"]))
+    deliver = publish_first_half if day.kind == "degraded" else rp._publish_and_accept
+    published = deliver(tmp / f"{day.day}-{day.kind}", run, spec["sequence_epoch"], rp._at(spec["received_at"]))
     if day.assess == "build":
         runner.now = max(runner.now, day.received_at + timedelta(minutes=5))
         runner.step({"do": "assess"}); runner.step({"do": "match"})
