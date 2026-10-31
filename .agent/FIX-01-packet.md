@@ -45,3 +45,15 @@ portfolio_comparison 4 (393 s), portfolio_scope_snapshot 10 (718 s). Zero failur
   ledger). 2 FAIL, both environmental: "Missing-claim orphan scan" and "Missing-claim scan fixtures" exit 1 with Node
   MODULE_NOT_FOUND (`frontend/package.json` require stack): this worktree has no installed frontend `node_modules`. They
   touch no FIX-01 file. Needs `npm ci` in `frontend` (not done here) and a re-run before merge.
+
+## Post-merge (main 9ebb3d1c merged; head after this commit)
+- Conflict: only `.agent/mock-departure-register.md` (R575/R576/R577). Kept main's R575 and R576; kept FIX-01's R577 row
+  (resolved by FIX-01) in place of main's open R577. `site_selected_windows` and `summary()` merged without conflict.
+- OUT-C4 EV test flipped: 6 Oct summary now 200, Depot `window_basis == "LATEST_EVENT"`, href starts `/sites/EV-LAB-001/ev?from=` and
+  holds `&to=`. 8 Oct PERIOD assertion unchanged. Deviation: the Depot window is not exactly E [08:00, 09:00). OUT-W's
+  `latest_window` takes max window_end, which is the reselected window [08:00, 09:05) holding the superseding revision.
+  The test asserts from == E.from and to >= E.to. The Protect-equals-board check was not added (summary row shape differs).
+- Results on the merged head, one file at a time, real Postgres, plan2 venv: out_c4_ev_warnings 1 passed (69 s); fix01_estate_two_revisions 1 passed (52 s);
+  fix01_cold_estate 1 passed (30 s); out_c3_repeat_visits 1 passed (55 s); out_b4_board 5 passed (182 s);
+  non-Postgres out_w1*, out_w2*, fix01_windowed_dedupe: 34 passed.
+- `tools\check-all.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): All 11 guards passed.
