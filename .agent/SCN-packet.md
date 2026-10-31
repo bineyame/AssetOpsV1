@@ -44,8 +44,8 @@ pytest `host/tests/test_scn_reserve_matters.py`: 5 passed.
 
 **Instrument correction, flagged for review.** My first D2 run failed property 1 because of my own definition, not
 the Addendum's: I had required every 5-minute step of H to be loaded. Under the frozen policy the generator loads in
-a sawtooth. At 30 % the battery stops, and for one step the generator carries the load and charges at -35.8 kW
-(2.85 kWh). The battery then rises above the reserve and serves again. So no hour is loaded in every step. The
+a sawtooth. At 30 % the battery stops, and for one step the generator carries the load and is requested to charge at -35.8 kW
+(2.85 kWh produced); the accepted charge is 30 kW (2.5 kWh in 5 minutes, the PCS limit). The battery then rises above the reserve and serves again. So no hour is loaded in every step. The
 Addendum's text is "> 0 kWh in at least one whole hour before offset 240". I corrected the helper to that wording
 (an hour's total > 0, with the hour lying wholly before offset 240) and reran once. The design values were not
 changed. If the Reviewer reads "whole hour" as "loaded throughout", D2 fails property 1.
@@ -104,3 +104,15 @@ carries load only once the battery reaches its reserve, and charges only while t
   guardrails. It may also produce a Finding on S or not. The choice rule is fixed: (d) only if it shows the lever,
   has a Finding on S and VERIFIES.
 - USER_REVIEW_REQUIRED: false (Lab content, no UI). A fresh independent review gates the merge.
+
+## Fix round (review SCN-review.md)
+
+- M1: merged main `89280952d`; kept both IDX-GAPS and SCN entries in ACTIVE_CONTEXT, CODE_STATE, DECISIONS.
+- L1: `purpose` reworded (prose only; 742 characters): the generator loads in short bursts that mostly recharge the
+  battery while the battery carries the load in between. Fingerprint re-pinned in `PINNED_SCENARIO_FINGERPRINTS`.
+  Old digest `50f8be3ec4020e500c85041165a6911fb0d0678d04dda8652cbee46a3a59c956`;
+  new digest `515f0292c3c5046133223ce4aefd21db8a2b752c5f0e40c189116180c935aa0c`.
+- L2: property 5 now prepends the starting STOPPED state, so the transition into step 0 is checked.
+- L3: `assert hour == 4` pins H = 04:00-05:00 UTC as the recorded U3 window.
+- L4: line 47 states the accepted 30 kW (2.5 kWh) charge next to the requested -35.8 kW.
+

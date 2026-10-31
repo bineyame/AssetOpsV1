@@ -22,7 +22,7 @@
 scenario_id: kobo-mini-grid-reserve-matters
 display_name: Kobo mini-grid (rainy dawn, reserve trial)
 purpose: >-
-  A heavy rainy-season morning keeps solar output near zero until the sky clears at 10:00 local, while the residential and clinic loads (6 kW) draw the battery down from 34 %. The generator is requested early under either reserve. With a 30 % reserve the battery stops at 30 % and the generator carries the load until the sky clears; with a 25 % reserve the battery carries it towards 25 % and the generator stays unloaded. The trial changes generator energy, not starts. After the clearing PV covers every load and the 90 % stop keeps the generator requested. This document authors no generator output. Demonstration values designed for a client demo story, not a recommendation for any real site.
+  A heavy rainy-season morning keeps solar output near zero until the sky clears at 10:00 local, while the residential and clinic loads (6 kW) draw the battery down from 34 %. The generator is requested early under either reserve. With a 30 % reserve the generator loads in short bursts that mostly recharge the battery, and the battery carries the load in between; with a 25 % reserve the battery carries it towards 25 % and the generator stays unloaded. The trial changes generator energy, not starts. After the clearing PV covers every load and the 90 % stop keeps the generator requested. This document authors no generator output. Demonstration values designed for a client demo story, not a recommendation for any real site.
 
 version:
   scenario_version: 1

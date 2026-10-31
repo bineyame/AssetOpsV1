@@ -56,6 +56,8 @@ def test_baseline_generator_carries_load_for_a_whole_hour_before_the_clearing() 
     _, base = _steps(NAME, 5)
     hour = _first_loaded_hour(base)
     assert hour is not None, "no whole hour before the clearing with the baseline generator loaded"
+    # Recorded U3 window (the first loaded clock hour in the kernel run), not a design target: 04:00-05:00 UTC.
+    assert hour == 4, hour
     assert _energy_in(base, hour) > 0
 
 
@@ -89,6 +91,8 @@ def test_every_generator_transition_is_at_least_20_minutes_from_midnight() -> No
     for reserve in (None, 25):
         _, steps = _steps(NAME, 5, reserve)
         states = [(_offset(b), dict(b.discrete_for_step)[GEN]) for b in steps]
+        # Prepend the scenario's starting generator state so the transition into step 0 is checked.
+        states.insert(0, (0, 'STOPPED'))
         transitions = [offset for (offset, s), (_, prev) in zip(states[1:], states) if s != prev]
         assert transitions or reserve == 25, "vacuous: the baseline generator never changed state"
         for offset in transitions:

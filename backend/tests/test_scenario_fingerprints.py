@@ -75,7 +75,7 @@ PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
     ),
     # SCN-kobo-reserve-matters
     ("kobo-mini-grid-reserve-matters", 1): (
-        "50f8be3ec4020e500c85041165a6911fb0d0678d04dda8652cbee46a3a59c956"
+        "515f0292c3c5046133223ce4aefd21db8a2b752c5f0e40c189116180c935aa0c"
     ),
     ("kobo-mini-grid-stop-60", 2): (
         "730b3e81bd4e5c3b1602fb62a3a45dff76668522d896ab37e5020c66f1866ebf"
