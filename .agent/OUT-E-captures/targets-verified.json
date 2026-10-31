@@ -1,0 +1,3 @@
+[
+ {"name":"kobo-overview-verified","url":"http://localhost:5487/sites/KOBO-001?date=2026-11-02","mock":"mini","open":"all","producer":"s602b verified case","db":"assetops_s602b_oute_audit_verified","expect":["ACT-000001 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"],"forbid":["not realised savings","MODELLED_","PRICE_MISSING"]}
+]
