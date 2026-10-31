@@ -54,10 +54,8 @@ def demo():
     try:
         try:
             manifest = d.prepare()
-        finally:  # as the tool's `main` does after a prepare: release the work folder for SP-7's add-day
-            if d.holds_busy:
-                (d.work / ".busy").unlink(missing_ok=True)
-                d.holds_busy = False
+        finally:  # as the tool's `main` does after a prepare; never raises, so a prepare failure propagates as is
+            _release_busy(d)
         import shutil
 
         shutil.copyfile(d.work / "check.json", d.work / "check-prepare.json")  # the prepare's own self-check
@@ -69,20 +67,43 @@ def demo():
             tool.PG_ADMIN = saved
 
 
+def _release_busy(d) -> None:
+    """Release the work folder's `.busy` (SP-7's add-day needs it free). It must never raise: it runs in the
+    `finally` after `prepare`, and an error here would replace the prepare's own exception."""
+    if not d.holds_busy:
+        return
+    try:
+        (d.work / ".busy").unlink(missing_ok=True)
+        d.holds_busy = False
+    except OSError as exc:  # SP-7's add-day then refuses with the `.busy` message, naming the file
+        print(f"could not release {d.work / '.busy'}: {exc}")
+
+
 def _child(d, *argv: str, label: str):
+    """One `finish` child in the private tree. A wall-cap stop (the tool's SystemExit) fails the row."""
     d.deadline = time.monotonic() + 2 * 300  # the tool's 2x cap for one bounded child
-    return d.py(str(d.tree / "tools" / "demo_combined_finish.py"), *argv, cwd=d.tree / "backend" / "tests",
-                label=label, check=False)
+    try:
+        return d.py(str(d.tree / "tools" / "demo_combined_finish.py"), *argv, cwd=d.tree / "backend" / "tests",
+                    label=label, check=False)
+    except SystemExit as exc:
+        pytest.fail(f"finish {argv[0]} child stopped: {exc}")
 
 
 def _get(d, path: str, params: dict) -> tuple[int, object]:
+    """One read through `finish get`: a non-zero exit or output that is not one JSON line fails the row."""
     import json
 
     done = _child(d, "get", d.url, str(d.work), path, json.dumps(params), label="build-test-get")
-    line = next((x for x in reversed(done.stdout.splitlines()) if x.startswith("{")), None)
-    assert done.returncode == 0 and line, done.stdout[-2000:]
-    out = json.loads(line)
-    return out["status_code"], out["body"]
+    if done.returncode != 0:
+        pytest.fail(f"finish get exited {done.returncode}: {done.stdout[-2000:]}")
+    lines = [x for x in done.stdout.splitlines() if x.startswith("{")]
+    if len(lines) != 1:
+        pytest.fail(f"finish get printed {len(lines)} JSON lines, expected 1: {done.stdout[-2000:]}")
+    try:
+        out = json.loads(lines[0])
+        return out["status_code"], out["body"]
+    except (ValueError, KeyError, TypeError) as exc:
+        pytest.fail(f"finish get output is not {{status_code, body}} JSON ({exc}): {lines[0][:2000]}")
 
 
 @pytest.fixture(scope="module")
@@ -98,8 +119,22 @@ def checked(demo) -> dict:
 
     d, _ = demo
     (d.work / "check.json").unlink(missing_ok=True)
-    _child(d, "check", d.url, str(d.work), label="build-test-check")
-    return json.loads((d.work / "check.json").read_text(encoding="utf-8"))["rows"]
+    done = _child(d, "check", d.url, str(d.work), label="build-test-check")
+    # `check` exits 0 when every row passed and 1 when a row failed (each row then fails on its own status);
+    # any other exit, a missing or unparseable check.json, or a missing row fails every row
+    if done.returncode not in (0, 1):
+        pytest.fail(f"finish check exited {done.returncode}: {done.stdout[-2000:]}")
+    try:
+        rows = json.loads((d.work / "check.json").read_text(encoding="utf-8"))["rows"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        pytest.fail(f"finish check wrote no readable check.json ({exc}): {done.stdout[-2000:]}")
+    missing = [c for c, _, m, _ in finish.CHECKS if not m and c not in rows]
+    if missing:
+        pytest.fail(f"finish check has no result for {missing}")
+    failed = [c for c, r in rows.items() if r.get("status") == "fail"]
+    if done.returncode != (1 if failed else 0):
+        pytest.fail(f"finish check exit {done.returncode} disagrees with its rows (failed {failed})")
+    return rows
 
 
 def _case(check_id: str, idx: bool):
@@ -147,10 +182,32 @@ def test_SP_7_append_only_and_rebuild_kinds(demo, ctx) -> None:
     assert code == 200 and after["status"] == "CURRENT", (code, str(after)[:300])
 
     story = d.story()
-    first = [(x["site"], x["offset"], x["kind"]) for x in ctx.days]
     later = tool.resolve_story(finish.at(story["db_now"]) + timedelta(days=1))
-    again = [(x["site"], x["offset"], x["kind"]) for x in later["days"]]
+    S, S2 = finish.at(story["S"]), finish.at(later["S"])
+    assert S2 - S == timedelta(days=1), (story["S"], later["S"])
+    # Addendum 4: a Site with no ruled weekday keeps the same (site, offset, kind) sequence, every date moved 1 day
+    plain = lambda xs: [x for x in xs if x["site"] not in sd.SITE_WEEKDAY]  # noqa: E731
+    first = [(x["site"], x["offset"], x["kind"]) for x in plain(ctx.days)]
+    again = [(x["site"], x["offset"], x["kind"]) for x in plain(later["days"])]
     assert again == first, (first, again)
-    moved = {(x["site"], x["offset"]): x["day"] for x in later["days"]}
+    moved = {(x["site"], x["offset"]): x["day"] for x in plain(later["days"])}
     assert all(finish.at(moved[(x["site"], x["offset"])] + "T00:00:00Z") - finish.at(x["day"] + "T00:00:00Z")
-               == timedelta(days=1) for x in ctx.days), moved
+               == timedelta(days=1) for x in plain(ctx.days)), moved
+    # a weekday-bound Site (`SITE_WEEKDAY`, R619): the same (site, listed day, kind) on both S, each resolved day
+    # on the ruled weekday, inside (S + listed - 7 d, S + listed], at offset weekday_offset(site, S, listed)
+    listed_doc = sd.load()
+    for site, weekday in sd.SITE_WEEKDAY.items():
+        listed = sorted(listed_doc["sites"][site], key=lambda e: sd.day_offset(e["day"]))
+        seqs = []
+        for on, xs in ((S, ctx.days), (S2, later["days"])):
+            got = sorted((x for x in xs if x["site"] == site), key=lambda x: x["offset"])
+            assert len(got) == len(listed), (site, on, got, listed)
+            for e, x in zip(listed, got):
+                n = sd.day_offset(e["day"])
+                date = finish.at(x["day"] + "T00:00:00Z")
+                assert date.weekday() == weekday, (site, on, e, x)
+                assert on + timedelta(days=n - 7) < date <= on + timedelta(days=n), (site, on, e, x)
+                assert x["offset"] == sd.weekday_offset(site, on, n), (site, on, e, x)
+                assert x["kind"] == e["kind"], (site, on, e, x)
+            seqs.append([(site, e["day"], x["kind"]) for e, x in zip(listed, got)])
+        assert seqs[0] == seqs[1], (site, seqs)
