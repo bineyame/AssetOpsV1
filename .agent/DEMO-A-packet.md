@@ -105,7 +105,7 @@ being worked out, or avoid the headline.
 
 ## Checks run
 
-- `test_demo_story_days.py`: 19 passed (at `20f83276b`). check-all 11/11 at `feec73b2f` (merge of main `15eed62c8`).
+- `test_demo_story_days.py`: 19 passed (at `20f83276b`). check-all 11/11 at `feec73b2f` (merge of main `15eed62c8`) and at `40711db43` (closeout).
 - Full prepare `assetops_demo3_full_test` at `feec73b2f`: exit 1 at 678 s (deviation 6). At `20f83276b`: 1105 s (tool wall cap 3120 s; brief cap 49 min):
   kobo 844.5 s (8 runs), cold 59.6 s, ev 66.8 s, setup + finish ~134 s; self-check 16/1.
 - Slow build test `backend/tests/test_demo_combined_postgres.py -m slow` at `210db8187` (code = `20f83276b`), fresh DB
