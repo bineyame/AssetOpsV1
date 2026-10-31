@@ -6,5 +6,5 @@
   `test_out_b4_board_postgres.py`).
 - Closeout `5b0fc4daf` (DECISIONS, R552 note, task file, CODE_STATE, ACTIVE_CONTEXT, packet). U3 set 177 passed;
   check-all 11/11 twice (at `39ebf86d0`, and at `4111496d3` plus the closeout docs before the packet was written).
-- Pending: `-Tier all` (`toolsun-backend-suite-in-container.ps1 -Tier all`, keep-awake first, cap 2x) on the
-  coordinator's go; then record command/revision/wall time/JUnit counts in the packet's Checks run.
+- Pending: `-Tier all` (`tools/run-backend-suite-in-container.ps1 -Tier all`, keep-awake first, cap 2x) on the
+  coordinator's go; then record command, revision, wall time and JUnit counts in the packet's Checks run.
