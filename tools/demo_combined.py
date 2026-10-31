@@ -283,9 +283,11 @@ class Demo:
     def finish(self, story: dict) -> None:
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
         if set(story["sites"]) == set(SITES):
-            done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "objectives", self.url, str(self.work),
-                           cwd=self.tree / "backend" / "tests", label="objectives")
-            say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
+            done = self.py("-m", "assetops_backend.declare_objective", "fixture", "--file",
+                           str(self.tree / "backend" / "conversions" / "demo-objectives.json"), label="objectives")
+            lines = [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
+            (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
+            say(f"  objectives: {len(lines)} lines")
         if "kobo" in story["sites"]:
             done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
                            label="s2-comparison")

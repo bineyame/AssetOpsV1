@@ -111,3 +111,36 @@ Wall: replay 200 s, total 271 s. Same results as the shifted run, confirming the
   1 row.
 - The day split the sheet describes is real: the Finding is on 10-13; ACT-000001 first appears on the 10-14 board.
 - Cost check `UNAVAILABLE / PRICE_MISSING` (recorded 10-16 01:00): the same price-knowledge cause.
+
+## U3 build + R2 diagnosis (Addendum 1 R2), 2026-10-31, build `dd08df077`
+
+Build: `tools/demo_combined.py --db assetops_demo3_dev_test --work var/demo3_dev prepare --sites kobo` (Kobo only,
+then S2 comparison, 2 ticks, Performance). S = 2026-10-29. Wall 188 s (Kobo child 158.5 s), cap 740 s.
+- VERIFIED `TARGET_AND_GUARDRAILS_PASS`, ACT-000001. Price v1 published through the A0 seam at 2026-10-07 12:00
+  (Kobo install + 1 h).
+- **Cost check now calculated: `MODELLED_NO_IMPROVEMENT`**, nominal 0, upper 0 USD, recorded S+1 13:00. Shown
+  honestly (decision 1 default, pending owner).
+
+R2 four checks (board day S, `outcome-board?from=S&to=S+1`):
+1. **Board's own `finding_index` port over `[work_lo, end)` = `[S+1-31d, S+1)`: 200, status `UNASSESSED`, 0 rows.**
+   The one-day read `[S, S+1)` is CURRENT with F-104 (SUPPORTED); `[S+1, S+2)` CURRENT; S-1 (2026-10-28)
+   UNASSESSED with reason `NOT_ASSESSED: accepted evidence exists but no recompute job or run covers it`; S-2
+   (2026-10-27) UNASSESSED (no evidence). The index returns rows only when *every* inspected UTC day is CURRENT
+   (`analytics/finding_index.py:15-18`, status by rank `:283`, rows only when `status == CURRENT` `:302`).
+2. ACT-000001's link names the same Finding: action-index `origin.finding_id == 4a8fb815…` = kobo.json `finding`,
+   `finding_revision_id` = the F-104 revision. **No ID mismatch.**
+3. `_findings` (`site_outcomes/mini.py:422-444`) gets no rows at all (check 1); it drops nothing. UNASSESSED is not in
+   `UNSETTLED_INDEX_STATUS` (`mini.py:90`, FAILED/STALE/PENDING), so `findings_settled` is true and the suffix is
+   OUTSIDE_VIEW ("linked finding outside this view", `board.py:268-270`).
+4. ACT lands on Protect because its origin Finding is unresolved: `move_cats = ... else ["PROTECT_ASSET"]`
+   (`board.py:566-567`). Not the reserve map entry.
+
+**Cause: board/index rules acting as designed** - the board reads Findings over a 31-day work window
+(`mini.py:34`, `:260`, `:271`, B-Q22) and the S4-04 index withholds every row unless all inspected days are CURRENT.
+The story assesses only S and S+1, so no Kobo board day can list F-104. **R2 stop rule fires.** This also blocks the
+CO-3 Cost-row line (the ACT entry sits on Protect, not Cost) and CO-1's Must-not-harm link.
+- The sheet's alternative (a second unverified Kobo trial on S) hits the same rule: any board day needs 31
+  CURRENT index days.
+- Data-only remedy that keeps the rules: CURRENT assessments on every UTC day of `[S-29d, S+1d]` (about 29 more
+  registered Kobo runs; rough cost 30-45 min of build; and S-1's covered-evidence gap). Not built; owner/Architect
+  call.
