@@ -74,3 +74,29 @@ def test_gap_line_copy_passes_the_vocabulary_scan() -> None:
     hits = [(t, name) for t in texts for name, p in _patterns() if p.search(t)]
     assert hits == []
     assert any(p.search("23 of 31 STALE_PROJECTION days") for _, p in _patterns())  # the scan can fail
+
+
+def test_board_finding_titles_are_the_frontend_plain_titles() -> None:
+    """Addendum 3: each board Finding title is a literal of `frontend/src/sites/findingWords.ts`, keyed by lifecycle."""
+    from pathlib import Path
+
+    from assetops_backend.site_outcomes.mini import COPY, FINDING_TITLE, FINDING_TITLE_FALLBACK
+
+    words = (Path(__file__).resolve().parents[2] / "frontend" / "src" / "sites" / "findingWords.ts").read_text(
+        encoding="utf-8")
+    for lifecycle, title in FINDING_TITLE.items():
+        assert f"{lifecycle}: {{" in words and f'title: "{title}"' in words, (lifecycle, title)
+    assert f'"{FINDING_TITLE_FALLBACK}"' in Path(__file__).resolve().parents[2].joinpath(
+        "frontend", "src", "sites", "OverviewFindingList.tsx").read_text(encoding="utf-8")
+    assert set(FINDING_TITLE.values()) | {FINDING_TITLE_FALLBACK} <= set(COPY)  # in the vocabulary scan
+
+
+def test_board_names_a_finding_by_lifecycle_not_stored_title() -> None:
+    import test_out_b2_mini as b2
+
+    raw = dict(b2.F104, title="Generator support merits review: bounded candidate avoidable running")
+    comp, _ = b2.run(b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [raw], "next_cursor": None}))
+    assert [f.title for f in comp.facts.findings] == ["Generator support merits review"]
+    retired = dict(b2.F090, lifecycle="RETIRED")
+    comp, _ = b2.run(b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [retired], "next_cursor": None}))
+    assert [f.title for f in comp.facts.findings] == ["Generator support review"]

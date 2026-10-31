@@ -94,6 +94,13 @@ FINDING_WINDOW_DAYS = 31
 GAPS_NO_READINGS = "Not available yet · {g} of {n} days {verb} no assessed readings"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
 GAPS_WITHHELD = "; Findings next to those days are not shown yet"
+#: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
+#: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
+FINDING_TITLE = {"SUPPORTED": "Generator support merits review",
+                 "UNCONFIRMED": "Generator support review: not confirmed",
+                 "NO_LONGER_SUPPORTED": "Generator support review: no longer supported",
+                 "MERGED": "Generator support review: joined into an earlier Finding"}
+FINDING_TITLE_FALLBACK = "Generator support review"
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
 ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 
@@ -118,7 +125,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
-        GAPS_WITHHELD)
+        GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK)
 
 
 @dataclass(frozen=True)
@@ -482,7 +489,8 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
                 confidence = place(er, action_for(er, estate_actions), site_cov, None).confidence
             except Exception:  # noqa: BLE001 - an unselectable Action leaves the chip null, never the board
                 confidence = None
-        out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), r["title"], FINDING_MECHANISM,
+        title = FINDING_TITLE.get(str(r.get("lifecycle")), FINDING_TITLE_FALLBACK)
+        out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), title, FINDING_MECHANISM,
                                r["lifecycle"], (r.get("links") or {}).get("selected_revision"),
                                confidence_label=confidence, in_window=in_window))
     return tuple(out)
