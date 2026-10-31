@@ -87,7 +87,20 @@ SOURCE_TEXT = {"REGISTERED_SIMULATION": "Generated test data source",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
 #: Addendum 3 M1: a mini Finding index body in one of these overall states leaves the Finding source unsettled.
-UNSETTLED_INDEX_STATUS = ("FAILED", "STALE", "PENDING")
+#: IDX-GAPS U2: the dispatch stale status is "STALE_PROJECTION" ("STALE" kept for safety); UNASSESSED never settles.
+UNSETTLED_INDEX_STATUS = ("FAILED", "STALE_PROJECTION", "STALE", "PENDING", "UNASSESSED")
+#: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
+FINDING_WINDOW_DAYS = 31
+GAPS_NO_READINGS = "Not available yet · {g} of {n} days {verb} no assessed readings"
+GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
+GAPS_WITHHELD = "; Findings next to those days are not shown yet"
+#: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
+#: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
+FINDING_TITLE = {"SUPPORTED": "Generator support merits review",
+                 "UNCONFIRMED": "Generator support review: not confirmed",
+                 "NO_LONGER_SUPPORTED": "Generator support review: no longer supported",
+                 "MERGED": "Generator support review: joined into an earlier Finding"}
+FINDING_TITLE_FALLBACK = "Generator support review"
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
 ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
 
@@ -109,7 +122,10 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
-        SOURCE_UNRESOLVED, *READINESS_WORD.values())
+        SOURCE_UNRESOLVED, *READINESS_WORD.values(),
+        GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
+        GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
+        GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK)
 
 
 @dataclass(frozen=True)
@@ -147,6 +163,7 @@ class Reads:
     def __init__(self) -> None:
         self.failed: list[str] = []
         self.statuses: dict[str, set[str]] = {}
+        self.first: dict[str, dict[str, Any]] = {}  # IDX-GAPS U2: the first page body per paged read
 
     def call(self, name: str, fn: Callable[..., Any], *args: Any) -> Any:
         try:
@@ -164,6 +181,7 @@ class Reads:
             body = self.call(name, fn, *args, cursor)
             if body is None:
                 return None
+            self.first.setdefault(name, body)
             rows += list(body.get(key) or ())
             if body.get("status") is not None:
                 self.statuses.setdefault(name, set()).add(str(body["status"]))
@@ -172,6 +190,37 @@ class Reads:
                 return rows
         self.failed.append(name)
         return None
+
+
+# ---------------------------------------------------------------- Finding index (IDX-GAPS U2)
+
+def index_settled(body: dict[str, Any], day: date) -> bool:
+    """The board's Finding source is settled on a CURRENT index, or on a PARTIAL one whose gaps do not name the
+    board day itself; every other status (and a body without one) leaves it unsettled."""
+    status = body.get("status")
+    if status == "CURRENT":
+        return True
+    if status == "PARTIAL":
+        return all(g.get("day") != day.isoformat() for g in body.get("gaps") or ())
+    return False
+
+
+def finding_gap_line(body: dict[str, Any] | None, requested: int) -> dict[str, Any] | None:
+    """The note under the board rows naming the requested days whose index state is not CURRENT, or None."""
+    if body is None:
+        return None
+    wanted = set((body.get("discovery") or {}).get("requested_days") or ())
+    states = {g["day"]: g["state"] for g in body.get("gaps") or () if g["day"] in wanted and g["state"] != "CURRENT"}
+    g = len(states)
+    if g == 0:
+        return None
+    if all(s == "UNASSESSED" for s in states.values()):
+        text = GAPS_NO_READINGS.format(g=g, n=requested, verb="has" if g == 1 else "have")
+    else:
+        text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
+    if body.get("withheld"):
+        text += GAPS_WITHHELD
+    return {"text": text, "days": sorted(states)}
 
 
 # ---------------------------------------------------------------- formatting
@@ -269,8 +318,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     readiness = reads.call("evidence_readiness", ports.readiness, start, end)
     estate = reads.call("estate", ports.estate, start, end, work_lo, end)  # Findings: the day; Actions: 31 days
     finding_rows = reads.pages("finding_index", ports.finding_index, work_lo, end)
-    findings_ok = finding_rows is not None and not (reads.statuses.get("finding_index", set())
-                                                    & set(UNSETTLED_INDEX_STATUS))
+    first = reads.first.get("finding_index")
+    findings_ok = (finding_rows is not None and first is not None and index_settled(first, day)
+                   and not (reads.statuses.get("finding_index", set()) & set(UNSETTLED_INDEX_STATUS)))
     if not findings_ok and "finding_index" not in reads.failed:
         reads.failed.append("finding_index")  # a non-current index body: PARTIAL, so text and notice agree
     action_rows = reads.pages("action_index", ports.action_index, work_lo, end)
@@ -358,7 +408,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       plans=plan_facts, readiness=readiness, contributors=contributors, options=options,
                       signals_extra=signals, headline=headline, headline_money=headline_money, subline=subline,
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
-                      findings_settled=findings_ok, objectives=objectives, readings=readings,
+                      findings_settled=findings_ok, objectives=objectives,
+                      finding_gaps=finding_gap_line(first, FINDING_WINDOW_DAYS), readings=readings,
                       objectives_ok=objective_rows is not None)
     suffix = "" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
@@ -438,7 +489,8 @@ def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
                 confidence = place(er, action_for(er, estate_actions), site_cov, None).confidence
             except Exception:  # noqa: BLE001 - an unselectable Action leaves the chip null, never the board
                 confidence = None
-        out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), r["title"], FINDING_MECHANISM,
+        title = FINDING_TITLE.get(str(r.get("lifecycle")), FINDING_TITLE_FALLBACK)
+        out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), title, FINDING_MECHANISM,
                                r["lifecycle"], (r.get("links") or {}).get("selected_revision"),
                                confidence_label=confidence, in_window=in_window))
     return tuple(out)

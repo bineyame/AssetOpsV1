@@ -1,0 +1,90 @@
+[
+  {
+    "name": "loaded http://localhost:5434/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop Findings page PARTIAL view",
+    "ok": true,
+    "detail": {
+      "present": true,
+      "claim": "4 Findings on the assessed days",
+      "rows": 4,
+      "gap": "12 of 16 days in this window are not checked yet, so nothing is concluded about them.",
+      "provedEmpty": false,
+      "codes": false,
+      "overflow": -15
+    }
+  },
+  {
+    "name": "loaded http://localhost:5434/sites/KOBO-001?date=2026-10-15: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+    "ok": true,
+    "detail": {
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440,
+      "ok": true
+    }
+  },
+  {
+    "name": "desktop board gap line",
+    "ok": false,
+    "detail": {
+      "text": null,
+      "lines": null,
+      "height": null,
+      "lineHeight": null,
+      "overflow": 0
+    }
+  },
+  {
+    "name": "loaded http://localhost:5434/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow Findings page PARTIAL view",
+    "ok": true,
+    "detail": {
+      "present": true,
+      "claim": "4 Findings on the assessed days",
+      "rows": 4,
+      "gap": "12 of 16 days in this window are not checked yet, so nothing is concluded about them.",
+      "provedEmpty": false,
+      "codes": false,
+      "overflow": 0
+    }
+  },
+  {
+    "name": "loaded http://localhost:5434/sites/KOBO-001?date=2026-10-15: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+    "ok": true,
+    "detail": {
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390,
+      "ok": true
+    }
+  },
+  {
+    "name": "narrow board gap line",
+    "ok": false,
+    "detail": {
+      "text": null,
+      "lines": null,
+      "height": null,
+      "lineHeight": null,
+      "overflow": 0
+    }
+  }
+]

@@ -1,6 +1,6 @@
 /**
  * S4-04 phase 2 test fixtures: Site Finding index bodies and fake clients.
- * Shapes follow `backend/assetops_backend/analytics/finding_index.py` (`site-finding-index-1`).
+ * Shapes follow `backend/assetops_backend/analytics/finding_index.py` (`site-finding-index-2`, IDX-GAPS).
  */
 import { vi } from "vitest";
 
@@ -60,7 +60,8 @@ export function indexRow(id: string, revision: string, start: string, end: strin
 
 export function indexBody(over: Partial<FindingIndexBody> = {}): FindingIndexBody {
   return {
-    schema_version: "site-finding-index-1",
+    schema_version: "site-finding-index-2",
+    policy_version: "finding-index/2",
     site_code: "KOBO-001",
     site_id: "s",
     access_basis: "development",
@@ -100,6 +101,8 @@ export function indexBody(over: Partial<FindingIndexBody> = {}): FindingIndexBod
     total_count: 0,
     next_cursor: null,
     rows_statement: null,
+    gaps: [],
+    withheld: false,
     ...over,
   };
 }
@@ -112,6 +115,33 @@ export function notCurrent(status: FindingIndexBody["status"], reason: string): 
     rows: [],
     total_count: null,
     rows_statement: "No rows and no count: this index is not current. This is not a no-Findings verdict.",
+  });
+}
+
+/** IDX-GAPS: a three-day PARTIAL window (25-27 Oct) whose middle day is not checked; `rows` from the other days. */
+export function partialBody(rows: FindingIndexRow[], over: Partial<FindingIndexBody> = {}): FindingIndexBody {
+  const base = indexBody();
+  const day = base.watermarks.days[0];
+  const days = ["2026-10-25", "2026-10-26", "2026-10-27"];
+  return indexBody({
+    status: "PARTIAL",
+    is_current: false,
+    window: { ...base.window, from: "2026-10-25T00:00:00Z", to: "2026-10-28T00:00:00Z" },
+    discovery: { ...base.discovery, days, requested_days: days },
+    watermarks: {
+      matcher: base.watermarks.matcher,
+      days: days.map((d) =>
+        d === "2026-10-26"
+          ? { ...day, day: d, status: "UNASSESSED", reasons: ["NO_ASSESSMENT"], s3: { ...day.s3, status: "UNASSESSED" } }
+          : { ...day, day: d },
+      ),
+    },
+    status_reasons: ["2026-10-26: NO_ASSESSMENT"],
+    rows,
+    total_count: rows.length,
+    gaps: [{ day: "2026-10-26", state: "UNASSESSED", reason: "NOT_CURRENT" }],
+    rows_statement: "Rows from assessed days only.",
+    ...over,
   });
 }
 

@@ -21,6 +21,7 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
@@ -34,7 +35,8 @@ SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
 LOG = logging.getLogger(__name__)
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
-                   "warnings": WARNINGS_POLICY, "objectives": OBJECTIVES_POLICY}
+                   "warnings": WARNINGS_POLICY, "objectives": OBJECTIVES_POLICY,
+                   "finding_index": FINDING_INDEX_POLICY}
 #: Stored Site type -> board domain (`mini_depth/read.py:50`, `sites/cold_foundation.py:31`, `sites/ev_foundation.py:36`).
 DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI, "COLDCHAIN": COLD, "EV_CHARGING": EV}
 FINDING_INDEX_DOMAIN = "mini-grid-dispatch"
@@ -358,6 +360,7 @@ class SiteOutcomeBoardService:
             "rows": jsonable_encoder(assemble(comp.facts)),
             "objectives": jsonable_encoder(objectives_wire(comp.facts)),
             "objectives_read": comp.facts.objectives_ok,
+            "finding_gaps": jsonable_encoder(comp.facts.finding_gaps),
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary

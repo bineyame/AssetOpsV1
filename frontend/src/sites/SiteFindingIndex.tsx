@@ -55,6 +55,7 @@ import type {
   FindingIndexRow,
   FindingIndexScope,
 } from "./findingIndexClient";
+import { gapDays, listsRows } from "./findingIndexClient";
 import { LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 import "./w1ux02-findings-index.css";
@@ -187,6 +188,18 @@ const HEADING_ID = "site-finding-index-heading";
 const PANEL_DESCRIPTION = "Domain links back to the Performance view that produced the finding.";
 const NOT_A_ZERO =
   "No Findings are listed and no count is given. This is not a statement that the window has no Findings.";
+
+/** IDX-GAPS: the PARTIAL list's gap sentences (a Finding reaching into a day not checked yet is left out). */
+export const PARTIAL_WITHHELD = "A Finding that reaches into one of those days is not shown until that day is checked.";
+export const OVERVIEW_PARTIAL = "A Finding that reaches into a neighbouring day not checked yet is not shown.";
+
+/** IDX-GAPS: "{g} of {N} days in this window are not checked yet, …"; null when no requested day is a gap. */
+export function partialGapSentence(body: FindingIndexBody): string | null {
+  const g = gapDays(body).length;
+  const n = body.discovery.requested_days.length;
+  if (g === 0) return null;
+  return `${g} of ${n} ${n === 1 ? "day" : "days"} in this window ${g === 1 ? "is" : "are"} not checked yet, so nothing is concluded about ${g === 1 ? "it" : "them"}.`;
+}
 
 const NOT_CURRENT_CODES = ["PENDING", "UNASSESSED", "STALE_PROJECTION", "FAILED"] as const;
 
@@ -667,7 +680,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
   const firstPage = links.scope({ ...scope, cursor: null });
   const scopeText = windowScope(scope);
   const references = <ExactReferences name="finding-index-references" references={bodyReferences(body, scope)} />;
-  if (body.status !== "CURRENT" || body.total_count === null) {
+  if (!listsRows(body) || body.total_count === null) {
     const words = body.status === "CURRENT" ? NO_COUNT_WORDS : currentnessWords(body.status);
     return (
       <View
@@ -687,6 +700,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
       />
     );
   }
+  if (body.status === "PARTIAL") return <Partial body={body} scope={scope} links={links} references={references} />;
   if (body.total_count === 0) {
     return (
       <View
@@ -742,6 +756,66 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
           exact version listed here, which stays the same after reload even when a newer version is recorded. No
           amount is shown in this list.
         </p>
+      }
+      action={
+        newest === undefined ? undefined : (
+          <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
+            Open the newest Finding
+          </Link>
+        )
+      }
+      references={references}
+    />
+  );
+}
+
+/** IDX-GAPS: rows from the checked days only, with the days not checked yet named and never counted as none. */
+function Partial({
+  body,
+  scope,
+  links,
+  references,
+}: {
+  body: FindingIndexBody;
+  scope: FindingIndexScope;
+  links: FindingIndexLinks;
+  references: ReactNode;
+}) {
+  const total = body.total_count ?? 0;
+  const shown = body.rows.length;
+  const newest = body.rows[0];
+  const firstPage = links.scope({ ...scope, cursor: null });
+  const sentence = partialGapSentence(body);
+  return (
+    <View
+      state="partial"
+      attributes={{ "data-site-findings": "partial" }}
+      claim={total === 0 ? "No Findings on the assessed days" : `${total} ${total === 1 ? "Finding" : "Findings"} on the assessed days`}
+      status={<ProductStatus inline words={currentnessWords("PARTIAL")} scope={windowScope(scope)} asOf={body.knowledge_at} />}
+      body={
+        <>
+          {shown > 0 ? <Rows body={body} links={links} /> : null}
+          {shown > 0 || scope.cursor ? (
+            <nav aria-label="Findings pages" data-finding-index-pages>
+              {shown < total ? (
+                <span>
+                  Showing {shown} of {total}.
+                </span>
+              ) : null}{" "}
+              {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
+              {body.next_cursor ? (
+                <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
+                  Next page
+                </Link>
+              ) : null}
+            </nav>
+          ) : null}
+          <Gap>
+            {sentence === null ? null : <p data-site-findings-gap-days>{sentence}</p>}
+            {body.withheld ? <p>{PARTIAL_WITHHELD}</p> : sentence === null ? <p>{OVERVIEW_PARTIAL}</p> : null}
+          </Gap>
+          <DayStrip body={body} rows />
+        </>
       }
       action={
         newest === undefined ? undefined : (
