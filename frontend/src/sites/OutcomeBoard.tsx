@@ -57,6 +57,8 @@ const EXPLAIN = [
   "Each row is one of the four things the business is trying to achieve. It shows how it is doing, what is driving that, the problems and opportunities found, what could be done, what is already under way, and whether earlier work fixed anything. Every item opens the page that holds its detail.",
   "Money of different kinds is shown separately and never added together. Where a fix in one row could harm another, the row says what it must not harm.",
   "Confidence says how complete and consistent the readings are. “Not measured yet” means the records needed to judge it are not connected.",
+  // MOCK DEVIATION (OUT-D review L1, R580): the mock has no declared objectives, so it has no such paragraph.
+  "A declared objective is a target set for this demonstration so the status can be shown. It is not the customer's target.",
 ] as const;
 
 /**
@@ -323,6 +325,7 @@ function Explainer({ rows, onClose, opener }: { rows: OutcomeBoardRow[]; onClose
       </div>
       <p className="prose">{EXPLAIN[1]}</p>
       <p className="prose">{EXPLAIN[2]}</p>
+      <p className="prose">{EXPLAIN[3]}</p>
     </ExplainerDialog>
   );
 }

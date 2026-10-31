@@ -1,0 +1,4 @@
+chrome pid 20584
+FAIL  overview-cold-greenharvest 1440: app rendered
+FAIL  overview-cold-greenharvest 390: app rendered
+18/20 claims passed; captures 4

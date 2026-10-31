@@ -12,6 +12,8 @@ from typing import Any
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     SiteOutcome, row_not_measured)
+from assetops_backend.outcomes.objectives import (
+    CONTRIBUTOR_LABEL, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge)
 from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
 from assetops_backend.outcomes.status import (
     EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal, outcome_state,
@@ -201,6 +203,11 @@ class SiteFacts:
     date_suffix: str = ""
     #: Addendum 3 M1: False when the domain's Finding source was refused, failed or not current.
     findings_settled: bool = True
+    #: OUT-D U4: the Site's declared objectives (catalogue order), their readings per outcome key, and False when the
+    #: objectives read failed (status rule 7c: an unjudged outcome is then Unknown, never "No objective declared").
+    objectives: tuple[ObjectiveFact, ...] = ()
+    readings: Mapping[str, Reading] = field(default_factory=dict)
+    objectives_ok: bool = True
 
 
 # ---------------------------------------------------------------- helpers
@@ -326,6 +333,34 @@ def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | 
 
 # ---------------------------------------------------------------- assembly
 
+def objective_verdict(o: ObjectiveFact, readings: Mapping[str, Reading], settled: Mapping[str, bool]) -> str | None:
+    """OUT-D U4: MET | MISSED | NOT_JUDGED for a settled outcome; None when the outcome is not settled."""
+    if not settled.get(o.outcome_key, False):
+        return None
+    return judge(o, readings.get(o.outcome_key))
+
+
+def objective_verdicts(facts: SiteFacts) -> dict[str, str | None]:
+    """Per declared outcome of the Site, its verdict (`objective_verdict`)."""
+    return {f.outcome_key: objective_verdict(f, facts.readings, facts.settled) for f in facts.objectives}
+
+
+def objective_contributor(o: ObjectiveFact, reading: Reading | None, verdict: str | None) -> Contributor:
+    """The "Declared objective" line: target sentence · actual (target only without an actual), verdict chip."""
+    actual = None if reading is None else reading.actual_text
+    return Contributor(f"declared_objective:{o.outcome_key}", CONTRIBUTOR_LABEL,
+                       f"{o.target_text} · {actual}" if actual else o.target_text,
+                       dict(VERDICT_CHIP[verdict or NOT_JUDGED]))
+
+
+def objectives_wire(facts: SiteFacts) -> list[dict[str, Any]]:
+    """The board's top-level `objectives` list. Verdict codes are wire data and never rendered."""
+    verdicts = objective_verdicts(facts)
+    return [{"outcome_key": f.outcome_key, "outcome_label": OUTCOME_BY_KEY[f.outcome_key].label, "source": f.source,
+             "revision_id": f.revision_id, "source_note": f.source_note, "verdict": verdicts[f.outcome_key]}
+            for f in facts.objectives]
+
+
 def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     """The four board rows in canonical category order (§B.1 row shape)."""
     domain, code = facts.domain, facts.site_code
@@ -369,11 +404,18 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
          warn_roles: Sequence[tuple[Warning, _WarningRoles]] = ()) -> dict[str, Any]:
     domain, code = facts.domain, facts.site_code
     outcomes: list[SiteOutcome] = [o for o in SITE_OUTCOMES if o.domain == domain and o.category == cat]
+    declared = {f.outcome_key: f for f in facts.objectives}
+    verdicts = objective_verdicts(facts)
     states = []
     for o in outcomes:
         st, reason = outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=signals,
-                                   readiness=facts.readiness)
+                                   readiness=facts.readiness, objective=verdicts.get(o.key),
+                                   objectives_ok=facts.objectives_ok)
         states.append((o, st, reason))
+    # OUT-D U4: one "Declared objective" line per objective of this row's outcomes, after the domain contributors,
+    # in catalogue order. A not-measured outcome shows none (R583).
+    objective_lines = [objective_contributor(declared[o.key], facts.readings.get(o.key), verdicts.get(o.key))
+                       for o, st, _ in states if o.key in declared and st != NOT_MEASURED]
     row_state, lead_key = roll_up([(o.key, st) for o, st, _ in states])
     lead = OUTCOME_BY_KEY[lead_key]
     link = EVIDENCE_LINK.get((domain, cat))
@@ -494,7 +536,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     row.update({
         "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": facts.subline.get(cat),
         "counts": {"issues": len(issues), "in_hand": len(in_hand)}, "must_not_harm": must_not_harm,
-        "contributors": [_contributor(c) for c in facts.contributors.get(cat, ())],
+        "contributors": [_contributor(c) for c in (*facts.contributors.get(cat, ()), *objective_lines)],
         "issues": issues,
         "options": [{"text": o.text, "href": o.href} for o in facts.options.get(cat, ())],
         "in_hand": in_hand, "earlier": earlier,

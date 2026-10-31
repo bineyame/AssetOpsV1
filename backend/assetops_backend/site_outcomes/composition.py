@@ -18,6 +18,7 @@ from assetops_backend.actions.verification import VerificationService
 from assetops_backend.analytics.finding_index import parse_request as parse_finding_index
 from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.finding_api import ACCESS_BASIS
+from assetops_backend.objectives.composition import build_objective_store
 from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService
 from assetops_backend.work.composition import build_global_work_read
 from assetops_backend.work.domain_action_index import parse_index_request
@@ -53,6 +54,7 @@ def build_outcome_board_service(
         work_index: Any = None, estate: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
     """Returns the service and its dispose callable (the global work read it opened, if any)."""
     global_work = build_global_work_read(database_url) if database_url else None
+    objectives = build_objective_store(database_url)  # OUT-D U4: the declared-objective read (None without a DB)
     services = BoardServices(
         overview=None if site_overview is None else site_overview.read,
         overview_source=None if site_overview is None else overview_source(site_overview, s2_scope),
@@ -64,10 +66,12 @@ def build_outcome_board_service(
         select_preventive=select_preventive, estate=estate, parse_finding_index=parse_finding_index,
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
-        work_access_basis=ACCESS_BASIS)
+        work_access_basis=ACCESS_BASIS, objectives=objectives)
 
     def dispose() -> None:
         if global_work is not None:
             global_work.dispose()
+        if objectives is not None:
+            objectives.dispose()
 
     return SiteOutcomeBoardService(services), dispose

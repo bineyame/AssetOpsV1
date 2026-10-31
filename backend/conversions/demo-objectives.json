@@ -1,0 +1,12 @@
+{
+  "fixture": "out-d-demo-objectives",
+  "version": 1,
+  "objectives": [
+    {"site_code": "KOBO-001", "outcome_key": "MG-2", "measure_key": "avoidable_generator_minutes", "target": "0", "currency": null, "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-kobo-001-mg-2-v1"},
+    {"site_code": "KOBO-001", "outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": "300", "currency": null, "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-kobo-001-mg-1-v1"},
+    {"site_code": "KOBO-001", "outcome_key": "MG-5", "measure_key": "unserved_critical_kwh", "target": "0", "currency": null, "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-kobo-001-mg-5-v1"},
+    {"site_code": "COLD-LAB-001", "outcome_key": "CC-6", "measure_key": "backup_start_failures", "target": "0", "currency": null, "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-cold-lab-001-cc-6-v1"},
+    {"site_code": "EV-LAB-001", "outcome_key": "EV-1", "measure_key": "interrupted_sessions", "target": "0", "currency": null, "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-ev-lab-001-ev-1-v1"},
+    {"site_code": "EV-LAB-001", "outcome_key": "EV-2", "measure_key": "energy_cost_per_km", "target": "0.20", "currency": "USD", "source": "DECLARED", "source_note": "Declared for the demonstration; not a customer target", "idempotency_key": "out-d-ev-lab-001-ev-2-v1"}
+  ]
+}

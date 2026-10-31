@@ -31,7 +31,7 @@ if URL:
     from assetops_backend.mini_decisions.store import MiniDecisionWriteRefused, PostgresMiniDecisionStore
 
 HEAD = "0030_w4_mini_decisions"  # the W4 migration under test
-LATEST_HEAD = "0035_w5_ev_work"  # W5-03b: the sole head; 0034, 0033 and 0032 are crossed empty before 0030
+LATEST_HEAD = "0038_out_objectives"  # W5-03b: the sole head; 0034, 0033 and 0032 are crossed empty before 0030
 PREVIOUS = "0029_w4_mini_depth"
 REFUSED_HISTORY = "Downgrade of 0030_w4_mini_decisions refused: decision history exists"
 REFUSED_JOBS = "Downgrade of 0030_w4_mini_decisions refused: opportunity jobs exist"

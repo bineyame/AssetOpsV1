@@ -21,6 +21,8 @@ from assetops_backend.site_outcomes.board import (
     DECLARED, INCIDENT, CaseFact, Contributor, FindingFact, Option, SiteFacts,
     finding_moved_outcomes, readiness_confidence, unresolved_links)
 from assetops_backend.site_outcomes.cold import SETTLED_CURRENTNESS, domain_action
+from assetops_backend.outcomes.objectives import Reading
+from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
@@ -49,9 +51,17 @@ OPTION_WHAT_IFS = "Charging what-ifs"
 #: (`analytics/ev_depth.py:173-205`).
 FAULT_KIND, FAULT_STATE = "CONNECTOR", "NEEDS_INVESTIGATION"
 
+
+def interrupted_text(fault: Any, unknown: Any) -> str:
+    """The EV-1 objective actual: "{n} interrupted" and, when any is unknown, " · {u} outcome(s) unknown"."""
+    return f"{fault} interrupted" + (
+        f" · {unknown} {plural(unknown, 'outcome', 'outcomes')} unknown" if unknown else "")
+
+
 COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
         SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF,
-        PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS)
+        PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS,
+        interrupted_text(2, 0), interrupted_text(2, 1), interrupted_text(2, 3))
 
 
 @dataclass(frozen=True)
@@ -66,6 +76,16 @@ class EvPorts:
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
     readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
+    objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
+
+
+def ev_readings(ok: bool, fault: Any, unknown: Any) -> dict[str, Reading]:
+    """OUT-D U4 table: EV-1 the interrupted (fault-aborted) sessions, complete when no session outcome is unknown.
+    EV-2 has no reading (not measured, R583)."""
+    if not ok or fault is None:
+        return {}
+    return {"EV-1": Reading(Decimal(str(fault)), unknown == 0, interrupted_text(fault, unknown))}
+
 
 
 def duration_text(seconds: Any) -> str | None:
@@ -97,6 +117,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     plans = reads.call("plans", ports.plans, work_lo, hi)
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
+    objective_rows = reads.call("objectives", ports.objectives)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
 
@@ -202,7 +223,10 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     facts = SiteFacts(domain=EV, site_code=c, findings=tuple(findings), actions=actions, cases=tuple(cases),
                       plans=tuple(plan_fact(p, tz) for p in plans or ()), readiness=readiness,
                       contributors=contributors, options=options, headline=headline, headline_money=headline_money,
-                      subline=subline, settled=settled, date_suffix=suffix, findings_settled=findings_ok)
+                      subline=subline, settled=settled, date_suffix=suffix, findings_settled=findings_ok,
+                      objectives=objective_facts.from_rows(objective_rows, num),
+                      readings=ev_readings(overview is not None, fault, unknown),
+                      objectives_ok=objective_rows is not None)
     extras = {"faults": tuple((str(r["asset_id"]), r.get("label") or "") for r in fault_rows if r.get("asset_id")),
               "connectors_out": tuple(
                   (str(x["asset_id"]), x.get("label") or "", duration_text(x.get("known_unavailable_seconds")),

@@ -34,7 +34,7 @@ if URL:
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
     from assetops_backend.work.model import WorkRefused
 
-HEAD = "0035_w5_ev_work"
+HEAD = "0038_out_objectives"  # OUT-D: the sole head
 PREVIOUS = "0032_w5_cold_scenarios"
 REFUSED = "Downgrade of 0033_w5_cold_work refused: domain Action rows exist."
 TABLES = ("domain_action", "domain_action_intent", "domain_action_case_link")

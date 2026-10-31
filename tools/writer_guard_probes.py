@@ -83,6 +83,7 @@ DECISION = f"{B}/mini_decisions/store.py"
 COLD_SCENARIO = f"{B}/cold_scenarios/store.py"
 EV_SCENARIO = f"{B}/ev_scenarios/store.py"
 DOMAIN_INTENT = f"{B}/work/adapters/postgres_domain_intent.py"
+OBJECTIVE = f"{B}/objectives/adapters/postgres_objective_store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -869,6 +870,13 @@ NEGATIVE += [
     ("domain_action_update_in_owned_writer", DOMAIN_INTENT, split("domain_action", "site_id = :s WHERE tenant_id = :i"),
      "Domain Action table 'domain_action' is insert-only"),
 ]
+# OUT-D U1 (migration 0038): the objective store alone INSERTs the declared outcome objective table.
+NEGATIVE += [
+    ("objective_insert_from_foreign_writer", FINDING, _work_foreign("outcome_objective_revision"),
+     "writes declared objective table 'outcome_objective_revision'"),
+    ("objective_update_in_owned_writer", OBJECTIVE, split("outcome_objective_revision", "site_id = :s WHERE tenant_id = :i"),
+     "Declared objective table 'outcome_objective_revision' is insert-only"),
+]
 
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
@@ -981,6 +989,7 @@ WRITER_CONTROLS += [
     ("controls domain domain_action insert", DOMAIN_INTENT, _work_control("domain_action")),
     ("controls domain domain_action_intent insert", DOMAIN_INTENT, _work_control("domain_action_intent")),
     ("controls domain domain_action_case_link insert", DOMAIN_INTENT, _work_control("domain_action_case_link")),
+    ("controls objective outcome_objective_revision insert", OBJECTIVE, _work_control("outcome_objective_revision")),
 ]
 
 

@@ -165,6 +165,10 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(document.activeElement).toBe(close);
     expect(dialog.textContent).toContain("Each row is one of the four things the business is trying to achieve.");
     expect(dialog.textContent).toContain("Money of different kinds is shown separately and never added together.");
+    const paragraphs = Array.from(dialog.querySelectorAll("p.prose")).map((p) => p.textContent);
+    expect(paragraphs[paragraphs.length - 1]).toBe(
+      "A declared objective is a target set for this demonstration so the status can be shown. It is not the customer's target.",
+    );
     const cells = Array.from(dialog.querySelectorAll("tbody tr")).map((tr) => Array.from(tr.querySelectorAll("td")).map((td) => td.textContent));
     expect(cells).toHaveLength(4);
     // The name cell carries the named icon (its <title>) and the name.
@@ -184,6 +188,35 @@ describe("OUT-B B5 Site outcome board", () => {
     for (const code of ["MG-1", "MG-2", "MG-3", "X-1", "OPTIMIZE_COST", "NEEDS_ATTENTION"]) expect(text).not.toContain(code);
     const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(20);
+    expect(describeViolations(scan.violations)).toBe("");
+  });
+
+  it("rendersADeclaredObjectiveContributorWithItsChipAndPassesTheScan", async () => {
+    // OUT-D U5: the objective line is an ordinary contributor with a chip; no component change.
+    const rows = boardRows().map((r) =>
+      r.category !== "OPTIMIZE_COST"
+        ? r
+        : {
+            ...r,
+            contributors: [
+              ...r.contributors,
+              {
+                key: "declared_objective:MG-2",
+                label: "Declared objective",
+                text: "Supply cost per kWh: no generator time longer than needed · 12 min longer than needed on this day",
+                confidence: { label: "Missed", tone: "amber" },
+                href: null,
+              },
+            ],
+          },
+    );
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) });
+    const drives = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='drives']") as HTMLElement;
+    expect(drives.textContent).toContain("Declared objective");
+    expect(drives.textContent).toContain("Supply cost per kWh: no generator time longer than needed · 12 min longer than needed on this day");
+    expect(Array.from(drives.querySelectorAll(".oc-conf")).map((c) => c.textContent)).toContain("Missed");
+    for (const code of ["MG-2", "MISSED", "declared_objective", "avoidable_generator_minutes"]) expect(board().textContent).not.toContain(code);
+    const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
     expect(describeViolations(scan.violations)).toBe("");
   });
 });

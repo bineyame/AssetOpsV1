@@ -1,0 +1,7 @@
+{"site_code": "KOBO-001", "outcome_key": "MG-2", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "KOBO-001", "outcome_key": "MG-1", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "KOBO-001", "outcome_key": "MG-5", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "COLD-LAB-001", "outcome_key": "CC-6", "skipped": "SITE_NOT_IMPORTED"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-1", "revision_id": "2eacf50b-eb0c-48b7-b932-acf0d69220e6", "revision_no": 1, "measure_key": "interrupted_sessions", "target": "0", "inserted": true, "recorded_at": "2026-10-30T23:47:12.253233+00:00", "actor_id": "service:assetops-objective-declarer"}
+{"site_code": "EV-LAB-001", "outcome_key": "EV-2", "revision_id": "ff1de4eb-1937-4510-9158-5a13a29838de", "revision_no": 1, "measure_key": "energy_cost_per_km", "target": "0.2", "inserted": true, "recorded_at": "2026-10-30T23:47:12.286496+00:00", "actor_id": "service:assetops-objective-declarer"}
+exit 0
