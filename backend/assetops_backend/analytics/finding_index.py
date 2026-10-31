@@ -236,9 +236,11 @@ def sort_key(row: dict[str, Any]) -> tuple[float, str]:
 
 
 def touched(head: dict[str, Any], days: list[date]) -> set[date]:
-    """Inspected days the episode touches: those it intersects, widened by the continuity tolerance either side."""
-    return {d for d in days if head["episode_start"] < _day_start(d + timedelta(days=1)) + CONTINUITY_TOLERANCE
-            and head["episode_end"] > _day_start(d) - CONTINUITY_TOLERANCE}
+    """Inspected days the episode touches: those it intersects, widened by the continuity tolerance either side.
+    Both bounds are inclusive, as `reaches` and the matcher's `margin_ok`: an episode exactly the tolerance from an
+    edge is continuous with the neighbouring day."""
+    return {d for d in days if head["episode_start"] <= _day_start(d + timedelta(days=1)) + CONTINUITY_TOLERANCE
+            and head["episode_end"] >= _day_start(d) - CONTINUITY_TOLERANCE}
 
 
 def gap_days(inspected: list[dict[str, Any]], reach: Callable[[date], tuple[bool, bool]]
@@ -367,7 +369,8 @@ class FindingIndexService:
         built = [d["_read_at"] for d in inspected if d["_read_at"] is not None]
         cutoffs = [d["s3"]["knowledge_cutoff"] for d in inspected if d["s3"]["knowledge_cutoff"] is not None]
         return {
-            "schema_version": SCHEMA_VERSION, "policy_version": POLICY_VERSION, "site_code": site_code, "site_id": str(s), "access_basis": access_basis,
+            "schema_version": SCHEMA_VERSION, "policy_version": POLICY_VERSION, "site_code": site_code,
+            "site_id": str(s), "access_basis": access_basis,
             "domain": {"requested": request.domain, "finding_domain": request.finding_domain,
                        "analytic_id": analytic, "matcher_version": MATCHER_VERSION},
             "window": {"from": _iso(request.start), "to": _iso(request.end), "bounds": "[from, to)",

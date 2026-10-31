@@ -19,7 +19,6 @@ from assetops_backend.analytics.finding_index import (
     SCHEMA_VERSION,
     FindingIndexService,
     IndexConflict,
-    encode_cursor,
     gap_days,
     parse_request,
     touched,
@@ -153,6 +152,11 @@ def test_touched_widens_by_the_continuity_tolerance() -> None:
     assert touched({"episode_start": at(D6, 23, 45), "episode_end": at(D6, 23, 58)}, days) == {D6, D7}
     assert touched({"episode_start": at(D7, 0, 21), "episode_end": at(D7, 23, 39)}, days) == {D7}
     assert touched({"episode_start": at(D7, 0, 10), "episode_end": at(D7, 1)}, days) == {D6, D7}
+    # U1 review M1: both bounds are inclusive, as `reaches` and the matcher's margin (edge - 20 min, edge + 20 min)
+    assert touched({"episode_start": at(D6, 23), "episode_end": at(D6, 23, 40)}, days) == {D6, D7}
+    assert touched({"episode_start": at(D7, 0, 20), "episode_end": at(D7, 1)}, days) == {D6, D7}
+    assert touched({"episode_start": at(D6, 23), "episode_end": at(D6, 23, 39)}, days) == {D6}
+    assert touched({"episode_start": at(D7, 0, 21), "episode_end": at(D7, 1)}, days) == {D7}
 
 
 def test_gap_days_names_non_current_and_edge_days() -> None:
@@ -191,6 +195,15 @@ def test_t3_finding_next_to_an_unassessed_day_is_withheld() -> None:
     assert body["withheld"] is True
 
 
+def test_t3b_episode_ending_exactly_the_tolerance_before_midnight_is_withheld() -> None:
+    """U1 review M1: an episode ending at 23:40 is continuous with an UNASSESSED next day, so it is withheld."""
+    store = Store([head(1, at(D6, 23), at(D6, 23, 40)), head(2, at(D6, 8), at(D6, 9))], [D6])
+    body = read(store, Dispatch({D7: "UNASSESSED"}), D6, D8)
+    assert body["status"] == PARTIAL and [r["title"] for r in body["rows"]] == ["F2"]
+    assert body["withheld"] is True and body["total_count"] == 1
+    assert {"day": "2026-10-06", "state": "CURRENT", "reason": "WITHHELD_FINDING"} in body["gaps"]
+
+
 def test_t4_candidate_edge_next_to_a_pending_day() -> None:
     store = Store([head(1, at(D6, 8), at(D6, 9))], [D5 := date(2026, 10, 5), D6, D7])
     dispatch = Dispatch({D7: "PENDING"}, segments={D6: [(at(D6, 23, 50), at(D7, 0))]})
@@ -227,6 +240,14 @@ def test_t6_fence_moved_gives_no_rows() -> None:
     assert body["status"] == "STALE_PROJECTION" and body["rows"] == [] and body["gaps"] == []
 
 
+V1_CURSOR = (
+    "eyJhZnRlciI6WyIyMDI2LTEwLTA2VDEwOjAwOjAwWiIsIjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMiJdLCJkb21haW4iOiJtaW5p"
+    "LWdyaWQtZGlzcGF0Y2giLCJmcm9tIjoiMjAyNi0xMC0wNlQwMDowMDowMFoiLCJzZWxlY3Rpb25fdG9rZW4iOiJzZmkxLTk5MzMyM2U4NDMyODQ1"
+    "MzUyYTc0OGU3NWQyZDBkZjMyYjdjMDEyMzAwOGQwYzhiYjRlYWY2MDFhZjBmNzE1NWIiLCJzaXRlX2lkIjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAw"
+    "MDAtMDAwMDAwMDAwMGIxIiwidGVuYW50X2lkIjoiMDAwMDAwMDAtMDAwMC0wMDAwLTAwMDAtMDAwMDAwMDAwMGExIiwidG8iOiIyMDI2LTEwLTA5"
+    "VDAwOjAwOjAwWiIsInYiOjF9")
+
+
 def test_t7_partial_cursor_validates_on_its_basis_only() -> None:
     heads = [head(1, at(D6, 8), at(D6, 9)), head(2, at(D6, 10), at(D6, 11)), head(3, at(D8, 1), at(D8, 2))]
     store, gap = Store(heads, [D6, D8]), Dispatch({D7: "UNASSESSED"})
@@ -239,12 +260,12 @@ def test_t7_partial_cursor_validates_on_its_basis_only() -> None:
     with pytest.raises(IndexConflict) as err:  # the gap day turns CURRENT: a new basis
         read(Store(heads, [D6, D7, D8]), Dispatch(), D6, hi, limit=2, cursor=first["next_cursor"])
     assert err.value.detail["reason"] == "SELECTION_CHANGED"
-    v1 = encode_cursor({"tenant_id": str(T), "site_id": str(S), "domain": "mini-grid-dispatch",
-                        "from": "2026-10-06T00:00:00Z", "to": "2026-10-09T00:00:00Z", "v": 1,
-                        "selection_token": "sfi1-" + "0" * 64, "after": ["2026-10-08T01:00:00Z", str(fid(3))]})
-    with pytest.raises(IndexConflict) as err:
-        read(store, gap, D6, hi, limit=2, cursor=v1)
-    assert err.value.detail["reason"] == "SELECTION_CHANGED"
+    # U1 review L1: a real v1 cursor, issued by the ca6d7d61b index on the same heads with every day CURRENT
+    # (page one, limit 2). The v2 basis carries the policy, so it never validates, on CURRENT or PARTIAL data.
+    for basis_store, dispatch in ((Store(heads, [D6, D7, D8]), Dispatch()), (store, gap)):
+        with pytest.raises(IndexConflict) as err:
+            read(basis_store, dispatch, D6, hi, limit=2, cursor=V1_CURSOR)
+        assert err.value.detail["reason"] == "SELECTION_CHANGED"
 
 
 def test_t8_pending_day_is_named_pending() -> None:
