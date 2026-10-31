@@ -587,3 +587,11 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R593 | OUT-E E4 | mini | Before/after against the objective | Uses the Supply cost per kWh objective only when its target is 0; a non-zero target gives no line | D4 reading | The trial hours are one hour each and the objective is per day | OUT-E | standing |
 | R594 | OUT-E E4 | mini | Assure Verified results line | Adds the modelled change after "verified on test data" | D2 | The verified line names what was modelled | OUT-E | standing |
 | R595 | OUT-E E4 (Architect ruling 2026-10-31, option b) | mini | Cost-row Earlier ACT entry with the modelled cost line on real data | On the s602b `verified` board day the Finding index is UNASSESSED, so the Action sits under Protect ("linked finding outside this view") with no detail and the Cost Earlier list is empty; the Assure line carries the modelled change | D4 reading | Cost-row read-back on real data waits for the combined dataset (Finding index current on the board day) | OUT-E | open |
+
+## DEMO-SPARSE additions (2026-10-31, combined dataset on a sparse story calendar)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R615 | DEMO-SPARSE | mini overview board | Gap line over the board's month | On early story days the gap line counts the days before the Site's install as days without assessed readings | D4 data reading | True: the board reads 31 days and nothing was assessed before install | DEMO-SPARSE | standing |
+| R616 | DEMO-SPARSE | mini, cold, ev | A continuous month of assessed days | A sparse month (8 Kobo, 3 cold, 2 EV story days) with the gaps named "Not available yet" | D4 data reading | Owner-approved story calendar (2026-10-31); every day is a registered Lab run | DEMO-SPARSE | standing |
+| R618 | DEMO-SPARSE U5 | cold | A complete GreenHarvest night | The S-3 night reads as limited evidence: probe readings missing (`cold-missing-probe`) | D4 data reading | The degraded night is the story's named evidence gap | DEMO-SPARSE U5 | standing |
