@@ -6137,3 +6137,16 @@ history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/O
 - s602b case `verified` (40/28 kW generator, 60/63 kW loads, price v1); `complete_windows` gains 4 kW params and carries `trial_comparison`.
 - Left open: R595 - on real s602b data the board day's Finding index is UNASSESSED, so the Action sits under Protect with no detail; the
   Cost-row line is proven on fakes only until the combined dataset. No re-run command (R592).
+
+## SCN - Kobo scenario where the reserve change matters (built, in_review)
+Branch `task/SCN-kobo-reserve-matters` (from main ca6d7d61b). Contract `AssetOpsV1-plan2/.agent/build-sheet-SCN-kobo-reserve.md`
+(§2 U1, Addendum 1 design D2); packet `.agent/SCN-packet.md`; decision `D-2026-10-31-scn-kobo-reserve-matters`.
+- `config/scenarios/kobo-mini-grid-reserve-matters.yaml` v1 (D2): start SOC 34 %, 300 L, STOPPED; 30 W/m2 0/240, 800 W/m2 240/240;
+  loads 4 / 2 / 0 kW over 0/480. Fingerprint `50f8be3e...c956`; registered in `PINNED_SCENARIO_FINGERPRINTS`, `NEW_SINCE_T025G`,
+  `NEVER_SHIPPED_AS_V1`; `test_the_shipped_scenarios_were_found` 13 -> 14 (the only non-additive test line).
+- `host/tests/test_scn_reserve_matters.py`: in-process mini-grid v5 kernel check, reserve 30 vs 25, five design properties, no money.
+- Measured (kernel, 5-min steps): baseline generator requested from 03:00 UTC and RUNNING to the run end; it carries load in a
+  sawtooth at the 30 % reserve (2.95 / 3.04 / 6.09 kWh in the 04, 05, 06 UTC hours, 0 after the clearing). Reserve 25: requested
+  from 04:50, unloaded throughout, minimum SOC 25.16 %. H = 04:00-05:00 UTC.
+- Left open: U3 (real-chain probe at H in `-demo3`) and the DEMO-SPARSE day-list consumption; the money figure and verification
+  outcome are unknown until U3. The first design's stop is recorded in the packet and `.agent/SCN-evidence/`.
