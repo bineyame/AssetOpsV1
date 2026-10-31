@@ -76,3 +76,26 @@ dropped, so R617 is not added (sheet §7).
 
 Stop rules: P2 passes for F-104; P4 does not refuse under the ruled configuration; the tick rule is checked on the
 first full `prepare` (U3 self-check).
+
+### P3 candidate (d): `kobo-mini-grid-reserve-matters` v1 at 04:00 UTC (SCN U3, 2026-10-31)
+
+Run through the real Kobo child: `demo_combined.py --db assetops_demo3_probe4_test --work var/demo3_probe4 prepare
+--sites kobo --no-finish --days <scratch copy of demo-story-days-v1.json: Kobo days = the trial pair only,
+trial.scenario_id = kobo-mini-grid-reserve-matters v1, window_hour 04:00>`, branch head `cc39a96e2` (main `0a2075037`
+merged), DB now 2026-10-31, S = 2026-10-29. 97 s, exit 1 at the plan freeze. The scenario was chosen before running
+by SCN Addendum 1 (H = 04:00-05:00 UTC); no value was changed after the run.
+
+| Column | Result |
+|---|---|
+| Lever evidence (baseline, S) | generator first ON 03:05 (`BATTERY_NEAR_RESERVE`), NECESSARY `BATTERY_AT_RESERVE` from 04:50; binding constraints `[BATTERY_AT_RESERVE, BATTERY_NEAR_RESERVE]`; portions 235 candidate / 240 necessary / 0 indeterminate min. SOC at start 34 % and 2.95 kWh in H are the SCN kernel values (`.agent/SCN-packet.md`), not re-read from the chain DB |
+| Finding on S | yes: `15ff2315-72aa-448e-92ca-c032fe264236` SUPPORTED CANDIDATE_AVOIDABLE, episode 07:05-11:00 (235 min); accepted as ACT through the real Action API, applied (reserve 25 %) |
+| Verification | **not reached**: plan freeze refused 409 `VERIFICATION_BASELINE_NOT_SELECTED` "Every UTC day covering the baseline needs a final S3 dispatch selection." days `["2026-10-28"]`. A window starting before 06:00 also needs the previous UTC day's selection (`actions/verification.py:86-93` `required_days`, the S3 6 h read bracket); S-1 has no run in the story calendar (nor in this probe) |
+| Cost check, USD | not reached (no plan, no outcome) |
+| Safeguard checks | not reached |
+
+**Choice (rule fixed before measuring; savings not an input):** (d) shows the lever and has a Finding on S but does
+not VERIFY, so it is not taken. The trial stays (a): window 06:00, `kobo-mini-grid-reserve-trial`,
+`MODELLED_NO_IMPROVEMENT` 0 USD, shown as "no modelled improvement". `demo-story-days-v1.json` is unchanged. R617 added.
+For the Architect, information only: a 04:00 trial would need an assessed Kobo run on S-1 (and S, for the later
+window) in the day list; no such day was added here, since the day list is the Architect's.
+Scratch DB `assetops_demo3_probe4_test` and `var/demo3_probe4` dropped after recording.
