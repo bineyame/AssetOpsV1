@@ -16,12 +16,15 @@ Done:
 - Non-vacuity proofs and check-all: 11/11 guards pass.
 - Both DBs are dropped and the servers are stopped.
 
-Still to do (on the coordinator's go, after LINK-LINEAGE merges):
-- One `-Tier all` on an idle machine.
-- One full `npx vitest run`.
-- Then a slice review.
+Merge gate done on the coordinator's go:
+- Merged main `d2d34ce2a` as `f6aecaa17`.
+- Review folds L1, L2, L3 and L7 in `2103e3edc`.
+- check-all: 11/11 pass.
+- Full vitest: 3548 passed; the 3 failures are the known w1f4 ones.
+- `-Tier all` run `20261031-203502-2757d9`: 4650 passed, 0 failed, 0 skipped, 2570 s.
+- Ready to merge; nothing pending.
 
 Notes:
 - `.venv` in this worktree is a junction to plan2's venv. It is ignored.
-- Five orphaned gateway processes from a stopped test run remain: PIDs 2592, 2052, 22440, 31564 and 7664. Stopping
-  them was refused by the permission classifier.
+- Five orphaned gateway processes from a stopped test run remain: PIDs 2592, 2052, 22440, 31564 and 7664. They are left for
+  the owner to decide on.

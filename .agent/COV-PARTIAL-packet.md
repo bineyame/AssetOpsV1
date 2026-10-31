@@ -65,7 +65,7 @@ No other path changed.
 - §3 Portfolio status order, S1-S6: MET.
 - §4 U3 words, placement, drawer, rows and Findings copy: MET in vitest and in the live captures below.
 - §4 U4 Postgres proof, golden and the `:561` edit: MET. The golden replay without the write flag passes.
-- §5 merge gate (`-Tier all` and full vitest): NOT RUN, deferred to the coordinator's go after LINK-LINEAGE.
+- §5 merge gate: MET. `-Tier all` (4650 passed, 0 failed) and full vitest (only the 3 known w1f4 failures) both ran on `2103e3edc`, which contains LINK-LINEAGE; see Merge gate below.
 
 ## Checks run (final code revision `28fcf3965`; only the packet follows)
 - **U4 §5 Postgres set plus the U1/U2 sets**, 17 files, on DB `assetops_covp_test`, at revision `4188e17c7`:
@@ -82,6 +82,34 @@ No other path changed.
 - **Vitest (scoped):** `src/estate/__tests__` (5 files), plus `idxGapsFindingIndex`, `t028Vocabulary`,
   `w301EstateShellRoutes` and `globalMaintenance`. Result: 9 files, 138 passed. `npx tsc --noEmit` is clean.
 - **`tools\check-all.ps1`** at `28fcf3965`: all 11 guards passed, including the missing-claim scan.
+
+## Merge gate (coordinator's go)
+- **Merge:** main `d2d34ce2a` (w301 fixture fix, LINK-LINEAGE, FIX-COLD-DRAIN) was merged in as `f6aecaa17`.
+  - The conflicts in `.ai/ACTIVE_CONTEXT.md`, `.ai/CODE_STATE.md`, `.ai/DECISIONS.md` and the register were
+    appends, resolved by keeping both sides.
+  - Main's open R613 row was dropped in favour of the resolved row; R623 and R624 are kept.
+- **Review folds** (`C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\COV-PARTIAL-review.md`, ACCEPT), commit
+  `2103e3edc`:
+  - **L1:** the drawer's gap list now sits on its own line (`<br />` before `data-portfolio-scope-gaps`). The test
+    asserts the text before the break and the `br + [data-portfolio-scope-gaps]` structure.
+  - **L2:** MOCK DEVIATION labels added: R622 at `findingIndex.tsx` (consequence words, cause copy),
+    `estateShared.tsx` (state words, limitation line) and `EstateEvidence.tsx`; R620 at the drawer in
+    `EstatePortfolio.tsx`.
+  - **L3:** the vacuous `finding_count` assertion is removed from `test_cov_partial_portfolio.py`; `total_count`
+    is kept.
+  - **L7:** new test `partlyCheckedSiteWithSevenGapsStillListsTheDays`: exactly 7 gaps still lists the days.
+  - The captures predate L1. The drawer now breaks the line; the claim text and day list are unchanged.
+- **check-all** at `2103e3edc`: all 11 guards passed.
+- **Scoped checks after the folds:**
+  - Backend `test_cov_partial*.py`: 30 passed.
+  - Scoped vitest: 9 files, 139 passed.
+  - `tsc --noEmit`: clean.
+- **Full `npx vitest run`** at `2103e3edc`: 145 files, 3548 passed, 3 failed, wall 289 s. The 3 failures are the
+  known `w1f4VerificationStructure` ones.
+- **`-Tier all`** at `2103e3edc`: run `20261031-203502-2757d9`, 4 workers, postgres-test, exit 0.
+  - Result: `4650 passed in 2567.81s`, wall_seconds 2570 (about 43 min, under the derived 2x cap).
+  - JUnit: tests 4650, failures 0, errors 0, skipped 0.
+  - `INVALID_CURSOR` is gone after the w301 fix, and no other whole-dict coverage comparison broke on `days`.
 
 ## Non-vacuity proofs (each mutation was made on committed code, run, then undone with `git checkout --`; the tree was clean after each)
 - `index.py:38`, PARTIAL-to-UNKNOWN check disabled: T11 and X1 fail (2 failed).
@@ -130,11 +158,8 @@ producer's `drop` command, and `assetops_covp_test` was dropped.
   predates this slice. The page itself does not overflow.
 
 ## Residual risk
-- `-Tier all` has not yet run on this branch. Other suites may compare whole coverage-Site dicts and miss the
-  additive `days` key (as the cold one did). A grep of the backend tests found only field reads in the remaining
-  files.
 - Five orphaned `assetops_gateway serve` children of the first, stopped run remain: PIDs 2592, 2052, 22440, 31564
-  and 7664. My attempt to stop them was refused by the permission classifier. They are idle.
+  and 7664. They are left for the owner to decide on, per the coordinator.
 
 ## User-review focus
 The partly checked Portfolio week (note and drawer) and the estate Findings notice, in the combined walkthrough.
