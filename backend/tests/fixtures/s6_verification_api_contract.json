@@ -1845,7 +1845,7 @@
      "currency": null,
      "nominal": null,
      "reason": "PRICE_MISSING",
-     "recorded_at": "2026-10-31T02:10:23.638506+00:00",
+     "recorded_at": "2026-11-02T12:00:00+00:00",
      "state": "UNAVAILABLE",
      "upper": null
     },

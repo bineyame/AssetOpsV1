@@ -921,7 +921,7 @@ class VerificationService:
                "authorization_basis": request["authorization_basis"],
                "triggering_service": request["triggering_service"],
                "triggering_fixture": request["triggering_fixture"], "idempotency_key": key,
-               "payload_sha256": reserve_trial.sha(payload)}
+               "payload_sha256": reserve_trial.sha(payload), "recorded_at": now}
         stored, _ = ports.store.append(row)
         return stored
 

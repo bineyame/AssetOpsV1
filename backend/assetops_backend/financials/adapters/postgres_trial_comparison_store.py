@@ -7,7 +7,8 @@ outcome's advisory lock:
 - the same `(action_id, idempotency_key)` with the same `payload_sha256` answers the stored row (`inserted=False`);
   a different payload under that key is refused `IDEMPOTENCY_KEY_REUSED`;
 - the same `(verification_outcome_id, basis_sha256)` answers the stored row;
-- otherwise revision head+1 is inserted, superseding the head, at `clock_timestamp()`.
+- otherwise revision head+1 is inserted, superseding the head, at the caller's `recorded_at` (the service clock,
+  as every verification row).
 """
 
 from __future__ import annotations
@@ -24,10 +25,11 @@ COLUMNS = ("id, tenant_id, site_id, action_id, verification_outcome_id, revision
            "formula, state, reason, result, intervention_cost, price_revision_id, basis_sha256, actor_kind, actor_id, "
            "source_channel, authorization_basis, triggering_service, triggering_fixture, idempotency_key, "
            "payload_sha256, recorded_at")
-#: what the caller supplies (the store adds id, revision_no, supersedes_revision_id and recorded_at)
+#: what the caller supplies (the store adds id, revision_no and supersedes_revision_id)
 FIELDS = ("tenant_id", "site_id", "action_id", "verification_outcome_id", "formula", "state", "reason", "result",
           "intervention_cost", "price_revision_id", "basis_sha256", "actor_kind", "actor_id", "source_channel",
-          "authorization_basis", "triggering_service", "triggering_fixture", "idempotency_key", "payload_sha256")
+          "authorization_basis", "triggering_service", "triggering_fixture", "idempotency_key", "payload_sha256",
+          "recorded_at")
 
 
 class TrialComparisonStoreUnavailable(RuntimeError):
@@ -111,7 +113,7 @@ class PostgresTrialComparisonStore:
                 ":action_id, :verification_outcome_id, :revision_no, :supersedes_revision_id, :formula, :state, "
                 ":reason, CAST(:result AS jsonb), CAST(:intervention_cost AS jsonb), :price_revision_id, "
                 ":basis_sha256, :actor_kind, :actor_id, :source_channel, :authorization_basis, :triggering_service, "
-                ":triggering_fixture, :idempotency_key, :payload_sha256, clock_timestamp()) "
+                ":triggering_fixture, :idempotency_key, :payload_sha256, :recorded_at) "
                 f"RETURNING {COLUMNS}"),
                 {**values, "id": uuid4(), "revision_no": 1 if head is None else head.revision_no + 1,
                  "supersedes_revision_id": None if head is None else head.id,
