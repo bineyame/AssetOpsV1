@@ -910,9 +910,8 @@ class VerificationService:
         cost = tfc.InterventionCost(Fraction(0), None, COST_CHECK_SOURCE)
         result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost)
         key = f"auto:{outcome['id']}"
-        payload = {"command": COST_CHECK_COMMAND, "action_id": str(outcome["action_id"]),
-                   "outcome_id": str(outcome["id"]), "idempotency_key": key,
-                   "intervention_cost": result["intervention_cost"]}
+        # CC-D2: the body without the idempotency key (the hook's body: outcome and intervention cost)
+        payload = {"outcome_id": str(outcome["id"]), "intervention_cost": result["intervention_cost"]}
         row = {"tenant_id": tenant_id, "site_id": site_id, "action_id": outcome["action_id"],
                "verification_outcome_id": outcome["id"], "formula": result["formula"], "state": result["state"],
                "reason": result["reason"], "result": result, "intervention_cost": result["intervention_cost"],

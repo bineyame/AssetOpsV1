@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
@@ -632,9 +632,10 @@ class PostgresActionStore:
                 found = [p for comp in (row["content"] or {}).get("components") or ()
                          if str(comp.get("component_id")) == str(code)
                          for p in comp.get("properties") or () if p.get("property_key") == SFC_FIELD]
-                if len(found) != 1 or found[0].get("unit") != SFC_UNIT or found[0].get("value") is None:
-                    continue
-                out.append(SfcValue(row["id"], Decimal(str(found[0]["value"])), row["valid_from"], row["valid_to"]))
+                value = finite_decimal(found[0].get("value")) if len(found) == 1 else None
+                if value is None or found[0].get("unit") != SFC_UNIT:
+                    continue  # none, several, wrong unit or malformed: the cost check reads SFC_MISSING
+                out.append(SfcValue(row["id"], value, row["valid_from"], row["valid_to"]))
             return out
         return self._read(work)
 
@@ -968,6 +969,17 @@ class PostgresActionStore:
             f"WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi{created}"
             f"{recorded} ORDER BY e.recorded_at, e.id"), p))
         return {"actions": actions, "events": events}
+
+
+def finite_decimal(value: Any) -> Decimal | None:
+    """OUT-E E3 review L2: an authored numeric value as a finite Decimal, else None (`mini_depth.inputs._decimal`)."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        out = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    return out if out.is_finite() else None
 
 
 def _basis(row: dict[str, Any], assets: dict[str, UUID]) -> FoundationBasis:

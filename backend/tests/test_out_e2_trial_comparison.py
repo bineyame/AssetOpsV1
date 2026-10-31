@@ -142,3 +142,24 @@ def test_reasons_equal_the_0037_table_check():
     assert module.REASONS == tfc.REASSESSMENT_REASONS
     assert module.STATES == tfc.REASSESSMENT_STATES
     assert module.FORMULA == tfc.FORMULA
+
+
+def test_sfc_for_refuses_several_zero_and_ending_inside_the_window():
+    """Review L3: no single positive fuel rate in force over the whole window -> SFC_MISSING."""
+    jan = datetime(2026, 1, 1, tzinfo=UTC)
+    two = (SfcValue(REV, Decimal("0.3"), jan, None), SfcValue(UUID(int=8), Decimal("0.3"), jan, None))
+    zero = (SfcValue(REV, Decimal("0"), jan, None),)
+    ends = (SfcValue(REV, Decimal("0.3"), jan, B0 + timedelta(minutes=30)), SfcValue(REV, Decimal("0.3"), L0, None))
+    for sfc in (two, zero, ends):
+        assert run(sfc=sfc)["reason"] == "SFC_MISSING", sfc
+    assert tfc.sfc_for(BASE, ends) is None and tfc.sfc_for(LATER, ends) is not None
+    assert tfc.sfc_for(BASE, SFC).value_l_per_kwh == Decimal("0.3")
+
+
+def test_malformed_fuel_rate_is_not_a_value():
+    """Review L2: `sfc_history` skips a malformed or non-finite authored value, so the check reads SFC_MISSING."""
+    from assetops_backend.actions.adapters.postgres_action_store import finite_decimal
+
+    assert finite_decimal("0.3") == Decimal("0.3") and finite_decimal(0.3) == Decimal("0.3")
+    for bad in ("abc", "NaN", "Infinity", None, True, ""):
+        assert finite_decimal(bad) is None, bad
