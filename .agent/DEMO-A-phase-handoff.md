@@ -1,0 +1,249 @@
+# DEMO-A phase handoff
+
+Sources: `AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md` (wins where it differs) over
+`build-sheet-DEMO-COMBINED.md` (rev 1 + Addendum 1). Branch `task/DEMO-A-combined-dataset`.
+
+## State (2026-10-31, DEMO-SPARSE)
+
+- Pre-flight + Q1 ruling (demo configurations re-timed to Kobo commissioning): `.agent/DEMO-SPARSE-preflight.md`.
+- **U1 probe: done**, `.agent/DEMO-SPARSE-trial-probe.md`. normal = necessary-run; overcast = necessary-run
+  (daytime-overcast refused the 8 h interval); overuse = reserve-trial; Kobo degraded = first-half delivery
+  (degraded-evidence refused under v4). Trial hour (a) 06:00, cost check `MODELLED_NO_IMPROVEMENT` 0 USD. Reported.
+- **U2: built** `tools/demo_story_days.py` (`load`, `resolve`, `DayRun` + `known_at`, `plan_add_day`),
+  `backend/conversions/demo-story-days-v1.json`, `prepare --days`, `<work>/days.json` (`days` + `doc`), story v2
+  (install S-29d 11:00, import -1 h, price +1 h), Kobo cap 80 s/run + 60. Tests `backend/tests/test_demo_story_days.py`.
+- **U3: built and run** `tools/demo_combined_kobo.py`: `configure_at` (Q1), `run_day`, `publish_first_half`,
+  `_trial_chain` (opens the S6 harness after the trial-day Finding exists: its demo grant snapshots Finding ids at
+  open, `backend/tests/test_s6_action_store_postgres.py:46-55`), `kobo.json` `days[]` + `configuration`.
+  Dev prepare `--sites kobo` at `57397cea1` on `assetops_demo3_dev_test` / `var/demo3_dev` (KEPT for U4 add-day
+  checks; drop with the tool's `drop`): 7 runs + 1 missing day, Findings on S-14, S-7, S; VERIFIED ACT-000001,
+  `MODELLED_NO_IMPROVEMENT` 0 USD; Kobo child 746 s (about 105 s/run, not 80: raise `kobo_expected_seconds` to
+  110 s/run + 60 before U6), total 813 s, cap 1480 s. **Still to do in U3:** the child's unit check
+  (`GET /api/sites/KOBO-001/finding-index?domain=mini-grid-dispatch&from=S&to=S+1` holds the accepted Finding).
+- **U3 done** (`11da30c75`): `trial_day_index` unit check (one-day index [S, S+1) CURRENT, holds the accepted
+  Finding; proved on the dev DB: CURRENT 1 [fbedca42...]); `kobo_expected_seconds` 110 s/run + 60.
+- **U4 done, exercised on the dev DB** (2026-10-31 ~07:20 UTC): `--day S-14d` refuses `DAY_HAS_EVIDENCE` (evidence
+  check now precedes the calendar duplicate check); live `normal` S-13d and `late` S-20d / `late --as overuse`
+  S-18d (91 s each) read PENDING on their one-day index until a tick, then CURRENT (S-18d: 1 Finding after one
+  `tick`); `--assess-now` normal S-19d CURRENT at once; `missing` default (S+2) appends days.json only.
+  Observed: assessment is Site-wide, so an `--assess-now` (or any assess) also assesses earlier pending live days,
+  and a pending live day turns other one-day windows `STALE_PROJECTION` until assessed. Dev days.json now holds
+  these extra days; a fresh dev prepare is needed for U5.
+- **U5: both children written, NOT run** (Postgres held for IDX-GAPS `-Tier all` when written).
+  - `tools/demo_combined_cold.py`: per day one `ShiftedChain` replay; swaps (process-local) `pg_harness.fresh_database`
+    -> no-op (else it WIPES Kobo), `producer.target_delta` -> D 16:00, `producer.BASE_SCENARIO` -> kind yaml,
+    `producer.shifted_case` -> mode `ordinary`, `P.ShiftedChain` factory -> case `ordinary-day-<n>` (unique gateway
+    epoch / attestation keys), w202 `PostgresEvidenceLedger`/`BatchIngestionService` clock -> `received_at`
+    (D 17:05). Install once at `cold.install_at`. `failure` day execs `w502_cold_work_walkthrough.BUILD` (positive)
+    with `sys.argv` swapped; others replay only. Writes `cold.json` `days[]`. Untested risks: received 17:05 equals
+    window end (if late-released readings refuse, use received + 5 min); `install_cold_lab` re-calls inside
+    `open()` with start-4 h clock assumed idempotent; BUILD's reads at db_now +-1 d see 0 rows (`blocked`, not fatal).
+  - `tools/demo_combined_ev.py`: per day `registered.Chain` subclass (attest assertion re-checked per epoch),
+    w205b constants shifted by whole days, INSTALL/SETUP at `ev.install_at`/+1 h, `RunSetupService` now ->
+    SETUP_AT, `ev_parsing.EV_WINDOW` + in-memory shifted scenario (`FakeScenarios`, id `<scenario>-day-<n>`),
+    `open(fresh=False, scenarios=, scenario_id=)`, then `run_worker` + `select_exact`. Pure check passed: shifted
+    ev-complete / ev-fault parse. **Missing:** fault-day work rows: w504 `_declare` (`w504_ev_work_walkthrough.py:214`;
+    Action `raised_at` = DB now, must be within 30 d), connector visits conn-v1/conn-v2 and plan-connector from
+    `story.json` `ev` via `build_work_service` + `test_w401_work_service_postgres` helpers (w502 BUILD :456-502
+    pattern); CO-10 needs PLAN_OVERDUE "Connector inspection" and CHARGER_FAULT_OVERDUE_INSPECTION on the EV board.
+  - Next: when `docker ps` shows no `assetops-ops03-*`: `drop` the dev DB, then `prepare --sites kobo,cold,ev
+    --no-finish` (estimate 2x(30+940+300+200) s, about 49 min cap; ask the coordinator first: over 20 min), or
+    first a cold-only/EV-only dev prepare (Kobo is needed by neither child).
+- U6 (self-check child `tools/demo_combined_finish.py`, slow build test, R535/R552/R569/R595 resolutions, packet,
+  task status, CODE_STATE/ACTIVE_CONTEXT): not started. Register R615/R616/R618 added (`4992b6677`). R595 still
+  open on main at `ca6d7d61b` (IDX-GAPS not merged).
+
+## Resume notes for U5 (from DEMO-A Explore)
+
+- Cold: `test_w502_cold_scenario_producer.ShiftedChain.open` (:73-108) reads DB now (:79), calls
+  `producer.shifted_case` (:80); install = start - 4 h, setup = start - 1 h (:82). Thread `story_day`/`install_at`/
+  `scenario_path` through `target_delta` (`tools/w502_cold_work_cases.py:69`), `shifted_case` and `ShiftedChain.open`.
+- EV: `Chain.open`'s `now=lambda: "2026-10-06T07:00:00Z"` (test_w205b :258-263) -> swap `registered.RunSetupService`
+  (w601 swap pattern `tools/w601_seed.py:529-545`); shifted scenario via `open(scenarios=..., scenario_id=...)`;
+  `native_replay` guard `tools/w504_ev_work_walkthrough.py:122-124` needs `window=`.
+
+## State 2026-10-31 (second implementer; returned early near its context limit)
+
+Postgres stayed held: `assetops-ops03-20261031-102659-a376df` (IDX-GAPS `-Tier all`) was still running after ~40 min
+of polling, so **nothing below has run on a DB**. Dev DB `assetops_demo3_dev_test` / `var/demo3_dev` NOT dropped yet.
+
+- `4baa8fda1` **Depot fault-day work rows** in `tools/demo_combined_ev.py`: `declare_and_work` (called inside
+  `run_day` while the w205b/w504 swaps are active, only when `day.kind == "fault"` and `story` is passed by `build`;
+  live `add-day` passes no story, so no work rows) runs `W._declare(url, "positive", f"demo3-{epoch}", ...)` then
+  `write_work` (Kobo child pattern): `story.json` `ev.visits` (conn-v1/conn-v2, completed) and `ev.plans`
+  (plan-connector, due S-6d) on `selection.connector_asset_id`. `ev.json` `days[fault].fault_day` = {action, intent_id,
+  finding ids, work {asset_id, visits, plans}}. Untested risk: the CHARGER_FAULT rule matches the plan's asset to the
+  health CONNECTOR fault row's `asset_id` (`outcomes/warnings.py:236-248`, `site_outcomes/ev.py:157`); if CO-10's
+  charger-fault half fails, use the fault row's asset (EV health read) instead of the session's connector.
+- `8d613a968` **U6 code**: `tools/demo_combined_finish.py` (`CHECKS` rows CO-1,2,3,5/SP-1,SP-2..SP-6,CO-6..CO-12;
+  `idx=True` rows skip until `analytics.finding_index.POLICY_VERSION == "finding-index/2"`; `check` writes
+  `<work>/check.json`, exit 1 on any fail; reads via `lab_app.app` with keys.json env). `prepare`'s `finish()` already
+  calls it when all three Sites are built. `backend/tests/test_demo_combined_postgres.py` (slow; 18 tests collected:
+  one per non-mutating row + `test_self_check_ran_in_prepare` + SP-7 last; DB from the test URL's host/port by
+  patching `tool.PG_ADMIN` and `Demo.url`). `prepare` now copies the tree when `git` is absent (test container).
+  `backend/TESTING.md` slow-tier list names the test. Guards: `check-all.ps1` 11/11 at `8d613a968`.
+  Check assumptions to verify on the first full DB (shapes from an Explore survey, not yet read on real data):
+  SP-3 looks for `finding_gaps` anywhere in the board body; SP-4 reads `index["gaps"]` {day, state|status} (both
+  IDX-GAPS shapes, unknown until it merges); SP-5 looks for any `first_on` in the dispatch window body; CO-9 checks
+  EV Assure != UNKNOWN and the Portfolio EVIDENCE cell != UNKNOWN (not the port-equality spy of test_out_b4).
+- **Resume, in order:** (1) when `docker ps` shows no `assetops-ops03-*`: `python tools/demo_combined.py --db
+  assetops_demo3_dev_test --work var/demo3_dev drop`; (2) `prepare --sites cold --no-finish`, then `--sites ev
+  --no-finish` (each < 20 min; watch cold `received_at` == window end, `install_cold_lab` re-open idempotency, 0-row
+  reads at DB now +-1 d); (3) ask the coordinator before the full three-site prepare (cap ~49 min); the self-check
+  runs in it; (4) register R535/R552/R569 -> resolved by DEMO-A (<sha>) once their rows pass (R595 left to
+  IDX-GAPS); packet `.agent/DEMO-A-packet.md` (force-add) with the runbook caution below; task status in_review,
+  CODE_STATE, ACTIVE_CONTEXT.
+- **Runbook caution for the packet:** `add-day --assess-now` assesses the whole Site, and while a live late day is
+  pending (before a tick), other one-day windows read `STALE_PROJECTION`; during a live demo add a late day only after
+  the boards you will show have been opened, or tick before showing other days.
+
+## State 2026-10-31 (third implementer: single-site dev prepares run)
+
+Old dev DB `assetops_demo3_dev_test` / `var/demo3_dev` dropped. Kept for inspection: `assetops_demo3_cold_test` /
+`var/demo3_cold` and `assetops_demo3_ev_test` / `var/demo3_ev` (both `--no-finish`, built at `f320ac636`; drop with
+the tool's `drop`). Probe DB `assetops_demo3_probe5_test` dropped.
+
+- `c81b062d8` **Cold attestation instant**: first run wrote no Finding on the failure day; every reading was
+  `CLOCK_UNATTESTED` because `ShiftedChain.attest` records at `datetime.now` (wall), after the `received_at`
+  knowledge cutoff. The cold child's `DayChain.attest` swaps the producer module's `datetime.now` to the day's setup
+  instant (start - 1 h) for that call only. `received_at` == window end (17:05) is fine (all accepted).
+  `install_cold_lab` re-open at start-4 h is idempotent (3 days ran).
+- `c81b062d8` **EV days on Tuesday**: ev-charger/1 refuses any window not on a TUESDAY
+  (`host/ev_publication.py` `ev_parameters`). `demo_story_days.SITE_WEEKDAY = {"ev": 1}` + `weekday_offset`: each EV
+  day falls back to the Tuesday on or before its listed day (S = 10-29 Thu -> fault 10-27, normal 10-20); `add-day`
+  for EV defaults to last + 7. The EV work rows (S-relative visits/plan in `story.json` `ev`) move by the same shift
+  (`write_work(shift=)`), so they keep their places before the fault. Test `test_ev_days_fall_back_to_the_ruled_tuesday`.
+  SHEET DEVIATION (record in the packet): sheet §2 puts EV on S-7 / S; they are on the Tuesday on or before.
+- `f320ac636` **EV fault scenario**: `ev-fault.yaml` faults before any session starts and gives no EV Finding, so
+  w504 `_declare` refused ("expected one SUPPORTED EV Finding on a fault-ended selected session, found 0"). The
+  `fault` kind now uses `ev-interrupted` v1 (w504's own `POSITIVE_SCENARIO`, unchanged). SHEET DEVIATION: sheet §2
+  table names `ev-fault.yaml`; reported to the coordinator.
+- `f320ac636` cold `findings_on` now counts open episodes (`episode_end IS NULL`); cold.json `findings` was [] before.
+- Overcast (SCN sheet): 720-min `kobo-daytime-overcast` v2 re-run is **BLOCKED** `INITIAL_VALUE_NOT_RESOLVED`
+  (fuel-tank-volume@fuel-tank, generator-state@generator not stated by the scenario; mini-grid v5 needs them).
+  Overcast keeps `kobo-s3-dispatch-necessary-run`; day list unchanged; row in `DEMO-SPARSE-trial-probe.md`.
+
+Real-data results (single-site, no objectives declared since `finish` needs all three Sites):
+- Cold: normal 10-22 (no Finding), degraded 10-26 (`cold-missing-probe`: a COLD_START_FAILURE Finding, Protect
+  NEEDS_ATTENTION; real data, not a beat the sheet promised either way), failure 10-29 (COLD_EXCURSION +
+  COLD_START_FAILURE, w502 positive work: 2 cases, 2 records, 2 plans). BUILD's own index reads at DB now +-1 d
+  record `blocked` (expected, not fatal). 126.6 s for 3 runs.
+- Self-check rows on the single-site builds (scratch driver calling the unmodified row functions):
+  SP-2 pass (Protect NO_OBJECTIVE here; CC-1 ON_TRACK; **re-check on the full build**, where objectives exist);
+  CO-7 pass; CO-9 pass (Assure WATCH, Portfolio EVIDENCE LIMITED); CO-10 EV half pass with the plan on the
+  session's connector (PLAN_OVERDUE "Connector inspection overdue" + CHARGER_FAULT_OVERDUE_INSPECTION; no asset
+  change needed). EV: 143.2 s for 2 runs; Action raised, visits 10-12/10-22, plan due 10-21.
+- Not run (need all three Sites / Kobo / IDX): CO-1..3, SP-1, SP-3..7, CO-6, CO-8, CO-11, CO-12, Kobo half of CO-10.
+
+Guards: `check-all.ps1` 11/11 at `f320ac636`; `test_demo_story_days.py` 18 passed.
+
+Resume: wait for the coordinator (new Kobo trial scenario from the SCN lane, IDX-GAPS merge); then the full
+three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeout as listed above.
+
+## State 2026-10-31 (third implementer, after Addendum 1 of the DEMO-SPARSE sheet)
+
+- `2d836485e` merged main `89280952d` (IDX-GAPS): `finding_index.POLICY_VERSION == "finding-index/2"`, so the [IDX]
+  rows of `demo_combined_finish.py` and `test_demo_combined_postgres.py` now run (no skip). One conflict, in
+  `.agent/mock-departure-register.md`: took main's R595 (resolved by IDX-GAPS) + R610-R613, kept R615/R616/R618, and
+  added **R619** (Depot's story hour on the Tuesday on or before S; Portfolio/links on the week period).
+- `be0d21b88` Addendum 1 (a): CO-6 reads `/api/estate/portfolio` and `/outcome-summary` over `from=S-6d&to=S+1d`;
+  `links` prints the Portfolio on that week and, per Site, every story day from `days.json` with its kind and board
+  URL (EV shows its Tuesdays). `mini_summary_day(to)` (`site_outcomes/read.py:138`) returns the previous day for a
+  midnight `to`, so `to = S+1d 00:00` resolves Kobo to S: confirmed by reading the code. On the EV build the week
+  outcome-summary gives EV `LATEST_EVENT` (read, 200).
+- **Predicted CO-6 risk, not forced:** `estate/coverage.py:98-100` marks the Site `UNKNOWN` when any day in the
+  period has no available selection (R613's all-days rule). Kobo has runs only on S-3 and S inside S-6d..S+1d, so
+  CO-6's `body["status"] == "CURRENT"` may fail on the full build. If it does, record it with this cause and take it
+  to the Architect; do not loosen the row.
+- (b) `ev-interrupted`: CO-9 and the EV half of CO-10 held on the single-site build (above). Cold degraded Finding
+  kept; SP-2 stays on S-7. Overcast day list unchanged (720-min change withdrawn).
+- Guards: `check-all.ps1` 11/11 at `be0d21b88`; `test_demo_story_days.py` 18 passed.
+- `b9f4dab72` **Addendum 2 ruling (i)** (`demo_combined_finish.py`, both rows auto-collected by the slow build test,
+  19 collected):
+  - **CO-6** (week `S-6d..S+1d`): 3 Sites; `objective_site_count == 3`; `double_count_violations == []`; cold and EV
+    `LATEST_EVENT`; the Kobo days of the week with no run are listed (non-empty: the reason, R613 /
+    `estate/coverage.py:98-100` "a requested day has no available selection"); Kobo coverage `state` and
+    `source_freshness` UNKNOWN; Portfolio `status` UNKNOWN; Kobo summary `window_basis` DAY with `window.from` == S
+    and its four category states equal to the day-S Kobo board's. The replaced `status == "CURRENT"` assert is gone.
+  - **CO-6b** (day `S..S+1d`): Kobo coverage CURRENT; cold LATEST_EVENT; EV `PERIOD` unless an EV story day is S
+    (then LATEST_EVENT); EV summary cells and Portfolio cells recorded, not asserted. Read on the EV build: PERIOD,
+    Grow/Protect/Assure UNKNOWN, Cost NOT_MEASURED; EV coverage UNKNOWN, `source_freshness` NOT_APPLICABLE.
+  - Untested until the full build: the Kobo coverage values and the overall `status` (assumed `UNKNOWN`, not
+    `PENDING`: a pending job anywhere would make it PENDING). If either differs, record the measured value and the
+    cause and take it to the Architect; do not loosen the row.
+- **Demo-script note for the packet (Addendum 2, sequence step 4):** open the Portfolio on the week (`links` prints
+  it). Lead with each Site's four outcome cells: Kobo's come from day S, GreenHarvest's and Depot's from their latest
+  events. Say plainly why Kobo's weekly evidence reads Unknown: most days that week have no assessed readings. Present
+  it as a pilot ask: "a gateway that reports every day turns this into a weekly verdict". Then click into Kobo, which
+  opens on day S with the gap line ("Not available yet · {g} of 31 days have no assessed readings"). Do not lead
+  with the Portfolio on day S: Depot reads Unknown there. Open owner question (R613): estate coverage on the
+  finding-index/2 rule (PARTIAL with named gaps), a separate slice of about 2 builder days.
+- Guards: `check-all.ps1` 11/11 at `b9f4dab72`; `test_demo_story_days.py` 18 passed; build test collects 19.
+- Next: wait for the coordinator (the SCN trial result decides the trial kinds); then the full three-site prepare.
+
+## State 2026-10-31 (fourth implementer: SCN U3 probe, first full three-site prepare) - STOPPED for the coordinator
+
+- `cc39a96e2` merged main `0a2075037` (IDX-GAPS + SCN), clean; `test_demo_story_days.py` 18 passed; check-all 11/11.
+- `6e5ce55e7` **SCN U3 probe (d)** recorded in `.agent/DEMO-SPARSE-trial-probe.md` (P3 candidate (d)): lever shown
+  (first ON 03:05 NEAR_RESERVE, AT_RESERVE from 04:50), Finding on S (07:05-11:00, 235 min), but the plan freeze is
+  refused 409 `VERIFICATION_BASELINE_NOT_SELECTED` days `["2026-10-28"]`: a window before 06:00 also needs the previous
+  UTC day's selection (`actions/verification.py:86-93`), and S-1 has no run. Not VERIFIED, so the trial stays (a)
+  (06:00, reserve-trial, 0 USD); day list unchanged; **R617 added**. Probe DB/work dropped; single-site builds
+  `assetops_demo3_cold_test` / `_ev_test` dropped with the tool's `drop`.
+- **Full prepare** `assetops_demo3_full_test` / `var/demo3_full` at `6e5ce55e7` (KEPT): kobo 528 s (7 runs, VERIFIED
+  ACT-000001, MODELLED_NO_IMPROVEMENT 0), cold 46 s, ev 52 s, total 728 s (cap 2900 s). Self-check 14 pass / 3 fail.
+  - SP-3 (`KeyError 'has_run'`) and CO-6 (`financials_body` kwarg) were build bugs: fixed `a01016d74`; the fixed
+    `demo_combined_finish.py` was copied into `var/demo3_full/tree/tools/` and `check` re-run: **15 pass, 2 fail**.
+  - **CO-6 fails on a product bug, not on the row**: Portfolio week status `PENDING` (coverage PARTIAL). Cause: cold
+    money `_pending_guard` (8 `cold_consequence_work` rows, never attempted) because every tick fails COLD-LAB-001 at
+    stage s4: `analytics/finding_episode.py:298 margin_windows` `None + timedelta`. The dispatch matcher's episode
+    read (`analytics/adapters/postgres_finding_store.py:132-141`) is not domain-filtered, so it reads the cold
+    Findings, whose episodes are open (`episode_end` NULL: 3 cold revisions). The Site's later stages (consequence)
+    never run; tick 2 reads RETRY_DUE. CO-6b also reads `PENDING` (passes: status is recorded, not asserted).
+  - **CO-1 premise does not hold on real data**: Cost `must_not_harm` is null on the day-S board. The Action was
+    accepted on Finding revision 1 (`a82429c8`); the post-apply assess at S 14:01 (the apply splits the
+    FoundationRevision) re-assessed S and the matcher wrote revision 2 `BASIS_REFRESHED` (`3f2eb216`), which the board
+    shows; `board.py:468-470 exact_actions` needs the exact revision, so neither the Must-not-harm line nor the Action
+    link appears. Cost NEEDS_ATTENTION with the Finding; Protect lists it "checked here as a safeguard" (those hold).
+- Not done: slow build test (prepare not green), U6 closeout. Resume after the coordinator/Architect rules on the
+  cold S4 matcher bug (product fix in another slice, or here) and on CO-1; then re-run the full prepare at the final
+  revision (drop `assetops_demo3_full_test` first), the build test, and U6.
+
+## State 2026-10-31 (fifth implementer: Addendum 3 rulings 2, 3 and FYI) - HOLD for FIX-S4-DOMAIN
+
+- `dc2403b90` calendar: Kobo `{"day": "S-1d", "kind": "normal"}` (8 Kobo runs; `test_demo_story_days.py` counts
+  8 Kobo runs, epoch `day-14`, two-before refusal moved to S-2d). SP-3 expects g = **24** on this calendar (was 25).
+- Ruling 3, (d) re-probe once (`.agent/DEMO-SPARSE-trial-probe.md`, last section): S-1 now selected, but the freeze is
+  refused 409 `VERIFICATION_BASELINE_UNSUPPORTED` (04:00-05:00 INCONCLUSIVE, `OPEN_BOUND` from the 03:05 first
+  interval). Lever shown, Finding on S kept, not VERIFIED -> **trial stays (a)**, `trial` unchanged, R617 stays.
+  Origin revision (rev 1) != day S's revision (rev 2 `BASIS_REFRESHED`). Probe DB/work dropped.
+- Ruling 2, CO-1 re-premised (`tools/demo_combined_finish.py` co1): asserts no Action in Must-not-harm and none on
+  the Finding's issues/in_hand (`board.py:468-470`, BASIS_REFRESHED split); records that ACT-000001 still lists in the
+  Cost row's `earlier` (its verification result, CO-3's line) - so "absent from the Cost row" holds for the link, not
+  for the earlier-result line. R552 row in `.agent/mock-departure-register.md` gains this cause, stays open.
+  Re-check on the kept `assetops_demo3_full_test` (finish copied to its tree): CO-1 **pass**; 14 pass / 3 fail:
+  CO-6 (known s4 bug), CO-2 and CO-5/SP-1 now fail on read age (`SCHEDULE_STOPPED`/`SITE_VISIT_STALE`,
+  `PRODUCER_NOT_SETTLED`; the DB is read hours after its build, both passed at build time). An `assetops-ops03-*`
+  container appeared during that read-only check (it was absent when the probe started); no Postgres job since.
+- FYI: **no evidence is stamped on any D-1** (accepted_evidence: Kobo rows only on run days, 02:55-11:00). D-1's
+  "accepted evidence exists" counts D's own run readings 02:55-06:00 (394 rows) pulled in by the 6 h read bracket
+  (`analytics/assessment_inputs.py:99-101` `read_range = window.widened(BRACKET)`; `dispatch_read.py:88-89`). Reported
+  to the coordinator per the FYI stop rule (next day's run readings), not acted on; no run is split across days.
+- Next (after FIX-S4-DOMAIN merges, on the coordinator's word): merge main, drop `assetops_demo3_full_test`, rebuild
+  the full prepare, build test, U6.
+
+## State 2026-10-31 (sixth implementer: merge main, rebuild, U6)
+
+- `feec73b2f` merged main `15eed62c8` (FIX-S4-DOMAIN), clean; `test_demo_story_days.py` 18 passed; check-all 11/11.
+- First full prepare at `feec73b2f` failed after 678 s on the Kobo S-1 normal day: `_publish_and_accept` counts
+  acceptance by `received_at` and got `(1164, 2072, 0, 0, 0)`: the late S-3 day (`D+2d 12:00`) and S-1 normal
+  (`D+0d 12:00`) share 2026-10-28 12:00 (collision created by Addendum 3's S-1 day). Fix `20f83276b`: late Kobo
+  delivery `D+2d 12:30`; `validate` refuses `DUPLICATE_RECEIVED_AT` (test proven non-vacuous). Sheet §2 deviation.
+- Rebuild on `assetops_demo3_full_test` / `var/demo3_full` at `20f83276b` running (log in the session scratchpad).
+- Rebuild at `20f83276b`: 1105 s, self-check 16 pass / 1 fail CO-6 (`PENDING`/`PARTIAL`). Cause: 8 `cold_consequence_work`
+  rows never attempted; the tick's consequence stage runs only the mini recompute worker (`scheduling/stages.py:186-198`),
+  nothing at runtime runs `ColdConsequenceWorker`. Reported for a ruling, row not weakened. KEPT `assetops_demo3_full_test`.
+- Slow build test: 1143 s, 19 errors at setup (fixture prepare raised SELF-CHECK FAILED on CO-6; in-process 16/1).
+- Staleness: 25 min after the last tick 14/17 (heartbeat 300 s: SCHEDULE_STOPPED); one `tick` -> 16/17. Runbook: `serve` first.
+- U6 closeout done: packet `.agent/DEMO-A-packet.md`, task file in_review, R569 resolved, R535/R552 open, CODE_STATE, ACTIVE_CONTEXT.
+- Next: Architect ruling on the cold drain (CO-6), then rebuild + build test green, `-Tier all`, review.

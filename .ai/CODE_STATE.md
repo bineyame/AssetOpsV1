@@ -6247,3 +6247,19 @@ Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/b
   `test_w402_mini_stage_postgres.py`.
 - Left open: R624 (an excluded-lifecycle Site with only cold/EV work is not discovered; no cold/EV counts in `health.py`), and
   four more child processes per visited Site in a deployment (fewer Sites per 240 s tick).
+## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (built, in_review)
+Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed62c8` merged). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
++ Addenda 1-3 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
+- `tools/demo_combined.py` `prepare | links | serve | tick | add-day | drop` on a private `assetops_demo3_<name>_test` DB; children
+  `demo_combined_kobo.py` (day runs + the S/S+1 trial chain), `_cold.py` (ShiftedChain per night, attest at setup instant), `_ev.py`
+  (Tuesday days, w504 work rows), `_finish.py` (`check`: CO-1..CO-12 + SP-1..SP-7 via `host/lab_app.py`, `<work>/check.json`).
+- `tools/demo_story_days.py` resolves `backend/conversions/demo-story-days-v1.json` (8 Kobo runs incl. S-1d normal, 3 cold, 2 EV);
+  `validate` refuses DUPLICATE_DAY, TRIAL_PAIR_INVALID, OUTSIDE_BOARD_WINDOW, DAY_BEFORE_INSTALL, DAY_NOT_IN_PAST and
+  DUPLICATE_RECEIVED_AT (acceptance is counted by `received_at`); late Kobo delivery D+2d 12:30.
+- Final build `20f83276b` kept as `assetops_demo3_full_test` / `var/demo3_full`: 1105 s, self-check 16/17; trial (a) 06:00, 0 USD (R617).
+- Slow build test `backend/tests/test_demo_combined_postgres.py` (19): fixture prepare aborts on any self-check fail (rows error at setup).
+- Final round (main `c8702bb2b` merged, head `e3b2caf2d`): CO-1 original assertions (LINK-LINEAGE) and CO-6 on
+  estate-coverage/2 (week PARTIAL, cold/EV money settled) pass; self-check 17/17; build test 19/19 (reads through a
+  `finish check`/`get` child in the private tree; SP-7 weekday-bound comparison per DEMO-SPARSE Addendum 4);
+  `-Tier all` 4688/0/0/0. R535 and R552 now pass on this build (left for the coordinator to close).
+- Left open: reads go stale 300 s after the last tick (heartbeat): run `serve` or `tick` before a demo.

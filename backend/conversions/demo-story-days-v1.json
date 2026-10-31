@@ -1,0 +1,53 @@
+{
+  "schema": {"id": "assetops.demo-story-days", "version": 1},
+  "label": "Sparse story calendar: assessed days and named gaps (registered Lab runs)",
+  "status": "DEMO-SPARSE build sheet (AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md section 2). Day offsets S[+-]Nd are relative to the story day S; kind times D[+-]Nd HH:MM (UTC) are relative to each entry's day. Every run is a registered Lab simulation (generated test data); a missing day is a day with no run and no delivery.",
+  "kinds": {
+    "kobo": {
+      "normal": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "generator needed throughout the run"},
+      "overcast": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "overcast morning with heavy demand; the generator is needed (U1 P1: kobo-daytime-overcast refused the 8-hour interval)"},
+      "overuse": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "generator kept running under the 30 % reserve"},
+      "degraded": {"scenario_id": "kobo-s3-dispatch-necessary-run", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "delivery": "first_half", "note": "gateway outage: only the first half of the sealed batches arrives (U1 P1: kobo-mini-grid-degraded-evidence refused under publication v4)"},
+      "late": {"received_at": "D+2d 12:30", "assess": "build", "note": "delivered late; assessed after its delivery (12:30, not 12:00: a late S-3 day would share S-1's 12:00 delivery)"},
+      "missing": {"note": "gateway offline: no run, no delivery"},
+      "trial-before": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "foundation_known_at": "D-6d 12:00", "assess": "build", "note": "reserve trial baseline (30 %)"},
+      "trial-after": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "foundation_known_at": "D-1d 16:00", "assess": "build", "note": "reserve trial later run (25 %)"}
+    },
+    "cold": {
+      "normal": {"scenario_id": "cold-normal", "scenario_version": 1, "start": "D+0d 16:00", "end": "D+0d 17:05", "received_at": "D+0d 17:05", "assess": "build", "note": "backup cooling held the room"},
+      "degraded": {"scenario_id": "cold-missing-probe", "scenario_version": 1, "start": "D+0d 16:00", "end": "D+0d 17:05", "received_at": "D+0d 17:05", "assess": "build", "note": "probe readings missing"},
+      "failure": {"scenario_id": "cold-backup-failed", "scenario_version": 1, "start": "D+0d 16:00", "end": "D+0d 17:05", "received_at": "D+0d 17:05", "assess": "build", "note": "backup cooling failed"},
+      "late": {"scenario_id": "cold-late-reading", "scenario_version": 1, "start": "D+0d 16:00", "end": "D+0d 17:05", "received_at": "D+0d 17:05", "assess": "tick", "note": "a reading delivered late"},
+      "missing": {"note": "no run, no delivery"}
+    },
+    "ev": {
+      "normal": {"scenario_id": "ev-complete", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "build", "note": "charging session completed"},
+      "fault": {"scenario_id": "ev-interrupted", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "build", "note": "charging session ended by a charger fault (w504 positive scenario; ev-fault.yaml faults before any session and gives no Finding, first dev prepare 2026-10-31)"},
+      "late": {"scenario_id": "ev-late-record", "scenario_version": 1, "start": "D+0d 08:00", "end": "D+0d 09:00", "received_at": "D+0d 09:30", "assess": "tick", "note": "a session record delivered late"},
+      "missing": {"note": "no run, no delivery"}
+    }
+  },
+  "sites": {
+    "kobo": [
+      {"day": "S-28d", "kind": "normal"},
+      {"day": "S-21d", "kind": "overcast"},
+      {"day": "S-14d", "kind": "overuse"},
+      {"day": "S-10d", "kind": "missing"},
+      {"day": "S-7d", "kind": "overuse"},
+      {"day": "S-3d", "kind": "late", "as": "normal"},
+      {"day": "S-1d", "kind": "normal"},
+      {"day": "S+0d", "kind": "trial-before"},
+      {"day": "S+1d", "kind": "trial-after"}
+    ],
+    "cold": [
+      {"day": "S-7d", "kind": "normal"},
+      {"day": "S-3d", "kind": "degraded"},
+      {"day": "S+0d", "kind": "failure"}
+    ],
+    "ev": [
+      {"day": "S-7d", "kind": "normal"},
+      {"day": "S+0d", "kind": "fault"}
+    ]
+  },
+  "trial": {"window_hour": "06:00", "chosen": "a", "probe_ref": ".agent/DEMO-SPARSE-trial-probe.md"}
+}
