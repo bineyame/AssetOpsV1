@@ -754,7 +754,10 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
 # --- c2 r1: the cursor carries page one's mode (M1, q11-B 1) -----------------------------------------------------
 
 WIDE = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
-LATE = {"do": "deliver", "decided": "2026-10-31T08:00:00Z", "blocks": [
+# The decision instant must stay ahead of the database clock (recompute jobs are stamped on it), so it is taken a day past
+# the real clock rather than fixed: a fixed 2026-10-31 instant fell behind the wall clock on that day and broke page two.
+LATE = {"do": "deliver", "decided": iso((datetime.now(timezone.utc) + timedelta(days=1)).replace(
+    minute=0, second=0, microsecond=0)), "blocks": [
     {"from": "2026-10-06T08:25:00Z", "to": "2026-10-06T08:30:00Z", "pv": "41", "only": ["pv"]}]}
 
 
