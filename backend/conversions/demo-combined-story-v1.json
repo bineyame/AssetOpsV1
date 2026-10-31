@@ -1,7 +1,7 @@
 {
-  "schema": {"id": "assetops.demo-combined-story", "version": 1},
+  "schema": {"id": "assetops.demo-combined-story", "version": 2},
   "label": "Combined three-Site demo dataset: registered Lab runs and prepared example work records on one story calendar",
-  "status": "DEMO-A build sheet (AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md section 2 and Addendum 1). Every instant is relative to the story day S = floor_utc_day(DB now at prepare) - 2 d, except the Kobo install, which the S1 binding fixture fixes, and the diesel price, recorded at Kobo install + 1 h (onboarding, R1).",
+  "status": "DEMO-A build sheet (AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md section 2 and Addendum 1). Every instant is relative to the story day S = floor_utc_day(DB now at prepare) - 2 d, including the Kobo install (S-29d 11:00, import 1 h before) and the diesel price, recorded at Kobo install + 1 h (onboarding, R1). The Kobo run days, the trial pair and its window hour come from the day list (backend/conversions/demo-story-days-v1.json, DEMO-SPARSE).",
   "story_day_offset_days": -2,
   "offset_format": "S[+-]<days>d HH:MM (UTC)",
   "max_backdate_days": 30,
@@ -9,15 +9,11 @@
   "install_min_lead_hours": 1,
   "kobo": {
     "site_code": "KOBO-001",
-    "install_fixed": "2026-10-07T11:00:00Z",
+    "install_at": "S-29d 11:00",
+    "import_before_install_hours": 1,
     "price_after_install_hours": 1,
-    "runs": {
-      "baseline": {"start": "S+0d 03:00", "end": "S+0d 11:00", "foundation_known_at": "S-6d 12:00", "received_at": "S+0d 12:00"},
-      "later": {"start": "S+1d 03:00", "end": "S+1d 11:00", "foundation_known_at": "S+0d 16:00", "received_at": "S+1d 12:00"}
-    },
     "action": {"accept_at": "S+0d 13:00", "apply_at": "S+0d 14:00", "effective_from": "S+1d 00:00"},
     "plan": {"freeze_at": "S+0d 15:00"},
-    "windows": {"baseline_start": "S+0d 06:00", "later_start": "S+1d 06:00"},
     "evaluate_at": "S+1d 13:00",
     "visits": [
       {"key": "gen-v1", "asset_type": "GENERATOR", "at": "S-20d 10:00", "title": "Generator inspection", "note": "Generator inspected; oil and filters checked"},

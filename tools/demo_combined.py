@@ -42,6 +42,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import demo_story_days as sd
+
 REPO = Path(__file__).resolve().parents[1]
 PY = Path(sys.executable)
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
@@ -54,7 +56,8 @@ API_PORT, WEB_PORT = 8990, 5490
 TICK_EVERY_SECONDS = 120
 SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
-#: Expected wall seconds per step (U1 measured Kobo at 246 s); the cap is twice the sum of the selected steps.
+#: Expected wall seconds per step; the cap is twice the sum of the selected steps. Kobo is
+#: `kobo_expected_seconds` (DEMO-SPARSE U2: 80 s per Kobo run + 60 s).
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90}
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 TICK = ("-m", "assetops_backend.scheduling.run", "tick", "--environment", "default", "--max-sites", "5",
@@ -64,6 +67,10 @@ _OFFSET = re.compile(r"^S([+-]\d+)d (\d{2}):(\d{2})$")
 
 class StoryClockError(SystemExit):
     pass
+
+
+def kobo_expected_seconds(days_doc: dict) -> int:
+    return 80 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
 
 
 def say(text: str = "") -> None:
@@ -94,15 +101,33 @@ def _resolve(node: Any, S: datetime) -> Any:
     return node
 
 
-def resolve_story(db_now: datetime, doc: dict | None = None) -> dict:
-    """The story clock: S, every resolved instant, the install clocks and their order. Raises
-    `INSTALL_CLOCK_CONFLICT` / `STORY_CLOCK_OUT_OF_RANGE` (Addendum 1 R3, sheet section 3 U2)."""
+def _trial(kobo: dict, days: list, window_hour: str) -> None:
+    """The trial pair's instants (the DEMO-A chain's `runs` and `windows`) from the day list's trial-* kinds."""
+    hh, mm = (int(x) for x in window_hour.split(":"))
+    for name, kind in (("baseline", "trial-before"), ("later", "trial-after")):
+        run = next(r for r in days if r.site == "kobo" and r.kind == kind)
+        kobo["runs"][name] = {"start": iso(run.start), "end": iso(run.end), "foundation_known_at": iso(run.known_at),
+                              "received_at": iso(run.received_at), "sequence_epoch": run.epoch,
+                              "scenario": run.scenario}
+        day = at(run.day + "T00:00:00Z")
+        kobo["windows"][f"{name}_start"] = iso(day + timedelta(hours=hh, minutes=mm))
+
+
+def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | None = None) -> dict:
+    """The story clock: S, every resolved instant, the install clocks and their order, and the day list in build
+    order (`days`). Raises `INSTALL_CLOCK_CONFLICT` / `STORY_CLOCK_OUT_OF_RANGE` (Addendum 1 R3) and the day
+    list's `StoryDaysError` codes (DEMO-SPARSE U2)."""
     doc = doc or json.loads(STORY_FILE.read_text(encoding="utf-8"))
+    days_doc = days_doc or sd.load()
     S = floor_day(db_now) + timedelta(days=doc["story_day_offset_days"])
     story = _resolve({k: v for k, v in doc.items() if k in SITES}, S)
     kobo = story["kobo"]
-    kobo["install_at"] = kobo["install_fixed"]
-    kobo["price_recorded_at"] = iso(at(kobo["install_fixed"]) + timedelta(hours=kobo["price_after_install_hours"]))
+    kobo["import_at"] = iso(at(kobo["install_at"]) - timedelta(hours=kobo["import_before_install_hours"]))
+    kobo["price_recorded_at"] = iso(at(kobo["install_at"]) + timedelta(hours=kobo["price_after_install_hours"]))
+    days = sd.resolve(days_doc, S, db_now=db_now, installs={n: at(story[n]["install_at"]) for n in SITES})
+    kobo["runs"], kobo["windows"] = {}, {}
+    _trial(kobo, days, days_doc["trial"]["window_hour"])
+    kobo["trial"] = dict(days_doc["trial"])
     ev = story["ev"]
     ev["setup_at"] = iso(at(ev["install_at"]) + timedelta(hours=ev["setup_after_install_hours"]))
     ev["day_delta_days"] = (at(ev["e_start"]) - at(ev["base_e_start"])).days
@@ -112,7 +137,7 @@ def resolve_story(db_now: datetime, doc: dict | None = None) -> dict:
     cold["earliest_row_at"] = iso(failure + timedelta(hours=16, minutes=20) - timedelta(days=24))
     earliest = {
         "kobo": min([at(v["at"]) for v in kobo["visits"] + kobo["plans"]] +
-                    [at(kobo["runs"]["baseline"]["foundation_known_at"])]),
+                    [r.start for r in days if r.site == "kobo" and r.has_run]),
         "cold": min(at(cold["earliest_row_at"]), at(cold["normal_night_day"]) + timedelta(hours=16)),
         "ev": min([at(v["at"]) for v in ev["visits"] + ev["plans"]] + [at(ev["e_start"])]),
     }
@@ -134,7 +159,7 @@ def resolve_story(db_now: datetime, doc: dict | None = None) -> dict:
     return {"schema": doc["schema"], "label": doc["label"], "db_now": iso(db_now), "S": iso(S),
             "S_date": S.date().isoformat(), "install_order": order,
             "installs": {n: iso(installs[n]) for n in order}, "earliest_rows": {n: iso(v) for n, v in earliest.items()},
-            **story}
+            "days": [r.payload() for r in days], **story}
 
 
 class Demo:
@@ -209,11 +234,13 @@ class Demo:
         return json.loads(path.read_text(encoding="utf-8"))
 
     # ---- prepare -----------------------------------------------------------------------------------------------
-    def prepare(self, sites: tuple[str, ...] = SITES, finish: bool = True) -> dict:
+    def prepare(self, sites: tuple[str, ...] = SITES, finish: bool = True, days_file: str | None = None) -> dict:
         import psycopg
 
-        cap = 2 * (EXPECTED_SECONDS["tree"] + sum(EXPECTED_SECONDS[s] for s in sites) +
-                   (EXPECTED_SECONDS["finish"] if finish else 0))
+        days_path = Path(days_file).resolve() if days_file else sd.DEFAULT_FILE
+        days_doc = sd.load(days_path)
+        expected = {**EXPECTED_SECONDS, "kobo": kobo_expected_seconds(days_doc)}
+        cap = 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0))
         self.deadline = time.monotonic() + cap
         began = time.monotonic()
         if self.work.exists() and any(self.work.iterdir()) and not self.owned():
@@ -239,6 +266,10 @@ class Demo:
         shutil.copy2(self.tree / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml",
                      self.tree / "var" / "sites" / "kobo-001.yaml")
         head = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True, text=True)
+        if days_file is None:
+            shipped = self.tree / sd.DEFAULT_FILE.relative_to(REPO)
+            if not shipped.is_file() or sd.load(shipped) != days_doc:
+                raise SystemExit(f"Refused: {sd.DEFAULT_FILE.relative_to(REPO)} differs from HEAD; commit it first")
         probe = self.py("-c", "import assetops_backend;print(assetops_backend.__file__)", label="isolation").stdout
         if str(self.tree).lower() not in probe.lower():
             raise SystemExit(f"Isolation failed: assetops_backend resolves to {probe.strip()}")
@@ -250,7 +281,11 @@ class Demo:
                 cwd=self.tree / "backend" / "tests")
         with psycopg.connect(PG_ADMIN.rsplit("/", 1)[0] + "/" + self.db, autocommit=True) as c:
             db_now = c.execute("SELECT clock_timestamp()").fetchone()[0]
-        story = resolve_story(db_now)
+        story = resolve_story(db_now, days_doc=days_doc)
+        days = story.pop("days")
+        (self.work / "days.json").write_text(json.dumps(
+            {"schema": days_doc["schema"], "source": str(days_path), "S": story["S"], "trial": days_doc["trial"],
+             "days": days}, indent=2), encoding="utf-8")
         story["code"] = head.stdout.strip()
         story["sites"] = [s for s in story["install_order"] if s in sites]
         (self.work / "story.json").write_text(json.dumps(story, indent=2), encoding="utf-8")
@@ -407,6 +442,7 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("prepare")
     p.add_argument("--sites", default=",".join(SITES), help="development only: a subset of kobo,cold,ev")
     p.add_argument("--no-finish", action="store_true", help="development only: skip objectives/comparisons/ticks")
+    p.add_argument("--days", default=None, help="day list (default backend/conversions/demo-story-days-v1.json)")
     lk = sub.add_parser("links")
     lk.add_argument("--web-port", type=int, default=WEB_PORT)
     s = sub.add_parser("serve")
@@ -420,7 +456,7 @@ def main(argv: list[str] | None = None) -> None:
         sites = tuple(s for s in args.sites.split(",") if s)
         if not set(sites) <= set(SITES):
             raise SystemExit(f"--sites must be a subset of {SITES}")
-        demo.prepare(sites, finish=not args.no_finish)
+        demo.prepare(sites, finish=not args.no_finish, days_file=args.days)
     elif args.cmd == "links":
         demo.links(args.web_port)
     elif args.cmd == "serve":

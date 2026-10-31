@@ -94,7 +94,12 @@ def test_trial_pair_invalid(change):
 def test_day_before_install():
     installs = {"kobo": S + timedelta(days=-28, hours=2, minutes=30)}  # S-28 03:00 run is < install + 1 h
     assert _codes(sd.load(), installs=installs) == "DAY_BEFORE_INSTALL"
-    sd.resolve(sd.load(), S, installs={"kobo": S + timedelta(days=-28, hours=2)})
+    sd.resolve(sd.load(), S, installs={"kobo": S + timedelta(days=-29, hours=11, minutes=30)})
+    # Q1 ruling: every run knows its Foundation at or after install + 30 min (trial-before knows it at D-6d 12:00)
+    doc = copy.deepcopy(sd.load())
+    doc["sites"]["kobo"] = [e for e in doc["sites"]["kobo"] if e["kind"].startswith("trial-")]
+    assert _codes(doc, installs={"kobo": S + timedelta(days=-6, hours=11, minutes=31)}) == "DAY_BEFORE_INSTALL"
+    sd.resolve(doc, S, installs={"kobo": S + timedelta(days=-6, hours=11, minutes=30)})
 
 
 def test_day_not_in_past():

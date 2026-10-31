@@ -24,11 +24,14 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 CODE_SITE = {v: k for k, v in SITE_CODE.items()}
 BOARD_WINDOW_DAYS = 30
 INSTALL_LEAD = timedelta(hours=1)
+#: Q1 ruling: the re-timed demo configuration is known at install + 30 min; every run knows it.
+KNOWLEDGE_AFTER_INSTALL = timedelta(minutes=30)
 PAST_MARGIN = timedelta(minutes=5)
 #: Kinds `add-day` may append (sheet U4); trial-*, failure and fault carry work rows and Actions (prepare only).
 ADD_DAY_KINDS = {"kobo": ("normal", "overuse", "overcast", "late", "missing", "degraded"),
                  "cold": ("normal", "degraded", "late"), "ev": ("normal", "late")}
 LATE_AS = ("normal", "overuse")
+DEFAULT_KNOWN_AT = "D-1d 12:00"
 _DAY = re.compile(r"^S([+-]\d+)d$")
 _TIME = re.compile(r"^D([+-]\d+)d (\d{2}):(\d{2})$")
 
@@ -53,6 +56,7 @@ class DayRun:
     epoch: str | None
     as_kind: str | None = None
     note: str = ""
+    known_at: datetime | None = None  # the run's foundation_known_at
 
     @property
     def has_run(self) -> bool:
@@ -60,7 +64,7 @@ class DayRun:
 
     def payload(self) -> dict[str, Any]:
         out = asdict(self)
-        for key in ("start", "end", "received_at"):
+        for key in ("start", "end", "received_at", "known_at"):
             out[key] = iso(out[key]) if out[key] is not None else None
         return out
 
@@ -110,7 +114,7 @@ def _entry(doc: dict, site: str, entry: dict, S: datetime) -> DayRun:
                     "scenario_version": doc["trial"].get("scenario_version", 1)}
     return DayRun(site, D.date().isoformat(), off, kind, at_day(spec["start"], D), at_day(spec["end"], D),
                   at_day(spec["received_at"], D), spec.get("assess", "build"), scenario, None, as_kind,
-                  spec.get("note", ""))
+                  spec.get("note", ""), at_day(spec.get("foundation_known_at", DEFAULT_KNOWN_AT), D))
 
 
 def resolve(days_doc: dict, S: datetime, *, db_now: datetime | None = None,
@@ -156,6 +160,10 @@ def validate(runs: list[DayRun], S: datetime, *, db_now: datetime | None = None,
         if installs and r.site in installs and r.has_run and r.start < installs[r.site] + INSTALL_LEAD:
             raise StoryDaysError("DAY_BEFORE_INSTALL", f"{r.site} {r.day} starts {iso(r.start)}, less than "
                                                        f"{INSTALL_LEAD} after install {iso(installs[r.site])}")
+        known_floor = installs[r.site] + KNOWLEDGE_AFTER_INSTALL if installs and r.site in installs else None
+        if known_floor and r.has_run and r.known_at is not None and r.known_at < known_floor:
+            raise StoryDaysError("DAY_BEFORE_INSTALL", f"{r.site} {r.day} knows its Foundation at "
+                                                       f"{iso(r.known_at)}, before install + {KNOWLEDGE_AFTER_INSTALL}")
         if db_now is not None and r.has_run and r.received_at > db_now - PAST_MARGIN:
             raise StoryDaysError("DAY_NOT_IN_PAST", f"{r.site} {r.day} is received {iso(r.received_at)}, not "
                                                     f"before DB now - {PAST_MARGIN} ({iso(db_now)})")
@@ -165,5 +173,6 @@ def from_payload(rows: list[dict]) -> list[DayRun]:
     def t(v):
         return None if v is None else datetime.fromisoformat(v.replace("Z", "+00:00"))
 
-    return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"])})
+    return [DayRun(**{**r, "start": t(r["start"]), "end": t(r["end"]), "received_at": t(r["received_at"]),
+                           "known_at": t(r.get("known_at"))})
             for r in rows]

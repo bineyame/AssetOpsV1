@@ -10,8 +10,8 @@
       "degraded": {"scenario_id": "kobo-mini-grid-degraded-evidence", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "imperfect reporting path"},
       "late": {"received_at": "D+2d 12:00", "assess": "build", "note": "delivered late; assessed after its delivery"},
       "missing": {"note": "gateway offline: no run, no delivery"},
-      "trial-before": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "reserve trial baseline (30 %)"},
-      "trial-after": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "assess": "build", "note": "reserve trial later run (25 %)"}
+      "trial-before": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "foundation_known_at": "D-6d 12:00", "assess": "build", "note": "reserve trial baseline (30 %)"},
+      "trial-after": {"scenario_id": "kobo-mini-grid-reserve-trial", "scenario_version": 1, "start": "D+0d 03:00", "end": "D+0d 11:00", "received_at": "D+0d 12:00", "foundation_known_at": "D-1d 16:00", "assess": "build", "note": "reserve trial later run (25 %)"}
     },
     "cold": {
       "normal": {"scenario_id": "cold-normal", "scenario_version": 1, "start": "D+0d 16:00", "end": "D+0d 17:05", "received_at": "D+0d 17:05", "assess": "build", "note": "backup cooling held the room"},
