@@ -60,7 +60,8 @@ is no longer money-pending after one tick.
   separate commands: 19 passed and 19 passed.
 - Postgres on the host (`assetops_test`, in-process runner): `test_fix_cold_drain_tick_postgres.py` 4 passed in 364 s.
 - **Scoped selector set** (`tools/select-tests.py --base main`, 177 of 293 files):
-  - Command: `toolsun-backend-suite-in-container.ps1 -Tier fast -Targets '<selected>'`, run `20261031-165013-79278c` on
+  - Command: `tools
+un-backend-suite-in-container.ps1 -Tier fast -Targets '<selected>'`, run `20261031-165013-79278c` on
     revision `418e9bf7a`, 4 workers, `postgres-test`.
   - **Result: exit 124 (HANG).** pytest passed the derived 60-minute cap with 2032 of 2039 collected tests run: 2031
     passed and 1 failed.
@@ -77,6 +78,12 @@ is no longer money-pending after one tick.
   - `-Tier all`: waits for the coordinator's go. A clean scoped rerun is not done either, because another lane's
     container suite (`assetops-ops03-20261031-175151-7959ea`) started at 17:51.
   - The frontend suite: there is no frontend change.
+
+- Review fold-in (review ACCEPT, plan2 `.agent/FIX-COLD-DRAIN-review.md`):
+  - L1: P4 now asserts `site.result == "COMPLETED" and site.failure is None`.
+  - L2: the long lines are wrapped, and the `stages.py` usage docstring is fixed.
+  - Rerun of the three stage files and the P-file: 42 passed (254 s).
+- check-all rerun on an idle machine (the reviewer saw rule 8 flake under load): pending, before the full run.
 
 ## Known deviations
 

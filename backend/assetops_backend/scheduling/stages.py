@@ -1,6 +1,8 @@
 """One schedule stage, run in its own killable child process (S4-02d phase 1).
 
-    python -m assetops_backend.scheduling.stages         discover|s3|cold_assess|ev_assess|mini|opportunity|s4|consequence|cold_consequence|ev_consequence '<json>'
+    python -m assetops_backend.scheduling.stages <stage> '<json arguments>'
+
+<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|consequence|cold_consequence|ev_consequence
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -204,7 +206,8 @@ def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
                          for o in report.outcomes]}
 
 
-DOMAIN_JOB_LEASE_SECONDS = 300  # The cold and EV assessment workers' five-minute lease; their stage bound stays below it.
+# The cold and EV assessment workers' five-minute lease; their stage bound stays below it.
+DOMAIN_JOB_LEASE_SECONDS = 300
 
 
 def _dispose(*holders: Any) -> None:

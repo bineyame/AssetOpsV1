@@ -109,8 +109,8 @@ def test_limits_bound_the_mini_stage() -> None:
 def test_stage_order_budget_and_counts() -> None:
     runner, store = FakeRunner(), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
-                                          "ev_consequence"]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
+                                          "consequence", "cold_consequence", "ev_consequence"]
     assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "OPPORTUNITY", "S4",
                                                                "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE"]
     _, args, seconds = runner.calls[3]
@@ -124,8 +124,8 @@ def test_stage_order_budget_and_counts() -> None:
 def test_mini_failure_is_retained_and_later_stages_still_run(code) -> None:
     runner, store = FakeRunner({"mini": {"code": code, "error": "child died"}}), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
-                                          "ev_consequence"]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
+                                          "consequence", "cold_consequence", "ev_consequence"]
     assert not [c for c in store.calls if c[0] == "record_mini"]  # no invented counts
     assert site.failure == ("MINI", code, "child died") and site.result == "FAILED"
     assert store.calls[-1] == ("release", ("MINI", code, "child died"))

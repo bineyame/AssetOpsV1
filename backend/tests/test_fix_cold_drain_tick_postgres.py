@@ -1,4 +1,4 @@
-"""FIX-COLD-DRAIN U3 against PostgreSQL: the scheduled tick assesses and drains cold and EV work (build sheet section 3).
+"""FIX-COLD-DRAIN U3 against PostgreSQL: the scheduled tick assesses and drains cold and EV work (build sheet §3).
 
 - P1: the W2-02/W2-03 cold `excursion` replay (accepted cold evidence, a PENDING `cold_chain` job, no run). One tick
   leaves the job DONE, every cold consequence work item SUCCEEDED and an excursion consequence revision; the Portfolio
@@ -86,7 +86,8 @@ def portfolio_read(built, monkeypatch) -> tuple[dict, list[bool]]:
     monkeypatch.setattr(portfolio, "money_pending", spy)
     app = FastAPI()
     app.include_router(build_estate_portfolio_router(
-        EstatePortfolioService(evidence_read(built.engine)), lambda: built.tenant_id, access=lambda request, code: None))
+        EstatePortfolioService(evidence_read(built.engine)), lambda: built.tenant_id,
+        access=lambda request, code: None))
     response = TestClient(app).get("/api/estate/portfolio?" + urlencode({**DAY, "limit": 100}))
     assert response.status_code == 200, response.text
     monkeypatch.setattr(portfolio, "money_pending", real)
@@ -211,5 +212,4 @@ def test_p4_mini_only_site_unchanged_apart_from_four_zero_count_keys(store, engi
         site.stages["consequence"]["selected"], site.stages["consequence"]["deferred"])
     assert site.stages["mini"]["code"] == "OK" and site.stages["mini"]["processed"] == 10
     assert head["stage"] == "IDLE" and head["claim_token"] is None
-    assert site.failure is None or site.failure[0] not in {"COLD_ASSESS", "EV_ASSESS", "COLD_CONSEQUENCE",
-                                                           "EV_CONSEQUENCE"}, site.failure
+    assert site.result == "COMPLETED" and site.failure is None, site.failure

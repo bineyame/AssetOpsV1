@@ -39,8 +39,8 @@ def test_order_args_and_counts() -> None:
     runner = FakeRunner({"opportunity": {"code": "OK", "processed": 2, "deferred": 1, "failed": 1}})
     store = FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
-                                          "ev_consequence"]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
+                                          "consequence", "cold_consequence", "ev_consequence"]
     assert [c[1] for c in store.calls if c[0] == "stage"] == ["S3", "S3", "S3", "MINI", "OPPORTUNITY", "S4",
                                                                "CONSEQUENCE", "CONSEQUENCE", "CONSEQUENCE"]
     _, args, seconds = runner.calls[4]
@@ -53,8 +53,8 @@ def test_order_args_and_counts() -> None:
 def test_failed_stage_is_reported_without_counts_and_later_stages_run(code) -> None:
     runner, store = FakeRunner({"opportunity": {"code": code, "error": "child died"}}), FakeStore()
     site = visit(runner, store)
-    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
-                                          "ev_consequence"]
+    assert [c[0] for c in runner.calls] == ["s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4",
+                                          "consequence", "cold_consequence", "ev_consequence"]
     assert not [c for c in store.calls if c[0] == "record_opportunity"]  # the prior durable counts are kept
     assert site.failure == ("OPPORTUNITY", code, "child died") and site.result == "FAILED"
     assert store.calls[-1] == ("release", ("OPPORTUNITY", code, "child died"))

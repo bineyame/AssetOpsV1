@@ -18,8 +18,8 @@ A tick:
    Site inside its schedule-level back-off (`RETRY_DUE`) and deferring the rest to later ticks;
 5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`,
    `cold_assess`, `ev_assess`, `mini`, `opportunity`, `s4`, `consequence`, `cold_consequence` and `ev_consequence`
-   stage children in that order (the claim is re-checked before each child), each killable at its wall-time bound with server-side
-   statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
+   stage children in that order (the claim is re-checked before each child), each killable at its wall-time
+   bound with server-side statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
    and its back-off, then advances the cursor;
 6. finishes: success and heartbeat on completion; failure and back-off (no heartbeat) when discovery fails.
 
