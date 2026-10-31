@@ -948,6 +948,7 @@ def test_cold_revision_waits_for_its_selected_assessment(chain) -> None:  # noqa
             "RETURNING CAST(r.finding_id AS text)"), {"s": built.site_id, "sel": selected}).scalars().all()
         c.execute(text("ALTER TABLE finding_revision ENABLE TRIGGER USER"))
     assert moved, "a revision shares the last selection's transaction time"
+    assert set(moved) <= set(old), "moved findings must all be in the pre-move selection"  # diagnostic for a rare KeyError
     k = selected - timedelta(milliseconds=500)
     at_k = estate.ok("findings", **day, known_at=iso(k))
     seen = {r["finding_id"]: r["finding_revision_id"] for r in at_k["rows"]}
