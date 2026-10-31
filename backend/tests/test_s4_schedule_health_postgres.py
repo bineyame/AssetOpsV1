@@ -105,9 +105,9 @@ class TestPhase1ReviewCarries:
         runner = InProcessRunner(lim, before={"s3": steal})
         tick, _ = make_tick(lim, runner)
         r = by_site(tick.tick())[str(kobo.site)]
-        # W4-02 q7 ruling 3: MINI now follows S3, so the loss is found before MINI.
-        assert r.result == "CLAIM_LOST" and r.failure[:2] == ("MINI", "CLAIM_LOST")
-        assert [c for c, _ in runner.calls] == ["discover", "s3"]  # no MINI, S4 or drain after the loss
+        # FIX-COLD-DRAIN: `cold_assess` now follows `s3` under a re-checked S3 claim, so the loss is found there.
+        assert r.result == "CLAIM_LOST" and r.failure[:2] == ("S3", "CLAIM_LOST")
+        assert [c for c, _ in runner.calls] == ["discover", "s3"]  # no cold/EV, MINI, S4 or drain after the loss
         head = tick.store.site_head(kobo.tenant, kobo.site)
         assert head["claim_owner"] == "host-x" and head["claim_token"] == thief
 
