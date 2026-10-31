@@ -1,0 +1,37 @@
+# IDX-GAPS phase handoff (PARTIAL: U1-U3 built; U4 + closeout remain)
+
+Source: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-IDX-GAPS.md` + Addenda 1-3 (Addendum 1 Q1
+withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` with the brief's PYTHONPATH and
+`ASSETOPS_TEST_DATABASE_URL`; check-all with `ASSETOPS_GUARD_PYTHON` = plan2 venv.
+
+## Landed (branch task/IDX-GAPS-finding-index-v2)
+- U1 `abcd8b4e4` + review fixes `c89ce915c` (M1 inclusive `touched` bounds both sides, L1 real v1 cursor
+  `V1_CURSOR` produced from ca6d7d61b finding_index.py on T7 heads all-CURRENT, L2 wrap). Review: REVISE -> fixed;
+  re-review pending with coordinator.
+- U2 wip commits + `400d1096b` + `a88588312` (U2 complete; sent for per-unit review). mini.py `index_settled`,
+  `finding_gap_line`, `Reads.first`, `UNSETTLED_INDEX_STATUS` (+STALE_PROJECTION, UNASSESSED), GAPS_* copy,
+  Addendum 3 `FINDING_TITLE` (lifecycle -> findingWords.ts titles); board.SiteFacts.finding_gaps; read.py wire
+  `finding_gaps` + `policy_versions.finding_index`. Tests: test_idx_gaps_board.py, b2_mini replacement, b2 Fake and
+  d4 `no_finding` bodies given `status: CURRENT, gaps: []`, vocab scan assertion, e4 Addendum 2 (a)(b)(c) + narrowed
+  "every earlier detail None" to non-Cost, b4 two_board_days restored Day A F01 MOVES / safeguard / no MnH.
+  Still failing unmodified (left to DEMO-SPARSE CO-1): Day A Cost NEEDS_ATTENTION; Day B MnH text, href; ACT-048 on
+  Cost/Protect (fixture Action is ACT-000001).
+- U3 `30cbce0e0`: findingIndexClient (`-2`, PARTIAL, gaps, withheld, `listsRows`, `gapDays`), productWords PARTIAL,
+  SiteFindingIndex `Partial` view (+`partialGapSentence`, `PARTIAL_WITHHELD`, `OVERVIEW_PARTIAL` exported),
+  OverviewFindingList (listsRows, partial note after count, `partial-empty` branch), OutcomeBoard line, client
+  type, fixtures `partialBody`. New `frontend/src/shell/__tests__/idxGapsFindingIndex.test.tsx` 9 passed; 21 related
+  vitest files 583 passed; tsc clean; missing-claim scan passed. check-all 11/11 at U2.
+- Expected moves for packet: s4 postgres bridge-chain dirty neighbour -> PARTIAL 0 rows gaps [10-25]; e4 as above;
+  true-v1 vs v2 board comparison (5 reads: states, read_state, failed identical; only Cost/Protect Earlier moved;
+  data in scratch `v1true-states.jsonl` / `v2-states.jsonl` from session 809ecc09).
+
+## Next (resume here)
+1. U3 captures 390/1440 (Findings page PARTIAL, mini board line) - needs served app with PARTIAL data
+   (cursor key env vars, sheet §7); else record "layout evidence: not run" with the precondition.
+2. U4 `backend/tests/test_idx_gaps_postgres.py` P1-P5 (DB `assetops_idx_gaps_test`) + residual-risk probe:
+   unmatched cross-midnight block whose start day is a gap (record, don't fix). Note: real dispatch reads list no
+   Candidate segment in a day's first minutes, so withholding on real data rides `touched ∩ G`.
+3. Register R610-R613 in `.agent/mock-departure-register.md`; R595 "resolved by IDX-GAPS (<sha>)";
+   `D-2026-10-31-finding-index-v2` in `.ai/DECISIONS.md`.
+4. Ask coordinator before full vitest and `-Tier all`. Packet `.agent/IDX-GAPS-packet.md` (force-add; note the
+   sheet snippet's exclusive `>` corrected by Addendum 2), task file in_review, CODE_STATE, ACTIVE_CONTEXT.
