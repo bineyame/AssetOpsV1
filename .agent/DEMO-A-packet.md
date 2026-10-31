@@ -147,13 +147,27 @@ being worked out, or avoid the headline.
 - **Slow build test** `tools\run-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow` at
   `362cfe5cf`, DB `assetops_demo3_t<run>_test` (dropped): 942 s wall, JUnit tests 19,
   failures 1, errors 0, skipped 0. All 17 check rows and `test_self_check_ran_in_prepare` pass.
-  **SP-7 fails, not adjusted:** the add-day refusal and the late-day gap-to-assessed parts pass; the rebuild
-  comparison fails on EV only. Expected: the same `(site, offset, kind)` per day on a later S. Actual (S 10-29 ->
-  10-30): EV `('ev', -9, 'normal')` -> `('ev', -10, 'normal')` and `('ev', -2, 'fault')` -> `('ev', -3, 'fault')`, the
-  EV dates staying on Tuesdays 10-20 / 10-27; every Kobo and cold `(offset, kind)` is unchanged. Cause: Addendum 1 (a)
-  (EV on the Tuesday on or before the listed day, R619) makes EV offsets depend on S's weekday, which SP-7's
-  "every date moved by the rebuild's S" text predates. Needs an Architect ruling (compare EV by listed day, or accept).
-- **check-all** at `362cfe5cf`: 11/11 passed.
-- **`-Tier all`: not run.** Stopped per the brief on the SP-7 mismatch; it gates on the ruling.
+  SP-7 failed on EV only (the add-day refusal and the late-day gap-to-assessed parts passed): on S 10-29 -> 10-30 the
+  EV offsets went -9 -> -10 (normal) and -2 -> -3 (fault), the dates staying on Tuesdays 10-20 / 10-27 (R619).
+- **Architect ruling: DEMO-SPARSE Addendum 4, option (1)** (SP-7 text amended; no product code, story input or number
+  changed). **Amended SP-7 rebuild comparison** (`e3b2caf2d`, rebuild on S' = S + 1 d): a Site not in
+  `demo_story_days.SITE_WEEKDAY` (Kobo, cold) keeps the same `(site, offset, kind)` sequence with every date moved by
+  exactly 1 day. A Site in `SITE_WEEKDAY` (keyed on the map; today EV) pairs its resolved days with its listed entries
+  in order; asserts the same `(site, listed day, kind)` on both S; and on each S, for each resolved day: weekday ==
+  `SITE_WEEKDAY[site]`, date in `(S + listed - 7 d, S + listed]`, offset == `weekday_offset(site, S,
+  day_offset(listed))`. All expected values computed; no literal dates or offsets; no other assertion changed.
+  Checked offline on the kept DB's days (passes) and with `SITE_WEEKDAY["ev"]` mutated to 2 (fails on the weekday).
+- **Harness hardening** (`e3b2caf2d`, Addendum 4 review points): `_release_busy` runs in the `finally` after
+  `prepare` and never raises (an `OSError` is printed), so a prepare exception propagates unchanged; `finish get`
+  fails the row on a non-zero exit, on anything but exactly one JSON line, or on a body without
+  `status_code`/`body`; `finish check` fails every row on an exit outside {0, 1}, an unreadable `check.json`, a
+  missing row, or an exit that disagrees with the rows; a wall-cap `SystemExit` from a child fails the row. Each path
+  was exercised once with a fake child (non-zero, garbage, two lines, no keys, wall cap, unremovable `.busy`).
+- **Slow build test, rerun** at `e3b2caf2d` (same command; own DB, dropped): **941 s, JUnit tests 19, failures 0,
+  errors 0, skipped 0.**
+- **`-Tier all`** (`toolsun-backend-suite-in-container.ps1 -Tier all`, docker idle first) at `e3b2caf2d`: run
+  `20261031-224858-fd387f`, 4 workers, postgres-test; **wall 2589 s; JUnit tests 4688, failures 0, errors 0,
+  skipped 0** (includes `test_demo_combined_postgres.py`); peak server connections 102, min Windows free 3173 MB.
+- **check-all** at `e3b2caf2d`: all 11 guards passed.
 - **Register (not closed here):** R552 would now pass (CO-1 original assertions hold). R535 would now pass (the
   three-domain estate reads with cold/EV money settled and the week PARTIAL, not PENDING). Rows left as they are.

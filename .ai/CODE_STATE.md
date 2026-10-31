@@ -6258,6 +6258,8 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   DUPLICATE_RECEIVED_AT (acceptance is counted by `received_at`); late Kobo delivery D+2d 12:30.
 - Final build `20f83276b` kept as `assetops_demo3_full_test` / `var/demo3_full`: 1105 s, self-check 16/17; trial (a) 06:00, 0 USD (R617).
 - Slow build test `backend/tests/test_demo_combined_postgres.py` (19): fixture prepare aborts on any self-check fail (rows error at setup).
-- Left open: CO-6 Portfolio week reads PENDING (not UNKNOWN): no runtime path drains `cold_consequence_work` (tick consequence stage
-  runs only the mini recompute worker, `scheduling/stages.py:186-198`), so the cold money window stays withheld; R535 open on it.
-  R552 open (CO-1 lineage, owner). Reads go stale 300 s after the last tick (heartbeat): run `serve` or `tick` before a demo.
+- Final round (main `c8702bb2b` merged, head `e3b2caf2d`): CO-1 original assertions (LINK-LINEAGE) and CO-6 on
+  estate-coverage/2 (week PARTIAL, cold/EV money settled) pass; self-check 17/17; build test 19/19 (reads through a
+  `finish check`/`get` child in the private tree; SP-7 weekday-bound comparison per DEMO-SPARSE Addendum 4);
+  `-Tier all` 4688/0/0/0. R535 and R552 now pass on this build (left for the coordinator to close).
+- Left open: reads go stale 300 s after the last tick (heartbeat): run `serve` or `tick` before a demo.
