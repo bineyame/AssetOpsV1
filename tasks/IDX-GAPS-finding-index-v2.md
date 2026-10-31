@@ -1,6 +1,6 @@
 # IDX-GAPS Finding index v2: show Findings from assessed days, name the gaps
 
-Status: in_progress
+Status: in_review
 
 Site Finding index `finding-index/2`: one unassessed day no longer blanks a multi-day Findings list. The read is
 PARTIAL with the rows from assessed days, `gaps[]` names the days not checked, and a Finding that reaches into one of
@@ -18,4 +18,5 @@ main `ca6d7d61b`. Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-p
   `w1f4VerificationStructure` vitest tests.
 - Captures at 390/1440: Findings page PARTIAL and the mini board line.
 
-USER_REVIEW_REQUIRED: false
+USER_REVIEW_REQUIRED: false (merges on a fresh independent slice review ACCEPT; the owner sees the PARTIAL Findings
+view and the board gap line in the combined walkthrough)

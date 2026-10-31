@@ -1,4 +1,4 @@
-# IDX-GAPS phase handoff (PARTIAL: U1-U4 built; full runs, captures, final closeout remain)
+# IDX-GAPS phase handoff (COMPLETE: U1-U4 built, closeout done, in_review)
 
 Source: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-IDX-GAPS.md` + Addenda 1-3 (Addendum 1 Q1
 withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` with the brief's PYTHONPATH and
@@ -40,3 +40,8 @@ withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` w
 2. On coordinator go: full `npx vitest run` (known: 3 w1f4 tests), then `tools\run-backend-suite-in-container.ps1
    -Tier all` (keep-awake, cap 2x ~41 min). Record command, revision, wall, JUnit counts in the packet.
 3. Fill the packet's PENDING lines; task Status -> in_review; CODE_STATE/ACTIVE_CONTEXT -> in_review; commit.
+
+## Closeout (done)
+- Captures `6c0c3ad6e` (`.agent/IDX-GAPS-captures/`): Findings page PARTIAL PASS at 1440/390; board line not run
+  (producer overview awaits evidence migration). Full vitest: 3543 passed, 3 known w1f4 failures. `-Tier all`: 4565 tests,
+  1 failure (environmental: `var/sites/mg-001.yaml` absent from the worktree), skipped 0. Task in_review.

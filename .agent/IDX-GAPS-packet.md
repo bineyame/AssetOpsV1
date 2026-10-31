@@ -114,11 +114,27 @@ exactly edge -20 min and edge +20 min.
 - `tools\check-all.ps1` (with `ASSETOPS_GUARD_PYTHON` set to the plan2 venv) at U4: **All 11 guards passed**.
 - U3 vitest (from the handoff): `idxGapsFindingIndex.test.tsx` 9 passed; 21 related files 583 passed; `tsc --noEmit`
   clean; missing-claim scan passed.
-- Full `npx vitest run`: PENDING (coordinator go).
-- Full backend `tools\run-backend-suite-in-container.ps1 -Tier all`: PENDING (coordinator go).
-- Captures 390/1440: PENDING (coordinator go). The producer `tools/s404_finding_index_walkthrough.py` (API 8934, web
-  5434) gives a positive day 10-15 and an unassessed day 10-30, so the window [10-15, 10-31) should read PARTIAL with
-  rows.
+- Full `npx vitest run` at `6c0c3ad6e` (266 s): Test Files 1 failed | 144 passed (145); **Tests 3 failed | 3543
+  passed (3546)**. The 3 failures are exactly the known `src/sites/__tests__/w1f4VerificationStructure.test.tsx` tests.
+- Full backend: `tools\run-backend-suite-in-container.ps1 -Tier all` at `6c0c3ad6e`, run
+  `var/test-results/OPS-03/20261031-102659-a376df` (4 workers, postgres-test). Wall time 2719 s (45:17, under the 82-minute cap).
+  JUnit: tests 4565, failures 1, errors 0, **skipped 0**. The one failure is environmental, not IDX-GAPS:
+  `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation::test_the_shipped_scenario_blocks_only_on_the_values_this_site_lacks`
+  failed with `FileNotFoundError: /tmp/assetops-worktree/var/sites/mg-001.yaml`. `var/sites/` is untracked (gitignored) and
+  absent from this worktree. With `mg-001.yaml` copied from the main checkout, the class passes locally (4 passed); the copy was
+  then removed. The file is untouched by this branch. A rerun on a worktree with `var/sites/` present is the reviewer's to
+  confirm if wanted.
+- Captures 390/1440 (`.agent/IDX-GAPS-captures/`, script `idxcap.mjs`, claims `idxgaps-claims.json`). Producer:
+  `tools/s404_finding_index_walkthrough.py prepare|serve --db assetops_s404_owner_test` (a `_test` name, which the
+  producer accepts unedited; dropped afterwards; servers stopped by PID). Window [10-15, 10-31):
+  - Findings page PARTIAL: **PASS at 1440 and 390.** The claim reads "4 Findings on the assessed days", with 4 rows
+    and the gap paragraph "12 of 16 days in this window are not checked yet, …". No proved-empty words, no codes on
+    screen, page overflow ≤ 0 at both widths (`idxgaps-findings-partial-{1440,390}.png`).
+  - Mini board gap line: **layout evidence: not run.** On this producer the Kobo Overview shows "Awaiting evidence
+    migration", so the board is not rendered (`idxgaps-board-line-*.png` show that state). The board API on the same
+    database returns `finding_gaps.text` "Not available yet · 25 of 31 days have no assessed readings" for date 10-15.
+    The one-line/two-line clamp is unverified in a browser; the render is proven in vitest
+    (`idxGapsFindingIndex.test.tsx`).
 
 ## Known deviations
 

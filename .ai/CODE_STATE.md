@@ -6137,7 +6137,7 @@ history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/O
 - s602b case `verified` (40/28 kW generator, 60/63 kW loads, price v1); `complete_windows` gains 4 kW params and carries `trial_comparison`.
 - Left open: R595 - on real s602b data the board day's Finding index is UNASSESSED, so the Action sits under Protect with no detail; the
   Cost-row line is proven on fakes only until the combined dataset. No re-run command (R592).
-## IDX-GAPS - Site Finding index finding-index/2 (built through U4; full runs pending)
+## IDX-GAPS - Site Finding index finding-index/2 (built, in_review)
 Branch `task/IDX-GAPS-finding-index-v2` (from main ca6d7d61b). Contract `AssetOpsV1-plan2/.agent/build-sheet-IDX-GAPS.md` + Addenda 1-3; packet
 `.agent/IDX-GAPS-packet.md`; decision `D-2026-10-31-finding-index-v2`.
 - `analytics/finding_index.py`: `POLICY_VERSION` "finding-index/2", schema `site-finding-index-2`, token `sfi2-`. `gap_days` (G: non-CURRENT
