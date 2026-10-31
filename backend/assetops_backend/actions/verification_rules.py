@@ -430,6 +430,7 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
     slots: list[dict] = []
     feeder_total: Fraction | None = Fraction(0) if loads else None
     pv_total: Fraction | None = Fraction(0)
+    gen_total: Fraction | None = Fraction(0)  # OUT-E E2: outside `plan_sha256` and the stored `details`
     unserved_total: Fraction | None = Fraction(0)
     below_total: int | None = 0
     slot_complete = True
@@ -442,6 +443,8 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
             known &= kwh is not None
             if role == "pv_available_power":
                 pv_total = None if kwh is None or pv_total is None else pv_total + kwh
+            if role == "generator_power":
+                gen_total = None if kwh is None or gen_total is None else gen_total + kwh
         feeder: dict[str, dict] = {}
         slot_feeder: Fraction | None = Fraction(0) if loads else None
         for asset in loads:
@@ -522,6 +525,7 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         "terminal_soc_sample": terminal,
         "feeder_demand_kwh": fmt(feeder_total),
         "pv_available_kwh": fmt(pv_total),
+        "generator_kwh": fmt(gen_total),
         "unserved_critical_kwh": fmt(unserved_total),
         "below_reserve_seconds": below_total,
         "initial_soc": initial,

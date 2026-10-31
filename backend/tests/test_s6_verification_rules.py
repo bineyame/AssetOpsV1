@@ -26,12 +26,12 @@ def point(role, asset, at, value, *, unit="%", quality="GOOD", rid=None):
 
 
 def full_window(start=T0, *, loads=("load-a", "load-b"), load_kw="10", pv_kw="6", soc="50",
-                skip=frozenset(), terminal=True):
+                skip=frozenset(), terminal=True, gen_kw="20"):
     out = []
     for i in range(12):
         t = start + vr.SLOT * i
         e = t + vr.SLOT
-        for role, asset, val in (("generator_power", "gen", "20"), ("pcs_discharge_capability", "pcs", "30"),
+        for role, asset, val in (("generator_power", "gen", gen_kw), ("pcs_discharge_capability", "pcs", "30"),
                                  ("pv_available_power", "inv", pv_kw),
                                  ("critical_load_requested_power", "crit", "4"),
                                  ("critical_load_delivered_power", "crit", "4")):
@@ -339,3 +339,14 @@ def test_target_met_edges():
     assert vr.target_met(400, 301) is False
     assert vr.target_met(0, 0) is True
     assert vr.target_met(None, 0) is None and vr.target_met(100, None) is None
+
+
+def test_generator_kwh_window_total_outside_details_and_plan():
+    """OUT-E E2: `generator_kwh` is the exact sum of the slots' generator kWh, null if any slot is unknown."""
+    assert evidence(full_window())["generator_kwh"] == "20"
+    assert evidence(full_window(gen_kw="40"))["generator_kwh"] == "40"
+    assert evidence(full_window(gen_kw="28"))["generator_kwh"] == "28"
+    gap = [r for r in full_window() if not (r.role == "generator_power" and r.interval_start == T0 + vr.SLOT * 3)]
+    ev = evidence(gap)
+    assert ev["generator_kwh"] is None and ev["complete"] is False
+    assert evidence(full_window(gen_kw="0"))["generator_kwh"] == "0"
