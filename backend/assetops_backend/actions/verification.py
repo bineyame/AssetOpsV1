@@ -867,7 +867,7 @@ class VerificationService:
 
     # ---- OUT-E E3: the cost check after a final outcome (hook only; no route) ---------------------------------
 
-    def _replay(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
+    def _window_replay(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
                 outcome: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
         """The evaluator's own windows, comparability and source pair at `known_at = outcome.recorded_at`."""
         windows = self._windows(tenant_id, site_id, plan, outcome["recorded_at"])
@@ -886,7 +886,7 @@ class VerificationService:
             return None
         from assetops_backend.financials import trial_fuel_comparison as tfc
 
-        windows, comparable, source = self._replay(tenant_id, site_id, plan, outcome)
+        windows, comparable, source = self._window_replay(tenant_id, site_id, plan, outcome)
         basis = outcome["basis"]
 
         def facts(name: str) -> Any:
