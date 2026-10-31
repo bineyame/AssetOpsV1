@@ -99,3 +99,28 @@ not VERIFY, so it is not taken. The trial stays (a): window 06:00, `kobo-mini-gr
 For the Architect, information only: a 04:00 trial would need an assessed Kobo run on S-1 (and S, for the later
 window) in the day list; no such day was added here, since the day list is the Architect's.
 Scratch DB `assetops_demo3_probe4_test` and `var/demo3_probe4` dropped after recording.
+
+### P3 candidate (d) re-probe with a normal S-1 (DEMO-SPARSE Addendum 3 ruling 3, 2026-10-31)
+
+The calendar gained `{"day": "S-1d", "kind": "normal"}` (`kobo-s3-dispatch-necessary-run`) first, committed at
+`dc2403b90` before running; it stays either way. Run once through the real Kobo child: `demo_combined.py --db
+assetops_demo3_probe5_test --work var/demo3_probe5 prepare --sites kobo --no-finish --days <scratch copy: Kobo days =
+S-1d normal + the trial pair; trial.scenario_id = kobo-mini-grid-reserve-matters v1, window_hour 04:00>`, tree
+`dc2403b90`, S = 2026-10-29. 220 s, exit 1 at the plan freeze. No value was changed after the run.
+
+| Column | Result |
+|---|---|
+| S-1 run (precondition) | assessed: 2026-10-28 NECESSARY (first ON 03:25), selected; the S-1 day selection now exists, so `VERIFICATION_BASELINE_NOT_SELECTED` no longer applies |
+| Lever evidence (baseline, S) | as the first (d) run: generator first ON 03:05 (`off_before` 03:00), reserve 30 % in every segment reason; binding constraints `[BATTERY_AT_RESERVE, BATTERY_NEAR_RESERVE]`; portions 235 candidate / 240 necessary / 0 indeterminate min; `upper_minutes` null (open lower bound at 03:05) |
+| Finding on S | yes: `cd91bdb8-db80-403f-8647-758dedca5ef8` SUPPORTED CANDIDATE_AVOIDABLE, episode 07:05-11:00 (235 min); ACT-000001 accepted 13:00, applied 14:00 (reserve 30 -> 25 %) |
+| Verification | **not reached**: plan freeze refused 409 `VERIFICATION_BASELINE_UNSUPPORTED` "The baseline needs positive supported Candidate seconds." target 04:00-05:00 `INCONCLUSIVE`, `candidate_seconds` null, reason `OPEN_BOUND: interval 2026-10-29T03:05:00Z of a1eea41d-... has an open bound and time in the window` (assessment revision `f9fe9a68`, the post-apply revision 2). The 04:00 hour lies in the run's open-bounded first interval, so it carries no supported Candidate time |
+| Cost check, USD | not reached (no plan, no outcome) |
+| Safeguard checks | not reached |
+| Origin revision vs day S's revision | not equal: ACT-000001 origin `origin_finding_revision_id` = revision 1 `b8a65a74` (OPENED, 12:07); the post-apply assess at 14:01-14:02 wrote revision 2 `1d6d75fc` `BASIS_REFRESHED`, the revision day S shows. The same split as the (a) build (ruling 2, R552) |
+
+**Choice (fixed rule, savings not an input):** (d) shows the lever and keeps the Finding on S but does not VERIFY
+(the freeze is refused before any outcome), so it is not taken. The trial stays **(a)**: window 06:00,
+`kobo-mini-grid-reserve-trial`, `MODELLED_NO_IMPROVEMENT` 0 USD. `trial` in `demo-story-days-v1.json` is unchanged;
+R617 stays. SP-3's gap count on the new calendar: assessed Kobo days in [S-30, S] = S-28, S-21, S-14, S-7, S-3 (late),
+S-1, S = 7, so g = 31 - 7 = **24** (was 25; SP-3 computes it). Scratch DB and `var/demo3_probe5` dropped with the
+tool's `drop`.

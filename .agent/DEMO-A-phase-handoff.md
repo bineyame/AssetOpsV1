@@ -208,3 +208,26 @@ three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeou
 - Not done: slow build test (prepare not green), U6 closeout. Resume after the coordinator/Architect rules on the
   cold S4 matcher bug (product fix in another slice, or here) and on CO-1; then re-run the full prepare at the final
   revision (drop `assetops_demo3_full_test` first), the build test, and U6.
+
+## State 2026-10-31 (fifth implementer: Addendum 3 rulings 2, 3 and FYI) - HOLD for FIX-S4-DOMAIN
+
+- `dc2403b90` calendar: Kobo `{"day": "S-1d", "kind": "normal"}` (8 Kobo runs; `test_demo_story_days.py` counts
+  8 Kobo runs, epoch `day-14`, two-before refusal moved to S-2d). SP-3 expects g = **24** on this calendar (was 25).
+- Ruling 3, (d) re-probe once (`.agent/DEMO-SPARSE-trial-probe.md`, last section): S-1 now selected, but the freeze is
+  refused 409 `VERIFICATION_BASELINE_UNSUPPORTED` (04:00-05:00 INCONCLUSIVE, `OPEN_BOUND` from the 03:05 first
+  interval). Lever shown, Finding on S kept, not VERIFIED -> **trial stays (a)**, `trial` unchanged, R617 stays.
+  Origin revision (rev 1) != day S's revision (rev 2 `BASIS_REFRESHED`). Probe DB/work dropped.
+- Ruling 2, CO-1 re-premised (`tools/demo_combined_finish.py` co1): asserts no Action in Must-not-harm and none on
+  the Finding's issues/in_hand (`board.py:468-470`, BASIS_REFRESHED split); records that ACT-000001 still lists in the
+  Cost row's `earlier` (its verification result, CO-3's line) - so "absent from the Cost row" holds for the link, not
+  for the earlier-result line. R552 row in `.agent/mock-departure-register.md` gains this cause, stays open.
+  Re-check on the kept `assetops_demo3_full_test` (finish copied to its tree): CO-1 **pass**; 14 pass / 3 fail:
+  CO-6 (known s4 bug), CO-2 and CO-5/SP-1 now fail on read age (`SCHEDULE_STOPPED`/`SITE_VISIT_STALE`,
+  `PRODUCER_NOT_SETTLED`; the DB is read hours after its build, both passed at build time). An `assetops-ops03-*`
+  container appeared during that read-only check (it was absent when the probe started); no Postgres job since.
+- FYI: **no evidence is stamped on any D-1** (accepted_evidence: Kobo rows only on run days, 02:55-11:00). D-1's
+  "accepted evidence exists" counts D's own run readings 02:55-06:00 (394 rows) pulled in by the 6 h read bracket
+  (`analytics/assessment_inputs.py:99-101` `read_range = window.widened(BRACKET)`; `dispatch_read.py:88-89`). Reported
+  to the coordinator per the FYI stop rule (next day's run readings), not acted on; no run is split across days.
+- Next (after FIX-S4-DOMAIN merges, on the coordinator's word): merge main, drop `assetops_demo3_full_test`, rebuild
+  the full prepare, build test, U6.

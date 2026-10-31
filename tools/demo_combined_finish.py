@@ -136,14 +136,22 @@ def co1(ctx: Ctx) -> dict:
     checked = [i for i in finding_issues(protect, k["finding"]) if i["text"].endswith(SAFEGUARD)]
     assert moves, cost["issues"]
     assert checked, protect["issues"]
+    # Addendum 3 ruling 2 (R552 open, pending the owner): the Action was accepted on the Finding's first revision; the
+    # post-apply assess refreshes day S's basis (revision 2, BASIS_REFRESHED), and the board links an Action only to
+    # its exact origin revision (`site_outcomes/board.py:468-470`). So day S's Cost row shows neither the Action's
+    # link on the Finding nor its Must-not-harm line: asserted as today's behaviour and recorded. The Action's own
+    # verification result still lists under `earlier` (CO-3's line); that is not the exact-revision link.
     mnh = cost.get("must_not_harm") or {}
-    assert "Reliable service and battery and generator life" in (mnh.get("text") or ""), mnh
-    assert k["action"] in (mnh.get("href") or ""), mnh
-    assert any(k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "") for i in items(cost)), \
-        items(cost)
+    assert k["action"] not in (mnh.get("href") or ""), mnh
+    linked = [*cost.get("issues", []), *cost.get("in_hand", [])]
+    assert not any(k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "")
+                   for i in linked), linked
+    earlier = [i["text"] for i in cost.get("earlier", []) if k["action"] in (i.get("href") or "")]
     outside = [i["text"] for x in body["rows"] for i in items(x) if i["text"].endswith(OUTSIDE)]
     assert not outside, outside
-    return {"cost_state": cost["state"], "finding": k["finding"], "must_not_harm": mnh}
+    return {"cost_state": cost["state"], "finding": k["finding"], "must_not_harm": mnh or None,
+            "action_linked_on_cost_row": False, "action_in_earlier": earlier,
+            "r552": "open: exact-revision link (board.py:468-470), BASIS_REFRESHED split"}
 
 
 @row("CO-2", idx=True)
