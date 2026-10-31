@@ -1,0 +1,131 @@
+# CC-M review packet: combined schema slice (owner Q14), migrations 0036 and 0037
+
+Task `tasks/CC-M-combined-schema.md` (Status `in_progress`: phase 1 built; the tier-4 full suites wait for the
+coordinator's go). Branch `task/CC-M-combined-schema` from `main` `9cec4fcb`. Contract:
+`.agent/build-spec-commercial-2026-10-27.md` "CC-M", Q-C12 and Q-C42.
+
+PYTHONPATH (PowerShell):
+```
+$env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-ccm\backend;C:\Users\assef\Bineyame\AssetOpsV1-ccm\contracts;C:\Users\assef\Bineyame\AssetOpsV1-ccm\simulator;C:\Users\assef\Bineyame\AssetOpsV1-ccm\gateway;C:\Users\assef\Bineyame\AssetOpsV1-ccm\host;C:\Users\assef\Bineyame\AssetOpsV1-ccm"
+```
+Python `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe`; `assetops_backend.__file__` names the
+`-ccm` worktree. Test DB `assetops_ccm_test` (created for this slice, `assetopsv1-postgres-1`).
+
+## Outcome delivered
+
+- `0036_cc_mini_contribution` (down `0035_w5_ev_work`): drops and recreates the named
+  `mini_scenario_revision_kind_check` with `PRODUCTIVE_USE_CONTRIBUTION` added. Downgrade locks the table, raises
+  `Downgrade of 0036_cc_mini_contribution refused: PRODUCTIVE_USE_CONTRIBUTION scenario revisions exist.` if any row
+  uses the kind, else restores the exact 0030 four-kind CHECK.
+- `0037_cc_trial_cost_comparison` (down `0036_cc_mini_contribution`): the append-only
+  `trial_cost_comparison_revision` exactly per the CC-M table, with 0019's `SHA`, `KEY` and `DEMO_ACTOR` copied
+  into the module (0019 is not edited). Named constraints: `_site_fk` → `site(tenant_id, id)`, `_action_fk` →
+  `action(tenant_id, site_id, id)`, `_outcome_fk` `(action_id, verification_outcome_id)` → `verification_outcome
+  (action_id, id)`, `_supersedes_fk` → self `(verification_outcome_id, id)` (backed by `_outcome_id_unique`);
+  `_revision_no_check`, `_chain_check` `(revision_no = 1) = (supersedes_revision_id IS NULL)`, `_formula_check`,
+  `_state_check` (3 states), `_reason_check` (the 11 `REASSESSMENT_REASONS`), `_reason_state_check`; UNIQUEs
+  `_revision_no_unique`, `_basis_unique`, `_idempotency_unique (action_id, idempotency_key)`; index `_order
+  (tenant_id, site_id, action_id, recorded_at)`; trigger `trial_cost_comparison_revision_immutable` →
+  `w4_append_only()`. Downgrade drops the table.
+- Head literal `0035_w5_ev_work` → `0037_cc_trial_cost_comparison` at every "current head" site listed in CC-M
+  (re-grepped: the same 22 sites in 21 files). Downgrade-target uses stay (`test_w504` `REFUSED`, its docstring).
+  `test_w504_ev_intent_postgres.py` gains `MIGRATION = "0035_w5_ev_work"` for its one `get_revision(...)
+  .down_revision == PARENT` assertion, which names the migration under test, not the head (the `test_w503` pattern).
+- No existing migration edited (the Stop did not trigger).
+
+## Files materially changed
+
+- `backend/migrations/versions/0036_cc_mini_contribution.py`, `0037_cc_trial_cost_comparison.py` (new)
+- `backend/tests/test_cc_schema_postgres.py` (new, 3 tests)
+- Head literal: `backend/tests/mini_depth_probe.py` and 20 `backend/tests/test_*.py` files (one line each; w504 two)
+- `tasks/CC-M-combined-schema.md`, `.ai/ACTIVE_CONTEXT.md` (Lane C line), this packet
+
+## Acceptance criteria
+
+| Gate | Status | Evidence |
+|---|---|---|
+| upgrade head, downgrade 0035, upgrade head on a fresh `*_test` DB | met | `test_contribution_kind_gate_downgrade_refusal_and_round_trip` (module-fresh DB via `pg_harness.fresh_database`) |
+| trigger refuses UPDATE and DELETE | met | `test_trial_rows_chain_scope_and_append_only` ("append only") |
+| new kind passes after 0036, fails before | met | same round-trip test: insert at head; refused at 0035 with `constraint_name == mini_scenario_revision_kind_check`; 0036 downgrade refusal while a row uses it |
+| chain CHECK refuses revision 2 without supersedes | met | `_chain_check` asserted by constraint name (and revision 1 with a supersedes) |
+| `pg_harness.assert_at_head` | met | catalog and round-trip tests |
+| full backend + frontend suites (tier 4) | pending | coordinator's go |
+
+The trial rows hang off a real INCONCLUSIVE verification outcome (S4 F01/F02 → S6-01 apply → S6-02a real roles-2
+path). The mini scenario kind rows are replica-role direct SQL (CHECKs apply, FK/append-only triggers do not),
+because they exercise only the CHECK and the downgrade guard.
+
+## Checks run (phase 1)
+
+- `pytest tests/test_cc_schema_postgres.py` on `assetops_ccm_test`: 3 passed, 22.5 s.
+- Non-vacuity: with `_chain_check` and the trigger removed from 0037 (committed first, reverted with
+  `git checkout --`), 2 of 3 failed (`DID NOT RAISE DBAPIError`); restored, 3 passed.
+- Head-literal files (the 20 changed `test_*.py`, together): 246 passed, 0 failed, 1854 s wall (revision `b64013b6`, `assetops_ccm_test`).
+- `tools/check-architecture.ps1`: Architecture check passed. `tools/check-agent-workflow.ps1`: Agent workflow check
+  passed. Both run directly, no policy override.
+- Coordinator go after review ACCEPT (`.agent/CC-M-review.md`): main `f6237c95` (incl. TEL-06) merged clean as
+  `f6090364`. Full backend suite (normal command, `-n 2 --dist loadfile --no-loadscope-reorder`, base
+  `assetops_ccm_test`, keep-awake running, cap 200 min): **not completed**. Claude Code's memory-pressure reaper
+  stopped it at about 29% with no failure reported up to that point (all dots). No JUnit file. Not restarted, as the
+  reaper's notice instructs; it needs a fresh go when memory allows. Run DBs `assetops_ccm_pt21143e8a_{tpl,gw0,gw1}_test`
+  are left for the harness's orphan sweep on the next run. No pytest processes are left.
+- Rerun on the owner's go (same command and revision `f6090364`; the leftover run DBs were dropped first with
+  `pg_harness.cleanup_run`): **not completed**. The memory-pressure reaper stopped it again at about 80%, roughly
+  35 min in. No test failure was recorded before the stop. The one `F` in the log comes right after `[gw0] node
+  down: Not properly terminated`, which is the worker being killed. No JUnit file. Not restarted. Run DBs
+  `assetops_ccm_pt7904a9a5_*` were dropped with `cleanup_run`. No pytest processes are left.
+- Split run on the owner's go (revision `c348530f` = merge `f6090364` plus packet commits). `--collect-only -q`
+  collected **4138** tests in 252 files. The files were sorted and split into 4 disjoint parts by test count. Each
+  part ran alone with `-n 1 --dist loadfile --no-loadscope-reorder` and JUnit, and its run DBs were checked
+  before the next part.
+  | Part | Files | JUnit cases | Passed | Failed | Skipped | Wall |
+  |---|---|---|---|---|---|---|
+  | 1 | 34 | 1011 | 1010 | 1 | 0 | 382 s |
+  | 2 | 70 | 965 | 965 | 0 | 0 | 1643 s |
+  | 3 | 48 | 1121 | 1121 | 0 | 0 | 1419 s |
+  | 4 | 99 | not completed (expected 1041) | - | - | - | stopped |
+  Part 1's failure is `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation::test_the_shipped_
+  scenario_blocks_only_on_the_values_this_site_lacks`. Rerun alone it fails the same way, so it is not a flake:
+  `FileNotFoundError ... AssetOpsV1-ccm/var/sites/mg-001.yaml`. The gitignored `var/` user store is missing from
+  this worktree; OPS-02 and W2-05a recorded the same precondition. It is unrelated to CC-M and was not fixed.
+  Part 4: the first attempt collected nothing (exit 5), because a byte-order-mark line in the split list duplicated a
+  part-1 file. That line was removed, leaving 251 unique files. The second attempt was stopped by Claude Code's
+  memory-pressure reaper at about 69%, with no test failure before the stop (the one `F` follows `[gw0] node down`).
+  It was not restarted. No pytest processes are left. Run DBs `assetops_ccm_pt1f78c249_{tpl,gw0}_test` remain.
+  Gate so far: 3097 of 4138 run (3096 passed, 1 failed, 0 skipped). Part 4 (1041 tests) still needs a run.
+- Part 4, on the owner's go. The coordinator copied `var/sites/` into the worktree (local only, not committed), and
+  part 1's `test_runs_api` failure then passed alone. The part-4 run DBs were dropped with `cleanup_run`. Part 4 was
+  split by test count into 4a (38 files) and 4b (61 files), each run serially (no `-n`):
+  | Half | JUnit cases | Passed | Failed | Skipped | Wall |
+  |---|---|---|---|---|---|
+  | 4a | 549 | 547 | 2 | 0 | 6583 s |
+  | 4b | 492 | 490 | 2 | 0 | 7772 s |
+  - 4a `test_w301_estate_golden_postgres.py::test_w301_golden_manifest_public_replay[ev]` (EV coverage read UNKNOWN)
+    and `test_w302_money_comparability_postgres.py::test_w302_money_persisted_ev_different_currency` (psycopg
+    `connection timeout expired`): each **passed alone** (39 s; 3933 s). Treated as flakes from load and timing.
+  - 4b `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids`
+    (`:155`) and `test_w303_selectors_postgres.py::test_portfolio_row_facts_and_verification_ids_match_stored_rows`
+    (`:77`): **fail alone too** (2 failed, 98.6 s). This is real and outside CC-M. Both still assert `mechanism is None`,
+    but CC-R2 `0bcb7f16` (on main, Q-C8) now fills mechanism (`COLD_EXCURSION`, `GENERATOR_SUPPORT_CANDIDATE`).
+    These are CC-R2 test literals that were never updated. Not fixed: that needs a go, since it is outside CC-M.
+- **Full-suite gate: 1011 + 965 + 1121 + 549 + 492 = 4138 = collected.** 4133 passed, 5 failed, 0 skipped. Of the 5,
+  3 pass alone (1 was the environment precondition, 2 were flakes) and 2 are real, from CC-R2 on main. The gate
+  (0 failures) is **not met** until those two literals are fixed.
+- Not run yet: frontend suite, typecheck, build.
+
+## Known deviations
+
+- None from the spec. The `configuration-persistence.ps1` extension (Q-C13) is placed in CC-D2 by the spec
+  ("CC-D2 Files, Guard"; §0.2 "CC-D2 only"); CC-M adds no writer, so no guard rule is added here and the guards pass
+  with the new table unregistered. If the coordinator meant it to land in CC-M, it needs the CC-D2 writer path first.
+- Packet name: the dispatch names `.agent/CC-M-review-packet.md`; §0.1 groups CC-M with D2 under `-C3-`.
+
+## Residual risk
+
+- Alembic downgrades that cross 0037/0036 (W2-W5 migration tests) now drop the empty trial table and restore the
+  kind CHECK first; fine while those tests hold no CC rows. The full suite confirms.
+- `w4_append_only()` raises "W4 work history is append only" for this table too (spec-chosen function).
+
+## User-review focus
+
+`USER_REVIEW_REQUIRED`: no (schema only, no UI). A fresh Claude review per slice; CC-M reviews with CC-D2 (group C3).

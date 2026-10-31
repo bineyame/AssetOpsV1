@@ -26,7 +26,8 @@ if URL:
     from test_s1_bindings_postgres import _alembic, engine  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head
 
-HEAD = "0038_out_objectives"
+HEAD = "0039_merge_objectives_cc"  # OUT-E: the merge revision above 0037 and 0038
+OBJECTIVES = "0038_out_objectives"
 PARENT = "0035_w5_ev_work"
 TABLE = "outcome_objective_revision"
 SHA = "a" * 64
@@ -88,7 +89,7 @@ def test_sole_head_chain_and_catalog(engine) -> None:  # noqa: F811
     script = ScriptDirectory.from_config(_alembic())
     assert script.get_heads() == [HEAD] and head(engine) == HEAD
     pg_harness.assert_at_head(engine)
-    assert script.get_revision(HEAD).down_revision == PARENT
+    assert script.get_revision(OBJECTIVES).down_revision == PARENT
     with engine.connect() as c:
         columns = [tuple(r) for r in c.execute(text(
             "SELECT a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull FROM pg_attribute a "
