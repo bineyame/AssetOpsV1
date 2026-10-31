@@ -119,3 +119,41 @@ being worked out, or avoid the headline.
 - CO-6 and the merge gate need a ruling on the cold consequence drain (product) before the build test can go green.
 - The build test fixture aborts on any self-check fail, so rows report as setup errors rather than individually.
 - `_fence` revision count spans every domain (FIX-S4-DOMAIN open item): harmless re-plan.
+
+## Final round (2026-10-31, after main `c8702bb2b`)
+
+- **Merge** `44e54dce0` (main `c8702bb2b`: COV-PARTIAL, LINK-LINEAGE, FIX-COLD-DRAIN on top of IDX-GAPS, SCN,
+  FIX-S4-DOMAIN, FIX-W301, FIX-W401). Conflicts only in `.ai/ACTIVE_CONTEXT.md`, `.ai/CODE_STATE.md` and the register;
+  both sides kept (R613 main's resolved form; R552 this branch's text with main's status).
+- **CO-1 restored** (`79dda4ea0`, LINK-LINEAGE §5): `must_not_harm.href` holds ACT-000001's
+  `/verification?event_id=`; ACT-000001 on the Cost row; `outside == []`; MG-2 branch recorded and asserted.
+- **CO-6 re-derived** (`79dda4ea0`, COV-PARTIAL §6): Kobo week `PARTIAL` with the `days` block (gaps = the computed
+  unassessed days, `checked = 7 - g`, `DAYS_CHECKED` text, suffix iff `withheld`); status in {PARTIAL, UNKNOWN} and
+  not CURRENT; Kobo's day-S Finding in `rows` unless withheld. CO-6b gains `days.gaps == []`.
+- **Kept DB rebuilt**: `assetops_demo3_full_test` / `var/demo3_full`, code `79dda4ea0`, prepare 797.6 s
+  (kobo 567.2 s, cold 43.2 s, ev 48.9 s). **Self-check 17 pass, 0 fail, 0 skipped.**
+  - CO-1: Cost NEEDS_ATTENTION; MG-2 `OBJECTIVE_MISSED` (branch Needs attention); Must-not-harm href
+    `/sites/KOBO-001/actions/<id>/verification?event_id=<id>`; `r552: resolved: refresh lineage`.
+  - CO-6: status **PARTIAL**; Kobo PARTIAL/RECENT/COMPLETE/SETTLED, `3 of 7 days checked · 4 days not available yet`,
+    gaps 10-23, 10-24, 10-25, 10-27 (`NO_ASSESSED_SELECTION`), not withheld, Finding in rows; cold and EV coverage
+    CURRENT/SETTLED (money no longer pending; DB: 8 `cold_consequence_work`, 1 `cold_consequence_revision`).
+  - CO-6b: status UNKNOWN; Kobo CURRENT, cold LATEST_EVENT, EV PERIOD (no event on S), as Addendum 2 records.
+- **Build-test harness fix** (`<this commit's parent>`, see below): the first build-test run (832 s) failed 8 rows that
+  the prepare's own self-check passed. Causes: (1) rows read through `lab_app` in the pytest process, whose file stores
+  resolve under this worktree's `REPO_ROOT`, not the private tree's (Kobo reads 409 `AWAITING_EVIDENCE_MIGRATION` /
+  `PERFORMANCE_CUTOVER_CLOSED`); (2) the fixture called `Demo.prepare()` directly and left `.busy` held, so SP-7's
+  `add-day` refused. Fix: rows assert a fresh `finish check` run as a child in the private tree; SP-7 reads through a
+  new `finish get` child; the fixture releases `.busy` as `main` does. No assertion was changed.
+- **Slow build test** `tools\run-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow` at
+  `7e1f1b0b5`-family head (harness commit), DB `assetops_demo3_t<run>_test` (dropped): 942 s wall, JUnit tests 19,
+  failures 1, errors 0, skipped 0. All 17 check rows and `test_self_check_ran_in_prepare` pass.
+  **SP-7 fails, not adjusted:** the add-day refusal and the late-day gap-to-assessed parts pass; the rebuild
+  comparison fails on EV only. Expected: the same `(site, offset, kind)` per day on a later S. Actual (S 10-29 ->
+  10-30): EV `('ev', -9, 'normal')` -> `('ev', -10, 'normal')` and `('ev', -2, 'fault')` -> `('ev', -3, 'fault')`, the
+  EV dates staying on Tuesdays 10-20 / 10-27; every Kobo and cold `(offset, kind)` is unchanged. Cause: Addendum 1 (a)
+  (EV on the Tuesday on or before the listed day, R619) makes EV offsets depend on S's weekday, which SP-7's
+  "every date moved by the rebuild's S" text predates. Needs an Architect ruling (compare EV by listed day, or accept).
+- **check-all** at the harness commit: 11/11 passed.
+- **`-Tier all`: not run.** Stopped per the brief on the SP-7 mismatch; it gates on the ruling.
+- **Register (not closed here):** R552 would now pass (CO-1 original assertions hold). R535 would now pass (the
+  three-domain estate reads with cold/EV money settled and the week PARTIAL, not PENDING). Rows left as they are.
