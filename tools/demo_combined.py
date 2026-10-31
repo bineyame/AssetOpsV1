@@ -433,13 +433,17 @@ class Demo:
     def links(self, web: int) -> None:
         story = self.story()
         S = at(story["S"])
-        frm, to = iso(S), iso(S + timedelta(days=1))
+        # Addendum 1 (a): the week period S-6d..S+1d holds every Site's latest story event (EV: the Tuesday <= S);
+        # mini reads its day as `mini_summary_day(to)` = S.
+        frm, to = iso(S - timedelta(days=6)), iso(S + timedelta(days=1))
         base = f"http://localhost:{web}"
-        rows = [("Portfolio, story day S", f"{base}/portfolio?from={frm}&to={to}")]
+        rows = [("Portfolio, week to story day S", f"{base}/portfolio?from={frm}&to={to}")]
+        days_file = self.work / "days.json"
+        story_days = json.loads(days_file.read_text(encoding="utf-8"))["days"] if days_file.is_file() else []
         for site in story["sites"]:
-            for off in (0, -7, -28):
-                day = S + timedelta(days=off)
-                rows.append((f"{SITE_CODE[site]} outcome board, day S{off:+d}d ({day.date().isoformat()})",
+            for d in (d for d in story_days if d["site"] == site):
+                day = datetime.fromisoformat(d["day"]).replace(tzinfo=timezone.utc)
+                rows.append((f"{SITE_CODE[site]} outcome board, {d['kind']} day S{d['offset']:+d}d ({d['day']})",
                              f"{base}/sites/{SITE_CODE[site]}/outcomes?from={iso(day)}&to={iso(day + timedelta(days=1))}"))
         kobo = self.work / "kobo.json"
         if kobo.is_file():

@@ -303,7 +303,9 @@ def co10(ctx: Ctx) -> dict:
 def co6(ctx: Ctx) -> dict:
     from assetops_backend.estate.money_invariants import double_count_violations
 
-    days = {"from": iso(ctx.S), "to": iso(ctx.day(1))}
+    # Addendum 1 (a): the week period S-6d..S+1d always holds the EV fault Tuesday (Tue <= S), so EV's LATEST_EVENT
+    # window resolves; mini still reads `mini_summary_day(to)` = S (`to` is midnight S+1d).
+    days = {"from": iso(ctx.day(-6)), "to": iso(ctx.day(1))}
     body = ctx.get("/api/estate/portfolio", **days)
     assert body["status"] == "CURRENT", body["status"]
     codes = sorted({o["site_code"] for o in body["objectives"]})
