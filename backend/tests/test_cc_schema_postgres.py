@@ -169,6 +169,8 @@ def real_outcome(runner) -> tuple[str, str, str, str]:  # noqa: F811
     run_case(runner, CASES["F01"])
     run_case(runner, CASES["F02"])
     h = verifying(runner)
+    # OUT-E: no cost-check hook, so the schema test owns every trial_cost_comparison_revision row of this outcome
+    h.service.verification_ports.trial_comparison = None
     try:
         action_id = applied_action(runner, h)
         plan = freeze(h, action_id).json()["plan"]

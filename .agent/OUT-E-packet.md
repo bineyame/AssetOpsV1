@@ -23,7 +23,8 @@ change. On the real s602b data the Action sits under Protect (R595), so the Cost
 
 ## Wire additions
 - Evidence read (`GET .../verification/evidence`) windows: `generator_kwh` (review M1).
-- Verification summary: `cost_check {state, reason, nominal, upper, currency, recorded_at} | null`, `trial_hours
+- Verification summary (also inside the Action, Change and Recommendation reads that embed it; `s6_action_api_contract.json`
+  gained the two keys as null): `cost_check {state, reason, nominal, upper, currency, recorded_at} | null`, `trial_hours
   {before_seconds, after_seconds} | null`. The S6 contract fixture gained exactly these three keys.
 - Board `earlier[].detail: string | null`. Schema versions unchanged.
 
@@ -40,7 +41,7 @@ change. On the real s602b data the Action sits under Protect (R595), so the Cost
    met") and the not-verified "Status changed; not attributed" are proven by fake-port tests; on the s602b board day the
    Finding index is UNASSESSED, so the Action is under Protect with detail null and the Cost Earlier list is empty (R595 open).
    Codes are ACT-000001 on this data, not ACT-048.
-5. Met pending the `-Tier all` line below: guard registers the writer and three probes fail without it/without the INSERT/
+5. Met (with the two test-file fixes below): guard registers the writer and three probes fail without it/without the INSERT/
    with a foreign write; check-all 11/11; full vitest only the 3 known failures.
 
 ## Checks run
@@ -50,7 +51,12 @@ change. On the real s602b data the Action sits under Protect (R595), so the Cost
 - Pure: E2 + E4 unit 38 passed; board family (b1, b2, b3, c2, c3, d2, d4) 159 passed; vitest outcomeBoard 17 passed; `tsc` clean.
 - `tools/check-all.ps1` (ASSETOPS_GUARD_PYTHON set): All 11 guards passed (estate guard self-tests 7 passed).
 - Full vitest at 223baa5b: 3534 passed, 3 failed (`w1f4VerificationStructure`, known).
-- Full backend: `tools\run-backend-suite-in-container.ps1 -Tier all` at 223baa5b, started 05:49:27: RESULT_PENDING
+- Full backend: `tools\run-backend-suite-in-container.ps1 -Tier all` at 223baa5b, started 05:49:27, run `var/test-results/OPS-03/20261031-054929-09a34d`, 4 workers, derived cap, wall 2353 s (39m11s): 4518 passed,
+  2 failed, 0 skipped, both caused by this slice and fixed in test files only (rerun alone at the fix commit: 4 passed):
+  `test_cc_schema_postgres::test_trial_rows_chain_scope_and_append_only` (the hook had already written revision 1 for the
+  outcome the schema test builds; its outcome builder now sets `trial_comparison = None`) and
+  `test_s6_action_records_postgres::test_d_action_records_walkthrough_and_contract` (the `s6_action_api_contract.json`
+  fixture gains only `cost_check: null`, `trial_hours: null` in its 7 verification summary bodies; recorded values kept).
 - Captures: `.agent/OUT-E-captures/README.txt` (Overview refused on the case DBs; board recorded as API JSON per case).
 
 ## Known deviations
