@@ -6179,3 +6179,27 @@ packet `.agent/FIX-S4-DOMAIN-packet.md`.
   on the old store it failed with TypeError at `finding_episode.py:287`). The fixture disables the cold-consequence enqueue trigger inside
   its own insert transaction (the mini Site has no COLD_ROOM).
 - Left open: the `_fence` revision count still spans every domain on the Site (a cold revision moves the mini fence; harmless re-plan).
+## FIX-COLD-DRAIN - the scheduled tick drives the cold and EV producers (built, in_review)
+
+Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/build-sheet-FIX-COLD-DRAIN.md` U1-U4. Packet
+`.agent/FIX-COLD-DRAIN-packet.md`. No migration, no reader change.
+- Tick order per Site (`scheduling/tick.py` `_site`): `S3: s3 -> cold_assess -> ev_assess` · `MINI` · `OPPORTUNITY` · `S4` ·
+  `CONSEQUENCE: consequence -> cold_consequence -> ev_consequence`. Each new child re-checks the Site claim with the existing
+  marker (`set_stage("S3")` / `set_stage("CONSEQUENCE")`; the 0030 CHECK is unchanged) and is its own killable child.
+- Failure names `COLD_ASSESS`, `EV_ASSESS`, `COLD_CONSEQUENCE`, `EV_CONSEQUENCE`; the first failure is kept and later children
+  run. A failed consequence *item* keeps the drain `OK` (`failed` count) and retries under the worker's `retry_due_at`; no Site
+  back-off (Architect Q1 ruling (b)).
+- Head counts are summed into the existing columns: `record_s3(s3 + cold + ev)` once after the S3 group and
+  `record_consequence(mini + cold + ev selected/deferred)` once after the drains. A non-OK child adds 0; a group whose every
+  child failed writes nothing (the earlier head counts stand, as before for a failed `s3`).
+- `TickLimits`: `domain_jobs_per_site=10`, `domain_assess_seconds=120` (< `DOMAIN_JOB_LEASE_SECONDS` 300),
+  `domain_consequence_seconds=60`; `site_lease_seconds` default 600 -> 960.
+- Stages (`scheduling/stages.py`): `cold_assess`/`ev_assess` lease at DB time through `build_cold/ev_assessment_worker(url,
+  clock=db_clock(url), lease=...)` (`analytics/composition.py` now passes `**kw` through, defaults unchanged); `deferred` from
+  `live_jobs(cold.EXCURSION_ANALYTIC|ev.SESSION_ANALYTIC, domain)`. `cold_consequence`/`ev_consequence` run the unedited W2-04/W2-07
+  workers' `run(t, s, limit, now)` and compute the `consequence` shape locally.
+- Tests: `test_fix_cold_drain_stage.py` (T1-T5, fake runner), `test_fix_cold_drain_tick_postgres.py` (P1-P4, in-process real
+  stages). Tick-order and lease literals updated in `test_w402_mini_stage.py`, `test_w403_opportunity_stage.py`,
+  `test_w402_mini_stage_postgres.py`.
+- Left open: R624 (an excluded-lifecycle Site with only cold/EV work is not discovered; no cold/EV counts in `health.py`), and
+  four more child processes per visited Site in a deployment (fewer Sites per 240 s tick).
