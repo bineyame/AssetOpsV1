@@ -123,3 +123,51 @@ def test_domain_action_index_reader_allowed_and_write_rejected() -> None:
     assert out.returncode == 1
     assert any(f"A second product database writer in {DOMAIN_READER}:" in line for line in found), found
     assert not any("Database driver imported outside" in line and DOMAIN_READER in line for line in found), found
+
+
+# OUT-E E3: the trial cost-check store is a `$pgWriters` entry and the sole, INSERT-only writer of
+# `trial_cost_comparison_revision`. The probes prove the rule fails without the registration, without the owner
+# INSERT (anti-vacuity), with an UPDATE in the writer and with a write from another module.
+TRIAL_WRITER = "backend/assetops_backend/financials/adapters/postgres_trial_comparison_store.py"
+TRIAL_GUARD = "tools/checks/configuration-persistence.ps1"
+TRIAL_INSERT = "INSERT INTO trial_cost_comparison_revision ("
+TRIAL_FOREIGN = "backend/assetops_backend/financials/adapters/_guard_probe_trial_write.py"
+
+
+def _replace(copy: Path, path: str, old: str, new: str) -> None:
+    file = copy / path
+    text = file.read_text(encoding="utf-8")
+    assert text.count(old) == 1, (path, old)
+    file.write_text(text.replace(old, new), encoding="utf-8")
+
+
+def test_trial_comparison_writer_registered() -> None:
+    real = (ROOT / TRIAL_WRITER).read_text(encoding="utf-8")
+    assert TRIAL_INSERT in real and "from sqlalchemy" in real
+    assert isolated_copy(lambda copy: None).returncode == 0
+    out = isolated_copy(lambda copy: _replace(copy, TRIAL_GUARD, ", $trialComparisonWriter)", ")"))
+    found = failures(out)
+    assert out.returncode == 1
+    assert any("Database driver imported outside" in line and TRIAL_WRITER in line for line in found), found
+
+
+def test_trial_comparison_insert_only_and_not_vacuous() -> None:
+    out = isolated_copy(lambda copy: _replace(copy, TRIAL_WRITER, TRIAL_INSERT,
+                                              "INSERT INTO trial_cost_comparison_probe ("))
+    found = failures(out)
+    assert out.returncode == 1
+    assert any("found no INSERT INTO trial_cost_comparison_revision" in line for line in found), found
+
+    def update(copy: Path) -> None:
+        file = copy / TRIAL_WRITER
+        file.write_text(file.read_text(encoding="utf-8") + '\n_PROBE = text("UPDATE trial_cost_comparison_revision '
+                        'SET state = :s WHERE id = :i")\n', encoding="utf-8")
+    found = failures(isolated_copy(update))
+    assert any("trial cost-check store never updates" in line or "insert-only" in line for line in found), found
+
+
+def test_trial_comparison_foreign_write_rejected() -> None:
+    body = ('"""Guard probe: a second writer of the cost-check table."""\n\nfrom sqlalchemy import text\n\n'
+            '_PROBE = text("INSERT INTO trial_cost_comparison_revision (id) VALUES (:i)")\n')
+    found = failures(with_probe(TRIAL_FOREIGN, body))
+    assert any(TRIAL_FOREIGN in line for line in found), found

@@ -108,7 +108,8 @@ SYNTHETIC_ASSET = {"battery_soc": "bat", "pv_available_power": "inv", "generator
 
 
 def complete_windows(monkeypatch, h, *, baseline_soc: str = "50", later_soc: str = "50",
-                     inject: set | None = None) -> None:
+                     inject: set | None = None, baseline_gen_kw: str = "20", later_gen_kw: str = "20",
+                     baseline_load_kw: str = "10", later_load_kw: str = "10") -> None:
     """TEST-SCOPED: complete twelve-slot windows (labelled authored source) in place of the roles-2 Site's real,
     never-complete evidence. Currentness, plans, bindings, outcomes, events and the trial lock stay real.
 
@@ -117,9 +118,11 @@ def complete_windows(monkeypatch, h, *, baseline_soc: str = "50", later_soc: str
     can materially change a window the way it would on a complete Site."""
     def fake(start, readings, *, load_asset_ids, critical_load_asset_id, reserves, battery_asset_id=None,
              role_assets=None):
-        soc = baseline_soc if start.date() < datetime(2026, 11, 2).date() else later_soc
+        early = start.date() < datetime(2026, 11, 2).date()
+        soc = baseline_soc if early else later_soc
+        gen_kw, load_kw = (baseline_gen_kw, baseline_load_kw) if early else (later_gen_kw, later_load_kw)
         synthetic = [replace(r, id=f"test-scoped-{start:%Y%m%dT%H%M}-{i:03d}")
-                     for i, r in enumerate(full_window(start, soc=soc))]
+                     for i, r in enumerate(full_window(start, soc=soc, gen_kw=gen_kw, load_kw=load_kw))]
         allowed = {role: set(ids) for role, ids in (role_assets or {}).items()}
         if battery_asset_id is not None:
             allowed["battery_soc"] = {str(battery_asset_id)}
@@ -131,7 +134,8 @@ def complete_windows(monkeypatch, h, *, baseline_soc: str = "50", later_soc: str
     monkeypatch.setattr(vr, "window_evidence", fake)
     real = verification_ports(URL)
     h.service.verification_ports = VerificationPorts(day_status=real.day_status,
-                                                     provenance=lambda t, s, ids: dict(AUTHORED))
+                                                     provenance=lambda t, s, ids: dict(AUTHORED),
+                                                     trial_comparison=real.trial_comparison)
 
 
 def caught_up(runner, h, after: datetime) -> None:

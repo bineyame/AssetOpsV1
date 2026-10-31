@@ -35,7 +35,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 UTC = timezone.utc
-CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn", "estate")
+CASES = ("target_miss", "guardrail", "inconclusive", "withdrawn", "estate", "verified")
 TEST_SCOPED = "TEST-SCOPED example (S6-02a evaluator builders over a roles-2 Site; not a Lab run)"
 LABELS = {
     "target_miss": "Target not met (INEFFECTIVE, TARGET_MISS) - authored complete windows",
@@ -46,7 +46,11 @@ LABELS = {
                  "authored complete windows plus the real late reading",
     "estate": "Portfolio placement (CC-R2): the unconfirmed Finding on test-scoped readings; source not resolved, "
               "no Action",
+    "verified": "VERIFIED with the cost check (OUT-E): authored complete windows, generator 40 then 28 kWh, feeder "
+                "120 then 126 kWh, diesel price v1; stops at the first VERIFIED evaluation",
 }
+#: OUT-E E3: the `verified` case's authored window powers (build sheet E3; design spec "Authored windows").
+VERIFIED_WINDOWS = {"baseline_gen_kw": "40", "later_gen_kw": "28", "baseline_load_kw": "60", "later_load_kw": "63"}
 #: CC-R2-Q6 ruling: the one-day Portfolio read the `estate` case asserts and captures (supersedes F1's 31 days).
 ESTATE_PORTFOLIO = "/api/estate/portfolio?from=2026-10-21T00:00:00Z&to=2026-10-22T00:00:00Z"
 #: CC-R2-Q6 ruling: the MG-B day, asserted only (rule 1 hides its recurrence: source not resolved).
@@ -69,7 +73,7 @@ def window_fake(params: dict) -> None:
             verification_ports = None
 
     ev.complete_windows(Patch(), H, baseline_soc=params["baseline_soc"], later_soc=params["later_soc"],
-                        inject=set(params["inject"]))
+                        inject=set(params["inject"]), **{k: params[k] for k in VERIFIED_WINDOWS if k in params})
     ports = H.service.verification_ports
     import assetops_backend.actions.composition as composition
 
@@ -132,6 +136,17 @@ def build(url: str, work: Path, case: str) -> None:
             outcome = ev.evaluate(h, action_id, "eval-0003").json()["outcome"]
             assert outcome["outcome"] == "INCONCLUSIVE", outcome
             out["expect"] = {"current_state": "INCONCLUSIVE", "outcome": "INCONCLUSIVE", "label": "Could not conclude"}
+        elif case == "verified":  # OUT-E E3: the `withdrawn` steps up to its first VERIFIED evaluation, no further
+            publish_price_v1(url)
+            fake |= VERIFIED_WINDOWS
+            ev.complete_windows(Patch(), h, **VERIFIED_WINDOWS)
+            action_id, plan, _ = ev.bound_plan(runner, h)
+            h.clock.at = ev.CLOSED + timedelta(hours=1)
+            outcome = ev.evaluate(h, action_id, "eval-0001").json()["outcome"]
+            assert outcome["outcome"] == "VERIFIED", outcome
+            out["windows"] = {name: {"start": plan[f"{name}_start"], "end": plan[f"{name}_end"]}
+                              for name in ("baseline", "later")}
+            out["expect"] = {"current_state": "VERIFIED", "outcome": "VERIFIED", "resolution": ["RESOLVED"]}
         elif case == "estate":  # CC-R2-Q6 ruling: no Action, plan or evaluation in this case
             action_id, plan, outcome = None, None, {"outcome_id": None, "reasons": [], "outcome": None}
             out["expect"] = None
@@ -195,6 +210,11 @@ def estate_findings(runner, url: str, S4: dict) -> None:
                 break
     else:
         raise SystemExit("S4 F05 has no UNCONFIRMED match step")
+    publish_price_v1(url)
+
+
+def publish_price_v1(url: str) -> None:
+    """Diesel price v1 (build spec CC-D2 "Price": one revision, 1.25 USD/L, covers both verification windows)."""
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.publish_assumption import main as publish
 

@@ -12,6 +12,7 @@ response labels the subject a simulated/authored policy trial: no causal or savi
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from fractions import Fraction
@@ -41,6 +42,11 @@ NON_DEMO_FIXTURE = "non-demo-evaluation"
 CURRENT = "CURRENT"
 PENDING_STATE, REASSESSMENT_PENDING, SETTLED = "PENDING", "REASSESSMENT_PENDING", "SETTLED"
 FINAL = (rules.VERIFIED, rules.INEFFECTIVE)
+#: OUT-E E3: a newly inserted outcome of these kinds gets one cost-check revision (INCONCLUSIVE: not calculated)
+COST_CHECK_OUTCOMES = (rules.VERIFIED, rules.INEFFECTIVE, rules.INCONCLUSIVE)
+COST_CHECK_COMMAND = "trial-cost-check/auto"
+COST_CHECK_SOURCE = "Generator stop setting changed; no direct cost declared"
+LOG = logging.getLogger(__name__)
 
 
 @dataclass
@@ -53,6 +59,8 @@ class VerificationPorts:
 
     day_status: Callable[[UUID, UUID, date], dict[str, Any]] | None = None
     provenance: Callable[[UUID, UUID, list[str]], dict[str, Any]] | None = None
+    #: OUT-E E3: `financials.composition.TrialComparisonPorts` (store + price_selection); None: no cost check
+    trial_comparison: Any = None
 
 
 def _wire(value: Any) -> Any:
@@ -851,9 +859,80 @@ class VerificationService:
                                 "withdrawn": result.get("withdrawn", False), "resolved": result.get("resolved", False),
                                 "outcome": None}
         if result.get("outcome") is not None:
+            if result.get("new_outcome") and result["outcome"]["outcome"] in COST_CHECK_OUTCOMES:
+                self._after_new_outcome(tenant_id, site_id, head, result["outcome"], request)
             body["outcome"] = self._outcome_wire(result["outcome"], site_code)
             return (201 if result.get("new_outcome") else 200), body
         return 200, body
+
+    # ---- OUT-E E3: the cost check after a final outcome (hook only; no route) ---------------------------------
+
+    def _replay(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any],
+                outcome: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+        """The evaluator's own windows, comparability and source pair at `known_at = outcome.recorded_at`."""
+        windows = self._windows(tenant_id, site_id, plan, outcome["recorded_at"])
+        comparable = rules.comparability(windows["baseline"], windows["later"])
+        provenance = self._ports().provenance
+        sources = {name: None if provenance is None or not w["evidence_ids"] else _source_wire(
+            provenance(tenant_id, site_id, list(w["evidence_ids"]))) for name, w in windows.items()}
+        return windows, comparable, rules.source_pair(sources["baseline"], sources["later"])
+
+    def _cost_check(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], outcome: dict[str, Any],
+                    request: dict[str, Any]) -> dict[str, Any] | None:
+        """Compute and append the modelled cost check of one newly inserted final outcome, in its own transaction,
+        with the evaluation's SYSTEM demo actor and key `auto:{outcome_id}`. Never touches the outcome."""
+        ports = self._ports().trial_comparison
+        if ports is None:
+            return None
+        from assetops_backend.financials import trial_fuel_comparison as tfc
+
+        windows, comparable, source = self._replay(tenant_id, site_id, plan, outcome)
+        basis = outcome["basis"]
+
+        def facts(name: str) -> Any:
+            w = windows[name]
+            return tfc.WindowFacts(tuple(w["evidence_ids"]), bool(w["complete"]),
+                                   rules.parse_exact(w.get("generator_kwh")),
+                                   rules.parse_exact(w.get("feeder_demand_kwh")), plan[f"{name}_start"],
+                                   plan[f"{name}_end"])
+
+        facts_out = tfc.OutcomeFacts(str(outcome["id"]), str(plan["id"]), str(basis["origin_finding_revision_id"]),
+                                     outcome["outcome"], {n: tuple(basis["evidence_ids"].get(n) or ())
+                                                          for n in tfc.WINDOWS},
+                                     comparable["state"], source["state"])
+        now = self.clock()
+        generators = list((plan["basis"].get("baseline_bindings") or {}).get("role_assets", {})
+                          .get("generator_power") or [])
+        sfc = [] if len(generators) != 1 else self.store.sfc_history(
+            tenant_id, site_id, generators[0], plan["baseline_start"], plan["later_end"], now)
+        prices = tuple(ports.price_selection(tenant_id, site_id, plan[f"{n}_start"], plan[f"{n}_end"], now)
+                       for n in tfc.WINDOWS)
+        cost = tfc.InterventionCost(Fraction(0), None, COST_CHECK_SOURCE)
+        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost)
+        key = f"auto:{outcome['id']}"
+        payload = {"command": COST_CHECK_COMMAND, "action_id": str(outcome["action_id"]),
+                   "outcome_id": str(outcome["id"]), "idempotency_key": key,
+                   "intervention_cost": result["intervention_cost"]}
+        row = {"tenant_id": tenant_id, "site_id": site_id, "action_id": outcome["action_id"],
+               "verification_outcome_id": outcome["id"], "formula": result["formula"], "state": result["state"],
+               "reason": result["reason"], "result": result, "intervention_cost": result["intervention_cost"],
+               "price_revision_id": None if result["price"] is None else result["price"]["revision_id"],
+               "basis_sha256": result["basis_sha256"], "actor_kind": request["actor_kind"],
+               "actor_id": request["actor_id"], "source_channel": request["source_channel"],
+               "authorization_basis": request["authorization_basis"],
+               "triggering_service": request["triggering_service"],
+               "triggering_fixture": request["triggering_fixture"], "idempotency_key": key,
+               "payload_sha256": reserve_trial.sha(payload)}
+        stored, _ = ports.store.append(row)
+        return stored
+
+    def _after_new_outcome(self, tenant_id: UUID, site_id: UUID, plan: dict[str, Any], outcome: dict[str, Any],
+                           request: dict[str, Any]) -> None:
+        """Any failure appends nothing and is logged; the recorded outcome is never rolled back."""
+        try:
+            self._cost_check(tenant_id, site_id, plan, outcome, request)
+        except Exception:  # noqa: BLE001 - the cost check never undoes or fails the evaluation
+            LOG.exception("Cost check after outcome %s was not recorded", outcome.get("id"))
 
     # ---- current state, outcome and history reads ---------------------------------------------------------------
 
