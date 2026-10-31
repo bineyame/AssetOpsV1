@@ -37,6 +37,6 @@ withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` w
 1. On coordinator go: captures 390/1440 via `tools/s404_finding_index_walkthrough.py prepare|serve` (API 8934, web
    5434); Findings page window [10-15, 10-31) PARTIAL; mini board line if the producer serves the board. Else record
    "layout evidence: not run".
-2. On coordinator go: full `npx vitest run` (known: 3 w1f4 tests), then `toolsun-backend-suite-in-container.ps1
+2. On coordinator go: full `npx vitest run` (known: 3 w1f4 tests), then `tools\run-backend-suite-in-container.ps1
    -Tier all` (keep-awake, cap 2x ~41 min). Record command, revision, wall, JUnit counts in the packet.
 3. Fill the packet's PENDING lines; task Status -> in_review; CODE_STATE/ACTIVE_CONTEXT -> in_review; commit.
