@@ -17,8 +17,10 @@ this child swaps, in its own process only (the w601 module-swap pattern, `tools/
 - `Chain.attest`'s one-epoch-per-Site assertion, re-checked for this day's epoch only (several days share the Site);
 - the w504 `E_START`/`E_END` constants for the reads after the replay.
 
-Work rows on the `fault` day (w504 `_declare`, connector visits and plan from `story.json` `ev`): see the phase
-handoff; not wired yet.
+Work rows on the `fault` day only (DEMO-COMBINED U5): w504 `_declare` (`tools/w504_ev_work_walkthrough.py:214`,
+mode `positive`: K0 over the day's E, the positive Action raised at DB now and its intent), then `story.json` `ev`
+`visits` (two completed "Connector inspection" visits) and `plans` ("Connector inspection", due S-6 d) through the
+work service on the selected session's connector asset, the asset the CONNECTOR fault row names (CO-10/CO-11, R569).
 """
 
 from __future__ import annotations
@@ -97,7 +99,64 @@ def _restore(registered, P, saved: dict) -> None:
     registered.RunSetupService = saved["_RunSetupService"]
 
 
-def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime) -> dict:
+def write_work(url: str, built, story: dict, asset_id: str, tag: str) -> dict:
+    """The fault day's connector visits and plan (`story.json` `ev`), the Kobo child's `write_work` pattern."""
+    from test_w401_work_service_postgres import PRINCIPAL, event, plan, record, request
+    from assetops_backend.work.composition import build_work_service
+
+    e = story["ev"]
+    tenant, site = built.tenant_id, built.site_id
+    work = build_work_service(url)
+    out = {"asset_id": asset_id, "visits": [], "plans": []}
+    try:
+        for v in e["visits"]:
+            when, key = at(v["at"]), f"demo3-ev-{v['key']}-{tag}"
+            s, case = work.create_case(tenant, site, request(key, title=v["title"], occurred_at=iso(when),
+                                                             asset_id=asset_id, finding_links=[]), PRINCIPAL)
+            assert s == 201, (v["key"], s, case)
+            s, rec = work.post_record(tenant, site, case["id"], record(
+                f"{key}-rec", activity=v["title"], occurred_at=iso(when + timedelta(minutes=20)),
+                outcome_note=v["note"]), PRINCIPAL)
+            assert s == 201, (v["key"], s, rec)
+            s, a = work.post_event(tenant, site, case["id"], event(
+                "ASSIGN", {"assignee": "Charging technician"}, f"{key}-assign",
+                occurred_at=iso(when + timedelta(minutes=21))), PRINCIPAL)
+            assert s == 201, (v["key"], s, a)
+            s, c = work.post_event(tenant, site, case["id"], event(
+                "COMPLETE", {"maintenance_record_id": rec["id"]}, f"{key}-complete",
+                occurred_at=iso(when + timedelta(minutes=22))), PRINCIPAL)
+            assert s == 201 and c["state"] == "COMPLETED", (v["key"], s, c)
+            out["visits"].append({"key": v["key"], "id": case["id"], "code": case.get("code"),
+                                  "record_id": rec["id"], "occurred_at": iso(when)})
+        for p in e["plans"]:
+            s, pl = work.post_plan(tenant, site, plan(
+                f"demo3-ev-{p['key']}-{tag}", asset_id=asset_id, title=p["title"], trigger_kind=p["trigger_kind"],
+                next_due_at=p["due_at"], next_due_hours=p["due_hours"], occurred_at=p["at"]), PRINCIPAL)
+            assert s == 201, (p["key"], s, pl)
+            out["plans"].append({"key": p["key"], "id": str(pl.get("canonical_plan_id") or pl.get("id")),
+                                 "title": p["title"], "due_at": p["due_at"]})
+    finally:
+        work._store.dispose()
+    return out
+
+
+def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: dict) -> dict:
+    """The fault day's w504 positive Action + intent, then the connector visits and plan on its connector."""
+    import w504_ev_work_walkthrough as W
+
+    tag = f"demo3-{day.epoch}"
+    declared = W._declare(url, "positive", tag, replayed)
+    asset_id = declared["selection"]["connector_asset_id"]
+    if not asset_id:
+        raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")
+    return {"action": {"id": declared["action"]["id"], "code": declared["action"].get("code"),
+                       "raised_at": declared["R"]}, "intent_id": declared["intent"].get("id"),
+            "finding_id": declared["selection"]["finding_id"],
+            "finding_revision_id": declared["selection"]["finding_revision_id"],
+            "work": write_work(url, built, story, asset_id, tag)}
+
+
+def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: dict | None = None) -> dict:
     """One EV story day: the registered replay on the day's window (the `native_replay` body)."""
     from collections import Counter
 
@@ -138,9 +197,12 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime) -> dict
             select_exact(built, P.E_START, P.E_END)
             decisions = Counter(d[1] for b in built.batches() for d in b["dispositions"])
             assert decisions.get("ACCEPTED"), dict(decisions)
-            return {"run_id": str(built.run.run_id), "scenario_id": scenario_id, "case": case,
-                    "evidence_window": {"from": iso(P.E_START), "to": iso(P.E_END)},
-                    "dispositions": dict(decisions), "worker_outcomes": len(outcomes)}
+            got = {"run_id": str(built.run.run_id), "scenario_id": scenario_id, "case": case,
+                   "evidence_window": {"from": iso(P.E_START), "to": iso(P.E_END)},
+                   "dispositions": dict(decisions), "worker_outcomes": len(outcomes)}
+            if day.kind == "fault" and story is not None:
+                got["fault_day"] = declare_and_work(url, built, story, day, dict(got))
+            return got
         finally:
             built.close()
     finally:
@@ -159,7 +221,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                  "epoch": day.epoch, "received_at": iso(day.received_at) if day.received_at else None,
                  "run_id": None}
         if day.has_run:
-            entry.update(run_day(url, tmp, day, install_at))
+            entry.update(run_day(url, tmp, day, install_at, story))
         entry["status_after_build"] = "ASSESSED" if day.has_run else "NO_RUN"
         records.append(entry)
         print("ev day", day.day, day.kind, entry.get("run_id"), flush=True)
