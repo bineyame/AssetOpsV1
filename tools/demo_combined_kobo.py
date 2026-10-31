@@ -42,6 +42,38 @@ def resolved_manifest(base: dict, story: dict) -> dict:
     return M
 
 
+#: Q1 ruling (`.agent/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
+#: commissioning instead of their build dates; values byte-identical, only `effective_from` moves.
+CONFIG_OFFSETS = {"properties": timedelta(minutes=10), "roles2": timedelta(minutes=10),
+                  "roles3": timedelta(minutes=20), "known": timedelta(minutes=30)}
+
+
+def configure_at(store, result, install_at: datetime) -> dict:
+    """`pub.configure` on the story calendar: S3 demo configuration (generator values + roles-2) at install + 10 min,
+    the S6 verification configuration (roles-3) at install + 20 min, both recorded at install + 30 min."""
+    import test_s6_verification_publication as pub
+    from assetops_backend.sites.binding_service import BindingService
+    from assetops_backend.sites.demo_configuration import apply_demo_configuration
+
+    s3, ver = copy.deepcopy(pub.S3_DEMO), copy.deepcopy(pub.VERIFICATION)
+    s3["component_properties"]["effective_from"] = iso(install_at + CONFIG_OFFSETS["properties"])
+    s3["bindings"]["effective_from"] = iso(install_at + CONFIG_OFFSETS["roles2"])
+    ver["component_properties"]["effective_from"] = iso(install_at + CONFIG_OFFSETS["properties"])
+    ver["bindings"]["effective_from"] = iso(install_at + CONFIG_OFFSETS["roles3"])
+    for doc, base in ((s3, pub.S3_DEMO), (ver, pub.VERIFICATION)):
+        assert doc["status"] == base["status"] and doc["status"].startswith("SIMULATED DEMO CONFIGURATION")
+    clock = pub.registered.Clock(install_at + CONFIG_OFFSETS["known"])
+    foundation, bindings = pub.registered.FoundationService(store, "demo", clock), BindingService(store, clock)
+    apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, s3)
+    applied = apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, ver)
+    assert applied.periods[-1]["role_set"] == "minigrid-roles-3"
+    return {"labels": [s3["label"], ver["label"]],
+            "properties_effective_from": s3["component_properties"]["effective_from"],
+            "roles2_effective_from": s3["bindings"]["effective_from"],
+            "roles3_effective_from": ver["bindings"]["effective_from"],
+            "recorded_at": iso(install_at + CONFIG_OFFSETS["known"])}
+
+
 def publish_price(url: str, recorded_at: datetime) -> None:
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.publish_assumption import main as publish
