@@ -369,3 +369,28 @@ day's run readings, stop and report: that would mean a run is split across days.
   `OPEN_BOUND`, from the interval starting at 03:05). The trial stays on (a), 0 USD shown, R617 stands, and there are
   no further tries. CO-1: ACT-000001 does appear in the Cost row's `earlier` list; only the Must-not-harm/link part
   waits on the owner's lineage decision (ruling 2).
+
+## Addendum 4 · SP-7 rebuild comparison on a weekday-bound Site (Architect: Claude, 2026-10-31; DEMO-A head `8a5ccb5e1`)
+
+- **Ruling: option (1). The shift is correct behaviour; SP-7's text is amended, no product code, story input or
+  number changes.** SP-7 predates Addendum 1 (a). Under R619 an EV day is the Tuesday on or before its listed day, so
+  its resolved offset depends on S's weekday by design. The invariant SP-7 protects is "the same day list gives the
+  same story on any S", and for a weekday-bound Site that means the same listed entries and kinds, each placed by the rule.
+- **Amended SP-7 rebuild comparison** (rebuild on S' = S + 1 d, as now):
+  - Sites without a ruled weekday (Kobo, cold): unchanged. Same `(site, offset, kind)` sequence, every date moved by
+    exactly 1 day.
+  - Sites in `demo_story_days.SITE_WEEKDAY` (today EV only; key on that map, never on the literal `"ev"`): pair the
+    resolved days with that Site's entries in `demo-story-days-v1.json` in order. Assert the same `(site, listed day,
+    kind)` sequence on both S, and for each resolved day on S': its date's weekday is `SITE_WEEKDAY[site]`; it lies in
+    `(S' + listed − 7 d, S' + listed]`; and its offset equals `weekday_offset(site, S', day_offset(listed))`. Assert the
+    same three facts on the first S too. The test computes the expected values and holds no literal dates or offsets.
+  - The 1-day move assertion is restricted to the non-weekday Sites.
+- **Recorded, not forced:** EV's resolved dates may stay put (10-20 / 10-27 here) or jump a week when S crosses a
+  Tuesday. Both are correct. Work rows keep their offsets relative to the EV day (Addendum 1 (a)), so nothing more is checked.
+- **Harness fix `362cfe5cf`: acceptable in principle.** Reading rows through a `finish check` / `finish get` child inside
+  the private tree makes the test read the same file stores the dataset was built with. That is the same reader the
+  prepare's own self-check uses, not a weaker one. Releasing `.busy` after `Demo.prepare()` matches the tool's `main`.
+  The reviewer confirms three things: no assertion was loosened; a child's non-zero exit or unparseable output fails
+  the row; `.busy` is released in a `finally` that cannot hide a prepare failure.
+- **Then:** the implementer amends only SP-7's rebuild comparison as above, reruns the slow build test once (it gates the
+  `-Tier all` run the brief stopped on), and records the amended SP-7 text in the packet. R619 stands as written.
