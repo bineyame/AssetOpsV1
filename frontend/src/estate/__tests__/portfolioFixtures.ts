@@ -4,6 +4,7 @@
  */
 import type {
   EstateClient,
+  EstateCoverageDays,
   EstateCoverageSite,
   EstateOutcomeSummaryBody,
   EstateOutcomeSummaryRow,
@@ -33,6 +34,37 @@ export function coverageSite(siteId: string, state: EstateCoverageSite["state"] 
     job_state: "SETTLED",
     source_freshness: "FRESH",
   };
+}
+
+/** COV-PARTIAL: the backend `days` block of a partly checked mini-grid Site (text from the backend template). */
+export function partialDays(gaps: string[], requested = 7, withheld = false): EstateCoverageDays {
+  const checked = requested - gaps.length;
+  const text = `${checked} of ${requested} days checked · ${gaps.length} ${gaps.length === 1 ? "day" : "days"} not available yet`;
+  return {
+    policy: "estate-coverage/2",
+    requested,
+    checked,
+    gaps: gaps.map((day) => ({ day, state: "UNASSESSED", reason: "NO_ASSESSED_SELECTION" })),
+    withheld,
+    text: withheld ? `${text}; Findings next to those days are not shown yet` : text,
+  };
+}
+
+/** A week-long Portfolio body whose mini-grid Site (Kobo) is partly checked on the given gap days. */
+export function partialBody(gaps: string[] = ["2026-10-11", "2026-10-12"], requested = 7): EstatePortfolioBody {
+  const base = portfolioBody();
+  const kobo = { ...coverageSite(SITES[0].site_id, "PARTIAL"), days: partialDays(gaps, requested) };
+  return portfolioBody({
+    status: "PARTIAL",
+    window: { ...base.window, from: "2026-10-06T00:00:00Z", to: "2026-10-13T00:00:00Z" },
+    coverage: { ...base.coverage, state: "PARTIAL", finding_state: "PARTIAL", sites: [kobo, ...base.coverage.sites.slice(1)] },
+    scope_disclosure: {
+      ...base.scope_disclosure,
+      sites: base.scope_disclosure.sites.map((s, i) => (i === 0 ? { ...s, coverage: kobo } : s)),
+    },
+    // the backend sends no amount for a partly checked Site's row (C6)
+    rows: [COLD_ROW, row({ consequence: { ...row().consequence, state: "UNKNOWN", amount: null, amount_low: null, amount_high: null, currency: null } })],
+  });
 }
 
 export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow {
@@ -247,6 +279,7 @@ export function portfolioBody(over: Partial<EstatePortfolioBody> = {}): EstatePo
 /** One typed body per Portfolio status (r0a L3: all five values). */
 export const STATUS_BODIES: Record<EstatePortfolioStatus, EstatePortfolioBody> = {
   CURRENT: portfolioBody(),
+  PARTIAL: partialBody(),
   HISTORICAL: portfolioBody({ status: "HISTORICAL", window: { from: "2026-10-06T00:00:00Z", to: "2026-10-07T00:00:00Z", bounds: "[from,to)", known_at: "2026-09-30T00:00:00Z" } }),
   PENDING: portfolioBody({ status: "PENDING", coverage: { ...portfolioBody().coverage, state: "PARTIAL", money_state: "PARTIAL", sites: SITES.map((s, i) => coverageSite(s.site_id, i === 1 ? "PENDING_RECOMPUTE" : "CURRENT")) } }),
   UNKNOWN: portfolioBody({ status: "UNKNOWN", coverage: { ...portfolioBody().coverage, state: "PARTIAL", finding_state: "PARTIAL", sites: SITES.map((s, i) => coverageSite(s.site_id, i === 3 ? "UNKNOWN" : "CURRENT")) } }),

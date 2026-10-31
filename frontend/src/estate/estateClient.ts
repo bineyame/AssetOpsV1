@@ -22,7 +22,8 @@ export type EstateSiteState =
   | "STALE_SOURCE"
   | "HISTORICAL"
   | "UNKNOWN"
-  | "NOT_APPLICABLE";
+  | "NOT_APPLICABLE"
+  | "PARTIAL";
 export type EstateLifecycle = "SUPPORTED" | "UNCONFIRMED" | "NO_LONGER_SUPPORTED" | "MERGED";
 
 /** The public provenance block (shared DTO, `D-2026-10-20-shared-provenance-dto`); read by `sourceProvenance.tsx`. */
@@ -44,6 +45,18 @@ export interface EstateCoverageSite {
   match_state: string;
   job_state: string;
   source_freshness: string;
+  /** COV-PARTIAL (`estate-coverage/2`): mini-grid day coverage; null for cold, EV and Actions. */
+  days?: EstateCoverageDays | null;
+}
+
+/** COV-PARTIAL: the checked and unchecked days of one mini-grid Site's period; `text` only when PARTIAL. */
+export interface EstateCoverageDays {
+  policy: string;
+  requested: number;
+  checked: number;
+  gaps: { day: string; state: string; reason: string }[];
+  withheld: boolean;
+  text: string | null;
 }
 
 export interface EstateEnvelope {
@@ -155,7 +168,7 @@ export interface EstateScopeBody {
  */
 export const PORTFOLIO_SCHEMA = "estate-portfolio-1";
 
-export type EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "UNKNOWN" | "EMPTY_SCOPE";
+export type EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "PARTIAL" | "UNKNOWN" | "EMPTY_SCOPE";
 export type EstateRootCoverageState = "EMPTY" | "COMPLETE" | "PARTIAL" | "UNKNOWN";
 export type EstateDomain = "MINIGRID" | "COLDCHAIN" | "EV_CHARGING";
 export type EstateApplicationState = "NONE_AT_CUTOFF" | "PENDING" | "APPLIED";

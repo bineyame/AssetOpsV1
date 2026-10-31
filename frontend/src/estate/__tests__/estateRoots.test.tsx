@@ -685,6 +685,63 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     actionsView.unmount();
   });
 
+  // COV-PARTIAL U3 (MOCK DEVIATION R622): a partly checked Site is named with its days; never a total or an amount.
+  it("partlyCheckedSiteNamesItsDaysOnEveryLens", async () => {
+    const days = {
+      policy: "estate-coverage/2",
+      requested: 7,
+      checked: 5,
+      gaps: [
+        { day: "2026-10-18", state: "UNASSESSED", reason: "NO_ASSESSED_SELECTION" },
+        { day: "2026-10-19", state: "UNASSESSED", reason: "NO_ASSESSED_SELECTION" },
+      ],
+      withheld: false,
+      text: "5 of 7 days checked · 2 days not available yet",
+    };
+    const kobo = { ...site(SITE_A, "PARTIAL"), selection_id: "sel-a", days };
+    const scope = scopeBody([
+      [SITE_A, "Kobo Mini-grid"],
+      [SITE_B, "Cold Store"],
+    ]);
+    const rows = [
+      findingRow(1, {
+        status: "PARTIAL",
+        consequence: { state: "UNKNOWN", amount: null, amount_low: null, amount_high: null, currency: null, source_revision_id: "c1" },
+      }),
+    ];
+    const body = (lens: EstateLens) =>
+      findingsBody(lens, {
+        rows,
+        status: "UNKNOWN",
+        coverage: { state: "PARTIAL", sites: [kobo, { ...site(SITE_B, "CURRENT"), selection_id: "sel-b" }] },
+        total_count: null,
+        summary: { ...findingsBody(lens).summary, supported_findings: null, awaiting_verification: null },
+      });
+    for (const lens of LENSES) {
+      const client = fakeClient((l) => loaded(body(l)), undefined, loaded(scope));
+      const view = renderAt(`${ESTATE_FINDING_LENS_PATHS[lens]}?${WINDOW}`, client);
+      await settledScreen();
+      expect(Array.from(main().querySelectorAll("[data-estate-partial]")).map((p) => p.textContent)).toEqual([
+        "Kobo Mini-grid is partly checked; totals are unknown.",
+      ]);
+      expect(Array.from(main().querySelectorAll(".estate-limitation__line")).map((l) => l.textContent?.trim())).toEqual([
+        "Kobo Mini-grid: 5 of 7 days checked · 2 days not available yet.",
+      ]);
+      const tr = main().querySelector("tbody tr") as HTMLElement;
+      expect(tr.querySelector("[data-estate-site-state='PARTIAL']")?.textContent).toBe("Some days not checked yet");
+      expect(tr.querySelector("[data-estate-consequence]")?.textContent).toBe("Partly checked · Value withheld");
+      expect(main().textContent).not.toMatch(/PARTIAL|UNASSESSED|estate-coverage/);
+      view.unmount();
+    }
+    // A failed scope read keeps the generic lines plus the partly checked sentence.
+    const generic = fakeClient((l) => loaded(body(l)));
+    const view = renderAt(`/findings?${WINDOW}`, generic);
+    await settledScreen();
+    expect(main().textContent).toContain("Some sites have days not checked yet.");
+    expect(main().textContent).toContain("Some sites are not yet assessed; estate totals are unknown.");
+    view.unmount();
+  });
+
   it("refusedWindowOnFindingsAndActionsUsesTheSharedSentences", async () => {
     // Q14: classified from the page query; the window line says `Window not valid` without echoing the dates.
     const cases: [string, string][] = [

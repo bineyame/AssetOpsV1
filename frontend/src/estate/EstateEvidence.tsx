@@ -79,6 +79,7 @@ const CONTEXT_WORDS: Readonly<Record<string, { text: string; tone: string }>> = 
   STALE_SOURCE: { text: "May miss newer readings", tone: "amber" },
   UNASSESSED: { text: "Not assessed", tone: "gray" },
   UNKNOWN: { text: "Not assessed", tone: "gray" },
+  PARTIAL: { text: "Some days not checked yet", tone: "amber" },
 };
 
 export function historicalAsOf(instant: string): string {

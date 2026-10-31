@@ -4,6 +4,7 @@
  * mock position and says so.
  */
 import type {
+  EstateCoverageDays,
   EstateDomain,
   EstatePortfolioBody,
   EstatePortfolioExclusion,
@@ -101,6 +102,8 @@ export function contextWords(status: EstatePortfolioStatus, knownAt: string): { 
       return { badge: `Historical as of ${dayMinute(knownAt)}`, tone: "blue", sentence: "Portfolio: Historical selection" };
     case "PENDING":
       return { badge: "Updating selected Sites", tone: "amber", sentence: "Portfolio: Some Sites unavailable" };
+    case "PARTIAL":
+      return { badge: "Some days not checked yet", tone: "amber", sentence: "Portfolio: Partly checked" };
     case "UNKNOWN":
       return { badge: "Some Sites cannot be compared yet", tone: "amber", sentence: "Portfolio: Some Sites unavailable" };
     default:
@@ -151,10 +154,18 @@ export const COVERAGE_STATE_WORDS: Readonly<Record<EstateSiteState, string>> = {
   HISTORICAL: "Earlier evidence cutoff",
   UNKNOWN: "Not yet assessed",
   NOT_APPLICABLE: "Not applicable",
+  PARTIAL: "Partly checked",
 };
 
 export function coverageStateWords(state: string): string {
   return COVERAGE_STATE_WORDS[state as EstateSiteState] ?? "Not yet assessed";
+}
+
+const GAP_DAY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+
+/** COV-PARTIAL: a partly checked Site's unchecked days as `26 Oct, 27 Oct` (UTC days, ascending as sent). */
+export function gapDayList(days: EstateCoverageDays | null | undefined): string {
+  return (days?.gaps ?? []).map((gap) => GAP_DAY.format(new Date(`${gap.day}T00:00:00Z`))).join(", ");
 }
 
 /** `{n} selected assessment(s)` or `No selected assessment`. */

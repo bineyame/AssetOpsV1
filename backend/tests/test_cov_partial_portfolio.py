@@ -191,6 +191,6 @@ def test_x2_partial_row_is_placed_on_the_not_covered_path(partial_estate) -> Non
     body = partial_estate("portfolio")
     rows = [r for r in body["rows"] if r.get("site_id") == str(MG)]
     assert rows
-    for r in rows:
-        placement = r.get("placement") or {}
-        assert placement.get("moved") in (None, False)
+    for r in rows:  # R5.6: the not-covered text, never a move into another group by coverage
+        assert "Site coverage incomplete; other Findings may be missing" in r["confidence_reasons"]
+        assert r["placement"]["group"] is not None

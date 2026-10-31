@@ -115,6 +115,10 @@ export function consequenceWords(consequence: EstateConsequence, rowStatus: stri
   if (consequence.state === "PRICED" && consequence.amount_low !== null && consequence.amount_high !== null) {
     return `${consequence.amount_low}–${consequence.amount_high} ${consequence.currency ?? ""}`.trim();
   }
+  // COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none).
+  if (rowStatus === "PARTIAL") {
+    return `Partly checked · ${consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "Value withheld"}`;
+  }
   if (consequence.source_revision_id === null) return "No consequence recorded";
   if (consequence.state === "UNPRICED") return "Unpriced";
   if (rowStatus === "HISTORICAL") return `Historical as of ${utcInstant(knownAt)}`;
@@ -238,7 +242,12 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
   const missing = body.coverage.sites.filter(
     (site) => !(site.state === "PENDING_RECOMPUTE" && site.selection_id !== null) && (site.state === "UNKNOWN" || site.selection_id === null),
   );
-  if ([...pending, ...missing].some((site) => !names.has(site.site_id))) return generic;
+  // COV-PARTIAL: partly checked Sites name their checked days from the backend's `days.text`.
+  const partial = body.coverage.sites.filter((site) => site.state === "PARTIAL" && site.days?.text);
+  if ([...pending, ...missing, ...partial].some((site) => !names.has(site.site_id))) return generic;
+  const partialNames = partial.map((site) => names.get(site.site_id));
+  const onlyPartial =
+    partial.length > 0 && body.coverage.sites.every((site) => ["CURRENT", "HISTORICAL", "NOT_APPLICABLE", "PARTIAL"].includes(site.state));
   const pendingNames = pending.map((site) => names.get(site.site_id)).join(", ");
   const missingNames = missing.map((site) => names.get(site.site_id)).join(", ");
   const panel: string[] = [];
@@ -247,6 +256,9 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
       panel.push(`Totals are unknown while new evidence for ${pendingNames} is assessed; ${pending.length === 1 ? "its" : "their"} rows are held until then.`);
     }
     if (missing.length > 0) panel.push(`${missingNames} has no selected result; totals are unknown.`);
+    if (partial.length > 0) {
+      panel.push(`${partialNames.join(", ")} ${partial.length === 1 ? "is" : "are"} partly checked; totals are unknown.`);
+    }
     if (panel.length === 0) panel.push(PARTIAL_TOTALS);
   }
   const states = new Set(body.coverage.sites.map((site) => site.state));
@@ -255,9 +267,10 @@ export function findingCauseCopy(body: EstateFindingsBody, scope: EstateScopeBod
   if (pending.length > 0) notice.push(`New evidence for ${pendingNames} is being assessed.`);
   else if (states.has("PENDING_RECOMPUTE")) notice.push(PENDING_EVIDENCE);
   if (states.has("STALE_SOURCE")) notice.push("Some sites' results may miss newer readings.");
+  partial.forEach((site, i) => notice.push(`${partialNames[i]}: ${site.days?.text}.`));
   if (body.coverage.state !== "COMPLETE") {
     if (missing.length > 0) notice.push(`${missingNames} is not yet assessed; estate totals are unknown.`);
-    else if (pending.length === 0) notice.push(PARTIAL_COVERAGE);
+    else if (pending.length === 0 && !onlyPartial) notice.push(PARTIAL_COVERAGE);
   }
   return { panel, notice };
 }
