@@ -73,6 +73,10 @@ PINNED_SCENARIO_FINGERPRINTS: dict[tuple[str, int], str] = {
     ("kobo-mini-grid-reserve-trial", 1): (
         "4e146c98622b3b6850fe8513984779d96b392028517ba9c4b4ba2f43a39bedb0"
     ),
+    # SCN-kobo-reserve-matters
+    ("kobo-mini-grid-reserve-matters", 1): (
+        "50f8be3ec4020e500c85041165a6911fb0d0678d04dda8652cbee46a3a59c956"
+    ),
     ("kobo-mini-grid-stop-60", 2): (
         "730b3e81bd4e5c3b1602fb62a3a45dff76668522d896ab37e5020c66f1866ebf"
     ),
@@ -140,7 +144,7 @@ def site_naming_failure(path_name: str, document: dict[str, Any]) -> str | None:
 
 def test_the_shipped_scenarios_were_found() -> None:
     documents = shipped_documents()
-    assert len(documents) == 13, [path.name for path, _ in documents]
+    assert len(documents) == 14, [path.name for path, _ in documents]
 
 
 def test_every_shipped_scenario_matches_its_pinned_fingerprint() -> None:
@@ -180,6 +184,7 @@ NEW_SINCE_T025G = {
     "kobo-s3-dispatch-degraded-reporting",
     "kobo-s3-dispatch-necessary-run",
     "kobo-mini-grid-reserve-trial",  # S6-02b
+    "kobo-mini-grid-reserve-matters",  # SCN-kobo-reserve-matters
 }
 
 

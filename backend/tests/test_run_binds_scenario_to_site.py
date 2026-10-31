@@ -207,6 +207,7 @@ def owner_shaped_copy(path: Path) -> dict:
 #: S3-01 phase 1 adds the s3-dispatch-cases-v1 degraded-reporting fixture, likewise.
 #: S3-01 phase 3 adds the s3-dispatch-cases-v1 necessary-run fixture, likewise.
 #: S6-02b adds the reserve-trial scenario (D-verification-window v2), likewise.
+#: SCN-kobo-reserve-matters adds the rainy-dawn reserve-trial scenario, likewise.
 NEVER_SHIPPED_AS_V1 = {
     "kobo-mini-grid-degraded-evidence",
     "kobo-daytime-delayed-publication",
@@ -214,6 +215,7 @@ NEVER_SHIPPED_AS_V1 = {
     "kobo-s3-dispatch-degraded-reporting",
     "kobo-s3-dispatch-necessary-run",
     "kobo-mini-grid-reserve-trial",
+    "kobo-mini-grid-reserve-matters",  # SCN-kobo-reserve-matters
 }
 
 #: W2-02: the registered cold Lab's `cold-scenario/1` documents are a separate strict type
