@@ -473,7 +473,22 @@ def run(url: str, work: Path) -> int:
     return 1 if failed else 0
 
 
+def get_once(url: str, work: Path, path: str, params: str) -> int:
+    """One GET through `host/lab_app.py` in this tree (the build test reads with the tree's file stores, which sit
+    under its own REPO_ROOT): prints one JSON line {"status_code", "body"}."""
+    r = app_client(url, work).get(path, params=json.loads(params))
+    try:
+        body = r.json()
+    except ValueError:
+        body = r.text[:2000]
+    print(json.dumps({"status_code": r.status_code, "body": body}, default=str))
+    return 0
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 4 or sys.argv[1] != "check":
-        raise SystemExit("usage: demo_combined_finish.py check <database-url> <work>")
-    raise SystemExit(run(sys.argv[2], Path(sys.argv[3])))
+    if len(sys.argv) == 4 and sys.argv[1] == "check":
+        raise SystemExit(run(sys.argv[2], Path(sys.argv[3])))
+    if len(sys.argv) == 6 and sys.argv[1] == "get":
+        raise SystemExit(get_once(sys.argv[2], Path(sys.argv[3]), sys.argv[4], sys.argv[5]))
+    raise SystemExit("usage: demo_combined_finish.py check <database-url> <work>; "
+                     "demo_combined_finish.py get <database-url> <work> <path> <params-json>")
