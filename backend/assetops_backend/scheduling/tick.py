@@ -1,6 +1,8 @@
-"""The bounded environment tick: S3 -> MINI -> OPPORTUNITY -> conditional S4 -> consequence drain per selected
-Site (S4-02d phase 1; W4-02 closure 4 S7 and q7 rulings 1-3 add the `mini` stage; W4-03 closure 4 S1 and the u3
-unit-4 dry-read add the `opportunity` stage).
+"""The bounded environment tick: S3 (s3, cold_assess, ev_assess) -> MINI -> OPPORTUNITY -> conditional S4 ->
+CONSEQUENCE (consequence, cold_consequence, ev_consequence) per selected Site (S4-02d phase 1; W4-02 closure 4 S7
+and q7 rulings 1-3 add the `mini` stage; W4-03 closure 4 S1 and the u3 unit-4 dry-read add the `opportunity` stage;
+FIX-COLD-DRAIN adds the cold/EV assessment children after `s3` and the cold/EV consequence drains after
+`consequence`, so cold and EV days are assessed and their money settles on the scheduled tick).
 
 One timer per environment invokes `ScheduleTick.tick()` (phase 2 installs it; this module installs nothing).
 A tick:
@@ -14,9 +16,10 @@ A tick:
    or opportunity jobs or pending consequence work (reported as `EXCLUDED_WITH_WORK` when it is not otherwise active, never discarded);
 4. visits at most `max_sites` of them in (tenant_id, site_id) order after the durable fair cursor, skipping a
    Site inside its schedule-level back-off (`RETRY_DUE`) and deferring the rest to later ticks;
-5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`, `mini`,
-   `opportunity`, `s4` and `consequence` stage children in that order, each killable at its wall-time bound with server-side
-   statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
+5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`,
+   `cold_assess`, `ev_assess`, `mini`, `opportunity`, `s4`, `consequence`, `cold_consequence` and `ev_consequence`
+   stage children in that order (the claim is re-checked before each child), each killable at its wall-time
+   bound with server-side statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
    and its back-off, then advances the cursor;
 6. finishes: success and heartbeat on completion; failure and back-off (no heartbeat) when discovery fails.
 
@@ -37,7 +40,11 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from assetops_backend.scheduling.ports import ScheduleStore
-from assetops_backend.scheduling.stages import MINI_JOB_LEASE_SECONDS, OPPORTUNITY_JOB_LEASE_SECONDS
+from assetops_backend.scheduling.stages import (
+    DOMAIN_JOB_LEASE_SECONDS,
+    MINI_JOB_LEASE_SECONDS,
+    OPPORTUNITY_JOB_LEASE_SECONDS,
+)
 
 EXCLUDED_LIFECYCLES = frozenset({"DECOMMISSIONED", "ARCHIVED"})
 S3_JOB_LEASE_SECONDS = 300  # DispatchAssessmentWorker's lease; the S3 stage bound must stay below it.
@@ -59,6 +66,9 @@ class TickLimits:
     opportunity_seconds: float = 120
     s4_seconds: float = 120
     consequence_seconds: float = 60
+    domain_jobs_per_site: int = 10  # FIX-COLD-DRAIN: cold and EV assessment jobs per Site, each domain
+    domain_assess_seconds: float = 120
+    domain_consequence_seconds: float = 60  # the cold/EV drains reuse `consequence_items_per_site`
     tick_seconds: float = 240
     statement_timeout_ms: int = 30_000
     lock_timeout_ms: int = 5_000
@@ -67,7 +77,7 @@ class TickLimits:
 
     def __post_init__(self) -> None:
         if min(self.max_sites, self.s3_jobs_per_site, self.mini_jobs_per_site, self.opportunity_jobs_per_site,
-               self.consequence_items_per_site) < 1:
+               self.consequence_items_per_site, self.domain_jobs_per_site) < 1:
             raise ValueError("Every per-tick bound is at least 1.")
         if self.s3_seconds >= S3_JOB_LEASE_SECONDS:
             raise ValueError("The S3 stage bound must be shorter than the five-minute S3 job lease.")
@@ -76,15 +86,20 @@ class TickLimits:
         if not 0 < self.opportunity_seconds < OPPORTUNITY_JOB_LEASE_SECONDS:
             raise ValueError("The OPPORTUNITY stage bound must be positive and shorter than the five-minute "
                              "opportunity job lease.")
+        if not 0 < self.domain_assess_seconds < DOMAIN_JOB_LEASE_SECONDS:
+            raise ValueError("The cold/EV assessment stage bound must be positive and shorter than the five-minute "
+                             "cold/EV job lease.")
         if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.mini_seconds,
                                                    self.opportunity_seconds, self.s4_seconds,
-                                                   self.consequence_seconds):
+                                                   self.consequence_seconds, self.domain_assess_seconds,
+                                                   self.domain_consequence_seconds):
             raise ValueError("The server statement timeout must be shorter than every stage bound.")
 
     @property
     def site_lease_seconds(self) -> float:
         return (self.s3_seconds + self.mini_seconds + self.opportunity_seconds + self.s4_seconds
-                + self.consequence_seconds + 60)
+                + self.consequence_seconds + 2 * self.domain_assess_seconds
+                + 2 * self.domain_consequence_seconds + 60)
 
     @property
     def tick_lease_seconds(self) -> float:
@@ -317,10 +332,27 @@ class ScheduleTick:
             return
         r3 = self.runner.run("s3", {**ids, "limit": self.limits.s3_jobs_per_site}, self.limits.s3_seconds)
         site.stages["s3"] = r3
-        if r3["code"] == "OK":
-            self.store.record_s3(t, s, token, int(r3["processed"]), int(r3["deferred"]))
+        processed = deferred = 0
+        recorded = r3["code"] == "OK"  # an all-failed S3 group leaves the head's S3 counts as they were
+        if recorded:
+            processed, deferred = int(r3["processed"]), int(r3["deferred"])
         else:
             failure = ("S3", r3["code"], str(r3.get("error")))
+        # FIX-COLD-DRAIN: the cold and EV assessment children, each under a re-checked claim; their counts are
+        # summed into the S3 head columns (no schema change), and a non-OK child adds 0 and keeps the first failure.
+        for name, marker in (("cold_assess", "COLD_ASSESS"), ("ev_assess", "EV_ASSESS")):
+            if not stage("S3"):
+                return
+            rd = self.runner.run(name, {**ids, "limit": self.limits.domain_jobs_per_site},
+                                 self.limits.domain_assess_seconds)
+            site.stages[name] = rd
+            if rd["code"] == "OK":
+                recorded = True
+                processed, deferred = processed + int(rd["processed"]), deferred + int(rd["deferred"])
+            else:
+                failure = failure or (marker, rd["code"], str(rd.get("error")))
+        if recorded:
+            self.store.record_s3(t, s, token, processed, deferred)
 
         if not stage("MINI"):
             return
@@ -359,10 +391,27 @@ class ScheduleTick:
         rc = self.runner.run("consequence", {**ids, "limit": self.limits.consequence_items_per_site,
                                              "now": now.isoformat()}, self.limits.consequence_seconds)
         site.stages["consequence"] = rc
-        if rc["code"] == "OK":
-            self.store.record_consequence(t, s, token, int(rc["selected"]), int(rc["deferred"]))
+        selected = deferred = 0
+        recorded = rc["code"] == "OK"
+        if recorded:
+            selected, deferred = int(rc["selected"]), int(rc["deferred"])
         else:
             failure = failure or ("CONSEQUENCE", rc["code"], str(rc.get("error")))
+        # FIX-COLD-DRAIN: the cold and EV consequence drains after the mini drain (and after this tick's cold/EV
+        # assessment), each under a re-checked claim at a fresh DB `now`; counts summed into the consequence head.
+        for name, marker in (("cold_consequence", "COLD_CONSEQUENCE"), ("ev_consequence", "EV_CONSEQUENCE")):
+            if not stage("CONSEQUENCE"):
+                return
+            rd = self.runner.run(name, {**ids, "limit": self.limits.consequence_items_per_site,
+                                        "now": self.store.db_now().isoformat()}, self.limits.domain_consequence_seconds)
+            site.stages[name] = rd
+            if rd["code"] == "OK":
+                recorded = True
+                selected, deferred = selected + int(rd["selected"]), deferred + int(rd["deferred"])
+            else:
+                failure = failure or (marker, rd["code"], str(rd.get("error")))
+        if recorded:
+            self.store.record_consequence(t, s, token, selected, deferred)
 
         released = self.store.release_site(t, s, token, failure=failure,
                                            backoff_seconds=self.limits.backoff(int(claim["consecutive_failures"])))

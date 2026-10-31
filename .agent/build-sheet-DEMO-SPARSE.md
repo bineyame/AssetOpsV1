@@ -359,3 +359,13 @@ window before 06:00 needs the previous UTC day selected. It is not a result. Add
 readings" form stays correct. The builder names in the handoff, in one line, which evidence lands on D−1 (expected:
 records stamped at gateway provisioning, `foundation_known_at` D−1 12:00). If it turns out to be part of the next
 day's run readings, stop and report: that would mean a run is split across days.
+- **FYI follow-up (2026-10-31): acceptable as is; no calendar or build change.** Every accepted row sits on its own run
+  day, so no run is split. D−1 reads "accepted evidence exists" only because its read range is the day widened by the
+  designed 6-hour bracket (`analytics/assessment_inputs.py:99-101`, counted at `analytics/dispatch_read.py:88-89`),
+  which reaches the next day's 02:55–06:00 readings. That is true for that read, and the day is still an honest gap.
+  My stop condition targeted a split run, which this is not. Record the cause in one line in the handoff.
+- **Recorded:** the SCN (d) re-probe used its single try. S−1 was selected, the lever showed and the Finding stayed
+  on S, but the freeze was refused with 409 `VERIFICATION_BASELINE_UNSUPPORTED` (the 04:00 window is INCONCLUSIVE
+  `OPEN_BOUND`, from the interval starting at 03:05). The trial stays on (a), 0 USD shown, R617 stands, and there are
+  no further tries. CO-1: ACT-000001 does appear in the Cost row's `earlier` list; only the Must-not-harm/link part
+  waits on the owner's lineage decision (ruling 2).

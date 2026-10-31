@@ -4351,3 +4351,10 @@ Estate unchanged: estate Findings over a multi-day period keep the all-days rule
 Register: R610-R613 added; R595 resolved by IDX-GAPS (400d1096b).
 
 Decision: `D-2026-10-31-estate-coverage-v2` (Architect: Claude, build sheet COV-PARTIAL). Owner, verbatim (`.agent/owner-client-demo-sequence-2026-10-31.md`): "yes to both, go ahead". A live mini-grid Site whose estate period has at least one day without an assessed selection and whose selected days are all current is PARTIAL, with `days {requested, checked, gaps[], withheld, text}`; it lists Findings from checked days (withholding any that touch a gap day) with no amount, contributes no money, count or covered Site, makes every estate root status Unknown and the Portfolio status Partial (never Current). Any gap beside pending, stale or unknown work, and any historical gap, keeps Unknown. No schema bump (policy `estate-coverage/2` on the wire). Resolves R613; adds R620-R622.
+
+Decision: `D-2026-10-31-board-action-refresh-lineage` (Architect: Claude, build sheet LINK-LINEAGE). Owner, verbatim
+(`.agent/owner-client-demo-sequence-2026-10-31.md`): "yes to both, go ahead". The Site outcome board links a mini
+Action to the shown revision of its origin Finding also when every revision after the origin, up to the shown one, is
+BASIS_REFRESHED with the origin's lifecycle and episode bounds; any other transition, a missing revision or a failed
+history read keeps the exact-revision rule. The link drives only the applied status signal and Must-not-harm; Earlier
+lists, estate joins and cold/EV are unchanged. Closes R552 when DEMO-SPARSE CO-1 passes on the combined dataset.

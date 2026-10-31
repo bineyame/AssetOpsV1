@@ -760,7 +760,10 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
 # --- c2 r1: the cursor carries page one's mode (M1, q11-B 1) -----------------------------------------------------
 
 WIDE = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
-LATE = {"do": "deliver", "decided": "2026-10-31T08:00:00Z", "blocks": [
+# The decision instant must stay ahead of the database clock (recompute jobs are stamped on it), so it is taken a day past
+# the real clock rather than fixed: a fixed 2026-10-31 instant fell behind the wall clock on that day and broke page two.
+LATE = {"do": "deliver", "decided": iso((datetime.now(timezone.utc) + timedelta(days=1)).replace(
+    minute=0, second=0, microsecond=0)), "blocks": [
     {"from": "2026-10-06T08:25:00Z", "to": "2026-10-06T08:30:00Z", "pv": "41", "only": ["pv"]}]}
 
 
@@ -951,6 +954,7 @@ def test_cold_revision_waits_for_its_selected_assessment(chain) -> None:  # noqa
             "RETURNING CAST(r.finding_id AS text)"), {"s": built.site_id, "sel": selected}).scalars().all()
         c.execute(text("ALTER TABLE finding_revision ENABLE TRIGGER USER"))
     assert moved, "a revision shares the last selection's transaction time"
+    assert set(moved) <= set(old), "moved findings must all be in the pre-move selection"  # diagnostic for a rare KeyError
     k = selected - timedelta(milliseconds=500)
     at_k = estate.ok("findings", **day, known_at=iso(k))
     seen = {r["finding_id"]: r["finding_revision_id"] for r in at_k["rows"]}

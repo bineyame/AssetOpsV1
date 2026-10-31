@@ -90,6 +90,7 @@ class BoardServices:
     ev_depth: Any = None              # EvDepthReadService (analytics/ev_depth.py)
     domain_actions: Any = None        # DomainActionReadService (work/domain_action_index.py:375)
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
+    finding_reads: Any = None         # FindingReadService (analytics/finding_read.py:570), LINK-LINEAGE history
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -254,10 +255,23 @@ class SiteOutcomeBoardService:
             body = _need(s.actions, "action_read").action(t, sid, c, UUID(action_id), pick)
             return None if body is None else jsonable_encoder(body)
 
+        def finding_history(finding_id: str, revision_id: str) -> list[dict[str, Any]] | None:
+            _open(s.finding_index_gate, site, "finding index gate")
+            svc, rows, after = _need(s.finding_reads, "finding_history"), [], 0
+            while True:
+                body = svc.history(t, sid, UUID(finding_id), UUID(revision_id), after_revision_no=after, limit=500)
+                if body is None:
+                    return None
+                rows += jsonable_encoder(body["revisions"])
+                after = body["page"]["next_after_revision_no"]
+                if after is None:
+                    return rows
+
         return mini.MiniPorts(overview=overview, depth=depth, dispatch=dispatch, assumption=assumption,
                               finding_index=finding_index, estate=estate, action_index=action_index,
                               verification=verification, action=action, work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"])
+                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
+                              finding_history=finding_history)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code

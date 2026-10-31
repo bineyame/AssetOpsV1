@@ -110,19 +110,23 @@ def build_postgres_assessment_store(database_url: str | None):
     return PostgresAssessmentStore(database_url, link_rows=build_link_rows_reader())
 
 
-def build_cold_assessment_worker(database_url: str | None):
-    """W2-03: the cold worker over the assessment and Finding stores (one shared transaction per job)."""
+def build_cold_assessment_worker(database_url: str | None, **kw):
+    """W2-03: the cold worker over the assessment and Finding stores (one shared transaction per job). `kw`
+    (`clock`, `lease`) passes through to the worker (FIX-COLD-DRAIN: the scheduled stage leases at DB time)."""
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
     from assetops_backend.analytics.assessment_worker import ColdAssessmentWorker
-    return ColdAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url))
+    return ColdAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url),
+                                **kw)
 
 
 
-def build_ev_assessment_worker(database_url: str | None):
-    """W2-06 Q13: the EV worker over the assessment and Finding stores (one shared transaction per job)."""
+def build_ev_assessment_worker(database_url: str | None, **kw):
+    """W2-06 Q13: the EV worker over the assessment and Finding stores (one shared transaction per job). `kw`
+    (`clock`, `lease`) passes through to the worker (FIX-COLD-DRAIN: the scheduled stage leases at DB time)."""
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
     from assetops_backend.analytics.assessment_worker import EvAssessmentWorker
-    return EvAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url))
+    return EvAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url),
+                              **kw)
 
 def finding_fence_moved_type() -> type:
     """`FindingFenceMoved`, for a caller that classifies a failed match without importing the adapter."""

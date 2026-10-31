@@ -198,3 +198,9 @@ screen, outcome matrix, category cards, any one-day Portfolio: walk the day-S Po
 Pre-flight (`.agent/COV-PARTIAL-preflight.md`, one batch, then stop): clean worktree; never `-ExecutionPolicy`; no BOM;
 DBs `assetops_covp_<x>_test` only; list each literal asserting a live mini gap period UNKNOWN; confirm `dispatch_days`
 returns one entry per requested day.
+
+## Addendum 1 · pre-flight rulings (Architect: Claude, 2026-10-31; `AssetOpsV1-covp/.agent/COV-PARTIAL-preflight.md`)
+
+- **Q1 yes.** The golden regeneration may also carry the KOBO-001 flips at `w301-estate-golden.json:3068` (findings-mixed-week, state) and `:2991` (scope-mixed, `coverage_state`), plus what PARTIAL entails in those cases only: the `days` fields and text, rows from checked days, their arrays, counts and token. Condition: each case meets §2 (live, ≥ 1 gap, ≥ 1 checked day, every checked day current). The packet lists every changed golden path. Any other diff: stop.
+- **Q2 yes.** `test_w301_estate_index_postgres.py:561` (the PowerSite gap day, four lenses) is updated to PARTIAL on the same condition. Its rows, notices and statuses follow §2–§3; the root `status` must stay UNKNOWN, never CURRENT. List it in the packet. The edit allowance in §4 U1 widens to these named literals only.
+- **Q3 yes, made exact.** On `len(days) != requested`, the state is today's rule, byte for byte (UNKNOWN when there is a gap, otherwise unchanged), and `days` is `null`: no day count is published from a mismatched read (C5). `test_w301_estate_api.py:226` stays UNKNOWN and gains `days is None`.

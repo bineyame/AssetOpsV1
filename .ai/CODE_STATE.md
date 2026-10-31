@@ -6204,3 +6204,46 @@ plus Addendum 1. Packet `.agent/COV-PARTIAL-packet.md`. Decision `D-2026-10-31-e
 - Open: CO-6 in `tools/demo_combined_finish.py` belongs to DEMO-A. Evidence and Financials show a PARTIAL Site through
   their existing "Some Sites are still being assessed" line; their rows carry day states, never PARTIAL. R621 means a
   historical gap stays Unknown.
+
+## LINK-LINEAGE - the board links an Action across basis-only Finding revisions (built, in_review)
+Branch `task/LINK-LINEAGE-board-action` (from main 15eed62c8). Sheet `AssetOpsV1-plan2/.agent/build-sheet-LINK-LINEAGE.md`;
+decision `D-2026-10-31-board-action-refresh-lineage`; packet `.agent/LINK-LINEAGE-packet.md`.
+- `site_outcomes/board.py`: pure `refresh_chain(revisions, origin_id, shown_id)` (sheet §2; reads only revisions up to
+  the shown one) and `BASIS_REFRESHED`; `FindingFact.refreshed_from: tuple[str, ...] = ()` (last field);
+  `assemble`'s join is `linked_actions` (exact revision or `origin_revision_id in f.refreshed_from`), used only by the
+  applied signal and Must-not-harm. Earlier lists keep their `origin_finding_id` join.
+- `site_outcomes/mini.py`: `MiniPorts.finding_history` (default `lambda f, r: None`) and `_lineage` after `_actions`:
+  one `finding_history` read per Finding, only when a non-domain Action points at another revision of it; a raise is a
+  `failed` port (PARTIAL), None links nothing. Cold/EV unchanged (domain Actions only, never joined).
+- `site_outcomes/read.py`: `BoardServices.finding_reads` and the `finding_history` port (finding-index gate, then
+  `FindingReadService.history` paged at 500 through `jsonable_encoder`); `composition.py`/`main.py` pass the app's
+  `finding_reads`.
+- Tests: `test_link_lineage.py` (P1-P3, N1-N11, B1-B3, N6), `test_out_b2_mini.py` M1-M6b (M6 crosses the real
+  `FindingReadService.history` and the B4 port), `test_out_b4_main_binding.py` (wiring), b4/e4 Postgres pins compute
+  the rule inline from the history route (`_expected_link`).
+- Open: estate Finding->Action join stays exact (C5); R552 stays open until DEMO-SPARSE CO-1 passes on the combined
+  dataset (DEMO-A edits `tools/demo_combined_finish.py` co1 after this merges).
+## FIX-COLD-DRAIN - the scheduled tick drives the cold and EV producers (built, in_review)
+
+Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/build-sheet-FIX-COLD-DRAIN.md` U1-U4. Packet
+`.agent/FIX-COLD-DRAIN-packet.md`. No migration, no reader change.
+- Tick order per Site (`scheduling/tick.py` `_site`): `S3: s3 -> cold_assess -> ev_assess` · `MINI` · `OPPORTUNITY` · `S4` ·
+  `CONSEQUENCE: consequence -> cold_consequence -> ev_consequence`. Each new child re-checks the Site claim with the existing
+  marker (`set_stage("S3")` / `set_stage("CONSEQUENCE")`; the 0030 CHECK is unchanged) and is its own killable child.
+- Failure names `COLD_ASSESS`, `EV_ASSESS`, `COLD_CONSEQUENCE`, `EV_CONSEQUENCE`; the first failure is kept and later children
+  run. A failed consequence *item* keeps the drain `OK` (`failed` count) and retries under the worker's `retry_due_at`; no Site
+  back-off (Architect Q1 ruling (b)).
+- Head counts are summed into the existing columns: `record_s3(s3 + cold + ev)` once after the S3 group and
+  `record_consequence(mini + cold + ev selected/deferred)` once after the drains. A non-OK child adds 0; a group whose every
+  child failed writes nothing (the earlier head counts stand, as before for a failed `s3`).
+- `TickLimits`: `domain_jobs_per_site=10`, `domain_assess_seconds=120` (< `DOMAIN_JOB_LEASE_SECONDS` 300),
+  `domain_consequence_seconds=60`; `site_lease_seconds` default 600 -> 960.
+- Stages (`scheduling/stages.py`): `cold_assess`/`ev_assess` lease at DB time through `build_cold/ev_assessment_worker(url,
+  clock=db_clock(url), lease=...)` (`analytics/composition.py` now passes `**kw` through, defaults unchanged); `deferred` from
+  `live_jobs(cold.EXCURSION_ANALYTIC|ev.SESSION_ANALYTIC, domain)`. `cold_consequence`/`ev_consequence` run the unedited W2-04/W2-07
+  workers' `run(t, s, limit, now)` and compute the `consequence` shape locally.
+- Tests: `test_fix_cold_drain_stage.py` (T1-T5, fake runner), `test_fix_cold_drain_tick_postgres.py` (P1-P4, in-process real
+  stages). Tick-order and lease literals updated in `test_w402_mini_stage.py`, `test_w403_opportunity_stage.py`,
+  `test_w402_mini_stage_postgres.py`.
+- Left open: R624 (an excluded-lifecycle Site with only cold/EV work is not discovered; no cold/EV counts in `health.py`), and
+  four more child processes per visited Site in a deployment (fewer Sites per 240 s tick).
