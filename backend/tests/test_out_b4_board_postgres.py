@@ -422,6 +422,18 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     index = LAST_PORTS["kobo_guardrail_day_b"]["action_index"]
     assert sum(p["rows"] for p in index) >= 1 and any(p["ids"] and spec["action"] in p["ids"] for p in index), index
     assert not [i for r in b["rows"] for i in _items(r) if i["text"].endswith(OUTSIDE)]
+    # IDX-GAPS (R595): the board day's index is PARTIAL with Day A assessed, so the addendum 6 Day A Finding checks
+    # pass again unmodified. Still left to DEMO-SPARSE CO-1 (they fail on the s602b data): Day A Cost
+    # NEEDS_ATTENTION, Day B Must-not-harm text and href, ACT-048 on Cost and on Protect (the fixture's Action is
+    # ACT-000001).
+    f01 = spec["findings"]["2026-10-06"]
+    cost, protect = _rows(a)["OPTIMIZE_COST"], _rows(a)["PROTECT_ASSET"]
+    moves = [i for i in cost["issues"] if i["role"] == "MOVES" and (i.get("ref") or {}).get("finding_id") == f01]
+    assert moves, cost["issues"]
+    checked = [i for i in protect["issues"] if (i.get("ref") or {}).get("finding_id") == f01]
+    assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
+    assert cost["must_not_harm"] is None
+
 
 
 def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:

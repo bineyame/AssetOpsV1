@@ -22,7 +22,11 @@ from test_s4_finding_store_postgres import URL
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
-PROTECT = "Verified on test data · linked finding outside this view"
+#: IDX-GAPS (R595 resolved): the board day's Finding index is PARTIAL with the day assessed, so ACT-000001's linked
+#: Finding is in view: Protect lists the safeguard check, and the Action reads back under Cost.
+PROTECT = "Reliable service and battery and generator life checked as safeguards in ACT-000001"
+COST_DETAIL = ("Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand"
+               " · Supply cost per kWh before the trial: missed · after: met")
 ASSURE = "ACT-000001 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"
 CODES = ("MODELLED_IMPROVEMENT", "MODELLED_NO_IMPROVEMENT", "UNAVAILABLE", "OUTCOME_INCONCLUSIVE",
          "trial-fuel-comparison", "candidate", "VERIFIED")
@@ -61,13 +65,22 @@ def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeyp
         body, failed = _board(c, "KOBO-001", "out_e4_verified", date=day)
     _record("out_e4_earlier", {r["category"]: r["earlier"] for r in body["rows"]})
     rows = {r["category"]: r for r in body["rows"]}
-    assert rows["OPTIMIZE_COST"]["earlier"] == []
-    entry = next(e for e in rows["PROTECT_ASSET"]["earlier"] if e["text"].startswith("ACT-000001"))
-    assert (entry["result_label"], entry["detail"]) == (PROTECT, None)
-    assert all(e["detail"] is None for r in rows.values() for e in r["earlier"])
+    cost = rows["OPTIMIZE_COST"]["earlier"]
+    assert [(e["text"], e["result_label"], e["detail"]) for e in cost] == [
+        ("ACT-000001", "Verified on test data", COST_DETAIL)], cost
+    assert cost[0]["href"].startswith("/sites/KOBO-001/actions/")
+    entry = next(e for e in rows["PROTECT_ASSET"]["earlier"] if e["text"] == PROTECT)
+    assert (entry["result_label"], entry["detail"]) == ("Verified on test data", None)
+    assert entry["href"].startswith("/sites/KOBO-001/actions/") and "/verification?event_id=" in entry["href"]
+    assert "outside this view" not in json.dumps(body["rows"])
+    # IDX-GAPS: only the Cost row's Earlier entry carries a detail (the modelled change pinned above)
+    assert all(e["detail"] is None for c, r in rows.items() if c != "OPTIMIZE_COST" for e in r["earlier"])
     assure = [c["text"] for c in rows["ASSURE_PERFORMANCE"]["contributors"] if c["key"] == "verified_results"]
     assert assure == [ASSURE]
     shown = [t for r in body["rows"] for t in _texts({k: r[k] for k in ("contributors", "earlier", "issues",
                                                                          "in_hand", "options")})]
     assert [(t, code) for t in shown for code in CODES if code in t] == []
-    assert "not realised savings" not in json.dumps(body)  # no cost line outside the Cost row
+    # the cost line sits in the Cost row (and may sit in Assure's verified-results line, R594); never Grow or Protect
+    assert "not realised savings" in json.dumps(rows["OPTIMIZE_COST"])
+    for category in ("GROW_REVENUE", "PROTECT_ASSET"):
+        assert "not realised savings" not in json.dumps(rows[category]), category
