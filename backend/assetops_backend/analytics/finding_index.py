@@ -13,9 +13,13 @@ adds the adjacent UTC day across an edge that a stored canonical episode reaches
 continuity tolerance (the matcher's own neighbour dependency, `finding_episode._Site.margin_ok`), to a fixed
 point, capped at `INDEX_CONTINUITY_LIMIT` distinct days (409 `INDEX_CONTINUITY_LIMIT`; the cap does not
 prove continuity ended). `CURRENT` needs every inspected day's S3 selection CURRENT, the S4 match pass
-through that day's selection seq, and an unchanged writer fence before/after the read. Every other status
-returns no rows and a null `total_count`: S4-04 builds no durable prior snapshot, so stale or failed reads
-never reconstruct historical rows from newer heads.
+through that day's selection seq, and an unchanged writer fence before/after the read.
+
+`finding-index/2` (IDX-GAPS, `D-2026-10-31-finding-index-v2`): the gap days G are the non-CURRENT inspected days
+plus each CURRENT day whose selected Candidate segment reaches into a non-CURRENT or uninspected neighbour. With
+an unchanged fence and some requested day outside G the status is `PARTIAL`: rows are the Findings whose touched
+days (intersected, widened by the tolerance) avoid G, each withheld Finding names its host days, and the count
+covers the shown rows. Every requested day in G, or a moved fence, keeps v1: no rows and a null `total_count`.
 """
 
 from __future__ import annotations
@@ -38,7 +42,9 @@ from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECH
 from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
-SCHEMA_VERSION = "site-finding-index-1"
+SCHEMA_VERSION = "site-finding-index-2"
+POLICY_VERSION = "finding-index/2"
+PARTIAL = "PARTIAL"
 # The new API domain token resolves to stored Finding domain/analytic, the S3 dispatch discovery basis and
 # the S4 matcher on that basis. Any other token is a typed 422 (never an assessed zero).
 DOMAINS: dict[str, tuple[str, str]] = {"mini-grid-dispatch": (FINDING_DOMAIN, dispatch_contract.ANALYTIC_ID)}
@@ -52,6 +58,8 @@ KNOWLEDGE_AT = ("Latest S3 knowledge cutoff among the inspected days' selected r
                 "commit-ordered replay point. Exact revision IDs are the audit anchors.")
 AMOUNT_UNAVAILABLE = {"state": "UNAVAILABLE",
                       "reason": "No current amount: exact-revision money provenance is not in this read yet."}
+PARTIAL_STATEMENT = ("Rows from assessed days only: a Finding that touches a day listed in gaps is not shown, and the "
+                     "count covers the shown rows only.")
 _RANK = (FAILED, STALE, PENDING, UNASSESSED)
 
 
@@ -227,8 +235,32 @@ def sort_key(row: dict[str, Any]) -> tuple[float, str]:
     return (-row["episode_start"].timestamp(), str(row["finding_id"]))
 
 
+def touched(head: dict[str, Any], days: list[date]) -> set[date]:
+    """Inspected days the episode touches: those it intersects, widened by the continuity tolerance either side."""
+    return {d for d in days if head["episode_start"] < _day_start(d + timedelta(days=1)) + CONTINUITY_TOLERANCE
+            and head["episode_end"] > _day_start(d) - CONTINUITY_TOLERANCE}
+
+
+def gap_days(inspected: list[dict[str, Any]], reach: Callable[[date], tuple[bool, bool]]
+             ) -> dict[date, tuple[str, str]]:
+    """G: day -> (state, reason). A non-CURRENT day: (its status, "NOT_CURRENT"). A CURRENT day whose selected
+    Candidate segment reaches an edge into a non-CURRENT (or uninspected) neighbour: ("CURRENT", "EDGE_NEXT_TO_GAP")
+    - the matcher may have skipped that cluster (the `candidate_reach` H1 reason)."""
+    status = {date.fromisoformat(d["day"]): d["status"] for d in inspected}
+    gaps: dict[date, tuple[str, str]] = {}
+    for day, st in status.items():
+        if st != CURRENT:
+            gaps[day] = (st, "NOT_CURRENT")
+            continue
+        down, up = reach(day)
+        if (down and status.get(day - timedelta(days=1)) != CURRENT) or (
+                up and status.get(day + timedelta(days=1)) != CURRENT):
+            gaps[day] = (CURRENT, "EDGE_NEXT_TO_GAP")
+    return gaps
+
+
 def _token(payload: dict[str, Any]) -> str:
-    return "sfi1-" + hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    return "sfi2-" + hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
 
 class FindingIndexService:
@@ -285,8 +317,21 @@ class FindingIndexService:
         status = next((x for x in _RANK if x in statuses), STALE if moved else CURRENT)
         rows = sorted((h for h in canonical if h["episode_start"] < request.end and h["episode_end"] > request.start),
                       key=sort_key)
+        gaps = gap_days(inspected, lambda day: candidate_reach(window(day), day))
+        eligible, withheld = rows, False
+        if not moved and gaps:
+            if any(d not in gaps for d in requested_days(request.start, request.end)):
+                status, eligible, extra = PARTIAL, [], {}
+                for h in rows:
+                    hit = touched(h, days)
+                    if hit & gaps.keys():
+                        withheld = True
+                        extra.update({d: (CURRENT, "WITHHELD_FINDING") for d in hit if d not in gaps})
+                    else:
+                        eligible.append(h)
+                gaps = {**gaps, **extra}
         basis = {"tenant_id": str(t), "site_id": str(s), "domain": request.domain, "analytic_id": analytic,
-                 "matcher_version": MATCHER_VERSION, "match_pass": match_pass,
+                 "matcher_version": MATCHER_VERSION, "policy": POLICY_VERSION, "match_pass": match_pass,
                  "days": [{"day": d["day"], "status": d["status"], "s3_selection_seq": d["s3"]["selection_seq"],
                            "run_id": d["s3"]["run_id"], "input_sha256": d["s3"]["input_sha256"],
                            "configuration_sha256": d["s3"]["configuration_sha256"],
@@ -300,7 +345,7 @@ class FindingIndexService:
         if request.cursor is not None:
             cur = request.cursor
             changed = [k for k, v in scope.items() if cur.get(k) != v]
-            reason = ("SCOPE_CHANGED" if changed else "BASIS_NOT_CURRENT" if status != CURRENT
+            reason = ("SCOPE_CHANGED" if changed else "BASIS_NOT_CURRENT" if status not in (CURRENT, PARTIAL)
                       else "SELECTION_CHANGED" if cur["selection_token"] != token else None)
             if reason is not None:
                 raise IndexConflict("INDEX_BASIS_CHANGED",
@@ -310,10 +355,10 @@ class FindingIndexService:
                                     next_cursor=None)
             after = (datetime.fromisoformat(cur["after"][0].replace("Z", "+00:00")), cur["after"][1])
         page, next_cursor, total = [], None, None
-        if status == CURRENT:
-            total = len(rows)
-            remaining = rows if after is None else [
-                r for r in rows if sort_key(r) > (-after[0].timestamp(), after[1])]
+        if status in (CURRENT, PARTIAL):
+            total = len(eligible)
+            remaining = eligible if after is None else [
+                r for r in eligible if sort_key(r) > (-after[0].timestamp(), after[1])]
             page = remaining[:request.limit]
             if len(remaining) > request.limit:
                 last = page[-1]
@@ -322,7 +367,7 @@ class FindingIndexService:
         built = [d["_read_at"] for d in inspected if d["_read_at"] is not None]
         cutoffs = [d["s3"]["knowledge_cutoff"] for d in inspected if d["s3"]["knowledge_cutoff"] is not None]
         return {
-            "schema_version": SCHEMA_VERSION, "site_code": site_code, "site_id": str(s), "access_basis": access_basis,
+            "schema_version": SCHEMA_VERSION, "policy_version": POLICY_VERSION, "site_code": site_code, "site_id": str(s), "access_basis": access_basis,
             "domain": {"requested": request.domain, "finding_domain": request.finding_domain,
                        "analytic_id": analytic, "matcher_version": MATCHER_VERSION},
             "window": {"from": _iso(request.start), "to": _iso(request.end), "bounds": "[from, to)",
@@ -344,7 +389,9 @@ class FindingIndexService:
             "order": ORDER,
             "rows": self._rows(t, s, site_code, page, snap) if page else [],
             "total_count": total, "next_cursor": next_cursor,
-            "rows_statement": None if status == CURRENT else (
+            "gaps": [{"day": d.isoformat(), "state": st, "reason": why} for d, (st, why) in sorted(gaps.items())],
+            "withheld": withheld,
+            "rows_statement": None if status == CURRENT else PARTIAL_STATEMENT if status == PARTIAL else (
                 "No rows and no count: this index is not current, and no durable prior snapshot exists to show "
                 "historical rows. This is not a no-Findings verdict."),
         }
