@@ -180,3 +180,31 @@ three-site prepare (cap ~49 min) runs `finish` + the self-check; then U6 closeou
   finding-index/2 rule (PARTIAL with named gaps), a separate slice of about 2 builder days.
 - Guards: `check-all.ps1` 11/11 at `b9f4dab72`; `test_demo_story_days.py` 18 passed; build test collects 19.
 - Next: wait for the coordinator (the SCN trial result decides the trial kinds); then the full three-site prepare.
+
+## State 2026-10-31 (fourth implementer: SCN U3 probe, first full three-site prepare) - STOPPED for the coordinator
+
+- `cc39a96e2` merged main `0a2075037` (IDX-GAPS + SCN), clean; `test_demo_story_days.py` 18 passed; check-all 11/11.
+- `6e5ce55e7` **SCN U3 probe (d)** recorded in `.agent/DEMO-SPARSE-trial-probe.md` (P3 candidate (d)): lever shown
+  (first ON 03:05 NEAR_RESERVE, AT_RESERVE from 04:50), Finding on S (07:05-11:00, 235 min), but the plan freeze is
+  refused 409 `VERIFICATION_BASELINE_NOT_SELECTED` days `["2026-10-28"]`: a window before 06:00 also needs the previous
+  UTC day's selection (`actions/verification.py:86-93`), and S-1 has no run. Not VERIFIED, so the trial stays (a)
+  (06:00, reserve-trial, 0 USD); day list unchanged; **R617 added**. Probe DB/work dropped; single-site builds
+  `assetops_demo3_cold_test` / `_ev_test` dropped with the tool's `drop`.
+- **Full prepare** `assetops_demo3_full_test` / `var/demo3_full` at `6e5ce55e7` (KEPT): kobo 528 s (7 runs, VERIFIED
+  ACT-000001, MODELLED_NO_IMPROVEMENT 0), cold 46 s, ev 52 s, total 728 s (cap 2900 s). Self-check 14 pass / 3 fail.
+  - SP-3 (`KeyError 'has_run'`) and CO-6 (`financials_body` kwarg) were build bugs: fixed `a01016d74`; the fixed
+    `demo_combined_finish.py` was copied into `var/demo3_full/tree/tools/` and `check` re-run: **15 pass, 2 fail**.
+  - **CO-6 fails on a product bug, not on the row**: Portfolio week status `PENDING` (coverage PARTIAL). Cause: cold
+    money `_pending_guard` (8 `cold_consequence_work` rows, never attempted) because every tick fails COLD-LAB-001 at
+    stage s4: `analytics/finding_episode.py:298 margin_windows` `None + timedelta`. The dispatch matcher's episode
+    read (`analytics/adapters/postgres_finding_store.py:132-141`) is not domain-filtered, so it reads the cold
+    Findings, whose episodes are open (`episode_end` NULL: 3 cold revisions). The Site's later stages (consequence)
+    never run; tick 2 reads RETRY_DUE. CO-6b also reads `PENDING` (passes: status is recorded, not asserted).
+  - **CO-1 premise does not hold on real data**: Cost `must_not_harm` is null on the day-S board. The Action was
+    accepted on Finding revision 1 (`a82429c8`); the post-apply assess at S 14:01 (the apply splits the
+    FoundationRevision) re-assessed S and the matcher wrote revision 2 `BASIS_REFRESHED` (`3f2eb216`), which the board
+    shows; `board.py:468-470 exact_actions` needs the exact revision, so neither the Must-not-harm line nor the Action
+    link appears. Cost NEEDS_ATTENTION with the Finding; Protect lists it "checked here as a safeguard" (those hold).
+- Not done: slow build test (prepare not green), U6 closeout. Resume after the coordinator/Architect rules on the
+  cold S4 matcher bug (product fix in another slice, or here) and on CO-1; then re-run the full prepare at the final
+  revision (drop `assetops_demo3_full_test` first), the build test, and U6.
