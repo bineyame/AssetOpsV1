@@ -62,9 +62,19 @@ prior `must_not_harm is None` holds by the same rule (the test asserts None from
   M6; dropping the lifecycle check fails N2, M2b, M6; disabling the contiguity check fails N10, M2b, M6; dropping
   `refreshed_from` from the join fails B1, M2, M6.
 - `tools\check-all.ps1 -Python <plan2 venv>`: All 11 guards passed at `39ebf86d0`, and again at `4111496d3` with the
-  closeout docs in the tree (before this packet was written).
-- `-Tier all`: not run yet (awaiting the coordinator's go; sheet §4 merge gate). Known ignorable failure: w301 estate
-  index `INVALID_CURSOR`.
+  closeout docs in the tree (before this packet was written); again at the main-merge head `b7ea89651`; and at the
+  review-lows head `6f681892d`. 11/11 each time.
+- `-Tier all` (merge gate, coordinator's go): main `ce5df006c` (contains the w301 fix `8528ec69a`) merged in as
+  `b7ea89651`; `tools\run-backend-suite-in-container.ps1 -Tier all` on `b7ea89651`, run `20261031-175151-7959ea`,
+  4 workers, dedicated `postgres-test`. Wall time 3881 s (cap 6000 s; started after another lane's OPS-03 run
+  cleared). JUnit `var/test-results/OPS-03/20261031-175151-7959ea/junit.xml`: 4595 tests, 0 failures, 0 errors,
+  0 skipped. The w301 `INVALID_CURSOR` failure is gone. The fixed-clock w401 case did not fail on this run.
+- Review lows (`.agent/LINK-LINEAGE-review.md` in plan2, ACCEPT), commit `6f681892d`, after the full run:
+  L1: the b4 Day A/Day B loop asserts the recorded branch (Day B true, Day A false), and e4 asserts true.
+  L2: `mini._lineage` runs `refresh_chain` inside `reads.call("finding_history", ...)`; new pure test
+  `test_out_b2_mini.py::test_m7_malformed_history_row_is_partial_not_a_failed_board` (on the pre-fix `mini.py` it
+  fails with `KeyError: 'revision_no'`). Re-ran the U3 scoped set (U1 + U2 sets + b4/e4 Postgres + b4 window):
+  178 passed, 0 failed, 302 s. No full rerun (coordinator: small change after the full run).
 - No vitest, no captures (no frontend change; sheet §4).
 
 ## Known deviations
