@@ -1,27 +1,27 @@
 # COV-PARTIAL handoff (implementer)
 
-Branch `task/COV-PARTIAL-estate-coverage`, worktree `AssetOpsV1-covp`.
+Branch `task/COV-PARTIAL-estate-coverage`, worktree `AssetOpsV1-covp`. Built and packeted; the slice is ready for review.
 
-Landed (commits on top of `0796218fc`):
-- U1 `36ab2f54a`: coverage rule and wire.
-- U2 `eac8556df`: Portfolio status, X1, X2.
-- U3 `b44f86572`: frontend.
-- U4 `282cedb90`: Postgres proof, the `:561` edit, and the golden.
-- Docs commit: task file, DECISIONS entry, register and built state.
+Landed on top of `0796218fc`:
+- U1 `36ab2f54a`, U2 `eac8556df`, U3 `b44f86572`, U4 `282cedb90`.
+- Docs `ea8fcef3e` and `4188e17c7`.
+- `28fcf3965`: the cold exact coverage literal gains `days: None`, found by the U4 replay.
+- `2a8b96f64`: the packet `.agent/COV-PARTIAL-packet.md` and `.agent/COV-PARTIAL-captures/`.
 
-Still to do:
-- Golden replay without the write flag, plus the U4 focused Postgres set. Both wait for `assetops-ops03-*` to be idle.
-- Captures at 390 and 1440 with producer `tools/s404_finding_index_walkthrough.py --db assetops_s404_owner_covp_test`.
-  `var/sites/kobo-001.yaml` was copied from plan2; it is local and ignored.
-  - Set `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` for serve.
-  - Pick a window from the estate API: clean checked days plus gaps. The 10-27 day is dirty and 11-05 failed, so
-    keep both out of the window.
-  - Afterwards: drop the DB, then stop the servers by PID.
-- Write the packet `.agent/COV-PARTIAL-packet.md` (force-add) and update this handoff.
-- The full vitest run and `-Tier all` happen only on the coordinator's go, after LINK-LINEAGE merges.
+Done:
+- Golden replay without the write flag: passes.
+- U4 §5 Postgres set: 168 passed. Of the 2 failures, one was genuine and is fixed; the other is the known
+  `INVALID_CURSOR`.
+- Captures at 390 and 1440: 12/12 claims pass.
+- Non-vacuity proofs and check-all: 11/11 guards pass.
+- Both DBs are dropped and the servers are stopped.
+
+Still to do (on the coordinator's go, after LINK-LINEAGE merges):
+- One `-Tier all` on an idle machine.
+- One full `npx vitest run`.
+- Then a slice review.
 
 Notes:
-- `vitest related` fails here because the import graph pulls in a `.py` file. Run the scoped test files directly
-  (estate tests plus the shell routes, globalMaintenance, t028Vocabulary and idxGapsFindingIndex).
-- Postgres runner: scratchpad `ptpg.ps1`, against DB `assetops_covp_test`, which I created and still need to drop
-  at the end.
+- `.venv` in this worktree is a junction to plan2's venv. It is ignored.
+- Five orphaned gateway processes from a stopped test run remain: PIDs 2592, 2052, 22440, 31564 and 7664. Stopping
+  them was refused by the permission classifier.
