@@ -127,7 +127,11 @@ def test_empty_is_zero_only_after_complete_read() -> None:
     assert body["total_count"] is None and all(v is None for v in body["summary"].values())
     assert body["coverage"]["sites"] == [{"site_id": str(S), "state": "UNKNOWN", "committed_watermark": None,
                                           "selection_id": None, "match_state": "MISSING", "job_state": "NONE",
-                                          "source_freshness": "UNKNOWN"}]
+                                          "source_freshness": "UNKNOWN", "days": {  # COV-PARTIAL: additive key
+                                              "policy": "estate-coverage/2", "requested": 1, "checked": 0,
+                                              "gaps": [{"day": "2026-10-06", "state": "UNASSESSED",
+                                                        "reason": "NO_ASSESSED_SELECTION"}],
+                                              "withheld": False, "text": None}}]
 
 
 def test_selection_token_v2_endpoint_cursor_compatibility() -> None:
@@ -226,6 +230,8 @@ def test_mini_grid_currentness_rows_and_money_gates() -> None:
                         ([day(), {**day(), "selection": None}], "UNKNOWN")):
         cov = coverage.site_coverage(mini_grid(days), T, S, "mini_grid", D0, D1, READ_AT)
         assert cov["state"] == state and cov["rows"] == [], days  # reading 6: no rows from an unsettled Site
+        # COV-PARTIAL C5 (Addendum 1 Q3): two days for a one-day span publish no day count
+        assert (cov["days"] is None) == (len(days) == 2), days
 
 
 def test_action_reduce_and_verification_counts() -> None:

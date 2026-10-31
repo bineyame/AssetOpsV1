@@ -124,6 +124,8 @@ class FindingFact:
     #: Addendum 2 item 4: False for a Finding read only to resolve a link (outside the overview day). Such a
     #: Finding places linked work but drives no signal, issue or headline.
     in_window: bool = True
+    #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
+    refreshed_from: tuple[str, ...] = ()
 
     @property
     def open(self) -> bool:
@@ -458,6 +460,35 @@ def objectives_wire(facts: SiteFacts) -> list[dict[str, Any]]:
             for f in facts.objectives]
 
 
+BASIS_REFRESHED = "BASIS_REFRESHED"
+
+
+def refresh_chain(revisions: Sequence[Mapping] | None, origin_id: str, shown_id: str) -> bool:
+    """True iff every revision after the origin up to and including the shown one is BASIS_REFRESHED with the
+    origin's lifecycle and episode bounds. `revisions` = history rows in revision_no order (every page).
+    D-2026-10-31-board-action-refresh-lineage; revisions after the shown one are never read."""
+    if not revisions:
+        return False
+    by_id = {str(r.get("id")): r for r in revisions}
+    o, s = by_id.get(str(origin_id)), by_id.get(str(shown_id))
+    if o is None or s is None:
+        return False
+    o_no, s_no = int(o["revision_no"]), int(s["revision_no"])
+    if o_no >= s_no:
+        return False
+    between = sorted((r for r in revisions if o_no < int(r["revision_no"]) <= s_no),
+                     key=lambda r: int(r["revision_no"]))
+    if [int(r["revision_no"]) for r in between] != list(range(o_no + 1, s_no + 1)):
+        return False
+    o_ep = o.get("episode") or {}
+    for r in between:
+        ep = r.get("episode") or {}
+        if (r.get("transition") != BASIS_REFRESHED or r.get("lifecycle") != o.get("lifecycle")
+                or ep.get("start") != o_ep.get("start") or ep.get("end") != o_ep.get("end")):
+            return False
+    return True
+
+
 def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     """The four board rows in canonical category order (§B.1 row shape)."""
     domain, code = facts.domain, facts.site_code
@@ -465,16 +496,17 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     by_id = {f.finding_id: f for f in facts.findings}
     mini_actions = [a for a in facts.actions if not a.is_domain]
 
-    def exact_actions(f: FindingFact) -> list[ActionFact]:
+    def linked_actions(f: FindingFact) -> list[ActionFact]:
+        """Exact revision, or a basis-only refresh chain (D-2026-10-31-board-action-refresh-lineage)."""
         return [a for a in mini_actions if a.origin_finding_id == f.finding_id
-                and a.origin_revision_id == f.revision_id]
+                and (a.origin_revision_id == f.revision_id or a.origin_revision_id in f.refreshed_from)]
 
     # status signals
     signals: list[Signal] = []
     for f in facts.findings:
         if not f.in_window:
             continue
-        applied = any(a.applied for a in exact_actions(f))
+        applied = any(a.applied for a in linked_actions(f))
         for i, key in enumerate(roles[f.finding_id].moves):
             signals.append(Signal(FINDING, key, i == 0, f.open, applied, None, f.finding_id))
     sig_roles = {s.signal_key: _Roles(s.signal_key, domain) for s in facts.signals_extra}
@@ -491,13 +523,13 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
 
     open_findings = sorted((f for f in facts.findings if f.open and f.in_window),
                            key=lambda f: (f.title, f.finding_id))
-    rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, exact_actions, warn_roles)
+    rows = [_row(facts, cat, signals, roles, by_id, open_findings, sig_roles, linked_actions, warn_roles)
             for cat in CATEGORIES]
     return rows
 
 
 def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Roles], by_id: dict[str, FindingFact],
-         open_findings: list[FindingFact], sig_roles: dict[str, _Roles], exact_actions,
+         open_findings: list[FindingFact], sig_roles: dict[str, _Roles], linked_actions,
          warn_roles: Sequence[tuple[Warning, _WarningRoles]] = ()) -> dict[str, Any]:
     domain, code = facts.domain, facts.site_code
     outcomes: list[SiteOutcome] = [o for o in SITE_OUTCOMES if o.domain == domain and o.category == cat]
@@ -605,7 +637,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     # Must not harm (B-Q19, addendum 1): only where a mini Action verification exists.
     must_not_harm = None
     for f in sorted(moves_here, key=lambda f: (f.title, f.finding_id)):
-        checks = [a for a in exact_actions(f) if a.verification_state not in (None, NO_PLAN)]
+        checks = [a for a in linked_actions(f) if a.verification_state not in (None, NO_PLAN)]
         names = roles[f.finding_id].checked_outside(cat, exclude_unmeasured=MUST_NOT_HARM_EXCLUDES_UNMEASURED)
         if checks and names:
             a = checks[0]

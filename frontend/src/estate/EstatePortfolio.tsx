@@ -20,6 +20,7 @@ import {
   ACTION_WINDOW_NOTE,
   ASSESSMENT_IDS,
   coverageStateWords,
+  gapDayList,
   exclusionLineLabel,
   exclusionReasonWords,
   selectedAssessmentWords,
@@ -91,8 +92,14 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
 
+/** COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none). */
+export function partialConsequence(c: { state: string; source_revision_id: string | null }): string {
+  return `Partly checked · ${c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : "Value withheld"}`;
+}
+
 function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined): string {
   const c = row.consequence;
+  if (siteState === "PARTIAL" && !(c.state === "PRICED" && (c.amount_low ?? c.amount) != null)) return partialConsequence(c);
   const base =
     c.source_revision_id === null && c.state !== "PRICED"
       ? "No consequence recorded"
@@ -492,6 +499,13 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
                 </td>
                 <td data-portfolio-scope-coverage>
                   {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}
+                  {/* COV-PARTIAL MOCK DEVIATION R620: the unchecked days on their own line; v70 has no day gaps. */}
+                  {s.coverage.state === "PARTIAL" && (s.coverage.days?.gaps.length ?? 0) > 0 ? (
+                    <>
+                      <br />
+                      <small data-portfolio-scope-gaps>Days not checked yet: {gapDayList(s.coverage.days)}</small>
+                    </>
+                  ) : null}
                   {s.source_provenance === null ? <small> · No selected source basis</small> : null}
                 </td>
               </tr>
@@ -618,6 +632,17 @@ function Loaded({
           </Badge>
           <span data-portfolio-sentence>{ctx.sentence}</span>
           <span data-portfolio-domains>{domainSummary(body)}</span>
+          {/* COV-PARTIAL MOCK DEVIATION R620: one note per partly checked Site; v70 shows the badge and counts only. */}
+          {body.scope_disclosure.sites
+            .filter((site) => site.coverage.state === "PARTIAL" && site.coverage.days?.text)
+            .map((site) => (
+              <span key={site.site_id} className="portfolio-partial" data-portfolio-partial={site.site_code}>
+                {site.site_name}: {site.coverage.days?.text}
+                {(site.coverage.days?.gaps.length ?? 0) <= 7
+                  ? ` · not checked: ${gapDayList(site.coverage.days)}`
+                  : " · the days are listed under Assessment scope & periods"}
+              </span>
+            ))}
         </div>
         <ScopeDisclosure body={body} />
       </div>

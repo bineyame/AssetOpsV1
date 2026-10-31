@@ -51,7 +51,8 @@ def build_outcome_board_service(
         finding_index: Any = None, finding_index_gate: Gate | None = None, assumptions: Any = None,
         actions: Any = None, action_index: Any = None, cold_site: Any = None, cold_reads: Any = None,
         ev_site: Any = None, ev_reads: Any = None, ev_depth: Any = None, domain_actions: Any = None,
-        work_index: Any = None, estate: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
+        work_index: Any = None, estate: Any = None,
+        finding_reads: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
     """Returns the service and its dispose callable (the global work read it opened, if any)."""
     global_work = build_global_work_read(database_url) if database_url else None
     objectives = build_objective_store(database_url)  # OUT-D U4: the declared-objective read (None without a DB)
@@ -66,7 +67,7 @@ def build_outcome_board_service(
         select_preventive=select_preventive, estate=estate, parse_finding_index=parse_finding_index,
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
-        work_access_basis=ACCESS_BASIS, objectives=objectives)
+        work_access_basis=ACCESS_BASIS, objectives=objectives, finding_reads=finding_reads)
 
     def dispose() -> None:
         if global_work is not None:

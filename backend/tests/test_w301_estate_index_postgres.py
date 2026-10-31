@@ -184,7 +184,8 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
     assert body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
     assert site == {"site_id": str(built.site_id), "state": "CURRENT", "selection_id": pinned["selection_id"],
                     "committed_watermark": site["committed_watermark"], "match_state": "NOT_APPLICABLE",
-                    "job_state": "SETTLED", "source_freshness": "RECENT"}
+                    "job_state": "SETTLED", "source_freshness": "RECENT",
+                    "days": None}  # COV-PARTIAL: additive key, None for cold (sheet §2.6)
     assert body["scope"]["authorized_site_count"] == body["scope"]["covered_site_count"] == 1
     heads = stored_cold_heads(built.engine, built.site_id)
     assert body["rows"] and {r["finding_id"]: r["finding_revision_id"] for r in body["rows"]} == heads
@@ -555,10 +556,15 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
             assert body["lens"] == lens and body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
             assert body["rows"] == [] and body["total_count"] == 0 and body["summary"]["supported_findings"] == 0
             assert body["coverage"] == bodies["all"]["coverage"]
-        # The three-day read: the 2026-10-07 day has no assessment, so the Site is UNKNOWN and no lens is a zero.
+        # The three-day read: the 2026-10-07 day has no assessment and the checked days are current, so the Site is
+        # partly checked (COV-PARTIAL, Addendum 1 Q2): no lens is a zero and the root is never CURRENT.
         for lens in LENSES:
             gap = estate.ok("findings", **days, lens=lens)
-            assert gap["coverage"]["sites"][0]["state"] == "UNKNOWN" and gap["total_count"] is None
+            (site_cov,) = gap["coverage"]["sites"]
+            assert site_cov["state"] == "PARTIAL" and gap["total_count"] is None and gap["status"] == "UNKNOWN"
+            assert (site_cov["days"]["requested"], site_cov["days"]["checked"]) == (3, 2)
+            assert [g["day"] for g in site_cov["days"]["gaps"]] == ["2026-10-07"]
+            assert all(r["consequence"]["amount"] is None for r in gap["rows"])
         # No mock seed: real labels only, no F-code, no risk/opportunity flag on any row.
         state_day = estate.ok("findings", **{"from": iso(STATE_DAY), "to": iso(STATE_DAY + timedelta(days=1))})
         for body in (*bodies.values(), state_day):
@@ -754,7 +760,10 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
 # --- c2 r1: the cursor carries page one's mode (M1, q11-B 1) -----------------------------------------------------
 
 WIDE = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
-LATE = {"do": "deliver", "decided": "2026-10-31T08:00:00Z", "blocks": [
+# The decision instant must stay ahead of the database clock (recompute jobs are stamped on it), so it is taken a day past
+# the real clock rather than fixed: a fixed 2026-10-31 instant fell behind the wall clock on that day and broke page two.
+LATE = {"do": "deliver", "decided": iso((datetime.now(timezone.utc) + timedelta(days=1)).replace(
+    minute=0, second=0, microsecond=0)), "blocks": [
     {"from": "2026-10-06T08:25:00Z", "to": "2026-10-06T08:30:00Z", "pv": "41", "only": ["pv"]}]}
 
 
@@ -945,6 +954,7 @@ def test_cold_revision_waits_for_its_selected_assessment(chain) -> None:  # noqa
             "RETURNING CAST(r.finding_id AS text)"), {"s": built.site_id, "sel": selected}).scalars().all()
         c.execute(text("ALTER TABLE finding_revision ENABLE TRIGGER USER"))
     assert moved, "a revision shares the last selection's transaction time"
+    assert set(moved) <= set(old), "moved findings must all be in the pre-move selection"  # diagnostic for a rare KeyError
     k = selected - timedelta(milliseconds=500)
     at_k = estate.ok("findings", **day, known_at=iso(k))
     seen = {r["finding_id"]: r["finding_revision_id"] for r in at_k["rows"]}

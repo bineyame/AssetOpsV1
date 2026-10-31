@@ -178,7 +178,8 @@ def test_pending_link_and_missing_source_keep_gap(runner, monkeypatch) -> None: 
             "clock_timestamp() FROM analytic_run_selection WHERE site_id = :s AND analytic_id = 'dispatch' "
             "AND window_start = '2026-10-06T00:00:00Z' ORDER BY seq DESC LIMIT 1"), {"s": s}).rowcount
     assert added == 1
-    lists = Lists(POSITIVE_NOW + timedelta(minutes=1))
+    # read after the reselection's real DB clock stamp, not at a fixed instant that the clock will pass
+    lists = Lists(max(POSITIVE_NOW, _db_now(runner)) + timedelta(minutes=1))
     try:
         body = lists.get(t, s, "incidents")
         chosen = lists.select(t, s, "incidents")

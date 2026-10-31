@@ -1,6 +1,8 @@
 """One schedule stage, run in its own killable child process (S4-02d phase 1).
 
-    python -m assetops_backend.scheduling.stages discover|s3|mini|opportunity|s4|consequence '<json arguments>'
+    python -m assetops_backend.scheduling.stages <stage> '<json arguments>'
+
+<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|consequence|cold_consequence|ev_consequence
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -8,13 +10,19 @@ options to every connection the child opens), and kills it when the stage's wall
 reaches the database only through the existing writer and store modules, by their compositions. Its last stdout
 line is `STAGE_RESULT {json}` with a typed `code`:
 
-- `OK` (discover, s3, mini, opportunity, consequence), `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
+- `OK` (discover, s3, cold_assess, ev_assess, mini, opportunity, consequence, cold_consequence, ev_consequence),
+  `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
 - `FENCE_MOVED`: the matcher fence moved under every planned attempt; retryable.
 - `MATCH_EVIDENCE_NOT_ACCEPTED`: the matcher cited an evidence ID that is not accepted in this Site; the same
   `FindingFenceMoved` type, but deterministic (S4-02d N3), so it is reported apart from a moved fence.
 - `TIMEOUT`: a server-side `statement_timeout` or `lock_timeout` fired (SQLSTATE 57014 / 55P03).
 - `UNAVAILABLE`: a store reported itself unavailable for another reason.
 - `FAILED`: any other error, with its type and message.
+- `CONSEQUENCE_CLAIMED` (cold_consequence, ev_consequence): another runner holds that domain's Site claim.
+
+FIX-COLD-DRAIN: `cold_assess`/`ev_assess` lease this Site's `cold_chain`/`ev_charging` assessment jobs at DB time,
+and `cold_consequence`/`ev_consequence` drain this Site's cold/EV consequence work at the DB time the tick passes,
+each through its existing worker (job lease, retries and back-off, per-item locks and replay stay the workers').
 
 The S4 stage runs the matcher only when the Site has no completed pass for the current `MATCHER_VERSION` in the
 schedule head, or its current matcher fence differs from the fence recorded at that pass (packet item 1, N1);
@@ -198,6 +206,95 @@ def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
                          for o in report.outcomes]}
 
 
+# The cold and EV assessment workers' five-minute lease; their stage bound stays below it.
+DOMAIN_JOB_LEASE_SECONDS = 300
+
+
+def _dispose(*holders: Any) -> None:
+    for holder in holders:
+        closer = getattr(holder, "dispose", None) or getattr(getattr(holder, "_engine", None), "dispose", None)
+        if closer is not None:
+            closer()
+
+
+def _domain_assess(url: str, args: dict[str, Any], domain: str) -> dict[str, Any]:
+    """This Site's bounded cold or EV assessment stage: at most `limit` due jobs of the domain, leased at DB time
+    by the domain's worker. `processed` counts the jobs leased, `failed` those left FAILED, `deferred` this Site's
+    jobs of the domain still PENDING or LEASED."""
+    from datetime import timedelta
+
+    from assetops_backend.analytics import cold, ev
+    from assetops_backend.analytics.assessment_worker import COLD_DOMAIN, EV_DOMAIN
+    from assetops_backend.analytics.composition import (
+        build_cold_assessment_worker,
+        build_ev_assessment_worker,
+        build_postgres_assessment_store,
+    )
+
+    build, analytic, job_domain = {"cold": (build_cold_assessment_worker, cold.EXCURSION_ANALYTIC, COLD_DOMAIN),
+                                   "ev": (build_ev_assessment_worker, ev.SESSION_ANALYTIC, EV_DOMAIN)}[domain]
+    tenant_id, site_id = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    worker = build(url, clock=db_clock(url), lease=timedelta(seconds=DOMAIN_JOB_LEASE_SECONDS))
+    try:
+        outcomes = worker.run_pending(int(args["limit"]), tenant_id, site_id)
+    finally:
+        _dispose(worker.store, worker.findings)
+    store = build_postgres_assessment_store(url)
+    try:
+        live = store.live_jobs(analytic, job_domain, tenant_id, site_id)
+    finally:
+        _dispose(store)
+    return {"code": "OK", "processed": len(outcomes),
+            "failed": sum(1 for o in outcomes if o.status == "FAILED"),
+            "deferred": sum(1 for j in live if j["status"] in ("PENDING", "LEASED")),
+            "outcomes": [{"job_id": o.job_id, "status": o.status, "runs": len(o.runs), "error": o.error}
+                         for o in outcomes],
+            "live_jobs": [{k: j[k] for k in ("id", "status", "window_start", "window_end", "attempts",
+                                              "lease_until", "last_error")} for j in live]}
+
+
+def cold_assess(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    return _domain_assess(url, args, "cold")
+
+
+def ev_assess(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    return _domain_assess(url, args, "ev")
+
+
+def _domain_consequence(url: str, args: dict[str, Any], domain: str) -> dict[str, Any]:
+    """This Site's bounded cold or EV consequence drain, by IDs, at the DB time the tick passes, in the
+    `consequence` stage's shape (the counts are computed here; the workers are unchanged)."""
+    from assetops_backend.financials.composition import build_cold_consequence_worker, build_ev_consequence_worker
+
+    build = {"cold": build_cold_consequence_worker, "ev": build_ev_consequence_worker}[domain]
+    tenant_id, site_id = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    worker = build(url)
+    try:
+        report = worker.run(tenant_id, site_id, int(args["limit"]), now=datetime.fromisoformat(args["now"]))
+    finally:
+        _dispose(worker._store)
+    o = report.outcomes
+    if domain == "cold":
+        appended = sum(len(x.appended) for x in o)
+        replayed = sum(len(x.replayed) for x in o)
+    else:
+        appended = sum(1 for x in o if x.succeeded and x.consequence_revision_id is not None and not x.replayed)
+        replayed = sum(1 for x in o if x.succeeded and x.replayed)
+    return {"code": "OK" if report.claimed else "CONSEQUENCE_CLAIMED", "claimed": report.claimed,
+            "now": report.now, "selected": len(o), "appended": appended, "replayed": replayed,
+            "failed": sum(1 for x in o if not x.succeeded), "deferred": report.deferred, "backlog": report.backlog,
+            "outcomes": [{"work_id": x.work_id, "succeeded": x.succeeded, "attempt_no": x.attempt_no,
+                          "error_code": x.error_code} for x in o]}
+
+
+def cold_consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    return _domain_consequence(url, args, "cold")
+
+
+def ev_consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    return _domain_consequence(url, args, "ev")
+
+
 OPPORTUNITY_JOB_LEASE_SECONDS = 300  # MiniOpportunityWorker's five-minute lease; the stage bound stays below it.
 
 
@@ -227,7 +324,9 @@ def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
-    "discover": discover, "s3": s3, "mini": mini, "opportunity": opportunity, "s4": s4, "consequence": consequence}
+    "discover": discover, "s3": s3, "cold_assess": cold_assess, "ev_assess": ev_assess, "mini": mini,
+    "opportunity": opportunity, "s4": s4, "consequence": consequence, "cold_consequence": cold_consequence,
+    "ev_consequence": ev_consequence}
 
 
 def main(argv: list[str] | None = None) -> int:

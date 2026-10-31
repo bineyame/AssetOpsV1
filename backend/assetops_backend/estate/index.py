@@ -12,8 +12,8 @@ from typing import Any, Callable
 from urllib.parse import quote
 
 from assetops_backend.estate.coverage import (
-    ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
-    not_applicable, site_coverage)
+    ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
+    UNKNOWN, not_applicable, site_coverage)
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
@@ -35,6 +35,8 @@ def _status(historical: bool, states: list[str]) -> str:
     for state in (PENDING, STALE, UNKNOWN):
         if state in states:
             return state
+    if PARTIAL in states:  # COV-PARTIAL: a partly checked Site is never a Current estate root
+        return UNKNOWN
     return CURRENT
 
 
@@ -49,7 +51,7 @@ def _coverage_site(site: dict[str, Any], cov: dict[str, Any]) -> dict[str, Any]:
     return {"site_id": str(site["site_id"]), "state": cov["state"], "committed_watermark": wire_time(cov["watermark"]),
             "selection_id": None if cov["selection_id"] is None else str(cov["selection_id"]),
             "match_state": cov["match_state"], "job_state": cov["job_state"],
-            "source_freshness": cov["source_freshness"]}
+            "source_freshness": cov["source_freshness"], "days": cov.get("days")}
 
 
 def _token_site(site: dict[str, Any], domain: str, cov: dict[str, Any]) -> dict[str, Any]:

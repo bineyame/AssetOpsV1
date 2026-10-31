@@ -26,6 +26,7 @@ import {
   row,
   SITES,
   outcomeSummaryBody,
+  partialBody,
   STATUS_BODIES,
   withOutcomeSummary,
 } from "./portfolioFixtures";
@@ -420,11 +421,12 @@ describe("estate Portfolio page", () => {
       CURRENT: "Selected Site records",
       HISTORICAL: "Historical as of 30 Sep 2026 · 00:00 UTC",
       PENDING: "Updating selected Sites",
+      PARTIAL: "Some days not checked yet",
       UNKNOWN: "Some Sites cannot be compared yet",
       EMPTY_SCOPE: "No accessible Sites",
     };
     const statuses = Object.keys(STATUS_BODIES) as EstatePortfolioStatus[];
-    expect(statuses.sort()).toEqual(["CURRENT", "EMPTY_SCOPE", "HISTORICAL", "PENDING", "UNKNOWN"]);
+    expect(statuses.sort()).toEqual(["CURRENT", "EMPTY_SCOPE", "HISTORICAL", "PARTIAL", "PENDING", "UNKNOWN"]);
     for (const status of statuses) {
       const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(STATUS_BODIES[status])));
       await settledScreen();
@@ -1103,5 +1105,66 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(pulseWarnings()).toBe("Unknown warnings not yet priced");
     expect(protectDetail()).toBe("Service disruptions recorded in Findings · loss not priced");
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
+  });
+
+  // COV-PARTIAL U3 (MOCK DEVIATION R620): a partly checked Site never reads zero, Current or on track.
+  it("partlyCheckedSiteNamesItsDaysAndWithholdsValue", async () => {
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody())));
+    await settledScreen();
+    const context = document.querySelector("[data-portfolio-context]") as HTMLElement;
+    expect(context.getAttribute("data-portfolio-context")).toBe("PARTIAL");
+    expect(text(context.querySelector(".portfolio-badge"))).toBe("Some days not checked yet");
+    expect(text(context.querySelector("[data-portfolio-sentence]"))).toBe("Portfolio: Partly checked");
+    expect(text(context.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
+      "Kobo: 5 of 7 days checked · 2 days not available yet · not checked: 11 Oct, 12 Oct",
+    );
+    expect(context.querySelectorAll("[data-portfolio-partial]")).toHaveLength(1);
+    const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
+    const kobo = drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]");
+    // review L1: the unchecked days sit on their own line under the coverage words
+    const beforeBreak = Array.from(kobo?.childNodes ?? []);
+    expect(beforeBreak.slice(0, beforeBreak.findIndex((n) => n.nodeName === "BR")).map((n) => n.textContent).join("")).toBe(
+      "Mini-grid · Partly checked",
+    );
+    expect(kobo?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
+    expect(text(kobo?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Days not checked yet: 11 Oct, 12 Oct");
+    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Partly checked · Value withheld");
+    // no state code on screen, in a title or in an aria-label
+    const page = document.body.textContent ?? "";
+    expect(page).not.toMatch(/PARTIAL|UNASSESSED|NO_ASSESSED_SELECTION|estate-coverage/);
+    const attrs = Array.from(document.querySelectorAll("[title],[aria-label]")).map((e) => `${e.getAttribute("title") ?? ""} ${e.getAttribute("aria-label") ?? ""}`);
+    expect(attrs.join(" ")).not.toMatch(/PARTIAL|UNASSESSED/);
+  });
+
+  it("partlyCheckedSiteWithManyGapsPointsToTheScopeList", async () => {
+    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"];
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
+    await settledScreen();
+    expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
+      "Kobo: 6 of 14 days checked · 8 days not available yet · the days are listed under Assessment scope & periods",
+    );
+    expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe(
+      "Days not checked yet: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct, 8 Oct",
+    );
+  });
+
+  // review L7: exactly 7 unchecked days still list them in the note (the switch is > 7)
+  it("partlyCheckedSiteWithSevenGapsStillListsTheDays", async () => {
+    const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07"];
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(partialBody(gaps, 14))));
+    await settledScreen();
+    expect(text(document.querySelector("[data-portfolio-partial='KOBO-001']"))).toBe(
+      "Kobo: 7 of 14 days checked · 7 days not available yet · not checked: 1 Oct, 2 Oct, 3 Oct, 4 Oct, 5 Oct, 6 Oct, 7 Oct",
+    );
+  });
+
+  it("nonPartialBodiesShowNoPartialNote", async () => {
+    for (const body of [portfolioBody(), STATUS_BODIES.UNKNOWN]) {
+      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(body)));
+      await settledScreen();
+      expect(document.querySelector("[data-portfolio-partial]")).toBeNull();
+      expect(document.querySelector("[data-portfolio-scope-gaps]")).toBeNull();
+      view.unmount();
+    }
   });
 });
