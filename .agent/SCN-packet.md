@@ -79,7 +79,11 @@ scenarios (frontend, layout-evidence and contract9 references are single-scenari
 - `pytest backend/tests/test_scenario_fingerprints.py backend/tests/test_run_binds_scenario_to_site.py
   host/tests/test_mini_grid_v5.py`: 58 passed in 11.24s (existing digests untouched; nothing added).
 - U2 test (with the scenario temporarily in place): 1 failed, 4 passed.
-- `tools\check-all.ps1`: see the run note in the handback report. Note `check-all.ps1` ignores
+- `tools\check-all.ps1 -Python <plan2 venv python>`: 9 of 11 PASS (architecture seams, estate self-tests,
+  navigation, agent workflow, registry, delivery and mock-gap fixtures, evidence width, screen ledger). 2 FAIL,
+  environment only: missing-claim orphan scan and its fixtures, `MODULE_NOT_FOUND` for `typescript`
+  (`tools/checks/missing-claim-scan.mjs:19-20` requires it from `frontend/node_modules`, absent in this worktree).
+  The tracked tree is identical to the base. Note `check-all.ps1` ignores
   `ASSETOPS_GUARD_PYTHON` from the environment (it sets it from its own `-Python` parameter, `:23`, `:55`); it must
   be run with `-Python <plan2 venv python>`.
 
