@@ -502,6 +502,15 @@ def test_m5_two_actions_on_one_finding_read_history_once() -> None:
     assert f.refreshed_from == ("f104r0",)  # f104rX is not in the history: no link
 
 
+
+def test_m7_malformed_history_row_is_partial_not_a_failed_board() -> None:
+    """Review L2: a history row without `revision_no` makes `refresh_chain` raise inside `reads.call`."""
+    comp, rows, _ = _run_with_history(_lineage_fake(), lambda f, r: [{"id": "f104r0"}, {"id": "f104r"}])
+    assert "finding_history" in comp.failed and comp.read_state == "PARTIAL"
+    assert rows[COST]["must_not_harm"] is None
+    f = next(x for x in comp.facts.findings if x.finding_id == "f104")
+    assert f.refreshed_from == ()
+
 # M6: the same shapes through the real FindingReadService.history and the B4 port binding (paging, encoding).
 def _real_history_port(shapes: list[tuple[int, str, str, datetime]], gate_open: bool = True):
     from uuid import uuid4

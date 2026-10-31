@@ -456,7 +456,9 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         # the Finding history route (D-2026-10-31-board-action-refresh-lineage)
         assert len(lineage) == 2, lineage
         for key, body, seen_ in (("kobo_guardrail_day_a", a, lineage[0]), ("kobo_guardrail_day_b", b, lineage[1])):
-            _assert_lineage_must_not_harm(c, key, seen_, f01, spec["action"], _rows(body)["OPTIMIZE_COST"])
+            linked = _assert_lineage_must_not_harm(c, key, seen_, f01, spec["action"], _rows(body)["OPTIMIZE_COST"])
+            # review L1: pin the recorded branch (Day A has no ACT-000001; Day B is one BASIS_REFRESHED step)
+            assert linked is (key == "kobo_guardrail_day_b"), (key, seen_)
 
     # Addendum 6: the s602b overview is STALE_PROJECTION, so the outcomes stay UNKNOWN/NOT_MEASURED. The Day A F01
     # checks are restored below (IDX-GAPS); Must-not-harm on both days follows LINK-LINEAGE (above); Day A

@@ -510,7 +510,10 @@ def _lineage(reads: Reads, ports: MiniPorts, findings: tuple[FindingFact, ...],
                    and a.origin_revision_id and a.origin_revision_id != f.revision_id}
         if origins:
             rows = reads.call("finding_history", ports.finding_history, f.finding_id, f.revision_id)
-            f = replace(f, refreshed_from=tuple(sorted(o for o in origins if refresh_chain(rows, o, f.revision_id))))
+            # a malformed history row is a failed read (PARTIAL, no link), never a failed board
+            kept = reads.call("finding_history", lambda r=rows, s=f.revision_id: tuple(
+                sorted(o for o in origins if refresh_chain(r, o, s))))
+            f = replace(f, refreshed_from=kept or ())
         out.append(f)
     return tuple(out)
 

@@ -66,8 +66,8 @@ def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeyp
         body, failed = _board(c, "KOBO-001", "out_e4_verified", date=day)
         # LINK-LINEAGE U3: ACT-000001's origin Finding against its shown revision, by the inline history rule
         assert lineage, "the mini composer did not run"
-        _assert_lineage_must_not_harm(c, "out_e4_verified", lineage[-1], spec["findings"]["2026-10-06"],
-                                      spec["action"], {r["category"]: r for r in body["rows"]}["OPTIMIZE_COST"])
+        assert _assert_lineage_must_not_harm(c, "out_e4_verified", lineage[-1], spec["findings"]["2026-10-06"],
+                                             spec["action"], {r["category"]: r for r in body["rows"]}["OPTIMIZE_COST"])
     _record("out_e4_earlier", {r["category"]: r["earlier"] for r in body["rows"]})
     rows = {r["category"]: r for r in body["rows"]}
     cost = rows["OPTIMIZE_COST"]["earlier"]
