@@ -3,8 +3,13 @@
 The s602b `verified` case builds in a child into a fresh `assetops_out_e_board_test` database (the OUT-B4 helpers:
 `_case_db`, `_build_kobo`, `_serve`, `_pin_kobo` with the case's `pinned_at`), the OUT-D demo objectives are declared
 through `declare_objective fixture` (MG-2 target 0), and the board is read on the UTC day of the later hour's end.
-The Cost row's Earlier ACT-048 entry keeps today's VERIFIED label and gains the modelled change and the before/after
-line; the Assure row's Verified results line adds the modelled change; no reason or state code is on the page.
+
+Architect ruling 2026-10-31 (option b; a modelled cost claim never goes in the Protect row): this test asserts what
+the data shows. The board day's Finding index is UNASSESSED (OUT-B4 Addendum 6), so the origin Finding is outside the
+one-day view and B-Q18 places the Action under Protect: its Earlier entry carries no detail and the Cost Earlier list
+is empty. The Assure Verified results line carries the modelled change. The Cost-row cost line and before/after
+line are proven by the fake-port tests (`test_out_e4_readback.py`); register R595 (open) holds the real-data
+Cost-row read-back until the combined dataset makes the Finding index current on the board day.
 """
 
 from __future__ import annotations
@@ -17,9 +22,8 @@ from test_s4_finding_store_postgres import URL
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
-DETAIL = ("Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand · "
-          "Supply cost per kWh before the trial: missed · after: met")
-ASSURE = "ACT-048 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"
+PROTECT = "Verified on test data · linked finding outside this view"
+ASSURE = "ACT-000001 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"
 CODES = ("MODELLED_IMPROVEMENT", "MODELLED_NO_IMPROVEMENT", "UNAVAILABLE", "OUTCOME_INCONCLUSIVE",
          "trial-fuel-comparison", "candidate", "VERIFIED")
 
@@ -44,7 +48,7 @@ def _texts(value) -> list[str]:
     return [value] if isinstance(value, str) else []
 
 
-def test_kobo_verified_cost_row_and_assure_read_back(kobo_verified, monkeypatch) -> None:
+def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeypatch) -> None:
     from test_out_b4_board_postgres import _board, _client, _pin_kobo, _record, _serve
 
     url, work, spec, declared = kobo_verified
@@ -54,20 +58,16 @@ def test_kobo_verified_cost_row_and_assure_read_back(kobo_verified, monkeypatch)
     _serve(monkeypatch, url, work)
     _pin_kobo(monkeypatch, spec)
     with _client() as c:
-        summary = c.get(f"/api/sites/KOBO-001/actions/{spec['action']}/verification")
         body, failed = _board(c, "KOBO-001", "out_e4_verified", date=day)
-    _record("out_e4_summary", summary.json() if summary.status_code == 200 else summary.status_code)
+    _record("out_e4_earlier", {r["category"]: r["earlier"] for r in body["rows"]})
     rows = {r["category"]: r for r in body["rows"]}
-    entry = next(e for e in rows["OPTIMIZE_COST"]["earlier"] if e["text"].startswith("ACT-048"))
-    _record("out_e4_cost_earlier", entry)
-    assert entry["result_label"] == "Verified on test data"
-    assert entry["detail"] == DETAIL
-    others = [e for r in rows.values() for e in r["earlier"] if e is not entry]
-    assert all(e["detail"] is None for e in others), others
-    assure = [c for c in rows["ASSURE_PERFORMANCE"]["contributors"] if c["key"] == "verified_results"]
-    _record("out_e4_assure", assure)
-    assert [c["text"] for c in assure] == [ASSURE]
+    assert rows["OPTIMIZE_COST"]["earlier"] == []
+    entry = next(e for e in rows["PROTECT_ASSET"]["earlier"] if e["text"].startswith("ACT-000001"))
+    assert (entry["result_label"], entry["detail"]) == (PROTECT, None)
+    assert all(e["detail"] is None for r in rows.values() for e in r["earlier"])
+    assure = [c["text"] for c in rows["ASSURE_PERFORMANCE"]["contributors"] if c["key"] == "verified_results"]
+    assert assure == [ASSURE]
     shown = [t for r in body["rows"] for t in _texts({k: r[k] for k in ("contributors", "earlier", "issues",
                                                                          "in_hand", "options")})]
     assert [(t, code) for t in shown for code in CODES if code in t] == []
-    assert json.dumps(body).count("not realised savings") == 1
+    assert "not realised savings" not in json.dumps(body)  # no cost line outside the Cost row
