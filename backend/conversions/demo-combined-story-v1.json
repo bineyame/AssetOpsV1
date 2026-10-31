@@ -1,0 +1,52 @@
+{
+  "schema": {"id": "assetops.demo-combined-story", "version": 1},
+  "label": "Combined three-Site demo dataset: registered Lab runs and prepared example work records on one story calendar",
+  "status": "DEMO-A build sheet (AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md section 2 and Addendum 1). Every instant is relative to the story day S = floor_utc_day(DB now at prepare) - 2 d, except the Kobo install, which the S1 binding fixture fixes, and the diesel price, recorded at Kobo install + 1 h (onboarding, R1).",
+  "story_day_offset_days": -2,
+  "offset_format": "S[+-]<days>d HH:MM (UTC)",
+  "max_backdate_days": 30,
+  "backdate_margin_hours": 1,
+  "install_min_lead_hours": 1,
+  "kobo": {
+    "site_code": "KOBO-001",
+    "install_fixed": "2026-10-07T11:00:00Z",
+    "price_after_install_hours": 1,
+    "runs": {
+      "baseline": {"start": "S+0d 03:00", "end": "S+0d 11:00", "foundation_known_at": "S-6d 12:00", "received_at": "S+0d 12:00"},
+      "later": {"start": "S+1d 03:00", "end": "S+1d 11:00", "foundation_known_at": "S+0d 16:00", "received_at": "S+1d 12:00"}
+    },
+    "action": {"accept_at": "S+0d 13:00", "apply_at": "S+0d 14:00", "effective_from": "S+1d 00:00"},
+    "plan": {"freeze_at": "S+0d 15:00"},
+    "windows": {"baseline_start": "S+0d 06:00", "later_start": "S+1d 06:00"},
+    "evaluate_at": "S+1d 13:00",
+    "visits": [
+      {"key": "gen-v1", "asset_type": "GENERATOR", "at": "S-20d 10:00", "title": "Generator inspection", "note": "Generator inspected; oil and filters checked"},
+      {"key": "gen-v2", "asset_type": "GENERATOR", "at": "S-9d 10:00", "title": "Generator inspection", "note": "Generator inspected; no fault found"}
+    ],
+    "plans": [
+      {"key": "plan-500h", "asset_type": "GENERATOR", "at": "S-8d 09:00", "title": "Generator 500-hour service", "trigger_kind": "RUN_HOURS", "due_hours": "500", "due_at": null},
+      {"key": "plan-battery", "asset_type": "BATTERY", "at": "S-8d 09:00", "title": "Battery capacity test", "trigger_kind": "CALENDAR", "due_hours": null, "due_at": "S+4d 00:00"}
+    ]
+  },
+  "cold": {
+    "site_code": "COLD-LAB-001",
+    "install_at": "S-26d 06:00",
+    "failure_night_day": "S+0d 00:00",
+    "normal_night_day": "S-7d 00:00"
+  },
+  "ev": {
+    "site_code": "EV-LAB-001",
+    "install_at": "S-26d 06:30",
+    "setup_after_install_hours": 1,
+    "base_e_start": "2026-10-06T08:00:00Z",
+    "e_start": "S+0d 08:00",
+    "e_end": "S+0d 09:00",
+    "visits": [
+      {"key": "conn-v1", "at": "S-15d 10:00", "title": "Connector inspection", "note": "Connector inspected; contacts cleaned"},
+      {"key": "conn-v2", "at": "S-5d 10:00", "title": "Connector inspection", "note": "Connector inspected; no fault found"}
+    ],
+    "plans": [
+      {"key": "plan-connector", "at": "S-8d 09:00", "title": "Connector inspection", "trigger_kind": "CALENDAR", "due_hours": null, "due_at": "S-6d 00:00"}
+    ]
+  }
+}
