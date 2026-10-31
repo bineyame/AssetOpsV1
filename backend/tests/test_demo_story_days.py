@@ -150,6 +150,8 @@ def test_add_day_defaults_to_the_next_free_day_on_real_time():
 
 def test_add_day_refusals():
     assert _refused("kobo", "normal", day="S-14d") == "DUPLICATE_DAY"
+    # evidence is the append-only basis: a delivered day refuses as delivered even when the calendar also holds it
+    assert _refused("kobo", "normal", day="S-14d", delivered_days={"2026-10-15"}) == "DAY_HAS_EVIDENCE"
     assert _refused("kobo", "normal", day="S-11d", delivered_days={"2026-10-18"}) == "DAY_HAS_EVIDENCE"
     assert _refused("kobo", "normal", day="S+3d") == "DAY_NOT_IN_PAST"
     assert _refused("kobo", "normal", db_now=S + timedelta(days=2, hours=11)) == "DAY_NOT_IN_PAST"  # run ends 11:00

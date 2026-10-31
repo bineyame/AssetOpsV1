@@ -195,11 +195,11 @@ def plan_add_day(days_doc: dict, current: list[DayRun], site: str, kind: str, S:
     offset = day_offset(day) if day else (max(r.offset for r in mine) + 1 if mine else 0)
     D = S + timedelta(days=offset)
     date = D.date().isoformat()
+    if date in delivered_days:
+        raise StoryDaysError("DAY_HAS_EVIDENCE", f"{site} {date} already holds delivered evidence (append-only)")
     if any(r.day == date for r in mine):
         raise StoryDaysError("DUPLICATE_DAY", f"{site} already has a {next(r.kind for r in mine if r.day == date)} "
                                               f"entry on {date}")
-    if date in delivered_days:
-        raise StoryDaysError("DAY_HAS_EVIDENCE", f"{site} {date} already holds delivered evidence (append-only)")
     if offset < -BOARD_WINDOW_DAYS:
         raise StoryDaysError("OUTSIDE_BOARD_WINDOW", f"{site} {date} is earlier than S-{BOARD_WINDOW_DAYS}d")
     entry = {"day": f"S{offset:+d}d", "kind": kind}

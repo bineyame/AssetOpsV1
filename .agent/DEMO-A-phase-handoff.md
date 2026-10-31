@@ -20,8 +20,15 @@ Sources: `AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md` (wins where it dif
   `MODELLED_NO_IMPROVEMENT` 0 USD; Kobo child 746 s (about 105 s/run, not 80: raise `kobo_expected_seconds` to
   110 s/run + 60 before U6), total 813 s, cap 1480 s. **Still to do in U3:** the child's unit check
   (`GET /api/sites/KOBO-001/finding-index?domain=mini-grid-dispatch&from=S&to=S+1` holds the accepted Finding).
-- **U4: code committed, not exercised yet**: `add-day` command (`demo_combined.py`, `.busy` lock, delivered-days query), Kobo child
-  `add-day`; `links` lists story days + boards S/S-7/S-28; `serve` prints next-day `add-day` commands.
+- **U3 done** (`11da30c75`): `trial_day_index` unit check (one-day index [S, S+1) CURRENT, holds the accepted
+  Finding; proved on the dev DB: CURRENT 1 [fbedca42...]); `kobo_expected_seconds` 110 s/run + 60.
+- **U4 done, exercised on the dev DB** (2026-10-31 ~07:20 UTC): `--day S-14d` refuses `DAY_HAS_EVIDENCE` (evidence
+  check now precedes the calendar duplicate check); live `normal` S-13d and `late` S-20d / `late --as overuse`
+  S-18d (91 s each) read PENDING on their one-day index until a tick, then CURRENT (S-18d: 1 Finding after one
+  `tick`); `--assess-now` normal S-19d CURRENT at once; `missing` default (S+2) appends days.json only.
+  Observed: assessment is Site-wide, so an `--assess-now` (or any assess) also assesses earlier pending live days,
+  and a pending live day turns other one-day windows `STALE_PROJECTION` until assessed. Dev days.json now holds
+  these extra days; a fresh dev prepare is needed for U5.
 - U5 (cold, EV on the day list), U6 (self-check child `tools/demo_combined_finish.py`, slow build test, register
   R615/R616/R618, carry-over R535/R552/R569/R595): not started.
 
