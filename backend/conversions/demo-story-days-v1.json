@@ -35,6 +35,7 @@
       {"day": "S-10d", "kind": "missing"},
       {"day": "S-7d", "kind": "overuse"},
       {"day": "S-3d", "kind": "late", "as": "normal"},
+      {"day": "S-1d", "kind": "normal"},
       {"day": "S+0d", "kind": "trial-before"},
       {"day": "S+1d", "kind": "trial-after"}
     ],

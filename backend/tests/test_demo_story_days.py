@@ -57,7 +57,7 @@ def test_default_file_validates_on_relative_dates(s):
                 "ev": s + timedelta(days=-26, hours=6, minutes=30)}
     runs = sd.resolve(sd.load(), s, db_now=db_now, installs=installs)
     assert {r.site for r in runs} == {"kobo", "cold", "ev"}
-    assert sum(r.has_run for r in runs if r.site == "kobo") == 7
+    assert sum(r.has_run for r in runs if r.site == "kobo") == 8
 
 
 @pytest.mark.parametrize("s", [S, datetime(2026, 11, 3, tzinfo=timezone.utc), datetime(2027, 3, 1, tzinfo=timezone.utc)])
@@ -104,7 +104,7 @@ def test_trial_pair_invalid(change):
     elif change == "after_not_next_day":
         next(e for e in kobo if e["kind"] == "trial-after")["day"] = "S+2d"
     else:
-        kobo.append({"day": "S-1d", "kind": "trial-before"})
+        kobo.append({"day": "S-2d", "kind": "trial-before"})
     assert _codes(doc) == "TRIAL_PAIR_INVALID"
 
 
@@ -159,7 +159,7 @@ def test_add_day_defaults_to_the_next_free_day_on_real_time():
     planned = _plan("kobo", "late", db_now=later)
     assert planned.day == (S + timedelta(days=2)).date().isoformat() and planned.as_kind == "normal"
     assert planned.received_at == later and planned.known_at == later and planned.assess == "tick"
-    assert planned.epoch == "day-13"  # after the 12 prepared runs (7 Kobo, 3 cold, 2 EV)
+    assert planned.epoch == "day-14"  # after the 13 prepared runs (8 Kobo, 3 cold, 2 EV)
     gap = _plan("cold", "normal", day="S-10d")
     assert gap.day == "2026-10-19" and gap.has_run
     assert not _plan("kobo", "missing", day="S-11d").has_run
