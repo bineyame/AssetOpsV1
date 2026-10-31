@@ -1,4 +1,4 @@
-# IDX-GAPS phase handoff (PARTIAL: U1-U3 built; U4 + closeout remain)
+# IDX-GAPS phase handoff (PARTIAL: U1-U4 built; full runs, captures, final closeout remain)
 
 Source: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-IDX-GAPS.md` + Addenda 1-3 (Addendum 1 Q1
 withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` with the brief's PYTHONPATH and
@@ -23,15 +23,20 @@ withdrawn by Addendum 2). Env: sheet §7; pytest from PowerShell in `backend/` w
   vitest files 583 passed; tsc clean; missing-claim scan passed. check-all 11/11 at U2.
 - Expected moves for packet: s4 postgres bridge-chain dirty neighbour -> PARTIAL 0 rows gaps [10-25]; e4 as above;
   true-v1 vs v2 board comparison (5 reads: states, read_state, failed identical; only Cost/Protect Earlier moved;
-  data in scratch `v1true-states.jsonl` / `v2-states.jsonl` from session 809ecc09).
+  data in scratch `v1true-states.jsonl` / `v2-states.jsonl` fro## U4 landed
+- `b34a5d348` `backend/tests/test_idx_gaps_postgres.py` P1, P2, P3 (real-data form, see packet deviations), P3b
+  (matched cross-midnight Finding withheld, EDGE_NEXT_TO_GAP), P4 (real store, fence moved), P5 (`mini.compose` over
+  the real index), residual-risk probe (pinned: end day reads CURRENT 0 alone). U2 review Lows L1/L2 in e4/b4.
+- `6812349ee` register R610-R613, R595 resolved (400d1096b), decision `D-2026-10-31-finding-index-v2`.
+- Focused U1+U2+U4: 144 passed; e4+b4 after Lows: 6 passed; check-all 11/11.
+- Packet `.agent/IDX-GAPS-packet.md` written (Checks has PENDING lines; L3 table in it). Task file
+  `tasks/IDX-GAPS-finding-index-v2.md` (Status in_progress, USER_REVIEW_REQUIRED false). CODE_STATE / ACTIVE_CONTEXT
+  entries say "built through U4; full runs pending".
 
 ## Next (resume here)
-1. U3 captures 390/1440 (Findings page PARTIAL, mini board line) - needs served app with PARTIAL data
-   (cursor key env vars, sheet §7); else record "layout evidence: not run" with the precondition.
-2. U4 `backend/tests/test_idx_gaps_postgres.py` P1-P5 (DB `assetops_idx_gaps_test`) + residual-risk probe:
-   unmatched cross-midnight block whose start day is a gap (record, don't fix). Note: real dispatch reads list no
-   Candidate segment in a day's first minutes, so withholding on real data rides `touched ∩ G`.
-3. Register R610-R613 in `.agent/mock-departure-register.md`; R595 "resolved by IDX-GAPS (<sha>)";
-   `D-2026-10-31-finding-index-v2` in `.ai/DECISIONS.md`.
-4. Ask coordinator before full vitest and `-Tier all`. Packet `.agent/IDX-GAPS-packet.md` (force-add; note the
-   sheet snippet's exclusive `>` corrected by Addendum 2), task file in_review, CODE_STATE, ACTIVE_CONTEXT.
+1. On coordinator go: captures 390/1440 via `tools/s404_finding_index_walkthrough.py prepare|serve` (API 8934, web
+   5434); Findings page window [10-15, 10-31) PARTIAL; mini board line if the producer serves the board. Else record
+   "layout evidence: not run".
+2. On coordinator go: full `npx vitest run` (known: 3 w1f4 tests), then `toolsun-backend-suite-in-container.ps1
+   -Tier all` (keep-awake, cap 2x ~41 min). Record command, revision, wall, JUnit counts in the packet.
+3. Fill the packet's PENDING lines; task Status -> in_review; CODE_STATE/ACTIVE_CONTEXT -> in_review; commit.

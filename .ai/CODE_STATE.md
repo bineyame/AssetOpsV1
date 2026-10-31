@@ -6137,3 +6137,19 @@ history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/O
 - s602b case `verified` (40/28 kW generator, 60/63 kW loads, price v1); `complete_windows` gains 4 kW params and carries `trial_comparison`.
 - Left open: R595 - on real s602b data the board day's Finding index is UNASSESSED, so the Action sits under Protect with no detail; the
   Cost-row line is proven on fakes only until the combined dataset. No re-run command (R592).
+## IDX-GAPS - Site Finding index finding-index/2 (built through U4; full runs pending)
+Branch `task/IDX-GAPS-finding-index-v2` (from main ca6d7d61b). Contract `AssetOpsV1-plan2/.agent/build-sheet-IDX-GAPS.md` + Addenda 1-3; packet
+`.agent/IDX-GAPS-packet.md`; decision `D-2026-10-31-finding-index-v2`.
+- `analytics/finding_index.py`: `POLICY_VERSION` "finding-index/2", schema `site-finding-index-2`, token `sfi2-`. `gap_days` (G: non-CURRENT
+  day -> NOT_CURRENT; CURRENT day whose Candidate segment reaches a non-CURRENT neighbour -> EDGE_NEXT_TO_GAP), `touched` (inclusive 20-min
+  bounds, as `reaches`/`margin_ok`). When some requested day is not in G and the fence did not move: PARTIAL, rows whose touched days miss G,
+  `withheld`, WITHHELD_FINDING host days. All requested days in G, or a moved fence: v1 status, no rows. v1 CURRENT bodies unchanged.
+- `site_outcomes/mini.py`: `index_settled(body, board_day)` (CURRENT, or PARTIAL whose gaps do not name the board day), `finding_gap_line`
+  (requested non-CURRENT days only; GAPS_NO_READINGS / GAPS_NOT_ASSESSED / GAPS_WITHHELD), `Reads.first`, `UNSETTLED_INDEX_STATUS`,
+  `FINDING_TITLE` by lifecycle (Addendum 3). `board.SiteFacts.finding_gaps`; wire `finding_gaps` + `policy_versions.finding_index`.
+- Frontend: `findingIndexClient` (`listsRows`, `gapDays`, PARTIAL), `productWords` PARTIAL, `SiteFindingIndex` `Partial` view,
+  `OverviewFindingList` PARTIAL note and `partial-empty`, `OutcomeBoard` `data-outcome-finding-gaps` line.
+- Real-data proofs `backend/tests/test_idx_gaps_postgres.py` P1-P5 + probe. R595 resolved (400d1096b); R610-R612 standing.
+- Left open: R613 (estate Findings keep the all-days rule). Residual risk (probe, v1-identical): an unmatched cross-midnight Candidate block
+  whose start day is a gap leaves the end day reading CURRENT 0 alone. b4 `two_board_days` Day A Cost NEEDS_ATTENTION, Day B Must-not-harm,
+  ACT-048 checks stay with DEMO-SPARSE CO-1.
