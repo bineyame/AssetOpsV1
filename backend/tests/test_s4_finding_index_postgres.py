@@ -178,7 +178,7 @@ class TestAssessedEmpty:
         assert day["s3"]["input_sha256"] and day["s3"]["configuration_sha256"] and day["s3"]["watermarks"]
         matcher = body["watermarks"]["matcher"]
         assert matcher["match_pass_id"] and matcher["matched_through_selection_seq"] >= day["s3"]["selection_seq"]
-        assert body["selection_token"].startswith("sfi1-") and body["knowledge_at"] and body["built_at"]
+        assert body["selection_token"].startswith("sfi2-") and body["knowledge_at"] and body["built_at"]
         # the same assessed day under an unsupported token is a 422, never an assessed zero
         refused(call(client, **empty, domain="cold-chain"), 422, "UNSUPPORTED_DOMAIN")
 
@@ -230,14 +230,18 @@ class TestContinuity:
         # the service cap: 409 with no rows, count or empty claim (2 days here; 62 by default, below)
         detail = refused(call(client_for(runner, continuity_limit=2), **window), 409, "INDEX_CONTINUITY_LIMIT")
         assert detail["limit_days"] == 2 and "does not mean continuity ends" in detail["message"]
-        # a dirty, then failed, neighbour two days away blocks CURRENT for the requested day
+        # a dirty, then failed, neighbour two days away blocks CURRENT for the requested day. IDX-GAPS v2: the
+        # requested day is not a gap, so the read is PARTIAL with no rows here (both episodes end before 01:00).
         runner.step({"do": "deliver", "decided": "2026-10-31T08:00:00Z",
                      "blocks": [block("2026-10-25T10:00:00Z", "2026-10-25T10:30:00Z", **NO_CANDIDATE)]})
-        dirty = ok(client, **window)
-        assert_no_claim(dirty, "STALE_PROJECTION")
-        assert all(r.startswith("2026-10-25") for r in dirty["status_reasons"]), dirty["status_reasons"]
-        set_jobs(engine, runner.site, "FAILED")
-        assert_no_claim(ok(client, **window), "FAILED")
+        for status in ("STALE_PROJECTION", "FAILED"):
+            if status == "FAILED":
+                set_jobs(engine, runner.site, "FAILED")
+            dirty = ok(client, **window)
+            assert dirty["status"] == "PARTIAL" and not dirty["is_current"], dirty["status_reasons"]
+            assert dirty["rows"] == [] and dirty["total_count"] == 0 and dirty["withheld"] is False
+            assert dirty["gaps"] == [{"day": "2026-10-25", "state": status, "reason": "NOT_CURRENT"}]
+            assert all(r.startswith("2026-10-25") for r in dirty["status_reasons"]), dirty["status_reasons"]
 
     def test_s3_candidate_near_an_edge_reaches_a_neighbour_the_matcher_skipped(self, store, engine) -> None:  # noqa: F811
         """Phase-1 review H1: the matcher skips a Candidate cluster within 20 min of a UTC edge while the

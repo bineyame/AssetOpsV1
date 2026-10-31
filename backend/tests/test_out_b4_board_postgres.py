@@ -390,8 +390,8 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         a, failed_a = _board(c, "KOBO-001", "kobo_guardrail_day_a", date="2026-10-06")
         b, failed_b = _board(c, "KOBO-001", "kobo_guardrail_day_b", date="2026-11-02")
 
-    # Addendum 6: the s602b fixtures are not current (overview STALE_PROJECTION, Finding index UNASSESSED), so the
-    # Day A NEEDS_ATTENTION/F01 and Day B Must-not-harm assertions move to the combined-dataset acceptance.
+    # Addendum 6: the s602b overview is STALE_PROJECTION, so the outcomes stay UNKNOWN/NOT_MEASURED. The Day A F01
+    # checks are restored below (IDX-GAPS); Day A NEEDS_ATTENTION and Day B Must-not-harm stay with DEMO-SPARSE CO-1.
     for body in (a, b):
         assert [r["category"] for r in body["rows"]] == CATEGORIES, [r["category"] for r in body["rows"]]
         measured = {o["key"]: o["state"] for r in body["rows"] for o in r["outcomes"]}
@@ -422,6 +422,17 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     index = LAST_PORTS["kobo_guardrail_day_b"]["action_index"]
     assert sum(p["rows"] for p in index) >= 1 and any(p["ids"] and spec["action"] in p["ids"] for p in index), index
     assert not [i for r in b["rows"] for i in _items(r) if i["text"].endswith(OUTSIDE)]
+    # IDX-GAPS (R595): the board day's index is PARTIAL with Day A assessed, so the addendum 6 Day A Finding checks
+    # pass again unmodified. Still left to DEMO-SPARSE CO-1 (they fail on the s602b data): Day A Cost
+    # NEEDS_ATTENTION, Day B Must-not-harm text and href, ACT-048 on Cost and on Protect (the fixture's Action is
+    # ACT-000001).
+    f01 = spec["findings"]["2026-10-06"]
+    cost, protect = _rows(a)["OPTIMIZE_COST"], _rows(a)["PROTECT_ASSET"]
+    moves = [i for i in cost["issues"] if i["role"] == "MOVES" and (i.get("ref") or {}).get("finding_id") == f01]
+    assert moves, cost["issues"]
+    checked = [i for i in protect["issues"] if (i.get("ref") or {}).get("finding_id") == f01]
+    assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
+    assert cost["must_not_harm"] is None
 
 
 def test_kobo_estate_finding_rows_and_states(monkeypatch, tmp_path) -> None:
