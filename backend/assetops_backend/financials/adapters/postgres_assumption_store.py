@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
@@ -58,7 +59,13 @@ ASSIGNMENT_COLUMNS = ("id, tenant_id, site_id, assumption_key, revision_id, publ
 
 
 class PostgresAssumptionStore:
-    def __init__(self, database_url: str | None) -> None:
+    def __init__(self, database_url: str | None, *,
+                 test_recorded_clock_override: Callable[[], datetime] | None = None) -> None:
+        """`test_recorded_clock_override` replaces only the publication instant (otherwise the server's
+        `clock_timestamp()`) for deterministic fixtures that place a past history; `RECORDED_TIME_NOT_LATER` and
+        every money rule are unchanged. Production composition never sets it (mirrors the evidence ledger's
+        `test_decision_clock_override`)."""
+        self.test_recorded_clock_override = test_recorded_clock_override
         self._database_url = database_url
         self._engine: Engine | None = None
 
@@ -128,7 +135,8 @@ class PostgresAssumptionStore:
                                          f"Expected prior revision {p.expected_prior_revision_id}, but the series "
                                          f"head is {head_id}; re-read and publish against the current head.")
             # One server instant, taken after the lock.
-            at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            at = (self.test_recorded_clock_override() if self.test_recorded_clock_override is not None
+                  else c.execute(text("SELECT clock_timestamp()")).scalar_one())
             latest = c.execute(text(
                 "SELECT max(recorded_from) FROM financial_assumption_assignment "
                 "WHERE tenant_id = :t AND site_id = :s AND assumption_key = :k"), series).scalar_one()
