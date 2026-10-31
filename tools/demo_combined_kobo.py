@@ -228,6 +228,30 @@ def publish_first_half(tmp_path: Path, run, epoch: str, received_at: datetime) -
             "delivery": "first half of the sealed batches (gateway outage)"}
 
 
+def trial_day_index(url: str, runner, S: datetime) -> dict:
+    """U3 unit check: the one-day Site Finding index over [S, S+1) (the S4 read, CURRENT without IDX-GAPS) through
+    the real router. The Performance gate is held open here only: the product gate opens after `finish()`."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
+    from assetops_backend.analytics.dispatch_read import DispatchReadService
+    from assetops_backend.analytics.finding_index import FindingIndexService
+    from assetops_backend.finding_index_api import build_finding_index_router
+
+    dispatch = DispatchReadService(PostgresAssessmentStore(url))
+    index = FindingIndexService(PostgresFindingStore(url), dispatch)
+    scope = {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}
+    app = FastAPI()
+    app.include_router(build_finding_index_router(index, scope.get,
+                                                  gate=lambda c, t, s: (True, "demo child check: gate held open")))
+    with TestClient(app) as client:
+        r = client.get("/api/sites/KOBO-001/finding-index", params={
+            "domain": "mini-grid-dispatch", "from": iso(S), "to": iso(S + timedelta(days=1))})
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
 def run_day(store, runner, tmp: Path, day: "sd.DayRun", base: dict) -> dict:
     """One registered Lab run on its story day: draft -> real gateway -> S2 acceptance at `received_at`; when the
     kind assesses at build, S3 assess + S4 match at `received_at + 5 min` (a `tick` day waits for the schedule)."""
@@ -295,6 +319,12 @@ def build(url: str, work: Path, story: dict) -> dict:
             r["findings"] = findings_on(engine, result.site.id, r["day"])
             r["status_after_build"] = ("NO_RUN" if r["kind"] == "missing" else
                                        "ASSESSED" if r["assess"] == "build" else "AWAITING_TICK")
+        body = trial_day_index(url, runner, at(story["S"]))
+        listed = [str(r.get("finding_id")) for r in body.get("rows") or []]
+        assert body["status"] == "CURRENT" and ids.get("finding") in listed, (body["status"],
+                                                                             body.get("status_reasons"), listed)
+        ids["trial_day_index"] = {"status": body["status"], "total_count": body.get("total_count"),
+                                  "finding_ids": listed}
         work_rows = write_work(url, store, result, story)
     finally:
         for h in harness:

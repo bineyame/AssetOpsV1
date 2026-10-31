@@ -57,7 +57,7 @@ TICK_EVERY_SECONDS = 120
 SITES = ("kobo", "cold", "ev")
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
 #: Expected wall seconds per step; the cap is twice the sum of the selected steps. Kobo is
-#: `kobo_expected_seconds` (DEMO-SPARSE U2: 80 s per Kobo run + 60 s).
+#: `kobo_expected_seconds` (DEMO-SPARSE U3 measured about 105 s per Kobo run: 110 s per run + 60 s).
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "finish": 90}
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 TICK = ("-m", "assetops_backend.scheduling.run", "tick", "--environment", "default", "--max-sites", "5",
@@ -70,7 +70,7 @@ class StoryClockError(SystemExit):
 
 
 def kobo_expected_seconds(days_doc: dict) -> int:
-    return 80 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
+    return 110 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
 
 
 def say(text: str = "") -> None:
