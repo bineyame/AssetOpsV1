@@ -94,9 +94,9 @@ Per Site, under the existing Site claim, keeping today's markers (the 0030 `stag
     then has `money_pending` false and a status other than PENDING. Tick 2: zero new attempts and revisions.
   - P2 (EV): the `test_w207_ev_money_postgres` tariff-window fixture. One tick assesses the `ev_charging` job and then
     drains `ev_consequence_work`; the EV money guard is not `PENDING_RECOMPUTE`/`STALE_BASIS` and a stored head exists.
-  - P3 (retry): monkeypatch the cold basis read to raise once. Tick 1 records a FAILED attempt and Site failure
-    `COLD_CONSEQUENCE`; a tick before `retry_due_at` adds no attempt; once due (move `finished_at` back in the test DB
-    only), the next tick succeeds.
+  - P3 (retry; pre-flight ruling (b), 2026-10-31: item failures stay worker-level, as in the mini drain; the Site
+    failure is proven only by T3's fake non-OK code): basis read raises once → tick 1 stage OK, `failed == 1`, one
+    FAILED attempt; a tick before `retry_due_at` adds none (`deferred == 1`); once due (move `finished_at` back, test DB only) it succeeds.
   - P4: a mini-only Site's tick result is byte-identical apart from the four new `stages` keys, each a 0-count OK.
 - Pre-flight grep: every test/tool running `ScheduleTick` or `tools/*tick*` over cold/EV fixtures that asserts a
   pending/stale cold/EV state or exact head counts goes in the packet first; only literals that follow from the drain
