@@ -61,8 +61,8 @@ prior `must_not_harm is None` holds by the same rule (the test asserts None from
 - Non-vacuity (each on committed `board.py`, then `git checkout --`): dropping the episode-end check fails N3, M2b,
   M6; dropping the lifecycle check fails N2, M2b, M6; disabling the contiguity check fails N10, M2b, M6; dropping
   `refreshed_from` from the join fails B1, M2, M6.
-- `tools\check-all.ps1 -Python <plan2 venv>` at `39ebf86d0`: All 11 guards passed. Re-run at the closeout head: see
-  the coordinator report.
+- `tools\check-all.ps1 -Python <plan2 venv>`: All 11 guards passed at `39ebf86d0`, and again at `4111496d3` with the
+  closeout docs in the tree (before this packet was written).
 - `-Tier all`: not run yet (awaiting the coordinator's go; sheet §4 merge gate). Known ignorable failure: w301 estate
   index `INVALID_CURSOR`.
 - No vitest, no captures (no frontend change; sheet §4).
