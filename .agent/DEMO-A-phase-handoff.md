@@ -29,8 +29,29 @@ Sources: `AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md` (wins where it dif
   Observed: assessment is Site-wide, so an `--assess-now` (or any assess) also assesses earlier pending live days,
   and a pending live day turns other one-day windows `STALE_PROJECTION` until assessed. Dev days.json now holds
   these extra days; a fresh dev prepare is needed for U5.
-- U5 (cold, EV on the day list), U6 (self-check child `tools/demo_combined_finish.py`, slow build test, register
-  R615/R616/R618, carry-over R535/R552/R569/R595): not started.
+- **U5: both children written, NOT run** (Postgres held for IDX-GAPS `-Tier all` when written).
+  - `tools/demo_combined_cold.py`: per day one `ShiftedChain` replay; swaps (process-local) `pg_harness.fresh_database`
+    -> no-op (else it WIPES Kobo), `producer.target_delta` -> D 16:00, `producer.BASE_SCENARIO` -> kind yaml,
+    `producer.shifted_case` -> mode `ordinary`, `P.ShiftedChain` factory -> case `ordinary-day-<n>` (unique gateway
+    epoch / attestation keys), w202 `PostgresEvidenceLedger`/`BatchIngestionService` clock -> `received_at`
+    (D 17:05). Install once at `cold.install_at`. `failure` day execs `w502_cold_work_walkthrough.BUILD` (positive)
+    with `sys.argv` swapped; others replay only. Writes `cold.json` `days[]`. Untested risks: received 17:05 equals
+    window end (if late-released readings refuse, use received + 5 min); `install_cold_lab` re-calls inside
+    `open()` with start-4 h clock assumed idempotent; BUILD's reads at db_now +-1 d see 0 rows (`blocked`, not fatal).
+  - `tools/demo_combined_ev.py`: per day `registered.Chain` subclass (attest assertion re-checked per epoch),
+    w205b constants shifted by whole days, INSTALL/SETUP at `ev.install_at`/+1 h, `RunSetupService` now ->
+    SETUP_AT, `ev_parsing.EV_WINDOW` + in-memory shifted scenario (`FakeScenarios`, id `<scenario>-day-<n>`),
+    `open(fresh=False, scenarios=, scenario_id=)`, then `run_worker` + `select_exact`. Pure check passed: shifted
+    ev-complete / ev-fault parse. **Missing:** fault-day work rows: w504 `_declare` (`w504_ev_work_walkthrough.py:214`;
+    Action `raised_at` = DB now, must be within 30 d), connector visits conn-v1/conn-v2 and plan-connector from
+    `story.json` `ev` via `build_work_service` + `test_w401_work_service_postgres` helpers (w502 BUILD :456-502
+    pattern); CO-10 needs PLAN_OVERDUE "Connector inspection" and CHARGER_FAULT_OVERDUE_INSPECTION on the EV board.
+  - Next: when `docker ps` shows no `assetops-ops03-*`: `drop` the dev DB, then `prepare --sites kobo,cold,ev
+    --no-finish` (estimate 2x(30+940+300+200) s, about 49 min cap; ask the coordinator first: over 20 min), or
+    first a cold-only/EV-only dev prepare (Kobo is needed by neither child).
+- U6 (self-check child `tools/demo_combined_finish.py`, slow build test, R535/R552/R569/R595 resolutions, packet,
+  task status, CODE_STATE/ACTIVE_CONTEXT): not started. Register R615/R616/R618 added (`4992b6677`). R595 still
+  open on main at `ca6d7d61b` (IDX-GAPS not merged).
 
 ## Resume notes for U5 (from DEMO-A Explore)
 
