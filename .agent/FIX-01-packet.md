@@ -50,10 +50,21 @@ portfolio_comparison 4 (393 s), portfolio_scope_snapshot 10 (718 s). Zero failur
 - Conflict: only `.agent/mock-departure-register.md` (R575/R576/R577). Kept main's R575 and R576; kept FIX-01's R577 row
   (resolved by FIX-01) in place of main's open R577. `site_selected_windows` and `summary()` merged without conflict.
 - OUT-C4 EV test flipped: 6 Oct summary now 200, Depot `window_basis == "LATEST_EVENT"`, href starts `/sites/EV-LAB-001/ev?from=` and
-  holds `&to=`. 8 Oct PERIOD assertion unchanged. Deviation: the Depot window is not exactly E [08:00, 09:00). OUT-W's
-  `latest_window` takes max window_end, which is the reselected window [08:00, 09:05) holding the superseding revision.
-  The test asserts from == E.from and to >= E.to. The Protect-equals-board check was not added (summary row shape differs).
+  holds `&to=`. 8 Oct PERIOD assertion unchanged. Architect ruling: the superseding revision (rev2, assessment b2697801, seq 2,
+  selected later) is window E [08:00, 09:00) exactly; OUT-W latest-end choice refined below. The Protect-equals-board check was not added.
 - Results on the merged head, one file at a time, real Postgres, plan2 venv: out_c4_ev_warnings 1 passed (69 s); fix01_estate_two_revisions 1 passed (52 s);
   fix01_cold_estate 1 passed (30 s); out_c3_repeat_visits 1 passed (55 s); out_b4_board 5 passed (182 s);
   non-Postgres out_w1*, out_w2*, fix01_windowed_dedupe: 34 passed.
 - `tools\check-all.ps1` (ASSETOPS_GUARD_PYTHON = plan2 venv): All 11 guards passed.
+
+
+## Window-choice refinement (Architect ruling, same branch)
+- `site_selected_windows` returns dicts (window_start, window_end, selected_at, seq, selection_id), distinct, ascending.
+- `latest_window` (site_outcomes/read.py): overlapping windows form one event; the event with the latest end wins; inside it
+  the latest (selected_at, seq, selection_id) wins. Recency never crosses separate events (touching ends are separate).
+- Tests: w1/w2 updated; new `test_overlapping_windows_later_selected_wins_even_with_earlier_end` and
+  `test_separate_events_later_event_wins_despite_older_selection`. Non-vacuity: old max-end rule fails the first (1 failed);
+  recency-across-events fails 3 (separate-events test, helper test, cold board test). Restored by `git checkout`.
+- OUT-C4 EV test asserts Depot window == E exactly; c3 spy uses `latest_window` on the returned dicts.- Results after the refinement (real Postgres, one file at a time, after OUT-D's container cleared): out_c4_ev_warnings 1 passed (48 s, Depot window == E exactly);
+  out_c3_repeat_visits 1 passed (41 s); out_b4_board 5 passed (138 s); non-Postgres w1, w2, fix01_windowed_dedupe 36 passed;
+  `tools\check-all.ps1`: All 11 guards passed. (Earlier "Post-merge" result lines predate the refinement.)
