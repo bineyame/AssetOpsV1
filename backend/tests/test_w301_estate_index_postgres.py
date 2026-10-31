@@ -184,7 +184,8 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
     assert body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
     assert site == {"site_id": str(built.site_id), "state": "CURRENT", "selection_id": pinned["selection_id"],
                     "committed_watermark": site["committed_watermark"], "match_state": "NOT_APPLICABLE",
-                    "job_state": "SETTLED", "source_freshness": "RECENT"}
+                    "job_state": "SETTLED", "source_freshness": "RECENT",
+                    "days": None}  # COV-PARTIAL: additive key, None for cold (sheet §2.6)
     assert body["scope"]["authorized_site_count"] == body["scope"]["covered_site_count"] == 1
     heads = stored_cold_heads(built.engine, built.site_id)
     assert body["rows"] and {r["finding_id"]: r["finding_revision_id"] for r in body["rows"]} == heads
