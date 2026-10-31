@@ -153,3 +153,59 @@ In `backend/conversions/demo-story-days-v1.json`:
   definition, the one-redesign rule, the fixed choice rule).
 - Owner decisions: none new. If the honest result is still 0 or not verified, that is shown as is (owner
   recommendation 3).
+
+## Addendum 1 · after the U2 stop (Architect: Claude, 2026-10-31)
+
+**The stop was correct.** Under the frozen policy as it really behaves (`mini_grid.py:704-730`: source order pv,
+battery, generator; a running generator carries load only once the battery is at its reserve), the SCN U2 design gave
+a start with no energy. That was my error in §1: I assumed a start means a loaded generator.
+
+**Can the baseline carry load while the reserve-25 run never starts? No.** Before the baseline generator carries load,
+both runs have identical causes and identical state-of-charge paths. The baseline carries load only from 30 %
+(its reserve), and 30 % is exactly the reserve-25 run's own start (min(35, 25 + 5)). So the reserve-25 run always
+starts too. "Never starts" and "baseline carries load" cannot both hold; no starting SOC or rain length changes that.
+
+**What the reserve change does change, honestly: fuel, not starts.** From 30 % the baseline generator carries the
+load. In the reserve-25 run the generator is requested at 30 % but stays unloaded while the battery serves load down
+to 25 %. Over that span, generator energy differs.
+
+**Design D2 (stated before running; one run; stop on failure; no further designs).** It reuses the U1 file
+(`kobo-mini-grid-reserve-matters` v1, unregistered so far) with these values changed:
+- `starting-state-of-charge` 34 %;
+- `irradiance-1` (rain) offset 0, duration 240, 30 W/m2;
+- `irradiance-2` offset 240, duration 240, 800 W/m2 (clears at 10:00 local: a heavy rainy-season morning);
+- loads unchanged (residential 4 kW, clinic 2 kW, mill 0);
+- `purpose` restated: the generator is requested early in both runs; with a 30 % reserve it carries the load from
+  30 %, and with 25 % the battery carries it down to 25 %; the trial changes generator energy, not starts.
+
+Expected (a design note, not an assertion target): about 2.2 %/h net drain. The baseline is at 30 % at about 04:50 and
+carries load until the clearing at 07:00. The reserve-25 run reaches 25 % at about 07:05, so its generator stays
+unloaded until the clearing.
+
+Kernel properties (they replace §2 U2 1-5 for D2):
+1. Baseline: the generator delivers > 0 kWh in at least one whole hour before offset 240. H = the first such hour
+   (expected 05:00-06:00 UTC).
+2. Reserve 25: generator energy in H is 0 kWh. Its start is allowed and recorded.
+3. Neither run goes below its own reserve. Record both minimum SOCs.
+4. Baseline: the generator is still requested after the clearing while PV covers every load (the avoidable morning,
+   a Finding).
+5. Every generator transition lies ≥ 20 min from 00:00 UTC.
+
+On any failure: stop, record the trajectory, nothing ships, and the demo keeps the honest 0 ((a)). On a pass,
+U1 registration also changes `test_scenario_fingerprints.py:141-143` `len(documents) == 13` to `== 14` (name it in
+the packet). U3 then runs at H with the unchanged choice rule. The verification may still fail its target (runtime
+is not reduced) or its guardrails (the battery goes deeper); whatever it shows is recorded, and (a) stays unless (d)
+VERIFIES.
+
+**Overcast (Q2): no new scenario.** A new `kobo-daytime-overcast` version would replace a shipped file, and so change
+an existing digest; that is refused. A new overcast id is not worth it, because `kobo-s3-dispatch-necessary-run`
+already is the weather-explained beat (its own text: an overcast morning; generator needed throughout, 455 min, no
+Finding). S−21 stays on necessary-run, and the longer-window day-list change is withdrawn. Inform the owner: their
+"allow the longer overcast window" was applied and cleared the interval refusal, but the scenario lacks the mini-grid
+v5 initial states, and the beat is kept honestly with necessary-run.
+
+**Clarification of D2 check 1 (Architect, 2026-10-31).** The intended meaning was (a): a whole clock hour that lies
+wholly before offset 240 and whose total generator energy is > 0 kWh. "kWh in an hour" is a total, and "whole hour"
+fixes the window, not a loaded-at-every-step condition. The words came before any run, so the implementer's rerun
+is the test as written, not a retune. H = 04:00-05:00 UTC (2.95 kWh at baseline, 0 at reserve 25) stands, and U3
+proceeds with the unchanged choice rule.
