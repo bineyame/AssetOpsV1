@@ -3,8 +3,9 @@ mini_grid / dispatch Findings.
 
 A Site holding an open cold Finding (`episode_end` NULL, as `cold_apply` writes an open excursion) beside the
 mini dispatch evidence: before the fix `PostgresFindingStore.episodes` returned the cold Finding too and
-`plan_pass` failed in `margin_windows` on `None + timedelta`. The pass must complete and plan only the mini
-episode, and the cold Finding must stay readable under its own domain and analytic.
+`plan_pass` failed on the cold Finding's NULL end (`finding_episode.py:287`, a None/datetime comparison).
+The pass must complete and plan only the mini episode, and the cold Finding must stay readable under its own
+domain and analytic.
 """
 
 from __future__ import annotations
@@ -87,7 +88,7 @@ def test_an_open_cold_finding_does_not_reach_the_mini_matcher(runner) -> None:
     assert held.finding_id == cold and held.episode_end is None
     assert runner.findings.episodes(runner.tenant, runner.site) == []  # the default is mini_grid / dispatch
 
-    outcome = runner.match()  # failed in margin_windows (None + timedelta) before the fix
+    outcome = runner.match()  # before the fix: TypeError in plan_pass on the cold NULL end
 
     assert outcome.planned == 1 and len(outcome.finding_ids) == 1
     rows = runner.reload()
