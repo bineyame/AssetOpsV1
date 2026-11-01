@@ -236,7 +236,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     // Ruling 67: the selected Work window and explicit cutoff ride on the detail address.
     expect(link?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`);
     expect(link?.getAttribute("data-domain-work-action-link")).toBe("domain");
-    expect(text(link)).toBe("ACT-000061 · Investigate connector 2");
+    expect(text(link)).toBe("ACT-061 · Investigate connector 2");
     expect(cells[0].querySelector("[data-domain-work-action-plain]")).toBeNull();
     expect(text(cells[2])).toBe("Charging operations");
     expect(text(cells[3])).toBe("Not set");
@@ -322,7 +322,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const { main } = await mountWork(workPath(), client);
     const w1 = main.querySelector(`[data-domain-work-row="${EV_W1_ID}"]`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td"));
-    expect(text(cells[0].querySelector("a"))).toBe("ACT-000060");
+    expect(text(cells[0].querySelector("a"))).toBe("ACT-060");
     expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_W1_ID}`);
     expect(text(cells[4])).toBe("Accepted · not applied");
     expect(text(cells[5])).toBe("No success criterion declared");

@@ -200,7 +200,7 @@ describe("W5-02 K3a: cold Site > Work > Incidents (v69 cold-work-incidents)", ()
     expect(headings(main)).toEqual(["Case", "Window", "What happened", "Linked findings", "State"]);
     const row = main.querySelector("tbody tr") as HTMLElement;
     // R73: the INC code is plain text.
-    expect(text(row.querySelector("[data-work-case-title]"))).toBe("INC-000001 · Backup response failure");
+    expect(text(row.querySelector("[data-work-case-title]"))).toBe("INC-001 · Backup response failure");
     expect(row.querySelector("[data-work-case-title] a")).toBeNull();
     expect(text(row.querySelector("[data-work-window]"))).toBe("6 Oct · from 19:11");
     // Ruling 4, R65/R66: two plain `Finding {id8}` labels, each with its own `Finding version` disclosure.
@@ -271,7 +271,7 @@ describe("W5-02 K3a: cold Site > Work > Maintenance (v69 cold-work-maintenance)"
     const row = main.querySelector("tbody tr") as HTMLElement;
     // R68: the WR code opens the selected request Overview with the stored Site code and the explicit cutoff.
     const wr = row.querySelector("a[data-work-request-link]") as HTMLAnchorElement;
-    expect(text(wr)).toBe("WR-000001 · Starter/control inspection");
+    expect(text(wr)).toBe("WR-001 · Starter/control inspection");
     expect(wr.getAttribute("href")).toBe(coldRequestHref(request(1).case_id, SITE, KNOWN));
     expect(wr.getAttribute("href")).toContain(`site_id=${SITE}&known_at=${encodeURIComponent(KNOWN)}`);
     // R89: composite label, ID in the existing `UTC and IDs` disclosure only.
@@ -401,7 +401,7 @@ describe("W5-02 K3b: cold case long text (K3 pre-flight ruling 7, R94)", () => {
     fireEvent(details, new Event("toggle"));
     await settledScreen();
     expect(titleCell.querySelector("[data-cold-work-preview]")).toBeNull();
-    expect(text(titleCell)).toContain(`WR-000001 · ${title}`);
+    expect(text(titleCell)).toContain(`WR-001 · ${title}`);
     // The link survives in the opened body (one value, still the Overview).
     expect(titleCell.querySelectorAll("a[data-work-request-link]").length).toBe(1);
     details.open = false;

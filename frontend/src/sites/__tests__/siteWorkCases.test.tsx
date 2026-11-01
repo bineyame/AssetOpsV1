@@ -242,7 +242,7 @@ describe("W4-01: Site > Work > Incidents", () => {
     const trs = panel.querySelectorAll("tbody tr");
     expect(trs).toHaveLength(5);
     const first = trs[0] as HTMLElement;
-    expect(text(first.querySelector("[data-work-case-title]"))).toBe("INC-000001 · Witnessed start request failed");
+    expect(text(first.querySelector("[data-work-case-title]"))).toBe("INC-001 · Witnessed start request failed");
     // `url: null`: plain text, no link, handler or tab stop.
     expect(first.querySelector("td:first-child a, td:first-child [tabindex], td:first-child button")).toBeNull();
     // post-W6 W4 R320: Site-local with the zone label (the shared siteTime formatter); exact UTC stays in `UTC and IDs`.
@@ -421,7 +421,7 @@ describe("W4-01: Site > Work > Maintenance", () => {
       "Next evidence",
     ]);
     const [done, open, cancelled] = Array.from(panel.querySelectorAll("tbody tr")) as HTMLElement[];
-    expect(text(done.querySelector("[data-work-case-title]"))).toBe("WR-000002 · Inspect starter circuit");
+    expect(text(done.querySelector("[data-work-case-title]"))).toBe("WR-002 · Inspect starter circuit");
     expect(text(done.querySelector("[data-work-asset]"))).toBe("GEN-01 · generator");
     expect(done.querySelector("[data-work-state]")?.getAttribute("data-work-tone")).toBe("blue");
     expect(text(done.querySelector("[data-work-activity]"))).toBe("Starter connection inspected");

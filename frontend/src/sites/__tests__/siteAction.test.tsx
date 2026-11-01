@@ -275,7 +275,7 @@ describe("Recommendation (recommendation:1#a)", () => {
       expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("PRIOR_ACTION_UNRESOLVED");
       // The notice names and links the blocking Action and its own (earlier) origin version.
       expect(q("[data-recommendation-prior-block]")?.getAttribute("data-recommendation-prior-block")).toBe(block.blocking_action_id);
-      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(block.blocking_action_code);
+      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(displayCode(block.blocking_action_code));
       expect(q("[data-recommendation-prior-block-link]")?.getAttribute("href")).toBe(block.links.action);
       expect(q("[data-recommendation-prior-block-origin]")?.getAttribute("href")).toBe(
         `/sites/KOBO-001/findings/${FINDING}?revision_id=${block.origin_finding_revision_id}`,
@@ -295,7 +295,7 @@ describe("Recommendation (recommendation:1#a)", () => {
       expect(button).toBeDisabled();
       expect(button.getAttribute("aria-describedby")).toBe("site-recommendation-accept-held");
       expect(q("[data-action-command-unavailable='PRIOR_ACTION_UNRESOLVED']")?.textContent).toMatch(
-        new RegExp(`earlier trial on this Finding \\(${block.blocking_action_code}\\) is still open`),
+        new RegExp(`earlier trial on this Finding \\(${displayCode(block.blocking_action_code)}\\) is still open`),
       );
       // The earlier Action is listed with its own origin version, never relabelled as this one.
       const item = q(`[data-recommendation-prior-action='${block.blocking_action_id}']`);
@@ -345,7 +345,7 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(refused?.textContent).toMatch(/Not accepted: an earlier trial on this Finding is still open, so no new Action was recorded/);
     expect(refused?.textContent).toMatch(new RegExp(`accepted on Finding version ${held.body.detail.origin_revision_no}`));
     expect(q("[data-accept-held-action-link]")?.getAttribute("href")).toBe(held.body.detail.links.action);
-    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${held.body.detail.blocking_action_code}`);
+    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${displayCode(held.body.detail.blocking_action_code)}`);
     expect(q("[data-accept-held-live]")?.getAttribute("data-accept-held-live")).toBe(held.body.detail.live_status.state);
     expect(q("[data-action-command-done]")).toBeNull();
     expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1);

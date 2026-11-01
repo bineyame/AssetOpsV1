@@ -307,7 +307,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
 
     const dom = main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"]`) as HTMLElement;
     const cells = Array.from(dom.querySelectorAll("td"));
-    expect(text(cells[0].querySelector("a"))).toBe("ACT-000051 · Witness automatic-start test");
+    expect(text(cells[0].querySelector("a"))).toBe("ACT-051 · Witness automatic-start test");
     expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`);
     expect(text(cells[2])).toBe("Maintenance lead");
     expect(text(cells[3])).toBe("Not set");
@@ -316,7 +316,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
 
     const w1 = main.querySelector(`[data-cold-work-row="${W1_ID}"]`) as HTMLElement;
     const w1Cells = Array.from(w1.querySelectorAll("td"));
-    expect(text(w1Cells[0].querySelector("a"))).toBe("ACT-000050");
+    expect(text(w1Cells[0].querySelector("a"))).toBe("ACT-050");
     expect(w1Cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${W1_ID}`);
     expect(text(w1Cells[2])).toBe("Not assigned");
     expect(text(w1Cells[3])).toBe("Not set");
@@ -577,7 +577,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(action.querySelector(".work-cases-clamp a")).not.toBeNull();
     const full = action.querySelector("details") as HTMLDetailsElement;
     expect(full.querySelector("summary")?.textContent).toBe("Read full text");
-    expect(full.querySelector(".disclosure__body")?.textContent).toBe(`ACT-000051 · ${title}`);
+    expect(full.querySelector(".disclosure__body")?.textContent).toBe(`ACT-051 · ${title}`);
     expect(ownerCell.querySelector(".work-cases-clamp")?.textContent).toBe(owner);
     expect(ownerCell.querySelector("details summary")?.textContent).toBe("Read full text");
     expect(ownerCell.querySelector("details .disclosure__body")?.textContent).toBe(owner);
@@ -598,7 +598,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const [action, , ownerCell] = Array.from(row.querySelectorAll("td"));
     const count = (cell: Element, needle: string) => (cell.textContent ?? "").split(needle).length - 1;
     for (const [cell, full, needle] of [
-      [action, `ACT-000051 · ${title}`, title],
+      [action, `ACT-051 · ${title}`, title],
       [ownerCell, owner, owner],
     ] as const) {
       const details = cell.querySelector("details") as HTMLDetailsElement;
@@ -819,12 +819,12 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     expect(detailCalls).toEqual([{ id: DOMAIN_ID, knownAt: KNOWN }]);
     const crumbs = main.querySelector("[data-domain-action-crumbs]") as HTMLElement;
     const items = Array.from(crumbs.querySelectorAll("li")).map(text);
-    expect(items).toEqual(["Actions", "ACT-000051", "Verification"]);
+    expect(items).toEqual(["Actions", "ACT-051", "Verification"]);
     expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
     expect(crumbs.querySelectorAll("li a")).toHaveLength(1);
     expect(text(crumbs.querySelector("[data-domain-action-crumb-site]"))).toBe("· site: GreenHarvest Cold Room");
     expect(crumbs.querySelector("[data-domain-action-crumb-site] a")?.getAttribute("href")).toBe(`/sites/${SITE}`);
-    expect(text(main.querySelector("h1"))).toBe("ACT-000051 · Witness automatic-start test");
+    expect(text(main.querySelector("h1"))).toBe("ACT-051 · Witness automatic-start test");
     expect(main.textContent).toContain("Has backup service been restored after the inspection?");
     const openSite = main.querySelector("[data-domain-action-open-site]") as HTMLElement;
     expect(openSite.getAttribute("href")).toBe(`/sites/${SITE}`);
