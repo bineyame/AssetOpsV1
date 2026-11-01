@@ -6290,6 +6290,9 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   `aria-busy`, `[data-repeat-check="loading"]`); `demo-combined-evidence.mjs` settles with them.
 - `demo-combined-evidence.mjs`: `DEMOB_STRICT=1` exits 1 on counted hits; `DEMOB_REVIEW_LABELS=1`; exempt regions
   `[data-technical-details]`, `[data-time-zone-note]`, `[data-vocabulary-exempt]`; product terms from
-  `productVocabulary.json` after its own glosses; captures.json carries `vocabulary_counted`.
+  `productVocabulary.json` after its own glosses; captures.json carries `vocabulary_counted` and `exempt_hits[]`.
+- Region rules (Addendum 5) live in pure `tools/demo-combined-vocabulary.mjs` (`classifyCapture`, `CAPTURE_TEXTS`):
+  ids are checked on all visible main text and only `[data-technical-details]` hides them; `data-vocabulary-exempt`
+  exempts product kinds only, `data-time-zone-note` only UTC; MOCK DEVIATION never exempt. Tests sit in guard 12.
 - Open: `[data-repeat-check]` (PB-3), `[data-technical-details]`/`[data-time-zone-note]` (PB-1/PB-2) not yet rendered;
   the strict baseline in `.agent/POLISH-PB-0-packet.md` is the hit list later slices clear.
