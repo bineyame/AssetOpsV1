@@ -209,7 +209,7 @@ Mock: `frontend/mockups/v69/index.html:337-343,710-713`. These follow R111, the 
 
 ## Post-W6 audit Architect rulings (2026-10-24)
 
-Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected element, with a short owner note. D2 remains proposed for owner approval at the later walkthrough. D3 is a fix gate and has no accepted label. The evidence/cap ruling is in `post-W6-audit/classification.md` and `fix-slices.md`. W1-F5b overage reasons are registered through these canonical observations and the panel-by-panel cap docket; a past overage alone does not close a current cap miss.
+Each open D1/D2/D4/D5/D6 row whose departure is visible on a screen has a label element beside the affected element carrying `data-mock-deviation="Rnnn"` and the text `MOCK DEVIATION Dn (Rnnn)`. The label renders only in review mode (`?review=labels`); client mode, the default, hides it (POLISH §2, 2026-11-01). The register remains the record. Reviewers check labels in review-mode captures. A departure without a tagged label, or a label visible in client mode, is a High finding. D2 remains proposed for owner approval at the later walkthrough. D3 is a fix gate and has no accepted label. The evidence/cap ruling is in `post-W6-audit/classification.md` and `fix-slices.md`. W1-F5b overage reasons are registered through these canonical observations and the panel-by-panel cap docket; a past overage alone does not close a current cap miss.
 
 | ID | Audit ID | Screen(s) | Category | Ruling and visible label | Status |
 | --- | --- | --- | --- | --- | --- |

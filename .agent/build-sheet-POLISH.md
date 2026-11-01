@@ -744,3 +744,118 @@ The product vocabulary guard bans "run"/"running". The guard stays as it is: cop
      `mini.py` gives FULL readiness. Any readiness word the line or chip shows is the FULL word, never "Unknown".
    - The shared readiness value and `reduce_day` are unchanged.
    - Pin it in the existing settled-case compose test: assert the chip is not UNKNOWN_CHIP and the text has no "Unknown".
+
+---
+
+## Addendum 5 (2026-11-01): PB-0 review M1 (exempt regions and the id checks)
+
+**Accepted as the reviewer proposes. This corrects §5 PB-0 and Addendum 1.**
+
+- **Identifier checks run everywhere.** These checks run on all visible `<main>` text, including inside
+  `[data-vocabulary-exempt]` and `[data-time-zone-note]`:
+  - UUID;
+  - `Finding [0-9a-f]{8}`;
+  - zero-padded record code;
+  - UPPER_SNAKE enum code;
+  - raw ISO timestamp.
+- **Only `[data-technical-details]` hides ids.** It is the only region whose text is removed before the id checks,
+  for the strict gate and for the `-open` stress capture alike.
+- **Exemptions apply to product terms only.**
+  - `data-vocabulary-exempt` exempts only the product-term checks (T028/w1 terms, Lab names, developer words).
+  - `data-time-zone-note` exempts only `\bUTC\b`.
+  - "MOCK DEVIATION" is never exempt.
+- **Exempt regions are recorded, not dropped.** Every hit found inside an exempt or Technical-details region goes into
+  `captures.json` under `exempt_hits[]`, with `{kind, match, region: "<attribute>=<value>", context}`. These hits never fail the
+  strict gate (except the id kinds above, outside Technical details).
+  - The packet and the PC review list the `exempt_hits` counts per capture. A reviewer seeing a new exempt value, or a
+    jump in exempt hits, treats it as a finding.
+  - New `data-vocabulary-exempt` values are allowed only for genuine source quotations, never for Site names, asset
+    names or record codes. `data-vocabulary-exempt="lab"` or similar on Site names is refused; Lab names are fixed
+    by PA-3's data change.
+- **Baseline.**
+  - Recount after the change.
+  - The 3 EV `REC <uuid>` hits per width (`EvAssessmentViews.tsx:806,871`) are frontend hits owned by PB-3 (§3.1 EV row).
+  - `SiteAction.tsx:1393,1410,1422` (codes and revision UUIDs) and `ColdAssessmentViews.tsx:237` are added to the
+    owning slices:
+    - `SiteAction.tsx` goes to PB-2 (Technical details tagging, display code);
+    - `ColdAssessmentViews.tsx` goes to PB-3.
+    - If either is not on a capture screen, the vitest product-vocabulary check for that view covers it.
+- **Addendum 1 / L1-L3 folds: noted.** The baseline split is 21 frontend / 61 awaiting per width, and the Lab-name
+  hits are marked as awaiting PA-3.
+- **Unit size.** PB-0 stays at 3.5 units; this is a fix round.
+
+---
+
+## Addendum 6 (2026-11-01): PA-2 pre-flight rulings
+
+**Split.** With the files added below, PA-2 exceeds 6 units, so it becomes two slices in the same lane. Both use
+register ids R640-R644.
+- **PA-2a, server copy, codes and titles (about 4.5 units).** Q1, Q3, Q5, Q6, Q8, Q9, the "Recommendation not
+  accepted" maps, and the §3.1 BE strings.
+- **PA-2b, asset labels and plan due (about 3.5 units).** Q2, Q4, and the §1.4 backend.
+- Order: PA-2a, then PA-2b, then PA-3. PB-3 waits for PA-2b, not PA-2a.
+
+**Q1: accepted.** Edit the 12 title strings in `backend/tests/fixtures/w3/w301-estate-golden.json` directly. They are
+text, not numbers, and the stop rule existed to catch exactly this. Run `test_w301_estate_golden_postgres.py` once,
+when the machine is idle (quiet-suites rule). Update `test_idx_gaps_board.py:97-99` mechanically. MERGED stays unchanged.
+`frontend/src/.../findingWords.ts:14-36` goes to PB-2: align its title words with the Addendum 4 titles there.
+
+**Q2: accepted.**
+- Add a top-level `summary: {overdue_count, due_soon_count, not_assessed_count}` and a per-row `due_state` to
+  `GET /api/work/preventive` only. `state_counts` stays null.
+- `plan_due_state` takes the timestamptz `next_due_at`, with the boundary as the implementer settled it.
+- PB-3's validator must accept the new keys. Until PB-3, the existing frontend validator must not reject them. If it
+  rejects unknown keys, PA-2b relaxes it for exactly these keys. That is the only frontend change allowed in lane A,
+  and it is listed in the packet.
+
+**Q3: accepted, with a wording correction.**
+- The extra reads are accepted: `fr.title` in `_IndexTx.finding_revisions`, the `finding_revision` join in
+  `_ReadTx.revision_links`, and a private `recurs_after_title` through `coverage.py` and `index.py`.
+- RECURRED text: "Happened again after an earlier occurrence ({earlier title})". Without a title, it is "Happened
+  again after an earlier occurrence".
+
+**Q4: accepted.**
+- Rewrite `asset_label` in place to the plain form, and add a wire `asset_type`. `cold.py` and `visits.py` read
+  `asset_type` and no longer parse the label.
+- `asset_code` is appended only when the Site has more than one non-retired asset of that type (the scalar subqueries).
+- Unmapped types use the capitalised type word.
+- Generators: GENERATOR shows as "Backup generator" on COLDCHAIN Sites and "Generator" on mini and EV Sites.
+- In lane B, PB-3 replaces the two frontend parsers (`globalWorkParts.tsx:123`, `siteWorkCases.tsx:256`) with
+  `asset_type` and `assetWords`. Add `siteWorkCases.tsx` to PB-3's files. Until then, their raw-label fallback shows
+  the new plain label, which is acceptable.
+
+**Q5: accepted.** At read time in `cold_site_reads`, rewrite the TRANSFER observation to "No record of switching to
+backup power." and align estate's `COLD_OBSERVATION_WORDS` TRANSFER entry to the same words. The stored analytics are unchanged.
+
+**Q6: accepted.**
+- Change only the read-side constants in `board.py`, as the implementer proposed. `trial_fuel_comparison.LABEL` stays as stored.
+- **Yes for `mini.py:79` `VERIFIED_WITH_COST`:** keep its verdict and code prefix, and use the same cost clause:
+  `…: estimated effect of the trial (not money saved): {amount} {currency} less supply cost per kWh`.
+
+**Q7: D-4 is revised for the whole round.**
+- **Clock times stay in UTC.** Instants come from the DTOs without a Site offset (R86), so they are shown in UTC
+  with no per-time suffix.
+- **Calendar dates stay on the Site's own date.** That covers plan due dates, visit days and warning days: the
+  server already computes them in the Site's zone (`warnings.day_text`, `visits._local_date`), and that is unchanged.
+  Where the frontend formats a due date itself (Preventive `next_due_at`), it uses the Site zone from `siteTime.ts`
+  when it is declared, and UTC otherwise.
+- **The page note becomes "Times in UTC".** Pages that also list due dates (Preventive, Maintenance, the work request
+  pages) say "Times in UTC · due dates in each site's local date". PB-1 builds `TimeZoneNote` with these two variants.
+- `mini.py:39` `UTC_SUFFIX` stays as it is: it applies only to Sites with no zone, and none appears in the demo.
+
+**Q8: accepted.** Apply `display_code` to every visible server label listed (`warnings.py:195,204`, `board.py`
+`_item_text`/`_action_name`, `mini.py:75-79,725`, `cold.py:313,354`). The stored and wire `code` fields stay as stored.
+
+**Q9: in scope for PA-2a.** `Action {aid[:8]}` (`work/site_index.py:208,215`) becomes the Action's display code when it
+has a code (for example "ACT-003"), and "Action" otherwise.
+
+**Q10: confirmed.** The extra files are in scope for PA-2a/PA-2b as split above:
+`work/adapters/postgres_{domain_action_index,work_read,global_read}.py`, `estate/coverage.py`,
+`site_outcomes/{board,mini,ev}.py`, and `global_work_api.py` if the summary needs it. PA-1 has merged
+`site_outcomes/{board,mini,ev}.py`, so PA-2a rebases on main first.
+
+**Settled items: noted.**
+- The "critical load" wording is PB-2's.
+- `display_code` uses minimum 3-digit padding.
+- The `plan_due` boundary is as the implementer settled it.
+- Both "Recommendation not accepted" maps change to "No action agreed yet".
