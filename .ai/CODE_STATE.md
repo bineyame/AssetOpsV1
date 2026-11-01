@@ -6332,3 +6332,20 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   equal to it by `test_idx_gaps_board`; it changes together with PB-2's `LIFECYCLE_WORDS` alignment.
   `board.COST_NOT_CALCULATED` ("Modelled change not calculated") was not ruled and is unchanged. Asset labels and
   preventive due counts are PA-2b. Captures deferred to PA-3.
+
+## POLISH PA-2b - plan due state and asset labels (built, in_review)
+
+- Contract: `.agent/build-sheet-POLISH.md` §1.4 backend, §3 asset labels, Addendum 6 Q2/Q4; packet `.agent/POLISH-PA-2b-packet.md`.
+- `outcomes/plan_due.py` `plan_due_state` (OVERDUE / DUE_SOON / NOT_DUE / NOT_ASSESSED; `due == to` not overdue;
+  the 14-day horizon is built without importing `datetime`, because `outcomes/` stays pure). `warnings._plans`/
+  `_overdue` and `visits.warning_facts` use it.
+- `GET /api/work/preventive`: top-level `summary` over the full selection before paging and per-row `due_state` at
+  the request `to`; `state_counts` stays null. Not in the selection token: both derive from `next_due_at` and `to`.
+- `outcomes/asset_words.py`: the plain word map (EV_CONNECTOR → "Connector", EV_CHARGER → "Charger" as well).
+  `work/site_index.asset_fields` builds `asset_label` + `asset_type` for site and global work rows and plans; the
+  type count and Site type come from scalar subqueries in `_ELIGIBLE` and `_PLANS`. `asset_type` joins the plan basis.
+- `cold.py` matches Protect plans by `asset_type`; `visits.asset_name` uses the plain label as it is.
+- Open: the frontend parsers (`globalWorkParts.assetLabelWords`, `siteWorkCases.coldAssetLabel`) still parse
+  " · " and fall back to showing the plain label (PB-3 replaces them). `global_detail` `work_asset` still returns
+  raw `{asset_code, asset_type}`. The preventive cards and chips are PB-3.
+
