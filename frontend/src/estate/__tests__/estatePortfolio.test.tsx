@@ -845,7 +845,7 @@ describe("CC-R2-Q1 placement and confidence words", () => {
     "Backup start failure; no price basis",
     "Charging service interruption; no price basis",
     "No price basis for this Finding",
-    "Change verified on test data; watch for a return",
+    "Change verified on example data; watch for it coming back",
     "Change applied; no verified result yet",
     "No open signal",
   ];

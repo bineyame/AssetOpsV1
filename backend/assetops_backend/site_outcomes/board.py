@@ -46,7 +46,7 @@ WORKFLOW_IN_HAND = {"No action agreed yet": "Plan ready", "Outcome pending": "Aw
 CASE_STATE_LABEL = {"OPEN": "Open", "IN_PROGRESS": "In progress", "ASSIGNED": "Assigned"}
 
 #: Earlier interventions result labels for a mini Action, by verification state (§B.2 table). NO_PLAN / None: not listed.
-ACTION_RESULT = {"VERIFIED": "Verified on test data", "INEFFECTIVE": "Did not fix it",
+ACTION_RESULT = {"VERIFIED": "Verified on example data", "INEFFECTIVE": "Did not fix it",
                  "INCONCLUSIVE": "Not determined", "PENDING": "Pending", "REASSESSMENT_PENDING": "Pending"}
 REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
 #: OUT-E E4 (build sheet OUT-E section 4): the Earlier entry's cost-check and before/after detail lines.

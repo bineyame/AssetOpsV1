@@ -74,11 +74,11 @@ OPTION_TRIAL = "Trial a lower generator stop setting"
 OPTION_CHANGE = "Proposed setting change"
 OPTION_RESTORE = "Restore battery reporting"
 VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} not yet verified",
-                     "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified on test data",
+                     "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified on example data",
                      "INEFFECTIVE": "{code} did not meet its target", "INCONCLUSIVE": "{code} result not determined"}
 #: OUT-E E4: the Verified results line of a VERIFIED Action whose stored cost check shows a modelled improvement.
 #: POLISH Addendum 6 Q6: the verdict and code prefix stay; the cost clause matches board.COST_CHANGE.
-VERIFIED_WITH_COST = ("{code} verified on test data: estimated effect of the trial (not money saved): "
+VERIFIED_WITH_COST = ("{code} verified on example data: estimated effect of the trial (not money saved): "
                       "{amount} {currency} less supply cost per kWh")
 PENDING_STATES = ("PENDING", "NO_PLAN", "REASSESSMENT_PENDING")
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}

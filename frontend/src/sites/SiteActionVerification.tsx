@@ -25,7 +25,7 @@
  *
  * The current state comes from the verification reads (`current_state`,
  * `verification_state`), never from the Action's `state.outcome` (S6-02a F5).
- * Every case is a policy trial on Lab or authored test data: no causal proof,
+ * Every case is a policy trial on Lab or authored example data: no causal proof,
  * no savings or realized benefit, and a RESOLVED can be withdrawn.
  */
 import { useEffect, useState, type ReactNode } from "react";
@@ -553,7 +553,7 @@ function VerificationSummaryRow({ gapped, stateWord, source, criterion }: { gapp
 export function TrialNotice() {
   return (
     <p className="v69-chart-note w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
-      Policy trial on Lab or authored test data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
+      Policy trial on Lab or authored example data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
     </p>
   );
 }

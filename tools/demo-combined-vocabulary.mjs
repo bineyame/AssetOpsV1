@@ -27,6 +27,8 @@ export const WORD_KINDS = [
   ["dev term", /\b(?:producer|projection|fixture|payload|schema|cursor|known_at|seed|epoch|adapter|endpoint|analytic_id|null|undefined|NaN|TODO|debug|mock|scenario_id|revision_id|basis_ref|v\d+ manifest)\b/gi],
   ["lab name", /\b(?:replay|charging) lab\b/gi],
   ["snake_case name", /\b[a-z]+(?:_[a-z]+)+\b/g],
+  // POLISH Addendum 14: the client term is "example data"; a recurrence of "test data" fails the strict gate.
+  ["test data wording", /\btest data\b/gi],
 ];
 /** Never exempt. */
 export const LABEL_KIND = [["mock deviation label", /\bMOCK DEVIATION\b/g]];

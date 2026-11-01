@@ -55,7 +55,7 @@ def test_groups_labels_and_reason_texts_are_the_fixed_policy() -> None:
                            "COMPARE_VALUE": "Compare value", "UNPRICED_RISK": "Unpriced risk", "MONITOR": "Monitor"}
     assert len(REASON_TEXT) == 20
     # CC-R1-Q1 ruling: the verified-change text says "test data", never "simulated".
-    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified on test data; watch for a return"
+    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified on example data; watch for it coming back"
     assert not any("simulat" in t.lower() or "saving" in t.lower() or "saved" in t.lower()
                    for t in REASON_TEXT.values())
 

@@ -378,7 +378,7 @@ def test_unpriced_money_and_verified_headline() -> None:
     assert rows[COST]["headline"] == "No fuel cost estimated for this day" and rows[COST]["headline_money"] is None
     assert rows[ASSURE]["headline"] == "1 verified result"  # addendum 3 L7
     assert contributor(rows[ASSURE], "verified_results") == {
-        "key": "verified_results", "label": "Verified results", "text": "ACT-048 verified on test data",
+        "key": "verified_results", "label": "Verified results", "text": "ACT-048 verified on example data",
         "confidence": None, "href": f"/sites/{C}/actions/a48/verification?event_id=e1"}
 
 

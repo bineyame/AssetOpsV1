@@ -50,7 +50,7 @@ export const WORK_PROVENANCE_WORDS: Readonly<Record<string, [string, string]>> =
     "These authored work records were prepared for an example. They are not physical equipment readings.",
   ],
   REGISTERED_SIMULATION: [
-    "Generated test data",
+    "Generated example data",
     "These authored work records came from a registered simulation. They are not physical equipment readings.",
   ],
   MIXED: ["Sources do not agree", "The selected links do not establish one work source. No work outcome is verified."],

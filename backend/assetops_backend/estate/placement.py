@@ -38,8 +38,8 @@ REASON_TEXT = {
     "UNPRICED_START_FAILURE": "Backup start failure; no price basis",
     "UNPRICED_SERVICE_INTERRUPTION": "Charging service interruption; no price basis",
     "UNPRICED_OTHER": "No price basis for this Finding",
-    # CC-R1-Q1 ruling: "simulated" stays guarded, so the verified-change text says "test data".
-    "VERIFIED_WATCH_RETURN": "Change verified on test data; watch for a return",
+    # CC-R1-Q1 ruling: "simulated" stays guarded, so the verified-change text says "example data" (POLISH Addendum 14).
+    "VERIFIED_WATCH_RETURN": "Change verified on example data; watch for it coming back",
     "APPLIED_AWAITING_PLAN": "Change applied; no verified result yet",
     "NO_OPEN_SIGNAL": "No open signal",
 }
