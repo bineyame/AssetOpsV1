@@ -75,7 +75,7 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
 
 ## 4. Suites
 
-- Slow demo build: `toolsun-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow` at `c5277805b`,
+- Slow demo build: `tools\run-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow` at `c5277805b`,
   17:07:18-17:24:40 (1042 s): **19 passed**; JUnit tests 19, failures 0, errors 0, skipped 0.
 - Full `npx vitest run` at `c5277805b`, 17:24:50-17:29:17 (267 s): **150 files, 3594/3594 passed** (the evEnergy load
   flake did not fire).
