@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from test_s4_finding_store_postgres import URL, run_case  # noqa: F401
+from assetops_backend.analytics.finding_episode import SUPPORTED, TITLES  # noqa: E402 (POLISH PA-2a)
+import re  # noqa: E402
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -191,8 +193,9 @@ def test_pending_link_and_missing_source_keep_gap(runner, monkeypatch) -> None: 
     assert body["status"] == "PENDING_RECOMPUTE" and body["total_count"] == 1
     assert body["coverage"] == {"state": "PARTIAL", "reason": "LINK_WORK_PENDING"}
     [link] = body["rows"][0]["action_links"]
-    assert (link["action_id"], link["action_event_id"], link["label"]) == (
-        action_id, action_event, f"Action {action_id[:8]}")
+    # POLISH PA-2a (Addendum 6 Q9): the Action's display code, never `Action {id8}`.
+    assert (link["action_id"], link["action_event_id"]) == (action_id, action_event)
+    assert re.fullmatch(r"ACT-[0-9]{3,}", link["label"]), link["label"]
     assert link["href"] == f"/sites/KOBO-001/actions/{action_id}?event_id={action_event}"
 
     # Missing lineage: a case pinned to the F01 revision is written at an instant before that revision existed
@@ -227,7 +230,7 @@ def test_pending_link_and_missing_source_keep_gap(runner, monkeypatch) -> None: 
     assert MISSING not in page["rows"][0]["source_provenance"]["reasons"]  # the unaffected row keeps its own DTO
     [bad] = [r for r in full["rows"] if r["case_id"] == broken["id"]]
     assert MISSING in bad["source_provenance"]["reasons"] and bad["source_provenance"]["state"] == "UNKNOWN"
-    assert bad["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
+    assert bad["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev, "label": TITLES[SUPPORTED],
                                      "href": None}]
     assert chosen["linked_selection_fences"] == [{"kind": "FINDING", "root_id": fid, "selected_id": frev,
                                                   "selection_token": None, "state": "UNKNOWN"}]
@@ -346,12 +349,12 @@ def test_pinned_link_survives_later_finding_and_action_heads(runner) -> None:  #
         store.dispose()
     [wire] = body["rows"]
     assert wire["case_id"] == case["id"]
-    assert wire["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
+    assert wire["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev, "label": TITLES[SUPPORTED],
                                       "href": f"/sites/KOBO-001/findings/{fid}?revision_id={frev}"}]
     assert [(x["action_id"], x["action_event_id"]) for x in wire["action_links"]] == [(action_id, action_event)]
-    # M3/M4 #1: `Action {first eight lowercase id chars}`; the href is the exact pinned event, not the later head.
+    # POLISH PA-2a (Addendum 6 Q9): the display code; the href is the exact pinned event, not the later head.
     [alink] = wire["action_links"]
-    assert alink["label"] == f"Action {action_id[:8]}" and alink["label"][7:] == action_id[:8].lower()
+    assert re.fullmatch(r"ACT-[0-9]{3,}", alink["label"]), alink["label"]
     assert alink["href"] == f"/sites/KOBO-001/actions/{action_id}?event_id={action_event}" and head not in alink["href"]
     fences = {f["kind"]: f for f in chosen["linked_selection_fences"]}
     assert fences["FINDING"] == {"kind": "FINDING", "root_id": fid, "selected_id": frev, "selection_token": None,

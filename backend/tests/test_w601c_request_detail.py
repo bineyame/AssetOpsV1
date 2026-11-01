@@ -18,6 +18,9 @@ from uuid import UUID
 
 import pytest
 
+from assetops_backend.outcomes.display_code import display_code  # POLISH PA-2a
+from assetops_backend.analytics.finding_episode import SUPPORTED, TITLES  # POLISH PA-2a
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -327,12 +330,12 @@ def test_source_incident_link(store) -> None:  # noqa: F811
     window = "from=2026-10-18T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
     body = detail(info, request_id)
     assert body["work_detail"]["case"]["incident_id"] == incident["case_id"]
-    assert body["links"]["source_incident"] == {"label": f"Incident {incident['code']}",
+    assert body["links"]["source_incident"] == {"label": f"Incident {display_code(incident['code'])}",
                                                 "href": f"/sites/KOBO-001/work/incidents?{window}"}
     pinned = detail(info, request_id, "2026-10-20T12:00:01Z")["links"]["source_incident"]
     assert pinned["href"] == f"/sites/KOBO-001/work/incidents?{window}&known_at=2026-10-20T12%3A00%3A01.000000Z"
     fid, frev = info["finding_id"], info["finding_revision_id"]
-    assert body["links"]["findings"] == [{"label": f"Finding {fid[:8]}",
+    assert body["links"]["findings"] == [{"label": TITLES[SUPPORTED],
                                           "href": f"/sites/KOBO-001/findings/{fid}?revision_id={frev}"}]
     [action] = body["links"]["actions"]
     # Post-W6 W6 Q10 (R366): the stored public Action code, never `Action {id8}` when a code is stored.
@@ -343,7 +346,7 @@ def test_source_incident_link(store) -> None:  # noqa: F811
                              {"a": info["action_id"]}).scalar_one()
     finally:
         engine_.dispose()
-    assert code.startswith("ACT-") and action["label"] == code and action["href"]
+    assert code.startswith("ACT-") and action["label"] == display_code(code) and action["href"]
     assert info["action_event_id"] in action["href"]
     assert info["detail_links"]["source_incident"] == body["links"]["source_incident"]
     plain = [w["case_id"] for w in info["written"] if w["kind"] == "MAINTENANCE_REQUEST"][0]
@@ -544,7 +547,7 @@ def test_domain_action_link_matches_w4(cold) -> None:  # noqa: F811
     assert w4 == [domain]
     with cold.engine.connect() as c:  # Post-W6 W6 Q10: the global label is the stored domain Action code
         code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": b.aid}).scalar_one()
-    assert body["links"]["actions"] == [{"label": code, "href": domain["href"]}]
+    assert body["links"]["actions"] == [{"label": display_code(code), "href": domain["href"]}]
     assert body["selected"]["site_domain"] == "COLDCHAIN" and body["links"]["site"]["href"] == f"/sites/{cold.code}"
     assert body["links"]["actions"][0]["href"] == f"/sites/{cold.code}/actions/{b.aid}/verification"
     raw = body["work_detail"]["action_links"]
@@ -557,8 +560,8 @@ def test_domain_action_link_matches_w4(cold) -> None:  # noqa: F811
 
 
 def test_action_without_a_stored_code_keeps_its_honest_label() -> None:
-    """Post-W6 W6 Q10: an Action with no stored code keeps `Action {id8}`; no ACT code is invented. Only read codes
-    enter the basis pairs."""
+    """Post-W6 W6 Q10: an Action with no stored code keeps the plain `Action` label (POLISH Addendum 6 Q9); no ACT
+    code is invented. Only read codes (as stored) enter the basis pairs."""
     from assetops_backend.work.global_index import coded_actions
 
     class Reads:
@@ -568,7 +571,7 @@ def test_action_without_a_stored_code_keeps_its_honest_label() -> None:
     links = [{"action_id": "00000000-0000-4000-8000-0000000000a1", "label": "Action 00000000", "href": "/x"},
              {"action_id": "00000000-0000-4000-8000-0000000000b2", "label": "Action 00000000", "href": None}]
     out, pairs = coded_actions(Reads(), None, None, links)
-    assert [x["label"] for x in out] == ["ACT-000007", "Action 00000000"]
+    assert [x["label"] for x in out] == ["ACT-007", "Action"]
     assert [x["href"] for x in out] == ["/x", None]
     assert pairs == [["00000000-0000-4000-8000-0000000000a1", "ACT-000007"]]
 
@@ -635,10 +638,10 @@ def test_ev_site_rows_open_the_ev_home(ev, monkeypatch) -> None:  # noqa: F811
                 assert row["links"]["site"] == {"label": row["site_name"], "href": home}
         [inc_row] = [r for r in bodies["incidents"] if r["case_id"] == inc["id"]]
         assert inc_row["links"]["site_incidents"]["href"].startswith(f"/sites/{quote(ev.code, safe='')}/work/incidents?")
-        assert inc_row["linked_requests"] == [{"label": req["code"], "href": (
+        assert inc_row["linked_requests"] == [{"label": display_code(req["code"]), "href": (
             f"/maintenance/requests/{req['id']}?site_id={quote(ev.code, safe='')}")}]
         [req_row] = [r for r in bodies["maintenance"] if r["case_id"] == req["id"]]
-        assert [x["label"] for x in req_row["action_links"]] == [code]
+        assert [x["label"] for x in req_row["action_links"]] == [display_code(code)]
         assert req_row["links"]["site_maintenance"]["href"].startswith(
             f"/sites/{quote(ev.code, safe='')}/work/maintenance?")
         response = client.get(f"/api/work/requests/{req['id']}", params={"site_id": ev.code})

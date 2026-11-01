@@ -18,6 +18,9 @@ from urllib.parse import quote
 
 import pytest
 
+from assetops_backend.outcomes.display_code import display_code  # POLISH PA-2a
+from assetops_backend.analytics.finding_episode import SUPPORTED, TITLES  # POLISH PA-2a
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -239,7 +242,7 @@ def test_detail_href_after_c2(store, key) -> None:  # noqa: F811
     assert body["rows"]
     for row in body["rows"]:
         assert row["links"]["detail"] == {
-            "label": row["code"],
+            "label": display_code(row["code"]),
             "href": f"/maintenance/requests/{row['case_id']}?site_id={quote(row['site_code'], safe='')}"}
     historical = read(demo, "maintenance", known_at=z(CLOCK))
     assert historical["rows"]
@@ -569,12 +572,13 @@ def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
         for row in body["rows"]:
             w4_row = w4_rows[row["case_id"]]
             assert row["finding_links"] == [{"label": x["label"], "href": x["href"]} for x in w4_row["finding_links"]]
-            relabel = {f"Action {aid[:8]}": act_code}
+            relabel = {}  # POLISH PA-2a: the Site row already shows the display code
             assert row["action_links"] == [{"label": relabel.get(x["label"], x["label"]), "href": x["href"]}
                                            for x in w4_row["action_links"]]
-        assert any(x["label"] == f"Finding {fid[:8]}" and x["href"] for r in body["rows"] for x in r["finding_links"])
+        assert any(x["label"] == TITLES[SUPPORTED] and fid in x["href"] for r in body["rows"]
+                   for x in r["finding_links"] if x["href"])
         assert act_code.startswith("ACT-")
-        assert any(x["label"] == act_code and x["href"] for r in body["rows"] for x in r["action_links"])
+        assert any(x["label"] == display_code(act_code) and x["href"] for r in body["rows"] for x in r["action_links"])
     assert json.dumps(out["hrefs"])
 
 

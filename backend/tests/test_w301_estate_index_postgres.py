@@ -199,7 +199,7 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
         assert row["consequence"]["amount_low"] is None and row["consequence"]["amount_high"] is None
         # CC-R2 (R5.5): a cold mechanism sets the RISK flag (this assertion was `== []` before CC-R2).
         assert row["lens_flags"] == ["RISK"] and row["priority"] is None and row["confidence"] is None
-        assert row["finding_label"] == f"Finding {row['finding_id'][:8]}" and row["status"] == "CURRENT"
+        assert row["finding_label"] == row["title"] and row["status"] == "CURRENT"  # POLISH PA-2a
     order = [(-datetime.fromisoformat(r["episode_start"].replace("Z", "+00:00")).timestamp(), r["finding_id"])
              for r in body["rows"]]
     assert order == sorted(order)
@@ -570,7 +570,7 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
         for body in (*bodies.values(), state_day):
             assert "F-109" not in str(body) and "MG-DEMO" not in str(body)
             for r in body["rows"]:
-                assert r["finding_label"] == f"Finding {r['finding_id'][:8]}"
+                assert r["finding_label"] == r["title"]  # POLISH PA-2a
                 assert not {"RISK", "OPPORTUNITY"} & set(r["lens_flags"])
                 assert (r["priority"], r["confidence"], r["confidence_reasons"]) == (None, None, [])
         assert state_day["rows"][0]["consequence"]["state"] == "UNPRICED"

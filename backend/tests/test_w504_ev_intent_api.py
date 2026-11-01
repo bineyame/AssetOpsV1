@@ -344,7 +344,7 @@ def test_v5_ev_lineage_from_public_session_to_intent_without_automatic_work(ev) 
             assert set(body["intent"]["basis"]["accepted_evidence_ids"]) == {e.lower() for e in selected.accepted_evidence_ids}
             assert [(r["key"], r["result"], r["evidence_ids"]) for r in body["results"]] == [
                 (k, "PENDING", []) for k, _, _ in d.EV_CRITERIA]
-            assert body["links"]["finding"]["label"] == f"Finding {ev.revision['finding_id'][:8]}"
+            assert body["links"]["finding"]["label"] == "Observed EV charging interruption"  # POLISH PA-2a
             assert all(v is None for v in body["links"]["work"].values()), body["links"]["work"]
             assert body["status"] in ("CURRENT", "HISTORICAL")
         with ev.engine.connect() as c:

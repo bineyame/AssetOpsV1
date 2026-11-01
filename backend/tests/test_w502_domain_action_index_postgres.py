@@ -16,6 +16,8 @@ from uuid import uuid4
 import pytest
 
 from test_s4_finding_store_postgres import URL
+from assetops_backend.outcomes.display_code import display_code  # noqa: E402 (POLISH PA-2a)
+from assetops_backend.analytics.adapters.postgres_finding_store import COLD_TITLES  # noqa: E402
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -91,7 +93,7 @@ def test_detail_selects_old_intent_at_old_cutoff(cold, reads) -> None:
     assert (bare["intent"], bare["results"]) == (None, None)  # a successful missing declaration
     assert bare["links"]["work"] == dict.fromkeys(WORK_KEYS)
     assert bare["links"]["finding"] == {
-        "label": f"Finding {cold.finding_id[:8]}",
+        "label": COLD_TITLES["START_RESPONSE"],
         "href": f"/sites/{cold.code}/findings/{cold.finding_id}?revision_id={cold.revision_id}"}
     assert bare["selection_token"] == d.selection_token(cold.t, cold.s, {"id": aid, "raised_at": raised},
                                                         cold.revision_id, None, None, None, [])
@@ -116,7 +118,7 @@ def test_detail_selects_old_intent_at_old_cutoff(cold, reads) -> None:
     assert work["case_code"].startswith("WR-"), work
     assert work == {
         "case_id": case_id, "case_code": work["case_code"], "case_title": "Inspect starter circuit",
-        "request_state": "OPEN", "record_id": rec["id"], "label": f"Maintenance request {work['case_code']}",
+        "request_state": "OPEN", "record_id": rec["id"], "label": f"Maintenance request {display_code(work['case_code'])}",
         "href": None}
     prov = first["source_provenance"]
     assert prov["basis_sha256"] == basis_sha256(
@@ -177,7 +179,7 @@ def test_union_index_mixed_site_paging_and_fence(cold, reads) -> None:
     assert full["rows"][2]["criterion_summary"] is None
     assert top["links"] == {"action": f"/sites/{cold.code}/actions/{ids[0]}/verification", "history": None}
     assert top["origin"] == {"finding_id": cold.finding_id, "finding_revision_id": cold.revision_id,
-                             "label": f"Finding {cold.finding_id[:8]}",
+                             "label": COLD_TITLES["START_RESPONSE"],
                              "href": f"/sites/{cold.code}/findings/{cold.finding_id}?revision_id={cold.revision_id}"}
     present = full["status"]
     assert present in ("CURRENT", "STALE_SOURCE", "PENDING_RECOMPUTE")

@@ -16,6 +16,7 @@ from uuid import uuid4
 import pytest
 
 from test_s4_finding_store_postgres import URL
+from assetops_backend.outcomes.display_code import display_code  # noqa: E402 (POLISH PA-2a)
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -576,7 +577,7 @@ def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
         title = c.execute(text("SELECT title FROM work_case_revision WHERE id = :r"), {"r": rev_id}).scalar_one()
     assert body["links"]["work"] == {"case_id": case_id, "case_code": code, "case_title": title,
                                      "request_state": "COMPLETED", "record_id": rec["id"],
-                                     "label": f"Maintenance request {code}", "href": None}
+                                     "label": f"Maintenance request {display_code(code)}", "href": None}
     # K1 <= cutoff < K2: the Action exists, no case link yet; links.work all null and no declaration yet.
     not_linked = api.get(path, params={"known_at": iso(k1)})
     assert not_linked.status_code == 200, not_linked.text
