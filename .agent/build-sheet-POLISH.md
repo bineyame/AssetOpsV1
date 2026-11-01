@@ -1072,3 +1072,27 @@ here".
    - Update the tests that pin the old strings.
    - The coordinator's plan is accepted: PC rebuilds `assetops_polish_full_test` from merged main before the strict
      28-capture run, so the demo is built from main.
+
+---
+
+## Addendum 14 (2026-11-01): remaining "test data" wording
+
+**Change them now, before the walkthrough.** One client-facing term ("example data") across banner, badges and copy is
+part of being presentable, and the cost is about an hour. This is one small fix round on main, covering lane A and the
+one frontend line:
+
+| Where | Old | New |
+|---|---|---|
+| `site_outcomes/board.py:49` ACTION_RESULT VERIFIED | Verified on test data | Verified on example data |
+| `site_outcomes/mini.py:77,81` | {code} verified on test data | {code} verified on example data |
+| `estate/placement.py:42` | Change verified on test data; watch for a return | Change verified on example data; watch for it coming back |
+| `frontend/src/work/globalWorkParts.tsx:53` | Generated test data | Generated example data (keeps the distinction from "Prepared example data") |
+
+Also:
+- Apply the same "test data" → "example data" swap to any sibling string in the same maps.
+- Update the tests that pin the old strings.
+- Add `/\btest data\b/i` to the capture VOCAB in `tools/demo-combined-evidence.mjs`, so the strict gate catches a recurrence.
+- Then rebuild from main, re-run the finish check (17/17), and do the strict 28-capture re-run. Expect 0 counted hits.
+- Add the strings to the R655 plain-language row.
+
+The `-Tier all` result is still needed before the round closes. Re-run it with the machine idle if the container run does not complete.

@@ -19,3 +19,10 @@
 - L2 (pre-existing harness): `test_out_b4_board_postgres.py:71-80` `_case_db` uses fixed DB name `assetops_out_b_guardrail_test` with a module-scoped fixture; under `-n` without `--dist loadfile` two workers collide (SITE_NOT_FOUND or killed connection). Always pass `--dist loadfile` with `-n`; later tag `_case_db` names per run/worker.
 - L3: `WarningFacts.soon_until` (`warnings.py:96`) no longer read; drop or assert.
 - Residual: historical asset labels use today's same-type count (no cutoff, per q7-1); PB-3 `assetWords` must not reintroduce "EV connector".
+
+## POLISH whole-diff re-review Lows, for the post-walkthrough copy round (`.agent/review-POLISH-whole-diff.md`)
+- L-A: `SiteFindingHistory.tsx:461-467` visible "Related Findings: … Finding <8-char id>"; `:576-641` "Times and references" shows model_version and 8-char assessment ids outside Technical details.
+- L-B: `tools/demo_combined.py:197-199` prewarm prints "ready:" for any HTTP status; print only on 2xx.
+- Capital labels: "Review Finding" / "Open Finding →" (`EstatePortfolio.tsx:182`, `coldSiteViews.tsx:662,703`, `EvAssessmentViews.tsx:347`, `EvSiteViews.tsx:237`); "Service disruptions recorded in Findings" on Portfolio.
+- Off-capture "test data": none on demo path now; "Demonstration data" Mode value inside Technical details on Kobo all-open.
+- Test pipeline: evEnergy `energy_states_table_loading` load flake; test_out_b4 `_case_db` fixed-name collision under -n without --dist loadfile.
