@@ -21,7 +21,7 @@ Addenda 3, 5 and 9. USER_REVIEW_REQUIRED: no (merge on review ACCEPT).
 - `tools/demo_combined.py`, `tools/demo_combined_ev.py`, `tools/demo_combined_kobo.py`, `tools/demo_combined_cold.py`,
   `tools/demo_combined_finish.py`, `tools/w502_cold_work_walkthrough.py` (passthrough only).
 - `backend/assetops_backend/sites/cold_lab.py`, `backend/assetops_backend/sites/ev_lab.py`.
-- Tests: new `backend/tests/test_demo_combined_links.py` (5 pure); 2 new tests each in
+- Tests: new `backend/tests/test_demo_combined_links.py` (5 pure), new `test_demo_combined_finish_co1.py` (5 pure); 2 new tests each in
   `test_w202_cold_lab_bindings_postgres.py` and `test_w205a_ev_foundation_postgres.py`.
 - Records: `.agent/mock-departure-register.md` (R645, R646, R111 note, R535/R552 L3), `.ai/CODE_STATE.md`, task file.
 
