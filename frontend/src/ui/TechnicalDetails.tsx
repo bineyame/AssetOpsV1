@@ -66,6 +66,18 @@ export function WorkedOut({
   const hasLines = lines !== undefined && lines !== null && lines !== false;
   if (references.length === 0 && !hasLines && (extra === undefined || extra === null)) return null;
   const className = variant === "tech" ? "disclosure exact-references exact-references--tech" : "disclosure exact-references";
+  if (!hasLines && (extra === undefined || extra === null)) {
+    // PB-2 review M1: with no plain lines the middle level would only reveal another disclosure, so the values sit
+    // one fold deep in "Technical details" itself (keeping the `data-exact-references` hook and name).
+    return (
+      <details className={`${className} disclosure--tech`} data-disclosure={name} data-exact-references data-technical-details="">
+        <summary className="disclosure__summary">{TECHNICAL_DETAILS}</summary>
+        <div className="disclosure__body">
+          <TechnicalReferenceList references={references} />
+        </div>
+      </details>
+    );
+  }
   return (
     <details className={className} data-disclosure={name} data-exact-references>
       <summary className="disclosure__summary">How this was worked out</summary>

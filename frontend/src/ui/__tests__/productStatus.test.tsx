@@ -158,7 +158,7 @@ describe("W1 shared vocabulary: trial outcomes keyed on outcome, reason and sour
     expect(container.querySelector("[data-product-outcome-demonstration]")?.textContent).toMatch(/policy trial/);
     expect(container.querySelector("[data-product-outcome-demonstration]")?.textContent).toMatch(/no savings or realized benefit/);
     expect(container.querySelector("[data-product-outcome-source]")?.textContent).toBe(
-      "Source: Generated test data, not field readings",
+      "Source: Example data, not field readings",
     );
     for (const demo of ["AUTHORED_DEMONSTRATION", "SIMULATED"]) {
       expect(outcomeWords("VERIFIED", [], demo).demonstrationNote).toBe(DEMONSTRATION_OUTCOME_NOTE);

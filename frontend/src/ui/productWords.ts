@@ -227,7 +227,7 @@ export const REASON_GUARDRAIL_FAIL = "GUARDRAIL_FAIL";
 /** Source classes that are demonstration or generated, never field readings. */
 const DEMONSTRATION_SOURCES: Readonly<Record<string, string>> = {
   AUTHORED_DEMONSTRATION: "Prepared example data, not field readings",
-  REGISTERED_SIMULATION: "Generated test data, not field readings",
+  REGISTERED_SIMULATION: "Example data, not field readings",
   SIMULATED: "Demonstration data, not field readings",
 };
 

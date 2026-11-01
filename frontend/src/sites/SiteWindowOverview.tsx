@@ -27,7 +27,6 @@ import {
   currentnessWords,
   DataTable,
   Disclosure,
-
   Fact,
   FactList,
   CausalTimeline,
@@ -305,11 +304,17 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   // statusbar carries it and this line keeps only the source sentence.
   const sameAsStatusbar = currentnessWords(f.state).label === objectiveWords(a.state).label;
   return (
-    <div className="window-freshness" data-freshness-card>
+    <div
+      className="window-freshness"
+      data-freshness-card
+      data-freshness-state={f.state}
+      data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}
+    >
         {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1.
-            POLISH §3.1: an open source is said inside "How this was worked out"; a closed one stays visible. */}
-        {(
-          <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
+            POLISH §3.1: an open source is said inside "How this was worked out"; a closed one stays visible.
+            PB-2 review L3: the line renders only when it has something to say. */}
+        {sameAsStatusbar && f.source_open ? null : (
+          <p className="v69-chart-note">
             {sameAsStatusbar ? null : (
               <>
                 <DayStateLine words={currentnessWords(f.state)} summary={summary} />{" "}
@@ -368,13 +373,12 @@ export function accessWords(basis: string | null | undefined): string {
   return /OPERATOR/.test(basis) ? "Access: operator account" : "Access: recorded in the technical details";
 }
 
-/** POLISH §3.1 Kobo: "from 13 measured inputs", or the missing-coverage words. */
+/** POLISH §3.1 Kobo: ", from 13 measured inputs", or (PB-2 review L1) the missing-coverage clause. */
+const INPUTS_NOT_RECORDED = "; the measured inputs for this day were not recorded";
 function coverageInputs(coverage: unknown): string {
-  if (coverage === null || typeof coverage !== "object") return "measured inputs not recorded for this day";
+  if (coverage === null || typeof coverage !== "object") return INPUTS_NOT_RECORDED;
   const n = Object.keys(coverage as Record<string, unknown>).length;
-  return n === 0
-    ? "measured inputs not recorded for this day"
-    : `from ${n.toLocaleString("en-GB")} measured ${n === 1 ? "input" : "inputs"}`;
+  return n === 0 ? INPUTS_NOT_RECORDED : `, from ${n.toLocaleString("en-GB")} measured ${n === 1 ? "input" : "inputs"}`;
 }
 
 /**
@@ -386,7 +390,7 @@ export function dayReadingLine(claimLevel: string, periods: number, coverage: un
   const lead = word === undefined ? "Checked" : `Checked (${word.toLowerCase()})`;
   const used =
     periods === 0 ? "generator not used on this day" : `${periods} ${periods === 1 ? "period" : "periods"} of generator use`;
-  return `${lead}: ${used}, ${coverageInputs(coverage)}`;
+  return `${lead}: ${used}${coverageInputs(coverage)}`;
 }
 
 /**
@@ -851,7 +855,7 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   const w = m.state === "PRICED" && !priced ? { ...moneyWords("PRICED"), code: "PRICED" } : overviewMoneyWords(m.state);
   const low = priced ? Number(m.amount_low) : Number.NaN;
   const high = priced ? Number(m.amount_high) : Number.NaN;
-  const scope = m.finding_id ? `One Finding overlapping ${formatDay(summary.window.utc_date)}` : dayScope(summary);
+  const scope = m.finding_id ? `One finding overlapping ${formatDay(summary.window.utc_date)}` : dayScope(summary);
   return (
       <div
         className="window-money"
@@ -958,8 +962,6 @@ function MoneyAction({ summary, links }: { summary: SiteWindowSummary; links: Wi
   );
 }
 
-
-
 /** What happened to the Finding version named in the address, by the server's reason. */
 const PIN_WORDS: Record<string, string> = {
   NOT_IN_SELECTED_DAY: "The Finding in the address does not overlap this day, so it is not shown for it.",
@@ -1063,7 +1065,7 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
         <ChartNote>No Finding is selected for this day, so no recommendation is offered. Review the day in Dispatch.</ChartNote>
       ) : (
         <>
-          <h3>Review the Finding for this day</h3>
+          <h3>Review the finding for this day</h3>
           <ChartNote>
             Start from the finding to decide what to do next.
           </ChartNote>
@@ -1073,7 +1075,7 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
       <p className="overview-next__actions">
         {k === null ? null : (
           <Link className="button" to={links.finding(k.id, k.revision_id)} data-overview-next-finding={k.id}>
-            Open the Finding
+            Open the finding
           </Link>
         )}
         {closed ? null : (
