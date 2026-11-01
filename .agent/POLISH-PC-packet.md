@@ -125,3 +125,19 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
   demo build (R646); Q1 Kobo fuel cost reads zero with "No fuel cost estimated…" (R626), idle-fuel rate later (~1.5 d +
   rebuild); the plain-language copy rows R655 and R662 (including this PC copy pass); R641 hours-of-use plans stay
   "Not assessed"; R08 closure.
+
+## Addendum 14 round (commit `c6854cfab`; rebuild, recapture and check-all still owed)
+
+- Server: `board.py:49` "Verified on example data"; `mini.py:77,81` "{code} verified on example data"; `placement.py:42`
+  "Change verified on example data; watch for it coming back". Frontend: `globalWorkParts.tsx:53` "Generated example
+  data"; sibling trial note `SiteActionVerification.tsx:556` "Policy trial on Lab or authored example data: …" (on the
+  `kobo-verification` capture, so the new rule would count it). No other "test data" in those maps.
+- Vocabulary: `["test data wording", /\btest data\b/gi]` added to `WORD_KINDS` in `tools/demo-combined-vocabulary.mjs`
+  (the capture VOCAB moved there under Addendum 5; `demo-combined-evidence.mjs` imports it). It matches "test data" and
+  "TEST DATA" and not "testdata"; the guard self-tests pass 12/12.
+- Pins updated in 6 backend tests and 3 vitest files; R655 lists the strings.
+- Scoped runs: pure pytest (cc_placement, out_b1_board, out_b2_mini, out_e4_readback, polish_pa2a_server_copy) 135
+  passed; vitest work + outcomeBoard + siteActionVerification + estatePortfolio 12 files, 282 passed.
+  `test_out_e4_readback_postgres.py` is waiting for a DB slot once the `-Tier all` container exits.
+- Still out of scope: the AUTHORED "Authored test data (test-scoped example)" (`verificationWords.ts:215`) and the EV
+  refusal "Authored test data versions conflict." (`EvAssessmentViews.tsx:451`) are not on the capture screens.
