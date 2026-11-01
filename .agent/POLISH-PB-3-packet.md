@@ -97,8 +97,17 @@ The work was built in four disjoint file groups (estate, cold/EV + P-10, UTC lon
   - `overflow=false` everywhere.
   - Both processes stopped by PID; ports 8990 and 5490 free.
   - Output: scratchpad `pb3cap/`.
-  - The copy-only commit `a5e514ecf` came after the capture. On the captured screens it changes only the Portfolio cell "Cost basis not available yet" → "No cost basis recorded yet" (no vocabulary effect).
+  - **L3 correction.** The copy-only commit `a5e514ecf` came after this first capture. On the capture screens it changed:
+    - Portfolio "Time not available yet", "Cost basis not available yet" and "What-if value not available yet";
+    - the Preventive missing-summary words;
+    - the P-07 unavailable text;
+    - the cold/EV refusal references (the `TechnicalReferences` move).
+  - The fix-round recapture below is the capture of record.
 - **Hits per owner (per width, 10 keys):** PB-3 0; Lane A 0; PA-3 0.
+- **Fix-round recapture (capture of record).** Same serve and keys, frontend `f1547458e`, scratchpad `pb3cap2/`.
+  - **0 counted hits in all 20 captures**, `exempt` 1 each, `overflow=false` everywhere.
+  - The serve (PID 15012) and Vite (PID 17680) were stopped by PID; ports 8990 and 5490 are free.
+  - These keys are not `-open` captures, so the named cold/EV disclosures stay closed. Their prose is covered by vitest, including the new M2 tests.
 - **Layout evidence:** not run (`tools/layout-evidence.mjs`). The capture tool's overflow measurement at 1440 and 390 is the layout evidence.
 
 ## Builder copy outside §3.1 (old → new)
@@ -152,8 +161,17 @@ The work was built in four disjoint file groups (estate, cold/EV + P-10, UTC lon
   - builder strings: "No what-if value worked out yet"; Preventive without a summary: "Not shown" / "This list did not include the due counts" / badge "Due status not sent with this list"
 
   If the Architect wants the exact ruled wording, the route is a mock_gaps registration or a reviewed exemption.
-- **D2. P-10 link.** "Open incident →" uses the board href as sent (`/sites/COLD-LAB-001/work/incidents`). `coldUiHref` returns null for non-cold-API links. "Open Finding →" stays beside it.
-- **D3.** Id-holding cold/EV disclosures are tagged `technical` but keep their own names (Record details, Basis details, …), to avoid several identically named "Technical details" on one page. Cold/EV uses one-level `TechnicalReferences`, not the nested `WorkedOut`, because the existing tests allow one disclosure per panel.
+
+  **Fix round (review M1):**
+  - Portfolio time: an open episode shows "From {dayTime} · no end time yet". "No time recorded yet" shows only when neither end is held. A new test covers both.
+  - Portfolio basis: the always-on "No cost basis recorded yet" line is removed. The Portfolio row carries no basis field, so no basis line is true for every row. The ruled "Cost basis not available yet" would need a registered `MissingClaim` gap, which the coordinator routes to the Architect if wanted.
+  - EV Assumption details keeps "No cost basis recorded yet" only when the tariff revision's `basis` is null, which is a true data statement.
+- **D2 (L2 fixed). P-10 link.** The link now carries the cold window's `from`/`to` (`incidentHref`), so INC-005 stays listed. "Open incident →" uses the board href as sent (`/sites/COLD-LAB-001/work/incidents`). `coldUiHref` returns null for non-cold-API links. "Open Finding →" stays beside it.
+- **D3 (resolved, review M2).** The named cold and EV disclosures are untagged and keep their own names:
+  - cold: Source, Record, Claim and Basis details;
+  - EV: Event, Chart, What-if, Capability, Source, Record, Claim, Basis and Assumption details.
+
+  Only their id lines sit in a nested `TechnicalDetails` block, so the plain prose is scanned again. Raw ISO times and enum codes became plain words. The "one disclosure per panel" tests now count top-level `details` only. New tests prove the prose is outside the nested block and the ids are inside it. Copy changes are listed under "Fix round copy". Panel-level `TechnicalReferences` stays as one "Technical details" region.
 - **D4.** Not done:
   - "Updating/Historical · Value withheld" (the row covers only the partly-checked case);
   - "Supported findings" card label;
@@ -162,6 +180,47 @@ The work was built in four disjoint file groups (estate, cold/EV + P-10, UTC lon
   - `coldDueText` `YYYY-MM-DD` (pinned by SiteWorkActions tests);
   - the foundation `ExactReferences` in `ColdFoundationViews`.
 - **D5.** Kept: `.ai/ACTIVE_CONTEXT.md` (lanes run in parallel; the coordinator owns routing, as in PB-0 to PB-2).
+
+## Fix round (review REVISE: M1, M2, L2, L3; Addendum 13 L1, L4)
+
+**Commits:**
+- `9a09655e0` M1, plus L1 (the plain note on corrective Maintenance and the request pages);
+- `9693a7905` L4 (SiteFinding and History clock times in UTC with no zone tag; exact instants in `title`);
+- `f1547458e` M2 and L2;
+- then the records.
+
+**Register:** R661 records L1 and L4.
+
+**Fix round copy (old → new):**
+- **L4:** "2026-10-06 11:00–12:00 EAT" → "6 Oct 2026, 08:00–09:00"; the zone-unavailable suffix is removed; History "Time (EAT)" → "Time", and rows are in UTC. `periodWords` also uses `formatRange`; this goes slightly beyond the ruling, to keep one period form.
+- **M2:**
+  - cold: "Record `<id>`" → "Record {n}"; "`<rule_id>`" → "Rule {n}"; "Kind: MEASUREMENT" → "Kind: Measurement";
+  - EV: raw ISO → `dayHm`/`windowText`; enum codes → words ("use Support", "Source unverified", "Quality Good");
+  - EV: "Tariff revision `<id>`" → "Tariff"; "Claim limit not assessed" → "Capability limits not assessed"; "source REGISTERED_SIMULATION" → "source Generated test data";
+  - EV: "Gross tariff scenario" → "Gross tariff estimate"; "Historical scenario · revision N" → "Earlier what-if · version N";
+  - EV: "Source or binding unverified for this record." → "Source or its assignment to this charger is unverified for this record."; "Load more accepted records" → "Show more accepted records".
+- **Left after M2, outside the capture keys:**
+  - the "Claim details" summaries, and the cold/EV Analysis heading "How a claim limit is set";
+  - the server `limitation` text "Gross scenario only." (Lane A);
+  - the "Scenario display currency" row and the bridge "Scenario" cell.
+
+**Fix-round checks:**
+- `tsc` on `8f3de6e52`: 0 errors.
+- check-all on `f1547458e`: **All 12 guards passed**. The EvEnergy copy commit landed during the run.
+- Scoped vitest per fix:
+  - work + estate: 14 files, 275/275;
+  - L4: 9 files, 361/361;
+  - M2/L2: cold/EV/outcome 660/661, where the 1 failure was an R347 window test that changed on each run and passes alone (18/18);
+  - evEnergy: 12/12.
+- Full `npx vitest run` on `8f3de6e52`, wall 356 s: **Test Files 1 failed | 149 passed (150); Tests 1 failed | 3593 passed (3594)**.
+  - The failure was `evEnergy.test.tsx > energy_states_table_loading`, "the store read has not settled". That is a settle timeout under load.
+  - The file then passed alone, 12/12. It fails the same way the timeout seen in the first round did.
+
+**PA-3 review leftovers:**
+- `EvEnergy.tsx:74,77`: "No eligible gross tariff scenario." → "No eligible charging income estimate."; "{v}/kWh gross tariff scenario" → "{v}/kWh charging tariff (charging income estimate)" (Addendum 11 wording).
+- `EstatePortfolio.tsx:587` was already "at the recorded tariff, before costs (a what-if)" on this branch.
+- The EV board "Bounded money consequence" heading is "Possible cost" at this head (`v69PanelTitles` `ev:4`, pinned by `evSiteMoneyRoutes` `panelTitled("Possible cost")`). The PA-3 capture was taken from main, without PB-3.
+- Lane A: `ev_site_reads.py:27` `NO_MONEY` "No gross tariff scenario assessed." is server text.
 
 ## Residual risk
 
