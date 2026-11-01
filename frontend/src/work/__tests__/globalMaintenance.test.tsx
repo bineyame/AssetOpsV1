@@ -216,7 +216,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
     expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
     expect(bar.querySelectorAll("input")).toHaveLength(2);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC · due dates in each site's local date");
 
     // P-B2-3/4: the four mock cards; Open work over the full selection; the separate View detail slot unavailable.
     expect(
@@ -270,8 +270,8 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     const full = cell(first, 0).querySelector("[data-global-work-full-title]") as HTMLDetailsElement;
     expect(full.tagName).toBe("DETAILS");
     expect(text(full)).toBe(`Full title text${TITLE200}`);
-    expect(text(cell(first, 0).querySelector("[data-global-work-lineage]"))).toBe("No linked Finding or Action");
-    expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source unverified");
+    expect(text(cell(first, 0).querySelector("[data-global-work-lineage]"))).toBe("No linked finding or action");
+    expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(text(cell(first, 1))).toBe("No asset recorded · Kobo");
     expect(within(cell(first, 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
     expect(text(cell(first, 2))).toBe(OWNER128);
@@ -356,7 +356,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC · due dates in each site's local date");
     expect(cards()).not.toBeNull();
   });
 
@@ -509,17 +509,17 @@ describe("Post-W6 W6: global Maintenance corrections", () => {
     }
   });
 
-  it("Q18: one open request is singular; asset labels read as plain words", async () => {
+  it("Q18: one open request is singular; asset labels read as the plain wire words (Addendum 12 Q3)", async () => {
     const rows = [
-      row(1, { state: "OPEN", asset_label: "c1 · EV_CONNECTOR" }),
-      row(2, { state: "COMPLETED", asset_label: "generator-1 · GENERATOR" }),
+      row(1, { state: "OPEN", asset_label: "Connector c1" }),
+      row(2, { state: "COMPLETED", asset_label: "Backup generator" }),
     ];
     mount(PAGE, client({ "page-one": loaded(body(rows, { state_counts: { OPEN: 1, IN_PROGRESS: 0, COMPLETED: 1, CANCELLED: 0 } })) }));
     await settled();
     expect(text(document.querySelector('[data-global-work-card="open"]'))).toContain("1 request in progress or open");
     const assets = Array.from(document.querySelectorAll("[data-global-work-asset-site]")).map(text);
-    expect(assets[0]).toMatch(/^EV connector c1 · /);
-    expect(assets[1]).toMatch(/^Backup generator · generator-1 · /);
+    expect(assets[0]).toMatch(/^Connector c1 · /);
+    expect(assets[1]).toMatch(/^Backup generator · Kobo/);
     expect(document.body.textContent).not.toMatch(/EV_CONNECTOR|· GENERATOR/);
   });
 

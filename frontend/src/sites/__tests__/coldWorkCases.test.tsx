@@ -20,7 +20,6 @@ import {
   WORK_CONTEXT_NOTICE_DOMAIN,
   WORK_STRIP_DETAIL,
   WORK_STRIP_DETAIL_DOMAIN,
-  coldAssetLabel,
   coldRequestHref,
   eatWindowText,
   siteWindowText,
@@ -77,7 +76,7 @@ function request(n: number, over: Partial<WorkRow> = {}): WorkRow {
     occurred_at: "2026-10-06T16:20:00.000000Z",
     finding_links: [],
     asset_id: GEN,
-    asset_label: "generator-1 · GENERATOR",
+    asset_label: "Backup generator",
     request_state: "COMPLETED",
     state: "COMPLETED",
     incident_id: null,
@@ -169,13 +168,6 @@ describe("W5-02 K3a: Site-time Window formatter (M5 withdrawal)", () => {
     expect(siteWindowText("not-an-instant", "Etc/UTC")).toBe("not-an-instant");
     // W4 mini-grid keeps its reviewed fixed-offset formatter.
     expect(eatWindowText("2026-10-06T16:11:00Z")).toBe("6 Oct · from 19:11");
-  });
-
-  it("reads only a final exact GENERATOR token as backup generator (R89)", () => {
-    expect(coldAssetLabel("generator-1 · GENERATOR")).toBe("generator-1 · backup generator");
-    expect(coldAssetLabel("compressor-2 · COMPRESSOR")).toBe("compressor-2 · COMPRESSOR");
-    expect(coldAssetLabel("generator-1 · GENERATOR_SET")).toBe("generator-1 · GENERATOR_SET");
-    expect(coldAssetLabel("GENERATOR")).toBe("GENERATOR");
   });
 
   it("forms the W6 C2 request Overview href from the selected ID, stored Site code and explicit cutoff (P-G-4, R68)", () => {
@@ -274,10 +266,11 @@ describe("W5-02 K3a: cold Site > Work > Maintenance (v69 cold-work-maintenance)"
     expect(text(wr)).toBe("WR-001 · Starter/control inspection");
     expect(wr.getAttribute("href")).toBe(coldRequestHref(request(1).case_id, SITE, KNOWN));
     expect(wr.getAttribute("href")).toContain(`site_id=${SITE}&known_at=${encodeURIComponent(KNOWN)}`);
-    // R89: composite label, ID in the existing `UTC and IDs` disclosure only.
-    expect(text(row.querySelector("[data-work-asset]"))).toBe("generator-1 · backup generator");
+    // POLISH Addendum 12 Q3: the plain wire label as sent; the ID only in the row's Technical details.
+    expect(text(row.querySelector("[data-work-asset]"))).toBe("Backup generator");
     const assetCell = row.querySelector("[data-work-asset]")?.closest("td") as HTMLElement;
-    expect(summaries(assetCell)).toEqual(["UTC and IDs"]);
+    expect(summaries(assetCell)).toEqual(["Technical details"]);
+    expect(assetCell.querySelector("[data-work-asset-id]")?.closest("[data-technical-details]")).not.toBeNull();
     expect(text(assetCell.querySelector("[data-work-asset-id]"))).toBe(GEN);
     // Ruling 3 + R70: `Completed` chip, then the `Activity recorded` disclosure with the stored activity.
     const activity = row.querySelector("[data-work-activity-cell]") as HTMLElement;
@@ -301,7 +294,7 @@ describe("W5-02 K3a: cold Site > Work > Maintenance (v69 cold-work-maintenance)"
   it("shows the real state chip for an unfinished request and omits null-value disclosures", async () => {
     const rows = [
       request(1, { request_state: "OPEN", state: "OPEN", activity: null, outcome_note: null, record_id: null }),
-      request(2, { request_state: "IN_PROGRESS", state: "IN_PROGRESS", asset_label: "compressor-2 · COMPRESSOR", next_evidence_copy: "Run a witnessed start" }),
+      request(2, { request_state: "IN_PROGRESS", state: "IN_PROGRESS", asset_label: "Compressor", next_evidence_copy: "Run a witnessed start" }),
     ];
     const { main } = await mountCases("maintenance", loaded(body(rows)), COLD_SITE, query(null));
     const [open, progress] = Array.from(main.querySelectorAll("tbody tr")) as HTMLElement[];
@@ -312,7 +305,7 @@ describe("W5-02 K3a: cold Site > Work > Maintenance (v69 cold-work-maintenance)"
     expect(summaries(open.querySelector("[data-work-activity-cell]") as HTMLElement)).toEqual([]);
     expect(summaries(open.querySelector("[data-work-outcome-cell]") as HTMLElement)).toEqual([]);
     // An unknown asset suffix is shown verbatim; selected next-evidence copy is shown when present.
-    expect(text(progress.querySelector("[data-work-asset]"))).toBe("compressor-2 · COMPRESSOR");
+    expect(text(progress.querySelector("[data-work-asset]"))).toBe("Compressor");
     expect(text(progress.querySelector("[data-work-next-evidence]"))).toBe("Run a witnessed start");
     // No explicit cutoff in the address: the Overview href carries no known_at.
     expect((open.querySelector("a[data-work-request-link]") as HTMLAnchorElement).getAttribute("href")).toBe(
@@ -329,7 +322,7 @@ describe("W5-02 K3a: cold Site > Work > Maintenance (v69 cold-work-maintenance)"
 
 describe("W5-02 K3a: cold case currentness and complete zero (K3 pre-flight rulings 4-5, R91)", () => {
   const cases: [string, "blue" | "amber", string][] = [
-    ["HISTORICAL", "blue", "Read as of 2026-10-22 09:30 UTC. Later work may differ."],
+    ["HISTORICAL", "blue", "Read as of 22 Oct 2026, 09:30. Later work may differ."],
     ["UNKNOWN", "blue", "No selected source for linked evidence. The work record remains recorded."],
     ["PENDING_RECOMPUTE", "amber", "Linked evidence is being reassessed. The work record remains recorded."],
     ["STALE_SOURCE", "amber", "Linked evidence source is out of date. The work record remains recorded."],

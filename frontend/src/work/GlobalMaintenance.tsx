@@ -35,7 +35,6 @@ import {
   Pager,
   SCROLL_TABLE,
   WorkSourceLine,
-  assetLabelWords,
   findingLinks,
   joined,
   requestCount,
@@ -53,7 +52,7 @@ export const GLOBAL_MAINTENANCE_LOADING = "Loading the work requests across the 
 export const CORRECTIVE_REQUESTS_FOOTER = "Completed is activity evidence only; outcome is verified separately";
 export const MAINTENANCE_NOTICE = "A completed request records activity; an equipment outcome remains unverified.";
 export const NO_WORK_REQUESTS = "No work requests in this window.";
-export const NO_LINKED_FINDING_OR_ACTION = "No linked Finding or Action";
+export const NO_LINKED_FINDING_OR_ACTION = "No linked finding or action";
 /** Post-W6 W6 Q7: the stored time that places a request in the window. */
 export const MAINTENANCE_MEMBERSHIP = "Listed by the time each request was opened.";
 
@@ -157,7 +156,7 @@ function RequestRow({ row }: { row: GlobalMaintenanceRow }) {
       </td>
       <td>
         <CellDisclosure column="Asset / site" row={row.code} data={{ "data-global-work-asset-site": "" }}>
-          {assetLabelWords(row.asset_label) ?? "No asset recorded"}
+          {row.asset_label ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
         </CellDisclosure>
@@ -357,7 +356,7 @@ export function GlobalMaintenancePage({ client, estate = NO_SUMMARY }: { client?
       <Breadcrumbs trail={[{ label: "Maintenance" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_MAINTENANCE_HEADING_ID} subtitle={GLOBAL_MAINTENANCE_SUBTITLE} />
       <MaintenanceViews current="corrective" query={query} />
-      <GlobalWorkBar page={page} label="Maintenance window" membership={MAINTENANCE_MEMBERSHIP} />
+      <GlobalWorkBar page={page} label="Maintenance window" membership={MAINTENANCE_MEMBERSHIP} dueDates />
       <GlobalWorkSlot
         page={page}
         loading={GLOBAL_MAINTENANCE_LOADING}

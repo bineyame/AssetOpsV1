@@ -203,7 +203,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
       "Verification · Not available yet",
       "History",
     ]);
-    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC · due dates in each site's local date");
     expect(q(".v69-mheader")).not.toBeNull();
 
     expectV69Panels("wr-record");
@@ -429,7 +429,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
     await settled();
     expect(withCut.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
     // Post-W6 W6 Q14 (R372): the historical date bar names its cutoff to the second.
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 · Times in UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 · Times in UTC · due dates in each site's local date");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Maintenance record" })).toHaveAttribute("href", `${RECORD}${cut}`);
