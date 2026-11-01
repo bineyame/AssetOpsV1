@@ -193,7 +193,7 @@ describe("IDX-GAPS outcome board gap line", () => {
   }
 
   it("renders the backend line under the rows only when present", async () => {
-    const text = "Not available yet · 23 of 31 days have no assessed readings";
+    const text = "23 of the last 31 days have no checked readings yet";
     await board(boardBody({ finding_gaps: { text, days: ["2026-10-01"] } }));
     const line = document.querySelector("[data-outcome-finding-gaps]");
     expect(line?.textContent).toBe(text);

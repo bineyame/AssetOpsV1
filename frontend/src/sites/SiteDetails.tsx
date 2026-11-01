@@ -1,3 +1,4 @@
+import { formatDayTime } from "../ui/time";
 import type { ReactNode } from "react";
 
 import {
@@ -319,7 +320,7 @@ export function SiteDetailFacts({
             <Badge tone="lifecycle">{view.lifecycleStatus}</Badge>
           </Fact>
           <Fact term="Foundation version">{view.foundationVersion}</Fact>
-          <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+          <Fact term="Valid from">{formatDayTime(view.foundationValidFrom)}</Fact>
           <Fact term="Summary">
             {/* The site's own configured document text, verbatim (user-owned). */}
             <span data-vocabulary-exempt="user-owned">{view.foundationSummary}</span>

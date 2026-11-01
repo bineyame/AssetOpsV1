@@ -14,6 +14,7 @@
  * - D4 (R30): table rows are the persisted Submitted heads with stored actor IDs, not the mock's example rows/roles.
  * A refusal, a read failure or a changed list is stated, never zero.
  */
+import { displayCode } from "../ui/displayCode";
 import { useNavigate } from "react-router-dom";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
@@ -105,7 +106,7 @@ function RecordRow({ row }: { row: GlobalOperationalRow }) {
     <tr data-global-work-row={row.root_id} data-global-work-head={row.head_id}>
       <td>
         <CellDisclosure column="Record" row={row.code} data={{ "data-global-work-code": "" }}>
-          {row.code}
+          {displayCode(row.code)}
         </CellDisclosure>
         {row.correction_reason !== null ? (
           <>

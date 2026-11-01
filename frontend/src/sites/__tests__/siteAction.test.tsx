@@ -30,6 +30,7 @@
  * and prove the same structure (no command control, a read-only reason) at
  * both; rendered layout at both widths is phase-2 browser evidence.
  */
+import { displayCode } from "../../ui/displayCode";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -274,7 +275,7 @@ describe("Recommendation (recommendation:1#a)", () => {
       expect(q("[data-recommendation-state]")?.getAttribute("data-recommendation-state")).toBe("PRIOR_ACTION_UNRESOLVED");
       // The notice names and links the blocking Action and its own (earlier) origin version.
       expect(q("[data-recommendation-prior-block]")?.getAttribute("data-recommendation-prior-block")).toBe(block.blocking_action_id);
-      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(block.blocking_action_code);
+      expect(q("[data-recommendation-prior-block-link]")?.textContent).toBe(displayCode(block.blocking_action_code));
       expect(q("[data-recommendation-prior-block-link]")?.getAttribute("href")).toBe(block.links.action);
       expect(q("[data-recommendation-prior-block-origin]")?.getAttribute("href")).toBe(
         `/sites/KOBO-001/findings/${FINDING}?revision_id=${block.origin_finding_revision_id}`,
@@ -294,7 +295,7 @@ describe("Recommendation (recommendation:1#a)", () => {
       expect(button).toBeDisabled();
       expect(button.getAttribute("aria-describedby")).toBe("site-recommendation-accept-held");
       expect(q("[data-action-command-unavailable='PRIOR_ACTION_UNRESOLVED']")?.textContent).toMatch(
-        new RegExp(`earlier trial on this Finding \\(${block.blocking_action_code}\\) is still open`),
+        new RegExp(`earlier trial on this Finding \\(${displayCode(block.blocking_action_code)}\\) is still open`),
       );
       // The earlier Action is listed with its own origin version, never relabelled as this one.
       const item = q(`[data-recommendation-prior-action='${block.blocking_action_id}']`);
@@ -344,7 +345,7 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(refused?.textContent).toMatch(/Not accepted: an earlier trial on this Finding is still open, so no new Action was recorded/);
     expect(refused?.textContent).toMatch(new RegExp(`accepted on Finding version ${held.body.detail.origin_revision_no}`));
     expect(q("[data-accept-held-action-link]")?.getAttribute("href")).toBe(held.body.detail.links.action);
-    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${held.body.detail.blocking_action_code}`);
+    expect(q("[data-accept-held-action-link]")?.textContent).toBe(`Open ${displayCode(held.body.detail.blocking_action_code)}`);
     expect(q("[data-accept-held-live]")?.getAttribute("data-accept-held-live")).toBe(held.body.detail.live_status.state);
     expect(q("[data-action-command-done]")).toBeNull();
     expect(s.requests.filter((r) => r.method === "POST")).toHaveLength(1);
@@ -443,7 +444,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     await settledScreen();
     const body = ov.applied_pending_newer_revision.body;
     await waitFor(() =>
-      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`${body.action.action_code} · Battery reserve trial`),
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`${displayCode(body.action.action_code)} · Battery reserve trial`),
     );
     expect(q("[data-action-origin-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/findings/${body.origin.finding_id}?revision_id=${body.origin.finding_revision_id}`,
@@ -1160,7 +1161,7 @@ describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => 
     await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
-    expect(items).toEqual(["Actions", ov.applied_pending_newer_revision.body.action.action_code, label]);
+    expect(items).toEqual(["Actions", displayCode(ov.applied_pending_newer_revision.body.action.action_code), label]);
     expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
     expect(crumbs.querySelector('[aria-current="page"]')?.textContent).toBe(label);
     expect(crumbs.querySelector("[data-action-crumb-site]")?.textContent).toBe(`· site: ${HYBRID_MINI_GRID_SITE.display_name}`);

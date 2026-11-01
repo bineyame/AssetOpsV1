@@ -11,10 +11,10 @@ import type { ReactNode } from "react";
 import { ChartNote, Panel } from "../ui";
 
 export const OVERVIEW_PANEL_TITLES = [
-  "What happened in the selected hour",
+  "What happened on this day",
   "Operating context",
   "Needs attention",
-  "Bounded money consequence",
+  "Possible cost",
   "Next step",
 ] as const;
 

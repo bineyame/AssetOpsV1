@@ -783,7 +783,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     const view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, fakeClient(() => loaded(findingsBody("all")), loaded(actionsBody({ rows: [titled, untitled] }))));
     await settledScreen();
     const links = Array.from(main().querySelectorAll("[data-estate-action-link]")).map((a) => a.textContent);
-    expect(links).toEqual(["Review generator stop setting", "ACT-000001"]);
+    expect(links).toEqual(["Review generator stop setting", "ACT-001"]);
     expect(main().textContent).not.toContain("Battery reserve trial");
     expect(main().textContent).toContain("No success criterion recorded");
     view.unmount();

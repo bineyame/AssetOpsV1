@@ -22,6 +22,7 @@
  *   secondary Maintenance Activity line. It changes no count, cursor, state,
  *   outcome or case URL; an answer for another page or cutoff is discarded.
  */
+import { displayCode } from "../ui/displayCode";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -664,7 +665,7 @@ function MiniLongText({ text, name, children }: { text: string; name: string; ch
 
 /** A case title: plain text while `url` is null (no product detail route yet). */
 function CaseTitle({ row }: { row: WorkRow }) {
-  const label = `${row.code} · ${row.title}`;
+  const label = `${displayCode(row.code)} · ${row.title}`;
   return (
     <span data-work-case-title>
       <MiniLongText text={label} name={`work-mini-title-${row.case_id}`}>
@@ -790,7 +791,7 @@ function CaseLongText({
  * for the selected case ID, stored Site code and explicit cutoff (P-G-4). R94 (cold) / R107 (EV): long titles preview.
  */
 function DomainCaseTitle({ kind, row, cells }: { kind: WorkKind; row: WorkRow; cells: DomainCells }) {
-  const label = `${row.code} · ${row.title}`;
+  const label = `${displayCode(row.code)} · ${row.title}`;
   const href = kind === "maintenance" && row.case_id ? coldRequestHref(row.case_id, cells.site.code, cells.knownAt) : null;
   return (
     <span data-work-case-title>

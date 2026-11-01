@@ -297,8 +297,8 @@ export const CLAIM_LABEL: Record<CommercialClaimLevel, string> = {
   MODELLED_OPPORTUNITY: "Modelled opportunity · declared assumptions",
   INVENTORY_REQUIRING_REVIEW: "Inventory requiring review · declared value · not a loss",
   EXPECTED_VALUE: "Expected value · declared assumptions",
-  VERIFIED_SIMULATED_TECHNICAL: "Technical result verified on test data",
-  POST_INTERVENTION_MODELLED: "Modelled change after the trial · not realized savings",
+  VERIFIED_SIMULATED_TECHNICAL: "Verified on example data",
+  POST_INTERVENTION_MODELLED: "Estimated effect of the trial (not money saved)",
 };
 export const BENEFICIARY_WORDS: Record<Beneficiary, string> = {
   MINI_OPERATOR: "mini-grid operator",

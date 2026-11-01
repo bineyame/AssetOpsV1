@@ -11,7 +11,7 @@ describe("CC-R1 ClaimLabel", () => {
     const p = container.querySelector("p.claim-label");
     expect(p).toHaveAttribute("data-claim-level", "MODELLED_OPPORTUNITY");
     expect(p).toHaveAttribute("data-beneficiary", "MINI_OPERATOR");
-    expect(p?.textContent).toBe("Modelled opportunity · declared assumptions · benefits: mini-grid operator");
+    expect(p?.textContent).toBe("Modelled opportunity · declared assumptions · benefits the mini-grid operator");
   });
 
   it.each([

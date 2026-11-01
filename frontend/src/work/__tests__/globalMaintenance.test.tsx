@@ -265,7 +265,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(trs).toHaveLength(5);
     const first = trs[0];
     const titleLink = within(cell(first, 0)).getAllByRole("link")[0];
-    expect(titleLink.textContent).toBe(`WR-000001 · ${TITLE200}`);
+    expect(titleLink.textContent).toBe(`WR-001 · ${TITLE200}`);
     expect(titleLink.getAttribute("href")).toBe(SITE_MAINTENANCE);
     const full = cell(first, 0).querySelector("[data-global-work-full-title]") as HTMLDetailsElement;
     expect(full.tagName).toBe("DETAILS");
@@ -440,9 +440,9 @@ describe("W6-01c C2: the request Overview link", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     const [first, second] = Array.from(document.querySelectorAll("[data-global-work-row]"));
-    expect(within(first as HTMLElement).getByRole("link", { name: "WR-000001 · Request 1" })).toHaveAttribute("href", detail);
+    expect(within(first as HTMLElement).getByRole("link", { name: "WR-001 · Request 1" })).toHaveAttribute("href", detail);
     // A row without a detail link keeps the Site maintenance fallback.
-    expect(within(second as HTMLElement).getByRole("link", { name: "WR-000002 · Request 2" })).toHaveAttribute("href", SITE_MAINTENANCE);
+    expect(within(second as HTMLElement).getByRole("link", { name: "WR-002 · Request 2" })).toHaveAttribute("href", SITE_MAINTENANCE);
   });
 });
 

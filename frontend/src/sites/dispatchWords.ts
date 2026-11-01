@@ -96,10 +96,17 @@ const ROLE_WORDS: Record<string, string> = {
   feeder_demand: "Feeder demand",
   pv_irradiance: "Solar irradiance",
   battery_reserve: "Reported battery reserve level (the reserve used comes from site settings)",
+  // POLISH §3.1 Kobo (Addendum 8 Q2): the clinic's essential-service power, in plain words.
+  critical_load_delivered_power: "Essential services: power supplied",
+  critical_load_requested_power: "Essential services: power requested",
 };
 
 export function roleWords(role: string): string {
-  return ROLE_WORDS[role] ?? role.replace(/_/g, " ");
+  const known = ROLE_WORDS[role];
+  if (known !== undefined) return known;
+  // POLISH §3.1: an unmapped role reads as words with a capital first letter, never lower-case snake text.
+  const words = role.replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 /** W1-UX-03: a missing-input entry ("role" or "role: detail") in plain words; never its code or detail text. */

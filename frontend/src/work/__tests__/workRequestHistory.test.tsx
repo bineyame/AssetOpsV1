@@ -237,10 +237,10 @@ describe("W6-01d C4: work request History page", () => {
 
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: null }]);
     expect(screen.getByRole("heading", { level: 1, name: "Inspect starter and control circuit again" })).toBeInTheDocument();
-    expect(text(q(".page-header p"))).toBe("WR-000001 · Kobo · corrective");
+    expect(text(q(".page-header p"))).toBe("WR-001 · Kobo · corrective");
     // P-C4-14: the loaded breadcrumb changes only the section.
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(text(crumbs)).toBe("MaintenanceWR-000001History· site: Kobo");
+    expect(text(crumbs)).toBe("MaintenanceWR-001History· site: Kobo");
     expect(text(crumbs.querySelector("[aria-current='page']"))).toBe("History");
     expect(screen.getByRole("link", { name: "Open site" })).toHaveAttribute("href", "/sites/KOBO-001");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });

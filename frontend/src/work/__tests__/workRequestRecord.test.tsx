@@ -182,7 +182,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
 
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: null }]);
     expect(screen.getByRole("heading", { level: 1, name: "Inspect starter and control circuit again" })).toBeInTheDocument();
-    expect(text(q(".page-header p"))).toBe("WR-000001 · Kobo · corrective");
+    expect(text(q(".page-header p"))).toBe("WR-001 · Kobo · corrective");
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(text(crumbs.querySelector("[aria-current='page']"))).toBe("Maintenance record");
     expect(screen.getByRole("link", { name: "Open site" })).toHaveAttribute("href", "/sites/KOBO-001");
@@ -241,8 +241,8 @@ describe("W6-01c C3: work request Maintenance record", () => {
     mount(PAGE, client(loaded({ ...body, selected: { ...body.selected, known_at: "2026-10-23T08:00:00.123456Z" } })));
     await settled();
     const notice = q('[data-work-record-notice="linked"]') as HTMLElement;
-    expect(text(notice)).toBe("This record is also listed in Operational records as REC-000003 (Operator log).");
-    expect(within(notice).getByRole("link", { name: "REC-000003" })).toHaveAttribute(
+    expect(text(notice)).toBe("This record is also listed in Operational records as REC-003 (Operator log).");
+    expect(within(notice).getByRole("link", { name: "REC-003" })).toHaveAttribute(
       "href",
       `/operational-records?${DAY}&kind=OPERATOR_LOG`,
     );
@@ -257,14 +257,14 @@ describe("W6-01c C3: work request Maintenance record", () => {
     await settled();
     const notice = q("[data-work-record-notice]") as HTMLElement;
     expect(text(notice)).toBe(
-      "This record is also listed in Operational records as REC-000009 (Site visit), REC-000003 (Operator log), " +
-        "REC-000011 (Manual reading).",
+      "This record is also listed in Operational records as REC-009 (Site visit), REC-003 (Operator log), " +
+        "REC-011 (Manual reading).",
     );
     expect(Array.from(notice.querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
-      ["REC-000009", `/operational-records?${DAY}&kind=SITE_VISIT${cut}`],
-      ["REC-000003", `/operational-records?${DAY}&kind=OPERATOR_LOG${cut}`],
+      ["REC-009", `/operational-records?${DAY}&kind=SITE_VISIT${cut}`],
+      ["REC-003", `/operational-records?${DAY}&kind=OPERATOR_LOG${cut}`],
       [
-        "REC-000011",
+        "REC-011",
         `/operational-records?from=${encodeURIComponent("2026-10-31T00:00:00Z")}&to=${encodeURIComponent("2026-11-01T00:00:00Z")}&kind=MANUAL_READING${cut}`,
       ],
     ]);

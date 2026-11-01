@@ -158,7 +158,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     });
     expect(main().textContent).toContain("Assess measured solar headroom and its limits.");
     expect(strip()).toContain("Lens: Opportunity");
-    expect(strip()).toContain("Selected sources: Generated test data, not field readings");
+    expect(strip()).toContain("Selected sources: Example data, not field readings");
     // post-W6 W4 R312: one assessed day does not establish recurrence (five completely assessed days are needed).
     expect(strip()).toContain("Recurrence is not established for this selection.");
     const dispatch = document.querySelector("[data-mini-dispatch-link] a") as HTMLAnchorElement;

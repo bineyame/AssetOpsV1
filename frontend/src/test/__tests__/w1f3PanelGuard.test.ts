@@ -13,7 +13,7 @@ const CHROME = `<nav aria-label="Breadcrumb"><ol><li>Sites</li></ol></nav><heade
 const STRIP = `<div class="status-strip status-strip--line"><span class="status-strip__state">Open</span></div>`;
 
 /** Dynamic titles take the selected read's values (finding-evidence names the Finding). */
-const VALUES: Record<string, string> = { finding: "Generator support merits review" };
+const VALUES: Record<string, string> = { finding: "Generator may have been on longer than needed" };
 
 function panels(screen: string): string {
   return expectedPanelTitles(screen, VALUES)

@@ -5,6 +5,7 @@
  * success criterion is `No success criterion recorded`, and `Verified` appears only for a surviving VERIFIED
  * resolution. No mock ACT number, Incident or Maintenance link is rendered.
  */
+import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { siteDetailHref } from "../shell/operatorSiteRoutes";
@@ -95,7 +96,7 @@ function Cards({ body }: { body: EstateActionsBody }) {
  */
 export function actionRowTitle(row: Pick<EstateActionRow, "action_title" | "action_code">): string {
   const title: unknown = row.action_title;
-  return typeof title === "string" && title.trim() !== "" ? title : row.action_code;
+  return typeof title === "string" && title.trim() !== "" ? title : displayCode(row.action_code);
 }
 
 function Row({ row }: { row: EstateActionRow }) {

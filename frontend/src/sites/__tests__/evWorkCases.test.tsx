@@ -159,7 +159,7 @@ describe("W5-04 V3a: EV Site > Work > Incidents (v69 ev-work-incidents)", () => 
     );
     const row = main.querySelector("tbody tr") as HTMLElement;
     // R85: the INC code is plain text.
-    expect(text(row.querySelector("[data-work-case-title]"))).toBe("INC-000001 · Charging session fault");
+    expect(text(row.querySelector("[data-work-case-title]"))).toBe("INC-001 · Charging session fault");
     expect(row.querySelector("[data-work-case-title] a")).toBeNull();
     expect(text(row.querySelector("[data-work-narrative]"))).toBe("Connector fault ended a charging session; outcome remains unverified");
     // R74/R75: plain `Finding {id8}`, the selected revision and the unavailable sentence inside `Finding version`.
@@ -263,7 +263,7 @@ describe("W5-04 V3a: EV Site > Work > Maintenance (v69 ev-work-maintenance)", ()
     const row = main.querySelector("tbody tr") as HTMLElement;
     // R83: the WR opens the mounted W6 request Overview with the stored Site code and the explicit cutoff.
     const wr = row.querySelector("a[data-work-request-link]") as HTMLAnchorElement;
-    expect(text(wr)).toBe("WR-000001 · Connector diagnostic inspection");
+    expect(text(wr)).toBe("WR-001 · Connector diagnostic inspection");
     expect(wr.getAttribute("href")).toBe(coldRequestHref(evRequest(1).case_id, EV_SITE_CODE, EV_KNOWN));
     expect(wr.getAttribute("href")).toBe(
       `/maintenance/requests/${evRequest(1).case_id}?site_id=${EV_SITE_CODE}&known_at=${encodeURIComponent(EV_KNOWN)}`,

@@ -13,6 +13,7 @@
  * results (`Not tested`, `Not tested`, `Not established`, `Pending`) and the completed-inspection sentence states
  * activity only.
  */
+import { displayCode } from "../ui/displayCode";
 import { useNavigate } from "react-router-dom";
 
 import { DataTable, Panel } from "../ui";
@@ -108,10 +109,10 @@ const INSPECT_NOTE_ID = "domain-action-inspect-unavailable";
 function relatedSentence(work: DomainActionDetail["links"]["work"]): { kind: string; text: string } {
   if (work.case_id !== null && work.case_title !== null && work.case_code !== null) {
     if (work.request_state === "COMPLETED" && work.record_id !== null) {
-      return { kind: "completed", text: coldRelatedCompleted(work.case_title, work.case_code) };
+      return { kind: "completed", text: coldRelatedCompleted(work.case_title, displayCode(work.case_code)) };
     }
     if (work.request_state === "OPEN" || work.request_state === "IN_PROGRESS") {
-      return { kind: work.request_state === "OPEN" ? "open" : "in-progress", text: coldRelatedOngoing(work.case_title, work.case_code, work.request_state) };
+      return { kind: work.request_state === "OPEN" ? "open" : "in-progress", text: coldRelatedOngoing(work.case_title, displayCode(work.case_code), work.request_state) };
     }
     if (work.request_state === "VERIFICATION_WINDOW" && work.record_id !== null) {
       return { kind: "verification-window", text: COLD_RELATED_VERIFICATION_WINDOW };

@@ -11,21 +11,21 @@ import type { FindingDetailBody, Lifecycle, RevisionSummary, UndecidedCause } fr
 export const LIFECYCLE_WORDS: Record<Lifecycle, { label: string; title: string; sentence: string }> = {
   SUPPORTED: {
     label: "Open",
-    title: "Generator support merits review",
+    title: "Generator may have been on longer than needed",
     sentence:
       "The assessment supports this: for part of this period the generator stayed on while solar power and the " +
       "battery reported enough capacity to meet site demand.",
   },
   UNCONFIRMED: {
     label: "Not confirmed",
-    title: "Generator support review: not confirmed",
+    title: "Extra generator time not confirmed by the latest check",
     sentence:
       "This assessment of the period cannot confirm the earlier result. This is not a new issue; the earlier " +
       "versions stay available below.",
   },
   NO_LONGER_SUPPORTED: {
     label: "No longer supported",
-    title: "Generator support review: no longer supported",
+    title: "Extra generator time no longer supported by the latest check",
     sentence:
       "A complete later assessment of this period finds no possibly avoidable time. This closes the review only; " +
       "it does not mean the generator was repaired or that money was saved.",
