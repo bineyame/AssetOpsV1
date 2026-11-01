@@ -1004,3 +1004,71 @@ The Kobo Finding title still reads "Generator support merits review" until PB-2 
 estimated." becomes **"Needed before charging income can be estimated."** The action title ("Publish an EV gross
 tariff") becomes **"Publish a charging tariff"**. PA-3 owns this change (lane A, still open): update the tests that pin
 the old text, and re-capture `ev-board-fault` after the change. Register: add both strings to the R655 plain-language row.
+
+---
+
+## Addendum 12 (2026-11-01): PB-3 pre-flight rulings
+
+All three wire fields go to **PA-3** before its rebuild. They are read-time serialisations of data the backend
+already holds, so the demo is honest without deviations. PA-3 adds them, with one read-level test each, and states
+them in its packet. PA-3 may grow to 6 units for this.
+
+If any one of them turns out to need more than a small change in its read (a new query path or a migration), PA-3
+skips it and reports, and PB-3 uses its frontend fallback for that item. That fallback is the proposal from PB-3's
+pre-flight, logged as a Known Deviation.
+
+**Q1 (P-10).**
+- **PA-3:** board case items (`in_hand` and `earlier` entries built from `CaseFact`, `board.py:169`) gain optional
+  `kind` (INCIDENT, WORK_REQUEST or PLAN, as stored) and `occurred_at`. Existing fields are unchanged.
+- **PB-3:** add the optional `onRead(read)` prop to `OutcomeBoard.tsx`, with no new fetch. `coldSiteViews` uses the first
+  row item with `kind == "INCIDENT"` and `occurred_at` in `[from, to)`:
+  - with such an item: "Incident {displayCode} · steps from the recorded readings" plus "Open incident →" (href as sent);
+  - loaded with none: "No incident recorded in this period";
+  - not loaded: "Steps from the recorded readings".
+
+**Q2 (preventive due dates).**
+- **PA-3:** preventive rows gain `site_time_zone`, the Site's declared IANA zone or null.
+- **PB-3:** formats `next_due_at` with `formatDay(value, {timeZone})` when the zone is present, and in UTC otherwise.
+  It switches on the two-part note "Times in UTC · due dates in each site's local date" on Preventive, Maintenance and
+  the work request pages, as Addendum 7 Q6 rules.
+
+**Q3 (request asset words).**
+- **PA-3:** `global_detail.work_asset` gains the plain `asset_label`, from the same PA-2b helper, including its
+  same-type count rule.
+- **PB-3:**
+  - `WorkRequestOverview` renders `asset_label`;
+  - `assetWords` remains only as the fallback when `asset_label` is absent;
+  - the `GlobalPreventive`, `GlobalMaintenance` and `siteWorkCases` parsers switch to the wire `asset_label`.
+
+**Q4 (builder copy).**
+- **Corrected:** the preventive "Draft" badge stays "Draft". A draft plan is not an approved plan, and "Planned" would
+  overstate its status. "Draft" is already plain English.
+- **Accepted:** `NO_DRAFT_PLANS` becomes "No preventive plans in this window."
+
+**Addendum 12 Q4, corrected (2026-11-01).** "draft" is a banned term, and Addendum 5 forbids exempting it. The
+preventive badge for a DRAFT plan therefore reads **"Not yet approved"** (neutral tone). Any other visible "draft"
+wording on these pages follows the same rule, for example "Completing a plan that is not yet approved is unavailable
+here".
+
+---
+
+## Addendum 13 (2026-11-01): PB-3 review L1, L4 and lane A Portfolio text
+
+1. **L1: the plain note.** The two-part note appears only on pages that show due dates (Preventive, and any work page
+   listing a plan due date). The request page (`workRequestShared.tsx:277`) and corrective Maintenance
+   (`GlobalMaintenance.tsx:359`) use the plain "Times in UTC". This goes in the PB-3 fix round.
+2. **L4: show those times in UTC.**
+   - Under the round's one clock rule (Addendum 6 Q7: clock times in UTC, calendar dates in site-local time),
+     SiteFinding and History show episode and period times in UTC, with no "EAT" tag. That way the same Kobo episode
+     reads 04:35–07:55 everywhere.
+   - Calendar dates stay site-local where the server sends them.
+   - This goes in the PB-3 fix round, with register row R661 (D2): "Finding pages show UTC clock times, not site-local; one clock across screens".
+   - Showing site-local clock times everywhere is a later product choice, not part of this round.
+3. **Lane A Portfolio server text: a PA-3 fix round, which blocks PC.**
+   - `estate/placement.py:56,60`: "Supported Finding · Generated test data source" becomes **"Supported finding · example data"**,
+     the §3.1 ruled text. Apply the same pattern to any sibling "… · Generated test data source" variant in that map, for
+     example "Limited finding · example data".
+   - `estate/placement.py:31`: "No accepted Action; open the recommendation" becomes **"No action agreed yet · review the recommendation"**.
+   - Update the tests that pin the old strings.
+   - The coordinator's plan is accepted: PC rebuilds `assetops_polish_full_test` from merged main before the strict
+     28-capture run, so the demo is built from main.

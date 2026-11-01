@@ -13,3 +13,8 @@ Owner: "yes to both, go ahead"
 ## 2026-11-01 owner (verbatim)
 "start the polish round first, walkthrough after"
 
+
+## 2026-11-01 owner (verbatim)
+"we'll revisit the options after my walktrough"
+(Options offered: declared Depot charging tariff; idle-generator fuel rate (owner Q1); demo script leading with attention view and Kobo loop; later sales-record import and 91-day histories.)
+
