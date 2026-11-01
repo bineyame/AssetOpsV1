@@ -43,9 +43,15 @@ function screens(work) {
     if (!d) throw new Error(`days.json has no ${site} ${kind} day`);
     return Date.parse(`${d.day}T00:00:00Z`);
   };
-  const board = (code, at) => `/sites/${code}/outcomes?from=${iso(at)}&to=${iso(at + DAY)}`;
+  // The board renders on the Site Overview (`/sites/{code}/outcomes` and `/sites/{code}/overview`, which `demo_combined.py links` prints, are not routes). The
+  // mini Overview takes `date`; the cold Overview (`/sites/{code}`) and the EV Overview (`/sites/{code}/ev`) take the `from`/`to` window.
+  const board = (code, at) => code === "KOBO-001"
+    ? `/sites/${code}?date=${iso(at).slice(0, 10)}`
+    : `/sites/${code}${code.startsWith("EV-") ? "/ev" : ""}?from=${iso(at)}&to=${iso(at + DAY)}`;
   const week = `from=${iso(S - 6 * DAY)}&to=${iso(S + DAY)}`;
-  const month = `from=${iso(S - 29 * DAY)}&to=${iso(S + 2 * DAY)}`; // 31 days, the work index maximum
+  // 31 days (the work index maximum) ending S+3: the global work lists place a record by its recorded time, which is
+  // the build day (S+2), not the story day it occurred on, so the window must reach the build day to list anything.
+  const month = `from=${iso(S - 28 * DAY)}&to=${iso(S + 3 * DAY)}`;
   return {
     story,
     list: [
@@ -61,11 +67,12 @@ function screens(work) {
       { key: "findings-cost", label: "Estate Findings, Cost lens", path: `/findings/cost?${week}`, mock: "findings-cost" },
       { key: "findings-risks", label: "Estate Findings, Risks lens", path: `/findings/risks?${week}`, mock: "findings-risks" },
       { key: "findings-opportunities", label: "Estate Findings, Opportunities lens", path: `/findings/opportunities?${week}`, mock: "findings-opportunities" },
-      { key: "maintenance-preventive", label: "Maintenance, Preventive (31 days to S+2)", path: `/maintenance/preventive?${month}`, mock: "maintenance-preventive" },
-      { key: "wr-overview", label: "Work request overview (first request on Maintenance)", find: `/maintenance?${month}`, mock: "wr-overview" },
-    ],
+      { key: "maintenance-preventive", label: "Maintenance, Preventive (31 days to S+3)", path: `/maintenance/preventive?${month}`, mock: "maintenance-preventive" },
+      { key: "wr-overview", label: "Work request overview (the cold starter/control inspection on Maintenance)", find: `/maintenance?${month}`, mock: "wr-overview" },
+    ].filter((s) => !ONLY || ONLY.includes(s.key)),
   };
 }
+const ONLY = process.env.DEMOB_ONLY ? process.env.DEMOB_ONLY.split(",") : null;
 
 /** Visible text a client should not meet. Each entry: [name, regex]. Hits are recorded with context, not judged. */
 const VOCAB = [
@@ -173,7 +180,7 @@ async function capture([work, out, base = "http://localhost:5490"]) {
       await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
       await send("Page.navigate", { url: base + s.find });
       await settle();
-      path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];return a.length?new URL(a[0].href).pathname+new URL(a[0].href).search:null})()`);
+      path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
       if (!path) { records.push({ ...s, error: `no work request link on ${s.find}` }); console.log(`FAIL  ${s.key}: no work request link`); continue; }
     }
     for (const [w, h] of WIDTHS) {
