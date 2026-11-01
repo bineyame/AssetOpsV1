@@ -38,13 +38,15 @@ function screens(work) {
   const kobo = JSON.parse(readFileSync(join(work, "kobo.json"), "utf-8"));
   const days = JSON.parse(readFileSync(join(work, "days.json"), "utf-8")).days;
   const S = Date.parse(story.S);
-  const day = (site, kind) => {
-    const d = days.find((x) => x.site === site && x.kind === kind);
-    if (!d) throw new Error(`days.json has no ${site} ${kind} day`);
-    return Date.parse(`${d.day}T00:00:00Z`);
-  };
   // The board renders on the Site Overview (`/sites/{code}/outcomes` and `/sites/{code}/overview`, which `demo_combined.py links` prints, are not routes). The
   // mini Overview takes `date`; the cold Overview (`/sites/{code}`) and the EV Overview (`/sites/{code}/ev`) take the `from`/`to` window.
+  // Cold and EV boards read on their event window (DEMO-SPARSE Addendum 1 (a): "The EV board is checked on its event
+  // window"; the build's own CO-7/CO-9 rows read days.json `start`/`end`). A whole-day EV window reads Unknown.
+  const event = (site, kind) => {
+    const d = days.find((x) => x.site === site && x.kind === kind);
+    if (!d?.start || !d?.end) throw new Error(`days.json has no ${site} ${kind} start/end`);
+    return `/sites/${site === "ev" ? "EV-LAB-001/ev" : "COLD-LAB-001"}?from=${d.start}&to=${d.end}`;
+  };
   const board = (code, at) => code === "KOBO-001"
     ? `/sites/${code}?date=${iso(at).slice(0, 10)}`
     : `/sites/${code}${code.startsWith("EV-") ? "/ev" : ""}?from=${iso(at)}&to=${iso(at + DAY)}`;
@@ -60,9 +62,9 @@ function screens(work) {
       { key: "kobo-board-S-open", label: "Kobo board, day S, every disclosure open", path: board("KOBO-001", S), mock: "mini", open: true },
       { key: "kobo-board-S1", label: "Kobo board, day S+1 (trial-after)", path: board("KOBO-001", S + DAY), mock: "mini" },
       { key: "kobo-verification", label: `${kobo.action_code} verification with its cost check (CO-4)`, path: `/sites/KOBO-001/actions/${kobo.action}/verification`, mock: "verification" },
-      { key: "cold-board-failure", label: "GreenHarvest board, failure night (S)", path: board("COLD-LAB-001", day("cold", "failure")), mock: "cold" },
-      { key: "cold-board-normal", label: "GreenHarvest board, normal night (S-7)", path: board("COLD-LAB-001", day("cold", "normal")), mock: "cold" },
-      { key: "ev-board-fault", label: "Depot board, fault Tuesday (event E)", path: board("EV-LAB-001", day("ev", "fault")), mock: "ev" },
+      { key: "cold-board-failure", label: "GreenHarvest board, failure night (S), event window", path: event("cold", "failure"), mock: "cold" },
+      { key: "cold-board-normal", label: "GreenHarvest board, normal night (S-7), event window", path: event("cold", "normal"), mock: "cold" },
+      { key: "ev-board-fault", label: "Depot board, fault Tuesday, event window E", path: event("ev", "fault"), mock: "ev" },
       { key: "findings-all", label: "Estate Findings, all", path: `/findings?${week}`, mock: "findings" },
       { key: "findings-cost", label: "Estate Findings, Cost lens", path: `/findings/cost?${week}`, mock: "findings-cost" },
       { key: "findings-risks", label: "Estate Findings, Risks lens", path: `/findings/risks?${week}`, mock: "findings-risks" },
