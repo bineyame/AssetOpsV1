@@ -265,3 +265,19 @@ describe("OUT-E Earlier entry detail", () => {
     for (const code of ["MODELLED_IMPROVEMENT", "OUTCOME_INCONCLUSIVE", "UNAVAILABLE", "candidate"]) expect(text).not.toContain(code);
   });
 });
+
+// POLISH P-10 (Addendum 12 Q1): the board tells its host the read it resolved, with no second fetch.
+describe("POLISH P-10 onRead", () => {
+  it("calls onRead once with the resolved read for the current key", async () => {
+    const fake = fakeOutcomeBoard({ status: "loaded", value: boardBody() });
+    const reads: OutcomeBoardRead[] = [];
+    render(
+      <MemoryRouter>
+        <OutcomeBoard client={fake.client} siteCode="KOBO-001" query={{ date: "2026-10-06" }} onRead={(r) => reads.push(r)} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(fake.calls).toHaveLength(1);
+    expect(reads.map((r) => r.status)).toEqual(["loaded"]);
+  });
+});

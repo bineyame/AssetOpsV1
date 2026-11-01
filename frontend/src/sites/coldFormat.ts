@@ -68,7 +68,7 @@ export function degreeMinutes(low: string | null, high: string | null): string {
   const lo = decimal(low);
   const hi = decimal(high);
   if (lo === null && hi === null) return NOT_ASSESSED;
-  if (hi === null) return `at least ${lo} °C·min; upper bound not established`;
+  if (hi === null) return `at least ${lo} °C·min (degrees × minutes); the full extent is not known yet`;
   if (lo === null || lo === hi) return `${hi} °C·min`;
   return `${lo}–${hi} °C·min`;
 }

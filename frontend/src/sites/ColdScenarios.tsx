@@ -66,7 +66,8 @@ const ASSUMPTION_WORDS: [keyof ColdScenarioItem["assumptions"], string][] = [
 const PANEL_HEADING_ID = "cold-scenarios-heading";
 
 /** W5-01b review L2: the shared cold Site date style; a null clock is never formatted as a date. */
-const utcDayHm = (value: string | null): string => (value === null ? "None" : `${dayHm(value)} UTC`);
+// POLISH §3 Times: no per-time zone suffix; the window bar's note names UTC.
+const utcDayHm = (value: string | null): string => (value === null ? "None" : dayHm(value));
 
 export const assumptionsLine = (a: ColdScenarioItem["assumptions"]) =>
   `${a.stock_quantity} ${a.stock_unit} at ${a.unit_value} ${a.currency} per ${a.stock_unit}`;

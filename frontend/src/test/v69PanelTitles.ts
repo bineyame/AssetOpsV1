@@ -36,6 +36,8 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   // POLISH §3.1 Kobo rows and Addendum 8 Q3 (Architect, R655 plain-language row): the Kobo/mini Overview slot titles.
   "mini:1": "What happened on this day",
   "mini:4": "Possible cost",
+  "cold:4": "Possible cost",
+  "ev:4": "Possible cost",
 };
 
 function need(values: Record<string, string>, key: string): string {

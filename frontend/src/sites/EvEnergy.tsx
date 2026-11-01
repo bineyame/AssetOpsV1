@@ -11,6 +11,7 @@
  */
 import { useEffect, useState } from "react";
 import { formatTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, DataTable, KeyValues, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
@@ -146,7 +147,8 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
           {measured
             ? "Complete session meter records · incomplete session energy excluded"
             : "Complete session meter records not established · incomplete session energy kept separate"}
-        </span>
+        </span>{" "}
+        <TimeZoneNote />
       </StatusBar>
       {notice === null ? null : <Notice data={{ "data-ev-depth-state-notice": state }}>{notice}</Notice>}
       <MetricCards label="Charging energy">
@@ -208,7 +210,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
                   <td>{kw(e.observed_peak_import_kw)}</td>
                 </tr>
                 <tr data-ev-measure="peak-time">
-                  <th scope="row">Peak sample time (UTC)</th>
+                  <th scope="row">Peak sample time</th>
                   <td>{utcSeconds(e.peak_sample_at)}</td>
                 </tr>
                 <tr data-ev-measure="limit">

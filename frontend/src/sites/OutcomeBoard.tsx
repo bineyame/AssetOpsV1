@@ -373,10 +373,13 @@ export function OutcomeBoard({
   client,
   siteCode,
   query,
+  onRead,
 }: {
   client: OutcomeBoardClient;
   siteCode: string;
   query: OutcomeBoardQuery;
+  /** POLISH P-10 (Addendum 12 Q1): told the read once it resolves for the current key; no extra fetch. */
+  onRead?: (read: OutcomeBoardRead) => void;
 }) {
   const key = `${siteCode}|${query.date ?? ""}|${query.from ?? ""}|${query.to ?? ""}|${query.known_at ?? ""}|${
     query.finding_id ?? ""
@@ -387,7 +390,9 @@ export function OutcomeBoard({
   useEffect(() => {
     let live = true;
     void client.getOutcomeBoard(siteCode, query).then((r) => {
-      if (live) setRead({ key, read: r });
+      if (!live) return;
+      setRead({ key, read: r });
+      onRead?.(r);
     });
     return () => {
       live = false;

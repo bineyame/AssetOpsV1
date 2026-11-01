@@ -13,7 +13,6 @@ import {
   CausalTimeline,
   DataTable,
   Disclosure,
-  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -42,7 +41,7 @@ import type {
   ColdSiteClient,
   ColdSource,
 } from "./coldSiteClient";
-import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, outcomeText, refusalText } from "./ColdAssessmentViews";
+import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, TechnicalReferences, outcomeText, refusalText } from "./ColdAssessmentViews";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
@@ -51,7 +50,8 @@ import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, degreeMinutes, hm, wi
 import "./w2-cold-site.css";
 import "../ui/mock-deviation.css";
 import { OutcomeBoard } from "./OutcomeBoard";
-import type { OutcomeBoardClient } from "./outcomeBoardClient";
+import type { OutcomeBoardClient, OutcomeBoardRead, OutcomeLinkItem } from "./outcomeBoardClient";
+import { displayCode } from "../ui/displayCode";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
@@ -59,7 +59,7 @@ import type { OutcomeBoardClient } from "./outcomeBoardClient";
  * "Commit-4 copy ledger"; `D-2026-10-17-mockup-layout-spec`):
  *
  *   cold                    1 What happened · power → cooling → product conditions, 2 Chamber temperature,
- *                           3 Needs attention, 4 Bounded money consequence, 5 Next step
+ *                           3 Needs attention, 4 Possible cost, 5 Next step
  *   cold-evidence           1 What we can conclude now, 2 Data sources · data quality, not equipment condition,
  *                           3 Most useful next evidence
  *   cold-evidence-analysis  1 Accepted records behind the conclusions, 2 How a claim limit is set
@@ -336,7 +336,7 @@ function RefusedGap({
     <>
       <Gap id={id}>{refusal.sentence}</Gap>
       {window === undefined ? null : (
-        <ExactReferences
+        <TechnicalReferences
           name="cold-refusal-references"
           variant="tech"
           references={[
@@ -545,7 +545,7 @@ const keyOf = (p: ScreenProps, name: string) => `${name}|${p.siteId}|${p.window.
 /* ---------- cold (Overview) ---------- */
 
 function overviewStateChip(o: ColdOverviewRead): string {
-  if (o.status.state === "OBSERVED_EXCURSION" || o.backup_summary.observed_failure > 0) return "Degraded";
+  if (o.status.state === "OBSERVED_EXCURSION" || o.backup_summary.observed_failure > 0) return "Service affected";
   if (o.status.state === "CONTRADICTORY") return "Contradictory";
   if (o.status.state === "NO_EXCURSION_OBSERVED") return "No excursion observed";
   return "Unknown";
@@ -570,7 +570,7 @@ function stripEvents(o: ColdOverviewRead, backup: ColdBackupRead | null): Timeli
       // UTC like the chamber chart beside it (named by the page note); only the Analysis `Measured` column is Site time.
       time: s.at === null ? "—" : hm(s.at),
       title: outcome !== null ? `${name} · ${outcome}` : `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
-      detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
+      detail: s.state === "MISSING" ? missingStepText(s.step, name) : (limitText(s.limitation) ?? undefined),
       tone:
         s.state === "OBSERVED"
           ? known !== null && ADVERSE.test(known)
@@ -585,7 +585,39 @@ function stripEvents(o: ColdOverviewRead, backup: ColdBackupRead | null): Timeli
   });
 }
 
+/** POLISH §3.1: a step with no accepted report, in plain words (the transfer step has its ruled sentence). */
+function missingStepText(step: string, name: string): string {
+  return step === "TRANSFER" ? "No record of switching to backup power" : `No record of ${name.toLowerCase()}`;
+}
+
+/**
+ * POLISH P-10 (§1.5, Addendum 12 Q1): the first board case item that is an incident and occurred in `[from, to)`.
+ * Its href is the board's own (a UI address, as sent); its code is the item text before " · ".
+ */
+export function windowIncident(read: OutcomeBoardRead, window: ColdWindowQuery): OutcomeLinkItem | null {
+  if (read.status !== "loaded") return null;
+  // The page's selected window, else the window the board resolved.
+  const from = Date.parse(window.from ?? read.value.window.from ?? "");
+  const to = Date.parse(window.to ?? read.value.window.to ?? "");
+  if (Number.isNaN(from) || Number.isNaN(to)) return null;
+  for (const row of read.value.rows) {
+    for (const item of [...row.in_hand, ...row.earlier]) {
+      if (item.kind !== "INCIDENT" || item.occurred_at === null || item.occurred_at === undefined) continue;
+      const at = Date.parse(item.occurred_at);
+      if (!Number.isNaN(at) && at >= from && at < to) return item;
+    }
+  }
+  return null;
+}
+
+export const STEPS_FROM_READINGS = "Steps from the recorded readings";
+export const NO_INCIDENT_IN_PERIOD = "No incident recorded in this period";
+export const incidentLine = (item: OutcomeLinkItem): string => `Incident ${displayCode(item.text.split(" · ")[0])} · steps from the recorded readings`;
+
 function OverviewScreen(p: ScreenProps) {
+  const boardKey = keyOf(p, "ob");
+  const [board, setBoard] = useState<{ key: string; read: OutcomeBoardRead } | null>(null);
+  const boardRead = board?.key === boardKey ? board.read : null;
   const overview = useColdRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
   const evidence = useColdRead(() => p.client.getEvidence(p.siteId, p.window), keyOf(p, "e"));
   const temperature = useColdRead(() => p.assessment.getTemperature(p.siteId, p.window), keyOf(p, "t"));
@@ -594,6 +626,10 @@ function OverviewScreen(p: ScreenProps) {
   const o = value(overview);
   const refused = refusalOf(overview);
   const none = o !== null && !isSelected(o);
+  // P-10: loaded with an incident in the window, loaded without one, or not loaded (no board client, or still reading).
+  const incident = boardRead === null ? null : windowIncident(boardRead, p.window);
+  const happenedLine =
+    boardRead === null || boardRead.status !== "loaded" ? STEPS_FROM_READINGS : incident === null ? NO_INCIDENT_IN_PERIOD : incidentLine(incident);
   const firstFinding = o?.findings.items.find((f) => f.link !== null) ?? null;
   // Run-7: the Next step is the first ordered attention item with a real destination, with that destination's label.
   const next = o?.needs_attention.find((n) => coldUiHref(n.link, p.routes) !== null) ?? null;
@@ -621,23 +657,35 @@ function OverviewScreen(p: ScreenProps) {
           <SelectedWindowBar read={o} />
           <StatusBar label="Cold room state" action={<ToLink href={coldUiHref(o.links.evidence, p.routes)}>Inspect evidence</ToLink>}>
             <Badge tone="neutral">{overviewStateChip(o)}</Badge>{" "}
-            <Badge tone="neutral">{o.status.claim_level === null ? "Confidence: Unknown" : `Confidence: ${claimWord(o.status.claim_level)}`}</Badge>{" "}
-            <Badge tone="neutral">{o.consequence_summary.overlap_group !== null ? "Potential product exposure" : "Product exposure not established"}</Badge>
+            <Badge tone="neutral">{o.status.claim_level === null ? "Confidence: Unknown" : `Confidence: ${o.status.claim_level === "BOUNDED" ? "partial" : claimWord(o.status.claim_level)}`}</Badge>{" "}
+            <Badge tone="neutral">{o.consequence_summary.overlap_group !== null ? "Stock may be at risk" : "Stock risk not known yet"}</Badge>
             {stateSentence(o) === null ? null : ` ${stateSentence(o)}`}
           </StatusBar>
           <p className="v69-objective" data-cold-objective>
             {o.objective.text}
           </p>
           {p.outcomeBoard === undefined ? null : (
-            <OutcomeBoard client={p.outcomeBoard} siteCode={p.siteId} query={p.window} />
+            <OutcomeBoard client={p.outcomeBoard} siteCode={p.siteId} query={p.window} onRead={(read) => setBoard({ key: boardKey, read })} />
           )}
         </>
       )}
       <Panel
         heading="What happened · power → cooling → product conditions"
         headingId="cold-site-what-happened-heading"
-        description={o === null ? undefined : "No incident recorded"}
-        actions={firstFinding === null ? undefined : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
+        description={o === null ? undefined : happenedLine}
+        actions={
+          (incident === null || incident.href === null) && firstFinding === null ? undefined : (
+            <>
+              {incident === null || incident.href === null ? null : (
+                <Link to={incident.href} data-cold-incident-link>
+                  Open incident →
+                </Link>
+              )}
+              {incident !== null && incident.href !== null && firstFinding !== null ? " " : null}
+              {firstFinding === null ? null : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
+            </>
+          )
+        }
       >
         {refused !== null ? (
           <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} window={p.window} />
@@ -648,7 +696,7 @@ function OverviewScreen(p: ScreenProps) {
         ) : (
           <>
             <CausalTimeline events={stripEvents(o!, value(backupChain))} label="Power to cooling sequence" />
-            <p className="prose">The steps above are based on the selected accepted records. Missing steps remain unobserved.</p>
+            <p className="prose">These steps come from the recorded readings. A step with no reading is marked Missing.</p>
           </>
         )}
       </Panel>
@@ -707,7 +755,7 @@ function OverviewScreen(p: ScreenProps) {
         </Panel>
       </div>
       <div className="panel-pair">
-        <Panel heading="Bounded money consequence" headingId="cold-site-money-heading">
+        <Panel heading="Possible cost" headingId="cold-site-money-heading">
           {refused !== null ? (
             <RefusedGap id="cold-site-money" refusal={refused} repeat />
           ) : money!.state === "WITHHELD" ? (
@@ -720,10 +768,10 @@ function OverviewScreen(p: ScreenProps) {
           ) : money!.state === "UNPRICED" ? (
             <>
               <div className="metric-value v69-metric__value" data-cold-money="unpriced">
-                Not priced
+                Not priced yet
               </div>
               <p className="prose" data-cold-money-basis>{quantityPhrase(money!.quantity)}</p>
-              <p className="prose">Potential product exposure. Stock value and product response are not declared, so no loss figure is stated.</p>
+              <p className="prose">Stock may be at risk. No stock value has been entered, so no loss figure is shown.</p>
             </>
           ) : (
             <Gap id="cold-site-money">No product exposure consequence assessed</Gap>
@@ -788,7 +836,8 @@ const toneClass = (word: string): string | undefined => (COLD_TONE[word] === und
 
 /** Run-9 L1 / W2-F S8: the selected consequence's stored quantity bounds, labelled as the consequence basis. */
 function quantityPhrase(b: { low: string | null; high: string | null }): string {
-  return `Consequence basis: ${degreeMinutes(b.low, b.high)}`;
+  const dm = degreeMinutes(b.low, b.high);
+  return dm === NOT_ASSESSED ? `Above the limit: ${NOT_ASSESSED}` : `Above the limit by ${dm}`;
 }
 
 function qualityText(sources: ColdSource[]): string {
@@ -1020,7 +1069,7 @@ function EvidenceScreen(p: ScreenProps) {
                   })}
                 </tbody>
               </DataTable>
-              <Disclosure summary="Source details" name="cold-site-source-details">
+              <Disclosure summary="Source details" name="cold-site-source-details" technical>
                 {SOURCE_ROWS.map((row) => {
                   const owned = channels.filter((s) => row.roles.includes(s.role));
                   const others = row.other === undefined ? [] : channels.filter((s) => row.other!.roles.includes(s.role));
@@ -1161,7 +1210,7 @@ function ColdTimeCell({ value, timeZone, reference, cell }: { value: string | nu
 const RECORD_LABEL: Record<string, string> = {
   chamber_temperature: "Chamber temperature",
   backup_start_event: "Generator start result",
-  compressor_state: "Compressor running",
+  compressor_state: "Compressor on",
 };
 export const recordLabel = (role: string): string => RECORD_LABEL[role] ?? roleLabel(role);
 
@@ -1236,7 +1285,9 @@ function AnalysisScreen(p: ScreenProps) {
                         {/* W5-F1 F1-3 (R38): a labelled reference to the selected accepted record, never an anchor.
                             No exact record route is integrated; a wire link, even PROVED, is not a record destination. */}
                         <span data-record-target="unavailable">
-                          <code className="cold-site-id" title={r.evidence_id} aria-label={r.evidence_id} data-record-id={r.evidence_id} data-vocabulary-exempt="source-reference">{`REC ${r.evidence_id}`}</code>
+                          <span className="cold-site-id" title={r.evidence_id} aria-label={r.evidence_id} data-record-id={r.evidence_id} data-vocabulary-reference={r.evidence_id}>
+                            Source report
+                          </span>
                           <span className="cold-site-line">Record page unavailable</span>
                         </span>
                       </td>
@@ -1260,7 +1311,7 @@ function AnalysisScreen(p: ScreenProps) {
               </p>
             )}
             {shown.length === 0 ? null : (
-              <Disclosure summary="Record details" name="cold-site-record-details">
+              <Disclosure summary="Record details" name="cold-site-record-details" technical>
                 <ul className="cold-site-list">
                   {shown.map((r) => (
                     <li key={r.evidence_id} data-record-detail={r.evidence_id}>
@@ -1299,7 +1350,7 @@ function AnalysisScreen(p: ScreenProps) {
                 <p key={t}>{t}</p>
               ))}
             </div>
-            <Disclosure summary="Claim details" name="cold-site-claim-details">
+            <Disclosure summary="Claim details" name="cold-site-claim-details" technical>
               {a!.accepted_records.items.length === 0 ? null : (<p className="prose" data-claim-record-pointer>Accepted record IDs for this assessment are in Record details.</p>)}
               {a!.claim_rules.map((rule) => (
                 <div className="cold-site-rule" key={rule.rule_id} data-claim-rule={rule.rule_id}>
@@ -1425,7 +1476,7 @@ function FinancialsScreen(p: ScreenProps) {
                     <tr key={c.id} data-consequence-row={c.kind}>
                       <th scope="row">{`Chamber thermal exposure · ${quantityPhrase(c.quantity_bounds)}`}</th>
                       <td>Stock value × product response rule — not declared</td>
-                      <td>{withheld ? "Withheld" : "Not priced"}</td>
+                      <td>{withheld ? "Withheld" : "Not priced yet"}</td>
                       <td>
                         <Badge tone="neutral">{withheld ? "Withheld" : "Unpriced"}</Badge>
                       </td>
@@ -1454,7 +1505,7 @@ function FinancialsScreen(p: ScreenProps) {
               </p>
             ) : null}
             {exposures.length === 0 && start === null ? null : (
-              <Disclosure summary="Basis details" name="cold-site-basis-details">
+              <Disclosure summary="Basis details" name="cold-site-basis-details" technical>
                 {exposures.length === 0 ? null : (
                   <p className="prose" data-cold-thermal-basis-note>
                     Thermal exposure does not establish product damage or loss. The consequence bound may be wider than the observed excursion estimate.

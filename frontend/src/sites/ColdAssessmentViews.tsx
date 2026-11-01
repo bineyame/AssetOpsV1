@@ -10,7 +10,6 @@ import {
   CausalTimeline,
   ChartNote,
   DataTable,
-  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -54,6 +53,9 @@ import {
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeMinutes, hm, num, range, windowText } from "./coldFormat";
 import { UnavailableInline, UnavailableTab } from "../ui/UnavailableEntry";
+import { TECHNICAL_DETAILS, TechnicalReferenceList } from "../ui/TechnicalDetails";
+import type { ExactReference } from "../ui/ProductStatus";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
 import { NO_COLD_ASSESSMENT, RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
@@ -144,11 +146,30 @@ function Gap({ id, children, alert = false }: { id: string; children: ReactNode;
   );
 }
 
+/**
+ * POLISH Addendum 8 Q5 (cold/EV): the exact references a panel keeps for audit, in ONE closed "Technical details"
+ * disclosure (`data-technical-details`, the `ExactReferences` hooks kept), so a panel still holds one disclosure.
+ * Any extra detail folded in sits inside the same region.
+ */
+export function TechnicalReferences({ name, references, extra, variant }: { name: string; references: readonly ExactReference[]; extra?: ReactNode; variant?: "tech" }) {
+  if (references.length === 0 && (extra === undefined || extra === null)) return null;
+  const className = variant === "tech" ? "disclosure exact-references exact-references--tech disclosure--tech" : "disclosure exact-references disclosure--tech";
+  return (
+    <details className={className} data-disclosure={name} data-exact-references data-technical-details="">
+      <summary className="disclosure__summary">{TECHNICAL_DETAILS}</summary>
+      <div className="disclosure__body">
+        <TechnicalReferenceList references={references} />
+      </div>
+      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
+    </details>
+  );
+}
+
 export const WINDOW_REFUSAL_TITLE = "Window cannot be read";
 export const WINDOW_REFUSAL_GENERIC = "The selected window is invalid.";
 /** Cross-card ruling 5: one refusal sentence per cold window code. */
 export const WINDOW_REFUSAL_BODY: Record<string, string> = {
-  COLD_TIME_INVALID: "The selected window start or end is not a UTC time.",
+  COLD_TIME_INVALID: "The selected window start or end is not a valid time.",
   COLD_WINDOW_INVALID: "The selected window needs both a start and an end, with the start before the end.",
   COLD_WINDOW_TOO_LONG: "The selected window is longer than 31 days.",
 };
@@ -177,7 +198,7 @@ export function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" 
 /** The refusal's technical disclosure: code, server message and the exact requested window. */
 export function RefusalReferences({ read, window }: { read: Exclude<ColdRead<unknown>, { status: "loaded" }>; window: ColdWindowQuery }) {
   return (
-    <ExactReferences
+    <TechnicalReferences
       name="cold-refusal-references"
       variant="tech"
       references={[
@@ -233,9 +254,8 @@ function EvidenceLine({ finding, links }: { finding: ColdFindingDetailRead; link
       <span aria-hidden="true">·</span>
       {/* Retro correction 14 (spec Q-R9): no integration test proves an Analysis target renders this cold assessment,
           so its exact ID is labelled text with the unavailable gap, never a guessed link. */}
-      <span data-analysis-unavailable={finding.assessment_revision_id}>
-        Assessment <code data-vocabulary-exempt="source-reference">{finding.assessment_revision_id}</code> · Analysis view not available for this cold record
-      </span>
+      <span data-analysis-unavailable={finding.assessment_revision_id}>Analysis view not available for this cold record</span>
+      {/* POLISH Addendum 5: the assessment id is not in the visible line; this line sits inside the Technical details disclosure, whose "Assessment version" row lists it. */}
     </p>
   );
 }
@@ -319,7 +339,8 @@ function TemperatureStatus({ read, routes }: { read: ColdTemperatureRead | null;
         currentnessWord(read.currentness.state),
       ]
         .filter(Boolean)
-        .join(" · ")}
+        .join(" · ")}{" "}
+      <TimeZoneNote />
     </StatusBar>
   );
 }
@@ -360,7 +381,7 @@ function temperatureTimeline(read: ColdTemperatureRead, backup: ColdBackupRead |
   const lost = grid(backup);
   if (lost !== null) events.push({ key: "grid", time: hm(lost.at), title: "Power lost", detail: "Grid supply record", tone: "danger" });
   const compressor = coolingRunning(backup?.chains[0]);
-  if (compressor) events.push({ key: "cooling", time: hm(compressor.at), title: "Cooling running", detail: "Compressor record" });
+  if (compressor) events.push({ key: "cooling", time: hm(compressor.at), title: "Cooling on", detail: "Compressor record" });
   const x = read.excursions[0];
   if (x !== undefined) {
     const limit = limitOf(read, x.direction);
@@ -468,7 +489,7 @@ function TemperaturePanels({
               ) : (
                 <Gap id="cold-excursion-finding">No Finding is recorded for this excursion.</Gap>
               )}
-              <ExactReferences
+              <TechnicalReferences
                 name="cold-excursion-references"
                 references={[
                   { label: "Episode", value: x?.episode_id ?? null },
@@ -499,7 +520,7 @@ function TemperaturePanels({
                   ? "The accepted probe readings stay within policy for this window. This says nothing about product condition."
                   : "The accepted probe readings do not support a temperature conclusion for this window."}
             </p>
-            <ExactReferences
+            <TechnicalReferences
               name="cold-claim-references"
               references={[
                 { label: "Source classification", value: selSrc?.classification ?? null },
@@ -542,7 +563,8 @@ function TemperaturePanels({
 /** The step's observed outcome in words; a probe step's outcome is its temperature. */
 export function outcomeText(s: ColdStepRead): string | null {
   if (s.outcome === null) return null;
-  return s.kind === "PROBE" ? deg(s.outcome) : plainCode(s.outcome);
+  // POLISH Addendum 4: a compressor outcome RUNNING reads "On" (the guard bans "running").
+  return s.kind === "PROBE" ? deg(s.outcome) : s.outcome === "RUNNING" ? "On" : plainCode(s.outcome);
 }
 
 export const ADVERSE = /FAIL|LOSS|LOST|^OFF$|UNPOWERED|STOPPED/;
@@ -606,7 +628,8 @@ function BackupStatus({ read }: { read: ColdBackupRead | null }) {
         `${read.chains.length === 1 ? "One outage" : `${read.chains.length} outages`} in the selected window`,
         windowText(read.window.from, read.window.to),
         currentnessWord(read.currentness.state),
-      ].join(" · ")}
+      ].join(" · ")}{" "}
+      <TimeZoneNote />
     </StatusBar>
   );
 }
@@ -683,7 +706,7 @@ function BackupPanels({
           <MetricCard label="Grid-loss event" value={stepOf(chain, "GRID")?.state === "OBSERVED" ? hm(stepOf(chain, "GRID")?.at) : NOT_RECORDED} note="Grid supply record" />
           <MetricCard label="Automatic start" value={chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)} note="Start request and result records" />
           <MetricCard label="Manual recovery" value={NOT_RECORDED} note="No operational log is connected" />
-          <MetricCard label="Cooling resumed" value={coolingRunning(chain) ? hm(coolingRunning(chain)?.at) : NOT_RECORDED} note={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" && !coolingRunning(chain) ? `Compressor ${outcomeText(stepOf(chain, "COMPRESSOR")!)?.toLowerCase()} at ${hm(stepOf(chain, "COMPRESSOR")?.at)}; no running record` : "Compressor record"} />
+          <MetricCard label="Cooling resumed" value={coolingRunning(chain) ? hm(coolingRunning(chain)?.at) : NOT_RECORDED} note={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" && !coolingRunning(chain) ? `Compressor ${outcomeText(stepOf(chain, "COMPRESSOR")!)?.toLowerCase()} at ${hm(stepOf(chain, "COMPRESSOR")?.at)}; no record of cooling on` : "Compressor record"} />
         </MetricCards>
       )}
       <Panel heading="Reconstructed event chain" headingId="cold-chain-steps-heading">
@@ -731,7 +754,7 @@ function BackupPanels({
                     <td>{stepCell(stepOf(c, "START_REQUEST"), "Seen")}</td>
                     <td>{stepCell(stepOf(c, "START_RESULT"), "Result")}</td>
                     <td>{[stepCell(stepOf(c, "TRANSFER"), "Transfer"), stepCell(stepOf(c, "BUS"), "Bus")].filter((s) => s !== "Not bound").join(" · ")}</td>
-                    <td>{stepCell(stepOf(c, "COMPRESSOR"), "Running")}</td>
+                    <td>{stepCell(stepOf(c, "COMPRESSOR"), "On")}</td>
                     <td>{x === undefined ? (temperature?.state === "NO_EXCURSION_OBSERVED" ? "Within policy" : NOT_ASSESSED) : `${limitOf(temperature!, x.direction).word === "above" ? "Above" : "Below"} policy · ${range(x.duration_bounds.low, x.duration_bounds.high, "min")}`}</td>
                     <td>
                       <span className={`cold-result cold-result--${resultTone(c.result)}`} data-cold-result={c.result}>
@@ -803,7 +826,7 @@ function BackupPanels({
                 Records not used: {excluded.map((e) => reasonWord(e.reason).toLowerCase()).join(" · ")}.
               </p>
             )}
-            <ExactReferences
+            <TechnicalReferences
               name="cold-chain-references"
               references={[
                 ...chain.steps.map((s) => ({ label: `${stepLabel(s.kind)} records`, value: (s.evidence_ids ?? (s.evidence_id ? [s.evidence_id] : [])).join(", ") || null })),
@@ -946,7 +969,8 @@ function FindingStatus({ finding, siteName }: { finding: ColdFindingDetailRead; 
         windowText(finding.window.from, finding.window.to),
         currentnessWord(finding.currentness.state),
         `Selected source: ${classificationWord(selectedSourceBlock(finding)?.classification)}`,
-      ].join(" · ")}
+      ].join(" · ")}{" "}
+      <TimeZoneNote />
     </StatusBar>
   );
 }
@@ -980,7 +1004,7 @@ function findingReferences(finding: ColdFindingDetailRead) {
 function versionsLine(finding: ColdFindingDetailRead): string {
   const latest = finding.revisions[0];
   if (latest === undefined) return NOT_RECORDED;
-  return `${finding.revisions.length} · latest: ${transitionWord(latest.transition).toLowerCase()}, ${dayHm(latest.created_at)} UTC`;
+  return `${finding.revisions.length} · latest: ${transitionWord(latest.transition).toLowerCase()}, ${dayHm(latest.created_at)}`;
 }
 
 function NextStepPanel({ links, related }: { links: { href: string; label: string }[]; related: ReactNode }) {
@@ -1030,7 +1054,7 @@ function StartFindingPanels({ finding, backup, links }: { finding: ColdFindingDe
           <p className="cold-operational-missing" data-cold-missing-steps>
             {missing.length === 0 ? "Missing steps: None" : `Missing steps: ${missing.map((s) => stepLabel(s)).join(", ")}`}
           </p>
-          <ExactReferences
+          <TechnicalReferences
             name="cold-finding-references"
             references={findingReferences(finding)}
             extra={
@@ -1092,7 +1116,7 @@ function ExcursionFindingPanels({
               {gapNotes(t)}
             </>
           )}
-          <ExactReferences
+          <TechnicalReferences
             name="cold-finding-references"
             references={findingReferences(finding)}
             extra={
@@ -1280,7 +1304,8 @@ export function ColdFindingIndex(props: ColdFindingIndexProps) {
       {props.lenses}
       <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" />} data={{ "data-cold-findings-status": "" }}>
         <strong>Scoped to {props.siteName}</strong>
-        {` · ${open} open${r.next_cursor === null ? "" : ` in the first ${r.items.length}`} · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}
+        {` · ${open} open${r.next_cursor === null ? "" : ` in the first ${r.items.length}`} · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}{" "}
+        <TimeZoneNote />
         {/* MOCK DEVIATION D1 (R436): the mock strip says these are the same records as the global Findings list and
             links Manage; cold Findings are not in the global list, so the strip says so and Manage is unavailable. */}{" "}
         <span className="mock-deviation-line" data-mock-deviation="R436">

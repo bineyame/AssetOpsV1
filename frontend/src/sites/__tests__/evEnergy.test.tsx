@@ -147,7 +147,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(Array.from(document.querySelectorAll("[data-ev-y-tick] text")).map((x) => x.textContent)).toEqual(["0", "25", "50", "75", "100"]);
     expect(text("[data-ev-y-unit]")).toBe("kW");
     expect(text("[data-ev-limit-line] text")).toBe("80 kW limit");
-    expect(marks()[0].querySelector("title")?.textContent).toBe("Site import 0 kW · 08:05:00 UTC");
+    expect(marks()[0].querySelector("title")?.textContent).toBe("Site import 0 kW · 08:05:00");
     // H3/plot frame: legend follows the svg; no frame rectangle when marks exist.
     expect(document.querySelector(".ev-depth-graphic__scroll")?.nextElementSibling?.classList.contains("ev-depth-graphic__legend")).toBe(true);
     expect(document.querySelector(".ev-depth-graphic__frame")).toBeNull();

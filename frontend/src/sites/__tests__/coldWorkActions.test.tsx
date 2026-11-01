@@ -530,7 +530,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
 
   it("puts the currentness notice below the strip for every non-current status (component states)", async () => {
     const cases: [DomainIndexBody["status"], string, "blue" | "amber"][] = [
-      ["HISTORICAL", "Read as of 2026-10-22 09:30 UTC. Later work may differ.", "blue"],
+      ["HISTORICAL", "Read as of 22 Oct 2026, 09:30. Later work may differ.", "blue"],
       ["PENDING_RECOMPUTE", "Linked evidence is being reassessed. The work record remains recorded.", "amber"],
       ["STALE_SOURCE", "Linked evidence source is out of date. The work record remains recorded.", "amber"],
       ["UNKNOWN", "No selected source for linked evidence. The work record remains recorded.", "blue"],
@@ -871,7 +871,7 @@ describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
     }));
     const main = await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`, client);
     const notice = main.querySelector("[data-domain-action-currentness]") as HTMLElement;
-    expect(text(notice)).toBe("Read as of 2026-10-22 09:30 UTC. Later work may differ.");
+    expect(text(notice)).toBe("Read as of 22 Oct 2026, 09:30. Later work may differ.");
     expect(notice.previousElementSibling?.hasAttribute("data-domain-action-strip")).toBe(true);
     expect(text(main.querySelector("[data-domain-action-status-line]"))).toBe(`Not assigned · GreenHarvest · Finding ${FINDING.slice(0, 8)}`);
     expect(main.querySelector("[data-domain-action-revision]")).toBeNull();

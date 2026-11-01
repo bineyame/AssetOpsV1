@@ -423,9 +423,9 @@ describe("cooling_panels", () => {
     const graphic = main().querySelector('[aria-labelledby="cold-cooling-recovery-heading"] figure[data-cooling-graphic="marks"]') as HTMLElement;
     expect(main().querySelectorAll("svg")).toHaveLength(1);
     expect(graphic.querySelector(".cold-depth-graphic__scroll > svg")).not.toBeNull();
-    expect(Array.from(graphic.querySelectorAll("[data-cooling-lane] text")).map((t) => t.textContent)).toEqual(["Compressor running", "Chamber temperature"]);
+    expect(Array.from(graphic.querySelectorAll("[data-cooling-lane] text")).map((t) => t.textContent)).toEqual(["Compressor on", "Chamber temperature"]);
     expect(Array.from(graphic.querySelectorAll("[data-cooling-mark]")).map((m) => [m.getAttribute("data-cooling-mark"), m.querySelector("text")?.textContent, m.querySelector("title")?.textContent])).toEqual([
-      ["chamber_temperature", "19:20:00", "Chamber temperature · 19:20:00 UTC"],
+      ["chamber_temperature", "19:20:00", "Chamber temperature · 19:20:00"],
     ]);
     expect(graphic.querySelectorAll("path, polyline, polygon")).toHaveLength(0);
     expect(graphic.textContent).not.toMatch(/°C|\b(36|42)\s*min|\+17%/);
@@ -443,7 +443,7 @@ describe("cooling_panels", () => {
     expect(main().textContent).not.toMatch(/\bMatched\b/);
     expect(context.textContent).not.toContain(GRID);
     const points = main().querySelector('[aria-labelledby="cold-cooling-recovery-heading"] table') as HTMLElement;
-    expect(Array.from(points.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Step", "Time (UTC)", "Evidence"]);
+    expect(Array.from(points.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Step", "Time", "Evidence"]);
     expect(rowsOf(points)).toEqual([["Chamber temperature", "19:20:00", PROBE]]);
     expect(main().textContent).toContain("Selected first observations only; not a recovery curve.");
     const next = Array.from(main().querySelectorAll("[data-attention-item]"));

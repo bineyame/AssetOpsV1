@@ -99,7 +99,7 @@ export function EvDepthPowerChart({
           )}
           {marks.map((s) => (
             <circle key={s.evidence_id} className="ev-depth-graphic__mark" cx={x(ms(s.source_time))} cy={y(Number(s.import_kw))} r={5} data-ev-mark={s.evidence_id}>
-              <title>{`Site import ${s.import_kw} kW · ${hhmmss(ms(s.source_time))} UTC`}</title>
+              <title>{`Site import ${s.import_kw} kW · ${hhmmss(ms(s.source_time))}`}</title>
             </circle>
           ))}
         </svg>

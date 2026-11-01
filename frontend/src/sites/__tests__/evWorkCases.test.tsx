@@ -200,8 +200,8 @@ describe("W5-04 V3a: EV Site > Work > Incidents (v69 ev-work-incidents)", () => 
       expect(main.querySelector("form[data-work-window]")).toBeNull();
       expect(window.previousElementSibling?.matches("nav.site-subtabs")).toBe(true);
       expect(window.nextElementSibling?.querySelector(".status-strip") ?? window.nextElementSibling).not.toBeNull();
-      expect(text(window)).toContain("From (UTC)");
-      expect(text(window)).toContain("To (UTC, exclusive)");
+      expect(text(window)).toContain("From ");
+      expect(text(window)).toContain("To (not included)");
       expect(window.querySelector("[data-cold-work-window]")).toBeNull();
       cleanup();
     }
@@ -324,7 +324,7 @@ describe("W5-04 V3a: EV Site > Work > Maintenance (v69 ev-work-maintenance)", ()
 
 describe("W5-04 V3a: EV case currentness and complete zero (R80, R104)", () => {
   const cases: [string, "blue" | "amber", string][] = [
-    ["HISTORICAL", "blue", "Read as of 2026-10-06 12:00 UTC. Later work may differ."],
+    ["HISTORICAL", "blue", "Read as of 6 Oct 2026, 12:00. Later work may differ."],
     ["UNKNOWN", "blue", "No selected source for linked evidence. The work record remains recorded."],
     ["PENDING_RECOMPUTE", "amber", "Linked evidence is being reassessed. The work record remains recorded."],
     ["STALE_SOURCE", "amber", "Linked evidence source is out of date. The work record remains recorded."],

@@ -352,7 +352,7 @@ describe("W2-07 EV Site routes", () => {
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     const first = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody tr")[0].children).map((c) => c.textContent);
-    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "11:59:01", `REC ${id(101)} · No analysis link`]);
+    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "11:59:01", "Charger report · No analysis link"]);
     // Review r1 M3: plain first-cell and value words, never a role code or enum in a visible cell.
     const recordsPanel = panelTitled("Accepted records behind the conclusions");
     const closed = Array.from(recordsPanel.querySelectorAll("tbody tr"));
@@ -437,7 +437,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("Evidence unknown");
     // OUT-B B5 (R540): the five cards are replaced by the outcome board.
     expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
-    expect(panelTitled("Bounded money consequence").textContent).toContain("No gross tariff scenario assessed");
+    expect(panelTitled("Possible cost").textContent).toContain("No gross tariff scenario assessed");
     expect(panelTitled("Needs attention").textContent).toContain("No recorded attention item for this window");
     expect(panelTitled("Next step").textContent).toContain("No recorded next step");
     // post-W6 W2-EV R283: no padding slots; no accepted event says so once.
@@ -449,7 +449,7 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client({ state: "PENDING_RECOMPUTE", consequence: GUARD("PENDING_RECOMPUTE", "New evidence is being assessed. The previous result may change.") }));
     expectV69Panels("ev");
     expect(strip()).toContain("New evidence is being assessed");
-    expect(panelTitled("Bounded money consequence").querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
+    expect(panelTitled("Possible cost").querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
     expect(panelTitled("Needs attention").textContent).toContain("New evidence pending");
     expect(main().textContent).not.toContain("KES 8.33");
 
@@ -457,9 +457,9 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client({ state: "HISTORICAL", consequence: GUARD("HISTORICAL_CURRENT_CLAIM", "Historical scenario") }));
     expectV69Panels("ev");
     expect(strip()).toContain("Historical selection · 6 Oct, 09:00");
-    const money = panelTitled("Bounded money consequence");
+    const money = panelTitled("Possible cost");
     expect(money.querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
-    expect(money.textContent).toContain("Historical scenario");
+    expect(money.textContent).toContain("Earlier what-if");
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ state: "HISTORICAL", consequence: GUARD("HISTORICAL_CURRENT_CLAIM", "Historical scenario") }));
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
@@ -495,7 +495,7 @@ describe("W2-07 EV Site routes", () => {
     expect(finDetails.textContent).toContain("Authored estimate");
     expect(assumptionsPanel.textContent).toContain("No record");
     expect(within(assumptionsPanel).getByRole("link", { name: "Review assumptions" }).getAttribute("href")).toBe(`${PATHS["ev-assumptions"]}${Q}`);
-    expect(panelTitled("Not included").querySelector(".prose")?.textContent).toBe("Lost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.");
+    expect(panelTitled("Not included").querySelector(".prose")?.textContent).toBe("Lost sales, collections, margin, repair and warranty are not included in this gross tariff estimate.");
 
     // q6 R3: no complete gross coverage -> no `Metered with complete coverage`.
     cleanup();
@@ -518,10 +518,10 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "No gross tariff scenario assessed", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "Tariff not declared", "No gross tariff estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
     expect(strip()).toContain("Currency not declared");
-    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No gross tariff scenario assessed");
+    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No gross tariff estimate yet");
 
     // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
     cleanup();
@@ -610,7 +610,12 @@ describe("W2-07 EV Site routes", () => {
     expectPlantedPanelRejected("ev");
     const day = panelTitled("What happened on the service day");
     expect(day.querySelectorAll(".v69-timeline > li")).toHaveLength(3);
-    expect(day.textContent).toContain(`Session started · REC ${id(101)}`);
+    expect(day.textContent).toContain("Session started · Charger report");
+    // POLISH §3 ids: the record ids sit only inside the Technical details region.
+    const dayPlain = day.cloneNode(true) as HTMLElement;
+    dayPlain.querySelectorAll("[data-technical-details]").forEach((el) => el.remove());
+    expect(day.querySelector("[data-technical-details]")?.textContent ?? "").toContain(id(101));
+    expect(dayPlain.textContent).not.toContain(id(101));
     expect(day.textContent).toContain("End record missing");
     expect(day.textContent).not.toContain("No accepted event");
     expect(day.textContent).not.toContain(id(450).slice(0, 8));
@@ -626,7 +631,7 @@ describe("W2-07 EV Site routes", () => {
     expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
     expect(main().textContent).not.toMatch(/Healthy/);
     expect(panelTitled("Needs attention").textContent).toContain("End record missing");
-    const money = panelTitled("Bounded money consequence");
+    const money = panelTitled("Possible cost");
     expect(money.querySelector("[data-ev-money]")?.textContent).toBe("KES 8.33 gross tariff estimate");
     expect(money.textContent).toContain("Gross tariff estimate for 30.000 kWh delivered with complete coverage. Not cash collected.");
     expect(within(money).getByRole("link", { name: "Open financial bridge →" }).getAttribute("href")).toBe(`${PATHS["ev-financials"]}${RAW_Q}`);
@@ -700,7 +705,7 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
  */
 describe("W2-F: EV Overview link, status and record IDs", () => {
   const SLD = `/sites/${CODE}/foundation/sld`;
-  const CUTOFF_NOTE = "Opens configuration at window end; evidence cutoff is not carried.";
+  const CUTOFF_NOTE = "Opens the site layout as it was at the end of this period.";
   const SELECTED_TO = "2026-10-06T09:04:00.000000Z";
   const withWindowEnd = (o: EvOverviewRead): EvOverviewRead => ({ ...o, window: { ...o.window, to: SELECTED_TO } });
   const sldLink = () => document.querySelector("[data-ev-sld-link]") as HTMLElement;
@@ -747,14 +752,14 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     const base = overview();
     // Interrupted, selected BOUNDED with an observed abort -> Needs attention / Limited.
     const interrupted = { ...base, status: { ...base.status, claim_level: "BOUNDED" }, denominator: { ...base.denominator, observed_abort: 1 } };
-    expect(await vector(interrupted)).toEqual(["Needs attention", "Confidence: Limited"]);
+    expect(await vector(interrupted)).toEqual(["Needs attention", "Confidence: partial"]);
     // An observed complete abort -> Needs attention / Bounded.
-    expect(await vector({ ...interrupted, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Needs attention", "Confidence: Bounded"]);
+    expect(await vector({ ...interrupted, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Needs attention", "Confidence: measured"]);
     // A selected Finding alone also needs attention.
-    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" }, findings: { ...base.findings, count: 1 } })).toEqual(["Needs attention", "Confidence: Bounded"]);
+    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" }, findings: { ...base.findings, count: 1 } })).toEqual(["Needs attention", "Confidence: measured"]);
     // Complete, nothing aborted -> Sessions observed / Bounded.
-    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Sessions observed", "Confidence: Bounded"]);
-    expect(await vector({ ...base, status: { ...base.status, state: "NO_SESSIONS_OBSERVED", claim_level: "OBSERVED" } })).toEqual(["No sessions observed", "Confidence: Bounded"]);
+    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Sessions observed", "Confidence: measured"]);
+    expect(await vector({ ...base, status: { ...base.status, state: "NO_SESSIONS_OBSERVED", claim_level: "OBSERVED" } })).toEqual(["No sessions observed", "Confidence: measured"]);
     // Contradiction outranks pending and attention.
     const contradictory = { ...interrupted, status: { ...base.status, state: "CONTRADICTORY", claim_level: "CONTRADICTORY" } };
     expect(await vector(contradictory)).toEqual(["Records disagree", "Confidence: Unknown"]);
@@ -777,19 +782,20 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     const read = { ...analysis(), items: [item(101, { evidence_id: a }), item(102, { evidence_id: b, value_display: "Session ended", record_kind: "EV_SESSION_END" })], total_count: 2 };
     await renderAt(PATHS.ev, { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(read))) });
     const day = panelTitled("What happened on the service day");
-    const labels = Array.from(day.querySelectorAll("code.ev-site-id")).map((c) => ({ text: c.textContent, aria: c.getAttribute("aria-label") }));
+    // POLISH §3.1: each event says "Charger report"; the full stored IDs stay distinct in the title and accessible name.
+    const labels = Array.from(day.querySelectorAll(".ev-site-id")).map((c) => ({ text: c.textContent?.trim(), aria: c.getAttribute("aria-label"), title: c.getAttribute("title") }));
     expect(labels).toEqual([
-      { text: `REC ${a}`, aria: `Record ${a}` },
-      { text: `REC ${b}`, aria: `Record ${b}` },
+      { text: "Charger report", aria: `Record ${a}`, title: a },
+      { text: "Charger report", aria: `Record ${b}`, title: b },
     ]);
-    expect(new Set(labels.map((l) => l.text)).size).toBe(2);
+    expect(new Set(labels.map((l) => l.title)).size).toBe(2);
     cleanup();
     // EV Analysis: the same full stored IDs in the Record column.
     await renderAt(PATHS["ev-evidence-analysis"], { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(read))) });
-    const rows = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody code.ev-site-id"));
-    expect(rows.map((c) => ({ text: c.textContent, aria: c.getAttribute("aria-label") }))).toEqual([
-      { text: `REC ${a}`, aria: `Record ${a}` },
-      { text: `REC ${b}`, aria: `Record ${b}` },
+    const rows = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody .ev-site-id"));
+    expect(rows.map((c) => ({ text: c.textContent?.trim(), aria: c.getAttribute("aria-label"), title: c.getAttribute("title") }))).toEqual([
+      { text: "Charger report", aria: `Record ${a}`, title: a },
+      { text: "Charger report", aria: `Record ${b}`, title: b },
     ]);
   });
 
@@ -978,7 +984,7 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
     cleanup();
     await renderAt(PATHS.ev, withAnalysis(Array.from({ length: 8 }, (_, k) => item(110 + k))));
     day = panelTitled("What happened on the service day");
-    expect(Array.from(day.querySelectorAll(".v69-timeline > li")).filter((li) => (li.textContent ?? "").includes("REC "))).toHaveLength(8);
+    expect(Array.from(day.querySelectorAll(".v69-timeline > li")).filter((li) => (li.textContent ?? "").includes("Charger report"))).toHaveLength(8);
   });
 
   it("R285 (Q12) and R286 fix, D4 R421 (Q13): Energy source link only when estimated; billing chips follow the wire", async () => {

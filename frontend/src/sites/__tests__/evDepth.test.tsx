@@ -205,14 +205,14 @@ describe("W5-03a E2: EV Availability", () => {
     expect(segments(8)).toEqual([["OUTSIDE", "50%"], ["AVAILABLE", "50%"]]);
     const blank = document.querySelector(`[data-ev-bar-row="${id(8)}"] [data-ev-segment="OUTSIDE"]`) as HTMLElement;
     expect(blank.getAttribute("aria-label")).toBe("Outside scheduled service hours");
-    expect(Array.from(document.querySelectorAll("[data-ev-bar-times] span")).map((s) => s.textContent)).toEqual(["08:00 UTC", "08:30 UTC", "09:00 UTC"]);
-    expect(Array.from(document.querySelectorAll(".ev-depth-bars__period")).map((s) => s.textContent)).toEqual(["08:00–09:00 UTC", "08:30–09:00 UTC"]);
+    expect(Array.from(document.querySelectorAll("[data-ev-bar-times] span")).map((s) => s.textContent)).toEqual(["08:00", "08:30", "09:00"]);
+    expect(Array.from(document.querySelectorAll(".ev-depth-bars__period")).map((s) => s.textContent)).toEqual(["08:00–09:00", "08:30–09:00"]);
     // H1/H2: global chart-note and panel-value classes; labels use the selected name verbatim.
     expect(document.querySelector(`[data-ev-chart-note="${id(7)}"]`)?.classList.contains("v69-chart-note")).toBe(true);
     expect(document.querySelector("[data-ev-bound]")?.classList.contains("v69-panel-value")).toBe(true);
     expect(Array.from(document.querySelectorAll(".ev-depth-bars__label")).map((s) => s.textContent)).toEqual(["Connector c1", "Connector c2"]);
     expect(Array.from(document.querySelectorAll(".ev-depth-legend .badge")).map((b) => b.textContent)).toEqual(["Available", "Unavailable", "Unknown"]);
-    expect(text(`[data-ev-span-summary="${id(7)}"]`)).toContain("08:20–08:25 UTC Unknown");
+    expect(text(`[data-ev-span-summary="${id(7)}"]`)).toContain("08:20–08:25 Unknown");
     expect(text(`[data-ev-chart-note="${id(7)}"]`)).toBe(
       "Connector c1: 0.67 h available, 0.25 h observed unavailable and 0.08 h unknown. Spans use accepted transition timestamps.",
     );

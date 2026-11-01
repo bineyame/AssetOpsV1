@@ -67,7 +67,7 @@ export const STEP_ESTABLISHES: Record<string, [string, string]> = {
   START_RESULT: ["Whether the start succeeded", "A failed start needs inspection"],
   GENERATOR: ["Generator state after the request", "Does not show power reaching the compressor"],
   TRANSFER: ["Load moved to backup supply", "Transfer detail may be incomplete"],
-  BUS: ["Backup bus powered", "Does not show the compressor running"],
+  BUS: ["Backup bus powered", "Does not show the compressor working"],
   COMPRESSOR: ["Cooling resumed", "Does not show the chamber back in policy"],
   PROBE: ["Chamber temperature after recovery", "No spoilage determination"],
 };
@@ -110,7 +110,7 @@ const CLASSIFICATION: Record<string, string> = {
   MIXED_OR_UNKNOWN_SOURCE: "Mixed or unknown sources",
 };
 /** Shown beside the label (D-2026-10-16-s405b-label; W2-03 deviation 18). */
-export const SIMULATION_SOURCE_SENTENCE = "From a registered test run; not readings from physical equipment.";
+export const SIMULATION_SOURCE_SENTENCE = "Generated for a test; not readings from physical equipment.";
 export const classificationWord = (code: string | null | undefined) => mapped(CLASSIFICATION, code, "Not recorded");
 
 /** A server limitation sentence with any step or reason code replaced by its plain words. */
