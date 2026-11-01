@@ -197,6 +197,8 @@ async function capture([work, out, base = "http://localhost:5490"]) {
       const file = join(out, `${s.key}-${w}.png`);
       const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
       writeFileSync(file, Buffer.from(shot.data, "base64"));
+      // Whole-diff review M2: the visible <main> text beside each PNG, so register rows can be checked against it.
+      writeFileSync(join(out, `${s.key}-${w}.txt`), m.text ?? "", "utf-8");
       // Addendum 5: ids everywhere but Technical details; exemptions for product kinds only; exempt hits recorded.
       const { vocabulary: hits, exempt_hits, counted } = classifyCapture(await js(CAPTURE_TEXTS), { open: !!s.open, reviewLabels: REVIEW_LABELS });
       const states = [...new Set((m.text.match(/\b(?:STALE_PROJECTION|SCHEDULE_STOPPED|PRODUCER_NOT_SETTLED|UNASSESSED)\b/g) ?? []))];
