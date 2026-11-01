@@ -69,7 +69,7 @@ NO_RUN = dict(b2.OVERVIEW, assessment={"state": "CURRENT", "claim_level": "COMPL
 def test_complete_zero_interval_day_settles_mg7_with_unknown_readiness() -> None:
     _, rows = b2.run(b2.Fake(overview=NO_RUN, readiness="UNKNOWN"))
     assert b2.outcome(rows[ASSURE], "MG-7") == "NO_OBJECTIVE"
-    assert rows[ASSURE]["state"] == "NO_OBJECTIVE"
+    assert rows[ASSURE]["state"] == "NO_OBJECTIVE" and rows[ASSURE]["state_label"] == "No objective declared"
     assert b2.contributor(rows[ASSURE], "readings")["text"] == (
         "Generator not used on this day, so nothing to check · readings complete")
 
