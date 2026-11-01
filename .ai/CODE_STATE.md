@@ -6275,3 +6275,21 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   `demo_combined.py links`) are not routes (P-01). Cold/EV boards read on `days.json` start/end windows.
 - Global work lists window by recorded time (build day), not story time (R629).
 - Open: R626, R630 (open rows), polish P-01..P-10 and the client-copy list in `.agent/DEMO-B-packet.md`.
+
+## POLISH PB-0 - strict capture gate, review-mode labels, guard 12 (built, in_review)
+
+- P-04 mechanism (sheet §2, Addendum 1 Q1): `frontend/src/ui/mock-deviation.css` ends with
+  `:root:not([data-review-labels="on"]) [data-mock-deviation] { display: none !important; }`, loaded app-wide by
+  `main.tsx`, which calls `applyReviewLabels()` (`ui/reviewLabels.ts`) before rendering. `?review=labels` stores
+  `sessionStorage["assetops.reviewLabels"]="on"`, `?review=off` removes it; storage failures fall back to the parameter.
+  Every label must sit in an element carrying `data-mock-deviation="Rnnn"` (or render through `MockDeviation`).
+- Guard 12 (`tools/check-all.ps1`, "Mock deviation labels and client vocabulary"):
+  `tools/checks/mock-deviation-labels.mjs` (a) untagged labels, (b) unregistered ids, (c) hide rule; fixtures in
+  `tools/checks/fixtures/mock-deviation-labels/`. check-all now reports 12 guards.
+- `tools/evidence-checks.mjs` exports `LOADING_LINE`, `SETTLE_PROBE`, `mainSettled` (whole-line loading sentence,
+  `aria-busy`, `[data-repeat-check="loading"]`); `demo-combined-evidence.mjs` settles with them.
+- `demo-combined-evidence.mjs`: `DEMOB_STRICT=1` exits 1 on counted hits; `DEMOB_REVIEW_LABELS=1`; exempt regions
+  `[data-technical-details]`, `[data-time-zone-note]`, `[data-vocabulary-exempt]`; product terms from
+  `productVocabulary.json` after its own glosses; captures.json carries `vocabulary_counted`.
+- Open: `[data-repeat-check]` (PB-3), `[data-technical-details]`/`[data-time-zone-note]` (PB-1/PB-2) not yet rendered;
+  the strict baseline in `.agent/POLISH-PB-0-packet.md` is the hit list later slices clear.

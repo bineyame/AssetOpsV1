@@ -1,6 +1,6 @@
 # POLISH-PB-0 Capture gate and label guard
 
-Status: in_progress
+Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 3. Branch `task/POLISH-PB-0-capture-gate`.
 
@@ -18,7 +18,8 @@ states scope only; the sheet is the contract.
 - OUT-D L1: whole-line loading predicate in `tools/evidence-checks.mjs`, so "Loading and door records" no longer blocks settling.
 - Guard 12, "Mock deviation labels and client vocabulary": `tools/checks/mock-deviation-labels.mjs` plus
   `tools/checks/test_mock_deviation_labels.mjs` and four fixtures, registered in `tools/check-all.ps1`.
-- The P-04 mechanism, if the coordinator rules option (a) on pre-flight Q1. See the packet.
+- The P-04 mechanism (Addendum 1 Q1, option a): the CSS hide rule, `ui/reviewLabels.ts` and its vitest, `main.tsx`
+  and the register sentence. Scope is now 3.5 units.
 
 ## Not in scope
 
