@@ -45,7 +45,6 @@ import {
   reasonWords,
   roleWords,
   shiftDay,
-  stamp,
   STATUS_SENTENCES,
 } from "./dispatchWords";
 import { PeriodStrip, type StripTone } from "./periodStrip";
@@ -65,6 +64,8 @@ import type {
   RevisionDetail,
 } from "./performanceDispatchClient";
 import { isIntervalRevision } from "./performanceDispatchClient";
+import { formatDay, formatDayTime, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 /** post-W6 W1-a Q6 / R178: the refusal for a whole-window assessment named as the selected revision. */
 export const DISPATCH_NOT_INTERVAL_TITLE = "This assessment cannot be shown as 15-minute blocks";
@@ -302,7 +303,7 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
         Previous day
       </button>
       <label className="dispatch-day__label">
-        Day (UTC){" "}
+        Day{" "}
         <input
           className="v69-chip-control"
           type="date"
@@ -317,6 +318,7 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
       <button type="button" className="button" onClick={() => onDay(shiftDay(day, 1))}>
         Next day
       </button>
+      <TimeZoneNote />
     </form>
   );
 }
@@ -434,9 +436,9 @@ function WindowView({
 
   const interval =
     segment !== null
-      ? `${clock(segment.start)}–${clock(segment.end)} UTC`
+      ? `${clock(segment.start)}–${clock(segment.end)}`
       : selected !== null
-        ? `${clock(selected.result.interval.first_on)}–${selected.result.interval.last_on ? clock(selected.result.interval.last_on) : "open"} UTC`
+        ? `${clock(selected.result.interval.first_on)}–${selected.result.interval.last_on ? clock(selected.result.interval.last_on) : "open"}`
         : "No block selected";
   const notes = read.demo_annotations.length > 0 ? <DemoNotes notes={read.demo_annotations} /> : null;
 
@@ -477,7 +479,7 @@ function WindowView({
             interval={interval}
             between={notes}
             first={{
-              description: `Selected day · ${read.window.start.slice(0, 10)} UTC`,
+              description: `Selected day · ${formatDay(read.window.start)}`,
               body: (
                 <>
                   {/* W1-F2: the mock's one segment strip and its chart-note; the lead answer is one line. */}
@@ -494,7 +496,7 @@ function WindowView({
                   />
                   <PeriodsEmpty read={read} />
                   <ChartNote data={{ "data-dispatch-question": "" }}>
-                    Select a block to see what the readings show. Gaps between reports are not filled in. Times are UTC.
+                    Select a block to see what the readings show. Gaps between reports are not filled in.
                   </ChartNote>
                   <LimitationSummary read={read} />
                   <Disclosure summary="What the outcomes mean" name="dispatch-outcomes">
@@ -593,7 +595,7 @@ function DayFindings({
               <li key={id}>
                 <Link to={findings.href(id)} data-dispatch-finding={id}>
                   {LIFECYCLE_WORDS[f.lifecycle]?.label ?? "Finding"}: {clock(f.episode_start)}–{clock(f.episode_end)}{" "}
-                  UTC →
+                  →
                 </Link>
               </li>
             );
@@ -616,7 +618,7 @@ function statusWords(status: string): ProductWords {
 }
 
 function dayScope(read: DispatchWindow): string {
-  return `Generator operation on ${read.window.start.slice(0, 10)} (UTC day)`;
+  return `Generator operation on ${formatDay(read.window.start)}`;
 }
 
 /**
@@ -759,7 +761,7 @@ function DayBlockStrip({
       start: seg.start,
       end: seg.end,
       tone: STRIP_TONE[seg.classification] ?? ("not-known" as const),
-      label: `${clock(seg.start)} to ${clock(seg.end)} UTC: ${outcome(seg.classification)}`,
+      label: `${clock(seg.start)} to ${clock(seg.end)}: ${outcome(seg.classification)}`,
       href: href(item.id, index),
       selected: selected?.id === item.id && blockIndex === index,
     })),
@@ -771,8 +773,8 @@ function DayBlockStrip({
       title="The day's assessed 15-minute blocks, by outcome (select one to see its readings)"
       start={read.window.start}
       end={read.window.end}
-      startText="00:00 UTC"
-      endText="24:00 UTC"
+      startText="00:00"
+      endText="24:00"
       legend={[
         { tone: "necessary", label: "Needed" },
         { tone: "avoidable", label: "Possibly avoidable" },
@@ -890,7 +892,7 @@ function PeriodsAndBlocks({
                 onClick={() => onPeriod(item.id)}
               >
                 <ClaimBadge level={item.claim_level} label={outcome(item.claim_level)} />{" "}
-                {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"} UTC
+                {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"}
               </button>
             </li>
           );
@@ -1023,7 +1025,7 @@ function SelectedPeriod({
       ) : null}
       {segment !== null ? (
         <p className="dispatch-period-label" data-dispatch-period-label>
-          The period this block is in: {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"} UTC
+          The period this block is in: {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"}
         </p>
       ) : null}
       <FactList>
@@ -1031,7 +1033,7 @@ function SelectedPeriod({
           <ClaimBadge level={revision.claim_level} label={outcome(revision.claim_level)} />
         </Fact>
         <Fact term="Generator ran">
-          {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"} UTC
+          {clock(iv.first_on)} to {iv.last_on ? clock(iv.last_on) : "open"}
           {iv.off_before || iv.off_after
             ? ` (last seen off ${clock(iv.off_before)}, next seen off ${clock(iv.off_after)})`
             : ""}
@@ -1202,13 +1204,13 @@ function EvidenceRecords({
       <p className="chart-note" id="durable-dispatch-evidence-heading" data-evidence-scope={segment === null ? "period" : "block"}>
         {segment === null
           ? `All ${detail.evidence.length} accepted records of this stored result.`
-          : `${rows.length} accepted records for the block ${clock(segment.start)} to ${clock(segment.end)} UTC.`}
+          : `${rows.length} accepted records for the block ${clock(segment.start)} to ${clock(segment.end)}.`}
         {shown.length < rows.length ? ` The first ${shown.length} are listed.` : ""}
       </p>
       <DataTable labelledBy="durable-dispatch-evidence-heading">
         <thead>
           <tr>
-            <th scope="col">Taken at (UTC)</th>
+            <th scope="col">Taken at</th>
             <th scope="col">Input</th>
             <th scope="col">Value</th>
             <th scope="col">Quality</th>
@@ -1218,7 +1220,7 @@ function EvidenceRecords({
         <tbody>
           {shown.map((item) => (
             <tr key={item.evidence_id} data-evidence-id={item.evidence_id}>
-              <td>{item.source_time ? stamp(item.source_time) : `${stamp(item.interval_start)} to ${stamp(item.interval_end)}`}</td>
+              <td>{item.source_time ? formatDayTime(item.source_time) : formatRange(item.interval_start, item.interval_end)}</td>
               <td>{roleWords(item.role)}</td>
               <td>
                 {item.value ?? "none"} {item.unit ?? ""}
@@ -1256,7 +1258,7 @@ function RecordProvenance({ item }: { item: AcceptedEvidenceItem }) {
         <Fact term="Message">
           <code>{item.message_id}</code>
         </Fact>
-        <Fact term="Accepted at (UTC)">{stamp(item.accepted_at)}</Fact>
+        <Fact term="Accepted at">{item.accepted_at ? formatDayTime(item.accepted_at) : "not reported"}</Fact>
         {item.selection_note ? <Fact term="Note">{item.selection_note}</Fact> : null}
       </FactList>
     </Disclosure>
@@ -1413,7 +1415,7 @@ function ReadingsToOutcome({
     new Set([...(segment?.binding_constraint ? [segment.binding_constraint] : []), ...(segment === null ? (result.binding_constraints ?? []) : [])]),
   );
   const limits = groupLimitations(result.limitations ?? []);
-  const scope = segment === null ? `the period ${clock(result.interval.first_on)} to ${clock(result.interval.last_on)} UTC` : `the block ${clock(segment.start)} to ${clock(segment.end)} UTC`;
+  const scope = segment === null ? `the period ${clock(result.interval.first_on)} to ${clock(result.interval.last_on)}` : `the block ${clock(segment.start)} to ${clock(segment.end)}`;
   const conclusion = segment === null ? outcome(selected.claim_level) : outcome(segment.classification);
   return (
     <ol aria-label="How the readings lead to the outcome" className="dispatch-story" data-dispatch-story={segment === null ? "period" : "block"}>
@@ -1488,7 +1490,7 @@ function ConstraintTable({ segments }: { segments: DispatchSegment[] }) {
       <DataTable labelledBy="durable-dispatch-constraints-heading">
         <thead>
           <tr>
-            <th scope="col">Block (UTC)</th>
+            <th scope="col">Block</th>
             <th scope="col">Outcome</th>
             <th scope="col">Demand</th>
             <th scope="col">Spare capacity</th>

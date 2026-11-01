@@ -336,7 +336,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
 
   it("names the time kinds separately and makes no as-of-a-moment replay claim", async () => {
     await frame(HISTORY, client({ total: 1 }));
-    for (const term of ["Version recorded (UTC)", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+    for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
     // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
@@ -719,7 +719,7 @@ describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
     // t(10) is 14:10 UTC, 17:10 in Africa/Kampala.
     expect(cell.textContent).toBe("6 Oct · 17:10");
     expect(cell.getAttribute("title")).toBe("2026-10-06T14:10:00.000Z (UTC)");
-    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("2026-10-06T14:10:00.000Z");
+    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("6 Oct 2026, 14:10");
   });
 
   it("Q17: a Site without a timezone falls back to UTC and says so in full in the heading (final-fix L6)", async () => {

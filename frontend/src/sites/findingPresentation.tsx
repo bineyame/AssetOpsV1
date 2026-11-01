@@ -9,6 +9,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Badge, DataTable, Fact, FactList, readResultWords, type ProductWords } from "../ui";
+import { formatDayTime, formatRange } from "../ui/time";
 import { RecordDetail } from "./SiteEvidence";
 import type {
   AssessmentSummary,
@@ -68,40 +69,17 @@ export function windowText(window: { start: string; end: string }): string {
   return readablePeriod(window.start, window.end);
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-function parts(iso: string): { day: string; time: string } | null {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return {
-    day: `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}`,
-    time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`,
-  };
-}
-
 /**
- * A backend timestamp for reading, with its timezone named: "22 Sep 2026 03:05
- * UTC". Practitioner-first presentation: the ISO form stays in the record
- * detail; an unparseable value is shown as it arrived.
+ * A backend timestamp for reading: "22 Sep 2026, 03:05" (POLISH §3 Times, `ui/time.ts`). The zone is named once by
+ * the page's `TimeZoneNote`; the ISO form stays in the record detail. Unparseable input reads "Time not available yet".
  */
 export function readableTime(iso: string): string {
-  const p = parts(iso);
-  return p === null ? iso : `${p.day} ${p.time} UTC`;
+  return formatDayTime(iso);
 }
 
-/** "22 Sep 2026, 03:05 to 05:20 UTC", or both days when the period spans midnight. */
+/** "22 Sep 2026, 03:05–05:20", or both ends in full when the period spans midnight (`formatRange`). */
 export function readablePeriod(start: string, end: string): string {
-  const a = parts(start);
-  const b = parts(end);
-  if (a === null || b === null) {
-    return `${start} to ${end}`;
-  }
-  return a.day === b.day
-    ? `${a.day}, ${a.time} to ${b.time} UTC`
-    : `${a.day} ${a.time} to ${b.day} ${b.time} UTC`;
+  return formatRange(start, end);
 }
 
 /** Where a next step's link goes: an alternative, or the Site's evidence page. */

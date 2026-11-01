@@ -73,6 +73,7 @@ import "./w1f4-action.css";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { displayCode } from "../ui/displayCode";
 import { AffectsLine } from "./outcomeCategories";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 export const ACTION_VIEWS = ["overview", "plan", "execution", "evidence", "verification", "history"] as const;
 export type ActionView = (typeof ACTION_VIEWS)[number];
@@ -514,7 +515,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
   const sourceWords = SOURCE_WORDS[source];
   const latest = body.selection.kind === "LATEST";
   return (
-    <Panel heading="Action scope" headingId="site-action-scope-heading" className="w1f4-action-panel">
+    <Panel heading="Action scope" headingId="site-action-scope-heading" className="w1f4-action-panel" actions={<TimeZoneNote />}>
       <div data-product-status={words.tone} data-action-scope>
         <KeyValues
           label="Action scope"
@@ -787,7 +788,7 @@ function Application({
   );
 
   return (
-    <Panel heading="Activity log" headingId="site-action-activity-heading" className="w1f4-action-panel">
+    <Panel heading="Activity log" headingId="site-action-activity-heading" className="w1f4-action-panel" actions={<TimeZoneNote />}>
       <div data-product-status={words.tone} data-action-work>
         <p className="v69-chart-note w1f4-action-status">
           <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "", "data-action-work-headline": "" }}>
@@ -857,7 +858,7 @@ function Application({
             </p>
             <div className="form-footer">
               <label className="field w1f4-action-field">
-                Effective from (UTC)
+                Effective from
                 <input
                   type="datetime-local"
                   value={effective}
@@ -996,7 +997,7 @@ function History({
   const selected = body.selection.kind === "EVENT_ID" ? body.selection.event_id : null;
   const history = outcomes?.status === "loaded" ? outcomes.value : null;
   return (
-    <Panel heading="Action history" headingId="site-action-history-heading" className="w1f4-action-panel">
+    <Panel heading="Action history" headingId="site-action-history-heading" className="w1f4-action-panel" actions={<TimeZoneNote />}>
       <p className="v69-chart-note w1f4-action-status" data-product-status={words.tone}>
         <StateBadge tone={TONE_BADGE[words.tone]} data={{ "data-product-status-label": "" }}>
           {words.label}

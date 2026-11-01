@@ -171,8 +171,8 @@ describe("Site Evidence from the central ledger: overview", () => {
   it("writes a chosen period into the address as a half-open UTC window", async () => {
     renderAt(EVIDENCE_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
     await settledScreen();
-    fireEvent.change(screen.getByLabelText(/From \(UTC\)/), { target: { value: "2026-09-22T08:00" } });
-    fireEvent.change(screen.getByLabelText(/To \(UTC\)/), { target: { value: "2026-09-22T09:00" } });
+    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-09-22T08:00" } });
+    fireEvent.change(screen.getByLabelText("To"), { target: { value: "2026-09-22T09:00" } });
     fireEvent.click(screen.getByRole("button", { name: "Show this period" }));
     await settledScreen();
     expect(loc()).toContain("from=2026-09-22T08%3A00%3A00Z");
@@ -204,7 +204,7 @@ describe("Site Evidence from the central ledger: analysis", () => {
   it("names the clocks and lists refused readings, including those with no readable time", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
     await settledScreen();
-    expect(document.querySelector("[data-evidence-clocks]")?.textContent).toMatch(/server clock \(UTC\)/);
+    expect(document.querySelector("[data-evidence-clocks]")?.textContent).toMatch(/server clock\./);
     expect(screen.getByText(/the gap between a taken and a\s+received time is not a delivery delay/)).toBeTruthy();
     const untimed = document.querySelector("[data-evidence-untimed]") as HTMLElement;
     expect(untimed.getAttribute("data-evidence-untimed")).toBe("1");
@@ -254,8 +254,8 @@ describe("Site Evidence from the central ledger: analysis", () => {
     expect(text).toContain(LEDGER_RECORD.accepted_as.foundation_revision_id);
     expect(text).toContain(LEDGER_RECORD.accepted_as.binding_revision_id);
     // The receipt keeps the delivery's first receipt apart from this reading's later decision.
-    expect(text).toMatch(/Delivery first received \(server clock, UTC\)9 Oct 2026 09:00 UTC/);
-    expect(text).toMatch(/This reading decided \(server clock, UTC\)9 Oct 2026 09:07 UTC/);
+    expect(text).toMatch(/Delivery first received \(server clock\)9 Oct 2026, 09:00/);
+    expect(text).toMatch(/This reading decided \(server clock\)9 Oct 2026, 09:07/);
     expect(detail.querySelector("[data-record-message]")?.textContent).toBe(LEDGER_RECORD.envelope.text);
     expect(detail.querySelector(`[data-record-conflict]`)?.textContent).toContain('"value":"99999"');
     expect(detail.querySelector("[data-record-duplicate]")).not.toBeNull();

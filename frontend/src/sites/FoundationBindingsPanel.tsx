@@ -420,7 +420,7 @@ function RemoveBindingForm({
           </select>
         </label>
         <label>
-          Effective from (UTC){" "}
+          Effective from{" "}
           <input type="datetime-local" value={effective} onChange={(event) => setEffective(event.target.value)} />
         </label>
         <button type="submit" disabled={pending}>

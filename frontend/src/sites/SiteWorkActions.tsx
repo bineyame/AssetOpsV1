@@ -29,7 +29,8 @@
  */
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { formatDayTime } from "../ui/time";
+import { formatDay, formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIcon, readResultWords, type ProductWords } from "../ui";
@@ -128,9 +129,7 @@ export function utcText(instant: string | null | undefined): string {
 
 /** `1 Nov 2026` for a UTC day. */
 function dayText(instant: string): string {
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  return formatDay(instant);
 }
 
 const dayOf = (instant: string) => new Date(instant).toISOString().slice(0, 10);
@@ -206,6 +205,7 @@ function WindowForm({ scope, onScope }: { scope: ActionIndexScope | null; onScop
       <button className="button" type="submit">
         Show Actions
       </button>
+      <TimeZoneNote />
     </form>
   );
 }
@@ -360,7 +360,7 @@ function refusedWords(result: ActionIndexResult): ProductWords {
     case "invalid":
       return {
         label: "This window cannot be shown",
-        sentence: "Windows are whole UTC days, at most 31 days long. Nothing was counted.",
+        sentence: "Windows are whole days, at most 31 days long. Nothing was counted.",
         next: "Choose another window.",
         tone: "limited",
         code: result.status,
@@ -410,7 +410,7 @@ function Refused({ result, scope, links }: { result: ActionIndexResult; scope: A
       return (
         <PanelState state="invalid" title="This window cannot be shown" data={{ "data-site-work-code": result.code ?? "" }}>
           <ChartNote>
-            {result.message ?? "The requested window is not valid."} Windows are whole UTC days, at most 31 days long.
+            {result.message ?? "The requested window is not valid."} Windows are whole days, at most 31 days long.
           </ChartNote>
         </PanelState>
       );
@@ -812,7 +812,7 @@ export function DomainWorkWindow({
     <form className={`site-date-bar ${workClass(legacyCold, "window")}`} onSubmit={submit} aria-label="Window" {...workAttrs(legacyCold, "window")}>
       <span className={workClass(legacyCold, "window__lead")}>Window</span>
       <label className={workClass(legacyCold, "window__field")}>
-        {"From (UTC) "}
+        {"From "}
         <input
           className="v69-chip-control"
           type="date"
@@ -822,7 +822,7 @@ export function DomainWorkWindow({
         />
       </label>
       <label className={workClass(legacyCold, "window__field")}>
-        {"To (UTC, exclusive) "}
+        {"To (not included) "}
         <input
           className="v69-chip-control"
           type="date"
@@ -834,6 +834,7 @@ export function DomainWorkWindow({
       <button className="button" type="submit" {...workAttrs(legacyCold, "window-apply")}>
         Apply
       </button>
+      <TimeZoneNote />
       {error === null ? null : (
         <span className={workClass(legacyCold, "window__error")} role="alert" {...workAttrs(legacyCold, "window-error")}>
           {error}

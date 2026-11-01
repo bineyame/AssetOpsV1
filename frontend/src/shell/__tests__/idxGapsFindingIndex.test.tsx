@@ -96,7 +96,7 @@ describe("IDX-GAPS Site Findings page on a PARTIAL index", () => {
     const steps = Array.from(card.querySelectorAll<HTMLElement>("[data-step-strip] [data-step]"));
     expect(steps.length).toBe(3);
     expect(steps[1]?.textContent).toContain("We have not checked this period");
-    expect(card.textContent).not.toContain("A Finding that reaches into one of those days");
+    expect(card.textContent).not.toContain("A Finding that reaches into one of the unchecked days");
     for (const never of NEVER) expect(document.body.textContent).not.toMatch(never);
     for (const set of [undefined, "w1"] as const) {
       const { violations } = scanProductVocabulary(document.body, "sitefindings partial", set ? { set } : {});
@@ -109,7 +109,7 @@ describe("IDX-GAPS Site Findings page on a PARTIAL index", () => {
     expect(claim()).toBe("No Findings on the assessed days");
     expect(card.querySelector("[data-finding-index-row]")).toBeNull();
     expect(card.textContent).toContain(
-      "A Finding that reaches into one of those days is not shown until that day is checked.",
+      "A Finding that reaches into one of the unchecked days is not shown until that day is checked.",
     );
     for (const never of NEVER) expect(document.body.textContent).not.toMatch(never);
     expect(document.body.textContent).not.toContain("No Findings are listed and no count is given");

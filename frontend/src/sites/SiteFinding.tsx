@@ -58,6 +58,8 @@ import {
 } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
+import { formatDayTime, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
 /** The v69 `finding` screen question (W1-UX-02). */
@@ -567,6 +569,7 @@ function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZon
       </span>
       <span className="status-strip__spacer" />
       <LocalPeriod start={selected.episode.start} end={selected.episode.end} timeZone={timeZone} />
+      <TimeZoneNote />
     </StatusBar>
   );
 }
@@ -611,7 +614,7 @@ function periodText(start: string, end: string, timeZone: string | null | undefi
 /** The episode end as prose in Site time (same conversion as the period); labelled UTC when unformattable. */
 function endText(end: string, timeZone: string | null | undefined): string {
   const t = findingLocalTime(end, timeZone);
-  if (t === null) return `${stamp(end)} UTC`;
+  if (t === null) return formatDayTime(end);
   return `${t.day} ${t.clock} ${t.zone}${t.siteZone ? "" : ` ${ZONE_UNAVAILABLE}`}`;
 }
 
@@ -619,8 +622,8 @@ function periodWords(start: string, end: string): string {
   const first = dayOf(start);
   const last = dayOf(end);
   return first === last
-    ? `${first} ${clock(start)}–${clock(end)} UTC`
-    : `${first} ${clock(start)} – ${last} ${clock(end)} UTC`;
+    ? `${first} ${clock(start)}–${clock(end)}`
+    : `${first} ${clock(start)} – ${last} ${clock(end)}`;
 }
 
 interface Portion {
@@ -737,13 +740,13 @@ function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; link
           <p className="site-finding__legend">
             <span className="dispatch-swatch dispatch-fill--avoidable" /> Possibly avoidable{" "}
             <span className="dispatch-swatch dispatch-fill--needed" /> Needed{" "}
-            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Times are UTC; select a block.
+            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Select a block.
           </p>
           {chosen ? (
             <div className="dispatch-block-detail" data-finding-portion-detail>
               <p>
                 <strong>
-                  {portionWords(chosen.classification)}: {stamp(chosen.start)}–{clock(chosen.end)} UTC
+                  {portionWords(chosen.classification)}: {formatRange(chosen.start, chosen.end)}
                 </strong>
               </p>
               <p>
@@ -929,7 +932,7 @@ function WhatLimits({ body, links, timeZone }: { body: FindingDetailBody; links:
         {stops.length > 0 ? (
           <li data-finding-stop-bridges={stops.length}>
             The generator stopped {stops.length === 1 ? "once" : `${stops.length} times`} for 20 minutes or less (first
-            at {stamp(stops[0].start)} UTC); off reports at both ends keep it one period, and this joining rests on those
+            at {formatDayTime(stops[0].start)}); off reports at both ends keep it one period, and this joining rests on those
             two off reports.
           </li>
         ) : null}
@@ -1258,7 +1261,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <thead>
             <tr>
               <th scope="col">Record</th>
-              <th scope="col">Time (UTC)</th>
+              <th scope="col">Time</th>
               <th scope="col">Measurement</th>
               <th scope="col">Delivery batch</th>
               <th scope="col">Gateway / source / sequence</th>
@@ -1268,7 +1271,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
             {r.cited_evidence.map((e) => (
               <tr key={e.evidence_id} data-tech-evidence-id={e.evidence_id}>
                 <td><Code value={e.evidence_id} /></td>
-                <td>{stamp(e.source_time ?? e.interval_start ?? null)}</td>
+                <td>{e.source_time ?? e.interval_start ? formatDayTime(e.source_time ?? e.interval_start) : "not reported"}</td>
                 <td>{roleWords(e.role ?? "")}</td>
                 <td><Code value={e.batch_id} /></td>
                 <td>
@@ -1279,6 +1282,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
             ))}
           </tbody>
         </DataTable>
+        <TimeZoneNote />
         <p className="site-finding__note">{body.provenance.cited_evidence_by_source.length} delivery sources. Generator off reports at stop ends: {r.off_reports.length}.</p>
         {body.provenance.case_annotations.map((note, index) => (
           <p key={index} className="site-finding__note" data-case-id={String(note.case_id ?? "")}>

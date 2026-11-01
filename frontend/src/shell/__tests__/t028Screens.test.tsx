@@ -138,7 +138,7 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     const view = document.querySelector(".dispatch-view") as HTMLElement;
     expect(view.textContent).not.toMatch(/dispatch-2|\bruntime\b|\bran\b|binding|Candidate avoidable|Indeterminate/);
     expect(document.querySelector("details")).toBeNull();
-    expect(candidate).toHaveTextContent("22 Sep 2026, 03:10 to 07:10 UTC");
+    expect(candidate).toHaveTextContent("22 Sep 2026, 03:10–07:10");
   });
 
   it("each period row draws its own assessment's compact timeline (checkpoint 2a)", async () => {
@@ -163,7 +163,7 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     await settledScreen();
     const block = document.querySelector(`[data-evidence-assessment-coverage="${NECESSARY_ID}"]`) as HTMLElement;
     expect(block.querySelector("[data-evidence-assessment-scope]")).toHaveTextContent(
-      "Only the assessed period 22 Sep 2026, 08:00 to 10:00 UTC (Needed), not the whole site.",
+      "Only the assessed period 22 Sep 2026, 08:00–10:00 (Needed), not the whole site.",
     );
     expect(block.querySelector('[data-coverage-input="soc"]')).toHaveTextContent("Battery charge15 of 16");
     // The site-wide readiness is not inside the selected period's coverage.
@@ -181,7 +181,7 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
   it("selecting a period shows its concise explanation and leads to its Analysis", async () => {
     renderAt(`/sites/${SITE_ID}/performance/dispatch`);
     await settledScreen();
-    fireEvent.click(screen.getByRole("button", { name: "22 Sep 2026, 08:00 to 10:00 UTC" }));
+    fireEvent.click(screen.getByRole("button", { name: "22 Sep 2026, 08:00–10:00" }));
     const selected = document.querySelector(`[data-dispatch-selected="${NECESSARY_ID}"]`) as HTMLElement;
     expect(selected).toHaveTextContent("The generator was needed during this period.");
     expect(selected.querySelector("[data-dispatch-meaning]")).toHaveTextContent("Needed means");
@@ -340,7 +340,7 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
     const page = document.querySelector(`[data-finding="${CANDIDATE_ID}"]`) as HTMLElement;
     // Context: site, equipment and the period, readable with its timezone (AC15).
     expect(page.querySelector("[data-finding-window]")).toHaveTextContent(
-      "22 Sep 2026, 03:00 to 11:00 UTC",
+      "22 Sep 2026, 03:00–11:00",
     );
     expect(page).toHaveTextContent(HYBRID_MINI_GRID_SITE.display_name);
     expect(page.querySelector("[data-finding-type]")).toHaveTextContent("Generator operation period");

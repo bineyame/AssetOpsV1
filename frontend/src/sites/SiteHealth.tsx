@@ -16,7 +16,8 @@
  * - Exact IDs, rule and watermark sit in "Technical details", closed by default.
  */
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { formatDayTime } from "../ui/time";
+import { formatDayTime, formatTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import {
@@ -291,10 +292,9 @@ export { BATTERY_TEXTS };
 const CONDITION_HEADING = "Physical asset condition";
 const SOURCES_HEADING = "Data sources · data quality, not equipment condition";
 
-/** `09:10 UTC` from the read's UTC instant, for the mock's "Status at" column. */
+/** `09:10` from the read's UTC instant, for the mock's "Status at" column (the page note names the zone). */
 function clockTime(value: string): string {
-  const match = /T(\d{2}:\d{2})/.exec(value);
-  return match ? `${match[1]} UTC` : formatInstant(value);
+  return formatTime(value);
 }
 
 export function SiteHealth({
@@ -377,6 +377,7 @@ function ConditionStrip({
     return (
       <StatusBar data={{ "data-health-strip": "refused" }}>
         <ProductStatus inline words={refusalWords(read)} scope={`${siteName} · asset condition`} asOf={null} />
+        <TimeZoneNote />
       </StatusBar>
     );
   }
@@ -392,6 +393,7 @@ function ConditionStrip({
       action={count === 0 ? undefined : <Link to={batteryHref}>Battery page →</Link>}
     >
       <ProductStatus inline words={siteConditionWords(entry)} scope={scope} asOf={entry.read_at} />
+      <TimeZoneNote />
     </StatusBar>
   );
 }

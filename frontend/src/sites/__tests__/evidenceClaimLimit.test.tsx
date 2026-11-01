@@ -141,7 +141,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(state(container).dataset.ceiling).toBe("");
     expect(section(container).textContent).toContain("No assessment selected");
     const periods = container.querySelectorAll("[data-assessed-period]");
-    expect([...periods].map((a) => a.textContent)).toEqual(["Whole day", "08:00–08:30 UTC"]);
+    expect([...periods].map((a) => a.textContent)).toEqual(["Whole day", "08:00–08:30"]);
   });
 
   it("does not read the legacy `assessment` parameter as the selection", async () => {
@@ -172,7 +172,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
       "battery_soc",
     ]);
     expect(rows.every((r) => r.getAttribute("data-role-status") === "COVERED")).toBe(true);
-    expect(container.querySelector(".claim-limit__when")?.textContent).toBe("2026-10-06, 08:00–08:30 UTC");
+    expect(container.querySelector(".claim-limit__when")?.textContent).toBe("6 Oct 2026, 08:00–08:30");
     const plain = plainText(container);
     for (const internal of ["s3-claim-limit-1", "CANDIDATE_AVOIDABLE", "COMPLETE", "dispatch-3.2", REV, "pv_available_power"]) {
       expect(plain).not.toContain(internal);
@@ -193,7 +193,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(container.querySelector("[data-claim-limit-headline]")?.textContent).toContain("cannot support a conclusion");
     const pv = container.querySelector("tr[data-claim-role='pv_available_power']") as HTMLElement;
     expect(pv.dataset.roleStatus).not.toBe("COVERED");
-    expect(pv.textContent).toContain("missing 08:00–08:30 UTC");
+    expect(pv.textContent).toContain("missing 08:00–08:30");
     expect(container.querySelector("[data-claim-limit-reasons]")?.textContent).toContain("Solar power available missing");
   });
 
@@ -231,12 +231,12 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(state(container).dataset.support).toBe("LIMITED");
     expect(container.querySelector("[data-claim-limit-headline]")?.textContent).toContain("avoidable for at most 5 min");
     const pcs = container.querySelector("tr[data-claim-role='pcs_discharge_capability']") as HTMLElement;
-    expect(pcs.textContent).toContain("unreliable readings 08:05–08:20 UTC");
+    expect(pcs.textContent).toContain("unreliable readings 08:05–08:20");
     const pv = container.querySelector("tr[data-claim-role='pv_available_power']") as HTMLElement;
-    expect(pv.textContent).toContain("conflicting reports 08:20–08:30 UTC");
+    expect(pv.textContent).toContain("conflicting reports 08:20–08:30");
     const reasons = container.querySelector("[data-claim-limit-reasons]")?.textContent ?? "";
-    expect(reasons).toContain("Battery output limit: unreliable readings, 08:05–08:20 UTC.");
-    expect(reasons).toContain("Solar power available: conflicting reports, 08:20–08:30 UTC.");
+    expect(reasons).toContain("Battery output limit: unreliable readings, 08:05–08:20.");
+    expect(reasons).toContain("Solar power available: conflicting reports, 08:20–08:30.");
   });
 
   it.each([
@@ -300,7 +300,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const { container } = mount(fake(() => ({ status: "loaded", value: read }), { status: "loaded", value: day }), SEARCH);
     await settledScreen();
     expect(container.querySelector("[data-claim-limit-window-level]")?.textContent).toContain("every reading needed is present");
-    expect(container.querySelector("[data-claim-limit-intervals]")?.textContent).toContain("Period 08:00–08:30 UTC");
+    expect(container.querySelector("[data-claim-limit-intervals]")?.textContent).toContain("Period 08:00–08:30");
   });
 
   it("links every selected accepted ID to its exact Evidence drill-down, keeping day and revision", async () => {
@@ -362,7 +362,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const client = fake(() => ({ status: "loaded", value: sample("no-revision-selected", null) }));
     const { container } = mount(client, SEARCH);
     await settledScreen();
-    const input = within(section(container)).getByLabelText("Assessment day (UTC)");
+    const input = within(section(container)).getByLabelText("Assessment day");
     fireEvent.change(input, { target: { value: "2026-10-08" } });
     fireEvent.submit(container.querySelector("[data-claim-limit-day-form]") as HTMLFormElement);
     await settledScreen();
@@ -457,7 +457,7 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     const { container } = mount(createClaimLimitClient("/api/sites"), "?view=analysis&day=2026-10-06");
     await settledScreen();
     expect([...container.querySelectorAll("[data-assessed-period]")].map((a) => a.getAttribute("data-assessed-period"))).toEqual(["w", "i"]);
-    expect(container.querySelector("[data-assessed-period='i']")?.textContent).toBe("08:00–08:30 UTC");
+    expect(container.querySelector("[data-assessed-period='i']")?.textContent).toBe("08:00–08:30");
   });
 });
 
@@ -585,7 +585,7 @@ describe("W1-UX-03: evidence-analysis on the shared state line and span strip", 
     const s = state(container);
     expect(expectStateLineVisible(s)).toBe(currentnessWords("CURRENT").label);
     expect(s.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("positive");
-    expect(s.querySelector("[data-product-status-scope]")?.textContent).toBe("2026-10-06, 08:00–08:30 UTC");
+    expect(s.querySelector("[data-product-status-scope]")?.textContent).toBe("6 Oct 2026, 08:00–08:30");
     expect(s.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d/);
   });
 
@@ -621,7 +621,7 @@ describe("W1-UX-03: evidence-analysis on the shared state line and span strip", 
     expect(strip).not.toBeNull();
     const pv = strip.querySelector("[data-period-strip-row='pv_available_power']") as HTMLElement;
     expect(pv.querySelector("[data-period-strip-segment='gap']")).not.toBeNull();
-    expect(pv.textContent).toContain("missing 08:00–08:30 UTC");
+    expect(pv.textContent).toContain("missing 08:00–08:30");
     expect(strip.querySelectorAll("[data-period-strip-segment='covered']").length).toBeGreaterThan(0);
 
     const read = sample("missing-pv");

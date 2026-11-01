@@ -22,7 +22,7 @@ import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll }
 
 /** W1-F3 height phase: how many of the latest versions the default view shows, as the mock's three rows. */
 const LATEST_SHOWN = 3;
-import { durationText, minutes, stamp } from "./dispatchWords";
+import { durationText, minutes } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
 import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
@@ -31,6 +31,11 @@ import { findingLocalTime } from "./findingTime";
 import { siteZoneDisplayLabel } from "./siteTime";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
+import { formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
+
+/** POLISH §3 Times: `29 Oct 2026, 16:00`; the zone is named once by the page's `TimeZoneNote`. */
+const dayTime = (value: string | null | undefined): string => (value ? formatDayTime(value) : "not reported");
 
 export const HISTORY_PAGE_SIZE = 100;
 const HEADING_ID = "finding-history-revisions-heading";
@@ -417,6 +422,7 @@ function RevisionHistory({
           ) : null}
         </ProductStatus>
       </p>
+      <TimeZoneNote />
       <p className="site-finding-history__summary">
         {/* W1-F3 review M4: a complete list says its count once, in the headline; only an incomplete list adds a line. */}
         <strong data-history-summary data-history-complete={complete ? "" : undefined}>
@@ -521,7 +527,7 @@ function VersionRow({
     >
       <td data-history-recorded-utc={recorded?.utc}>
         {recorded === null ? (
-          stamp(r.times.recorded_at)
+          dayTime(r.times.recorded_at)
         ) : (
           <time dateTime={recorded.utc} title={`${recorded.utc} (UTC)`}>
             {recorded.dayMonth} · {recorded.clock}
@@ -578,7 +584,7 @@ function VersionRow({
           <div>
             <dt>Period</dt>
             <dd>
-              {stamp(r.episode.start)} to {stamp(r.episode.end)}
+              {dayTime(r.episode.start)} to {dayTime(r.episode.end)}
             </dd>
           </div>
           <div>
@@ -600,24 +606,24 @@ function VersionRow({
           <div>
             <dt>Readings from</dt>
             <dd>
-              {stamp(r.times.source_time.first)} to {stamp(r.times.source_time.last)}
+              {dayTime(r.times.source_time.first)} to {dayTime(r.times.source_time.last)}
             </dd>
           </div>
           <div>
-            <dt>Version recorded (UTC)</dt>
-            <dd data-history-recorded-exact>{recorded?.utc ?? stamp(r.times.recorded_at)}</dd>
+            <dt>Version recorded</dt>
+            <dd data-history-recorded-exact title={recorded?.utc}>{dayTime(r.times.recorded_at)}</dd>
           </div>
           <div>
             <dt>Last cited reading received</dt>
-            <dd>{stamp(r.times.received_at)}</dd>
+            <dd>{dayTime(r.times.received_at)}</dd>
           </div>
           <div>
             <dt>Last cited reading accepted</dt>
-            <dd>{stamp(r.times.accepted_at)}</dd>
+            <dd>{dayTime(r.times.accepted_at)}</dd>
           </div>
           <div>
             <dt>Analysis finished</dt>
-            <dd>{stamp(r.times.analytic_completed_at)}</dd>
+            <dd>{dayTime(r.times.analytic_completed_at)}</dd>
           </div>
           <div>
             <dt>Assessment rules reference</dt>
