@@ -180,3 +180,21 @@ None required. The reviewer should check:
 - the Technical details mechanism (R656) and its use of `exempt_hits`;
 - the claim-label move into the status strip;
 - the list of PB-3 files touched.
+
+## Review fold-in (`.agent/review-POLISH-PB-2.md`, ACCEPT with M1)
+
+- **M1.** `WorkedOut` with no plain lines and no `extra` now renders a single "Technical details" disclosure. It keeps
+  `data-exact-references`, `data-disclosure` and `data-technical-details`, so there is no empty "How this was worked
+  out" level. This affects the verification strip, the Kobo money references, and the finding choice when
+  `choiceLines()` is null. Pinned in `ui/__tests__/technicalDetails.test.tsx` ("PB-2 review M1").
+- **L1.** The day line now reads "Checked: 1 period of generator use; the measured inputs for this day were not
+  recorded". Pinned in `s5SiteWindowOverview`. The missing-claim scan passes unchanged.
+- **L2.** `ui/productWords.ts` `REGISTERED_SIMULATION` now reads "Example data, not field readings". The 5 tests that
+  pinned the old words were updated.
+- **L3.**
+  - The stray import line and the triple blank lines are gone.
+  - The freshness `<p>` renders only when it has content.
+  - Its `data-freshness-*` attributes moved to an inner wrapper, which is empty when nothing is said.
+- **L4.** "One finding overlapping …", "Review the finding for this day" and "Open the finding" are now lower case.
+- **Main merged.** `c4a39b1dc` is merged in. The CODE_STATE conflict was resolved by keeping both sections (PA-2b,
+  then PB-2).
