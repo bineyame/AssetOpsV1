@@ -142,7 +142,7 @@ function overview(o: Opts = {}): EvOverviewRead {
         ],
     consequence_summary:
       c === null
-        ? { state: null, reason: null, quantity_kwh: null, amount: null, currency: null, overlap_group: null, as_of: null, limitation: "No gross tariff scenario assessed." }
+        ? { state: null, reason: null, quantity_kwh: null, amount: null, currency: null, overlap_group: null, as_of: null, limitation: "No charging income estimate yet." }
         : { state: c.state, reason: c.reason, quantity_kwh: c.quantity_kwh, amount: c.amount, currency: c.currency, overlap_group: c.overlap_group, as_of: c.recorded_at, limitation: c.limitation },
     links: links(""),
   };
@@ -445,7 +445,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("Evidence unknown");
     // OUT-B B5 (R540): the five cards are replaced by the outcome board.
     expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
-    expect(panelTitled("Possible cost").textContent).toContain("No gross tariff scenario assessed");
+    expect(panelTitled("Possible cost").textContent).toContain("No charging income estimate yet");
     expect(panelTitled("Needs attention").textContent).toContain("No recorded attention item for this window");
     expect(panelTitled("Next step").textContent).toContain("No recorded next step");
     // post-W6 W2-EV R283: no padding slots; no accepted event says so once.
@@ -514,7 +514,7 @@ describe("W2-07 EV Site routes", () => {
     expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
-    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "Scenario", "Metered with complete coverage", "Energy ↗"]);
+    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "What-if", "Metered with complete coverage", "Energy ↗"]);
     expect(bridge.querySelector('[data-disclosure="ev-site-basis-details"]')?.textContent).toContain("KES 8.331000");
     // CC-R1 L5: the EV Financials frame passes no recommendation link, so no forward link renders.
     expect(document.querySelector("[data-financials-recommendation-link]")).toBeNull();
@@ -551,10 +551,10 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "No gross tariff estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "Tariff not declared", "No charging income estimate yet", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
     expect(strip()).toContain("Currency not declared");
-    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No gross tariff estimate yet");
+    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No charging income estimate yet");
 
     // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
     cleanup();
@@ -572,7 +572,7 @@ describe("W2-07 EV Site routes", () => {
     expect(Array.from(table.querySelectorAll("tbody tr")).map((r) => Array.from(r.children).map((c) => c.textContent))).toEqual([
       ["Tariff", "0.2777 KES/kWh · Authored estimate", "Translating metered energy"],
       ["Billing / collections", "No recordMOCK DEVIATION D4 (R421)", "Cash collection not assessed"],
-      ["Currency", "KES", "Scenario display currency"],
+      ["Currency", "KES", "Currency for charging estimates"],
     ]);
     expect(main().querySelector('[data-ev-notice="assumptions"]')?.textContent).toBe("Changing the tariff re-translates the same metered energy. It does not change what was measured.");
     expect(table.textContent).not.toContain("AUTHORED_ESTIMATE");
@@ -674,7 +674,7 @@ describe("W2-07 EV Site routes", () => {
     expect(rec.getAttribute("aria-label")).toBe("Review recommendation, Not available yet");
     expect(rec.querySelector("a, button")).toBeNull();
     expect(strip()).toContain("Evidence limited");
-    expect(strip()).toContain("Generated test data");
+    expect(strip()).toContain("Example data");
     fireEvent.click(within(main()).getByRole("link", { name: "Inspect evidence" }));
     await settledScreen();
     expectV69Panels("ev-evidence");
@@ -702,15 +702,15 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
   it("selected_claim_rules_and_money_lines_ignore_pending_class", async () => {
     await renderAt(PATHS["ev-evidence"], withEnv(siblings(SEL)));
     const details = main().querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
-    expect(details.textContent).toContain("source Generated test data");
+    expect(details.textContent).toContain("source Example data");
     expect(details.textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-financials"], withEnv(siblings(SEL)));
-    expect(main().textContent).toContain("source Generated test data");
+    expect(main().textContent).toContain("source Example data");
     expect(main().textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-assumptions"], withEnv(siblings(SEL)));
-    expect(main().textContent).toContain("Generated test data");
+    expect(main().querySelector("[data-ev-window]")?.textContent).toContain("Example data");
     cleanup();
     // no selected assessment: Unknown, and no selected-result badge; the pending class is never a claim result
     await renderAt(PATHS["ev-evidence"], withEnv(siblings(null)));
@@ -719,16 +719,16 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
     expect(none.textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-assumptions"], withEnv(siblings(null)));
-    expect(main().textContent).not.toContain("Generated test data");
+    expect(main().querySelector("[data-ev-window]")!.textContent).not.toContain("Example data");
   });
 
   it("current_accepted_record_line_names_pending_class", async () => {
     await renderAt(PATHS["ev-evidence-analysis"], withEnv(siblings(SEL)));
     const row = main().querySelector(`[data-record-detail="${UNVERIFIED_ID}"]`) as HTMLElement;
     expect(row.textContent).toContain("current accepted evidence source Mixed sources");
-    expect(row.textContent).not.toContain("source Generated test data");
+    expect(row.textContent).not.toContain("source Example data");
     const rule = main().querySelector("[data-claim-rule]") as HTMLElement;
-    expect(rule.textContent).toContain("source Generated test data");
+    expect(rule.textContent).toContain("source Example data");
   });
 });
 
@@ -802,7 +802,7 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     // No selection.
     expect(await vector({ ...overview({ empty: true, state: "UNKNOWN" }), status: { ...base.status, state: "UNKNOWN", claim_level: "OBSERVED" } }, "UNKNOWN")).toEqual(["Unknown", "Confidence: Unknown"]);
     // Source-provenance badges are retained beside the chips.
-    expect(strip()).toContain("Generated test data");
+    expect(strip()).toContain("Example data");
     cleanup();
     // Refused.
     await renderAt(PATHS.ev, client({}, refused(503, "EV_SITE_UNAVAILABLE")));

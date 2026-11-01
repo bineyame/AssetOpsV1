@@ -105,7 +105,7 @@ const TRANSITION: Record<string, string> = {
 export const transitionWord = (code: string | null | undefined) => mapped(TRANSITION, code, "Not recorded");
 
 const CLASSIFICATION: Record<string, string> = {
-  REGISTERED_SIMULATION: "Generated test data",
+  REGISTERED_SIMULATION: "Example data",
   MIXED: "Mixed sources",
   MIXED_OR_UNKNOWN_SOURCE: "Mixed or unknown sources",
 };

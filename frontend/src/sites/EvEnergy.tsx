@@ -163,7 +163,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
         <MetricCard
           label="Gross tariff estimate"
           value={grossTariffText(c)}
-          note={estimated(c) ? `Scenario tariff: ${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh`.replace(" /kWh", "/kWh") : "Scenario tariff not established"}
+          note={estimated(c) ? `Charging tariff: ${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh`.replace(" /kWh", "/kWh") : "Charging tariff not set"}
           data={{ "data-ev-energy-card": "tariff" }}
         />
       </MetricCards>

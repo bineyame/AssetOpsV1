@@ -318,7 +318,7 @@ function Provenance({ env }: { env: EvEnvelope }) {
   return (
     <>
       {" "}
-      <Badge tone="provenance">Generated test data</Badge>
+      <Badge tone="provenance">Example data</Badge>
       <span className="ev-site-strip-note" data-ev-provenance-note>
         Example charger reports, not from physical chargers.
       </span>
@@ -1232,7 +1232,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
 /** Review r1 M1: the stored tariff basis in plain words; an unrecognised basis is not shown as a code. */
 const BASIS_TEXT: Record<string, string> = { AUTHORED_ESTIMATE: "Authored estimate" };
 const basisText = (basis: string) => BASIS_TEXT[basis] ?? "Basis not recognised";
-const NO_SCENARIO = "No gross tariff estimate yet";
+const NO_SCENARIO = "No charging income estimate yet";
 
 function tariffText(t: EvAssumptionsRead["tariff"]): string {
   return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${basisText(t.basis)}` : ""}`;
@@ -1290,7 +1290,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
           <Badge tone="neutral" className="ev-site-chip">
             <span data-ev-line-count={lines}>{`${lines} consequence ${lines === 1 ? "line" : "lines"}`}</span>
           </Badge>
-          {` ${currency ?? "Currency not declared"} · selected window · gross scenario only · Displayed rows include unpriced context`}
+          {` ${currency ?? "Currency not declared"} · selected window · charging income estimate only · Displayed rows include unpriced context`}
           <Provenance env={f} />
           <StateNote env={f} />
         </StatusBar>
@@ -1298,7 +1298,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       {f === null ? null : (
         <MetricCards columns={4} label="EV money translation">
           <MetricCard label="Delivered energy" value={energyKwh === null ? "Unknown" : `${energyKwh} kWh`} note="Metered, complete sessions" data={{ "data-ev-fin-card": "energy" }} />
-          <MetricCard label="Gross tariff estimate" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Gross scenario · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
+          <MetricCard label="Gross tariff estimate" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Estimate · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
           <MetricCard label="Lost revenue" value="Unknown" note="Unmet demand not established" data={{ "data-ev-fin-card": "lost" }} />
           <MetricCard label="Collections" value="Not recorded" note="No accepted payment record" data={{ "data-ev-fin-card": "collections" }} />
         </MetricCards>
@@ -1341,7 +1341,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                     <th scope="row">{c.quantity_kwh === null ? "Delivered energy not established" : `${c.quantity_kwh} kWh delivered with complete coverage`}</th>
                     <td>{c.quantity_kwh !== null && c.tariff_value !== null && c.currency !== null ? `${c.quantity_kwh} kWh × ${c.tariff_value} ${c.currency}/kWh` : "Tariff not declared"}</td>
                     <td className="ev-site-nowrap">{estimated ? consequenceWord(c) : <Chip word={consequenceWord(c)} />}</td>
-                    <td>{estimated ? <Badge tone="neutral" className="ev-site-chip">Scenario</Badge> : <Chip word={c.state === "WITHHELD" ? "Withheld" : "Unpriced"} />}</td>
+                    <td>{estimated ? <Badge tone="neutral" className="ev-site-chip">What-if</Badge> : <Chip word={c.state === "WITHHELD" ? "Withheld" : "Unpriced"} />}</td>
                     <td>{estimated ? confidence : (c.limitation ?? confidence)}</td>
                     <td>
                       <ToLink href={estimated ? energyHref : null} data={{ "data-ev-bridge-source": "scenario" }}>
@@ -1471,7 +1471,7 @@ function AssumptionsScreen(p: EvSiteFrameProps) {
   if (assumptions === null) return <p>{EV_SITE_LOADING}</p>;
   const s = loaded(assumptions);
   const refused = refusal(assumptions);
-  const extra = s === null ? null : [selectedClassification(s) === "REGISTERED_SIMULATION" ? "Generated test data" : null, stateLine(s)].filter(Boolean).join(" · ");
+  const extra = s === null ? null : [selectedClassification(s) === "REGISTERED_SIMULATION" ? "Example data" : null, stateLine(s)].filter(Boolean).join(" · ");
   return (
     <>
       <WindowBar env={s} extra={extra} />
@@ -1507,7 +1507,7 @@ function AssumptionsScreen(p: EvSiteFrameProps) {
                 <tr data-assumption-row="currency">
                   <th scope="row">Currency</th>
                   <td className="ev-site-nowrap">{s!.tariff === null ? <Chip word="Not declared" /> : s!.tariff.currency}</td>
-                  <td>Scenario display currency</td>
+                  <td>Currency for charging estimates</td>
                 </tr>
               </tbody>
             </DataTable>

@@ -131,7 +131,7 @@ describe("W5-03a E3: EV Energy", () => {
       ["Metered session energy", "30.000 kWh", "Complete metered sessions only"],
       ["Observed peak import", "60 kW", "Selected 1-hour window"],
       ["Declared site limit", "80 kW", "Time-valid configuration"],
-      ["Gross tariff estimate", "9.00 USD", "Scenario tariff: 0.30 USD/kWh"],
+      ["Gross tariff estimate", "9.00 USD", "Charging tariff: 0.30 USD/kWh"],
     ]);
     expect(document.querySelectorAll("[data-ev-energy-disclosure]")).toHaveLength(0);
     // Chart: one mark per accepted sample (equal-time marks separate), no connecting path, dashed declared limit.
@@ -197,7 +197,7 @@ describe("W5-03a E3: EV Energy", () => {
       ["Unknown", "Complete metered sessions only"],
       ["60 kW", "Selected 1-hour window"],
       ["Unknown", "No time-valid site limit declared"],
-      ["Unknown", "Scenario tariff not established"],
+      ["Unknown", "Charging tariff not set"],
     ]);
     expect(Array.from(document.querySelectorAll("[data-ev-energy-disclosure]")).map((p) => p.textContent)).toEqual([
       "25.000 kWh from incomplete sessions is shown separately and not included.",
@@ -227,7 +227,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(grossTariffText(null)).toBe("Unknown");
     renderEnergy(loaded(read({ consequence: { ...ESTIMATED, state: "UNPRICED", amount: null } })));
     await settledScreen();
-    expect(cards()[3]).toEqual(["Gross tariff estimate", "Unpriced", "Scenario tariff not established"]);
+    expect(cards()[3]).toEqual(["Gross tariff estimate", "Unpriced", "Charging tariff not set"]);
     expect(main().textContent).not.toContain("0.00 USD");
   });
 
