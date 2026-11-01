@@ -71,10 +71,10 @@ export function bridgeRows(read: EvEnergyRead): string[][] {
   const guarded = c !== null && c.state === "WITHHELD" && c.quantity_kwh === null;
   const first =
     c === null
-      ? [delivered, "No eligible gross tariff scenario.", "Unpriced", "No collections or profit claim"]
+      ? [delivered, "No eligible charging income estimate.", "Unpriced", "No collections or profit claim"]
       : [
           guarded ? delivered : c.quantity_kwh === null ? "Unknown" : `${c.quantity_kwh} kWh complete-record delivery`,
-          estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh gross tariff scenario`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
+          estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh charging tariff (charging income estimate)`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
           estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""} gross estimate`.replace("  ", " ") : "Unpriced",
           c.limitation ?? "No collections or profit claim",
         ];

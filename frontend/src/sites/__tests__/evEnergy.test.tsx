@@ -180,7 +180,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(document.querySelector('[data-key-value="interruption"] .badge')?.className).toContain("ev-tone--amber");
     expect(text("[data-ev-conclusion-note]")).toBe("Revenue is an estimate from metered kWh and the declared tariff, not payment evidence.");
     expect(bridge()).toEqual([
-      ["30.000 kWh complete-record delivery", "0.30 USD/kWh gross tariff scenario", "9.00 USD gross estimate", "Gross tariff scenario; not cash collected."],
+      ["30.000 kWh complete-record delivery", "0.30 USD/kWh charging tariff (charging income estimate)", "9.00 USD gross estimate", "Gross tariff scenario; not cash collected."],
       ["Incomplete session", "No complete meter interval", "Unavailable", "No extrapolated energy silently added"],
       ["Interrupted service", "No demand/sales baseline", "Unpriced exposure", "No invented lost revenue"],
     ]);
@@ -212,7 +212,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(conclusions()[1]).toEqual(["Site limit caused interruption", "Not established"]);
     expect(text("[data-ev-conclusion-note]")).toBe("No eligible revenue estimate is established; no payment evidence is connected");
     expect(bridge()).toEqual([
-      ["Unknown", "No eligible gross tariff scenario.", "Unpriced", "No collections or profit claim"],
+      ["Unknown", "No eligible charging income estimate.", "Unpriced", "No collections or profit claim"],
       ["25.000 kWh incomplete-session delivery", "No complete meter interval", "Not priced", "No extrapolated energy silently added"],
       ["Interrupted service", "No demand/sales baseline", "Unpriced exposure", "No invented lost revenue"],
     ]);
