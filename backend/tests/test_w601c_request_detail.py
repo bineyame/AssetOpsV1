@@ -650,6 +650,6 @@ def test_ev_site_rows_open_the_ev_home(ev, monkeypatch) -> None:  # noqa: F811
         assert body["selected"]["site_domain"] == "EV_CHARGING"
         assert body["links"]["site"]["href"] == home
         assert body["links"]["source_incident"]["href"].startswith(f"/sites/{quote(ev.code, safe='')}/work/incidents?")
-        assert [x["label"] for x in body["links"]["actions"]] == [code]
+        assert [x["label"] for x in body["links"]["actions"]] == [display_code(code)]
     finally:
         read.dispose()

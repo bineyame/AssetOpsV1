@@ -1,6 +1,6 @@
 """POLISH PA-2b: pure pins of the shared plan due rule and the plain asset labels (build sheet §1.4, §3 asset labels,
 Addendum 6 Q2 and Q4). Captures are deferred to PA-3 (Addendum 3); the read-level shape is pinned in
-`test_polish_pa2b_preventive_postgres.py`."""
+`test_w601b_global_maintenance.py::test_preventive_due_summary_over_all_pages`."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
