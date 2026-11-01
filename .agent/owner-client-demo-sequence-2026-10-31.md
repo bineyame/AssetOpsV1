@@ -9,3 +9,7 @@ Owner: "yes to both, go ahead"
 ## 2026-11-01 owner (verbatim)
 "start DEMO-B and turn keep-awake back on"
 
+
+## 2026-11-01 owner (verbatim)
+"start the polish round first, walkthrough after"
+
