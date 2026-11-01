@@ -1,0 +1,230 @@
+[
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 2420,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 14:04This page uses ",
+    "top": 268,
+    "h": 45,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 1110,
+    "h": 236,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1364,
+    "h": 685,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1364,
+    "h": 685,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 2067,
+    "h": 253,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2067,
+    "h": 253,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 2375,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 2852,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 3116,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 4115,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 14:04This page uses ",
+    "top": 451,
+    "h": 125,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 2117,
+    "h": 236,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 2371,
+    "h": 875,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3262,
+    "h": 215,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 3493,
+    "h": 322,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3831,
+    "h": 193,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 4078,
+    "h": 1475,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 5571,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 6016,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 1440,
+  "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "notice",
+    "title": "This is the third visit to Backup generator in 60 days, and the automatic start ",
+    "top": 402,
+    "h": 42,
+    "w": 1160
+   },
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 462,
+    "h": 365,
+    "w": 734
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 462,
+    "h": 365,
+    "w": 408
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 390,
+  "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1438,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "notice",
+    "title": "This is the third visit to Backup generator in 60 days, and the automatic start ",
+    "top": 718,
+    "h": 97,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 833,
+    "h": 365,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 1214,
+    "h": 184,
+    "w": 358
+   }
+  ]
+ }
+]

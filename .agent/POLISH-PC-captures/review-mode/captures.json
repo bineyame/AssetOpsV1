@@ -1,0 +1,170 @@
+{
+ "story_S": "2026-10-30",
+ "code": "cb1a92cfc",
+ "base": "http://localhost:5490",
+ "strict": false,
+ "review_labels": true,
+ "vocabulary_counted": 10,
+ "captures": [
+  {
+   "key": "kobo-board-S",
+   "label": "Kobo board, day S (trial-before)",
+   "mock": "mini",
+   "width": 1440,
+   "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+   "png": ".agent\\POLISH-PC-captures\\review-mode\\kobo-board-S-1440.png",
+   "settled": true,
+   "h1": "Kobo mini-grid",
+   "pageH": 2420,
+   "overflow": false,
+   "stale_words": [],
+   "vocabulary": [],
+   "vocabulary_counted": 0,
+   "exempt_hits": [
+    {
+     "kind": "time zone suffix",
+     "match": "UTC",
+     "region": "data-time-zone-note=utc",
+     "context": "Times in UTC"
+    }
+   ]
+  },
+  {
+   "key": "kobo-board-S",
+   "label": "Kobo board, day S (trial-before)",
+   "mock": "mini",
+   "width": 390,
+   "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+   "png": ".agent\\POLISH-PC-captures\\review-mode\\kobo-board-S-390.png",
+   "settled": true,
+   "h1": "Kobo mini-grid",
+   "pageH": 4115,
+   "overflow": false,
+   "stale_words": [],
+   "vocabulary": [
+    {
+     "kind": "register or slice id",
+     "match": "R453",
+     "context": "ings Work Financials Evidence MOCK DEVIATION D2 (R453) Day Previous day Next day Times in UTC Latest c"
+    },
+    {
+     "kind": "dev term",
+     "match": "MOCK",
+     "context": "th Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Day Previous day Next day Ti"
+    },
+    {
+     "kind": "mock deviation label",
+     "match": "MOCK DEVIATION",
+     "context": "th Performance Findings Work Financials Evidence MOCK DEVIATION D2 (R453) Day Previous day Next day Times in UTC"
+    }
+   ],
+   "vocabulary_counted": 2,
+   "exempt_hits": [
+    {
+     "kind": "time zone suffix",
+     "match": "UTC",
+     "region": "data-time-zone-note=utc",
+     "context": "Times in UTC"
+    }
+   ]
+  },
+  {
+   "key": "wr-overview",
+   "label": "Work request overview (the cold starter/control inspection on Maintenance; else the first request)",
+   "mock": "wr-overview",
+   "width": 1440,
+   "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+   "png": ".agent\\POLISH-PC-captures\\review-mode\\wr-overview-1440.png",
+   "settled": true,
+   "h1": "Starter/control inspection",
+   "pageH": 1000,
+   "overflow": false,
+   "stale_words": [],
+   "vocabulary": [
+    {
+     "kind": "register or slice id",
+     "match": "R396",
+     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in UTC Reloa"
+    },
+    {
+     "kind": "register or slice id",
+     "match": "R363",
+     "context": "14:04 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
+    },
+    {
+     "kind": "register or slice id",
+     "match": "R365",
+     "context": "ecorded Linked action ACT-002 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Complet"
+    },
+    {
+     "kind": "dev term",
+     "match": "MOCK",
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 ·"
+    },
+    {
+     "kind": "mock deviation label",
+     "match": "MOCK DEVIATION",
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in U"
+    }
+   ],
+   "vocabulary_counted": 4,
+   "exempt_hits": [
+    {
+     "kind": "time zone suffix",
+     "match": "UTC",
+     "region": "data-time-zone-note=utc",
+     "context": "Times in UTC"
+    }
+   ]
+  },
+  {
+   "key": "wr-overview",
+   "label": "Work request overview (the cold starter/control inspection on Maintenance; else the first request)",
+   "mock": "wr-overview",
+   "width": 390,
+   "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+   "png": ".agent\\POLISH-PC-captures\\review-mode\\wr-overview-390.png",
+   "settled": true,
+   "h1": "Starter/control inspection",
+   "pageH": 1438,
+   "overflow": false,
+   "stale_words": [],
+   "vocabulary": [
+    {
+     "kind": "register or slice id",
+     "match": "R396",
+     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in UTC Reloa"
+    },
+    {
+     "kind": "register or slice id",
+     "match": "R363",
+     "context": "14:04 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
+    },
+    {
+     "kind": "register or slice id",
+     "match": "R365",
+     "context": "ecorded Linked action ACT-002 MOCK DEVIATION D1 (R365) Lifecycle Finding Triage Assigned Visit Complet"
+    },
+    {
+     "kind": "dev term",
+     "match": "MOCK",
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 ·"
+    },
+    {
+     "kind": "mock deviation label",
+     "match": "MOCK DEVIATION",
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in U"
+    }
+   ],
+   "vocabulary_counted": 4,
+   "exempt_hits": [
+    {
+     "kind": "time zone suffix",
+     "match": "UTC",
+     "region": "data-time-zone-note=utc",
+     "context": "Times in UTC"
+    }
+   ]
+  }
+ ]
+}
