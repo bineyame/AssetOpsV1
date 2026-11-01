@@ -22,6 +22,7 @@ DAYS = [
     {"site": "cold", "day": "2026-10-30", "offset": 1, "kind": "missing", "start": None, "end": None},
     {"site": "ev", "day": "2026-10-27", "offset": -2, "kind": "fault",
      "start": "2026-10-27T08:00:00Z", "end": "2026-10-27T09:00:00Z"},
+    {"site": "ev", "day": "2026-10-28", "offset": -1, "kind": "missing", "start": None, "end": None},
 ]
 KOBO = {"action": "a-1", "action_code": "ACT-000001", "finding": "f-1", "finding_revision": "r-1"}
 BASE = "http://localhost:5490"
@@ -63,6 +64,8 @@ def test_cold_and_ev_boards_read_the_event_window_or_the_whole_day() -> None:
         f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z"
     assert urls["COLD-LAB-001 board, missing day S+1d (2026-10-30), no event: whole day"] == \
         f"{BASE}/sites/COLD-LAB-001?from=2026-10-30T00:00:00Z&to=2026-10-31T00:00:00Z"
+    assert urls["EV-LAB-001 board, missing day S-1d (2026-10-28), no event: whole day"] == \
+        f"{BASE}/sites/EV-LAB-001/ev?from=2026-10-28T00:00:00Z&to=2026-10-29T00:00:00Z"
 
 
 def test_every_story_day_has_one_row_and_no_kobo_doc_drops_only_the_action_rows() -> None:

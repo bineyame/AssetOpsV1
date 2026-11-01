@@ -125,7 +125,7 @@ Depot: the follow-up Action is on Work › Actions; the fault-window board shows
 
 - **H1** prepare into `assetops_polish_full_test` / `var/polish_full`: 14:11:47-14:34:07, 1339.4 s (cap 3120 s);
   Kobo 955.0 s, cold 68.4 s, EV 78.3 s; self-check **17 pass, 0 fail, 0 skipped**.
-- **H2** `toolsun-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow -q --junitxml=…` (60-min cap):
+- **H2** `tools\run-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow -q --junitxml=…` (60-min cap):
   14:34:28-15:05:50, **19 passed** in 1878.8 s; JUnit tests 19, failures 0, errors 0, skipped 0. Its own DB was
   dropped by the fixture (`var/` holds only `polish_full` and `sites`).
 - **H3** serve + Vite from this worktree, CDP 9493, `DEMOB_STRICT=1`, 15:07:14-15:14:31: 28 captures, all settled,
@@ -158,3 +158,15 @@ Depot: the follow-up Action is on Work › Actions; the fault-window board shows
 - `var/polish_full/tree` is `84ab3ca3d`; PC serves it. Re-check after any later backend merge needs a rebuild.
 - The screen check above was made on the interim build; the final build adds only PB-2 and Addenda 11-12.
 
+## Fix round (Addendum 13 item 3; after review head `080069629`)
+
+- `710c03709`: `estate/placement.py` "Supported finding · example data" / "Unconfirmed finding · …" and "No action agreed yet ·
+  review the recommendation"; pins in `test_cc_placement{,_postgres}.py` and `tools/s602b*`. Next commit: `mini.py`
+  `SOURCE_TEXT` "Example data" (Kobo Assure readings line "Example data · readiness Full"); pins in `test_out_b2_mini.py`
+  (equality with the Portfolio map, first letter capitalised) and `test_polish_pa1_board_truth.py`. Frontend fixtures
+  unchanged. Tests: 100 + 77 passed; check-all 12/12. No rebuild (PC rebuilds from merged main).
+
+- Review folds (ACCEPT, `.agent/review-POLISH-PA-3.md`), same commit as the mini change: L2 line-join fixes in the two lab
+  tests and an EV "no event: whole day" link case; L3 packet command and task acceptance 6 in the Addendum 10 form; L4
+  Action items carry no `kind`; residual `ev_site_reads.NO_MONEY` "No charging income estimate yet." (pinned; R655).
+  Touched tests 122 passed.

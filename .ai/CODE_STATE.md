@@ -6415,5 +6415,7 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   `site_time_zone`; `global_detail.work_asset.asset_label`.
 - Build: `assetops_polish_full_test` / `var/polish_full` at `84ab3ca3d`, S = 2026-10-30, self-check 17/17; slow build
   test 19/19. `assetops_demo3_full_test` untouched (walkthrough fallback).
+- Fix round (Addendum 13 item 3): Portfolio confidence/action text "Supported finding · example data", "No action agreed
+  yet · review the recommendation"; Kobo Assure readings "Example data · readiness …" (not in the polish build; PC rebuilds).
 - Left open: strict capture 15 hits per width, all PB-3 frontend (portfolio Finding ids and "Scenario", cold
   "Running", EV `REC <uuid>` and "Scenario details", preventive "running hours"/"draft").

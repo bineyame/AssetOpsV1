@@ -496,4 +496,5 @@ def test_ev_lab_install_stores_a_given_display_name_and_stays_idempotent(store) 
                            display_name="Depot Charging Hub")
     again = install(store)
     assert first.site.name == "Depot Charging Hub"
-    assert again.site.id == first.site.id and store.find_site(first.tenant.id, "EV-LAB-001").name ==         "Depot Charging Hub"
+    assert again.site.id == first.site.id
+    assert store.find_site(first.tenant.id, "EV-LAB-001").name == "Depot Charging Hub"

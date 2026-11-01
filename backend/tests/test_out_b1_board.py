@@ -262,6 +262,8 @@ def test_case_items_carry_their_stored_kind_and_occurred_at() -> None:
     plan = PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive")
     item = rows_by_cat(cold(plans=(plan,), actions=(), cases=()))[PROTECT]["in_hand"][0]
     assert item["kind"] == "PLAN" and "occurred_at" not in item
+    action = next(i for i in rows_by_cat(cold())[PROTECT]["in_hand"] if i["href"] == "/sites/C/actions/da1")
+    assert "kind" not in action and "occurred_at" not in action  # Action items are unchanged
 
 
 def test_plans_in_hand_on_protect_only() -> None:

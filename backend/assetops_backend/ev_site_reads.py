@@ -24,7 +24,7 @@ from assetops_backend.analytics.ev import SESSION_ANALYTIC, plain
 from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable
 from assetops_backend.financials import ev_money as em
 
-NO_MONEY = "No gross tariff scenario assessed."
+NO_MONEY = "No charging income estimate yet."  # POLISH PA-3 review residual (R655)
 HISTORY_LABEL = "Historical scenario"
 NOT_INCLUDED = ["lost_sales", "collections", "margin", "repair", "warranty"]
 #: post-W6 final-fix L3: one plain sentence for the withheld tariff state, Site and estate pinned reads alike.

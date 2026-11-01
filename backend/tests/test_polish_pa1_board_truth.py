@@ -90,7 +90,7 @@ def test_no_run_rule_is_narrow() -> None:
         assert "Generator not used" not in b2.contributor(rows[ASSURE], "readings")["text"]
     # readiness known: the earlier rule, unchanged
     _, rows = b2.run(b2.Fake(overview=NO_RUN, readiness="FULL"))
-    assert b2.contributor(rows[ASSURE], "readings")["text"] == "Generated test data source · readiness Full"
+    assert b2.contributor(rows[ASSURE], "readings")["text"] == "Example data · readiness Full"
 
 
 def test_new_mini_copy_is_in_the_vocabulary_scan() -> None:

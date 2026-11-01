@@ -21,7 +21,9 @@ Contract: `.agent/build-sheet-POLISH.md` §1.3 (P-08), §3 "Lab Site names" and 
    `demo_combined_cold` sets `DEMO_NARRATIVES` (standalone w502 unchanged; worst case unchanged).
 5. `install_cold_lab`/`install_ev_lab` take `display_name`; the demo producers pass "GreenHarvest Cold Room" and
    "Depot Charging Hub". Postgres tests cover with and without it.
-6. CO-1: DEMO-A L1 assertion back; L2 reads `issues` + `in_hand` only, matching href or `display_code(action_code)`.
+6. CO-1 (Addendum 10): the Action linked by href path `/sites/KOBO-001/actions/{id}`, in `earlier` when its
+   verification outcome is final, else in `issues` + `in_hand` (text alone never passes); the Must-not-harm href carries
+   the Action id and its text `display_code(action_code)`; the DEMO-A L1 safeguards sentence.
    L3 stale register/CODE_STATE text fixed.
 7. Rebuild into `assetops_polish_full_test` / `var/polish_full` (`check.json` all rows pass); the slow build test passes
    every row. `assetops_demo3_full_test` is not written.

@@ -162,7 +162,7 @@ def test_kobo_board_from_ports() -> None:
     assert contributor(rows[PROTECT], "service_delivery")["text"] == "Delivered power measured; demand not measured"
     assert contributor(rows[PROTECT], "backup_readiness")["text"] == "No backup event in this window"
     assert contributor(rows[ASSURE], "verified_results")["text"] == "ACT-048 not yet verified"
-    assert contributor(rows[ASSURE], "readings")["text"] == "Generated test data source · readiness Limited"
+    assert contributor(rows[ASSURE], "readings")["text"] == "Example data · readiness Limited"
     assert contributor(rows[ASSURE], "battery_reporting")["text"] == "Battery output not reported"
     assert [i["text"] for i in rows[ASSURE]["issues"]] == ["Battery output not reported limits this conclusion"]
     assert [o["text"] for o in rows[ASSURE]["options"]] == ["Restore battery reporting"]
@@ -405,7 +405,8 @@ def test_singular_for_one_in_count_templates() -> None:
 
 def test_source_words_match_the_portfolio() -> None:
     from assetops_backend.estate import placement
-    assert mini.SOURCE_TEXT == placement._SOURCE_TEXT  # noqa: SLF001 - equality pin for the local copy (L1)
+    # POLISH Addendum 13: the mini line starts with the source words, so the copy is the Portfolio's, first letter capitalised.
+    assert mini.SOURCE_TEXT == {k: v[:1].upper() + v[1:] for k, v in placement._SOURCE_TEXT.items()}  # noqa: SLF001
     assert mini.SOURCE_UNRESOLVED == placement._SOURCE_UNRESOLVED_TEXT  # noqa: SLF001
 
 

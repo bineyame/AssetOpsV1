@@ -113,4 +113,5 @@ def test_cold_lab_install_stores_a_given_display_name_and_stays_idempotent(store
                              display_name="GreenHarvest Cold Room")
     again = install_cold_lab(store, tenant_slug="demo", clock=Clock(NOW - timedelta(hours=2)))
     assert first.site.name == "GreenHarvest Cold Room"
-    assert again.site.id == first.site.id and store.find_site(first.tenant.id, "COLD-LAB-001").name ==         "GreenHarvest Cold Room"
+    assert again.site.id == first.site.id
+    assert store.find_site(first.tenant.id, "COLD-LAB-001").name == "GreenHarvest Cold Room"
