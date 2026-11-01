@@ -5,3 +5,7 @@ Context. Two decisions were put to the owner:
 2. Estate coverage partial verdict. Apply the finding-index/2 rule to Portfolio estate coverage, so that Kobo's weekly "Unknown" becomes "Partial: N of 7 days checked" with the gap days named (R613). About 2 d, run alongside the walkthrough.
 
 Owner: "yes to both, go ahead"
+
+## 2026-11-01 owner (verbatim)
+"start DEMO-B and turn keep-awake back on"
+
