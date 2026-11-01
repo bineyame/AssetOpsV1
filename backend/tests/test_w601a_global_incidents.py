@@ -31,7 +31,7 @@ READ_NOW = CLOCK + timedelta(seconds=2)
 WINDOW = {"from": "2026-10-15T00:00:00Z", "to": "2026-10-22T00:00:00Z"}
 KEY = "a1" * 32
 ROW_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_id", "code", "kind", "revision_id", "title",
-            "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id", "asset_label",
+            "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id", "asset_label", "asset_type",
             "incident_id", "linked_request_codes", "finding_links", "action_links", "source_provenance", "links",
             "site_domain", "linked_requests"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",

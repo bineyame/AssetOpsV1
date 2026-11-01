@@ -11,6 +11,7 @@ from typing import Any
 
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import categories_for, outcome_roles
+from assetops_backend.outcomes.plan_due import CALENDAR, DUE_SOON, OVERDUE, plan_due_state
 
 POLICY = "early-warnings/1"
 
@@ -206,19 +207,18 @@ def _plan_ref(p: PlanCue) -> dict[str, Any]:
 
 
 def _overdue(f: WarningFacts) -> list[PlanCue]:
-    return [p for p in f.plans if p.due_at is not None and p.due_at < f.to]
+    return [p for p in f.plans if plan_due_state(CALENDAR, p.due_at, f.to) == OVERDUE]
 
 
 def _plans(f: WarningFacts) -> list[Warning]:
     out = []
-    for p in f.plans:
-        if p.due_at is None:
-            continue
-        if p.due_at < f.to:
+    for p in f.plans:  # every cue is a CALENDAR plan (`visits.warning_facts`); POLISH §1.4: the shared helper
+        state = plan_due_state(CALENDAR, p.due_at, f.to)
+        if state == OVERDUE:
             out.append(_make(f, PLAN_OVERDUE, p.plan_id, f"{p.title} overdue",
                              f"Planned for {day_text(p.due_on)}{f.date_suffix}, not done", PLAN_HREF,
                              refs=[_plan_ref(p)]))
-        elif p.due_at < f.soon_until:
+        elif state == DUE_SOON:
             out.append(_make(f, PLAN_DUE_SOON, p.plan_id, f"{p.title} due soon",
                              f"Due {day_text(p.due_on)}{f.date_suffix}", PLAN_HREF, refs=[_plan_ref(p)]))
     return out

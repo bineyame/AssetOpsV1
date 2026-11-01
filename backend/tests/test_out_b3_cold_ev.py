@@ -68,14 +68,14 @@ DA1 = {"action_id": "da1", "action_code": "DA-001", "domain": "cold_chain", "tit
 W1_ROW = {"action_id": "w1", "action_code": "ACT-001", "domain": "cold_chain", "title": None,
           "origin": {"finding_id": "f-w1", "finding_revision_id": "r"}, "state": "OPEN", "links": {}}
 MR5 = {"case_id": "mr5", "code": "MR-005", "title": "Inspect generator", "state": "COMPLETED", "asset_id": "gen",
-       "asset_label": "generator-1 · GENERATOR", "finding_links": [{"finding_id": "f118"}], "occurred_at": T(9)}
+       "asset_label": "Backup generator", "asset_type": "GENERATOR", "finding_links": [{"finding_id": "f118"}], "occurred_at": T(9)}
 COLD_PLANS = [
     {"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator service", "trigger_kind": "CALENDAR",
      "next_due_at": T(22, 0, 31), "next_due_hours": None, "state": "DRAFT", "asset_id": "gen",
-     "asset_label": "generator-1 · GENERATOR"},
+     "asset_label": "Backup generator", "asset_type": "GENERATOR"},
     {"canonical_plan_id": "p2", "code": "PM-002", "title": "Compressor check", "trigger_kind": "CALENDAR",
      "next_due_at": T(8, 0, 25), "next_due_hours": None, "state": "DRAFT", "asset_id": "cmp",
-     "asset_label": "compressor-1 · COMPRESSOR"}]
+     "asset_label": "Compressor", "asset_type": "COMPRESSOR"}]
 
 
 def cold_ports(fake: Fake) -> cold.ColdPorts:
@@ -210,7 +210,7 @@ EA1 = {"action_id": "ea1", "action_code": "DA-007", "domain": "ev_charging", "ti
        "origin": {"finding_id": "f130", "finding_revision_id": "f130r"}, "state": "OPEN",
        "links": {"action": f"/sites/{E}/actions/ea1"}}
 MR9 = {"case_id": "mr9", "code": "MR-009", "title": "Replace connector latch", "state": "COMPLETED", "asset_id": "c2",
-       "asset_label": "c2 · EV_CONNECTOR", "finding_links": [{"finding_id": "f120"}], "occurred_at": T(3, 0, 12)}
+       "asset_label": "Connector c2", "asset_type": "EV_CONNECTOR", "finding_links": [{"finding_id": "f120"}], "occurred_at": T(3, 0, 12)}
 
 
 def ev_ports(fake: Fake, single: Any = None) -> ev.EvPorts:

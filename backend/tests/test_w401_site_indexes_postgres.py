@@ -45,7 +45,7 @@ if URL:
     from assetops_backend.work.site_index import WorkIndexService, parse_list_request, select
 
 COMMON = {"case_id", "revision_id", "code", "title", "narrative", "occurred_at", "recorded_at", "state", "asset_id",
-          "asset_label", "finding_links", "action_links", "url", "source_provenance"}
+          "asset_label", "asset_type", "finding_links", "action_links", "url", "source_provenance"}
 MAINTENANCE = COMMON | {"activity", "outcome_note", "outcome_state", "next_evidence", "next_evidence_copy",
                         "request_state", "record_id", "incident_id"}
 DAY = ("2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z")
