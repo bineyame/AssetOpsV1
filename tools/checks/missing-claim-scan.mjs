@@ -74,6 +74,13 @@ export const REVIEWED_EXEMPTIONS = [
     decision: 'W4-01 Run 8 rulings (q8-1); W6-01 build spec section 3 A2 and B2 cards',
     reason: 'A Site Work notice about the unavailable create flow (global Incidents is live since W6-01a and global Maintenance since W6-01b), not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
   },
+  {
+    file: 'frontend/src/ui/time.ts',
+    constName: 'TIME_NOT_AVAILABLE',
+    text: 'Time not available yet',
+    decision: 'POLISH build sheet §5 PB-1 (time.test.ts: invalid input gives "Time not available yet"); Addendum 7 Q3',
+    reason: 'The word the shared time formatter uses for an unparseable instant, so a raw string is never echoed; it describes a malformed value, not a missing capability or a Site claim, so it is not a mock_gaps placement.',
+  },
 ];
 
 const toPosix = (p) => p.split(path.sep).join('/');

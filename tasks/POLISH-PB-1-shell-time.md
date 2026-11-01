@@ -1,6 +1,6 @@
 # POLISH-PB-1 Shell, labels check, time consolidation and P-03
 
-Status: in_progress
+Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 5.25 (Addendum 1 Q1). Branch `task/POLISH-PB-1-shell-time`.
 
