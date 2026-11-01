@@ -1,11 +1,13 @@
 /**
- * W3-01 commit 3: pieces shared by the four estate Finding lens roots and the estate Actions root - the one UTC
+ * W3-01 commit 3: pieces shared by the four estate Finding lens roots and the estate Actions root - the one
  * date/cutoff bar (spec S17), the URL query state, the Site basis-state chip (Run 12 ruling 3), the coverage
  * limitation sentence and the refusal view. Nothing here reads a mock value.
  */
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Notice } from "../ui";
+import { formatDayRange, formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import {
   FIRST_PAGE_CODES,
   WINDOW_NOT_VALID,
@@ -60,9 +62,9 @@ export function estateHref(
   return `${path}?${params.toString()}`;
 }
 
-/** A wire UTC instant as `YYYY-MM-DD HH:MM:SS UTC`. */
+/** A wire instant as `1 Nov 2026, 02:09` (POLISH §3 Times: delegates to `ui/time.ts`; the bar's note says UTC). */
 export function utcInstant(wire: string): string {
-  return `${wire.slice(0, 10)} ${wire.slice(11, 19)} UTC`;
+  return formatDayTime(wire);
 }
 
 /** The last included day of a half-open `[from, to)` whole-day window. */
@@ -70,19 +72,22 @@ function lastDay(to: string): string {
   return new Date(Date.parse(to) - 1).toISOString().slice(0, 10);
 }
 
-export const EARLIER_CUTOFF = "This is an earlier evidence cutoff.";
+export const EARLIER_CUTOFF = "Showing an earlier point in time.";
+/** POLISH §3.1 / Addendum 7 Q5 (R652): the closed disclosure that holds the earlier-cutoff picker. */
+export const EARLIER_POINT_SUMMARY = "View an earlier point in time";
 export const PARTIAL_COVERAGE = "Some sites are not yet assessed; estate totals are unknown.";
 export const PENDING_EVIDENCE = "New evidence is being assessed.";
 export const PARTIAL_TOTALS = "Some sites have no selected result; totals are unknown.";
 
 /**
- * The cutoff literal (Commit-3 r1 ruling L2): no response yet reads `latest` for an omitted cutoff; a loaded live
- * page one adds the read-time suffix; a cursor continuation is pinned by its cursor and has no suffix.
+ * The cutoff line (Commit-3 r1 ruling L2, POLISH §3.1 and Addendum 7 Q5): no response yet reads `Latest information`
+ * for an omitted cutoff; a loaded live page one reads `Latest information, as of {time}`; an explicit cutoff or a
+ * cursor continuation is pinned and reads `Information as of {time}`.
  */
 function cutoffBarText(query: Pick<EstateQuery, "known_at"> & { cursor?: string | null }, body: EstateEnvelope | null): string {
-  if (body === null) return `Evidence cutoff ${query.known_at ? utcInstant(query.known_at) : "latest"}`;
-  const shown = `Evidence cutoff ${utcInstant(body.window.known_at)}`;
-  return query.known_at || query.cursor ? shown : `${shown} (latest at read time)`;
+  if (body === null) return query.known_at ? `Information as of ${utcInstant(query.known_at)}` : "Latest information";
+  const at = utcInstant(body.window.known_at);
+  return query.known_at || query.cursor ? `Information as of ${at}` : `Latest information, as of ${at}`;
 }
 
 /**
@@ -115,7 +120,7 @@ export function EstateDateBar({
   return (
     <form className="site-date-bar estate-date-bar" onSubmit={submit} data-estate-date-bar>
       <span className="site-date-bar__window" data-estate-window>
-        {windowRefused ? WINDOW_NOT_VALID : `Window ${query.from.slice(0, 10)} to ${lastDay(query.to)} (UTC days)`}
+        {windowRefused ? WINDOW_NOT_VALID : formatDayRange(query.from, query.to)}
       </span>
       <span className="site-date-bar__cutoff" data-estate-cutoff>
         {cutoffText}
@@ -133,19 +138,23 @@ export function EstateDateBar({
         to (included){" "}
         <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} />
       </label>
-      <label className="v69-chip-field">
-        Evidence cutoff (UTC){" "}
-        <input
-          className="v69-chip-control"
-          type="datetime-local"
-          step={1}
-          value={cutoff}
-          onChange={(e) => setCutoff(e.target.value)}
-        />
-      </label>
       <button className="v69-chip" type="submit">
         Show
       </button>
+      <details className="estate-date-bar__earlier" open={query.known_at ? true : undefined} data-estate-earlier-point>
+        <summary>{EARLIER_POINT_SUMMARY}</summary>
+        <label className="v69-chip-field">
+          Point in time{" "}
+          <input
+            className="v69-chip-control"
+            type="datetime-local"
+            step={1}
+            value={cutoff}
+            onChange={(e) => setCutoff(e.target.value)}
+          />
+        </label>
+      </details>
+      <TimeZoneNote />
     </form>
   );
 }

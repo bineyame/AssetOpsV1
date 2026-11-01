@@ -28,6 +28,7 @@
  * none of them, and the list derives none.
  */
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
 
 import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIcon, readResultWords, type ProductWords } from "../ui";
@@ -118,12 +119,10 @@ const HEADING_ID = "site-work-actions-heading";
 /** The v69 `sitework:1` panel title (`v69-rendered-panels.json`). */
 export const SITE_WORK_PANEL_TITLE = "Actions at this site";
 
-/** `2026-11-01 00:05 UTC` from an ISO instant. */
+/** `1 Nov 2026, 00:05` from an ISO instant (POLISH §3 Times). */
 export function utcText(instant: string | null | undefined): string {
   if (!instant) return "none";
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return formatDayTime(instant);
 }
 
 /** `1 Nov 2026` for a UTC day. */

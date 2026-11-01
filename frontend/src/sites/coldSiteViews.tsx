@@ -1,4 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { formatDay } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
@@ -192,7 +194,18 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function eatTime(value: string | null | undefined, timeZone: string | null = "Africa/Addis_Ababa", reference?: string | null): string | null {
   return siteTime(value, timeZone, reference)?.text ?? null;
 }
-const utc = (value: string | null | undefined) => (date(value) === null ? NOT_RECORDED : `${dayHm(value)} UTC`);
+/** `29 Oct, 17:05` (POLISH §3 Times: no per-time zone suffix; the window bar's note names UTC). */
+const utc = (value: string | null | undefined) => (date(value) === null ? NOT_RECORDED : dayHm(value));
+/**
+ * POLISH §3.1 Cold row, done in PB-1 (Addendum 7 Q1a): `information up to 17:05`, with the day only when the cutoff
+ * falls on a different day from the window's start.
+ */
+function upTo(knownAt: string | null | undefined, from: string | null): string {
+  const k = date(knownAt);
+  if (k === null) return NOT_RECORDED;
+  const f = date(from);
+  return f !== null && formatDay(f) === formatDay(k) ? hm(knownAt) : dayHm(knownAt);
+}
 const limitText = (value: string | null | undefined) => (value ? plainLimitation(value) : null);
 
 /* ---------- links ---------- */
@@ -445,11 +458,12 @@ export function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQ
   if (read === null) return null;
   return (
     <p className="site-date-bar" data-cold-date-bar>
-      <span className="site-date-bar__window">Selected window {windowText(read.window.from, read.window.to)}</span>
+      <span className="site-date-bar__window">{windowText(read.window.from, read.window.to)}</span>
       <span className="site-date-bar__cutoff">
-        Selected evidence through {utc(read.window.known_at)}
+        {`· information up to ${upTo(read.window.known_at, read.window.from)}`}
         {extra ? ` · ${extra}` : null}
       </span>
+      <TimeZoneNote />
     </p>
   );
 }
@@ -461,8 +475,11 @@ export function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuer
   if (refusal.key === "invalid-window" || date(window.from) === null || date(window.to) === null) return null;
   return (
     <p className="site-date-bar" data-cold-date-bar data-cold-date-bar-requested>
-      <span className="site-date-bar__window">Selected window {windowText(window.from, window.to)}</span>
-      {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">Selected evidence through {utc(window.known_at)}</span>}
+      <span className="site-date-bar__window">{windowText(window.from, window.to)}</span>
+      {date(window.known_at) === null ? null : (
+        <span className="site-date-bar__cutoff">{`· information up to ${upTo(window.known_at, window.from)}`}</span>
+      )}
+      <TimeZoneNote />
     </p>
   );
 }
@@ -550,8 +567,8 @@ function stripEvents(o: ColdOverviewRead, backup: ColdBackupRead | null): Timeli
     const known = match?.outcome ?? null;
     return {
       key: s.step,
-      // UTC like the chamber chart beside it; only the Analysis `Measured` column is in the Site timezone.
-      time: s.at === null ? "—" : `${hm(s.at)} UTC`,
+      // UTC like the chamber chart beside it (named by the page note); only the Analysis `Measured` column is Site time.
+      time: s.at === null ? "—" : hm(s.at),
       title: outcome !== null ? `${name} · ${outcome}` : `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
       detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
       tone:

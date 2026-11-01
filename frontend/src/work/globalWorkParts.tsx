@@ -10,6 +10,7 @@
  * valid kind rides through Show, Reload, the first-page link and the pager. Without it the other roots ignore `kind`.
  */
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   GLOBAL_WORK_FIRST_PAGE_CODES,
@@ -34,7 +35,7 @@ import {
 } from "./globalWorkClient";
 
 export const NO_ACCESSIBLE_SITES = "No accessible Sites.";
-export const CHANGE_WINDOW = "Change the UTC window or open a Site record.";
+export const CHANGE_WINDOW = "Change the dates or open a Site record.";
 export const SCROLL_TABLE = "Scroll table horizontally";
 /** CL3-6 / P-E2-2: the Operational records page refusal for an invalid or repeated `kind` (no fetch). */
 export const CHOOSE_RECORD_TYPE = "Choose a supported record type.";
@@ -190,11 +191,11 @@ export function ControlBar({
   return (
     <form className="global-work-controls" onSubmit={submit} data-global-work-controls aria-label={label}>
       <label className="global-work-controls__field">
-        {"From (UTC) "}
+        {"From "}
         <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} />
       </label>
       <label className="global-work-controls__field">
-        {"To (UTC, exclusive) "}
+        {"To (not included) "}
         <input className="v69-chip-control" type="date" value={last} onChange={(e) => setLast(e.target.value)} />
       </label>
       <button className="button" type="submit" data-global-work-show>
@@ -216,15 +217,19 @@ export interface GlobalWorkBodyBase {
   next_cursor: string | null;
 }
 
-/** Post-W6 W6 Q14 (R372): a historical line names its cutoff to the second; a current line keeps minutes. */
+/**
+ * Post-W6 W6 Q14 (R372): a historical line names its cutoff to the second; a current line keeps minutes.
+ * POLISH §3.1 Work row, done in PB-1 (Addendum 7 Q1a): the current line reads `Updated 1 Nov 2026, 02:09`, and the
+ * page's one time zone note sits beside it.
+ */
 export function StatusLine({ body }: { body: GlobalWorkBodyBase }) {
   const text =
     body.status === "HISTORICAL"
       ? `Historical as of ${globalWorkUtcSeconds(body.known_at)}`
-      : `As known at ${globalWorkUtc(body.known_at)}`;
+      : `Updated ${globalWorkUtc(body.known_at)}`;
   return (
     <p className="global-work-status" data-global-work-status={body.status}>
-      {text}
+      {text} <TimeZoneNote />
     </p>
   );
 }

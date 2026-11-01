@@ -29,6 +29,8 @@
  * no savings or realized benefit, and a RESOLVED can be withdrawn.
  */
 import { useEffect, useState, type ReactNode } from "react";
+import { formatDay, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
@@ -644,6 +646,8 @@ function StateStrip({
         <span data-product-status-scope>{verdict.scope}</span>
         <span aria-hidden="true"> · </span>
         <span data-product-status-as-of>{asOfText(verdict.asOf)}</span>
+        <span aria-hidden="true"> · </span>
+        <TimeZoneNote />
       </span>
       <span className="status-strip__spacer" aria-hidden="true" />
       {next === null ? null : <span className="status-strip__action">{next}</span>}
@@ -694,11 +698,9 @@ function windowBounds(start: string, end: string): string {
   return `${when(start)} to ${when(end)} (end not included)`;
 }
 
-/** A window on one line: "2026-10-06 08:00-09:00 UTC" when it starts and ends on the same day. */
+/** A window on one line: "6 Oct 2026, 08:00–09:00" when it starts and ends on the same day (POLISH §3 Times). */
 function windowShort(start: string, end: string): string {
-  const s = when(start).replace(/ UTC$/, "");
-  const e = when(end).replace(/ UTC$/, "");
-  return s.slice(0, 10) === e.slice(0, 10) ? `${s}\u2013${e.slice(11)} UTC` : `${s} \u2013 ${e} UTC`;
+  return formatRange(start, end);
 }
 
 function text(value: unknown): string | null {
@@ -1250,7 +1252,7 @@ function OutcomeEvidencePanel({
                 <Link to={links.view("verification", { outcomeId: o.outcome_id })} title={stateLabel(o.outcome, o.reasons)}>
                   {outcomeName(o.outcome)}
                 </Link>{" "}
-                {when(o.recorded_at).slice(0, 10)} ({o.outcome_id === latestOutcomeId ? "most recent" : "replaced later"}
+                {formatDay(o.recorded_at)} ({o.outcome_id === latestOutcomeId ? "most recent" : "replaced later"}
                 {o.outcome_id === record?.outcome_id ? ", shown" : ""})
               </span>
             ))}
@@ -1347,7 +1349,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
       <CurrentReasons current={body.verification_state} />
       <DataTable labelledBy="site-verification-criteria-caption">
         <caption id="site-verification-criteria-caption" className="visually-hidden">
-          Criteria and windows fixed before evaluation (UTC)
+          Criteria and windows fixed before evaluation
         </caption>
         <thead>
           <tr>
@@ -1376,12 +1378,12 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
             </td>
           </tr>
           <tr data-verification-rule="windows">
-            <th scope="row">Windows (UTC)</th>
+            <th scope="row">Windows</th>
             <td>
-              <span data-verification-window="baseline">Earlier {windowShort(plan.baseline_start, plan.baseline_end).replace(/ UTC$/, "")}</span>
+              <span data-verification-window="baseline">Earlier {windowShort(plan.baseline_start, plan.baseline_end)}</span>
               {" · "}
               <span data-verification-window="later" data-verification-later-bound={binding ? "yes" : "no"}>
-                later {windowShort(plan.later_start, plan.later_end).replace(/ UTC$/, "")}
+                later {windowShort(plan.later_start, plan.later_end)}
                 {binding ? null : (
                   <span className="w1f4-verification-problem" data-verification-later-pending>
                     {" "}
@@ -1393,7 +1395,7 @@ function PlanPanel({ body, action, links, explicit, gap }: { body: PlanBody | nu
           </tr>
         </tbody>
       </DataTable>
-      {/* MOCK DEVIATION D2 (post-W6 W1-b Q46, register R384): the Windows (UTC) row, plan line, Dig deeper disclosure,
+      {/* MOCK DEVIATION D2 (post-W6 W1-b Q46, register R384): the Windows row, plan line, Dig deeper disclosure,
           footer note and failed-limit line beyond the mock's four-row Success criteria table. */}
       <p className="mock-deviation-line" data-mock-deviation="R384">
         MOCK DEVIATION D2 (R384)
@@ -1872,7 +1874,7 @@ function WindowDetail({ name, window, source, links, lineage }: { name: "baselin
         </div>
       </dl>
       <DataTable labelledBy={`site-verification-slots-${name}-caption`}>
-        <caption id={`site-verification-slots-${name}-caption`}>Five-minute slots (UTC, end not included)</caption>
+        <caption id={`site-verification-slots-${name}-caption`}>Five-minute slots (end not included)</caption>
         <thead>
           <tr>
             <th scope="col">Slot</th>

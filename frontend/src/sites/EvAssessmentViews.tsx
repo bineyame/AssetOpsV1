@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import {
@@ -126,8 +127,9 @@ export function RefusedHead({ read, window, label, tiles }: { read: EvRead<unkno
     <>
       {requested ? (
         <p className="site-date-bar" data-ev-window data-ev-window-requested="">
-          <span className="site-date-bar__window">{`${dayHm(window.from)}–${dayHm(window.to)} UTC`}</span>
-          {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">{`known at ${dayHm(window.known_at)} UTC`}</span>}
+          <span className="site-date-bar__window">{windowText(window.from, window.to)}</span>
+          {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">{`· as of ${dayHm(window.known_at)}`}</span>}
+          <TimeZoneNote />
         </p>
       ) : null}
       <StatusBar label={label} data={{ "data-ev-strip": "refused" }}>
@@ -237,7 +239,7 @@ function currentnessLine(env: EvEnvelope): string | null {
 
 function historicalStamp(env: EvEnvelope): string | null {
   return env.currentness.state === "HISTORICAL" && env.window.known_at !== null
-    ? `Historical assessment · ${dayHm(env.window.known_at)} UTC`
+    ? `Historical assessment · ${dayHm(env.window.known_at)}`
     : null;
 }
 
@@ -300,9 +302,9 @@ function ToneBadge({ word, tone }: { word: string; tone: Tone }) {
 }
 
 function period(s: EvSessionItem): string {
-  const start = s.start_at === null ? "Unknown" : `${hm(s.start_at)} UTC`;
+  const start = s.start_at === null ? "Unknown" : hm(s.start_at);
   const end =
-    s.state === "CONTRADICTORY" ? "Competing end records" : s.end_at === null ? "End not recorded" : `${hm(s.end_at)} UTC`;
+    s.state === "CONTRADICTORY" ? "Competing end records" : s.end_at === null ? "End not recorded" : hm(s.end_at);
   return `${start} – ${end}`;
 }
 
@@ -567,7 +569,7 @@ function DenominatorPanel({ read }: { read: EvSessionsRead | null }) {
             variant="tech"
             name="ev-denominator-references"
             references={[
-              { label: "Counted as of (UTC)", value: read.denominator.as_of },
+              { label: "Counted as of", value: read.denominator.as_of },
               { label: "Count limitation", value: read.denominator.limitation },
             ]}
           />

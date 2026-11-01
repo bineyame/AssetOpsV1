@@ -12,6 +12,7 @@ import type {
   EstateSiteState,
   EstateValueCardKey,
 } from "./estateClient";
+import { formatDayTime } from "../ui/time";
 import { hasReasonWord, reasonText } from "./estateFinancialsWords";
 
 export const PORTFOLIO_PATH = "/portfolio";
@@ -37,7 +38,7 @@ export const PLACEMENT_GROUP_LABEL = {
   MONITOR: "Monitor",
 } as const;
 export const PLACEMENT_CONFIDENCE_WORDS: Record<string, string> = {
-  SUPPORTED_SOURCE_COHERENT: "Supported, coherent source",
+  SUPPORTED_SOURCE_COHERENT: "Well supported",
   LIMITED: "Limited",
   UNKNOWN: "Unknown",
 };
@@ -86,11 +87,10 @@ export const CARD_VALUE: Readonly<Record<string, string>> = {
   NOT_ESTABLISHED: "Not established",
 };
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** `d MMM yyyy · HH:mm UTC` for one wire instant. */
+/** `29 Oct 2026, 16:00` for one wire instant (POLISH §3 Times). */
 export function dayMinute(wire: string): string {
-  return `${Number(wire.slice(8, 10))} ${MONTHS[Number(wire.slice(5, 7)) - 1] ?? "?"} ${wire.slice(0, 4)} · ${wire.slice(11, 16)} UTC`;
+  return formatDayTime(wire);
 }
 
 /** Closure 1 Q19: the context badge, its tone, and the separate status sentence, by status precedence. */

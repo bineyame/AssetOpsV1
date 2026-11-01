@@ -11,6 +11,7 @@
  * (`${WORK_REQUEST_PATH_PREFIX}/{id}/history`); Verification stays unavailable until its page mounts.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { MetricHeader, PageHeader, Panel } from "../ui";
 import { UnavailableTab } from "../ui/UnavailableEntry";
@@ -269,7 +270,8 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
       <p className="work-request-asof" data-work-request-asof={target?.knownAt ? "historical" : "current"}>
         {target?.knownAt
           ? `Historical as of ${globalWorkUtcSeconds(body.selected.known_at)}`
-          : `As known at ${globalWorkUtc(body.selected.known_at)}`}
+          : `Updated ${globalWorkUtc(body.selected.known_at)}`}{" "}
+        <TimeZoneNote />
       </p>
     );
   } else if (failure !== null) {

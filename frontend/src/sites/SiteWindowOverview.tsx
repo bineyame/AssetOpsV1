@@ -18,6 +18,8 @@
  */
 
 import { useEffect, useState } from "react";
+import { formatDay, formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import {
@@ -30,6 +32,7 @@ import {
   CausalTimeline,
   ChartNote,
   moneyWords,
+  plainTime,
   ProductStatus,
   StatusBar,
   ValueBars,
@@ -37,7 +40,7 @@ import {
   type ProductWords,
 } from "../ui";
 import { SourceProvenanceNotice, SourceProvenanceRecord } from "./sourceProvenance";
-import { clock, idWords, isDay, limitationCode, limitationWords, roleWords, shiftDay, stamp } from "./dispatchWords";
+import { clock, idWords, isDay, limitationCode, limitationWords, roleWords, shiftDay } from "./dispatchWords";
 import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
@@ -215,9 +218,32 @@ function reasonReferences(label: string, reasons: readonly string[] | null | und
   return (reasons ?? []).map((reason, i) => ({ label: `${label} ${i + 1}`, value: reason }));
 }
 
-/** The day's plain scope, used by every state line on this page. */
+/** The day's plain scope, used by every state line on this page (POLISH §3.1 Kobo row: `29 Oct 2026`). */
 function dayScope(summary: SiteWindowSummary): string {
-  return `${summary.window.utc_date}, one UTC day at this site`;
+  return formatDay(summary.window.utc_date);
+}
+
+/**
+ * POLISH §3.1 Kobo row, done in PB-1 (Addendum 7 Q1a): the current-readings state line reads
+ * `Latest checked readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09`. Every other state keeps the shared line.
+ */
+export const LATEST_CHECKED_READINGS = "Latest checked readings";
+function DayStateLine({ words, summary }: { words: ProductWords; summary: SiteWindowSummary }) {
+  if (words.code !== "CURRENT") return <ProductStatus inline words={words} scope={dayScope(summary)} asOf={summary.db_now} />;
+  const updated = plainTime(summary.db_now);
+  return (
+    <span className={`product-status product-status--inline product-status--${words.tone}`} data-product-status={words.tone}>
+      <span className="product-status__label" data-product-status-label>
+        {LATEST_CHECKED_READINGS}
+      </span>
+      <span className="product-status__bound">
+        <span aria-hidden="true"> · </span>
+        <span data-product-status-scope>{dayScope(summary)}</span>
+        <span aria-hidden="true"> · </span>
+        <span data-product-status-as-of>{updated === null ? "time not recorded" : `updated ${updated}`}</span>
+      </span>
+    </span>
+  );
 }
 
 /** Position of an instant within the selected day, as a percentage (layout only). */
@@ -239,7 +265,7 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
     <>
     <div className="v69-chips window-day" data-window-date={day}>
       <label className="dispatch-day__label">
-        <span>UTC day</span>
+        <span>Day</span>
         <input
           className="v69-chip-control"
           type="date"
@@ -259,10 +285,8 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
       <Link className="button" to={`?date=${shiftDay(day, 1)}`} data-window-day-link="next">
         Next day
       </Link>
-      {/* W1-F2 compaction: the day's bounds sit in the chip row (one line), not a separate note. */}
-      <span className="v69-chart-note window-day__bounds" data-window-bounds>
-        {stamp(summary.window.start)} to {stamp(summary.window.end)} UTC, start included, end excluded.
-      </span>
+      {/* POLISH §3.1 Kobo row (done in PB-1): the day's bounds sentence is deleted; one page note names the zone. */}
+      <TimeZoneNote />
     </div>
     </>
   );
@@ -285,7 +309,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
         <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
           {sameAsStatusbar ? null : (
             <>
-              <ProductStatus inline words={currentnessWords(f.state)} scope={dayScope(summary)} asOf={summary.db_now} />{" "}
+              <DayStateLine words={currentnessWords(f.state)} summary={summary} />{" "}
             </>
           )}
           <span data-source-open={f.source_open ? "open" : "closed"}>
@@ -376,7 +400,7 @@ function DayStatus({ summary, links, reads }: { summary: SiteWindowSummary; link
       }
     >
       <span data-assessment-state={a.state}>
-        <ProductStatus inline words={objectiveWords(a.state)} scope={dayScope(summary)} asOf={summary.db_now} />
+        <DayStateLine words={objectiveWords(a.state)} summary={summary} />
       </span>
     </StatusBar>
   );
@@ -573,10 +597,10 @@ function Timeline({ summary }: { summary: SiteWindowSummary }) {
       <figure
         className="window-timeline-figure"
         data-window-timeline-figure
-        aria-label={`Day timeline for ${day}, 00:00 to 24:00 UTC. ${description}`}
+        aria-label={`Day timeline for ${formatDay(day)}, 00:00 to 24:00. ${description}`}
       >
         <figcaption className="window-timeline-figure__caption">
-          When the generator was in use and when readings arrived on {day}, 00:00 to 24:00 UTC.
+          When the generator was in use and when readings arrived on {formatDay(day)}, 00:00 to 24:00.
           {current ? "" : " These periods come from an answer that is not current; see the state line above."}
         </figcaption>
         <div className="window-timeline" data-window-timeline={intervals.length}>
@@ -788,7 +812,7 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   const w = m.state === "PRICED" && !priced ? { ...moneyWords("PRICED"), code: "PRICED" } : overviewMoneyWords(m.state);
   const low = priced ? Number(m.amount_low) : Number.NaN;
   const high = priced ? Number(m.amount_high) : Number.NaN;
-  const scope = m.finding_id ? `One Finding overlapping ${summary.window.utc_date}` : dayScope(summary);
+  const scope = m.finding_id ? `One Finding overlapping ${formatDay(summary.window.utc_date)}` : dayScope(summary);
   return (
       <div
         className="window-money"
@@ -920,7 +944,7 @@ function KnownFinding({
       <div data-known-finding={k.id} data-known-finding-revision={k.revision_id}>
         <p>
           <Link to={links.finding(k.id, k.revision_id)} data-window-finding-link={k.id}>
-            Finding from {stamp(k.episode.start)} to {k.episode.end === null ? "open" : stamp(k.episode.end)} UTC
+            Finding from {formatDayTime(k.episode.start)} to {k.episode.end === null ? "open" : formatDayTime(k.episode.end)}
           </Link>
           {k.audit_only ? " (kept for audit; not current)" : ""}
         </p>
@@ -1044,7 +1068,7 @@ export function SiteWindowOverview({
           description: `Selected day ${day} · plain sequence of the assessed periods · the dispatch view has the detail`,
           body: (
             <>
-              <HourNotSelected scope={`one whole UTC day (${day})`} />
+              <HourNotSelected scope={`one whole day (${formatDay(day)})`} />
               <PeriodStrip summary={summary} links={links} />
               <DayReading summary={summary} />
               <FreshnessStrip summary={summary} />

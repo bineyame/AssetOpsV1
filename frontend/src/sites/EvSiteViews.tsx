@@ -24,7 +24,8 @@ import {
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
 import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
-import { dayHm, hm } from "./coldFormat";
+import { dayHm, hm, windowText } from "./coldFormat";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { NOT_ASSESSED, RefusedGap, RefusedHead, evRefusalText, plural } from "./EvAssessmentViews";
 import type { EvEnvelope, EvRead, EvWindowQuery } from "./evAssessmentClient";
 import type {
@@ -289,7 +290,7 @@ export function evidenceAggregate(caps: EvCapability[]): "Evidence supported" | 
 
 function stateLine(env: EvEnvelope): string | null {
   if (env.currentness.state === "PENDING_RECOMPUTE") return "New evidence is being assessed";
-  if (env.currentness.state === "HISTORICAL") return `Historical selection · ${dayHm(env.window.known_at)} UTC`;
+  if (env.currentness.state === "HISTORICAL") return `Historical selection · ${dayHm(env.window.known_at)}`;
   return null;
 }
 
@@ -332,11 +333,13 @@ function WindowBar({ env, extra }: { env: EvEnvelope | null; extra?: string | nu
   }, [report, search]);
   if (env === null) return null;
   const w = env.window;
-  const text = w.from === null || w.to === null ? "No window selected" : `${dayHm(w.from)}–${dayHm(w.to)} UTC · known at ${dayHm(w.known_at)} UTC`;
+  // POLISH §3.1 EV row, done in PB-1 (Addendum 7 Q1a): `27 Oct 2026, 08:00–09:00 · as of 27 Oct, 09:00`.
+  const text = w.from === null || w.to === null ? "No window selected" : `${windowText(w.from, w.to)} · as of ${dayHm(w.known_at)}`;
   return (
     <p className="site-date-bar" data-ev-window>
       <span className="site-date-bar__window">{text}</span>
       {extra ? <span className="site-date-bar__cutoff">{extra}</span> : null}
+      <TimeZoneNote />
     </p>
   );
 }
@@ -477,7 +480,7 @@ function objectiveHours(o: EvOverviewRead): string {
   if (!obj.service_schedule_declared) return "Service window not declared";
   if (obj.configured_service_windows.length === 0) return "No configured service hours overlap this selection";
   if (obj.configured_service_window !== null && obj.configured_service_windows.length === 1) {
-    return `Configured service hours ${hm(obj.configured_service_window.from)}–${hm(obj.configured_service_window.to)} UTC`;
+    return `Configured service hours ${hm(obj.configured_service_window.from)}–${hm(obj.configured_service_window.to)}`;
   }
   return "Configured service hours vary by connector";
 }
@@ -497,7 +500,7 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
     );
   const events: TimelineEvent[] = accepted.map((i) => ({
     key: i.evidence_id,
-    time: `${hm(i.source_time)} UTC`,
+    time: hm(i.source_time),
     title: (
       <>
         {`${i.value_display ?? "Accepted event"} · `}
@@ -915,7 +918,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
           ) : (
             <>
               <p className="v69-chart-note" data-ev-contact-checked>
-                {`Contact checked at ${checked === null ? NOT_RECORDED : dayHm(checked)} UTC`}
+                {`Contact checked at ${checked === null ? NOT_RECORDED : dayHm(checked)}`}
               </p>
               <DataTable labelledBy="ev-site-sources-heading">
                 <thead>

@@ -53,6 +53,7 @@
 .estate-portfolio .portfolio-findings th:nth-child(5){width:13%}
 .estate-portfolio .portfolio-findings th:nth-child(6){width:19%}
 .estate-portfolio .portfolio-findings td[data-portfolio-placement]{overflow-wrap:normal;word-break:normal}
+.estate-portfolio .portfolio-findings td[data-portfolio-confidence] .badge{white-space:normal;max-width:100%;display:inline-block;overflow-wrap:anywhere}
 .estate-portfolio .portfolio-findings small{font-size:9px;display:block;line-height:1.5;margin-top:5px}
 .estate-portfolio .portfolio-findings .badge{font-size:9px;padding:3px 5px}
 .estate-portfolio .portfolio-findings .impact{font-size:11px;display:block}

@@ -10,6 +10,7 @@
  * sample marks; `Stationary battery` is `Unknown` with the Foundation limitation.
  */
 import { useEffect, useState } from "react";
+import { formatTime } from "../ui/time";
 import { Link } from "react-router-dom";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, DataTable, KeyValues, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
@@ -40,13 +41,11 @@ const unitValue = (value: string | null, unit: string) =>
       {value} <small>{unit}</small>
     </>
   );
-const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Closure 2: `HH:MM:SS UTC` of a wire instant, else `Unknown`. */
+/** Closure 2: `HH:MM:SS` of a wire instant (POLISH §3 Times, seconds kept by ruling), else `Unknown`. */
 export function utcSeconds(value: string | null): string {
   if (value === null) return "Unknown";
-  const d = new Date(instantMs(value));
-  return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+  return formatTime(value, { seconds: true });
 }
 
 const estimated = (c: EvConsequence | null): c is EvConsequence => c !== null && c.state === "ESTIMATED";

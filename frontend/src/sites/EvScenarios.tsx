@@ -12,6 +12,7 @@
  * MOCK DEVIATION (D1) R98: only the first page is read; a further page is disclosed below the table, never paged.
  */
 import { useEffect, useState } from "react";
+import { formatDayTime } from "../ui/time";
 import { Badge, DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
@@ -52,12 +53,9 @@ export function scenariosStateNotice(state: EvScenariosState): string | null {
 export const firstPageLine = (n: number) =>
   `Showing first ${n} authored scenarios. More exist; later pages are not available in this view.`;
 
-const pad = (n: number) => String(n).padStart(2, "0");
-/** `YYYY-MM-DD HH:MM UTC` of a wire instant (microsecond fractions truncated). */
+/** `29 Oct 2026, 16:00` of a wire instant (POLISH §3 Times; microsecond fractions truncated by `ui/time.ts`). */
 export function utcMinute(value: string): string {
-  const d = new Date(value.replace(/(\.\d{3})\d+/, "$1"));
-  if (Number.isNaN(d.getTime())) return value;
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
+  return formatDayTime(value);
 }
 
 export const assumptionsLine = (a: EvScenarioItem["assumptions"]) => `${a.tariff_per_kwh} ${a.currency}/kWh gross tariff`;

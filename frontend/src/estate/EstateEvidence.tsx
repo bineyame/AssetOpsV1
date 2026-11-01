@@ -6,6 +6,7 @@
  * server field; the page scores nothing, builds no Site route and invents no Action. Mock numbers never render.
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
+import { formatRange } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
@@ -87,14 +88,10 @@ export function historicalAsOf(instant: string): string {
   return `Historical as of ${utcInstant(instant)}`;
 }
 
-/** `2026-10-14 08:00–16:00 UTC`, or both dates when the bounds cross a day. */
+/** `14 Oct 2026, 08:00–16:00`, or both ends in full when the bounds cross a day (POLISH §3 Times). */
 function windowText(row: EvidenceRow): string | null {
   if (row.window_start === null || row.window_end === null) return null;
-  const [a, b] = [row.window_start, row.window_end];
-  const sameDay = a.slice(0, 10) === b.slice(0, 10);
-  return sameDay
-    ? `${a.slice(0, 10)} ${a.slice(11, 16)}–${b.slice(11, 16)} UTC`
-    : `${a.slice(0, 10)} ${a.slice(11, 16)} – ${b.slice(0, 10)} ${b.slice(11, 16)} UTC`;
+  return formatRange(row.window_start, row.window_end);
 }
 
 /** Closure 2 Q27: dedupe, sort by key, join labels with ` · `; nothing selected is `No supported capability recorded`. */
