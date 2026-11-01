@@ -1,0 +1,1764 @@
+[
+ {
+  "key": "portfolio-week",
+  "mock": "portfolio",
+  "width": 1440,
+  "url": "http://localhost:5490/portfolio?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 1910,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 580,
+    "h": 1008,
+    "w": 824,
+    "tableClient": 775,
+    "tableScroll": 775
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 580,
+    "h": 571,
+    "w": 305
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 1605,
+    "h": 229,
+    "w": 565
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 1605,
+    "h": 229,
+    "w": 565,
+    "tableClient": 323,
+    "tableScroll": 323
+   }
+  ]
+ },
+ {
+  "key": "portfolio-week",
+  "mock": "portfolio",
+  "width": 390,
+  "url": "http://localhost:5490/portfolio?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 3832,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 1254,
+    "h": 1191,
+    "w": 358,
+    "tableClient": 720,
+    "tableScroll": 720
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 2461,
+    "h": 520,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 3140,
+    "h": 268,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 3436,
+    "h": 308,
+    "w": 358,
+    "tableClient": 323,
+    "tableScroll": 323
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-29",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 2476,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 238,
+    "h": 68,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 1103,
+    "h": 304,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1425,
+    "h": 685,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1425,
+    "h": 685,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2127,
+    "h": 248,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2127,
+    "h": 248,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 2431,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 2907,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 3172,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-29",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 4280,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 404,
+    "h": 160,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 2085,
+    "h": 372,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 2475,
+    "h": 875,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3366,
+    "h": 248,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 3630,
+    "h": 317,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3963,
+    "h": 226,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 4243,
+    "h": 1496,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 5757,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 6202,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S-open",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-29",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 21085,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 238,
+    "h": 68,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 2036,
+    "h": 656,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 2710,
+    "h": 12976,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2710,
+    "h": 12976,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 15704,
+    "h": 4228,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 15704,
+    "h": 4228,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 19988,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 20465,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 20729,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S-open",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-29",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 30073,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 404,
+    "h": 160,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 3924,
+    "h": 1110,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 5052,
+    "h": 13509,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 18576,
+    "h": 920,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 19513,
+    "h": 7785,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 27314,
+    "h": 226,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 27594,
+    "h": 1496,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 29108,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 29553,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S1",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 1994,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 238,
+    "h": 68,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 760,
+    "h": 236,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1014,
+    "h": 685,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1014,
+    "h": 685,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 1716,
+    "h": 176,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1716,
+    "h": 176,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 1949,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 2425,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 2690,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S1",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 3475,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Using the latest checked readings This answer uses the latest readings that have",
+    "top": 404,
+    "h": 160,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 1331,
+    "h": 303,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1653,
+    "h": 849,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2518,
+    "h": 450,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2984,
+    "h": 230,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3230,
+    "h": 154,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 3438,
+    "h": 1496,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 4952,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 5397,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-verification",
+  "mock": "verification",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001/actions/f2a48968-a662-4b19-92d6-d8dbb7bc05fb/verification",
+  "settled": true,
+  "h1": "ACT-000001 · Battery reserve trial",
+  "pageH": 1453,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 536,
+    "h": 115,
+    "w": 1145,
+    "children": [
+     {
+      "top": 536,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 536,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 536,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 536,
+      "h": 115,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 685,
+    "h": 347,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1065,
+    "h": 338,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 1065,
+    "h": 338,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "kobo-verification",
+  "mock": "verification",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001/actions/f2a48968-a662-4b19-92d6-d8dbb7bc05fb/verification",
+  "settled": true,
+  "h1": "ACT-000001 · Battery reserve trial",
+  "pageH": 2686,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 957,
+    "h": 295,
+    "w": 358,
+    "children": [
+     {
+      "top": 957,
+      "h": 155,
+      "w": 173
+     },
+     {
+      "top": 957,
+      "h": 155,
+      "w": 173
+     },
+     {
+      "top": 1125,
+      "h": 127,
+      "w": 173
+     },
+     {
+      "top": 1125,
+      "h": 127,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 1286,
+    "h": 659,
+    "w": 358,
+    "tableClient": 361,
+    "tableScroll": 361
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1978,
+    "h": 314,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 2308,
+    "h": 338,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "cold-board-failure",
+  "mock": "cold",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+  "settled": true,
+  "h1": "Cold replay lab",
+  "pageH": 2407,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Degraded Confidence: Bounded Potential product exposureInspect evidence",
+    "top": 219,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 1461,
+    "h": 252,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 1730,
+    "h": 386,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1730,
+    "h": 386,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2135,
+    "h": 222,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2135,
+    "h": 222,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "cold-board-failure",
+  "mock": "cold",
+  "width": 390,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-29T16:00:00Z&to=2026-10-29T17:05:00Z",
+  "settled": true,
+  "h1": "Cold replay lab",
+  "pageH": 4616,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Degraded Confidence: Bounded Potential product exposureInspect evidence",
+    "top": 385,
+    "h": 87,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 2940,
+    "h": 574,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 3531,
+    "h": 295,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3843,
+    "h": 232,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 4090,
+    "h": 288,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 4394,
+    "h": 182,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "cold-board-normal",
+  "mock": "cold",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+  "settled": true,
+  "h1": "Cold replay lab",
+  "pageH": 1516,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "No excursion observed Confidence: Bounded Product exposure not establishedInspec",
+    "top": 219,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 690,
+    "h": 222,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 930,
+    "h": 386,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 930,
+    "h": 386,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 1335,
+    "h": 131,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1335,
+    "h": 131,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "cold-board-normal",
+  "mock": "cold",
+  "width": 390,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-22T16:00:00Z&to=2026-10-22T17:05:00Z",
+  "settled": true,
+  "h1": "Cold replay lab",
+  "pageH": 2524,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "No excursion observed Confidence: Bounded Product exposure not establishedInspec",
+    "top": 385,
+    "h": 87,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 1256,
+    "h": 544,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 1818,
+    "h": 295,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2129,
+    "h": 96,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2241,
+    "h": 131,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2388,
+    "h": 96,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "ev-board-fault",
+  "mock": "ev",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z",
+  "settled": true,
+  "h1": "EV charging lab",
+  "pageH": 1994,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered",
+    "top": 219,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 1086,
+    "h": 237,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 1341,
+    "h": 374,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1341,
+    "h": 374,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 1733,
+    "h": 211,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1733,
+    "h": 211,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "ev-board-fault",
+  "mock": "ev",
+  "width": 390,
+  "url": "http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z",
+  "settled": true,
+  "h1": "EV charging lab",
+  "pageH": 3503,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attentionConfidence: BoundedEvidence limited Generated test dataRegistered",
+    "top": 361,
+    "h": 103,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 1999,
+    "h": 427,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 2445,
+    "h": 315,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2775,
+    "h": 251,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 3042,
+    "h": 208,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3266,
+    "h": 197,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-all",
+  "mock": "findings",
+  "width": 1440,
+  "url": "http://localhost:5490/findings?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1316,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 241,
+    "h": 92,
+    "w": 1145,
+    "children": [
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 400,
+    "h": 745,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1163,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1223,
+    "h": 43,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "findings-all",
+  "mock": "findings",
+  "width": 390,
+  "url": "http://localhost:5490/findings?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1828,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 412,
+    "h": 236,
+    "w": 358,
+    "children": [
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 715,
+    "h": 912,
+    "w": 358,
+    "tableClient": 672,
+    "tableScroll": 672
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1645,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1706,
+    "h": 80,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-cost",
+  "mock": "findings-cost",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/cost?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 241,
+    "h": 92,
+    "w": 1160,
+    "children": [
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 400,
+    "h": 126,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 544,
+    "h": 43,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 604,
+    "h": 43,
+    "w": 1160
+   }
+  ]
+ },
+ {
+  "key": "findings-cost",
+  "mock": "findings-cost",
+  "width": 390,
+  "url": "http://localhost:5490/findings/cost?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1027,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 412,
+    "h": 236,
+    "w": 358,
+    "children": [
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 715,
+    "h": 149,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 882,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 942,
+    "h": 43,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-risks",
+  "mock": "findings-risks",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/risks?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1183,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 241,
+    "h": 92,
+    "w": 1145,
+    "children": [
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 400,
+    "h": 612,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1030,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1091,
+    "h": 43,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "findings-risks",
+  "mock": "findings-risks",
+  "width": 390,
+  "url": "http://localhost:5490/findings/risks?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1644,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 412,
+    "h": 236,
+    "w": 358,
+    "children": [
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 715,
+    "h": 728,
+    "w": 358,
+    "tableClient": 672,
+    "tableScroll": 672
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1461,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1522,
+    "h": 80,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-opportunities",
+  "mock": "findings-opportunities",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/opportunities?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 241,
+    "h": 92,
+    "w": 1160,
+    "children": [
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 241,
+      "h": 92,
+      "w": 280
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 400,
+    "h": 126,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 544,
+    "h": 43,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 604,
+    "h": 43,
+    "w": 1160
+   }
+  ]
+ },
+ {
+  "key": "findings-opportunities",
+  "mock": "findings-opportunities",
+  "width": 390,
+  "url": "http://localhost:5490/findings/opportunities?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1027,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 412,
+    "h": 236,
+    "w": 358,
+    "children": [
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 412,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     },
+     {
+      "top": 537,
+      "h": 112,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 715,
+    "h": 149,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 882,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 942,
+    "h": 43,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "maintenance-preventive",
+  "mock": "maintenance-preventive",
+  "width": 1440,
+  "url": "http://localhost:5490/maintenance/preventive?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z",
+  "settled": true,
+  "h1": "Maintenance",
+  "pageH": 1096,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Due status not assessedScheduled by calendar or running hours · due dates are pl",
+    "top": 305,
+    "h": 42,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "Scheduled items | Overdue | Due in 14 days | Feeds evidence",
+    "top": 365,
+    "h": 115,
+    "w": 1145,
+    "children": [
+     {
+      "top": 365,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 365,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 365,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 365,
+      "h": 115,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Preventive plan",
+    "top": 498,
+    "h": 489,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "No incident link or cause is established by these draft plans.",
+    "top": 1004,
+    "h": 42,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "maintenance-preventive",
+  "mock": "maintenance-preventive",
+  "width": 390,
+  "url": "http://localhost:5490/maintenance/preventive?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z",
+  "settled": true,
+  "h1": "Maintenance",
+  "pageH": 1661,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Due status not assessedScheduled by calendar or running hours · due dates are pl",
+    "top": 514,
+    "h": 87,
+    "w": 358
+   },
+   {
+    "kind": "cards",
+    "title": "Scheduled items | Overdue | Due in 14 days | Feeds evidence",
+    "top": 619,
+    "h": 232,
+    "w": 358,
+    "children": [
+     {
+      "top": 619,
+      "h": 111,
+      "w": 173
+     },
+     {
+      "top": 619,
+      "h": 111,
+      "w": 173
+     },
+     {
+      "top": 743,
+      "h": 108,
+      "w": 173
+     },
+     {
+      "top": 743,
+      "h": 108,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Preventive plan",
+    "top": 869,
+    "h": 690,
+    "w": 358,
+    "tableClient": 720,
+    "tableScroll": 720
+   },
+   {
+    "kind": "notice",
+    "title": "No incident link or cause is established by these draft plans.",
+    "top": 1576,
+    "h": 42,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 1440,
+  "url": "http://localhost:5490/maintenance/requests/6d715387-39a8-436f-a52c-282e8350e558?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 356,
+    "h": 365,
+    "w": 734
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 356,
+    "h": 365,
+    "w": 408
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 390,
+  "url": "http://localhost:5490/maintenance/requests/6d715387-39a8-436f-a52c-282e8350e558?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1260,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 672,
+    "h": 365,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 1053,
+    "h": 167,
+    "w": 358
+   }
+  ]
+ }
+]
