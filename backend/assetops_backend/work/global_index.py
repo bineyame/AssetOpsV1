@@ -32,10 +32,11 @@ from uuid import UUID
 from assetops_backend.estate.scope import MESSAGES as ESTATE_MESSAGES
 from assetops_backend.estate.evidence_money import site_home_href
 from assetops_backend.estate.scope import access_basis, encode_cursor, token_time, wire_time
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
 from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
                                            provenance_dto)
-from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
+from assetops_backend.work.site_index import _action_link, _finding_link, action_label, action_selection_key
 
 SCHEMA = "global-work-index-1"
 SELECTION_VERSION = "global-work-selection/1"
@@ -250,11 +251,11 @@ def site_link(site: dict[str, Any]) -> dict[str, str]:
 
 def coded_actions(gx: Any, tenant_id: UUID, site_id: UUID, actions: list[dict[str, Any]]
                   ) -> tuple[list[dict[str, Any]], list[list[str]]]:
-    """Post-W6 W6 Q10 (R366): label each Action link by its stored public `ACT-` code; an Action with no stored code
-    keeps the honest `Action {id8}` label (never an invented code). Returns the relabelled links and the sorted
-    `[action_id, code]` pairs that were read, for the selected basis."""
+    """Post-W6 W6 Q10 (R366): label each Action link by its stored public `ACT-` code, in display form (POLISH §3,
+    Addendum 6 Q9); an Action with no stored code keeps the plain `Action` label (never an invented code). Returns
+    the relabelled links and the sorted `[action_id, code]` pairs that were read (as stored), for the selected basis."""
     codes = gx.action_codes(tenant_id, site_id, [x["action_id"] for x in actions])
-    out = [{**x, "label": codes.get(str(x["action_id"]).lower(), x["label"])} for x in actions]
+    out = [{**x, "label": action_label(codes.get(str(x["action_id"]).lower()))} for x in actions]
     return out, sorted([aid, code] for aid, code in codes.items())
 
 
@@ -263,7 +264,7 @@ def linked_request_link(request: dict[str, str], site_code: str, cutoff: datetim
     href = f"/maintenance/requests/{quote(request['id'], safe='')}?site_id={quote(site_code, safe='')}"
     if cutoff is not None:
         href += f"&known_at={quote(m.iso(cutoff), safe='')}"
-    return {"label": request["code"], "href": href}
+    return {"label": display_code(request["code"]), "href": href}
 
 
 def _owner(events: list[dict[str, Any]]) -> str | None:
@@ -319,8 +320,9 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
                 dto = missing_lineage(dto)
             finding_links = sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"]))
             action_links = all_action_links(links)
+            titles = rx.finding_titles([x["finding_revision_id"] for x in finding_links])
             findings = [_finding_link(code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
-                                                          {"lineage": False})["lineage"]) for x in finding_links]
+                                                          {"lineage": False})["lineage"], titles) for x in finding_links]
             actions, action_codes = coded_actions(gx, tenant_id, site_id, [
                 _action_link(code, x, by_key.get(action_selection_key(x))) for x in action_links])
             try:
@@ -377,7 +379,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
                 wire["links"] = {"site": home,
                                  "site_maintenance": {"label": "Site maintenance",
                                                       "href": f"{_site_href(code)}/work/maintenance?{query}"},
-                                 "detail": {"label": wire["code"], "href": detail}}
+                                 "detail": {"label": display_code(wire["code"]), "href": detail}}
             key = (-_micros(case[member]), site["site_code_key"], sid, cid)
             marker = [token_time(case[member]), site["site_code_key"], sid, cid]
             out.append({"wire": wire, "key": key, "marker": marker, "basis": basis, "id": cid})

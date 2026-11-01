@@ -147,6 +147,9 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
     if state not in COVERED and state != PARTIAL:  # reading 6: rows only from a CURRENT, PARTIAL or HISTORICAL Site
         out["days"] = _days_block(state, aligned, len(days), len(selected_days), gap_days, withheld)
         return out
+    # POLISH Addendum 6 Q3: every head's stored title by Finding, before the window filter, so a recurrence can
+    # name the earlier Finding it followed.
+    head_titles = {str(h["finding_id"]): h.get("title") for h in index.get("heads") or ()}
     heads = [h for h in index.get("heads") or () if h.get("merged_into_finding_id") is None
              and _intersects(h.get("episode_start"), h.get("episode_end"), from_, to, k)]
     if state == PARTIAL:  # §2.5: drop every head that touches an unchecked day (open end read through `k`)
@@ -178,6 +181,8 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
                      # the recurrence facts placement reads, all `.get` so fake snapshots need no new keys.
                      "episode_end": h.get("episode_end"), "mechanism": h.get("mechanism"),
                      "recurs_after_finding_id": h.get("recurs_after_finding_id"),
+                     "recurs_after_title": (None if h.get("recurs_after_finding_id") is None
+                                            else head_titles.get(str(h["recurs_after_finding_id"]))),
                      "revision_no": h.get("revision_no"), "transition": h.get("transition"),
                      "consequence": consequence,
                      "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})

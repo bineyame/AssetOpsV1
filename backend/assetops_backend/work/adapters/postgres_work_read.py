@@ -44,6 +44,15 @@ _RECORDS = ("SELECT id, activity, outcome_note, occurred_at, recorded_at, supers
 _FINDING_PIN = ("fr.domain, fr.analytic_id, fr.analytic_run_id, fr.assessment_revision_id, fr.episode_start, "
                 "fr.episode_end, fr.created_at")
 _MICROSECOND = timedelta(microseconds=1)
+# Post-W6 W6 Q10 (R366): the stored public `ACT-` code of each linked Action root, W1 `action` or domain
+# `domain_action` (one shared code namespace), scoped to this tenant and Site. Codes are immutable root values.
+_ACTION_CODES = (
+    "SELECT CAST(a.id AS text), a.action_code FROM action a WHERE a.tenant_id = :t AND a.site_id = :s "
+    "AND CAST(a.id AS text) = ANY(:ids) UNION ALL SELECT CAST(d.id AS text), d.action_code FROM domain_action d "
+    "WHERE d.tenant_id = :t AND d.site_id = :s AND CAST(d.id AS text) = ANY(:ids)")
+# POLISH §3 (Addendum 6 Q3): the stored title of each linked Finding revision, scoped to this tenant and Site.
+_FINDING_TITLES = ("SELECT CAST(id AS text), title FROM finding_revision WHERE tenant_id = :t AND site_id = :s "
+                   "AND CAST(id AS text) = ANY(:ids)")
 _DOMAIN_LINKS = (
     "SELECT DISTINCT ON (l.action_id) CAST(l.action_id AS text) AS action_id, "
     "CAST(a.origin_finding_id AS text) AS origin_finding_id, "
@@ -153,6 +162,21 @@ class _ReadTx:
                   for r in self._domain_links(revision_id, known_at)]
         return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars()),
                 "domain_action_links": domain}
+
+    def action_codes(self, action_ids: list[str]) -> dict[str, str]:
+        """POLISH Addendum 6 Q9: `{action_id: stored ACT- code}` for the Action roots among `action_ids`."""
+        if not action_ids:
+            return {}
+        rows = self._c.execute(text(_ACTION_CODES), self._p(ids=sorted({str(x).lower() for x in action_ids})))
+        return {str(r[0]).lower(): r[1] for r in rows if r[1] is not None}
+
+    def finding_titles(self, finding_revision_ids: list[str]) -> dict[str, str]:
+        """POLISH Addendum 6 Q3: `{finding_revision_id: stored title}` for the revisions among the ids."""
+        if not finding_revision_ids:
+            return {}
+        rows = self._c.execute(text(_FINDING_TITLES),
+                               self._p(ids=sorted({str(x).lower() for x in finding_revision_ids})))
+        return {str(r[0]).lower(): r[1] for r in rows if r[1]}
 
     def _domain_links(self, revision_id: str, known_at: datetime) -> list[dict[str, Any]]:
         """Ruling C1: one row per domain Action explicitly linked to this revision's case at an exact selected

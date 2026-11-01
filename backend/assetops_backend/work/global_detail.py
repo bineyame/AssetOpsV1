@@ -27,6 +27,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.estate.evidence_money import site_home_href
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at, select_case_detail
 from assetops_backend.work.global_index import coded_actions
@@ -95,8 +96,9 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
 
     selections = rx.link_selections(revision_id, None, None, known_at)
     by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
+    titles = rx.finding_titles([x["finding_revision_id"] for x in work_detail["finding_links"]])
     findings = [_finding_link(site_code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
-                                                       {"lineage": False})["lineage"])
+                                                       {"lineage": False})["lineage"], titles)
                 for x in work_detail["finding_links"]]
     actions, _codes = coded_actions(gx, tenant_id, site_id, [
         _action_link(site_code, x, by_key.get(action_selection_key(x))) for x in work_detail["action_links"]])
@@ -105,7 +107,7 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
     if case["incident_id"] is not None:
         incident = rx.case(case["incident_id"], known_at)
         if incident is not None and incident["kind"] == m.INCIDENT and rx.revisions(case["incident_id"], known_at):
-            source_incident = {"label": f"Incident {incident['public_code']}",
+            source_incident = {"label": f"Incident {display_code(incident['public_code'])}",
                                "href": f"{site_href}/work/incidents?{_day_window(incident['occurred_at'])}{cutoff}"}
 
     operational = sorted(({

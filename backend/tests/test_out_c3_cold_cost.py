@@ -10,8 +10,8 @@ from assetops_backend.site_outcomes import cold
 from assetops_backend.site_outcomes.board import assemble
 
 COST, PROTECT = cold.COST, cold.PROTECT
-E1 = dict(MR5, case_id="e1", code="MR-1", occurred_at=T(9, 0, 2))
-E2 = dict(MR5, case_id="e2", code="MR-2", occurred_at=T(9, 0, 12))
+E1 = dict(MR5, case_id="e1", code="MR-001", occurred_at=T(9, 0, 2))
+E2 = dict(MR5, case_id="e2", code="MR-002", occurred_at=T(9, 0, 12))
 
 
 def run(rows, fake: Fake | None = None, tz: str | None = "Africa/Nairobi", plans=None):
@@ -40,7 +40,7 @@ def test_repeat_visits_fill_the_cost_row() -> None:
     assert eff["confidence"] == {"label": "Limited", "tone": "amber"} and eff["href"] == "/maintenance/requests/mr5"
     rep = contributor(cost, "repair_cost")
     assert (rep["text"], rep["confidence"], rep["href"]) == (
-        "No cost on work record MR-5", {"label": "Unknown", "tone": "gray"}, f"/sites/{C}/financials")
+        "No cost on work record MR-005", {"label": "Unknown", "tone": "gray"}, f"/sites/{C}/financials")
     cool = contributor(cost, "cooling_energy")
     assert (cool["text"], cool["confidence"], cool["href"]) == (cold.NO_COOLING_METER, None, None)
     assert [e["result_label"] for e in cost["earlier"]] == ["Did not fix it", "Did not fix it", "Not yet verified"]
@@ -85,13 +85,13 @@ def test_cost_subline_falls_back_without_a_fault_name() -> None:
 
 
 def test_overdue_plan_contributor_text() -> None:
-    plans = [{"canonical_plan_id": "p1", "code": "PM-1", "title": "Witnessed backup start test",
+    plans = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Witnessed backup start test",
               "trigger_kind": "CALENDAR", "next_due_at": T(0, 0, 16), "next_due_hours": None, "state": "DRAFT",
               "asset_id": "gen", "asset_label": "generator-1 · GENERATOR"}]
     _, rows = run([MR5], plans=plans)
     assert contributor(rows[PROTECT], "backup_generator")["text"] == "Witnessed backup start test overdue since 16 Oct"
     assert "Witnessed backup start test overdue" in [i["text"] for i in rows[PROTECT]["issues"]]
-    assert [i["state_label"] for i in rows[PROTECT]["in_hand"] if i["text"].startswith("PM-1")] == ["Overdue"]
+    assert [i["state_label"] for i in rows[PROTECT]["in_hand"] if i["text"].startswith("PM-001")] == ["Overdue"]
 
 
 def test_c_copy_passes_the_vocabulary_scan() -> None:

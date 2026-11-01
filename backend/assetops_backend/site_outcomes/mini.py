@@ -21,6 +21,7 @@ from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import action_for, workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
 from assetops_backend.outcomes.catalogue import MINI
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
@@ -76,7 +77,9 @@ VERIFICATION_TEXT = {"PENDING": "{code} not yet verified", "NO_PLAN": "{code} no
                      "REASSESSMENT_PENDING": "{code} not yet verified", "VERIFIED": "{code} verified on test data",
                      "INEFFECTIVE": "{code} did not meet its target", "INCONCLUSIVE": "{code} result not determined"}
 #: OUT-E E4: the Verified results line of a VERIFIED Action whose stored cost check shows a modelled improvement.
-VERIFIED_WITH_COST = "{code} verified on test data · modelled change {amount} {currency} less per kWh of feeder demand"
+#: POLISH Addendum 6 Q6: the verdict and code prefix stay; the cost clause matches board.COST_CHANGE.
+VERIFIED_WITH_COST = ("{code} verified on test data: estimated effect of the trial (not money saved): "
+                      "{amount} {currency} less supply cost per kWh")
 PENDING_STATES = ("PENDING", "NO_PLAN", "REASSESSMENT_PENDING")
 PENDING_CHIP = {"label": "Pending", "tone": "neutral"}
 HIGH_CHIP = {"label": "High", "tone": "green"}
@@ -722,7 +725,7 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
             text = VERIFIED_WITH_COST.replace("{amount}", per_kwh_amount(cc)).replace(
                 "{currency}", cc.get("currency") or "")
         out.append(Contributor("verified_results", "Verified results",
-                               text.format(code=a.code) if text else NOT_LOADED,
+                               text.format(code=display_code(a.code)) if text else NOT_LOADED,
                                PENDING_CHIP if state in PENDING_STATES else None, a.verification_href))
     out.append(Contributor("actual_against_plan", "Actual against plan", FIXED["plan_target"]))
     if not overview_ok:

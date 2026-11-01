@@ -94,7 +94,7 @@ def test_board_finding_titles_are_the_frontend_plain_titles() -> None:
 def test_board_names_a_finding_by_lifecycle_not_stored_title() -> None:
     import test_out_b2_mini as b2
 
-    raw = dict(b2.F104, title="Generator support merits review: bounded candidate avoidable running")
+    raw = dict(b2.F104, title="A stored title the board does not show")
     comp, _ = b2.run(b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [raw], "next_cursor": None}))
     assert [f.title for f in comp.facts.findings] == ["Generator support merits review"]
     retired = dict(b2.F090, lifecycle="RETIRED")

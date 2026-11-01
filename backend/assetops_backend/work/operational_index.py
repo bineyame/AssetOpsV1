@@ -16,6 +16,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.estate.scope import token_time, wire_time
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
 from assetops_backend.work.global_detail import _day_window
 from assetops_backend.work.global_index import GlobalWorkRefusal, _micros, _site_href, site_link
@@ -38,7 +39,7 @@ def _case_link(site_code: str, case_id: str, case: dict[str, Any], cutoff: datet
         href = f"{_site_href(site_code)}/work/incidents?{_day_window(case['occurred_at'])}{tail}"
     else:
         href = f"/maintenance/requests/{_q(case_id)}?site_id={_q(site_code)}{tail}"
-    return {"label": case["public_code"], "href": href}
+    return {"label": display_code(case["public_code"]), "href": href}
 
 
 def select_operational(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,

@@ -24,8 +24,8 @@ COST, ASSURE = mini.COST, mini.ASSURE
 IMPROVED = {"state": "MODELLED_IMPROVEMENT", "reason": None, "nominal": "1/24", "upper": "11/240",
             "currency": "USD", "recorded_at": "2026-11-02T10:00:00+00:00"}
 HOURS = {"before_seconds": 900, "after_seconds": 0}
-CHANGE = ("Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand")
-ATTRIBUTED = "Supply cost per kWh before the trial: missed · after: met"
+CHANGE = ("Estimated effect of the trial (not money saved): 0.042–0.046 USD less supply cost per kWh.")
+ATTRIBUTED = "Goal before the trial: missed; after: met."
 MG2 = ObjectiveFact("MG-2", "avoidable_generator_minutes", AT_MOST, Decimal(0), True, "t", "DECLARED", "r1")
 
 
@@ -37,7 +37,7 @@ def action(state: str = "VERIFIED", cost=IMPROVED, hours=HOURS) -> ActionFact:
 def test_cost_line_every_state() -> None:
     assert board.cost_line(action()) == CHANGE
     assert board.cost_line(action(cost=dict(IMPROVED, state="MODELLED_NO_IMPROVEMENT", nominal="0", upper="0"))) == (
-        "Modelled change after the trial · not realised savings: no lower cost per kWh of feeder demand")
+        "Estimated effect of the trial (not money saved): no lower supply cost per kWh.")
     for state in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"):
         assert board.cost_line(action(state, cost=None)) == "Not calculated yet"
     for state in ("PENDING", "REASSESSMENT_PENDING", "NO_PLAN", None):
@@ -95,7 +95,8 @@ def test_board_cost_row_earlier_detail_and_assure_line() -> None:
     assert entry["detail"] == f"{CHANGE} · {ATTRIBUTED}"
     assert all(e["detail"] is None for r in rows.values() for e in r["earlier"] if e is not entry)
     assure = d4.b2.contributor(rows[ASSURE], "verified_results")["text"]
-    assert assure == "ACT-048 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"
+    assert assure == ("ACT-048 verified on test data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
+                      "supply cost per kWh")
 
 
 def test_board_not_verified_credits_nothing_to_the_trial() -> None:
@@ -129,7 +130,7 @@ def test_no_code_on_screen_and_saving_only_in_not_realised_savings() -> None:
     texts += [board.COST_NOT_CALCULATED.format(words=w) for w in board.COST_REASON_WORDS.values()]
     codes = [*REASSESSMENT_REASONS, "MODELLED_", "UNAVAILABLE", "trial-fuel-comparison", "candidate", "{", "}"]
     assert [(t, c) for t in texts for c in codes if c in t] == []
-    assert all(m.group(0).lower() == "savings" and "not realised savings" in t
-               for t in texts for m in re.finditer(r"sav(e|ed|ing)s?", t, re.I))
+    assert all(m.group(0).lower() == "saved" and "not money saved" in t
+               for t in texts for m in re.finditer(r"sav(?:ed|ing|e)s?", t, re.I))
     patterns = d4._vocabulary_patterns()
     assert [(t, n) for t in texts for n, p in patterns if p.search(t)] == []

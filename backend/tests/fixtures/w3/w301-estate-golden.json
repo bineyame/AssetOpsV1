@@ -1198,10 +1198,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
@@ -1242,7 +1239,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               },
               {
                 "categories": {
@@ -1291,10 +1288,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
@@ -1335,7 +1329,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -1465,10 +1459,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
@@ -1509,7 +1500,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -1636,10 +1627,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
@@ -1680,7 +1668,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -1990,10 +1978,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-21T08:00:00Z#0"
-                },
+                "finding_label": "Extra generator time no longer supported by the latest check",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
                 },
@@ -2034,7 +2019,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support candidate no longer supported (not a repair or a saving)"
+                "title": "Extra generator time no longer supported by the latest check"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -2238,10 +2223,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
@@ -2282,7 +2264,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "HISTORICAL",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               },
               {
                 "categories": {
@@ -2331,10 +2313,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
@@ -2375,7 +2354,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "HISTORICAL",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -2668,10 +2647,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-21T08:00:00Z#0"
-                },
+                "finding_label": "Extra generator time no longer supported by the latest check",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
                 },
@@ -2712,7 +2688,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "HISTORICAL",
-                "title": "Generator support candidate no longer supported (not a repair or a saving)"
+                "title": "Extra generator time no longer supported by the latest check"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -2869,10 +2845,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
@@ -2913,7 +2886,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               },
               {
                 "categories": {
@@ -2962,10 +2935,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
@@ -3006,7 +2976,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -3453,7 +3423,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "PARTIAL",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               },
               {
                 "categories": {
@@ -3618,7 +3588,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "PARTIAL",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",
@@ -3911,10 +3881,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
@@ -3955,7 +3922,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               },
               {
                 "categories": {
@@ -4004,10 +3971,7 @@
                 "finding_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
                 },
-                "finding_label": {
-                  "$derive": "finding_label",
-                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
-                },
+                "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
@@ -4048,7 +4012,7 @@
                   "state": "UNKNOWN"
                 },
                 "status": "CURRENT",
-                "title": "Generator support merits review: bounded candidate avoidable running"
+                "title": "Generator may have been on longer than needed"
               }
             ],
             "schema_version": "estate-finding-index-2",

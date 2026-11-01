@@ -3,7 +3,7 @@
 Each selected cold/EV row's `links.site_readiness` is followed through the matching W2 Site API
 (`/api/sites/{code}/cold/evidence`, `/api/sites/{code}/ev/evidence`) with the row's exact window and row-local
 cutoff, and the read must succeed (no 422) for that window. A row without a provable cutoff keeps the base Site
-route and `Opens current Site view`. The link-shape tests in `test_w302_evidence_scope_snapshot_postgres.py` and
+route and `Current view`. The link-shape tests in `test_w302_evidence_scope_snapshot_postgres.py` and
 `test_w302_evidence_ev_postgres.py` stay shape-only. Needs ASSETOPS_TEST_DATABASE_URL.
 """
 
@@ -34,7 +34,7 @@ if URL:
     from assetops_backend.ev_site_api import build_ev_site_router
     from assetops_backend.financials.composition import build_cold_consequence_store, build_ev_site_read_service
 
-CURRENT_VIEW = "Opens current Site view"
+CURRENT_VIEW = "Current view"
 
 
 def at(value: str) -> datetime:
@@ -108,7 +108,7 @@ def test_w302_evidence_ev_link_follows_selected_window_and_cutoff(ev_chain) -> N
 
 def test_w302_evidence_link_falls_back_without_provable_cutoff(chain) -> None:  # noqa: F811
     """A Site with no committed evidence cutoff has no provable row-local cutoff: its rows keep the base Site route
-    and `Opens current Site view`, never a windowed Site link."""
+    and `Current view`, never a windowed Site link."""
     built, _estate = cold_estate(chain)
     empty = add_empty_site(built.engine, built.site_id, "W302-EMPTY-001")
     assert db_now(built.engine) is not None

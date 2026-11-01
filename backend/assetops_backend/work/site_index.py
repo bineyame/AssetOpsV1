@@ -30,6 +30,7 @@ from uuid import UUID
 from assetops_backend.actions.lifecycle import ACCEPTED, Selector
 from assetops_backend.actions.service import selected_action_links
 from assetops_backend.actions.site_index import ActionIndexService, index_token, window_scope
+from assetops_backend.outcomes.display_code import display_code, finding_label
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at
 from assetops_backend.work.link_coverage import (CURRENT, DOMAIN_ACTION, HISTORICAL, UNKNOWN, coverage_of,
@@ -186,9 +187,12 @@ def link_fence(tenant_id: UUID, site_id: UUID, row: Mapping[str, Any], sai1: str
             "selection_token": token, "state": state if token is not None else UNKNOWN}
 
 
-def _finding_link(site_code: str, link: Mapping[str, Any], lineage: bool) -> dict[str, Any]:
+def _finding_link(site_code: str, link: Mapping[str, Any], lineage: bool,
+                  titles: Mapping[str, str] | None = None) -> dict[str, Any]:
+    """POLISH §3: the label is the linked revision's stored title (`titles` by revision id), else "Finding"."""
     fid, frev = link["finding_id"], link["finding_revision_id"]
-    return {"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
+    return {"finding_id": fid, "finding_revision_id": frev,
+            "label": finding_label((titles or {}).get(str(frev).lower())),
             "href": f"/sites/{site_code}/findings/{fid}?revision_id={frev}" if lineage else None}
 
 
@@ -200,19 +204,28 @@ def action_selection_key(link: Mapping[str, Any]) -> tuple[str, str, str]:
     return "ACTION", link["action_id"], link["action_event_id"]
 
 
+#: POLISH Addendum 6 Q9: an Action link with no read code is plain "Action" (never an 8-character id).
+ACTION_LABEL = "Action"
+
+
+def action_label(code: str | None) -> str:
+    """The display code of an Action's stored public code, else `ACTION_LABEL`."""
+    return display_code(code) or ACTION_LABEL
+
+
 def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str, Any] | None) -> dict[str, Any]:
     aid, event = link["action_id"], link["action_event_id"]
     if link.get("kind") == DOMAIN_ACTION:  # ruling C1: the domain Verification route, only with exact lineage
         ok = selection is not None and selection["lineage"]
         return {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None,
-                "finding_revision_id": link["finding_revision_id"], "label": f"Action {aid[:8]}",
+                "finding_revision_id": link["finding_revision_id"], "label": ACTION_LABEL,
                 "href": f"/sites/{site_code}/actions/{aid}/verification" if ok else None}
     href = None
     if selection is not None and selection["lineage"]:
         action = {"id": aid, "origin_finding_id": selection["origin_finding_id"],
                   "origin_finding_revision_id": selection["origin_finding_revision_id"]}
         href = selected_action_links(site_code, action, Selector("EVENT_ID", event_id=event))["selected"]
-    return {"action_id": aid, "action_event_id": event, "label": f"Action {aid[:8]}", "href": href}
+    return {"action_id": aid, "action_event_id": event, "label": ACTION_LABEL, "href": href}
 
 
 def _sort_time(case: Mapping[str, Any]) -> datetime:
@@ -258,15 +271,19 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
         action_links = all_action_links(links)
         state = m.reduce_state(case["kind"], events)
         asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
+        titles = rx.finding_titles([x["finding_revision_id"] for x in finding_links])
+        codes = rx.action_codes([x["action_id"] for x in action_links])
         row = {
             "case_id": cid, "revision_id": rid, "code": case["public_code"], "title": revision["title"],
             "narrative": revision["narrative"], "occurred_at": m.iso(case["occurred_at"]),
             "recorded_at": m.iso(revision["recorded_at"]), "state": state, "asset_id": case["asset_id"],
             "asset_label": asset_label,
             "finding_links": [_finding_link(site_code, x, by_key.get(
-                ("FINDING", x["finding_id"], x["finding_revision_id"]), {"lineage": False})["lineage"])
+                ("FINDING", x["finding_id"], x["finding_revision_id"]), {"lineage": False})["lineage"], titles)
                 for x in finding_links],
-            "action_links": [_action_link(site_code, x, by_key.get(action_selection_key(x))) for x in action_links],
+            "action_links": [{**link, "label": action_label(codes.get(str(link["action_id"]).lower()))}
+                             for link in (_action_link(site_code, x, by_key.get(action_selection_key(x)))
+                                          for x in action_links)],
             "url": None, "source_provenance": dto}
         if case["kind"] == m.REQUEST:
             row.update({"request_state": state, "incident_id": case["incident_id"], "record_id": record_id,

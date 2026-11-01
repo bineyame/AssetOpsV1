@@ -50,13 +50,13 @@ ESTATE_A48 = {"action_id": "a48", "source_finding_id": "f104", "source_finding_r
 A48 = {"action_id": "a48", "action_code": "ACT-048", "origin": {"finding_id": "f104", "finding_revision_id": "f104r"},
        "selected_event": {"id": "e1"}, "state": {"application": "PENDING"},
        "links": {"selected_event": f"/sites/{C}/actions/a48?event_id=e1"}}
-MR1 = {"case_id": "mr1", "code": "MR-1", "title": "Check generator stop", "state": "COMPLETED", "asset_id": "gen",
+MR1 = {"case_id": "mr1", "code": "MR-001", "title": "Check generator stop", "state": "COMPLETED", "asset_id": "gen",
        "asset_label": "GEN-1 · generator", "finding_links": [{"finding_id": "f090"}], "occurred_at": iso(T(3))}
-IN1 = {"case_id": "in1", "code": "IN-1", "title": "Feeder trip", "state": "OPEN", "asset_id": None,
+IN1 = {"case_id": "in1", "code": "IN-001", "title": "Feeder trip", "state": "OPEN", "asset_id": None,
        "asset_label": None, "finding_links": [{"finding_id": "f-old"}], "occurred_at": iso(T(1))}
-PLANS = [{"canonical_plan_id": "p1", "code": "PM-1", "title": "Generator service", "trigger_kind": "RUN_HOURS",
+PLANS = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator service", "trigger_kind": "RUN_HOURS",
           "next_due_at": None, "next_due_hours": "500.0", "state": "DRAFT", "asset_id": "gen"},
-         {"canonical_plan_id": "p2", "code": "PM-2", "title": "Battery check", "trigger_kind": "CALENDAR",
+         {"canonical_plan_id": "p2", "code": "PM-002", "title": "Battery check", "trigger_kind": "CALENDAR",
           "next_due_at": iso(T(31, 22)), "next_due_hours": None, "state": "DRAFT", "asset_id": "bat"}]
 
 
@@ -129,7 +129,7 @@ def vocabulary_compositions():
 def test_kobo_board_from_ports() -> None:
     comp, rows = run()
     assert comp.read_state == "AVAILABLE" and comp.failed == () and comp.timezone == ZONE
-    # C: PM-2 (calendar, due 1 Nov) is due within 14 days, an early warning moving MG-4, so Protect is Watch
+    # C: PM-002 (calendar, due 1 Nov) is due within 14 days, an early warning moving MG-4, so Protect is Watch
     assert [rows[c]["state"] for c in (GROW, COST, PROTECT, ASSURE)] == [
         "OPPORTUNITY", "NEEDS_ATTENTION", "WATCH", "WATCH"]
     assert [w.kind for w in comp.facts.warnings] == ["PLAN_DUE_SOON"]
@@ -192,7 +192,7 @@ def test_every_linked_finding_is_supplied_closed_included() -> None:
     linked = {a.origin_finding_id for a in comp.facts.actions} | {
         fid for case in comp.facts.cases if case.case_id == "mr1" for fid in case.finding_ids}
     assert linked <= set(ids)
-    assert rows[COST]["earlier"] == [{"text": "MR-1 · Check generator stop", "href": "/maintenance/requests/mr1",
+    assert rows[COST]["earlier"] == [{"text": "MR-001 · Check generator stop", "href": "/maintenance/requests/mr1",
                                       "result_label": "Not yet verified", "detail": None}]
     assert not [i for i in rows[COST]["issues"] if i["ref"] and i["ref"]["finding_id"] == "f090"]
 
@@ -200,7 +200,7 @@ def test_every_linked_finding_is_supplied_closed_included() -> None:
 def test_unresolved_link_is_kept_and_recorded_not_on_the_wire() -> None:
     comp, rows = run()
     assert comp.diagnostics == (("in1", "f-old"),)
-    assert {"text": "IN-1 · Feeder trip", "href": f"/sites/{C}/work/incidents",
+    assert {"text": "IN-001 · Feeder trip", "href": f"/sites/{C}/work/incidents",
             "state_label": "Open · linked finding outside this view"} in rows[PROTECT]["in_hand"]
     assert "diagnostics" not in str(rows) and "f-old" not in str(rows)
 
@@ -222,11 +222,11 @@ def test_depth_refusal_sets_mg1_mg5_unknown_and_utc_dates() -> None:
     assert outcome(rows[GROW], "MG-1") == "UNKNOWN" and outcome(rows[PROTECT], "MG-5") == "UNKNOWN"
     assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
     assert contributor(rows[GROW], "productive_use")["text"] == mini.NOT_LOADED
-    plan = next(i for i in rows[PROTECT]["in_hand"] if i["text"] == "PM-2 · Battery check")
+    plan = next(i for i in rows[PROTECT]["in_hand"] if i["text"] == "PM-002 · Battery check")
     assert plan["state_label"] == "Due soon"  # C: the due cue fires; its date moves to the warning
     assert [w.seen for w in comp.facts.warnings] == ["Due 31 Oct · UTC (Site time zone unavailable)"]
     ok_comp, ok = run()
-    assert next(i for i in ok[PROTECT]["in_hand"] if i["text"] == "PM-2 · Battery check")["state_label"] == "Due soon"
+    assert next(i for i in ok[PROTECT]["in_hand"] if i["text"] == "PM-002 · Battery check")["state_label"] == "Due soon"
     assert [w.seen for w in ok_comp.facts.warnings] == ["Due 1 Nov"]
 
 
@@ -263,7 +263,7 @@ def test_degrade_only_ports_never_set_unknown() -> None:
     for port in ("work", "plans", "assumptions", "verification", "action", "action_index"):
         comp, rows = run(Fake(refuse=(port,)))
         assert comp.read_state == "PARTIAL", port
-        # C: Protect is Watch from the PM-2 due cue unless the plan read itself is refused
+        # C: Protect is Watch from the PM-002 due cue unless the plan read itself is refused
         assert [rows[c]["state"] for c in (GROW, COST, PROTECT)] == [
             "OPPORTUNITY", "NEEDS_ATTENTION", "NO_OBJECTIVE" if port == "plans" else "WATCH"], port
     _, rows = run(Fake(refuse=("assumptions",)))
@@ -281,9 +281,9 @@ def _assert_finding_source_unsettled(comp, rows) -> None:
     loaded = " · Not available yet · linked finding could not be loaded"
     assert {"text": "ACT-048", "href": f"/sites/{C}/actions/a48?event_id=e1",
             "state_label": "Pending" + loaded} in rows[PROTECT]["in_hand"]
-    assert {"text": "IN-1 · Feeder trip", "href": f"/sites/{C}/work/incidents",
+    assert {"text": "IN-001 · Feeder trip", "href": f"/sites/{C}/work/incidents",
             "state_label": "Open" + loaded} in rows[PROTECT]["in_hand"]
-    assert {"text": "MR-1 · Check generator stop", "href": "/maintenance/requests/mr1",
+    assert {"text": "MR-001 · Check generator stop", "href": "/maintenance/requests/mr1",
             "result_label": "Not yet verified" + loaded, "detail": None} in rows[PROTECT]["earlier"]
     assert "outside this view" not in str(rows)
     assert ("a48", "f104") in comp.diagnostics and ("in1", "f-old") in comp.diagnostics

@@ -24,9 +24,10 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 #: IDX-GAPS (R595 resolved): the board day's Finding index is PARTIAL with the day assessed, so ACT-000001's linked
 #: Finding is in view: Protect lists the safeguard check, and the Action reads back under Cost.
 PROTECT = "Reliable service and battery and generator life checked as safeguards in ACT-000001"
-COST_DETAIL = ("Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand"
-               " · Supply cost per kWh before the trial: missed · after: met")
-ASSURE = "ACT-000001 verified on test data · modelled change 0.042–0.046 USD less per kWh of feeder demand"
+COST_DETAIL = ("Estimated effect of the trial (not money saved): 0.042–0.046 USD less supply cost per kWh."
+               " · Goal before the trial: missed; after: met.")
+ASSURE = ("ACT-001 verified on test data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
+          "supply cost per kWh")
 CODES = ("MODELLED_IMPROVEMENT", "MODELLED_NO_IMPROVEMENT", "UNAVAILABLE", "OUTCOME_INCONCLUSIVE",
          "trial-fuel-comparison", "candidate", "VERIFIED")
 
@@ -87,9 +88,9 @@ def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeyp
     assert [(t, code) for t in shown for code in CODES if code in t] == []
     # the cost line sits in the Cost row and may sit in Assure's verified-results line (R594); nowhere else in the
     # whole board body (IDX-GAPS U2 review L1)
-    assert "not realised savings" in json.dumps(rows["OPTIMIZE_COST"])
+    assert "not money saved" in json.dumps(rows["OPTIMIZE_COST"])
     rest = {k: v for k, v in body.items() if k != "rows"}
     rest["rows"] = [r if r["category"] != "ASSURE_PERFORMANCE" else
                     {**r, "contributors": [c for c in r["contributors"] if c["key"] != "verified_results"]}
                     for r in body["rows"] if r["category"] != "OPTIMIZE_COST"]
-    assert "not realised savings" not in json.dumps(rest)
+    assert "not money saved" not in json.dumps(rest)

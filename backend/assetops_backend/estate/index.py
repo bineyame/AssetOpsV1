@@ -18,6 +18,7 @@ from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
     cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
     portfolio_cursor_key, selection_token, token_time, wire_time)
+from assetops_backend.outcomes.display_code import finding_label
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
@@ -128,7 +129,7 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
             fid, frid = r["finding_id"], r["finding_revision_id"]
             rows.append({
                 "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
-                "site_code": code, "site_name": site["site_name"], "finding_label": f"Finding {fid[:8]}",
+                "site_code": code, "site_name": site["site_name"], "finding_label": finding_label(r["title"]),
                 "title": r["title"], "priority": None, "confidence": None, "confidence_reasons": [],
                 "lifecycle": r["lifecycle"], "lens_flags": flags, "consequence": r["consequence"],
                 "source_provenance": r["source_provenance"], "episode_start": wire_time(r["episode_start"]),
@@ -140,7 +141,8 @@ def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
                 "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
                 "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism"),
                 # CC-R2: the mini recurrence facts placement reads (null on cold and EV rows, C13).
-                "_recurs_after": r.get("recurs_after_finding_id"), "_transition": r.get("transition"),
+                "_recurs_after": r.get("recurs_after_finding_id"), "_recurs_after_title": r.get("recurs_after_title"),
+                "_transition": r.get("transition"),
                 "_revision_no": r.get("revision_no")})
     return per_site, rows
 

@@ -44,7 +44,7 @@ def act048(**kw) -> ActionFact:
     base = dict(action_id="a48", code="ACT-048", title="",  # no stored Action title (addendum 2 item 1)
                 origin_finding_id="f104", origin_revision_id="f104r", applied=False, open=True,
                 verification_state="PENDING", href="/sites/KOBO-001/actions/a48",
-                workflow_label="Recommendation not accepted",
+                workflow_label="No action agreed yet",
                 verification_href="/sites/KOBO-001/actions/a48/verification?event_id=e1")
     base.update(kw)
     return ActionFact(**base)
@@ -175,7 +175,7 @@ def test_join_names() -> None:
 F118 = FindingFact("f118", "f118r", "Backup did not start", "COLD_START_FAILURE", "SUPPORTED", "/sites/C/f118",
                    asset_id="gen")
 F119 = FindingFact("f119", "f119r", "Chamber above limit", "COLD_EXCURSION", "UNCONFIRMED", "/sites/C/f119")
-COLD_ACTION = ActionFact("da1", "DA-1", "Witnessed automatic-start test", "f118", "f118r", False, True, None,
+COLD_ACTION = ActionFact("da1", "DA-001", "Witnessed automatic-start test", "f118", "f118r", False, True, None,
                          "/sites/C/actions/da1", is_domain=True)
 
 
@@ -214,7 +214,7 @@ def test_cold_protect_lists_domain_action_in_hand_and_completed_request_not_yet_
     p = rows_by_cat(cold())[PROTECT]
     assert p["must_not_harm"] is None  # domain Actions carry no verification
     assert [i["text"] for i in p["issues"]] == ["Backup did not start", "Chamber above limit"]
-    assert p["in_hand"] == [{"text": "DA-1 · Witnessed automatic-start test", "href": "/sites/C/actions/da1",
+    assert p["in_hand"] == [{"text": "DA-001 · Witnessed automatic-start test", "href": "/sites/C/actions/da1",
                              "state_label": "Open"}]
     assert p["earlier"] == [{"text": "MR1 · Inspect mr1", "href": "/maintenance/requests/mr1",
                              "result_label": "Not yet verified", "detail": None}]
@@ -236,21 +236,21 @@ def test_later_request_on_same_asset_marks_earlier_did_not_fix_it() -> None:
 
 
 def test_incidents_and_closed_cases() -> None:
-    inc = CaseFact("i1", "INC-1", "INCIDENT", "Power cut", "CLOSED", None, None, (), t(3), "/sites/C/work/incidents")
-    inc_open = replace(inc, case_id="i2", code="INC-2", state="IN_PROGRESS")
+    inc = CaseFact("i1", "INC-001", "INCIDENT", "Power cut", "CLOSED", None, None, (), t(3), "/sites/C/work/incidents")
+    inc_open = replace(inc, case_id="i2", code="INC-002", state="IN_PROGRESS")
     p = rows_by_cat(cold(cases=(inc, inc_open)))[PROTECT]
     assert p["earlier"] == [] and p["earlier_empty_text"] == EARLIER_EMPTY_OPEN
-    assert p["in_hand"][-1] == {"text": "INC-2 · Power cut", "href": "/sites/C/work/incidents",
+    assert p["in_hand"][-1] == {"text": "INC-002 · Power cut", "href": "/sites/C/work/incidents",
                                 "state_label": "In progress · not linked to a finding"}
 
 
 def test_plans_in_hand_on_protect_only() -> None:
-    plans = (PlanFact("p1", "PM-1", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive"),
-             PlanFact("p2", "PM-2", "Compressor check", "CALENDAR", date(2026, 11, 3), None, "ACTIVE", None, None),
-             PlanFact("p3", "PM-3", "Retired", "CALENDAR", date(2026, 11, 3), None, "RETIRED", None, None))
+    plans = (PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive"),
+             PlanFact("p2", "PM-002", "Compressor check", "CALENDAR", date(2026, 11, 3), None, "ACTIVE", None, None),
+             PlanFact("p3", "PM-003", "Retired", "CALENDAR", date(2026, 11, 3), None, "RETIRED", None, None))
     rows = rows_by_cat(cold(plans=plans, actions=(), cases=()))
     assert [(i["text"], i["state_label"]) for i in rows[PROTECT]["in_hand"]] == [
-        ("PM-1 · Generator service", "Due at 500 operating hours"), ("PM-2 · Compressor check", "Due 3 Nov")]
+        ("PM-001 · Generator service", "Due at 500 operating hours"), ("PM-002 · Compressor check", "Due 3 Nov")]
     assert rows[ASSURE]["in_hand"] == []
 
 
@@ -361,7 +361,7 @@ def test_out_of_window_finding_places_work_but_drives_no_signal_or_issue() -> No
 
 def test_closed_linked_finding_keeps_case_in_its_outcome() -> None:
     closed = replace(F104, lifecycle="RETIRED")
-    case = CaseFact("w1", "MR-7", "MAINTENANCE_REQUEST", "Check generator", "COMPLETED", "gen", None, ("f104",),
+    case = CaseFact("w1", "MR-007", "MAINTENANCE_REQUEST", "Check generator", "COMPLETED", "gen", None, ("f104",),
                     t(1), "/maintenance/requests/w1")
     rows = rows_by_cat(kobo(findings=(closed,), actions=(), cases=(case,)))
     assert [e["result_label"] for e in rows[COST]["earlier"]] == ["Not yet verified"]

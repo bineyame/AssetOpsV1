@@ -29,6 +29,7 @@ from uuid import UUID
 
 from assetops_backend.actions.lifecycle import ACCEPTED
 from assetops_backend.actions.site_index import ActionIndexService
+from assetops_backend.outcomes.display_code import display_code, finding_label
 from assetops_backend.work import domain_action as d
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at
@@ -188,6 +189,11 @@ class _Lineage:
         return out
 
 
+def _title_label(revision: Mapping[str, Any] | None) -> str:
+    """POLISH §3 (Addendum 6 Q3): a Finding link's label is its origin revision's stored title, else "Finding"."""
+    return finding_label(None if revision is None else revision.get("title"))
+
+
 def _source_state(pin: Mapping[str, Any] | None, finding_domain: str | None = d.FINDING_DOMAIN) -> str:
     """The pinned Finding's source state without HISTORICAL (the cutoff is applied once, envelope-wide)."""
     return link_state({"domain": finding_domain, "pin": pin}, False)
@@ -265,7 +271,7 @@ class DomainActionReadService:
                 "results": None if intent is None else [
                     {"key": c["key"], "result": r, "evidence_ids": []}
                     for c, r in zip(intent["criteria"], INITIAL_RESULTS)],
-                "links": {"finding": {"label": f"Finding {fid[:8]}",
+                "links": {"finding": {"label": _title_label(lineage["revision"]),
                                       "href": _finding_href(site_code, fid, action["origin_finding_revision_id"],
                                                             selected)},
                           "work": self._work(rx, action["id"], known_at)},
@@ -344,7 +350,7 @@ class DomainActionReadService:
             "results": None if intent is None else [
                 {"key": c["key"], "result": r, "evidence_ids": []}
                 for c, r in zip(intent["criteria"], spec.initial_results)],
-            "links": {"finding": {"label": f"Finding {fid[:8]}",
+            "links": {"finding": {"label": _title_label(rx.finding_revisions([rid], cutoff).get(rid)),
                                   "href": _finding_href(site_code, fid, rid, selected)},
                       "work": self._work(rx, action["id"], known_at)},
             "source_provenance": provenance, "selection_token": token,
@@ -368,7 +374,7 @@ class DomainActionReadService:
             return empty
         return {"case_id": chosen["case_id"], "case_code": chosen["public_code"],
                 "case_title": view["revision"]["title"], "request_state": m.reduce_state(m.REQUEST, view["events"]),
-                "record_id": view["record_id"], "label": f"Maintenance request {chosen['public_code']}", "href": None}
+                "record_id": view["record_id"], "label": f"Maintenance request {display_code(chosen['public_code'])}", "href": None}
 
     # ---- union index --------------------------------------------------------------------------------------
 
@@ -434,15 +440,19 @@ class DomainActionReadService:
             by_action[str(event["action_id"])].append(event)
         if any(not any(e["kind"] == ACCEPTED for e in evs) for evs in by_action.values()):
             raise WorkStoreUnavailable("The W1 Action window was not consistent.")
-        for a in window["actions"]:
-            w1 = ActionIndexService._row(tenant_id, site_id, site_code, a, by_action[str(a["id"])])
+        w1_rows = [ActionIndexService._row(tenant_id, site_id, site_code, a, by_action[str(a["id"])])
+                   for a in window["actions"]]
+        w1_titles = rx.finding_revisions(sorted({w["origin"]["finding_revision_id"] for w in w1_rows}),
+                                         known_at) if w1_rows else {}
+        for a, w1 in zip(window["actions"], w1_rows):
             created = a["created_at"].astimezone(timezone.utc)
             origin = w1["origin"]
             rows.append({"after": (created, w1["action_id"]), "wire": {
                 "action_id": w1["action_id"], "action_code": w1["action_code"], "domain": W1_DOMAIN, "title": None,
                 "owner_label": None, "due_at": None, "raised_at": m.iso(created), "recorded_at": m.iso(created),
                 "origin": {"finding_id": origin["finding_id"], "finding_revision_id": origin["finding_revision_id"],
-                           "label": f"Finding {origin['finding_id'][:8]}", "href": w1["links"]["origin_finding"]},
+                           "label": _title_label(w1_titles.get(origin["finding_revision_id"])),
+                           "href": w1["links"]["origin_finding"]},
                 "state": w1["state"], "criterion_summary": None,
                 "links": {"action": w1["links"]["canonical"], "history": w1["links"]["history_at_event"]}}})
             fence.append((KIND_W1, w1["action_id"], m.iso(created), None, origin["finding_revision_id"]))
@@ -471,7 +481,8 @@ class DomainActionReadService:
                 "action_id": a["id"], "action_code": a["action_code"], "domain": a["domain"], "title": a["title"],
                 "owner_label": a["owner_label"], "due_at": _iso(a["due_at"]), "raised_at": m.iso(raised),
                 "recorded_at": m.iso(a["recorded_at"]),
-                "origin": {"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
+                "origin": {"finding_id": fid, "finding_revision_id": frev,
+                           "label": _title_label(lineage[a["id"]]["revision"]),
                            "href": _finding_href(site_code, fid, frev, selected)},
                 "state": STATE_OPEN, "criterion_summary": _summary(intent, d.spec_of(a["domain"])),
                 "links": {"action": f"/sites/{site_code}/actions/{a['id']}/verification", "history": None}}})

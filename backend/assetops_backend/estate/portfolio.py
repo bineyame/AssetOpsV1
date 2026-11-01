@@ -143,7 +143,7 @@ action_for = _action_for
 def workflow_label(action: dict[str, Any] | None) -> str:
     """Closure 5 S7: the first matching selected fact; table order is precedence."""
     if action is None:
-        return "Recommendation not accepted"
+        return "No action agreed yet"
     if action["resolution_state"] == "RESOLVED" and action["verification_outcome"] == "VERIFIED":
         return "Verified"
     if action["resolution_state"] == "RESOLUTION_WITHDRAWN":
@@ -294,7 +294,7 @@ CARD_SLOTS = {
 CARD_DESTINATION = {"OPERATING_COST": "/financials", "SERVICE_PRODUCT_RISK": "/findings/risks",
                     "PRODUCTIVE_USE": None, "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
 #: Literal value slots; the bounded amounts of COMPARABLE_GROUP/SITE_OWNED are formatted by the page (S10).
-DISPLAYED_VALUE = {"WITHHELD": "Not comparable for this selection", "NO_LINE": "No supported value",
+DISPLAYED_VALUE = {"WITHHELD": "Can't be compared across these sites yet", "NO_LINE": "No supported value",
                    "UNPRICED": "Unpriced", "UNKNOWN": "Not assessed", "UNSUPPORTED": "Not established",
                    "NOT_ESTABLISHED": "Not established"}
 

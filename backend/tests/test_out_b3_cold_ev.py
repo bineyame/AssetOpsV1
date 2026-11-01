@@ -62,18 +62,18 @@ COLD_OVERVIEW = {
     "causal_strip": [{"step": "GRID", "state": "OBSERVED"}, {"step": "START_REQUEST", "state": "OBSERVED"},
                      {"step": "COMPRESSOR", "state": "MISSING"}],
 }
-DA1 = {"action_id": "da1", "action_code": "DA-1", "domain": "cold_chain", "title": "Witnessed automatic-start test",
+DA1 = {"action_id": "da1", "action_code": "DA-001", "domain": "cold_chain", "title": "Witnessed automatic-start test",
        "origin": {"finding_id": "f118", "finding_revision_id": "f118r"}, "state": "OPEN",
        "links": {"action": f"/sites/{C}/actions/da1"}}
 W1_ROW = {"action_id": "w1", "action_code": "ACT-001", "domain": "cold_chain", "title": None,
           "origin": {"finding_id": "f-w1", "finding_revision_id": "r"}, "state": "OPEN", "links": {}}
-MR5 = {"case_id": "mr5", "code": "MR-5", "title": "Inspect generator", "state": "COMPLETED", "asset_id": "gen",
+MR5 = {"case_id": "mr5", "code": "MR-005", "title": "Inspect generator", "state": "COMPLETED", "asset_id": "gen",
        "asset_label": "generator-1 · GENERATOR", "finding_links": [{"finding_id": "f118"}], "occurred_at": T(9)}
 COLD_PLANS = [
-    {"canonical_plan_id": "p1", "code": "PM-1", "title": "Generator service", "trigger_kind": "CALENDAR",
+    {"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator service", "trigger_kind": "CALENDAR",
      "next_due_at": T(22, 0, 31), "next_due_hours": None, "state": "DRAFT", "asset_id": "gen",
      "asset_label": "generator-1 · GENERATOR"},
-    {"canonical_plan_id": "p2", "code": "PM-2", "title": "Compressor check", "trigger_kind": "CALENDAR",
+    {"canonical_plan_id": "p2", "code": "PM-002", "title": "Compressor check", "trigger_kind": "CALENDAR",
      "next_due_at": T(8, 0, 25), "next_due_hours": None, "state": "DRAFT", "asset_id": "cmp",
      "asset_label": "compressor-1 · COMPRESSOR"}]
 
@@ -111,7 +111,7 @@ def test_greenharvest_board_from_ports() -> None:
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
         ("Witnessed automatic-start test", f"/sites/{C}/actions/da1"),
         ("Stock value what-if", f"/sites/{C}/financials/scenarios")]
-    assert contributor(rows[ASSURE], "verified_results")["text"] == "MR-5 completed; not yet verified"
+    assert contributor(rows[ASSURE], "verified_results")["text"] == "MR-005 completed; not yet verified"
     assert contributor(rows[ASSURE], "event_chain")["text"] == "1 step not recorded"  # singular (L7)
     assert rows[ASSURE]["headline"] == "Event partly reconstructed · no verified result yet"
     assert rows[ASSURE]["subline"] == cold.ASSURE_SUBLINE
@@ -121,8 +121,8 @@ def test_greenharvest_board_from_ports() -> None:
 def test_w1_rows_ignored_and_domain_action_in_hand_only() -> None:
     comp, rows = run_cold()
     assert [a.action_id for a in comp.facts.actions] == ["da1"]  # B-Q21: the title-less W1 row is ignored
-    assert any(i["text"] == "DA-1 · Witnessed automatic-start test" for i in rows[PROTECT]["in_hand"])
-    assert not any("DA-1" in e["text"] for r in rows.values() for e in r["earlier"])
+    assert any(i["text"] == "DA-001 · Witnessed automatic-start test" for i in rows[PROTECT]["in_hand"])
+    assert not any("DA-001" in e["text"] for r in rows.values() for e in r["earlier"])
 
 
 def test_cooling_states_and_full_chain() -> None:
@@ -162,7 +162,7 @@ def test_refused_cold_findings_unsettle_cc6_cc1() -> None:
     comp, rows = run_cold(Fake(refuse=("cold_findings",)))
     assert comp.read_state == "PARTIAL" and "cold_findings" in comp.failed
     assert outcome(rows[PROTECT], "CC-6") == "UNKNOWN" and outcome(rows[PROTECT], "CC-1") == "UNKNOWN"
-    labels = [i["state_label"] for i in rows[PROTECT]["in_hand"] if i["text"].startswith("DA-1")]
+    labels = [i["state_label"] for i in rows[PROTECT]["in_hand"] if i["text"].startswith("DA-001")]
     assert labels == ["Open" + NOT_LOADED_LINK_SUFFIX]
     assert "outside this view" not in str(rows)
 
@@ -206,10 +206,10 @@ AVAIL = {"availability": {"connectors": [
     {"label": "C1", "known_unavailable_seconds": 0, "unknown_seconds": 0, "spans": []},
     {"label": "C2", "known_unavailable_seconds": 5400, "unknown_seconds": 1800,
      "spans": [{"from": T(10), "to": T(10, 30), "state": "UNKNOWN"}]}]}}
-EA1 = {"action_id": "ea1", "action_code": "DA-7", "domain": "ev_charging", "title": "Inspect connector C2",
+EA1 = {"action_id": "ea1", "action_code": "DA-007", "domain": "ev_charging", "title": "Inspect connector C2",
        "origin": {"finding_id": "f130", "finding_revision_id": "f130r"}, "state": "OPEN",
        "links": {"action": f"/sites/{E}/actions/ea1"}}
-MR9 = {"case_id": "mr9", "code": "MR-9", "title": "Replace connector latch", "state": "COMPLETED", "asset_id": "c2",
+MR9 = {"case_id": "mr9", "code": "MR-009", "title": "Replace connector latch", "state": "COMPLETED", "asset_id": "c2",
        "asset_label": "c2 · EV_CONNECTOR", "finding_links": [{"finding_id": "f120"}], "occurred_at": T(3, 0, 12)}
 
 
@@ -276,7 +276,7 @@ def test_closed_linked_finding_resolved_through_single_read() -> None:
     comp, rows = run_ev(fake)
     assert [args[0] for name, args in fake.calls if name == "ev_finding"] == ["f120"]  # only the missing link
     assert {f.finding_id for f in comp.facts.findings} == {"f130", "f120"} and comp.diagnostics == ()
-    assert {"text": "MR-9 · Replace connector latch", "href": "/maintenance/requests/mr9",
+    assert {"text": "MR-009 · Replace connector latch", "href": "/maintenance/requests/mr9",
             "result_label": "Not yet verified", "detail": None} in rows[PROTECT]["earlier"]
     assert "outside this view" not in str(rows)
 

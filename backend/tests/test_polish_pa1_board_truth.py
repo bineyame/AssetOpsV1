@@ -100,7 +100,7 @@ def test_new_mini_copy_is_in_the_vocabulary_scan() -> None:
 # --------------------------------------------------------------- §6 D-2 (OUT-E L4)
 
 def test_modelled_improvement_is_credited_only_to_a_verified_trial() -> None:
-    assert board.cost_line(action("VERIFIED")).startswith("Modelled change after the trial")
+    assert board.cost_line(action("VERIFIED")).startswith("Estimated effect of the trial")
     for state in ("INEFFECTIVE", "INCONCLUSIVE", "PENDING", None):
         assert board.cost_line(action(state, cost=IMPROVED)) == (
             "The trial did not fix the problem, so no cost change is credited to it"), state

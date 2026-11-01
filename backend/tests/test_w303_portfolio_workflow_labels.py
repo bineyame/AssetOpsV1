@@ -26,7 +26,7 @@ def finding_row(rev=REV):
 
 
 def test_all_seven_literal_labels_and_precedence() -> None:
-    assert workflow_label(None) == "Recommendation not accepted"
+    assert workflow_label(None) == "No action agreed yet"
     # Verified wins over an open window and an applied state.
     assert workflow_label(action(app="APPLIED", resolution="RESOLVED", outcome="VERIFIED", window=True)) == "Verified"
     assert workflow_label(action(app="APPLIED", resolution="RESOLUTION_WITHDRAWN", window=True)) == \

@@ -92,7 +92,7 @@ def test_w302_cold_observation_codes_map_to_plain_sentences() -> None:
         "START_REQUEST": "No record of a generator start request.",
         "START_RESULT": "No record of a generator start result.",
         "GENERATOR": "No record of the generator running or failing.",
-        "TRANSFER": "No record of power transferring to the generator.",
+        "TRANSFER": "No record of switching to backup power.",
         "BUS": "No record of the electrical bus state.",
         "COMPRESSOR": "No record of the compressor state.",
         "PROBE": "No record of a room temperature reading.",
@@ -100,7 +100,7 @@ def test_w302_cold_observation_codes_map_to_plain_sentences() -> None:
     assert set(expected) == set(COLD_OBSERVATION_WORDS) == set(cold.STEPS)
     for code, sentence in expected.items():
         assert plain_limitation(f"Not observed: {code}.") == sentence
-    assert plain_limitation("Not observed: TRANSFER.") == "No record of power transferring to the generator."
+    assert plain_limitation("Not observed: TRANSFER.") == "No record of switching to backup power."
     assert plain_limitation("Not observed: BUS, PROBE. Contradictory start results block a start-response claim.")         == ("No record of the electrical bus state. No record of a room temperature reading. "
             "Contradictory start results block a start-response claim.")
     fallback = "Some required observations have no readable description."
