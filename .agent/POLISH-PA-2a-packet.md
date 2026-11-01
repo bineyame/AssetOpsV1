@@ -59,7 +59,22 @@ Captures: deferred to PA-3 (Addendum 3). The exact-output tests below are the sc
 - "No end is recorded for this episode" → "No end time yet". "Recommendation not accepted" → "No action agreed yet".
 - "Not comparable for this selection" → "Can't be compared across these sites yet". "Opens current Site view" → "Current view".
 - "Automatic generator start failed in the accepted record" → "Backup generator did not start on its own".
-- "Not observed: TRANSFER." (cold read) and "No record of power transferring to the generator." (estate) → "No record of switching to backup power."
+- Cold observation codes (review L2). The cold Site read now applies the whole estate map, so each stored
+  "Not observed: CODE[, CODE].` fragment becomes one plain sentence per code (estate already did this):
+  - GRID: "Not observed: GRID." → "No record of a grid power loss."
+  - START_REQUEST → "No record of a generator start request."
+  - START_RESULT → "No record of a generator start result."
+  - GENERATOR → "No record of the generator running or failing."
+  - TRANSFER → "No record of switching to backup power." (estate was "No record of power transferring to the generator.")
+  - BUS → "No record of the electrical bus state."
+  - COMPRESSOR → "No record of the compressor state."
+  - PROBE → "No record of a room temperature reading."
+  - A malformed or unknown fragment → "Some required observations have no readable description."
+  - Only TRANSFER's words changed; the other seven are new only on the cold Site read. GENERATOR's "running" is
+    existing estate copy, unchanged and not ruled here.
+- "Action ACT-000001" (estate/Portfolio `action_title`, review M1) → "Action ACT-001".
+- Earlier detail join (review L1): "…per kWh. · Goal before the trial: …" → "…per kWh. Goal before the trial: …"
+  (a part that ends a sentence is followed by one space; otherwise " · " stays, e.g. "Not calculated yet · Goal …").
 - "Modelled change after the trial · not realised savings: … per kWh of feeder demand" → "Estimated effect of the trial (not money saved): … supply cost per kWh."
 - "{label} before the trial: {b} · after: {a}" → "Goal before the trial: {b}; after: {a}."
 - Banned-word swaps: none were needed beyond Addendum 4's titles.
@@ -96,7 +111,8 @@ un-host-tests.ps1 -- backend/tests/test_w301_estate_golden_postgres.py -q`
 - **Golden titles.** Addendum 6 said 12 strings. The manifest also held 2 NO_LONGER_SUPPORTED titles, which changed
   with `TITLES` and were edited too.
 - **Golden labels.** The 12 `finding_label` markers (`{"$derive": "finding_label"}`, which built `Finding {id8}`) are
-  now each row's literal title. The derive rule in the test stays but is no longer used.
+  now each row's literal title. The `finding_label` derive rule (`test_w301_estate_golden_postgres.py:430-431`)
+  is now unused and is kept, with no code change (review L3).
 - **Board title words.** `mini.FINDING_TITLE` (the board names a mini Finding by its lifecycle) is unchanged.
   `test_idx_gaps_board::test_board_finding_titles_are_the_frontend_plain_titles` pins it equal to frontend
   `findingWords.ts` `LIFECYCLE_WORDS`, which PB-2 owns. Changing both together belongs to PB-2 (or a small fix after PB-2).
@@ -120,3 +136,13 @@ un-host-tests.ps1 -- backend/tests/test_w301_estate_golden_postgres.py -q`
 
 The display-code coverage list (Q8), the RECURRED title path through `coverage.py`, the `plain_limitation` move, and
 the board title-words pairing left to PB-2.
+
+## Fix round 1 (review `.agent/review-POLISH-PA-2a.md`, REVISE)
+
+- M1: `estate/coverage.py` `action_title` uses `display_code` ("Action ACT-001"); pin in `test_w301_estate_api.py`
+  updated. `test_w303_portfolio_workflow_labels.py` builds its own fake `action_title` (`Action {aid}`), no 6-digit pin.
+- M2: `tools/demo_combined_finish.py` CO-3 marker is the new `COST_PREFIX` text "Estimated effect of the trial (not
+  money saved): ". The check is unchanged: some Kobo Optimize-cost Earlier detail must contain the marker.
+- L1: `board.action_detail` joins after a sentence-ending part with one space; pins in `test_out_e4_readback.py`
+  and `test_out_e4_readback_postgres.py` updated.
+- L2, L3: packet only (above).

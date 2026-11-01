@@ -415,11 +415,15 @@ def trial_line(a: ActionFact, objective: ObjectiveFact | None) -> str | None:
 
 
 def action_detail(a: ActionFact, cat: str, facts: SiteFacts) -> str | None:
-    """The Earlier ACT entry's `detail` in a MOVES row: the parts that apply, joined by " · "; None when none."""
+    """The Earlier ACT entry's `detail` in a MOVES row: the parts that apply, None when none. POLISH §3.1 (PA-2a review
+    L1): a part that ends a sentence is followed by a single space; otherwise the parts are joined by " · "."""
     objective = next((o for o in facts.objectives if o.measure_key == TRIAL_MEASURE
                       and OUTCOME_BY_KEY[o.outcome_key].category == cat), None)
     parts = [cost_line(a) if cat == "OPTIMIZE_COST" else None, trial_line(a, objective)]
-    return " · ".join(p for p in parts if p) or None
+    out = ""
+    for p in (x for x in parts if x):
+        out = p if not out else out + (" " if out.endswith(".") else " · ") + p
+    return out or None
 
 
 def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | None:

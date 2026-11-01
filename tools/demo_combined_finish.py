@@ -26,7 +26,8 @@ KOBO, COLD, EV = "KOBO-001", "COLD-LAB-001", "EV-LAB-001"
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 SAFEGUARD = " · checked here as a safeguard"
 OUTSIDE = " · linked finding outside this view"
-NOT_REALISED = "not realised savings"
+#: POLISH PA-2a (review M2): the trial cost line prefix, `site_outcomes/board.py` COST_PREFIX (was "not realised savings").
+NOT_REALISED = "Estimated effect of the trial (not money saved): "
 GAPS_TEXT = "Not available yet · {g} of 31 days have no assessed readings"
 IDX_POLICY = "finding-index/2"
 #: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.

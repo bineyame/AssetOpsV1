@@ -21,6 +21,7 @@ from assetops_backend.actions import lifecycle
 from assetops_backend.analytics.finding_index import touched
 from assetops_backend.evidence.provenance_read import source_gate
 from assetops_backend.estate.scope import EstateSelectionInconsistent
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.evidence.public_provenance import estate_projection
 
 MINI_GRID, COLD, EV, ACTIONS = "mini_grid", "cold_chain", "ev_charging", "actions"
@@ -392,7 +393,7 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             "action_id": aid, "action_code": a["action_code"], "created_at": a["created_at"],
             "selected_event_id": str(selected["id"]), "source_finding_id": str(a["origin_finding_id"]),
             "source_finding_revision_id": str(a["origin_finding_revision_id"]),
-            "action_title": f"Action {a['action_code']}", "success_criterion": None, "owner": None, "due_at": None,
+            "action_title": f"Action {display_code(a['action_code'])}", "success_criterion": None, "owner": None, "due_at": None,
             "application_state": reduced["application"],
             "resolution_state": None if resolution is None else resolution["state"],
             "verification_outcome": resolution.get("outcome") if resolved else None,
