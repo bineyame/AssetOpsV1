@@ -46,7 +46,7 @@ Captures: deferred to PA-3 (Addendum 3). The exact-output tests below are the sc
    `test_placement_reason_texts`; Postgres: w401, w502, w504, w601, w301 index assert the stored titles).
 3. Action labels are the display code, else "Action": **met** (`test_action_links_*`, w601c `coded_actions` test,
    w401 asserts `ACT-[0-9]{3,}`, w502 work links assert `display_code(stored code)`).
-4. Titles per Addendum 4; golden edited: **not yet met**. The golden replay fails on 2 literal mixed-branch labels (see Checks).
+4. Titles per Addendum 4; golden edited: **met** (golden replay 6 passed after the 2 mixed-branch labels were fixed).
 5. §3.1 BE strings, Q5, Q6, Q7: **met** (`test_placement_reason_texts`, `test_no_action_agreed_yet_*`,
    `test_portfolio_and_estate_labels`, `test_cold_read_copy_and_transfer_observation`, `test_trial_cost_*`).
 6. Pure pins plus mechanical updates: **met**.
@@ -80,11 +80,14 @@ Captures: deferred to PA-3 (Addendum 3). The exact-output tests below are the sc
   - `test_w401_work_service_postgres::test_foreign_asset_and_evidence_refuse`: `WORK_OCCURRED_AT_FUTURE` instead of
     `WORK_LINK_SCOPE_INVALID`. It also fails on main `4681ba7d8` (run from plan2), so it is pre-existing and
     date-dependent, not caused by this slice.
-- Golden replay (coordinator go-ahead), `toolsun-host-tests.ps1 -- backend/tests/test_w301_estate_golden_postgres.py -q`
+- Golden replay (coordinator go-ahead), `tools
+un-host-tests.ps1 -- backend/tests/test_w301_estate_golden_postgres.py -q`
   at `53b02604c`: 3.4 min wall; 4 passed (mini_grid, cold, ev branches), **2 failed** (`[mixed]` manifest replay and
   clock+30 days): `findings-mixed-week $.rows[0].finding_label: actual 'Generator may have been on longer than needed'
   != expected 'Finding 00000001'`. The mixed branch holds 2 literal `"finding_label": "Finding 00000001"` values
   (deterministic ids, not `$derive` markers) that the direct edit missed. Reported to the coordinator before any fix.
+  - Fix (coordinator OK): those 2 strings now read "Generator may have been on longer than needed"; rerun at the fix
+    commit: **6 passed**, 0 failed, 3.9 min wall.
 - Not run: the full suites.
 - `tools\check-all.ps1 -Python …plan2\.venv\Scripts\python.exe`: All 11 guards passed.
 
