@@ -217,7 +217,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                    if lead is not None and a.origin_finding_id == lead.finding_id), None)
     investigate = action.href if action is not None else lead.href if lead is not None else None
     options = {GROW: (Option(OPTION_WHAT_IFS, f"/sites/{c}/ev/financials/scenarios"),), COST: (),
-               PROTECT: (Option(f"Investigate connector {label}", investigate),) if label and investigate else (),
+               PROTECT: (Option(f"Investigate {connector_name(label)}", investigate),) if label and investigate else (),
                ASSURE: ()}
 
     facts = SiteFacts(domain=EV, site_code=c, findings=tuple(findings), actions=actions, cases=tuple(cases),

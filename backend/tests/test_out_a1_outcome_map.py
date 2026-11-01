@@ -98,7 +98,8 @@ def test_catalogue_copy_passes_vocabulary() -> None:
     patterns = _vocabulary_patterns()
     copy = (list(catalogue.CATEGORY_LABEL.values()) + list(catalogue.CATEGORY_DEFINITION.values())
             + [o.label for o in SITE_OUTCOMES] + [o.missing_records for o in SITE_OUTCOMES if o.missing_records]
-            + list(catalogue.ROW_NOT_MEASURED.values()) + [catalogue.ROW_NOT_MEASURED_PREFIX])
+            + list(catalogue.ROW_NOT_MEASURED.values()) + [catalogue.ROW_NOT_MEASURED_PREFIX]
+            + [catalogue.ROW_NOT_MEASURED_EV_COST_UNPRICED])
     assert all(text and text.strip() for text in copy)
     hits = [(text, name) for text in copy for name, pattern in patterns if pattern.search(text)]
     assert hits == []

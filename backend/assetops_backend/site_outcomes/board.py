@@ -11,7 +11,7 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
-    SiteOutcome, row_not_measured)
+    ROW_NOT_MEASURED_EV_COST_UNPRICED, SiteOutcome, row_not_measured)
 from assetops_backend.outcomes.objectives import (
     CONTRIBUTOR_LABEL, MET, MISSED, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge)
 from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
@@ -54,6 +54,8 @@ COST_CHANGE = COST_PREFIX + "{amount} {currency} less per kWh of feeder demand"
 COST_NO_CHANGE = COST_PREFIX + "no lower cost per kWh of feeder demand"
 COST_NOT_CALCULATED = "Modelled change not calculated: {words}"
 COST_NOT_YET = "Not calculated yet"
+#: POLISH D-2 (OUT-E L4): a modelled improvement is credited only to a VERIFIED trial.
+COST_NOT_CREDITED = "The trial did not fix the problem, so no cost change is credited to it"
 TRIAL_ATTRIBUTED = "{label} before the trial: {before} · after: {after}"
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
@@ -381,6 +383,8 @@ def cost_line(a: ActionFact) -> str | None:
     if cc is None:
         return COST_NOT_YET if a.verification_state in FINAL_VERIFICATION else None
     if cc.get("state") == "MODELLED_IMPROVEMENT":
+        if a.verification_state != "VERIFIED":
+            return COST_NOT_CREDITED
         return COST_CHANGE.format(amount=per_kwh_amount(cc), currency=cc.get("currency") or "")
     if cc.get("state") == "MODELLED_NO_IMPROVEMENT":
         return COST_NO_CHANGE
@@ -560,6 +564,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     }
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
+        if (domain, cat) == (EV, "OPTIMIZE_COST") and facts.headline_money.get("GROW_REVENUE") is None:
+            row["not_measured_text"] = ROW_NOT_MEASURED_EV_COST_UNPRICED  # POLISH §1.6: no priced EV tariff
         return row
 
     moves_here = [f for f in facts.findings if cat in roles[f.finding_id].move_cats]

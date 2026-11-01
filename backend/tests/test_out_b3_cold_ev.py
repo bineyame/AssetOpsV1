@@ -252,7 +252,7 @@ def test_depot_board_from_ports() -> None:
     assert rows[PROTECT]["subline"] == ("Connector C2 was out of service for 1 h 30 min; which departures were "
                                         "affected is not known yet. Charger condition is not assessed")
     assert [(o["text"], o["href"]) for o in rows[PROTECT]["options"]] == [
-        ("Investigate connector C2", f"/sites/{E}/actions/ea1")]
+        ("Investigate Connector C2", f"/sites/{E}/actions/ea1")]
     assert contributor(rows[ASSURE], "session_records")["text"] == "1 session has no accepted end"
     assert contributor(rows[ASSURE], "connector_status")["text"] == "Missing 20 Oct 13:00–20 Oct 13:30"  # UTC+3
     assert rows[ASSURE]["headline"] == "Evidence limited · no verified result yet"
