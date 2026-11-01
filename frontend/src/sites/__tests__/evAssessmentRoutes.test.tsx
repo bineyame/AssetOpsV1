@@ -510,12 +510,12 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     } as EvSessionsRead));
     await settledScreen();
     const text = (panelTitled("Session service records").querySelector('[data-disclosure="ev-source-detail"]') as HTMLElement).textContent ?? "";
-    const a = `Source reason: Bound and unbound records are mixed. Accepted record IDs: ${id(701)}, ${id(702)}.`;
+    const a = `Source reason: Linked and unlinked records are mixed. Accepted record IDs: ${id(701)}, ${id(702)}.`;
     const b = "Source reason: Source classes are mixed. Accepted record IDs: None.";
     expect(text.replace(/\s+/g, " ")).toContain(a);
     expect(text.replace(/\s+/g, " ")).toContain(b);
     expect(text.indexOf("Source class")).toBeLessThan(text.indexOf("Source reason:"));
-    expect(text.indexOf("Bound and unbound")).toBeLessThan(text.indexOf("Source classes are mixed"));
+    expect(text.indexOf("Linked and unlinked")).toBeLessThan(text.indexOf("Source classes are mixed"));
     for (const full of [id(701), id(702)]) expect(text).toContain(full);
   });
 
@@ -625,13 +625,15 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expectV69Panels("ev-finding");
     expectPlantedPanelRejected("ev-finding");
     expect(client.getSession).toHaveBeenCalledWith(CODE, id(11), { from: FROM, to: TO, known_at: KNOWN });
-    expect(strip()).toContain(`F ${FINDING}`);
+    // POLISH §3.1: the chip says "Finding"; the UUID is its title and accessible name only.
+    expect(strip()).not.toContain(FINDING);
+    expect(document.querySelector("[data-ev-finding-id]")?.getAttribute("title")).toBe(FINDING);
     expect(strip()).toContain("Observed interruption");
     const conclusion = panelTitled("Bounded conclusion").textContent ?? "";
     expect(conclusion).toContain("A connector fault and session abort were observed; component cause and unmet demand remain unknown.");
     expect(conclusion).toContain("12.500 kWh delivered before abort · complete meter coverage");
     expect(conclusion).toContain("The records do not establish charger hardware failure, vehicle fault or lost revenue.");
-    expect(conclusion).toContain(`REC ${id(150)}`);
+    expect(conclusion).toContain("Charger report");
     expect(conclusion).toContain("No analysis link");
     expect(conclusion).toContain("Analysis view not available for this EV record");
     expect(screen.queryByText("Inspect claim evidence")).toBeNull();
@@ -666,11 +668,13 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     await settledScreen();
     const conclusion = panelTitled("Bounded conclusion");
     const line = conclusion.querySelector("[data-ev-record]") as HTMLElement;
-    expect(line.textContent).toBe(`REC ${id(150)} · No analysis link`);
+    expect(line.textContent).toBe("Charger report · No analysis link");
+    expect(line.querySelector("[data-record-id]")?.getAttribute("title")).toBe(id(150));
     expect(screen.getByLabelText(`Record ${id(150)}`)).toBeTruthy();
     const refs = conclusion.querySelector('[data-disclosure="ev-finding-references"]') as HTMLDetailsElement;
     expect(refs.open).toBe(false);
-    expect(refs.querySelector("summary")?.textContent).toBe("How this was worked out");
+    expect(refs.querySelector("summary")?.textContent).toBe("Technical details");
+    expect(refs.hasAttribute("data-technical-details")).toBe(true);
     const ids = Array.from(refs.querySelectorAll("[data-ev-record-id]")).map((x) => x.textContent);
     expect(ids).toEqual([`Start record ID: ${id(149)}`, `Fault record ID: ${id(150)}`, `Abort record ID: ${id(151)}`]);
     const gaps = Array.from(refs.querySelectorAll("*")).filter((x) => x.children.length === 0 && x.textContent === "Analysis view not available for this EV record");
@@ -699,25 +703,26 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
       cleanup();
       renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, finding_id: findingId, claim: { ...FINDING_DETAIL.claim, fault_evidence_id: record, external_session_id: null } }));
       await settledScreen();
-      const f = document.querySelector(".status-strip code.ev-id") as HTMLElement;
-      const r = panelTitled("Bounded conclusion").querySelector("[data-ev-record] code.ev-id") as HTMLElement;
-      const ses = panelTitled("Operational context").querySelector("code.ev-id") as HTMLElement;
-      return [f, r, ses].map((el) => ({ text: el.textContent, aria: el.getAttribute("aria-label") }));
+      const f = document.querySelector(".status-strip .ev-id") as HTMLElement;
+      const r = panelTitled("Bounded conclusion").querySelector("[data-ev-record] .ev-id") as HTMLElement;
+      const ses = panelTitled("Operational context").querySelector(".ev-id") as HTMLElement;
+      return [f, r, ses].map((el) => ({ text: el.textContent?.trim(), aria: el.getAttribute("aria-label"), title: el.getAttribute("title") }));
     };
     const first = await labels(a, a);
     const second = await labels(b, b);
+    // POLISH §3.1: plain visible words; the full stored UUIDs stay distinct in the title and accessible name.
     expect(first).toEqual([
-      { text: `F ${a}`, aria: `Finding ${a}` },
-      { text: `REC ${a}`, aria: `Record ${a}` },
-      // No stored external session ID: the full session UUID.
-      { text: `SES ${id(11)}`, aria: `Session ${id(11)}` },
+      { text: "Finding", aria: `Finding ${a}`, title: a },
+      { text: "Charger report", aria: `Record ${a}`, title: a },
+      // No stored external session ID: the session UUID is the title and accessible name only.
+      { text: "Charging session", aria: `Session ${id(11)}`, title: id(11) },
     ]);
     expect(second.slice(0, 2)).toEqual([
-      { text: `F ${b}`, aria: `Finding ${b}` },
-      { text: `REC ${b}`, aria: `Record ${b}` },
+      { text: "Finding", aria: `Finding ${b}`, title: b },
+      { text: "Charger report", aria: `Record ${b}`, title: b },
     ]);
-    expect(first[0].text).not.toBe(second[0].text);
-    expect(first[1].text).not.toBe(second[1].text);
+    expect(first[0].title).not.toBe(second[0].title);
+    expect(first[1].title).not.toBe(second[1].title);
     // A stored external session ID is shown in full; the exact UUID stays the accessible name.
     cleanup();
     renderEv(FINDING_PATH, ok(STATES.interrupted));
@@ -1009,7 +1014,7 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
     expect(link.getAttribute("href")).toBe(
       `${ANALYSIS}?from=${encodeURIComponent(own.from)}&to=${encodeURIComponent(own.to)}&known_at=${encodeURIComponent(own.known_at)}`,
     );
-    expect(conclusion.querySelector("[data-ev-record]")?.textContent).toBe(`REC ${id(150)} · No analysis link`);
+    expect(conclusion.querySelector("[data-ev-record]")?.textContent).toBe("Charger report · No analysis link");
     cleanup();
     renderEv(FINDING_PATH, ok(STATES.interrupted), refused(404, "EV_FINDING_NOT_FOUND"));
     await settledScreen();

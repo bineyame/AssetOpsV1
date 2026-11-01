@@ -288,7 +288,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     // The first GET omits both bounds and the cutoff; the page states the effective creation-time end.
     expect(client.getScenarios).toHaveBeenNthCalledWith(1, CODE, { from: null, to: null, known_at: null, cursor: null });
     expect(document.querySelector("[data-scenarios-through]")?.textContent).toBe(
-      "Scenarios created through 21 Oct 2026, 07:59:59 UTC",
+      "Scenarios created through 21 Oct 2026, 07:59:59 Times in UTC",
     );
     // uF 8 (final review L8): plain UTC text; the exact instant stays machine-readable.
     expect(document.querySelector("[data-scenarios-through] time")).toHaveAttribute("datetime", "2026-10-21T07:59:59.999999Z");

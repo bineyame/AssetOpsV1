@@ -180,7 +180,7 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
               <thead>
                 <tr>
                   <th scope="col">Step</th>
-                  <th scope="col">Time (UTC)</th>
+                  <th scope="col">Time</th>
                   <th scope="col">Evidence</th>
                 </tr>
               </thead>

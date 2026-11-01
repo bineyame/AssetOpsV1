@@ -10,6 +10,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useReportSelectedWindow } from "./evSelectedWindow";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Badge, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import { RefusedGap, RefusedHead, isEvWindowRefusal, plural } from "./EvAssessmentViews";
@@ -224,7 +225,8 @@ function ConnectorBar({ row, fromMs, toMs }: { row: AvailabilityConnector; fromM
   const segments = segmentsOf(row, fromMs, toMs);
   const spans = occurrences(row);
   // MOCK DEVIATION (D1) R86: the DTO has UTC instants and no Site-local offset, so the period is UTC, not the mock's local time.
-  const period = `${spans.length === 1 ? `${hhmm(spans[0][0])}–${hhmm(spans[0][1])}` : `${hhmm(fromMs)}–${hhmm(toMs)}`} UTC`;
+  // POLISH §3 Times: the status bar's one time zone note names UTC, so no per-time suffix.
+  const period = spans.length === 1 ? `${hhmm(spans[0][0])}–${hhmm(spans[0][1])}` : `${hhmm(fromMs)}–${hhmm(toMs)}`;
   const name = connectorName(row.label);
   return (
     <div className="ev-depth-bars__row" data-ev-bar-row={row.asset_id}>
@@ -243,7 +245,7 @@ function ConnectorBar({ row, fromMs, toMs }: { row: AvailabilityConnector; fromM
       <strong className="ev-depth-bars__period">{period}</strong>
       <span className="visually-hidden" data-ev-span-summary={row.asset_id}>
         {`${name}: ${segments
-          .map((s) => `${hhmm(s.from)}–${hhmm(s.to)} UTC ${s.state === "OUTSIDE" ? OUTSIDE_SCHEDULE : STATE_WORD[s.state]}`)
+          .map((s) => `${hhmm(s.from)}–${hhmm(s.to)} ${s.state === "OUTSIDE" ? OUTSIDE_SCHEDULE : STATE_WORD[s.state]}`)
           .join("; ")}. ${dur(row.known_available_seconds)} available, ${dur(row.known_unavailable_seconds)} unavailable, ${dur(row.unknown_seconds)} unknown.`}
       </span>
     </div>
@@ -282,9 +284,9 @@ function StatePanel({ read }: { read: EvAvailabilityRead }) {
             ))}
           </div>
           <div className="ev-depth-bars__times" data-ev-bar-times="">
-            <span>{`${hhmm(fromMs)} UTC`}</span>
-            <span>{`${hhmm(fromMs + (toMs - fromMs) / 2)} UTC`}</span>
-            <span>{`${hhmm(toMs)} UTC`}</span>
+            <span>{hhmm(fromMs)}</span>
+            <span>{hhmm(fromMs + (toMs - fromMs) / 2)}</span>
+            <span>{hhmm(toMs)}</span>
           </div>
           {noKnown ? (
             <p className="not-available-yet" data-ev-availability-empty="">
@@ -328,7 +330,8 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
         </Badge>{" "}
         <span className="muted" data-ev-connector-hours="">
           {connectorHoursText(read)}
-        </span>
+        </span>{" "}
+        <TimeZoneNote />
       </StatusBar>
       {notice === null ? null : <Notice data={{ "data-ev-depth-state-notice": state }}>{notice}</Notice>}
       <MetricCards label="Connector availability">

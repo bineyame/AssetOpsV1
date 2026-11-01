@@ -522,7 +522,7 @@ describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
   });
 
   it.each<[DomainStatus, string, "blue" | "amber"]>([
-    ["HISTORICAL", "Read as of 2026-10-06 12:00 UTC. Later work may differ.", "blue"],
+    ["HISTORICAL", "Read as of 6 Oct 2026, 12:00. Later work may differ.", "blue"],
     ["PENDING_RECOMPUTE", "Linked evidence is being reassessed. The work record remains recorded.", "amber"],
     ["STALE_SOURCE", "Linked evidence source is out of date. The work record remains recorded.", "amber"],
     ["UNKNOWN", "No selected source for linked evidence. The work record remains recorded.", "blue"],
@@ -650,7 +650,7 @@ describe("ev-action window (R348)", () => {
     ["reversed", q(EV_TO, EV_FROM), SAME],
     ["32 days", q("2026-09-01T00:00:00Z", "2026-10-03T00:00:00Z"), "The selected window is longer than 31 days."],
     // post-W6 final-fix L9: a correctly ordered non-UTC pair is a format error, not an ordering one.
-    ["non-UTC", q("2026-10-06T08:00:00+03:00", "2026-10-06T09:00:00+03:00"), "The selected window start and end must be UTC times."],
+    ["non-UTC", q("2026-10-06T08:00:00+03:00", "2026-10-06T09:00:00+03:00"), "The selected window start and end must be times without a local offset."],
     ["non-UTC and reversed", q("2026-10-06T09:00:00+03:00", "2026-10-06T08:00:00+03:00"), SAME],
   ])("a %s window is refused before any read and carried by no link", async (_name, query, sentence) => {
     const { main, calls } = await mountEv(() => loaded(evDetail()), `/verification${query}`);

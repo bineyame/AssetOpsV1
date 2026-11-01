@@ -170,3 +170,122 @@ The `portfolio-week` PNG therefore shows the pre-D1 wording. No vocabulary effec
 - The M2 regions are outside every automated plain-language check.
 - PC's recapture is the only capture of the post-`a5e514ecf` copy (L3).
 - The incident link and the incidents list depend on the demo date (L2).
+
+---
+
+## Re-review (fix round, `28f516edd...ef43cd219`)
+
+- Reviewer: fresh Claude reviewer, independent of the builder. Date 2026-11-01.
+- Worktree `AssetOpsV1-polB3`, head `ef43cd219` (5 commits; the last one changes only the packet and the register).
+
+### Verdict: ACCEPT
+
+M1 and M2 are closed. L1 and L4 follow Addendum 13. L2 is fixed. Two new Lows (N1, N2) are copy consistency. Neither is false or blocking, and both can be folded into PC's copy pass.
+
+### Checks I ran (on `ef43cd219`)
+
+| Check | Result |
+|---|---|
+| `npx.cmd tsc --noEmit -p .` | exit 0 |
+| `powershell -NoProfile -File tools\check-all.ps1 -Python <plan2 .venv>` | **All 12 guards passed**. Missing-claim scan: 43 tagged, 10 baselined, merge-base `0ad27df7f4`. |
+| Scoped vitest: the 10 changed test files (estatePortfolio, coldSiteViews, evSiteMoneyRoutes, evEnergy, siteFinding, siteFindingHistory, globalMaintenance, workRequestOverview/History/Record) | **10 files, 382/382 passed**, 39 s. `energy_states_table_loading` passed in 985 ms. |
+| Adjacent vitest: coldDepth, coldHealthDepth, evAssessmentRoutes, outcomeBoard, `src/estate` | **9 files, 204/204 passed**, 23 s. |
+| Full vitest | Not rerun. The packet cites a run on `8f3de6e52`: 150 files, 3593/3594 passed, 356 s, with 1 failure (the evEnergy flake). `8f3de6e52..ef43cd219` changes only `.agent/` files, so that run applies to this head. |
+| Recapture `pb3cap2/captures.json` | I read it: 20 captures, all `settled:true`, `overflow:false`, `vocabulary_counted:0`, `stale_words` empty, and 1 exempt hit each (`data-time-zone-note=utc`). It was taken at `f1547458e`. The only later frontend commit, `8f3de6e52`, touches EvEnergy, which is not a capture key. I viewed `portfolio-week-1440.png`: the GreenHarvest rows read "From 30 Oct 2026, 16:15 · no end time yet" (and 16:00, 27 Oct), Kobo reads "30 Oct 2026, 04:35–07:55", and no row has a cost-basis line. |
+| Layout evidence | `not run`. It is recorded honestly in the packet, and the capture overflow measure stands in. |
+| Serve, browsers and `-Tier all` | Not run, as instructed. |
+
+### Items
+
+1. **M1: closed.**
+   - `EstatePortfolio.tsx:121-124`:
+     - with both ends present, `moneyWindowText` is used;
+     - with only the start present, the cell reads "From {formatDayTime(start)} · no end time yet";
+     - otherwise it reads "No time recorded yet".
+   - The always-on basis line is removed. The new test (`estatePortfolio.test.tsx:320-329`) can fail on every branch: on the open-episode text, on the no-time text, and on `not.toContain("cost basis")`.
+   - The EV Assumption line `EvSiteViews.tsx:1456` reads "No cost basis recorded yet" only when `t.basis` is null, which is a true statement.
+   - I found nothing false left. One nit, not a finding: a row with an end but no start would still read "No time recorded yet". That state does not occur.
+2. **M2: closed.**
+   - The `technical` flag is removed from all 4 cold and all 9 EV named disclosures. Each now nests a `TechnicalDetails` that holds only `TechnicalReferenceList` ids:
+     - cold `coldSiteViews.tsx:907-910, 1353-1362, 1403-1406, 1550-1580`;
+     - EV `Ids` at `EvSiteViews.tsx:177-183` and its uses.
+   - The plain-word changes match the packet list:
+     - Record/Rule/Source/Excluded record numbering;
+     - `plainCode` for Kind, use, reason, quality and state;
+     - `dayHm`/`windowText` instead of raw ISO;
+     - "Tariff declared/not declared";
+     - "Earlier what-if · version N";
+     - the unverified-source sentence;
+     - "Show more accepted records".
+   - The only id left outside the nested blocks is the `KeyValues` label `{rule_id} details` (`coldSiteViews.tsx:1391`), which is an aria-label. That placement was accepted in round 1.
+   - **The test relaxation is narrow.**
+     - `topLevelDetails` (`coldSiteViews.test.tsx:371`) skips only a `details` whose ancestor is itself a `details`. A second top-level disclosure in a panel still fails.
+     - A nested non-technical disclosure would pass, but none exists, and the M2 assertions pin the shape.
+     - `evAssessmentRoutes.test.tsx:315` still counts all `details`, and it passes because those screens are unaffected.
+   - **The new tests can fail.** They assert all of these:
+     - `hasAttribute("data-technical-details") === false` on Basis and Assumption details;
+     - the id appears inside the nested block;
+     - `plainOf(...)` does not contain the id;
+     - the plain prose is present;
+     - no raw ISO time (`evSiteMoneyRoutes.test.tsx:478-500`, `coldSiteViews.test.tsx:737-742, 758-761, 851-855`).
+     Restoring a raw id, a tag or an ISO time would fail them.
+3. **L1 and L4 follow Addendum 13.**
+   - `workRequestShared.tsx:276-277` and `GlobalMaintenance.tsx:359` use the plain note. Only `GlobalPreventive.tsx:296` passes `dueDates`. All 6 pinned status-line tests were updated to the plain note.
+   - SiteFinding:
+     - `EpisodePeriod` (`SiteFinding.tsx:583-591`), `periodText` and `endText` render in UTC with no zone tag;
+     - the exact stored instants are in `title`;
+     - the old "UTC time" disclosure and the "(site time zone unavailable; UTC shown)" suffix are removed;
+     - there is one `TimeZoneNote` per bar, asserted.
+   - History: the header is "Time" (`SiteFindingHistory.tsx:346-347`), cells read `formatDayTime(…, {year:false})` ("6 Oct, 14:10"), and the exact UTC is in `title`.
+   - **`periodWords` → `formatRange`: accepted.**
+     - The page already used `formatRange` for the portion line (`SiteFinding.tsx:727`), so it now has one period form.
+     - It replaces the raw `2026-10-06 08:00–09:00` form.
+     - An unparseable instant now gives the standard "not available" text instead of a broken string.
+     - It is within the spirit of Addendum 6 Q7 and §3 Times.
+   - `findingTime.ts` is still used by `LedgerSiteEvidence.tsx`, so nothing is dead.
+   - **R661 is updated.** Addendum 13 asked for a D2 row. Folding the text into R661 is acceptable.
+4. **L2: fixed correctly.**
+   - `incidentHref` (`coldSiteViews.tsx:619-629`):
+     - splits the href on the first `?`;
+     - keeps the existing params;
+     - overwrites `from`/`to` with the page window, falling back to the board's resolved window;
+     - returns the href unchanged only when neither window is known.
+   - The test (`coldSiteViews.test.tsx:1425-1436`) covers merging into `?status=open&from=old` and the fallback.
+   - ISO `from`/`to` is the form `workCasesScope` (`SiteAnalyticsFrames.tsx:2369-2376`) consumes, so the list opens on the window that holds INC-005.
+   - Residual (not verified, needs a browser): when the cold page window is narrow (minutes, not days), the incidents list's date fields show a sub-day window.
+5. **EvEnergy wording is in the spirit of Addendum 11.**
+   - "No eligible charging income estimate." and "{v}/kWh charging tariff (charging income estimate)" (`EvEnergy.tsx:74,77`).
+   - The second is a little redundant but plain and honest. See N2 for the sibling card note it missed.
+6. **Still-open items: none should block PC.**
+   - "Claim details" and "How a claim limit is set" (`coldSiteViews.tsx:1371`, `EvSiteViews.tsx:1201`) are v69 mock text (`v69/index.html` carries the heading).
+   - "Scenario display currency" (`EvSiteViews.tsx:1510`, EV Assumptions) and the bridge badge "Scenario" (`EvSiteViews.tsx:1344`, EV Financials) are visible to a client who opens the EV Assumptions or Financials tab. They are reachable on a demo path, but they are mock vocabulary, not false and not a banned term (the guards pass).
+   - They are inconsistent with the "What-if" wording §3.1 uses elsewhere.
+   - Recommendation: PC's review pass opens EV Analysis, Financials, Assumptions and Energy, and either renames them in one copy commit ("What-if" badge, "Display currency", "Basis details"/"How a limit is set") or records them as accepted mock wording. Low, not a gate blocker.
+7. **The evEnergy flake: PB-3 did not make it worse, and PC does not need a fix.**
+   - `energy_states_table_loading` has failed the same way under full-suite or parallel load since W5-02b. It is recorded in the W5-02b handoff, the W5-03b re-review, post-W6 W1-a/W1-b, shell, W3-estate, OUT-A and PB-1.
+   - The message comes from `settledScreen`'s `waitFor` (`test/settled.ts:66-72`) timing out while the loading text is still present, which is a load symptom.
+   - PB-3's change to `EvEnergy.tsx` is two strings and adds no render or read cost. The test passes alone here in under 1 s.
+   - PC should record a full-run failure of this test as the known flake after a passing solo rerun. The real fix belongs to the test-pipeline task, not PC; for example, a longer `waitFor` timeout for this test, or awaiting the loaded heading after `resolve`.
+
+### New findings
+
+**N1 (Low, copy consistency): "Generated test data" now shows in the plain prose of cold and EV disclosures.**
+- `coldAssessmentWords.ts:108` maps `REGISTERED_SIMULATION` to "Generated test data".
+- M2 moved this word out of the old tagged regions into the plain lines:
+  - cold Record details "Source: Generated test data" (`coldSiteViews.tsx:1349`);
+  - EV Capability, Claim, Record and Basis details "source Generated test data".
+- It is not false.
+- §3.1 rules "Example data" for the same idea (Kobo row, and the Portfolio row that Addendum 13 is fixing in PA-3). The demo would say "example data" on Portfolio and "Generated test data" one click deeper.
+- The EV Assumptions main text already showed it before this round.
+- Fix: change the map value to "Example data" (one line plus the pinned test strings). This is an Architect wording call; fold it into PC.
+
+**N2 (Low, Addendum 11 completeness): the EV Energy card note still says "Scenario tariff".**
+- `EvEnergy.tsx:166` reads "Scenario tariff: 0.30 USD/kWh" / "Scenario tariff not established". It sits beside the bridge cell that now reads "charging tariff (charging income estimate)".
+- The mock has the same note (`v69/index.html:596`).
+- Fix: "Charging tariff: …" / "Charging tariff not set". Fold it into PC with item 6.
+
+### Residual risk
+
+- No `-open` capture covers the newly untagged disclosures, so their prose is checked by vitest and the guards' vocabulary scan only. The packet says so.
+- The narrow-window incident link (item 4) has not been seen in a browser.
+- Lane A text ("Supported Finding · Generated test data source", "No accepted Action; …") is still on `portfolio-week` until PA-3's Addendum 13 fix merges. It is already ruled to block PC.

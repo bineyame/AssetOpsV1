@@ -47,7 +47,7 @@ function verified(row: EstateActionRow): boolean {
 }
 
 function count(value: number | null): string {
-  return value === null ? "Coverage incomplete" : String(value);
+  return value === null ? "Some data missing" : String(value);
 }
 
 function Cards({ body }: { body: EstateActionsBody }) {
@@ -65,7 +65,7 @@ function Cards({ body }: { body: EstateActionsBody }) {
       />
       <MetricCard
         label="Due / overdue"
-        value={s.due_overdue !== null ? String(s.due_overdue) : complete ? "Not set" : "Coverage incomplete"}
+        value={s.due_overdue !== null ? String(s.due_overdue) : complete ? "Not set" : "Some data missing"}
         word={s.due_overdue === null}
         tone={complete ? undefined : "amber"}
         note={s.due_overdue === null && complete ? "No due dates recorded" : undefined}
@@ -116,8 +116,8 @@ function Row({ row }: { row: EstateActionRow }) {
       </td>
       <td>
         {row.links.source ? (
-          <Link to={row.links.source} data-estate-source-link>
-            Finding {row.source_finding_id.slice(0, 8)}
+          <Link to={row.links.source} title={`Finding ${row.source_finding_id}`} data-estate-source-link>
+            Source finding
           </Link>
         ) : (
           "Source unavailable"

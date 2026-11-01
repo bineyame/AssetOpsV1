@@ -13,7 +13,7 @@ import type {
   ColdOverviewRead,
   ColdSiteClient,
 } from "../coldSiteClient";
-import { coldUiHref, COLD_SITE_UNAVAILABLE, NO_COLD_ASSESSMENT, SOURCE_FORBIDDEN, eatTime } from "../coldSiteViews";
+import { coldUiHref, COLD_SITE_UNAVAILABLE, NO_COLD_ASSESSMENT, SOURCE_FORBIDDEN, eatTime, incidentHref } from "../coldSiteViews";
 import { coldSiteRoutes } from "../../shell/coldSiteRoutes";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -21,7 +21,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { OutcomeBoardClient } from "../outcomeBoardClient";
+import type { OutcomeBoardClient, OutcomeBoardRead } from "../outcomeBoardClient";
 import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 
 // OUT-B B5 (R540): the cold Overview shows the outcome board in place of the five objective cards. The cold board
@@ -339,7 +339,7 @@ const ROUTES = [
   ["cold-assumptions", `/sites/COLD-001/financials/assumptions${Q}`],
 ] as const;
 const PANELS: Record<string, string[]> = {
-  cold: ["What happened · power → cooling → product conditions", "Chamber temperature", "Needs attention", "Bounded money consequence", "Next step"],
+  cold: ["What happened · power → cooling → product conditions", "Chamber temperature", "Needs attention", "Possible cost", "Next step"],
   "cold-evidence": ["What we can conclude now", "Data sources · data quality, not equipment condition", "Most useful next evidence"],
   "cold-evidence-analysis": ["Accepted records behind the conclusions", "How a claim limit is set"],
   "cold-financials": ["What happened → what it means in money", "Assumptions in use", "Not included"],
@@ -366,6 +366,15 @@ const LEDGER_CLAIM = new RegExp(
 );
 const main = () => document.querySelector("main") as HTMLElement;
 const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ");
+/** PB-3 review M2: the top-level disclosures of a region (a `details` not inside another `details`); nested
+ * "Technical details" blocks inside a named disclosure do not count toward the one-disclosure rule. */
+const topLevelDetails = (el: Element) => Array.from(el.querySelectorAll("details")).filter((d) => !d.parentElement?.closest("details"));
+/** The text a region shows outside its nested "Technical details" blocks (what the strict scan still reads). */
+const plainOf = (el: Element) => {
+  const copy = el.cloneNode(true) as Element;
+  copy.querySelectorAll("[data-technical-details]").forEach((t) => t.remove());
+  return text(copy);
+};
 
 // Cross-card ruling 5 (post-W6 W2-cold): the sentence once, in the first panel; every later refused panel says Not assessed.
 const expectSentenceOnce = (panels: readonly string[], sentence: string) => {
@@ -396,7 +405,7 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     // Run-7: cold-assumptions has the mock's one panel and notice and no status strip.
     expect(document.querySelectorAll(".status-strip")).toHaveLength(screenId === "cold-assumptions" ? 0 : 1);
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
-      expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
+      expect(topLevelDetails(panel).length).toBeLessThanOrEqual(1);
     }
     // W5-01b C5 (P-C5-6/7/8): the scan takes this screen's exact glossary, which allows the live Scenarios tab.
     const result = scanProductVocabulary(main(), screenId, { set: "w1", screen: screenId });
@@ -427,7 +436,7 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     if (screenId === "cold") {
       for (const t of PANELS.cold.slice(0, 3)) expect(text(panelTitled(t))).toContain(NO_COLD_ASSESSMENT);
       expect(text(panelTitled("Next step"))).toContain("No recorded next step");
-      expect(text(panelTitled("Bounded money consequence"))).toContain("No product exposure consequence assessed");
+      expect(text(panelTitled("Possible cost"))).toContain("No product exposure consequence assessed");
     } else if (screenId === "cold-evidence") {
       for (const t of PANELS["cold-evidence"]) expect(text(panelTitled(t))).toContain(NO_COLD_ASSESSMENT);
     } else if (screenId === "cold-evidence-analysis") {
@@ -522,17 +531,17 @@ describe("W2-04: cold Overview", () => {
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();
     const strip = text(document.querySelector(".status-strip")!);
-    expect(strip).toContain("Degraded");
-    expect(strip).toContain("Confidence: Bounded");
-    expect(strip).toContain("Potential product exposure");
+    expect(strip).toContain("Service affected");
+    expect(strip).toContain("Confidence: partial");
+    expect(strip).toContain("Stock may be at risk");
     expect(strip).not.toContain("Selected evidence through");
     expect(document.querySelector("[data-cold-objective]")?.textContent).toBe(STOCKED_OVERVIEW.objective.text);
     // OUT-B B5 (R540): the outcome board replaces the five cards and their R437 maintenance line.
     expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
-    expect(text(happened)).toContain("No accepted transfer to backup report for this chain");
-    expect(text(happened)).toContain("No incident recorded");
+    expect(text(happened)).toContain("No record of switching to backup power");
+    expect(text(happened)).toContain("No incident recorded in this period");
     const attention = panelTitled("Needs attention");
     expect(Array.from(attention.querySelectorAll("[data-attention-item]")).map((n) => n.getAttribute("data-attention-item"))).toEqual([
       "COLD_START_FAILURE",
@@ -540,7 +549,7 @@ describe("W2-04: cold Overview", () => {
     ]);
     expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.getAttribute("href")).toBe(`/sites/COLD-001/findings/${EXC_FINDING.replace("901", "902")}${Q}`);
     expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.getAttribute("href")).toBe(`/sites/COLD-001/performance/backup${Q}`);
-    expect(text(panelTitled("Bounded money consequence"))).toContain("Not priced");
+    expect(text(panelTitled("Possible cost"))).toContain("Not priced yet");
     expect(text(panelTitled("Next step"))).toContain("Automatic generator start failed in the accepted record");
     // Run-7 link and card copy.
     expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Automatic generator start failed in the accepted record");
@@ -579,9 +588,9 @@ describe("W2-04: cold Overview", () => {
     renderCold(ROUTES[0][1], { ...STOCKED, overview: ok(pending) });
     await settledScreen();
     expect(text(document.querySelector(".status-strip")!)).toContain("New evidence is waiting to be assessed");
-    const money = text(panelTitled("Bounded money consequence"));
+    const money = text(panelTitled("Possible cost"));
     expect(money).toContain("Money consequence withheld");
-    expect(money).not.toContain("Not priced");
+    expect(money).not.toContain("Not priced yet");
     expect(panelTitled("Next step").querySelector("a")?.getAttribute("href")).toBe(`/sites/COLD-001/evidence${Q}`);
     expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Evidence →");
   });
@@ -626,7 +635,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
     expect(sourcesPanel.querySelectorAll("[data-cold-contact-checked]")).toHaveLength(1);
     expect(text(sourcesPanel).match(/Contact checked at window end/g)).toHaveLength(1);
-    const details = sourcesPanel.querySelectorAll("details");
+    const details = topLevelDetails(sourcesPanel);
     expect(details).toHaveLength(1);
     expect((details[0] as HTMLDetailsElement).open).toBe(false);
     expect(details[0].querySelector("summary")?.textContent).toBe("Source details");
@@ -668,12 +677,14 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const row = panelTitled("Accepted records behind the conclusions").querySelector(`[data-accepted-record="${id(11)}"]`)!;
     expect(text(row)).toContain("4.6 degC");
     expect(text(row)).toContain(eatTime("2026-10-06T16:19:00Z")!);
-    expect(text(row)).toContain(`REC ${id(11)}`);
+    // POLISH §3 ids: the visible cell says "Source report"; the UUID is the title and accessible name.
+    expect(text(row)).not.toContain(id(11));
+    expect(row.querySelector("[data-record-id]")?.getAttribute("title")).toBe(id(11));
     // W5-F1 F1-3 (R38): a labelled reference with an honest unavailable destination.
-    expect(text(row.querySelector("[data-record-target]")!)).toBe(`REC ${id(11)}Record page unavailable`);
+    expect(text(row.querySelector("[data-record-target]")!)).toBe("Source reportRecord page unavailable");
     expect(text(row)).not.toContain("No analysis link");
     expect(text(row)).not.toContain("Analysis view not available for this cold record");
-    expect(row.querySelector("code")?.getAttribute("aria-label")).toBe(id(11));
+    expect(row.querySelector("[data-record-id]")?.getAttribute("aria-label")).toBe(id(11));
     const detail = text(panelTitled("Accepted records behind the conclusions").querySelector(`[data-record-detail="${id(11)}"]`)!);
     expect(detail).toContain(id(11));
     expect(detail).toContain("Target: Unavailable");
@@ -718,12 +729,17 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(cells[3].textContent).toBe("19:19:02");
     expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(records.querySelector("[data-cold-more]")).toBeNull();
-    const details = records.querySelectorAll("details");
+    const details = topLevelDetails(records);
     expect(details).toHaveLength(1);
     expect((details[0] as HTMLDetailsElement).open).toBe(false);
     expect(details[0].querySelector("summary")?.textContent).toBe("Record details");
     expect(Array.from(details[0].querySelectorAll("[data-record-detail]")).map((d) => d.getAttribute("data-record-detail"))).toEqual([id(11), id(12), id(13)]);
-    expect(text(details[0])).toContain(`Assessment: ${id(51)}`);
+    // PB-3 review M2: the record's ids sit only in the nested Technical details; its plain lines stay outside.
+    const firstRecord = details[0].querySelector(`[data-record-detail="${id(11)}"]`)!;
+    expect(text(firstRecord.querySelector("[data-technical-details]")!)).toContain(`Assessment${id(51)}`);
+    expect(plainOf(firstRecord)).toContain("Record 1 · Chamber temperature · Kind: Measurement · Target: Unavailable");
+    expect(plainOf(firstRecord)).not.toContain(id(51));
+    expect(plainOf(firstRecord)).not.toContain(id(11));
     fireEvent.click(screen.getByRole("button", { name: "Show all 12 accepted records" }));
     expect(visible()).toHaveLength(5);
     expect(records.querySelector("[data-cold-all-records]")).toBeNull();
@@ -735,11 +751,14 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
       "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",
       "Source reporting describes data availability, not equipment condition.",
     ]);
-    const claim = limit.querySelectorAll("details");
+    const claim = topLevelDetails(limit);
     expect(claim).toHaveLength(1);
     expect((claim[0] as HTMLDetailsElement).open).toBe(false);
     expect(claim[0].querySelector("summary")?.textContent).toBe("Claim details");
-    expect(text(claim[0].querySelector('[data-claim-rule="cold-excursion/1"]')!)).toContain("cold-excursion/1 · Observed excursion");
+    const rule = claim[0].querySelector('[data-claim-rule="cold-excursion/1"]')!;
+    expect(plainOf(rule)).toContain("Rule 1 · Observed excursion");
+    expect(plainOf(rule)).not.toContain("cold-excursion/1");
+    expect(text(rule.querySelector("[data-technical-details]")!)).toContain("cold-excursion/1");
   });
 
   it("analysis: no selected assessment says 'Claim limit not assessed' instead of the two sentences", async () => {
@@ -794,9 +813,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
       consequences: [{ ...STOCKED_FINANCIALS.consequences[0], quantity_bounds: { low, high }, exact_basis: { ...STOCKED_FINANCIALS.consequences[0].exact_basis, finding_revision_id: revision } }],
     });
     const cases: [string | null, string | null, string][] = [
-      ["10", "50", "Consequence basis: 10–50 °C·min"],
-      ["50", null, "Consequence basis: at least 50 °C·min; upper bound not established"],
-      [null, null, "Consequence basis: Not assessed"],
+      ["10", "50", "Above the limit by 10–50 °C·min"],
+      ["50", null, "Above the limit by at least 50 °C·min (degrees × minutes); the full extent is not known yet"],
+      [null, null, "Above the limit: Not assessed"],
     ];
     for (const [low, high, phrase] of cases) {
       renderCold(ROUTES[3][1], { ...STOCKED, financials: ok(withBounds(low, high)) });
@@ -821,14 +840,18 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     await settledScreen();
     expect(text(document.querySelector(".status-strip")!)).toContain("2 consequence lines"); // W2-F M5: exposure row + start-response row
     const bridge = panelTitled("What happened → what it means in money");
-    expect(text(bridge)).toContain("Chamber thermal exposure · Consequence basis: at least 50 °C·min; upper bound not established");
+    expect(text(bridge)).toContain("Chamber thermal exposure · Above the limit by at least 50 °C·min (degrees × minutes); the full extent is not known yet");
     expect(text(bridge)).toContain("Observed backup start failure");
     // Run-7: one closed 'Basis details' disclosure holds the exact basis; closed cells carry no reason or ID.
-    const basis = bridge.querySelectorAll("details");
+    const basis = topLevelDetails(bridge);
     expect(basis).toHaveLength(1);
     expect((basis[0] as HTMLDetailsElement).open).toBe(false);
     expect(basis[0].querySelector("summary")?.textContent).toBe("Basis details");
     expect(basis[0].textContent).toContain(id(911));
+    // PB-3 review M2: the named disclosure is not a Technical details region; only its id block is.
+    expect(basis[0].hasAttribute("data-technical-details")).toBe(false);
+    expect(plainOf(basis[0])).not.toContain(id(911));
+    expect(plainOf(basis[0])).toContain("Thermal exposure does not establish product damage or loss.");
     expect(basis[0].textContent).toContain("The excursion has no recorded end, so its total exposure has no upper bound.");
     expect(text(basis[0])).toContain("No stored consequence or exact cost basis for this row.");
     const table = bridge.querySelector("table")!;
@@ -960,7 +983,7 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     // OUT-B B5 (R540): the cooling card is gone; the board replaces it, and the Overview never claims recovery.
     expectOutcomeBoardReplacesCards(OLD_COLD_CARDS);
     expect(text(main())).not.toMatch(/Cooling resumed/);
-    expect(text(document.querySelector("[data-cold-money-basis]")!)).toBe("Consequence basis: at least 50 °C·min; upper bound not established");
+    expect(text(document.querySelector("[data-cold-money-basis]")!)).toBe("Above the limit by at least 50 °C·min (degrees × minutes); the full extent is not known yet");
   });
 
   // S5: the stock prompt follows the selected excursion flag, not the product capability chip (None here).
@@ -1004,7 +1027,7 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     await settledScreen();
     const card = text(document.querySelector('[data-cold-card="exposure"]')!);
     expect(card).toContain("Chamber thermal exposure");
-    expect(card).toContain("Consequence basis: at least 50 °C·min; upper bound not established");
+    expect(card).toContain("Above the limit by at least 50 °C·min (degrees × minutes); the full extent is not known yet");
     expect(card).not.toContain("Observed excursion estimate");
     const bridge = panelTitled("What happened → what it means in money");
     expect(text(bridge)).not.toContain("Product exposure");
@@ -1201,8 +1224,10 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     const records = panelTitled("Accepted records behind the conclusions");
     expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).map((r) => r.getAttribute("data-accepted-record"))).toEqual([a, b, id(13)]);
-    const codes = Array.from(records.querySelectorAll<HTMLElement>("table code[data-record-id]"));
-    expect(codes.map((c) => text(c))).toEqual([`REC ${a}`, `REC ${b}`, `REC ${id(13)}`]);
+    const codes = Array.from(records.querySelectorAll<HTMLElement>("table [data-record-id]"));
+    // POLISH §3 ids: each row says "Source report"; the full UUID stays distinct in the title and accessible name.
+    expect(codes.map((c) => text(c))).toEqual(["Source report", "Source report", "Source report"]);
+    expect(codes.map((c) => c.getAttribute("title"))).toEqual([a, b, id(13)]);
     expect(codes.map((c) => c.getAttribute("aria-label"))).toEqual([a, b, id(13)]);
     expect(new Set(codes.map((c) => c.getAttribute("data-record-id"))).size).toBe(3);
     for (const c of codes) {
@@ -1271,7 +1296,7 @@ describe("W2-cold unit 2: cold Overview", () => {
     expect(events[0].className).toContain("--danger");
     expect(text(events[1].querySelector("strong")!)).toMatch(/· Start failed$/);
     expect(events[2].className).toContain("--gap");
-    expect(text(happened)).toContain("The steps above are based on the selected accepted records. Missing steps remain unobserved.");
+    expect(text(happened)).toContain("These steps come from the recorded readings. A step with no reading is marked Missing.");
     expect(text(happened)).not.toContain("steps below");
   });
 
@@ -1361,5 +1386,68 @@ describe("W2-cold: cold main tabs keep the window", () => {
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
     expect(links.length).toBeGreaterThan(4);
     for (const a of links) expect(a.getAttribute("href")?.endsWith(Q), a.getAttribute("href") ?? "").toBe(true);
+  });
+});
+
+// POLISH P-10 (§1.5, Addendum 12 Q1): the "What happened" line reads the board the page already holds (no new fetch).
+describe("POLISH P-10: cold What happened incident line from the outcome board", () => {
+  const incident = (code: string, occurred_at: string | undefined, kind = "INCIDENT") => ({
+    text: `${code} · Backup generator did not start on its own`,
+    href: `/work/incidents/${code}`,
+    state_label: "Open",
+    kind,
+    ...(occurred_at === undefined ? {} : { occurred_at }),
+  });
+  const boardWith = (inHand: ReturnType<typeof incident>[], earlier: ReturnType<typeof incident>[] = []) => {
+    const rows = COLD_BOARD.rows.map((r, i) => (i === 0 ? { ...r, in_hand: inHand } : i === 1 ? { ...r, earlier: earlier.map((e) => ({ ...e, result_label: null })) } : r));
+    return fakeOutcomeBoard({ status: "loaded", value: { ...COLD_BOARD, rows } });
+  };
+  const happened = () => panelTitled(PANELS.cold[0]);
+
+  it("p10_incident_in_window: names the incident by its display code and links to it", async () => {
+    // An incident before the window, a work request inside it, then the incident inside it (in `earlier`).
+    const board = boardWith(
+      [incident("INC-000004", "2026-10-06T15:59:59Z"), incident("WR-000006", "2026-10-06T16:30:00Z", "WORK_REQUEST")],
+      [incident("INC-000005", "2026-10-06T16:11:00Z")],
+    );
+    renderCold(ROUTES[0][1], STOCKED, board.client);
+    await settledScreen();
+    expect(text(happened())).toContain("Incident INC-005 · steps from the recorded readings");
+    expect(text(happened())).not.toContain("No incident recorded");
+    const link = happened().querySelector("[data-cold-incident-link]") as HTMLAnchorElement;
+    expect(text(link)).toBe("Open incident →");
+    // PB-3 review L2: the link carries the page's window, so the incidents list opens on the window that holds it.
+    expect(link.getAttribute("href")).toBe(`/work/incidents/INC-000005?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`);
+    // No extra fetch: the board client is read for the page's window only.
+    expect(new Set(board.calls.map((c) => JSON.stringify(c.query))).size).toBe(1);
+  });
+
+  it("p10_incident_href_merges_window_into_an_existing_query (PB-3 review L2)", () => {
+    const read = { status: "loaded", value: { ...COLD_BOARD, window: { ...COLD_BOARD.window, from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" } } } as OutcomeBoardRead;
+    const window = { from: FROM, to: TO, known_at: KNOWN };
+    const merged = new URL(incidentHref("/sites/COLD-LAB-001/work/incidents?status=open&from=old", read, window), "http://x");
+    expect(merged.pathname).toBe("/sites/COLD-LAB-001/work/incidents");
+    expect(merged.searchParams.get("status")).toBe("open");
+    expect(merged.searchParams.get("from")).toBe(FROM);
+    expect(merged.searchParams.get("to")).toBe(TO);
+    // With no page window, the board's resolved window is used.
+    const fallback = new URL(incidentHref("/sites/COLD-LAB-001/work/incidents", read, { from: null, to: null, known_at: null }), "http://x");
+    expect([fallback.searchParams.get("from"), fallback.searchParams.get("to")]).toEqual(["2026-10-01T00:00:00Z", "2026-10-08T00:00:00Z"]);
+  });
+
+  it("p10_loaded_without_incident: an incident outside [from, to) or without a time does not count", async () => {
+    const board = boardWith([incident("INC-000007", TO), incident("INC-000008", undefined)]);
+    renderCold(ROUTES[0][1], STOCKED, board.client);
+    await settledScreen();
+    expect(text(happened())).toContain("No incident recorded in this period");
+    expect(happened().querySelector("[data-cold-incident-link]")).toBeNull();
+  });
+
+  it("p10_board_absent: a board that did not load gives the plain readings line", async () => {
+    renderCold(ROUTES[0][1], STOCKED, fakeOutcomeBoard({ status: "unavailable" }).client);
+    await settledScreen();
+    expect(text(happened())).toContain("Steps from the recorded readings");
+    expect(text(happened())).not.toContain("No incident recorded");
+    expect(happened().querySelector("[data-cold-incident-link]")).toBeNull();
   });
 });

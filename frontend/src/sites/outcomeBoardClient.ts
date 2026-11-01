@@ -89,6 +89,10 @@ export interface OutcomeWarning {
 export interface OutcomeLinkItem {
   text: string;
   href: string | null;
+  /** POLISH P-10 (Addendum 12 Q1, PA-3): a case item's stored kind (INCIDENT, WORK_REQUEST or PLAN); absent on an older body. */
+  kind?: string;
+  /** POLISH P-10 (Addendum 12 Q1, PA-3): when a case item occurred; absent on an older body. */
+  occurred_at?: string | null;
 }
 
 export interface OutcomeInHandItem extends OutcomeLinkItem {

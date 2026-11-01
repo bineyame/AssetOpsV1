@@ -55,7 +55,7 @@ export const WORK_PROVENANCE_WORDS: Readonly<Record<string, [string, string]>> =
   ],
   MIXED: ["Sources do not agree", "The selected links do not establish one work source. No work outcome is verified."],
   UNKNOWN: [
-    "Source unverified",
+    "Source not checked",
     "The origin of this authored work record is not established. No work outcome is verified.",
   ],
 };
@@ -108,23 +108,25 @@ export function MockDeviation({ category, id }: { category: "D1" | "D2" | "D4"; 
   );
 }
 
-/** Post-W6 W6 Q18: the plain asset words for a stored asset type; an unlisted type keeps its stored label. */
+/**
+ * POLISH Addendum 6 Q4 / Addendum 12 Q3: the plain asset words for a stored asset type, mirroring the server asset
+ * label rule (PA-2b). Only the fallback when the wire `asset_label` is absent.
+ */
 const ASSET_WORDS: Readonly<Record<string, (code: string) => string>> = {
-  EV_CONNECTOR: (code) => `EV connector ${code}`,
-  GENERATOR: (code) => `Backup generator · ${code}`,
+  GENERATOR: () => "Backup generator",
+  CONNECTOR: (code) => `Connector ${code}`,
+  EV_CONNECTOR: (code) => `Connector ${code}`,
+  COMPRESSOR: () => "Compressor",
+  BATTERY: () => "Battery",
+  EV_CHARGER: () => "Charger",
 };
 
-/** Post-W6 W6 Q18: `EV connector c1` / `Backup generator · generator-1` from the stored code and type. */
+/** `Backup generator` / `Connector c1` from the stored code and type; any other type is its capitalised word. */
 export function assetWords(code: string, type: string): string {
   const words = ASSET_WORDS[type];
-  return words ? words(code) : `${code} · ${type}`;
-}
-
-/** The same words from a row's stored `code · TYPE` asset label (null when the row records no asset). */
-export function assetLabelWords(label: string | null): string | null {
-  if (label === null) return null;
-  const at = label.lastIndexOf(" · ");
-  return at < 0 ? label : assetWords(label.slice(0, at), label.slice(at + 3));
+  if (words) return words(code);
+  const word = type.replace(/_/g, " ").toLowerCase();
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 /** Post-W6 W6 Q18: `1 request`, `{n} requests`. */
@@ -222,7 +224,7 @@ export interface GlobalWorkBodyBase {
  * POLISH §3.1 Work row, done in PB-1 (Addendum 7 Q1a): the current line reads `Updated 1 Nov 2026, 02:09`, and the
  * page's one time zone note sits beside it.
  */
-export function StatusLine({ body }: { body: GlobalWorkBodyBase }) {
+export function StatusLine({ body, dueDates = false }: { body: GlobalWorkBodyBase; dueDates?: boolean }) {
   const text =
     body.status === "HISTORICAL"
       ? `Historical as of ${globalWorkUtcSeconds(body.known_at)}`
@@ -231,7 +233,7 @@ export function StatusLine({ body }: { body: GlobalWorkBodyBase }) {
     <p className="global-work-status" data-global-work-status={body.status}>
       {text}
       <span aria-hidden="true"> · </span>
-      <TimeZoneNote />
+      <TimeZoneNote dueDates={dueDates} />
     </p>
   );
 }
@@ -378,10 +380,13 @@ export function GlobalWorkBar<B extends GlobalWorkBodyBase>({
   page,
   label,
   membership,
+  dueDates = false,
 }: {
   page: GlobalWorkPageRead<B>;
   label: string;
   membership: string;
+  /** POLISH Addendum 7 Q6: pages that list Site-local due dates (Preventive, Maintenance) use the two-part note. */
+  dueDates?: boolean;
 }) {
   const { query, rawFrom, rawTo, body } = page;
   return (
@@ -399,7 +404,7 @@ export function GlobalWorkBar<B extends GlobalWorkBodyBase>({
       <p className="global-work-membership" data-global-work-membership>
         {membership}
       </p>
-      {body !== null ? <StatusLine body={body} /> : null}
+      {body !== null ? <StatusLine body={body} dueDates={dueDates} /> : null}
     </div>
   );
 }

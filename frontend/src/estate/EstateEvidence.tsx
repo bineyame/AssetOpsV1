@@ -9,6 +9,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatRange } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { UnavailableInline } from "../ui/UnavailableEntry";
 import type { EstateEnvelope, EstateQuery } from "./estateClient";
 import {
@@ -183,10 +184,6 @@ function RowDetails({ row }: { row: EvidenceRow }) {
         <dd>{window ?? "Not recorded"}</dd>
         <dt>Assessment</dt>
         <dd>{assessmentText(row)}</dd>
-        <dt>Selected record references</dt>
-        <dd>{row.selected_revision_ids.length > 0 ? row.selected_revision_ids.join(", ") : "None selected"}</dd>
-        <dt>Evidence record references</dt>
-        <dd>{evidenceIds.length > 0 ? evidenceIds.join(", ") : "None recorded"}</dd>
         {d.constituents.length > 0 ? (
           <>
             <dt>Selected observations</dt>
@@ -218,6 +215,14 @@ function RowDetails({ row }: { row: EvidenceRow }) {
           </>
         ) : null}
       </dl>
+      <TechnicalDetails name="estate-evidence-row-technical">
+        <dl className="estate-evidence-facts">
+          <dt>Selected record references</dt>
+          <dd>{row.selected_revision_ids.length > 0 ? row.selected_revision_ids.join(", ") : "None selected"}</dd>
+          <dt>Evidence record references</dt>
+          <dd>{evidenceIds.length > 0 ? evidenceIds.join(", ") : "None recorded"}</dd>
+        </dl>
+      </TechnicalDetails>
     </Disclosure>
   );
 }
@@ -303,7 +308,7 @@ function GapRow({ gap }: { gap: EvidenceGap }) {
     <tr data-estate-gap={`${gap.domain}|${gap.gap_code}|${gap.missing_role ?? ""}`}>
       <td>
         <span className="estate-cell__primary">{gap.label}</span>
-        <Disclosure summary="Record details" name="estate-evidence-gap" variant="inline">
+        <Disclosure summary="Technical details" name="estate-evidence-gap" variant="inline" technical>
           <dl className="estate-evidence-facts">
             <dt>Gap code</dt>
             <dd>{gap.gap_code}</dd>

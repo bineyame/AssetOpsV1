@@ -22,6 +22,7 @@
 
 import { SITE_ZONE_UNAVAILABLE_LABEL, siteTime, siteZoneLabel } from "./siteTime";
 import { findingLocalTime } from "./findingTime";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -75,7 +76,7 @@ export function clockWords(label: string): string {
     case "SOURCE_REPORTED":
       return "the source's own clock";
     case "SERVER_RECEIVED_AT":
-      return "server clock, UTC";
+      return "server clock";
     default:
       return "clock not stated";
   }
@@ -357,11 +358,11 @@ function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: 
     <div className="v69-chips evidence-window evidence-toolbar" data-evidence-window={evidence.window.basis}>
       <form className="evidence-toolbar__controls" onSubmit={apply}>
         <label className="evidence-toolbar__field">
-          <span>From (UTC)</span>
+          <span>From</span>
           <input className="v69-chip-control" type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
         </label>
         <label className="evidence-toolbar__field">
-          <span>To (UTC)</span>
+          <span>To</span>
           <input className="v69-chip-control" type="datetime-local" name="to" value={to} onChange={(e) => setTo(e.target.value)} />
         </label>
         <button type="submit" className="button">
@@ -371,6 +372,7 @@ function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: 
           Show all readings
         </button>
       </form>
+      <TimeZoneNote />
       {extra}
       <p className="evidence-toolbar__period">
         <strong>Selected period:</strong> {period}. Periods are chosen by the time each reading was taken.
@@ -815,7 +817,7 @@ function SourcesOverview({
       >
         {evidence.sources.length === 0 ? null : (
           <p className="panel__note" data-evidence-source-clocks>
-            {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock (UTC).`}
+            {`Latest taken: ${Array.from(new Set(evidence.sources.map((s) => clockWords(s.clocks.source_time)))).join(" or ")}; latest received: server clock.`}
           </p>
         )}
         <SourceStrip evidence={evidence} />
@@ -912,7 +914,7 @@ function GatewayContact({ health, detailed }: { health: EvidenceRead<GatewayHeal
             </p>
             {detailed ? (
               <FactList>
-                <Fact term="Last report received (server clock, UTC)">{when(g.last_server_contact)}</Fact>
+                <Fact term="Last report received (server clock)">{when(g.last_server_contact)}</Fact>
                 <Fact term="Time stated by the gateway (its own clock)">{when(g.gateway_observed_at)}</Fact>
                 <Fact term="Gateway clock difference">
                   {g.clock_offset_ms === null ? "Unknown" : `${g.clock_offset_ms} ms`}
@@ -967,7 +969,7 @@ function Clocks({ evidence }: { evidence: LedgerEvidence }) {
         </li>
         <li>
           <strong>Received:</strong> when the server first received the delivery that carried it, on the
-          server clock (UTC).
+          server clock.
         </li>
       </ul>
       <p>
@@ -1146,7 +1148,7 @@ function Comparison({ evidence }: { evidence: LedgerEvidence }) {
       <FactList>
         <Fact term="Comparison result">{m.outcome ?? "Not stated"}</Fact>
         <Fact term="Readings in the earlier store">{m.empty_set === true ? "None" : m.empty_set === false ? "Some" : "Not stated"}</Fact>
-        <Fact term="Compared at (server clock, UTC)">{when(m.compared_at)}</Fact>
+        <Fact term="Compared at (server clock)">{when(m.compared_at)}</Fact>
         <Fact term="Comparison reference">
           <span {...REF}>{m.report_id ?? "none"}</span>
         </Fact>
@@ -1432,7 +1434,7 @@ function Inspector({
             {/* MOCK DEVIATION D1 (post-W6 shell Q3/Q18, register R381): no "Missing / Inspect the gap" row and no
                 external-link marker on Open record; the ledger read has no stored gap row to list. */}
             <ChartNote data={{ "data-evidence-records-count": String(list.value.records.length) }}>
-              {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest measured first. Measured and sent times: ${clocks.join(" or ")}; received times: server clock (UTC). Measured times are shown in site time (${measuredZone}); sent and received times stay UTC. The gap between them is not a delivery delay.`}
+              {`${list.value.records.length} of ${list.value.total} accepted readings in this period, earliest measured first. Measured and sent times: ${clocks.join(" or ")}; received times: server clock. Measured times are shown in site time (${measuredZone}); sent and received times are not converted. The gap between them is not a delivery delay.`}
             </ChartNote>
             <DataTable labelledBy="site-evidence-inspector-heading">
               <thead>
@@ -1466,7 +1468,7 @@ function Inspector({
                     </td>
                     <td
                       data-evidence-measured={item.source_time ?? ""}
-                      title={item.source_time ? `Exact time: ${when(item.source_time)} (${item.source_time})` : undefined}
+                      title={item.source_time ? `Exact time: ${when(item.source_time)} UTC (${item.source_time})` : undefined}
                     >
                       {measuredTime(item.source_time, timezone, selectedDay)}
                     </td>
@@ -1650,8 +1652,8 @@ function RecordFacts({ item }: { item: LedgerRecordDetail }) {
         )}
         <Fact term="Origin">{sourceKind(item.source_mode)}</Fact>
         <Fact term="Decision">{plainCode(r.decision)}</Fact>
-        <Fact term="Delivery first received (server clock, UTC)">{when(r.received_at)}</Fact>
-        <Fact term="This reading decided (server clock, UTC)">{when(r.decided_at)}</Fact>
+        <Fact term="Delivery first received (server clock)">{when(r.received_at)}</Fact>
+        <Fact term="This reading decided (server clock)">{when(r.decided_at)}</Fact>
         <Fact term="Delivery progress">
           {`${r.processed} of ${r.total}${r.completed_at === null ? ", still being processed" : `, finished ${when(r.completed_at)}`}`}
         </Fact>

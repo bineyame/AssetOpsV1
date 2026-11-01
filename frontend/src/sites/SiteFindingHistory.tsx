@@ -22,15 +22,18 @@ import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll }
 
 /** W1-F3 height phase: how many of the latest versions the default view shows, as the mock's three rows. */
 const LATEST_SHOWN = 3;
-import { durationText, minutes, stamp } from "./dispatchWords";
+import { durationText, minutes } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
 import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import { FINDING_NAME } from "./SiteFindingEvidence";
-import { findingLocalTime } from "./findingTime";
-import { siteZoneDisplayLabel } from "./siteTime";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
+import { formatDayTime, instantMs } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
+
+/** POLISH §3 Times: `29 Oct 2026, 16:00`; the zone is named once by the page's `TimeZoneNote`. */
+const dayTime = (value: string | null | undefined): string => (value ? formatDayTime(value) : "not reported");
 
 export const HISTORY_PAGE_SIZE = 100;
 const HEADING_ID = "finding-history-revisions-heading";
@@ -114,13 +117,12 @@ export function SiteFindingHistory({
   client,
   links,
   onTitle,
-  timeZone,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingHistoryLinks;
-  /** post-W6 W1-a Q17 / R195: the Site's timezone for the Time column; missing or invalid falls back to UTC. */
+  /** The Site's timezone; PB-3 L4 (Addendum 13): the Time column shows UTC clock times, so it is not used for display. */
   timeZone?: string | null;
   /** W1-F5b (carry 10): the page heading is the selected version's Finding name, as on the Finding and in the mock. */
   onTitle?: (title: string) => void;
@@ -198,7 +200,7 @@ export function SiteFindingHistory({
       data-history-total={body.page.total}
       data-history-loaded={rows.length}
     >
-      <RevisionHistory body={body} rows={rows} read={read} links={links} timeZone={timeZone} />
+      <RevisionHistory body={body} rows={rows} read={read} links={links} />
     </div>
   );
 }
@@ -311,13 +313,11 @@ function RevisionHistory({
   rows,
   read,
   links,
-  timeZone,
 }: {
   body: FindingHistoryBody;
   rows: HistoryRevision[];
   read: Extract<HistoryRead, { status: "loaded" }>;
   links: SiteFindingHistoryLinks;
-  timeZone?: string | null;
 }) {
   const { selection, state } = body;
   const no = selection.revision_no;
@@ -343,8 +343,8 @@ function RevisionHistory({
   const versionHead = (
     <thead>
       <tr>
-        <th scope="col" data-history-time-zone={siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)}>
-          Time ({siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)})
+        <th scope="col" data-history-time-zone="UTC">
+          Time
         </th>
         <th scope="col">Event</th>
         <th scope="col">Basis</th>
@@ -358,7 +358,6 @@ function RevisionHistory({
       group={groupOf.get(r.id)}
       previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
       links={links}
-      timeZone={timeZone}
     />
   );
   return (
@@ -417,6 +416,7 @@ function RevisionHistory({
           ) : null}
         </ProductStatus>
       </p>
+      <TimeZoneNote />
       <p className="site-finding-history__summary">
         {/* W1-F3 review M4: a complete list says its count once, in the headline; only an incomplete list adds a line. */}
         <strong data-history-summary data-history-complete={complete ? "" : undefined}>
@@ -494,16 +494,16 @@ function VersionRow({
   group,
   previousRecordedAt,
   links,
-  timeZone,
 }: {
   r: HistoryRevision;
   group: { count: number; first: number; last: number } | undefined;
   previousRecordedAt: string | null;
   links: SiteFindingHistoryLinks;
-  timeZone?: string | null;
 }) {
-  // post-W6 W1-a Q17 / R195: Site-local `D Mon · HH:MM`, exact UTC in the title and the technical disclosure.
-  const recorded = findingLocalTime(r.times.recorded_at, timeZone);
+  // PB-3 L4 (Addendum 13): the UTC clock time `6 Oct, 14:10` through `ui/time.ts` (one clock across screens; the
+  // page's `TimeZoneNote` names the zone); the exact UTC instant stays in the title and the technical disclosure.
+  const recordedMs = instantMs(r.times.recorded_at);
+  const recorded = recordedMs === null ? null : { utc: new Date(recordedMs).toISOString() };
   const state = LIFECYCLE_WORDS[r.lifecycle];
   const accepted = at(r.times.accepted_at);
   const previous = at(previousRecordedAt);
@@ -521,10 +521,10 @@ function VersionRow({
     >
       <td data-history-recorded-utc={recorded?.utc}>
         {recorded === null ? (
-          stamp(r.times.recorded_at)
+          dayTime(r.times.recorded_at)
         ) : (
           <time dateTime={recorded.utc} title={`${recorded.utc} (UTC)`}>
-            {recorded.dayMonth} · {recorded.clock}
+            {formatDayTime(r.times.recorded_at, { year: false })}
           </time>
         )}
       </td>
@@ -578,7 +578,7 @@ function VersionRow({
           <div>
             <dt>Period</dt>
             <dd>
-              {stamp(r.episode.start)} to {stamp(r.episode.end)}
+              {dayTime(r.episode.start)} to {dayTime(r.episode.end)}
             </dd>
           </div>
           <div>
@@ -600,24 +600,24 @@ function VersionRow({
           <div>
             <dt>Readings from</dt>
             <dd>
-              {stamp(r.times.source_time.first)} to {stamp(r.times.source_time.last)}
+              {dayTime(r.times.source_time.first)} to {dayTime(r.times.source_time.last)}
             </dd>
           </div>
           <div>
-            <dt>Version recorded (UTC)</dt>
-            <dd data-history-recorded-exact>{recorded?.utc ?? stamp(r.times.recorded_at)}</dd>
+            <dt>Version recorded</dt>
+            <dd data-history-recorded-exact title={recorded?.utc}>{dayTime(r.times.recorded_at)}</dd>
           </div>
           <div>
             <dt>Last cited reading received</dt>
-            <dd>{stamp(r.times.received_at)}</dd>
+            <dd>{dayTime(r.times.received_at)}</dd>
           </div>
           <div>
             <dt>Last cited reading accepted</dt>
-            <dd>{stamp(r.times.accepted_at)}</dd>
+            <dd>{dayTime(r.times.accepted_at)}</dd>
           </div>
           <div>
             <dt>Analysis finished</dt>
-            <dd>{stamp(r.times.analytic_completed_at)}</dd>
+            <dd>{dayTime(r.times.analytic_completed_at)}</dd>
           </div>
           <div>
             <dt>Assessment rules reference</dt>

@@ -64,14 +64,14 @@ export function CoolingObservationGraphic({
             const d = new Date(t);
             return (
               <text key={t} className="cold-depth-graphic__axis" x={x(t)} y={h - 10} textAnchor="middle">
-                {`${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())} UTC`}
+                {`${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}`}
               </text>
             );
           })}
           {marks.map((m) => (
             <g key={`${m.p.role}|${m.p.source_time}|${m.index}`} data-cooling-mark={m.p.role}>
               <circle className="cold-depth-graphic__mark" cx={x(m.t.getTime())} cy={laneY(m.p.role)} r={5}>
-                <title>{`${recordLabel(m.p.role)} · ${utcClock(m.p.source_time)} UTC`}</title>
+                <title>{`${recordLabel(m.p.role)} · ${utcClock(m.p.source_time)}`}</title>
               </circle>
               <text className="cold-depth-graphic__mark-label" x={x(m.t.getTime())} y={laneY(m.p.role) - 10} textAnchor="middle">
                 {utcClock(m.p.source_time)}

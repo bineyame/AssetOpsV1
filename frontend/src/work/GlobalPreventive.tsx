@@ -10,8 +10,14 @@
  * State a `Draft` badge (no recurrence rule or due evaluator); the asset label is plain text (no general Asset route);
  * the panel footer and the notice keep their slots with bounded copy (no plan-completion command; the mock incident
  * story cannot be attributed to stored plans). A refusal, a read failure or a changed list is stated, never zero.
+ *
+ * POLISH P-09 (§1.4, PB-3): the cards, the strip badge and a per-row chip read the optional wire `summary` and
+ * `due_state`; an older build without them states that the counts were not sent, never zero. Due dates use the Site zone
+ * (`site_time_zone`) when sent, else UTC (Addendum 12 Q2). The DRAFT state reads "Not yet approved" (Addendum 12 Q4).
  */
 import { displayCode } from "../ui/displayCode";
+import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";
+import { formatDay } from "../ui/time";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
 import { CellDisclosure } from "./CellDisclosure";
@@ -19,14 +25,15 @@ import { MaintenanceViews } from "./GlobalMaintenance";
 import {
   globalWorkHref,
   type GlobalPreventiveBody,
+  type GlobalPreventiveDueState,
   type GlobalPreventiveRow,
+  type GlobalPreventiveSummary,
   type GlobalWorkClient,
 } from "./globalWorkClient";
 import {
   CHANGE_WINDOW,
   Clamp,
   GlobalWorkBar,
-  assetLabelWords,
   GlobalWorkSlot,
   LinkOrText,
   Pager,
@@ -42,34 +49,63 @@ const CORRECTIVE_PATH = "/maintenance";
 export const GLOBAL_PREVENTIVE_HEADING_ID = "global-preventive-heading";
 const TABLE_HEADING_ID = "global-preventive-plan-heading";
 
-export const GLOBAL_PREVENTIVE_SUBTITLE = "Scheduled maintenance by calendar or running hours";
+export const GLOBAL_PREVENTIVE_SUBTITLE = "Scheduled maintenance by calendar or hours of use";
 export const GLOBAL_PREVENTIVE_LOADING = "Loading the preventive plans across the estate.";
-export const PREVENTIVE_STRIP_BADGE = "Due status not assessed";
-export const PREVENTIVE_STRIP_TEXT = "Scheduled by calendar or running hours · due dates are plan facts";
-export const PREVENTIVE_PLAN_FOOTER =
-  "Completing a draft plan here is unavailable; a performed record and later evidence are separate.";
-export const PREVENTIVE_NOTICE = "No incident link or cause is established by these draft plans.";
-export const NO_DRAFT_PLANS = "No draft plans in this window.";
+/** POLISH P-09: the strip badge before the summary is read, or when this build does not send it. */
+export const PREVENTIVE_STRIP_BADGE_UNAVAILABLE = "Due status not sent with this list";
+export const PREVENTIVE_STRIP_TEXT = "Scheduled by calendar or hours of use · due dates as set in each plan";
+export const PREVENTIVE_PLAN_FOOTER = "Plans can't be completed from this page yet.";
+export const PREVENTIVE_NOTICE = "These plans are not yet approved, and none is linked to an incident or a cause.";
+export const NO_PREVENTIVE_PLANS = "No preventive plans in this window.";
 /** Post-W6 W6 Q7: the stored time that places a plan in the window. */
-export const PREVENTIVE_MEMBERSHIP = "Listed by the time each plan was first recorded.";
+export const PREVENTIVE_MEMBERSHIP = "Listed in the order plans were added.";
+/** POLISH Addendum 12 Q4: the stored DRAFT state, in plain words (neutral tone). */
+export const PLAN_NOT_APPROVED = "Not yet approved";
+const DUE_NOT_AVAILABLE = "Not shown";
+const DUE_COUNTS_NOT_AVAILABLE = "This list did not include the due counts";
+const DAY_MS = 86_400_000;
+const SOON_DAYS = 14;
 
-const DATE_ONLY = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+/** POLISH P-09: the per-row chip; NOT_DUE shows none. */
+const DUE_CHIP: Readonly<Partial<Record<GlobalPreventiveDueState, { label: string; tone: "amber" | "blue" | "neutral" }>>> = {
+  OVERDUE: { label: "Overdue", tone: "amber" },
+  DUE_SOON: { label: "Due soon", tone: "blue" },
+  NOT_ASSESSED: { label: "No date", tone: "neutral" },
+};
 
-/** P-B3-6: `29 Oct 2026` (en-GB, UTC date of the authored due instant, no local-zone conversion). */
-function dueDate(instant: string): string {
-  const ms = Date.parse(instant);
-  return Number.isNaN(ms) ? instant : DATE_ONLY.format(new Date(ms));
+/** `1 plan` / `{n} plans`. */
+const planCount = (n: number): string => `${n} ${n === 1 ? "plan" : "plans"}`;
+
+/** The optional wire summary, only when every count is a non-negative number (else the not-sent wording). */
+function summaryOf(body: GlobalPreventiveBody | null): GlobalPreventiveSummary | null {
+  const summary: unknown = body?.summary;
+  if (typeof summary !== "object" || summary === null) return null;
+  const s = summary as Record<string, unknown>;
+  const counts = [s.overdue_count, s.due_soon_count, s.not_assessed_count];
+  return counts.every((n) => typeof n === "number" && Number.isFinite(n) && n >= 0) ? (summary as GlobalPreventiveSummary) : null;
 }
 
 function trigger(row: GlobalPreventiveRow): string {
   if (row.trigger_kind === "CALENDAR") return "Calendar";
-  return row.next_due_hours === null ? "Running hours" : `Every ${row.next_due_hours} running hours`;
+  return row.next_due_hours === null ? "Hours of use" : `Every ${row.next_due_hours} hours of use`;
 }
 
+/** Addendum 12 Q2: a due date on the Site's own calendar day when its zone is sent, else the UTC day. */
 function nextDue(row: GlobalPreventiveRow): string {
-  if (row.next_due_at !== null) return dueDate(row.next_due_at);
-  if (row.next_due_hours !== null) return `${row.next_due_hours} running hours`;
+  if (row.next_due_at !== null) return formatDay(row.next_due_at, { timeZone: row.site_time_zone ?? null });
+  if (row.next_due_hours !== null) return `At ${row.next_due_hours} hours of use`;
   return "Not set";
+}
+
+function DueChip({ state }: { state: GlobalPreventiveDueState | undefined }) {
+  const chip = state === undefined ? undefined : DUE_CHIP[state];
+  if (chip === undefined) return null;
+  const tone = chip.tone === "neutral" ? "" : ` w1f4-action-badge--${chip.tone}`;
+  return (
+    <span className={`w1f4-action-badge${tone}`} data-global-work-due-state={state} data-global-work-tone={chip.tone}>
+      {chip.label}
+    </span>
+  );
 }
 
 function PlanRow({ row }: { row: GlobalPreventiveRow }) {
@@ -87,10 +123,11 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
               {`Correction: ${row.correction_reason}`}
             </CellDisclosure>
             {row.supersedes_plan_id !== null ? (
-              <details className="global-work-details" data-global-work-supersedes>
-                <summary>Earlier plan version</summary>
-                {row.supersedes_plan_id}
-              </details>
+              <div data-global-work-supersedes>
+                <TechnicalDetails name={`preventive-supersedes-${row.root_id}`}>
+                  <TechnicalReferenceList references={[{ label: "Earlier plan version", value: row.supersedes_plan_id }]} />
+                </TechnicalDetails>
+              </div>
             ) : null}
           </>
         ) : null}
@@ -98,7 +135,7 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
       </td>
       <td>
         <CellDisclosure column="Asset / site" row={row.code} data={{ "data-global-work-asset-site": "" }}>
-          {assetLabelWords(row.asset_label) ?? "No asset recorded"}
+          {row.asset_label ?? "No asset recorded"}
           {" · "}
           <LinkOrText link={row.links.site} data={{ "data-global-work-site": row.site_code }} />
         </CellDisclosure>
@@ -117,15 +154,16 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
         <CellDisclosure column="Next due" row={row.code} data={{ "data-global-work-due": "" }}>
           {nextDue(row)}
         </CellDisclosure>
+        <DueChip state={row.due_state} />
       </td>
       <td>
         <span className="w1f4-action-badge" data-global-work-state={row.state} data-global-work-tone="neutral">
-          Draft
+          {PLAN_NOT_APPROVED}
         </span>
       </td>
       <td>
         <CellDisclosure column="What it proves" row={row.code}>
-          Nothing verified by this plan
+          No completed work confirmed yet
         </CellDisclosure>
       </td>
     </tr>
@@ -162,7 +200,12 @@ function PlanTable({ body }: { body: GlobalPreventiveBody }) {
 }
 
 function Cards({ body }: { body: GlobalPreventiveBody }) {
+  const summary = summaryOf(body);
+  const to = Date.parse(body.window.to);
+  const before = formatDay(body.window.to);
+  const by = Number.isNaN(to) ? DUE_NOT_AVAILABLE : formatDay(to + SOON_DAYS * DAY_MS);
   return (
+    <>
     <MetricCards label="Preventive summary" data={{ "data-global-work-cards": "" }}>
       <MetricCard
         label="Scheduled items"
@@ -170,28 +213,56 @@ function Cards({ body }: { body: GlobalPreventiveBody }) {
         note={`Across ${body.scope.covered_site_count} sites`}
         data={{ "data-global-work-card": "scheduled_items" }}
       />
-      <MetricCard
-        label="Overdue"
-        value="Not assessed"
-        assessment
-        tone="amber"
-        note="No due evaluator"
-        data={{ "data-global-work-card": "overdue" }}
-      />
-      <MetricCard label="Due in 14 days" value="Not assessed" word note="No due evaluator" data={{ "data-global-work-card": "due_14" }} />
+      {summary !== null ? (
+        <MetricCard
+          label="Overdue"
+          value={String(summary.overdue_count)}
+          tone={summary.overdue_count > 0 ? "amber" : undefined}
+          note={`Calendar plans due before ${before}`}
+          data={{ "data-global-work-card": "overdue" }}
+        />
+      ) : (
+        <MetricCard label="Overdue" value={DUE_NOT_AVAILABLE} word note={DUE_COUNTS_NOT_AVAILABLE} data={{ "data-global-work-card": "overdue" }} />
+      )}
+      {summary !== null ? (
+        <MetricCard
+          label="Due in the next 14 days"
+          value={String(summary.due_soon_count)}
+          note={`Calendar plans due by ${by}`}
+          data={{ "data-global-work-card": "due_14" }}
+        />
+      ) : (
+        <MetricCard
+          label="Due in the next 14 days"
+          value={DUE_NOT_AVAILABLE}
+          word
+          note={DUE_COUNTS_NOT_AVAILABLE}
+          data={{ "data-global-work-card": "due_14" }}
+        />
+      )}
       <MetricCard
         label="Feeds evidence"
         value="Not established"
         word
-        note="No accepted-evidence link"
+        note="No linked evidence yet"
         data={{ "data-global-work-card": "feeds_evidence" }}
       />
     </MetricCards>
+    {summary !== null && summary.not_assessed_count > 0 ? (
+      <p className="v69-chart-note" data-global-work-not-assessed>
+        {`${planCount(summary.not_assessed_count)} based on hours of use; not checked here yet`}
+      </p>
+    ) : null}
+    </>
   );
 }
 
 /** P-B3-4: the mock status strip between the date bar and the cards; its right `Assets` slot is unavailable. */
-function PreventiveStrip() {
+function PreventiveStrip({ summary }: { summary: GlobalPreventiveSummary | null }) {
+  const overdue = summary?.overdue_count ?? null;
+  const badge =
+    overdue === null ? PREVENTIVE_STRIP_BADGE_UNAVAILABLE : overdue === 0 ? "None overdue" : `${overdue} overdue`;
+  const tone = overdue !== null && overdue > 0 ? "amber" : "neutral";
   return (
     <StatusBar
       label="Preventive status"
@@ -199,8 +270,12 @@ function PreventiveStrip() {
       action={<UnavailableInline label="Assets" />}
       data={{ "data-global-work-strip": "" }}
     >
-      <span className="w1f4-action-badge w1f4-action-badge--amber" data-global-work-tone="amber">
-        {PREVENTIVE_STRIP_BADGE}
+      <span
+        className={`w1f4-action-badge${tone === "amber" ? " w1f4-action-badge--amber" : ""}`}
+        data-global-work-tone={tone}
+        data-global-work-strip-badge=""
+      >
+        {badge}
       </span>
     </StatusBar>
   );
@@ -218,14 +293,14 @@ export function GlobalPreventivePage({ client }: { client?: GlobalWorkClient }) 
       <Breadcrumbs trail={[{ label: "Maintenance", to: corrective }, { label: "Preventive · scheduled" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_PREVENTIVE_HEADING_ID} subtitle={GLOBAL_PREVENTIVE_SUBTITLE} />
       <MaintenanceViews current="preventive" query={query} />
-      <GlobalWorkBar page={page} label="Preventive window" membership={PREVENTIVE_MEMBERSHIP} />
-      <PreventiveStrip />
+      <GlobalWorkBar page={page} label="Preventive window" membership={PREVENTIVE_MEMBERSHIP} dueDates />
+      <PreventiveStrip summary={shown ? summaryOf(body) : null} />
       <GlobalWorkSlot page={page} loading={GLOBAL_PREVENTIVE_LOADING} cards={(value) => <Cards body={value} />} />
       <Panel heading="Preventive plan" headingId={TABLE_HEADING_ID} description={PREVENTIVE_PLAN_FOOTER}>
         {shown && body !== null ? (
           body.total_count === 0 ? (
             <div className="global-work-empty" data-global-work-zero>
-              <p>{NO_DRAFT_PLANS}</p>
+              <p>{NO_PREVENTIVE_PLANS}</p>
               <p>{CHANGE_WINDOW}</p>
             </div>
           ) : (

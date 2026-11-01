@@ -34,7 +34,7 @@ export function cardValue(card: EstateValueCard, body: EstatePortfolioBody): { v
       detail: card.detail ?? `${line?.site_name ?? ""} · ${categoryLabel(line?.category ?? "")} · ${window ?? "Window not recorded"}`,
     };
   }
-  return { value: card.display_value ?? CARD_VALUE[card.state] ?? "Not established", detail };
+  return { value: card.display_value ?? CARD_VALUE[card.state] ?? "Not known yet", detail };
 }
 
 /** OUT-A A6: the four outcome categories in canonical order, with the v7.0 mock's names and definitions. */
@@ -163,7 +163,11 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
   const recovery = card("VERIFIED_RECOVERY");
   const gap = evidenceGapText(body.summary.evidence_gap_site_count, body.scope.authorized_site_count);
   return {
-    value: recovery === undefined ? "Not established" : cardValue(recovery, body).value,
+    // POLISH §3.1 (Assure card): the server's "Not established" reads "Not known yet" on this card.
+    value:
+      recovery === undefined || recovery.state === "NOT_ESTABLISHED" || recovery.state === "UNSUPPORTED"
+        ? "Not known yet"
+        : cardValue(recovery, body).value,
     detail: assureDetailText(summary, gap),
     basis: recovery?.basis_text || ASSURE_BASIS,
     destination: "/evidence",

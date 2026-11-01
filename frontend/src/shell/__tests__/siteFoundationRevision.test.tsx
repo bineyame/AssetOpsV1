@@ -758,7 +758,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     await settledScreen();
     const form = screen.getByRole("form", { name: "Remove a channel link" });
     fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
-    fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-05T00:00" } });
+    fireEvent.change(within(form).getByLabelText("Effective from"), { target: { value: "2026-10-05T00:00" } });
     fireEvent.click(within(form).getByRole("button", { name: "Publish channel-link change" }));
     expect(await within(form).findByRole("status")).toHaveTextContent("Published channel links v3");
     const [site, change] = client.publishBindings.mock.calls[0];
@@ -780,7 +780,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
       await settledScreen();
       const form = screen.getByRole("form", { name: "Remove a channel link" });
       fireEvent.change(within(form).getByRole("combobox"), { target: { value: "b-battery-soc" } });
-      fireEvent.change(within(form).getByLabelText("Effective from (UTC)"), { target: { value: "2026-10-04T00:00" } });
+      fireEvent.change(within(form).getByLabelText("Effective from"), { target: { value: "2026-10-04T00:00" } });
       fireEvent.click(within(form).getByRole("button", { name: "Publish channel-link change" }));
       const status = await within(form).findByRole("status");
       for (const text of expected) expect(status).toHaveTextContent(text);

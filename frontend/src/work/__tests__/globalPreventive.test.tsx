@@ -181,20 +181,21 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(Array.from(crumbs.querySelectorAll("li")).map(text)).toEqual(["Maintenance", "Preventive · scheduled"]);
     expect(within(crumbs).getByRole("link", { name: "Maintenance" })).toHaveAttribute("href", CORRECTIVE);
-    expect(document.body.textContent).toContain("Scheduled maintenance by calendar or running hours");
+    expect(document.body.textContent).toContain("Scheduled maintenance by calendar or hours of use");
     const tabs = screen.getByRole("navigation", { name: "Maintenance views" });
     expect(Array.from(tabs.querySelectorAll("li")).map(text)).toEqual(["Corrective", "Preventive · scheduled"]);
     expect(within(tabs).getByRole("link", { name: "Corrective" })).toHaveAttribute("href", CORRECTIVE);
     expect(tabs.querySelector('[aria-current="page"]')?.textContent).toBe("Preventive · scheduled");
     expect(tabs.querySelector("[data-tab-unavailable]")).toBeNull();
 
-    // P-B3-4: the amber strip between the date bar and the cards; Assets is an unavailable entry, not a link.
+    // P-B3-4: the strip between the date bar and the cards; Assets is an unavailable entry, not a link. POLISH P-09: an
+    // answer without `summary` (an older build) states the due status as not available yet, never zero.
     const strip = document.querySelector("[data-global-work-strip]") as HTMLElement;
     expect(strip.className).toContain("status-strip");
-    expect(text(strip.querySelector(".status-strip__lead"))).toBe("Due status not assessed");
-    expect(text(strip.querySelector(".v69-statusbar__other"))).toBe("Scheduled by calendar or running hours · due dates are plan facts");
+    expect(text(strip.querySelector(".status-strip__lead"))).toBe("Due status not sent with this list");
+    expect(text(strip.querySelector(".v69-statusbar__other"))).toBe("Scheduled by calendar or hours of use · due dates as set in each plan");
     expect(text(strip.querySelector(".status-strip__action"))).toBe("Assets · Not available yet");
-    expect(strip.querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "amber");
+    expect(strip.querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "neutral");
     expect(strip.querySelector("a, [href]")).toBeNull();
     const bar = document.querySelector("[data-global-work-bar]") as HTMLElement;
     expect(bar.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -210,20 +211,16 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
       ]),
     ).toEqual([
       ["Scheduled items", "6", "Across 2 sites"],
-      ["Overdue", "Not assessed", "No due evaluator"],
-      ["Due in 14 days", "Not assessed", "No due evaluator"],
-      ["Feeds evidence", "Not established", "No accepted-evidence link"],
+      ["Overdue", "Not shown", "This list did not include the due counts"],
+      ["Due in the next 14 days", "Not shown", "This list did not include the due counts"],
+      ["Feeds evidence", "Not established", "No linked evidence yet"],
     ]);
-    const overdue = cards()!.querySelector('[data-global-work-card="overdue"]') as HTMLElement;
-    expect(overdue.className).toContain("v69-metric--assessment");
-    expect(overdue.className).toContain("v69-metric--amber");
+    expect(document.querySelector("[data-global-work-not-assessed]")).toBeNull();
     expect(document.body.textContent).not.toMatch(/PM-0455|PM-0452|INC-203|GreenHarvest|GEN-CR-01|Monthly|\bQuarterly\b|2 overdue/);
 
     // P-B3-5/6: footer, columns and cells.
     const panel = panelTitled("Preventive plan");
-    expect(text(panel.querySelector(".panel__description"))).toBe(
-      "Completing a draft plan here is unavailable; a performed record and later evidence are separate.",
-    );
+    expect(text(panel.querySelector(".panel__description"))).toBe("Plans can't be completed from this page yet.");
     expect(Array.from(panel.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
       "Plan item",
       "Asset / site",
@@ -238,7 +235,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     expect(text(cell(trs[0], 0).querySelector("[data-global-work-title]"))).toBe(`PM-001 · ${TITLE200}`);
     expect(cell(trs[0], 0).querySelector("[data-global-work-title] a")).toBeNull();
     expect(text(cell(trs[0], 0).querySelector("[data-global-work-full-title]"))).toBe(`Full title text${TITLE200}`);
-    expect(text(cell(trs[0], 0).querySelector("[data-global-work-source] summary"))).toBe("Source unverified");
+    expect(text(cell(trs[0], 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(cell(trs[0], 0).querySelector("[data-global-work-correction]")).toBeNull();
     expect(text(cell(trs[0], 1))).toBe("No asset recorded · Kobo");
     expect(within(cell(trs[0], 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
@@ -246,16 +243,20 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
       "Calendar",
       "Not linked",
       "29 Oct 2026",
-      "Draft",
-      "Nothing verified by this plan",
+      "Not yet approved",
+      "No completed work confirmed yet",
     ]);
+    // No `due_state` on an older build: no row chip.
+    expect(document.querySelector("[data-global-work-due-state]")).toBeNull();
     expect(cell(trs[0], 5).querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "neutral");
-    expect(text(cell(trs[1], 2))).toBe("Every 500 running hours");
-    expect(text(cell(trs[1], 4))).toBe("500 running hours");
+    expect(text(cell(trs[1], 2))).toBe("Every 500 hours of use");
+    expect(text(cell(trs[1], 4))).toBe("At 500 hours of use");
     expect(text(cell(trs[2], 0).querySelector("[data-global-work-correction]"))).toBe("Correction: Due date corrected after review");
-    const supersedes = cell(trs[2], 0).querySelector("[data-global-work-supersedes]") as HTMLDetailsElement;
+    // POLISH §3 ids: the earlier version's id sits only inside a closed Technical details region.
+    const supersedes = cell(trs[2], 0).querySelector("[data-global-work-supersedes] [data-technical-details]") as HTMLDetailsElement;
     expect(supersedes.tagName).toBe("DETAILS");
-    expect(text(supersedes)).toBe("Earlier plan version00000000-0000-4000-8000-000000000103");
+    expect(supersedes.open).toBe(false);
+    expect(text(supersedes)).toBe("Technical detailsEarlier plan version00000000-0000-4000-8000-000000000103");
     expect(text(cell(trs[2], 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
     expect(text(cell(trs[3], 4))).toBe("Not set");
     expect(text(cell(trs[3], 1))).toBe("GEN-001 · generator · Kobo");
@@ -263,7 +264,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
 
     const notice = document.querySelector("[data-global-work-notice]") as HTMLElement;
     expect(notice.className).toContain("v69-notice--blue");
-    expect(text(notice)).toBe("No incident link or cause is established by these draft plans.");
+    expect(text(notice)).toBe("These plans are not yet approved, and none is linked to an incident or a cause.");
     expect(panel.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     // Pager (A2Q10) keeps the full selected count.
@@ -287,7 +288,9 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 · Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe(
+      "Historical as of 20 Oct 2026, 12:00:03 · Times in UTC · due dates in each site's local date",
+    );
     expect(within(screen.getByRole("navigation", { name: "Maintenance views" })).getByRole("link", { name: "Corrective" })).toHaveAttribute(
       "href",
       `${CORRECTIVE}&known_at=${encodeURIComponent(KNOWN)}`,
@@ -313,7 +316,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     expectV69Panels("maintenance-preventive");
     expect(text(cards()!.querySelector(".v69-metric__value"))).toBe("0");
     expect(Array.from(document.querySelectorAll("[data-global-work-zero] p")).map(text)).toEqual([
-      "No draft plans in this window.",
+      "No preventive plans in this window.",
       "Change the dates or open a Site record.",
     ]);
     expect(document.querySelector("table")).toBeNull();
@@ -415,7 +418,7 @@ describe("Post-W6 W6: global Preventive corrections", () => {
   it("Q7/R354/R361: membership line, URL-opened later page caption and the refusal alert", async () => {
     mount(`${PAGE}&cursor=CURSOR-2`, client({ "CURSOR-2": loaded(body([row(6)], { total_count: 6 })) }));
     await settled();
-    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by the time each plan was first recorded.");
+    expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed in the order plans were added.");
     expect(text(document.querySelector("[data-global-work-showing]"))).toBe("Later page · 1 of 6");
     cleanup();
     mount(PAGE, client({ "page-one": { status: "refused", code: "WORK_STORE_UNAVAILABLE" } }));
@@ -477,5 +480,91 @@ describe("Post-W6 W6 caps ruling 4: in-cell disclosure on Preventive plan", () =
     } finally {
       restore();
     }
+  });
+});
+
+describe("POLISH P-09: Preventive due counts, chips and Site-local due dates", () => {
+  afterEach(cleanup);
+
+  const cardRows = () =>
+    Array.from(cards()!.querySelectorAll("li.v69-metric")).map((li) => [
+      text(li.querySelector(".v69-metric__label")),
+      text(li.querySelector(".v69-metric__value")),
+      text(li.querySelector(".v69-metric__note")),
+    ]);
+  const badge = () => document.querySelector("[data-global-work-strip-badge]") as HTMLElement;
+
+  it("reads the cards and the strip badge from the summary counts, with the window end and the hours-of-use line", async () => {
+    const summary = { overdue_count: 2, due_soon_count: 3, not_assessed_count: 1 };
+    mount(PAGE, client({ "page-one": loaded(body([row(1)], { summary })) }));
+    await settled();
+    expect(cardRows().slice(1, 3)).toEqual([
+      ["Overdue", "2", "Calendar plans due before 21 Oct 2026"],
+      ["Due in the next 14 days", "3", "Calendar plans due by 4 Nov 2026"],
+    ]);
+    expect(cards()!.querySelector('[data-global-work-card="overdue"]')?.className).toContain("v69-metric--amber");
+    expect(text(document.querySelector("[data-global-work-not-assessed]"))).toBe("1 plan based on hours of use; not checked here yet");
+    expect(text(badge())).toBe("2 overdue");
+    expect(badge()).toHaveAttribute("data-global-work-tone", "amber");
+  });
+
+  it("states zero overdue as 0 and the badge as None overdue; plural plans on the hours-of-use line", async () => {
+    const summary = { overdue_count: 0, due_soon_count: 0, not_assessed_count: 4 };
+    mount(PAGE, client({ "page-one": loaded(body([row(1)], { summary })) }));
+    await settled();
+    expect(cardRows().slice(1, 3)).toEqual([
+      ["Overdue", "0", "Calendar plans due before 21 Oct 2026"],
+      ["Due in the next 14 days", "0", "Calendar plans due by 4 Nov 2026"],
+    ]);
+    expect(cards()!.querySelector('[data-global-work-card="overdue"]')?.className).not.toContain("v69-metric--amber");
+    expect(text(document.querySelector("[data-global-work-not-assessed]"))).toBe("4 plans based on hours of use; not checked here yet");
+    expect(text(badge())).toBe("None overdue");
+    expect(badge()).toHaveAttribute("data-global-work-tone", "neutral");
+  });
+
+  it("omits the hours-of-use line when no plan is unassessed", async () => {
+    const summary = { overdue_count: 1, due_soon_count: 0, not_assessed_count: 0 };
+    mount(PAGE, client({ "page-one": loaded(body([row(1)], { summary })) }));
+    await settled();
+    expect(document.querySelector("[data-global-work-not-assessed]")).toBeNull();
+    expect(text(badge())).toBe("1 overdue");
+  });
+
+  it("shows a row chip per due state: Overdue (amber), Due soon (blue), No date (neutral), none when not due", async () => {
+    const rows = [
+      row(1, { due_state: "OVERDUE" }),
+      row(2, { due_state: "DUE_SOON" }),
+      row(3, { due_state: "NOT_ASSESSED", trigger_kind: "RUN_HOURS", next_due_at: null, next_due_hours: "250" }),
+      row(4, { due_state: "NOT_DUE" }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows, { summary: { overdue_count: 1, due_soon_count: 1, not_assessed_count: 1 } })) }));
+    await settled();
+    const trs = Array.from(panelTitled("Preventive plan").querySelectorAll("tbody tr"));
+    const chip = (tr: Element) => tr.querySelector("[data-global-work-due-state]");
+    expect([0, 1, 2].map((i) => [text(chip(trs[i])), chip(trs[i])?.getAttribute("data-global-work-tone")])).toEqual([
+      ["Overdue", "amber"],
+      ["Due soon", "blue"],
+      ["No date", "neutral"],
+    ]);
+    expect(chip(trs[0])?.className).toContain("w1f4-action-badge--amber");
+    expect(chip(trs[1])?.className).toContain("w1f4-action-badge--blue");
+    expect(chip(trs[3])).toBeNull();
+    expect(cell(trs[2], 4).querySelector("[data-global-work-due]")?.textContent).toBe("At 250 hours of use");
+  });
+
+  it("formats a due date on the Site's own day when its zone is sent, else on the UTC day; one two-part note", async () => {
+    const rows = [
+      row(1, { next_due_at: "2026-10-28T22:30:00Z", site_time_zone: "Africa/Addis_Ababa" }),
+      row(2, { next_due_at: "2026-10-28T22:30:00Z", site_time_zone: null }),
+      row(3, { next_due_at: "2026-10-28T22:30:00Z" }),
+    ];
+    mount(PAGE, client({ "page-one": loaded(body(rows)) }));
+    await settled();
+    const trs = Array.from(panelTitled("Preventive plan").querySelectorAll("tbody tr"));
+    expect(trs.map((tr) => text(tr.querySelector("[data-global-work-due]")))).toEqual(["29 Oct 2026", "28 Oct 2026", "28 Oct 2026"]);
+    const notes = document.querySelectorAll("[data-time-zone-note]");
+    expect(notes).toHaveLength(1);
+    expect(notes[0]).toHaveAttribute("data-time-zone-note", "due-dates");
+    expect(text(notes[0])).toBe("Times in UTC · due dates in each site's local date");
   });
 });

@@ -334,7 +334,7 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
 
   it("places the selected-state notice between strip and panel with the R104 tones; none on CURRENT (R80)", async () => {
     const cases: [string, string, string][] = [
-      ["HISTORICAL", "blue", "Read as of 2026-10-06 12:00 UTC. Later work may differ."],
+      ["HISTORICAL", "blue", "Read as of 6 Oct 2026, 12:00. Later work may differ."],
       ["PENDING_RECOMPUTE", "amber", "Linked evidence is being reassessed. The work record remains recorded."],
       ["STALE_SOURCE", "amber", "Linked evidence source is out of date. The work record remains recorded."],
       ["UNKNOWN", "blue", "No selected source for linked evidence. The work record remains recorded."],
@@ -431,8 +431,8 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const { client, calls } = domainClient(() => loaded(evIndexBody([evRow()])));
     const { main } = await mountWork(workPath(`${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN, cursor: "c9" })}`), client);
     const form = main.querySelector("[data-domain-work-window]") as HTMLFormElement;
-    expect(text(form)).toContain("From (UTC)");
-    expect(text(form)).toContain("To (UTC, exclusive)");
+    expect(text(form)).toContain("From ");
+    expect(text(form)).toContain("To (not included)");
     const before = calls.length;
     setDate(form.querySelector("[data-domain-work-window-from]"), "2026-09-01");
     setDate(form.querySelector("[data-domain-work-window-to]"), "2026-10-03");

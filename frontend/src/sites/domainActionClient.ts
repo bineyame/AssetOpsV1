@@ -394,7 +394,7 @@ function invalidKnownAt(): DomainRefusal {
     status: "refused",
     http: null,
     code: "INVALID_KNOWN_AT",
-    message: "'known_at' must be one UTC instant no later than the read time.",
+    message: "The earlier point in time must be a valid time no later than now.",
   };
 }
 

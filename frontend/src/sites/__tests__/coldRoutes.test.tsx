@@ -254,7 +254,7 @@ const ROUTES = [
 
 // W2-03 q3: the mock words are replaced by plain wording, the mock words are gone from these screens.
 // The one exemption is the Architect-ruled provenance sentence verbatim (its "run" is on the W1 list); no general exemption.
-const MANDATED = new Set<string>(["From a registered test run; not readings from physical equipment."]);
+const MANDATED = new Set<string>(["Generated for a test; not readings from physical equipment."]);
 const main = () => document.querySelector("main") as HTMLElement;
 const gaps = () => Array.from(document.querySelectorAll("[data-panel-gap]"));
 
@@ -482,7 +482,7 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
     await settledScreen();
     const source = main().querySelector("[data-cold-source]") as HTMLElement;
     expect(source.textContent).toBe("Generated test data");
-    expect(source.nextElementSibling?.textContent).toBe("From a registered test run; not readings from physical equipment.");
+    expect(source.nextElementSibling?.textContent).toBe("Generated for a test; not readings from physical equipment.");
     expect(main().textContent).not.toContain("Registered simulation");
   });
 });
@@ -552,7 +552,9 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
     expect(found).toHaveLength(1);
     const details = found[0] as HTMLDetailsElement;
     expect(details.open).toBe(false);
-    expect(details.querySelector("summary")?.textContent).toBe("How this was worked out");
+    // POLISH Addendum 8 Q5: the panel's one disclosure is the Technical details region.
+    expect(details.querySelector("summary")?.textContent).toBe("Technical details");
+    expect(details.hasAttribute("data-technical-details")).toBe(true);
     details.open = true;
     return details;
   };
@@ -586,7 +588,7 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
     expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toContain("13 of 13 expected readings usable");
     expect(details.querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
     expect(details.querySelector("[data-cold-limitations]")?.textContent).toContain("No spoilage");
-    expect(details.querySelector("[data-cold-source-sentence]")?.textContent).toBe("From a registered test run; not readings from physical equipment.");
+    expect(details.querySelector("[data-cold-source-sentence]")?.textContent).toBe("Generated for a test; not readings from physical equipment.");
     expect(details.textContent).toContain("Records not used");
   });
 
@@ -782,7 +784,7 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
   it("w2f_temperature_bound_is_labelled", async () => {
     const cases: [string | null, string | null, string][] = [
       ["24.5", "31", "24.5–31 °C·min"],
-      ["24.5", null, "at least 24.5 °C·min; upper bound not established"],
+      ["24.5", null, "at least 24.5 °C·min (degrees × minutes); the full extent is not known yet"],
       [null, null, "Not assessed"],
     ];
     for (const [low, high, phrase] of cases) {
@@ -868,7 +870,7 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
       await settledScreen();
       const card = Array.from(main().querySelectorAll("*")).find((el) => el.children.length > 0 && el.firstElementChild?.textContent === "Cooling resumed")!;
       expect(card.textContent).toContain("Not recorded");
-      if (backup === off) expect(card.textContent).toContain("no running record");
+      if (backup === off) expect(card.textContent).toContain("no record of cooling on");
       expect(main().textContent).not.toMatch(/Cooling resumed\s*\d/);
       cleanup();
     }
@@ -881,7 +883,7 @@ describe("W2-cold unit 1: temperature and backup", () => {
   const refused = (code: string, httpStatus = 422) => ({ status: "refused", httpStatus, code, message: "bad" }) as const;
 
   it.each([
-    ["COLD_TIME_INVALID", "The selected window start or end is not a UTC time."],
+    ["COLD_TIME_INVALID", "The selected window start or end is not a valid time."],
     ["COLD_WINDOW_INVALID", "The selected window needs both a start and an end, with the start before the end."],
     ["COLD_WINDOW_TOO_LONG", "The selected window is longer than 31 days."],
     ["SOMETHING_ELSE", "The selected window is invalid."],

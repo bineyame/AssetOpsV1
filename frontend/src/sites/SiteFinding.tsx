@@ -43,7 +43,6 @@ import type {
 import { findingRefusalWords, localView, localViewSearch, type LocalView } from "./findingPresentation";
 import type { FinancialReadResult, FinancialsClient, FindingFinancialsBody } from "./financialsClient";
 import { consequenceWords } from "./FindingConsequence";
-import { findingLocalPeriod, findingLocalTime } from "./findingTime";
 import {
   findingCurrentnessWords,
   unconfirmedCause,
@@ -58,6 +57,8 @@ import {
 } from "./findingWords";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
+import { formatDayTime, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
 /** The v69 `finding` screen question (W1-UX-02). */
@@ -93,7 +94,6 @@ export function SiteFinding({
   client,
   links,
   onTitle,
-  timeZone,
   financials,
 }: {
   siteId: string;
@@ -101,7 +101,10 @@ export function SiteFinding({
   client: FindingClient;
   links: SiteFindingLinks;
   onTitle?: (title: string) => void;
-  /** post-W6 W1-a Q10: the Site's timezone for the status period; missing or invalid falls back to UTC visibly. */
+  /**
+   * The Site's timezone. Accepted for the frames' shared props; PB-3 L4 (Addendum 13): this page shows clock times
+   * in UTC like every other screen, so it is not used for display.
+   */
   timeZone?: string | null;
   /** post-W6 W1-a Q12: when given, one exact-revision cost read per loaded Finding version. */
   financials?: FindingCostClient;
@@ -160,11 +163,11 @@ export function SiteFinding({
   // History and the record lists on Evidence.
   return (
     <div {...shared}>
-      <FindingStatusBar body={body} timeZone={timeZone} />
-      <WhatHappened body={body} links={links} timeZone={timeZone} />
+      <FindingStatusBar body={body} />
+      <WhatHappened body={body} links={links} />
       <FindingMetrics body={body} cost={cost} links={links} />
       <div className="panel-pair">
-        <WhatLimits body={body} links={links} timeZone={timeZone} />
+        <WhatLimits body={body} links={links} />
         <WhatNext body={body} links={links} />
       </div>
       <WhereToLook body={body} links={links} params={params} />
@@ -543,7 +546,7 @@ function StatusChips({ body }: { body: FindingDetailBody }) {
 }
 
 /** The mock's statusbar: the state, currentness, version and period badges in one line. */
-function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZone?: string | null }) {
+function FindingStatusBar({ body }: { body: FindingDetailBody }) {
   const selected = body.revision;
   const currentness = findingCurrentnessWords(statusCode(body));
   return (
@@ -566,61 +569,39 @@ function FindingStatusBar({ body, timeZone }: { body: FindingDetailBody; timeZon
         {versionWords(body)}
       </span>
       <span className="status-strip__spacer" />
-      <LocalPeriod start={selected.episode.start} end={selected.episode.end} timeZone={timeZone} />
+      <EpisodePeriod start={selected.episode.start} end={selected.episode.end} />
+      <TimeZoneNote />
     </StatusBar>
   );
 }
 
 /**
- * post-W6 W1-a Q10 / R187: the status period in Site-local time, with both exact UTC instants in a closed
- * "UTC time" detail. A missing or invalid Site timezone falls back to UTC and says so. Stored and query instants
- * are unchanged.
+ * PB-3 L4 (Addendum 13): the status period in UTC through `ui/time.ts`, like the board and every other screen (one
+ * clock); the page's one `TimeZoneNote` names the zone. The exact stored instants stay in the `title`.
  */
-function LocalPeriod({ start, end, timeZone }: { start: string; end: string; timeZone?: string | null }) {
-  const local = findingLocalPeriod(start, end, timeZone);
-  if (local === null) return <span data-chip="period">{periodWords(start, end)}</span>;
+function EpisodePeriod({ start, end }: { start: string; end: string }) {
   return (
-    <span className="site-finding__period" data-chip="period" data-period-zone={local.zone} data-period-site-zone={local.siteZone ? "site" : "fallback"}>
-      <span data-period-local>
-        {local.text}
-        {local.siteZone ? "" : ` ${ZONE_UNAVAILABLE}`}
-      </span>{" "}
-      <details className="site-finding__period-utc" data-period-utc>
-        <summary>UTC time</summary>
-        <span>
-          <time dateTime={local.startUtc}>{local.startUtc}</time> to <time dateTime={local.endUtc}>{local.endUtc}</time>
-        </span>
-      </details>
+    <span className="site-finding__period" data-chip="period">
+      <span data-period-local title={`${start} to ${end} (exact UTC)`}>
+        {periodWords(start, end)}
+      </span>
     </span>
   );
 }
 
-/** Architect ruling 3: one suffix for a missing and an unresolvable Site zone, beside the UTC fallback period. */
-const ZONE_UNAVAILABLE = "(site time zone unavailable; UTC shown)";
-
-/**
- * Architect ruling 2 (Q10): the episode period as prose, in Site time (the same `findingLocalPeriod` result as the
- * status period). An unformattable instant shows the explicitly labelled UTC period.
- */
-function periodText(start: string, end: string, timeZone: string | null | undefined): string {
-  const local = findingLocalPeriod(start, end, timeZone);
-  if (local === null) return periodWords(start, end);
-  return local.siteZone ? local.text : `${local.text} ${ZONE_UNAVAILABLE}`;
+/** The episode period as prose, in UTC (the same form as the status period). */
+function periodText(start: string, end: string): string {
+  return periodWords(start, end);
 }
 
-/** The episode end as prose in Site time (same conversion as the period); labelled UTC when unformattable. */
-function endText(end: string, timeZone: string | null | undefined): string {
-  const t = findingLocalTime(end, timeZone);
-  if (t === null) return `${stamp(end)} UTC`;
-  return `${t.day} ${t.clock} ${t.zone}${t.siteZone ? "" : ` ${ZONE_UNAVAILABLE}`}`;
+/** The episode end as prose, in UTC. */
+function endText(end: string): string {
+  return formatDayTime(end);
 }
 
+/** PB-3 L4: one period form for the page, `6 Oct 2026, 08:00–09:00` in UTC. */
 function periodWords(start: string, end: string): string {
-  const first = dayOf(start);
-  const last = dayOf(end);
-  return first === last
-    ? `${first} ${clock(start)}–${clock(end)} UTC`
-    : `${first} ${clock(start)} – ${last} ${clock(end)} UTC`;
+  return formatRange(start, end);
 }
 
 interface Portion {
@@ -650,15 +631,15 @@ function portionsOf(body: FindingDetailBody): Portion[] {
   return [...spans, ...others].sort((a, b) => Date.parse(a.start) - Date.parse(b.start));
 }
 
-function runWords(body: FindingDetailBody, timeZone: string | null | undefined): string {
+function runWords(body: FindingDetailBody): string {
   const { start, end } = body.revision.episode;
   const stops = (body.revision.claim.continuity ?? []).flatMap((gap) => gap.stops ?? []).length;
   return stops > 0
-    ? `The generator ran between ${periodText(start, end, timeZone)}, with ${stops === 1 ? "one short stop" : `${stops} short stops`} recorded in that time.`
-    : `The generator stayed on from ${periodText(start, end, timeZone)}.`;
+    ? `The generator ran between ${periodText(start, end)}, with ${stops === 1 ? "one short stop" : `${stops} short stops`} recorded in that time.`
+    : `The generator stayed on from ${periodText(start, end)}.`;
 }
 
-function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; links: SiteFindingLinks; timeZone?: string | null }) {
+function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   const [params, setParams] = useSearchParams();
   const selected = body.revision;
   const portions = portionsOf(body);
@@ -683,7 +664,7 @@ function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; link
     <Panel
       heading="What happened"
       headingId="site-finding-happened-heading"
-      description={`Period covered · ${periodText(selected.episode.start, selected.episode.end, timeZone)} · ${durationText(period)}`}
+      description={`Period covered · ${periodText(selected.episode.start, selected.episode.end)} · ${durationText(period)}`}
       actions={
         // post-W6 W1-a Q11 / R188: the panel-head link to this Finding's Evidence at the selected version.
         links.findingEvidence ? (
@@ -699,12 +680,12 @@ function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; link
       </div>
       <p className="v69-prose site-finding__sentence" data-finding-sentence>
         {supported
-          ? `${runWords(body, timeZone)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
+          ? `${runWords(body)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
           : selected.lifecycle === "MERGED"
-            ? `This Finding covered ${periodText(selected.episode.start, selected.episode.end, timeZone)} before it was joined into an earlier Finding.`
+            ? `This Finding covered ${periodText(selected.episode.start, selected.episode.end)} before it was joined into an earlier Finding.`
             : selected.lifecycle === "UNCONFIRMED"
-              ? `This Finding covers ${periodText(selected.episode.start, selected.episode.end, timeZone)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
-              : `This Finding covers ${periodText(selected.episode.start, selected.episode.end, timeZone)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
+              ? `This Finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
+              : `This Finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
       </p>
       {portions.length > 0 ? (
         <div className="site-finding__timeline">
@@ -737,13 +718,13 @@ function WhatHappened({ body, links, timeZone }: { body: FindingDetailBody; link
           <p className="site-finding__legend">
             <span className="dispatch-swatch dispatch-fill--avoidable" /> Possibly avoidable{" "}
             <span className="dispatch-swatch dispatch-fill--needed" /> Needed{" "}
-            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Times are UTC; select a block.
+            <span className="dispatch-swatch dispatch-fill--unknown" /> Cannot determine · Select a block.
           </p>
           {chosen ? (
             <div className="dispatch-block-detail" data-finding-portion-detail>
               <p>
                 <strong>
-                  {portionWords(chosen.classification)}: {stamp(chosen.start)}–{clock(chosen.end)} UTC
+                  {portionWords(chosen.classification)}: {formatRange(chosen.start, chosen.end)}
                 </strong>
               </p>
               <p>
@@ -881,7 +862,7 @@ function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: 
   );
 }
 
-function WhatLimits({ body, links, timeZone }: { body: FindingDetailBody; links: SiteFindingLinks; timeZone?: string | null }) {
+function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindingLinks }) {
   const selected = body.revision;
   const groups = groupLimitations(selected.limitations);
   // Segment-level record gaps never reach a revision's limitations; the read classifies them (re-review C8).
@@ -906,7 +887,7 @@ function WhatLimits({ body, links, timeZone }: { body: FindingDetailBody; links:
         ) : null}
         {selected.claim.end_reason === "SERIES_LIMIT" ? (
           <li data-finding-end-reason="SERIES_LIMIT">
-            This finding ends at {endText(selected.episode.end, timeZone)} because later generator records could not be put in a
+            This finding ends at {endText(selected.episode.end)} because later generator records could not be put in a
             proven time order, so later time is not judged and no current cost is shown.
           </li>
         ) : null}
@@ -929,7 +910,7 @@ function WhatLimits({ body, links, timeZone }: { body: FindingDetailBody; links:
         {stops.length > 0 ? (
           <li data-finding-stop-bridges={stops.length}>
             The generator stopped {stops.length === 1 ? "once" : `${stops.length} times`} for 20 minutes or less (first
-            at {stamp(stops[0].start)} UTC); off reports at both ends keep it one period, and this joining rests on those
+            at {formatDayTime(stops[0].start)}); off reports at both ends keep it one period, and this joining rests on those
             two off reports.
           </li>
         ) : null}
@@ -1258,7 +1239,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <thead>
             <tr>
               <th scope="col">Record</th>
-              <th scope="col">Time (UTC)</th>
+              <th scope="col">Time</th>
               <th scope="col">Measurement</th>
               <th scope="col">Delivery batch</th>
               <th scope="col">Gateway / source / sequence</th>
@@ -1268,7 +1249,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
             {r.cited_evidence.map((e) => (
               <tr key={e.evidence_id} data-tech-evidence-id={e.evidence_id}>
                 <td><Code value={e.evidence_id} /></td>
-                <td>{stamp(e.source_time ?? e.interval_start ?? null)}</td>
+                <td>{e.source_time ?? e.interval_start ? formatDayTime(e.source_time ?? e.interval_start) : "not reported"}</td>
                 <td>{roleWords(e.role ?? "")}</td>
                 <td><Code value={e.batch_id} /></td>
                 <td>
@@ -1279,6 +1260,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
             ))}
           </tbody>
         </DataTable>
+        <TimeZoneNote />
         <p className="site-finding__note">{body.provenance.cited_evidence_by_source.length} delivery sources. Generator off reports at stop ends: {r.off_reports.length}.</p>
         {body.provenance.case_annotations.map((note, index) => (
           <p key={index} className="site-finding__note" data-case-id={String(note.case_id ?? "")}>

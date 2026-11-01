@@ -336,7 +336,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
 
   it("names the time kinds separately and makes no as-of-a-moment replay claim", async () => {
     await frame(HISTORY, client({ total: 1 }));
-    for (const term of ["Version recorded (UTC)", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+    for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
     // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
@@ -709,20 +709,20 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
   );
 });
 
-describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
-  it("Q17 / R195: the Time column is headed with the Site zone; cells are local D Mon · HH:MM with exact UTC in the title and detail", async () => {
+describe("post-W6 W1-a Q16 / PB-3 L4: History heading and UTC time", () => {
+  it("L4 (Addendum 13): the Time column carries no zone tag; cells are UTC D Mon, HH:MM with exact UTC in the title and detail", async () => {
     await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 1 }));
     const head = document.querySelector("[data-history-time-zone]") as HTMLElement;
-    expect(head.textContent?.trim()).toBe("Time (EAT)");
+    expect(head.textContent?.trim()).toBe("Time");
     const row = q(`[data-history-revision='${rid(1)}']`) as HTMLElement;
     const cell = row.querySelector("td time") as HTMLElement;
-    // t(10) is 14:10 UTC, 17:10 in Africa/Kampala.
-    expect(cell.textContent).toBe("6 Oct · 17:10");
+    // t(10) is 14:10 UTC; the Site is in Africa/Kampala (EAT), but every screen shows the one UTC clock.
+    expect(cell.textContent).toBe("6 Oct, 14:10");
     expect(cell.getAttribute("title")).toBe("2026-10-06T14:10:00.000Z (UTC)");
-    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("2026-10-06T14:10:00.000Z");
+    expect(row.querySelector("[data-history-recorded-exact]")?.textContent).toBe("6 Oct 2026, 14:10");
   });
 
-  it("Q17: a Site without a timezone falls back to UTC and says so in full in the heading (final-fix L6)", async () => {
+  it("L4: a Site without a timezone reads the same UTC times under the same plain heading", async () => {
     const noZone: SiteDetailClient = { getSite: async () => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, timezone: "" } }) };
     render(
       <MemoryRouter initialEntries={[`${HISTORY}?revision_id=${rid(1)}`]}>
@@ -732,8 +732,8 @@ describe("post-W6 W1-a Q16 / Q17: History heading and Site-local time", () => {
       </MemoryRouter>,
     );
     await settledScreen();
-    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time (UTC (Site time zone unavailable))");
-    expect(q(`[data-history-revision='${rid(1)}'] td time`)?.textContent).toBe("6 Oct · 14:10");
+    expect((document.querySelector("[data-history-time-zone]") as HTMLElement).textContent?.trim()).toBe("Time");
+    expect(q(`[data-history-revision='${rid(1)}'] td time`)?.textContent).toBe("6 Oct, 14:10");
   });
 
   it("Q16 / R193: a refused History read is headed Finding, not a fixed Finding name", async () => {

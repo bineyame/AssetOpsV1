@@ -149,9 +149,9 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     const { client, getFindingIndex } = indexClient(() => ({ status: "loaded", value: indexBody() }));
     renderAt(PATH, client);
     await settledScreen();
-    fireEvent.change(screen.getByLabelText(/From \(UTC day\)/), { target: { value: "2026-10-20" } });
-    fireEvent.change(screen.getByLabelText(/To \(UTC day, included\)/), { target: { value: "2026-10-21" } });
-    expect(screen.getByLabelText(/From \(UTC day\)/)).toHaveValue("2026-10-20");
+    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-10-20" } });
+    fireEvent.change(screen.getByLabelText("To (included)"), { target: { value: "2026-10-21" } });
+    expect(screen.getByLabelText("From")).toHaveValue("2026-10-20");
     fireEvent.click(screen.getByRole("button", { name: "Show Findings" }));
     await waitFor(() => expect(query().get("from")).toBe("2026-10-20T00:00:00Z"));
     await settledScreen();

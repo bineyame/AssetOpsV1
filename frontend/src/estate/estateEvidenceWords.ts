@@ -20,7 +20,7 @@ const CLAIM_WORDS: Readonly<Record<string, string>> = {
   FAULT_ASSOCIATION: "Cause of interruption",
   SITE_POWER_CONTEXT: "Site power context",
   POWER_CONSTRAINT: "Site power constraint",
-  GROSS_TARIFF_SCENARIO: "Gross tariff scenario",
+  GROSS_TARIFF_SCENARIO: "Gross tariff estimate",
 };
 
 const ROLE_WORDS: Readonly<Record<string, string>> = {

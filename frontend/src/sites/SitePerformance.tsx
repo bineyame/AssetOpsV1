@@ -54,6 +54,7 @@ import type { EvidenceRead } from "./siteEvidenceClient";
 
 export { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 /** The served capability whose body this build can render. */
 const RENDERABLE = new Set(["dispatch"]);
@@ -418,7 +419,7 @@ function DispatchView({
                 have met the site demand instead. Each period, or part of one, is Needed (a recorded reason required the
                 generator), Possibly avoidable (the reported solar power and battery output were more than the demand
                 and no reason was recorded; not proof of wasted fuel) or Cannot determine (the records needed are
-                missing or conflicting). A Needed period is explained here and has no Finding. Times are UTC.
+                missing or conflicting). A Needed period is explained here and has no Finding.
               </ChartNote>
             </>
           }
@@ -487,7 +488,7 @@ function LegacySlots({
   return (
     <>
       <div className="panel-pair">
-        <Panel heading={titles[0]} headingId="legacy-dispatch-blocks-heading">
+        <Panel heading={titles[0]} headingId="legacy-dispatch-blocks-heading" actions={<TimeZoneNote />}>
           {first}
         </Panel>
         <Panel heading={titles[1]} headingId="site-dispatch-selected-heading">

@@ -11,6 +11,7 @@
  */
 import { useEffect, useState } from "react";
 import { formatTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, DataTable, KeyValues, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
@@ -70,10 +71,10 @@ export function bridgeRows(read: EvEnergyRead): string[][] {
   const guarded = c !== null && c.state === "WITHHELD" && c.quantity_kwh === null;
   const first =
     c === null
-      ? [delivered, "No eligible gross tariff scenario.", "Unpriced", "No collections or profit claim"]
+      ? [delivered, "No eligible charging income estimate.", "Unpriced", "No collections or profit claim"]
       : [
           guarded ? delivered : c.quantity_kwh === null ? "Unknown" : `${c.quantity_kwh} kWh complete-record delivery`,
-          estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh gross tariff scenario`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
+          estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh charging tariff (charging income estimate)`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
           estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""} gross estimate`.replace("  ", " ") : "Unpriced",
           c.limitation ?? "No collections or profit claim",
         ];
@@ -146,7 +147,8 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
           {measured
             ? "Complete session meter records · incomplete session energy excluded"
             : "Complete session meter records not established · incomplete session energy kept separate"}
-        </span>
+        </span>{" "}
+        <TimeZoneNote />
       </StatusBar>
       {notice === null ? null : <Notice data={{ "data-ev-depth-state-notice": state }}>{notice}</Notice>}
       <MetricCards label="Charging energy">
@@ -208,7 +210,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
                   <td>{kw(e.observed_peak_import_kw)}</td>
                 </tr>
                 <tr data-ev-measure="peak-time">
-                  <th scope="row">Peak sample time (UTC)</th>
+                  <th scope="row">Peak sample time</th>
                   <td>{utcSeconds(e.peak_sample_at)}</td>
                 </tr>
                 <tr data-ev-measure="limit">

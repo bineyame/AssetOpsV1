@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
-import { formatDayRange } from "../ui/time";
+import { formatDayRange, formatDayTime } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
 import {
   createEstateClient,
   type EstateClient,
@@ -96,7 +97,7 @@ const countText = (value: number | null, missing: string) => (value === null ? m
 
 /** COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none). */
 export function partialConsequence(c: { state: string; source_revision_id: string | null }): string {
-  return `Partly checked · ${c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : "Value withheld"}`;
+  return `Partly checked · ${c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : "value shown once every day is checked"}`;
 }
 
 function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined): string {
@@ -109,7 +110,7 @@ function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined
         ? moneyText({ low: c.amount_low ?? c.amount, high: c.amount_high ?? c.amount, currency: c.currency }, "outward") ?? NOT_DISPLAYABLE
         : c.state === "UNPRICED"
           ? "Unpriced"
-          : "Source unverified";
+          : "Source not checked";
   // Closure 1: a pending or historical Site prefixes the first line only and never shows a current amount.
   if (siteState === "PENDING_RECOMPUTE") return `Updating · ${c.state === "PRICED" ? "Value withheld" : base}`;
   if (siteState === "HISTORICAL") return `Historical · ${c.state === "PRICED" ? "Value withheld" : base}`;
@@ -117,7 +118,10 @@ function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined
 }
 
 function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
-  const episode = moneyWindowText(row.episode_start, row.episode_end) ?? "Episode window not recorded";
+  // PB-3 review M1: an open episode shows its recorded start; "No time recorded yet" only when neither end is held.
+  const episode =
+    moneyWindowText(row.episode_start, row.episode_end) ??
+    (row.episode_start !== null ? `From ${formatDayTime(row.episode_start)} · no end time yet` : "No time recorded yet");
   return (
     <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
       <td>
@@ -140,7 +144,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           <strong>{row.title}</strong>
         )}
         <small>
-          Finding {row.site_code} · {row.finding_id} · {mechanismWords(row.mechanism)}
+          {mechanismWords(row.mechanism)}
         </small>
         <CategoryTags categories={row.categories} />
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
@@ -149,7 +153,6 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <strong className="impact" data-portfolio-value>
           {consequenceFirst(row, siteState)}
         </strong>
-        <small>Basis not recorded</small>
         <small>{episode}</small>
       </td>
       <td data-portfolio-placement={row.placement.group}>
@@ -168,9 +171,8 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
             <strong>{row.action_title}</strong>
           </Link>
         ) : (
-          <strong>{row.action_id !== null ? row.action_title : "No accepted Action"}</strong>
+          <strong>{row.action_id !== null ? row.action_title : "No action yet"}</strong>
         )}
-        <small>Next move not recorded</small>
         <span className="workflow-text" data-portfolio-workflow>
           {row.workflow_label}
         </span>
@@ -244,7 +246,7 @@ function PriorityPanel({
           <p>{PRIORITY_SUBTITLE}</p>
         </div>
         <span className="eyebrow">
-          {count} selected Findings{incomplete ? " · Coverage incomplete" : ""}
+          {count} findings{incomplete ? " · some days not checked" : ""}
         </span>
       </div>
       <div className="portfolio-lenses" role="group" aria-label="Finding lens">
@@ -260,7 +262,7 @@ function PriorityPanel({
           </button>
         ))}
         <span data-portfolio-count>
-          {count} selected Findings{incomplete ? " · coverage incomplete" : ""}
+          {count} findings{incomplete ? " · some days not checked" : ""}
         </span>
       </div>
       <div className="portfolio-findings" data-portfolio-scroll="findings">
@@ -360,17 +362,17 @@ function OpportunityPanel() {
           <div className="eyebrow">GROW USEFUL DEMAND</div>
           <h2 id="portfolio-opportunity-heading">{OPPORTUNITY_PANEL}</h2>
         </div>
-        <span className="badge badge--neutral">Scenario</span>
+        <span className="badge badge--neutral">What-if</span>
       </div>
       <div className="opportunity-story">
         <div>
-          <span className="opportunity-quantity">No reviewed scenario</span>
+          <span className="opportunity-quantity">No reviewed what-if yet</span>
           <p>Eligible productive demand not established</p>
         </div>
         <span className="story-arrow">→</span>
         <div>
           <span className="opportunity-quantity">No eligible headroom or demand basis</span>
-          <p>Gross scenario value unavailable</p>
+          <p>No what-if value worked out yet</p>
         </div>
       </div>
       <p className="chart-note">{OPPORTUNITY_NOTE}</p>
@@ -421,7 +423,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
                 </tr>
                 <tr>
                   <td>Verification outcomes</td>
-                  <td>{verified} surviving VERIFIED outcomes in 30 days</td>
+                  <td>{verified} verified outcomes kept in the last 30 days</td>
                   <td>Verified outcome is not recovered value</td>
                 </tr>
               </tbody>
@@ -432,10 +434,19 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
               <ul className="portfolio-progress-rows">
                 {p.rows.map((r) => (
                   <li key={r.action_id} data-portfolio-progress-row={r.action_id}>
-                    Action {displayCode(r.action_code)} · {r.action_id} · event {r.selected_action_event_id ?? "none"} · plan{" "}
-                    {r.verification_plan_id ?? "none"} · outcome {r.verification_outcome_id ?? "none"}
-                    {r.verification_outcome ? ` (${r.verification_outcome})` : ""}
-                    {r.origin_revision_selected ? null : <small data-portfolio-origin-unselected> Origin Finding revision not selected</small>}
+                    <span data-portfolio-progress-words>
+                      Action {displayCode(r.action_code)} · {progressOutcomeWords(r.verification_outcome)}
+                    </span>
+                    {r.origin_revision_selected ? null : (
+                      <small data-portfolio-origin-unselected> The version of the finding it came from is not the one selected</small>
+                    )}
+                    <TechnicalDetails name={`portfolio-progress-ids-${r.action_id}`}>
+                      <span className="portfolio-scope-raw">
+                        Action {r.action_id} · event {r.selected_action_event_id ?? "none"} · plan {r.verification_plan_id ?? "none"} ·
+                        outcome {r.verification_outcome_id ?? "none"}
+                        {r.verification_outcome ? ` (${r.verification_outcome})` : ""}
+                      </span>
+                    </TechnicalDetails>
                   </li>
                 ))}
               </ul>
@@ -453,12 +464,12 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
       </div>
       <div className="change-line">
         <span className={`change-dot${(p.pending_trial_count ?? 0) > 0 ? " amber" : ""}`} />
-        <strong>Policy trial awaiting outcome · {pending}</strong>
+        <strong>Trials waiting for a result · {pending}</strong>
         <span>Guardrails incomplete</span>
       </div>
       <div className="change-line">
         <span className={`change-dot${(p.verified_resolution_count ?? 0) > 0 ? " blue" : ""}`} />
-        <strong>Verified resolutions · {verified}</strong>
+        <strong>Fixes confirmed · {verified}</strong>
         <span>Recovered value not established</span>
       </div>
       <div className="outcome-note">{OUTCOME_NOTE}</div>
@@ -487,7 +498,7 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
                     {s.site_name} · {selectedAssessmentWords(s.selected_revision_ids.length)}
                   </span>
                   {s.selected_revision_ids.length > 0 ? (
-                    <Disclosure summary={ASSESSMENT_IDS} name={`portfolio-scope-ids-${s.site_id}`} variant="inline">
+                    <Disclosure summary={ASSESSMENT_IDS} name={`portfolio-scope-ids-${s.site_id}`} variant="inline" technical>
                       <div className="portfolio-scope-ids" data-portfolio-assessment-ids>
                         {s.selected_revision_ids.map((id) => (
                           <div key={id}>{id}</div>
@@ -527,7 +538,7 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
                 <span data-portfolio-exclusion-words>
                   {exclusionLineLabel(x.line_key, body)} · {exclusionReasonWords(x)}
                 </span>
-                <Disclosure summary="Record details" name={`portfolio-exclusion-${x.line_key}`} variant="inline">
+                <Disclosure summary="Technical details" name={`portfolio-exclusion-${x.line_key}`} variant="inline" technical>
                   <span className="portfolio-scope-raw">
                     {x.line_key} · {x.group_key ?? "no group"} · {x.reason_codes.length > 0 ? x.reason_codes.join(", ") : "no reason code"}
                   </span>
@@ -542,6 +553,15 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
   );
 }
 
+/** POLISH §3 ids: the plain outcome word of one progress row; the stored code stays in Technical details. */
+export function progressOutcomeWords(outcome: string | null | undefined): string {
+  if (outcome === null || outcome === undefined || outcome === "") return "no result yet";
+  if (outcome === "VERIFIED") return "fix confirmed";
+  if (outcome === "INEFFECTIVE") return "fix did not work";
+  if (outcome === "INCONCLUSIVE") return "result not clear";
+  return "result recorded";
+}
+
 function noneOr(values: string[] | undefined): string {
   return values && values.length > 0 ? values.join(", ") : "None selected";
 }
@@ -549,6 +569,7 @@ function noneOr(values: string[] | undefined): string {
 function FooterSourceBlock({ block }: { block: EstateSourceBlock | null | undefined }) {
   if (!block || Object.keys(block).length === 0) return <p>No selected source basis</p>;
   return (
+    <TechnicalDetails name="portfolio-footer-source">
     <dl data-portfolio-footer-source>
       <dt>Source basis</dt>
       <dd>
@@ -565,6 +586,7 @@ function FooterSourceBlock({ block }: { block: EstateSourceBlock | null | undefi
         </div>
       </dd>
     </dl>
+    </TechnicalDetails>
   );
 }
 
@@ -584,7 +606,7 @@ function ContextFooter({ body }: { body: EstatePortfolioBody }) {
         <>
           <span>
             Business context: {footer.site_name} delivered <strong>{quantity}</strong> in selected records;{" "}
-            <strong>{amount}</strong> gross tariff scenario.
+            <strong>{amount}</strong> at the recorded tariff, before costs (a what-if).
           </span>
           <Disclosure summary="Energy basis ↗" name="portfolio-energy-basis" variant="inline">
             <p>Selected window: {moneyWindowText(footer.window_start, footer.window_end) ?? "Window not recorded"}.</p>

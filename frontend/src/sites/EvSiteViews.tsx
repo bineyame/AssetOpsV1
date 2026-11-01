@@ -1,7 +1,8 @@
 import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
-import { classificationWord } from "./coldAssessmentWords";
+import { classificationWord, plainCode } from "./coldAssessmentWords";
+import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";
 
 import {
   AttentionList,
@@ -52,7 +53,7 @@ import type { OutcomeBoardClient } from "./outcomeBoardClient";
  * (`.agent/W2-07-build-spec.md` "Commits 4-5", closure section 4, "Run 6 rulings (q5)" and "Run 7 rulings (q6)"):
  *
  *   ev                    1 What happened on the service day, 2 Charging activity and site power, 3 Needs attention,
- *                         4 Bounded money consequence, 5 Next step
+ *                         4 Possible cost, 5 Next step
  *   ev-evidence           1 What we can conclude now, 2 Data sources · data quality, not equipment condition,
  *                         3 Most useful next evidence
  *   ev-evidence-analysis  1 Accepted records behind the conclusions, 2 How a claim limit is set
@@ -69,6 +70,8 @@ export const EV_SITE_HEADING_ID = "ev-site-heading";
 export const EV_SITE_LOADING = "Loading the site's evidence.";
 const NO_LINK = "No linked page for this item";
 const NOT_RECORDED = "Not recorded";
+/** PB-3 review M2: the plain wording for a source-unverified record (the API note says "binding"). */
+const UNVERIFIED_NOTE = "Source or its assignment to this charger is unverified for this record.";
 
 export interface EvSiteRoutes {
   overview: string;
@@ -103,7 +106,7 @@ const CLAIM_LABEL: Record<string, string> = {
   FAULT_ASSOCIATION: "Cause of interruption",
   SITE_POWER_CONTEXT: "Site power context",
   POWER_CONSTRAINT: "Site power constraint",
-  GROSS_TARIFF_SCENARIO: "Gross tariff scenario",
+  GROSS_TARIFF_SCENARIO: "Gross tariff estimate",
 };
 const CAP_ROWS: { key: string; label: string; claim: string }[] = [
   { key: "sessions", label: "Session outcomes", claim: "SESSION_OUTCOME" },
@@ -166,7 +169,18 @@ function Chip({ word }: { word: string }) {
   );
 }
 
-const instant = (value: string | null | undefined) => (value ? `${value}` : NOT_RECORDED);
+/** PB-3 review M2: a day and time for the plain detail lines (no raw ISO outside Technical details). */
+const instant = (value: string | null | undefined) => (value ? dayHm(value) : NOT_RECORDED);
+/** A source classification in words; a missing one is "Unknown". */
+const sourceWord = (code: string | null | undefined) => (code === null || code === undefined ? "Unknown" : classificationWord(code));
+/** The one nested "Technical details" block that holds a detail line's ids (PB-3 review M2). */
+function Ids({ name, references }: { name: string; references: { label: string; value: string | null }[] }) {
+  return (
+    <TechnicalDetails name={name}>
+      <TechnicalReferenceList references={references} />
+    </TechnicalDetails>
+  );
+}
 
 /** Display rounding of an exact Decimal string to two places, half even on the absolute value, without a float. */
 export function money2(value: string): string {
@@ -306,7 +320,7 @@ function Provenance({ env }: { env: EvEnvelope }) {
       {" "}
       <Badge tone="provenance">Generated test data</Badge>
       <span className="ev-site-strip-note" data-ev-provenance-note>
-        Registered test reports; not physical charger observations.
+        Example charger reports, not from physical chargers.
       </span>
       {pendingNote}
     </>
@@ -504,8 +518,10 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
     title: (
       <>
         {`${i.value_display ?? "Accepted event"} · `}
-        {/* W2-F M10/N1: the full stored record ID, never a shortened prefix. */}
-        <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
+        {/* POLISH §3.1: the record ID stays in the title, the accessible name and Event details (Technical details). */}
+        <span className="ev-site-id" title={i.evidence_id} aria-label={`Record ${i.evidence_id}`} data-record-id={i.evidence_id} data-vocabulary-reference={i.evidence_id}>
+          Charger report
+        </span>
       </>
     ),
     tone: i.record_kind === "EV_CONNECTOR_FAULT" || i.record_kind === "EV_SESSION_ABORT" ? "danger" : undefined,
@@ -531,12 +547,12 @@ export function overviewStatusWord(o: EvOverviewRead | null): string {
 /** W2-F S9/M9: a cautious presentation of the selected `status.claim_level`, never a rewrite of it. */
 export function overviewConfidenceWord(o: EvOverviewRead | null): string {
   if (o === null || o.currentness.state === "UNKNOWN" || o.currentness.state === "PENDING_RECOMPUTE") return "Confidence: Unknown";
-  if (o.status.claim_level === "OBSERVED") return "Confidence: Bounded";
-  if (o.status.claim_level === "BOUNDED") return "Confidence: Limited";
+  if (o.status.claim_level === "OBSERVED") return "Confidence: measured";
+  if (o.status.claim_level === "BOUNDED") return "Confidence: partial";
   return "Confidence: Unknown";
 }
 
-export const SLD_CUTOFF_NOTE = "Opens configuration at window end; evidence cutoff is not carried.";
+export const SLD_CUTOFF_NOTE = "Opens the site layout as it was at the end of this period.";
 
 function OverviewScreen(p: EvSiteFrameProps) {
   const overview = useEvRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
@@ -607,8 +623,8 @@ function OverviewScreen(p: EvSiteFrameProps) {
                 <ul className="ev-site-list">
                   {chron.extra.map((i) => (
                     <li key={i.evidence_id} data-ev-event={i.evidence_id}>
-                      <code data-vocabulary-exempt="source-reference">{i.evidence_id}</code>
-                      {` · ${i.value_display ?? "Accepted event"} · ${i.source_label} · source ${instant(i.source_time)} · received ${instant(i.received_at)} · use ${i.use ?? NOT_RECORDED}${i.reason ? ` · ${i.reason}` : ""}`}
+                      {`${i.value_display ?? "Accepted event"} · ${i.source_label} · source ${instant(i.source_time)} · received ${instant(i.received_at)} · use ${i.use ? plainCode(i.use) : NOT_RECORDED}${i.reason ? ` · ${plainCode(i.reason)}` : ""}`}
+                      <Ids name="ev-site-event-details-technical" references={[{ label: "Record", value: i.evidence_id }]} />
                     </li>
                   ))}
                 </ul>
@@ -644,14 +660,17 @@ function OverviewScreen(p: EvSiteFrameProps) {
                       {rows.length === 0 ? (
                         <p>No accepted report</p>
                       ) : (
-                        <ul className="ev-site-list">
-                          {rows.map((i) => (
-                            <li key={i.evidence_id}>
-                              <code data-vocabulary-exempt="source-reference">{i.evidence_id}</code>
-                              {` · ${instant(i.interval_start)} to ${instant(i.interval_end)} · ${i.value_display ?? NOT_RECORDED}${i.unit ? ` ${i.unit}` : ""}`}
-                            </li>
-                          ))}
-                        </ul>
+                        <>
+                          <ul className="ev-site-list">
+                            {rows.map((i, n) => (
+                              <li key={i.evidence_id}>
+                                {`Record ${n + 1} · ${i.interval_start && i.interval_end ? windowText(i.interval_start, i.interval_end) : `${instant(i.interval_start)} to ${instant(i.interval_end)}`} · ${i.value_display ?? NOT_RECORDED}${i.unit ? ` ${i.unit}` : ""}`}
+                              </li>
+                            ))}
+                          </ul>
+                          {/* PB-3 review M2: the series' record ids in one nested region, numbered as the lines above. */}
+                          <Ids name="ev-site-chart-details-technical" references={rows.map((i, n) => ({ label: `Record ${n + 1}`, value: i.evidence_id }))} />
+                        </>
                       )}
                     </div>
                   );
@@ -711,7 +730,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
         </Panel>
       </div>
       <div className="panel-pair ev-site-pair">
-        <Panel heading="Bounded money consequence" headingId="ev-site-money-heading">
+        <Panel heading="Possible cost" headingId="ev-site-money-heading">
           {refused !== null ? (
             <Gap id="ev-site-money">{NOT_ASSESSED}</Gap>
           ) : (
@@ -723,12 +742,12 @@ function OverviewScreen(p: EvSiteFrameProps) {
                     ? "Unpriced"
                     : money!.state === "WITHHELD"
                       ? "Withheld"
-                      : "No gross tariff scenario assessed"}
+                      : NO_SCENARIO}
               </div>
               <p className="prose">
                 {money!.state === "ESTIMATED"
                   ? `Gross tariff estimate for ${money!.quantity_kwh} kWh delivered with complete coverage. Not cash collected.`
-                  : (money!.limitation ?? "No gross tariff scenario assessed.")}
+                  : (money!.limitation ?? `${NO_SCENARIO}.`)}
               </p>
               {f !== null && f.consequence !== null ? <ScenarioDetails c={f.consequence} /> : null}
               <p className="ev-site-link">
@@ -757,18 +776,21 @@ function OverviewScreen(p: EvSiteFrameProps) {
 
 function ScenarioDetails({ c }: { c: EvConsequence }) {
   return (
-    <Disclosure summary="Scenario details" name="ev-site-scenario-details" variant="tech">
+    <Disclosure summary="What-if details" name="ev-site-scenario-details" variant="tech">
       <ul className="ev-site-list">
         <li>{`Exact amount: ${c.amount === null ? "Not assessed" : `${c.currency ?? ""} ${c.amount}`.trim()}`}</li>
-        <li>
-          Tariff revision: <code data-vocabulary-exempt="source-reference">{c.tariff_revision_id ?? "Not declared"}</code>
-        </li>
-        <li>{`Source gate: ${c.source_gate ?? NOT_RECORDED}`}</li>
-        <li>
-          Overlap group: <code data-vocabulary-exempt="source-reference">{c.overlap_group ?? NOT_RECORDED}</code>
-        </li>
-        {c.reason === "HISTORICAL_CURRENT_CLAIM" || c.label !== undefined ? <li>Historical scenario</li> : null}
+        <li>{c.tariff_revision_id === null ? "Tariff not declared" : "Tariff declared"}</li>
+        {c.reason === "HISTORICAL_CURRENT_CLAIM" || c.label !== undefined ? <li>Earlier what-if</li> : null}
       </ul>
+      {/* PB-3 review M2: the tariff version, source gate and overlap group are ids; only they sit in the nested region. */}
+      <Ids
+        name="ev-site-scenario-details-technical"
+        references={[
+          { label: "Tariff revision", value: c.tariff_revision_id },
+          { label: "Source gate", value: c.source_gate },
+          { label: "Overlap group", value: c.overlap_group },
+        ]}
+      />
     </Disclosure>
   );
 }
@@ -897,12 +919,12 @@ function EvidenceScreen(p: EvSiteFrameProps) {
             </DataTable>
             <Disclosure summary="Capability details" name="ev-site-capability-details" variant="tech">
               {caps.length === 0 ? (
-                <p>Claim limit not assessed</p>
+                <p>Capability limits not assessed</p>
               ) : (
                 <ul className="ev-site-list">
                   {caps.map((c) => (
                     <li key={c.claim} data-capability-detail={c.claim}>
-                      {`${CLAIM_LABEL[c.claim] ?? "Claim"}: ${chipOf(c)} · ${coverageText(c.coverage, c.limitation)} · requires ${c.required_roles.map(roleLabel).join(", ")}${c.missing_roles.length > 0 ? ` · missing ${c.missing_roles.map(roleLabel).join(", ")}` : ""} · ${c.accepted_evidence_ids.length} accepted records · source ${selectedClassification(e!) ?? "Unknown"} · known at ${instant(c.as_of)}${c.limitation ? ` · ${c.limitation}` : ""}`}
+                      {`${CLAIM_LABEL[c.claim] ?? "Capability"}: ${chipOf(c)} · ${coverageText(c.coverage, c.limitation)} · requires ${c.required_roles.map(roleLabel).join(", ")}${c.missing_roles.length > 0 ? ` · missing ${c.missing_roles.map(roleLabel).join(", ")}` : ""} · ${c.accepted_evidence_ids.length} accepted records · source ${sourceWord(selectedClassification(e!))} · known at ${instant(c.as_of)}${c.limitation ? ` · ${c.limitation}` : ""}`}
                     </li>
                   ))}
                 </ul>
@@ -947,10 +969,16 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                       <p>No source-specific record</p>
                     ) : (
                       <ul className="ev-site-list">
-                        {s.contact.by_source.map((b) => (
+                        {s.contact.by_source.map((b, n) => (
                           <li key={b.source_id} data-source-contact={b.source_id}>
-                            Source <code data-vocabulary-exempt="source-reference">{b.source_id}</code>
-                            {` · ${CONTACT[b.state] ?? "Unknown"} · diagnostic ${b.diagnostic_id ?? "No source-specific record"} · received ${b.diagnostic_received_at ?? "No source-specific record"} · cadence ${b.cadence_seconds === null ? "No source-specific record" : `${b.cadence_seconds} s`} · contact ${b.last_seen_at ?? "No source-specific record"} · age ${b.age_seconds === null ? "No source-specific record" : `${b.age_seconds} s`}`}
+                            {`Source ${n + 1} · ${CONTACT[b.state] ?? "Unknown"} · diagnostic received ${b.diagnostic_received_at ? instant(b.diagnostic_received_at) : "No source-specific record"} · cadence ${b.cadence_seconds === null ? "No source-specific record" : `${b.cadence_seconds} s`} · contact ${b.last_seen_at ? instant(b.last_seen_at) : "No source-specific record"} · age ${b.age_seconds === null ? "No source-specific record" : `${b.age_seconds} s`}`}
+                            <Ids
+                              name="ev-site-source-details-technical"
+                              references={[
+                                { label: "Source", value: b.source_id },
+                                { label: "Diagnostic", value: b.diagnostic_id },
+                              ]}
+                            />
                           </li>
                         ))}
                       </ul>
@@ -994,7 +1022,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                     {caps
                       .filter((c) => missingBasis(c) !== NOTHING_REQUIRED)
                       .map((c) => (
-                        <li key={c.claim} data-ev-request-basis={c.claim}>{`${missingBasis(c)} · limits ${CLAIM_LABEL[c.claim] ?? "a claim"} to ${chipOf(c)}`}</li>
+                        <li key={c.claim} data-ev-request-basis={c.claim}>{`${missingBasis(c)} · limits ${CLAIM_LABEL[c.claim] ?? "a capability"} to ${chipOf(c)}`}</li>
                       ))}
                   </ul>
                 )}
@@ -1122,8 +1150,10 @@ function AnalysisScreen(p: EvSiteFrameProps) {
                     <SiteTimeCell value={i.sent_at} timeZone={p.timeZone} reference={i.source_time} />
                     <SiteTimeCell value={i.received_at} timeZone={p.timeZone} reference={i.source_time} />
                     <td>
-                      {/* W2-F M10/N1: the full stored record UUID, visibly and as the accessible name. */}
-                      <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
+                      {/* POLISH §3.1: the record UUID is the title and accessible name; Record details (Technical details) lists it. */}
+                      <span className="ev-site-id" title={i.evidence_id} aria-label={`Record ${i.evidence_id}`} data-record-id={i.evidence_id} data-vocabulary-reference={i.evidence_id}>
+                        Charger report
+                      </span>
                       {i.record_target_state === "UNAVAILABLE" ? " · No analysis link" : null}
                     </td>
                   </tr>
@@ -1131,15 +1161,16 @@ function AnalysisScreen(p: EvSiteFrameProps) {
               </tbody>
             </DataTable>
             <Disclosure summary="Record details" name="ev-site-record-details" variant="tech">
-              <p data-ev-record-selection>{`Site ${p.siteId} · ${a!.window.from ?? "No window"} to ${a!.window.to ?? "No window"} · known at ${a!.window.known_at ?? NOT_RECORDED}`}</p>
+              <p data-ev-record-selection>{`Site ${p.siteId} · ${windowText(a!.window.from, a!.window.to)} · known at ${instant(a!.window.known_at)}`}</p>
               <ul className="ev-site-list">
-                {items.map((i) => (
+                {items.map((i, n) => (
                   <li key={i.evidence_id} data-record-detail={i.evidence_id}>
-                    <code data-vocabulary-exempt="source-reference">{i.evidence_id}</code>
-                    {i.note !== null && i.use === "EXCLUDED" && i.reason === "SOURCE_UNVERIFIED" ? <span data-ev-record-note> {i.note}</span> : null}
+                    {`Record ${n + 1}`}
+                    {i.note !== null && i.use === "EXCLUDED" && i.reason === "SOURCE_UNVERIFIED" ? <span data-ev-record-note> {UNVERIFIED_NOTE}</span> : null}
                     <span className="ev-site-line">{`${i.source_label} · ${valueText(i)} · measured ${instant(i.source_time)} · sent ${instant(i.sent_at)} · received ${instant(i.received_at)}`}</span>
-                    <span className="ev-site-line">{`Quality ${i.quality ?? NOT_RECORDED} · use ${i.use ?? NOT_RECORDED}${i.reason ? ` · ${i.reason}` : ""} · current accepted evidence source ${a!.source_provenance.classification ?? "Unknown"}`}</span>
+                    <span className="ev-site-line">{`Quality ${i.quality ? plainCode(i.quality) : NOT_RECORDED} · use ${i.use ? plainCode(i.use) : NOT_RECORDED}${i.reason ? ` · ${plainCode(i.reason)}` : ""} · current accepted evidence source ${sourceWord(a!.source_provenance.classification)}`}</span>
                     {i.record_target_state === "UNAVAILABLE" ? <span className="ev-site-line">Analysis view not available for this EV record</span> : null}
+                    <Ids name="ev-site-record-details-technical" references={[{ label: "Record", value: i.evidence_id }]} />
                   </li>
                 ))}
               </ul>
@@ -1147,10 +1178,11 @@ function AnalysisScreen(p: EvSiteFrameProps) {
                 <ul className="ev-site-list" data-ev-excluded-records>
                   {unverified
                     .filter((x) => !items.some((i) => i.evidence_id === x.evidence_id))
-                    .map((x) => (
+                    .map((x, n) => (
                       <li key={x.evidence_id}>
-                        <code data-vocabulary-exempt="source-reference">{x.evidence_id}</code> Source or binding unverified for this record.
+                        {`Excluded record ${n + 1} · ${UNVERIFIED_NOTE}`}
                         <span className="ev-site-line">Analysis view not available for this EV record</span>
+                        <Ids name="ev-site-record-details-technical" references={[{ label: "Record", value: x.evidence_id }]} />
                       </li>
                     ))}
                 </ul>
@@ -1158,7 +1190,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
               {cursor === null ? null : (
                 <p>
                   <button type="button" className="button" onClick={loadMore} data-ev-load-more>
-                    {`Load more accepted records (${items.length} of ${a!.total_count})`}
+                    {`Show more accepted records (${items.length} of ${a!.total_count})`}
                   </button>
                 </p>
               )}
@@ -1181,9 +1213,9 @@ function AnalysisScreen(p: EvSiteFrameProps) {
               <ul className="ev-site-list">
                 {a!.claim_rules.map((r) => (
                   <li key={r.claim} data-claim-rule={r.claim}>
-                    {`${CLAIM_LABEL[r.claim] ?? "Claim"}: ${CHIP[r.result] ?? "None"} · ${coverageText(r.coverage, r.limitation)}`}
+                    {`${CLAIM_LABEL[r.claim] ?? "Capability"}: ${CHIP[r.result] ?? "None"} · ${coverageText(r.coverage, r.limitation)}`}
                     <span className="ev-site-line">{`Requires ${r.required_roles.map(roleLabel).join(", ")} · observed ${r.observed_roles.length === 0 ? "none" : r.observed_roles.map(roleLabel).join(", ")} · missing ${r.missing_roles.length === 0 ? "none" : r.missing_roles.map(roleLabel).join(", ")}`}</span>
-                    <span className="ev-site-line">{`${r.accepted_evidence_ids.length} accepted records · source ${r.source_class ?? "Unknown"} · known at ${instant(r.known_at)}${r.limitation ? ` · ${r.limitation}` : ""}`}</span>
+                    <span className="ev-site-line">{`${r.accepted_evidence_ids.length} accepted records · source ${sourceWord(r.source_class)} · known at ${instant(r.known_at)}${r.limitation ? ` · ${r.limitation}` : ""}`}</span>
                   </li>
                 ))}
               </ul>
@@ -1200,7 +1232,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
 /** Review r1 M1: the stored tariff basis in plain words; an unrecognised basis is not shown as a code. */
 const BASIS_TEXT: Record<string, string> = { AUTHORED_ESTIMATE: "Authored estimate" };
 const basisText = (basis: string) => BASIS_TEXT[basis] ?? "Basis not recognised";
-const NO_SCENARIO = "No gross tariff scenario assessed";
+const NO_SCENARIO = "No gross tariff estimate yet";
 
 function tariffText(t: EvAssumptionsRead["tariff"]): string {
   return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${basisText(t.basis)}` : ""}`;
@@ -1346,20 +1378,31 @@ function FinancialsScreen(p: EvSiteFrameProps) {
             </DataTable>
             <Disclosure summary="Basis details" name="ev-site-basis-details" variant="tech">
               {c === null ? (
-                <p>No gross tariff scenario assessed</p>
+                <p>{NO_SCENARIO}</p>
               ) : (
-                <ul className="ev-site-list">
-                  <li>{`Unrounded amount: ${c.amount === null ? "Not assessed" : `${c.currency ?? ""} ${c.amount}`.trim()} · state ${c.state}${c.reason ? ` · ${c.reason}` : ""}`}</li>
-                  <li>{`Meter records: ${c.evidence_ids.length === 0 ? "none" : c.evidence_ids.join(", ")}`}</li>
-                  <li>{`Session revisions: ${c.session_revision_ids.length === 0 ? "none" : c.session_revision_ids.join(", ")}`}</li>
-                  <li>{`Tariff revision: ${c.tariff_revision_id ?? "Not declared"} · source gate ${c.source_gate ?? NOT_RECORDED} · source ${selectedClassification(f!) ?? "Unknown"}`}</li>
-                  {c.limitation ? <li>{c.limitation}</li> : null}
-                  {f!.history.map((h) => (
-                    <li key={h.revision_id ?? h.recorded_at ?? "history"} data-ev-history={h.revision_id ?? ""}>
-                      {`Historical scenario · revision ${h.revision_no ?? NOT_RECORDED} · ${h.amount === null ? (h.state === "WITHHELD" ? "Withheld" : "Unpriced") : `${h.currency ?? ""} ${h.amount}`.trim()} · recorded ${instant(h.recorded_at)}`}
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <ul className="ev-site-list">
+                    <li>{`Unrounded amount: ${c.amount === null ? "Not assessed" : `${c.currency ?? ""} ${c.amount}`.trim()} · state ${plainCode(c.state)}${c.reason ? ` · ${plainCode(c.reason)}` : ""}`}</li>
+                    <li>{`${plural(c.evidence_ids.length, "meter record", "meter records")} · ${plural(c.session_revision_ids.length, "session version", "session versions")} · ${c.tariff_revision_id === null ? "tariff not declared" : "tariff declared"} · source ${sourceWord(selectedClassification(f!))}`}</li>
+                    {c.limitation ? <li>{c.limitation}</li> : null}
+                    {f!.history.map((h) => (
+                      <li key={h.revision_id ?? h.recorded_at ?? "history"} data-ev-history={h.revision_id ?? ""}>
+                        {`Earlier what-if · version ${h.revision_no ?? NOT_RECORDED} · ${h.amount === null ? (h.state === "WITHHELD" ? "Withheld" : "Unpriced") : `${h.currency ?? ""} ${h.amount}`.trim()} · recorded ${instant(h.recorded_at)}`}
+                      </li>
+                    ))}
+                  </ul>
+                  {/* PB-3 review M2: the record ids, versions and source gate sit only in the nested region. */}
+                  <Ids
+                    name="ev-site-basis-details-technical"
+                    references={[
+                      { label: "Meter records", value: c.evidence_ids.length === 0 ? null : c.evidence_ids.join(", ") },
+                      { label: "Session revisions", value: c.session_revision_ids.length === 0 ? null : c.session_revision_ids.join(", ") },
+                      { label: "Tariff revision", value: c.tariff_revision_id },
+                      { label: "Source gate", value: c.source_gate },
+                      ...f!.history.map((h, n) => ({ label: `Earlier what-if ${n + 1}`, value: h.revision_id })),
+                    ]}
+                  />
+                </>
               )}
             </Disclosure>
           </>
@@ -1394,7 +1437,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
           {refused !== null ? (
             <Gap id="ev-site-excluded">{NOT_ASSESSED}</Gap>
           ) : ["lost_sales", "collections", "margin", "repair", "warranty"].every((k) => f!.not_included.includes(k)) ? (
-            <p className="prose">Lost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.</p>
+            <p className="prose">Lost sales, collections, margin, repair and warranty are not included in this gross tariff estimate.</p>
           ) : (
             <Gap id="ev-site-excluded">Exclusions not recorded</Gap>
           )}
@@ -1408,15 +1451,16 @@ function AssumptionDetails({ s }: { s: EvAssumptionsRead | null }) {
   if (s === null || s.tariff === null) return <p>Tariff not declared · no published EV tariff revision</p>;
   const t = s.tariff;
   return (
-    <ul className="ev-site-list">
-      <li>
-        Tariff revision <code data-vocabulary-exempt="source-reference">{t.revision_id}</code>
-        {` · ${t.unit} · ${t.basis ? basisText(t.basis) : "Basis not recorded"}`}
-      </li>
-      <li>{`Valid ${instant(t.valid_from)} to ${t.valid_to ?? "open"} · recorded ${instant(t.recorded_at)} · ${s.tariff_revision_count} published revisions`}</li>
-      {s.publication_note === null ? null : <li data-ev-assumption-publication-note>{s.publication_note}</li>}
-      <li>{`Billing / collections: ${billingText(s.billing_state)} · source: published Site financial assumption`}</li>
-    </ul>
+    <>
+      <ul className="ev-site-list">
+        <li data-ev-assumption-tariff>{`Tariff · ${t.unit} · ${t.basis ? basisText(t.basis) : "No cost basis recorded yet"}`}</li>
+        <li>{`Valid ${instant(t.valid_from)} to ${t.valid_to ? instant(t.valid_to) : "open"} · recorded ${instant(t.recorded_at)} · ${s.tariff_revision_count} published revisions`}</li>
+        {s.publication_note === null ? null : <li data-ev-assumption-publication-note>{s.publication_note}</li>}
+        <li>{`Billing / collections: ${billingText(s.billing_state)} · source: published Site financial assumption`}</li>
+      </ul>
+      {/* PB-3 review M2: only the tariff revision id sits in the nested region; the lines above stay scanned. */}
+      <Ids name="ev-site-assumption-details-technical" references={[{ label: "Tariff revision", value: t.revision_id }]} />
+    </>
   );
 }
 

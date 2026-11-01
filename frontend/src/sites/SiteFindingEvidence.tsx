@@ -26,7 +26,9 @@ import {
   StepStrip,
   type Step,
 } from "../ui";
-import { durationText, minutes, qualityWords, roleWords, stamp } from "./dispatchWords";
+import { durationText, minutes, qualityWords, roleWords } from "./dispatchWords";
+import { formatDayTime, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import type {
   EvidenceAssessment,
   EvidenceRecord,
@@ -41,6 +43,9 @@ import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";
+
+/** POLISH §3 Times: `29 Oct 2026, 16:00`; the zone is named once by the page's `TimeZoneNote`. */
+const dayTime = (value: string | null | undefined): string => (value ? formatDayTime(value) : "not reported");
 
 export const FINDING_SECTIONS_LABEL = "Finding sections";
 export const EVIDENCE_PAGE_SIZE = 50;
@@ -275,6 +280,7 @@ export function SiteFindingEvidence({
     >
       <Panel heading={`Evidence bundle · ${bundleName(body)}`} headingId="finding-evidence-bundle-heading">
         <Selection body={body} links={links} />
+        <TimeZoneNote />
         <InputsByMeasurement body={body} />
         <CaseNotes body={body} />
         {/* W1-F3 height phase: the mock's bundle is the input table. The counts, sources, per-record
@@ -803,7 +809,7 @@ function Assessments({ body, links }: { body: FindingEvidenceBody; links: SiteFi
       <DataTable labelledBy="finding-evidence-assessments-heading">
         <thead>
           <tr>
-            <th scope="col">Period (UTC)</th>
+            <th scope="col">Period</th>
             <th scope="col">Kind</th>
             <th scope="col">Assessment method</th>
             <th scope="col">Site setup used</th>
@@ -831,7 +837,7 @@ function AssessmentRow({ a, body, links }: { a: EvidenceAssessment; body: Findin
   return (
     <tr data-evidence-assessment={a.assessment_revision_id} data-evidence-assessment-run={a.run_resolved ? "resolved" : "broken"}>
       <td>
-        {stamp(a.window.start)} to {stamp(a.window.end)}
+        {formatRange(a.window.start, a.window.end)}
       </td>
       <td>
         {a.scope === "WINDOW" ? "Whole day" : "Period"}
@@ -906,7 +912,7 @@ function Records({
       <DataTable labelledBy="finding-evidence-records-heading">
         <thead>
           <tr>
-            <th scope="col">Time (UTC)</th>
+            <th scope="col">Time</th>
             <th scope="col">Measurement</th>
             <th scope="col">Value</th>
             <th scope="col">Quality</th>
@@ -926,7 +932,7 @@ function Records({
             >
               {r.resolved ? (
                 <>
-                  <td>{stamp(r.source_time ?? r.interval?.start ?? null)}</td>
+                  <td>{dayTime(r.source_time ?? r.interval?.start ?? null)}</td>
                   <td>{roleWords(r.role ?? "")}</td>
                   <td>{valueText(r)}</td>
                   <td>{qualityWords(r.quality ?? "")}</td>
@@ -1042,9 +1048,9 @@ function RecordLineage({
               <Fact term="Measurement">
                 {roleWords(r.role ?? "")}: {valueText(r)} ({qualityWords(r.quality ?? "")})
               </Fact>
-              <Fact term="Source time (UTC)">{stamp(r.source_time ?? r.interval?.start ?? null)}</Fact>
-              <Fact term="Received (UTC)">{stamp(r.received_at ?? null)}</Fact>
-              <Fact term="Accepted (UTC)">{r.accepted_at ? stamp(r.accepted_at) : words("ACCEPTANCE_DISPOSITION")}</Fact>
+              <Fact term="Source time">{dayTime(r.source_time ?? r.interval?.start ?? null)}</Fact>
+              <Fact term="Received">{dayTime(r.received_at ?? null)}</Fact>
+              <Fact term="Accepted">{r.accepted_at ? dayTime(r.accepted_at) : words("ACCEPTANCE_DISPOSITION")}</Fact>
               <Fact term="Source">
                 gateway <code data-vocabulary-exempt="source-reference">{r.source?.gateway_id ?? "–"}</code>, epoch{" "}
                 {r.source?.sequence_epoch ?? "–"}, sequence {String(r.source?.sequence ?? "–")},{" "}
@@ -1088,7 +1094,7 @@ function RecordLineage({
                         const a = body.assessments.find((x) => x.assessment_revision_id === id);
                         return a === undefined
                           ? id.slice(0, 8)
-                          : `${a.scope === "WINDOW" ? "whole-day" : "period"} assessment ${stamp(a.window.start)}`;
+                          : `${a.scope === "WINDOW" ? "whole-day" : "period"} assessment ${dayTime(a.window.start)}`;
                       })
                       .join("; ")}
               </Fact>

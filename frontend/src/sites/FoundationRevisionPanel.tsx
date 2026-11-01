@@ -11,6 +11,7 @@
 
 import { Fragment, useState, type FormEvent, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, MissingClaim, Panel } from "../ui";
@@ -142,7 +143,7 @@ export function FoundationPeriodStrip({
     >
       {lead === undefined ? null : <span className="status-strip__lead">{lead}</span>}
       <span className="status-strip__item">
-        <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge> <span>Effective {period(revision)}</span>
+        <Badge tone="neutral">{`Foundation v${revision.version}`}</Badge> <span>Effective {period(revision)}</span> <TimeZoneNote />
       </span>
       {historicalBinding ? (
         // The Foundation version is the current one, but the binding set
@@ -544,7 +545,7 @@ function ReservePublishForm({
           />
         </label>
         <label className="field">
-          Effective from (UTC)
+          Effective from
           <input
             type="datetime-local"
             value={effective}

@@ -8,7 +8,6 @@ import {
   Breadcrumbs,
   type Crumb,
   DataTable,
-  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -19,6 +18,7 @@ import {
   StatusBar,
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
+import { TECHNICAL_DETAILS, TechnicalReferences } from "../ui/TechnicalDetails";
 import { coldWindowSearch } from "./coldAssessmentClient";
 import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";
@@ -162,7 +162,7 @@ export function RefusedGap({ id, read }: { id: string; read: EvRead<unknown> }) 
       <Gap id={id} alert>
         {evRefusalText(read)}
       </Gap>
-      <ExactReferences variant="tech" name="ev-refusal-detail" references={references} />
+      <TechnicalReferences variant="tech" name="ev-refusal-detail" references={references} />
     </>
   );
 }
@@ -211,6 +211,13 @@ function ShortId({ value }: { value: string | null }) {
 function SessionId({ external, id }: { external: string | null; id: string | null }) {
   const shown = external ?? id;
   if (shown === null) return <>Unknown</>;
+  // POLISH §3 ids: a stored external session ID is shown; a bare session UUID stays in the title and accessible name only.
+  if (external === null)
+    return (
+      <span className="ev-id" title={shown} aria-label={`Session ${shown}`} data-ev-session-id={shown} data-vocabulary-reference={shown}>
+        Charging session
+      </span>
+    );
   return (
     <code className="ev-id" aria-label={`Session ${id ?? shown}`} data-vocabulary-exempt="source-reference">
       {`SES ${shown}`}
@@ -438,12 +445,12 @@ const REASON_SENTENCES: Record<string, string> = {
   EVIDENCE_NOT_FOUND: "Accepted record was not found.",
   FOREIGN_SITE_EVIDENCE: "Accepted record belongs to another Site.",
   BROKEN_PUBLICATION_LINK: "Publication link is broken.",
-  NO_POSITIVE_BINDING: "No accepted record has a positive source binding.",
-  BOUND_AND_UNBOUND: "Bound and unbound records are mixed.",
+  NO_POSITIVE_BINDING: "No accepted record is linked to a known source.",
+  BOUND_AND_UNBOUND: "Linked and unlinked records are mixed.",
   CROSSED_SOURCE_CLASSES: "Source classes are mixed.",
-  AUTHORED_FIXTURE_VERSION_CONFLICT: "Authored fixture versions conflict.",
-  MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS: "Registered runs lack a compatible basis.",
-  RUN_IDENTITY_CONFLICT: "Registered run identities conflict.",
+  AUTHORED_FIXTURE_VERSION_CONFLICT: "Authored test data versions conflict.",
+  MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS: "Registered test sources lack a compatible basis.",
+  RUN_IDENTITY_CONFLICT: "Registered test source identities conflict.",
 };
 
 /** r10 N2: one literal line per reason, in classifier order, as the disclosure's extra block. */
@@ -496,7 +503,7 @@ function RecordsPanel({ read, refused, findingHref, energyHref }: { read: EvSess
     body = (
       <>
         <Gap id="ev-records">{read.currentness.limitation ?? "Unknown"}</Gap>
-        {sourceBlocked ? <ExactReferences variant="tech" name="ev-source-detail" references={sourceDetail(read)} extra={<SourceReasons read={read} />} /> : null}
+        {sourceBlocked ? <TechnicalReferences variant="tech" name="ev-source-detail" references={sourceDetail(read)} extra={<SourceReasons read={read} />} /> : null}
       </>
     );
   } else if (read.status.state === "UNKNOWN") {
@@ -504,7 +511,7 @@ function RecordsPanel({ read, refused, findingHref, energyHref }: { read: EvSess
     body = (
       <>
         <Gap id="ev-records">{read.status.limitation ?? "Unknown"}</Gap>
-        <ExactReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} extra={read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null} />
+        <TechnicalReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} extra={read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null} />
       </>
     );
   } else if (read.items.length === 0) {
@@ -525,7 +532,7 @@ function RecordsPanel({ read, refused, findingHref, energyHref }: { read: EvSess
         ) : null}
         <SessionRows read={read} findingHref={findingHref} />
         {(read.denominator.orphan ?? 0) > 0 ? <p className="ev-note">{EV_COPY.orphan}</p> : null}
-        <ExactReferences variant="tech" name="ev-session-references" references={sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? [...sessionReferences(read), ...sourceDetail(read)] : sessionReferences(read)} extra={<>{sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? <SourceReasons read={read} /> : null}{read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null}</>} />
+        <TechnicalReferences variant="tech" name="ev-session-references" references={sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? [...sessionReferences(read), ...sourceDetail(read)] : sessionReferences(read)} extra={<>{sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? <SourceReasons read={read} /> : null}{read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null}</>} />
       </>
     );
   }
@@ -565,7 +572,7 @@ function DenominatorPanel({ read }: { read: EvSessionsRead | null }) {
             <br />
             {EV_COPY.unknownSeparate}
           </p>
-          <ExactReferences
+          <TechnicalReferences
             variant="tech"
             name="ev-denominator-references"
             references={[
@@ -804,8 +811,11 @@ function FindingStrip({ finding, siteName }: { finding: EvFindingDetailRead; sit
   return (
     <StatusBar label="Finding state" data={{ "data-ev-strip": finding.currentness.state }}>
       <Badge tone="neutral" className="ev-chip">
-        {/* W2-F M10/N1: no DTO carries a finding code, so the full stored UUID is shown with its domain prefix. */}
-        <code className="ev-id" aria-label={`Finding ${finding.finding_id}`} data-vocabulary-exempt="source-reference">{`F ${finding.finding_id}`}</code>
+        {/* POLISH §3.1: no DTO carries a finding code, so the chip says "Finding"; the UUID is the title, the accessible
+            name and the Finding ID row in Technical details. */}
+        <span className="ev-id" title={finding.finding_id} aria-label={`Finding ${finding.finding_id}`} data-ev-finding-id={finding.finding_id} data-vocabulary-reference={finding.finding_id}>
+          Finding
+        </span>
       </Badge>{" "}
       <Badge tone="lifecycle">{word}</Badge>{" "}
       <Badge tone="neutral" className="ev-chip">
@@ -870,12 +880,15 @@ function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingD
           {record === null ? (
             <span>Record Unknown</span>
           ) : (
-            <code className="ev-id" aria-label={`Record ${record}`} data-vocabulary-exempt="source-reference">{`REC ${record}`}</code>
+            <span className="ev-id" title={record} aria-label={`Record ${record}`} data-record-id={record} data-vocabulary-reference={record}>
+              Charger report
+            </span>
           )}{" "}
           · <span>No analysis link</span>
         </p>
-        <details className="disclosure exact-references exact-references--tech" data-disclosure="ev-finding-references" data-exact-references>
-          <summary className="disclosure__summary">How this was worked out</summary>
+        {/* POLISH Addendum 8 Q5: the panel's one disclosure is the Technical details region that holds the exact IDs. */}
+        <details className="disclosure exact-references exact-references--tech disclosure--tech" data-disclosure="ev-finding-references" data-exact-references data-technical-details="">
+          <summary className="disclosure__summary">{TECHNICAL_DETAILS}</summary>
           <ul className="disclosure__body ev-record-ids" data-ev-record-ids>
             {recordIds.map(([label, value]) => (
               <li key={label} data-ev-record-id={label}>
@@ -913,7 +926,7 @@ function FindingPanels({ finding, session, analysisHref }: { finding: EvFindingD
               ["Outcome", c.abort_at === null ? "Unknown" : "Observed abort", "outcome"],
             ]}
           />
-          <ExactReferences
+          <TechnicalReferences
             variant="tech"
             name="ev-operational-references"
             references={[

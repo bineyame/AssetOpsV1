@@ -359,7 +359,7 @@ describe("V-01b Site Evidence analysis", () => {
     await settledScreen();
     const row = document.querySelector(`[data-evidence-rejection='${CONFLICT_ID}']`) as HTMLElement;
     const original = row.querySelector("[data-conflict-original]") as HTMLElement;
-    expect(original.textContent).toContain("Original reading taken 22 Sep 2026 08:00 UTC");
+    expect(original.textContent).toContain("Original reading taken 22 Sep 2026, 08:00");
     fireEvent.click(within(original).getByRole("button", { name: `reading ${EVIDENCE_UUID}` }));
     await settledScreen();
     expect(loc()).toContain(`record=${EVIDENCE_UUID}`);

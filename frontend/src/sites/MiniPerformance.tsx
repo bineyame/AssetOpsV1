@@ -50,6 +50,8 @@ import { performanceSubtabs, type DomainPresentationProfile } from "./presentati
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import "../ui/mock-deviation.css";
 import "./w4-mini-performance.css";
+import { formatDayTime, formatRange } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 /* ---------- sibling tabs ---------- */
 
@@ -461,9 +463,10 @@ function MiniPeriodBar({
           : "No period selected"}
       </span>
       <span className="site-date-bar__cutoff" data-mini-utc-bounds>
-        {`UTC ${window.from ?? UNKNOWN} to ${window.to ?? UNKNOWN}`}
-        {window.known_at === null ? "" : ` · evidence cutoff ${window.known_at}`}
+        {window.from && window.to ? formatRange(window.from, window.to) : UNKNOWN}
+        {window.known_at === null ? "" : ` · evidence cutoff ${formatDayTime(window.known_at)}`}
       </span>
+      <TimeZoneNote />
       <label className="v69-chip-field">
         First day{" "}
         <input className="v69-chip-control" type="date" value={first} onChange={(e) => setFirst(e.target.value)} />
@@ -1014,9 +1017,10 @@ function MiniHourBar({
           : "No period selected"}
       </span>
       <span className="site-date-bar__cutoff" data-mini-utc-bounds>
-        {`UTC ${window.from ?? UNKNOWN} to ${window.to ?? UNKNOWN}`}
-        {window.known_at === null ? "" : ` · evidence cutoff ${window.known_at}`}
+        {window.from && window.to ? formatRange(window.from, window.to) : UNKNOWN}
+        {window.known_at === null ? "" : ` · evidence cutoff ${formatDayTime(window.known_at)}`}
       </span>
+      <TimeZoneNote />
       <label className="v69-chip-field">
         Day{" "}
         <input className="v69-chip-control" type="date" value={day} onChange={(e) => setDay(e.target.value)} />

@@ -262,7 +262,7 @@ describe("W6-01c C2: work request Overview", () => {
     expect(doneSteps()).toEqual(["Triage", "Assigned", "Visit"]);
     const lifecycle = q("[data-work-request-lifecycle]")?.closest(".panel");
     expect(text(lifecycle?.querySelector("[data-work-request-chart-note]") ?? null)).toBe(
-      "Completed is not Verified. No work-case outcome evaluator is available.",
+      "Completed is not Verified. Whether this work fixed the problem is not checked yet.",
     );
     expect(document.querySelectorAll(".panel__description")).toHaveLength(0);
     expectV69Panels("wr-overview");
@@ -477,7 +477,8 @@ describe("W6-01c C2: work request Overview", () => {
     ]);
     expect(text(source)).toBe("Incident INC-000004 · Finding a1b2c3d4 · Finding e5f6a7b8 · Link unavailable at this cutoff");
     expect(text(q('[data-work-request-full="source"]'))).toContain("Finding e5f6a7b8 · Link unavailable at this cutoff");
-    expect(kv("asset")).toBe("GEN-001 · generator");
+    // POLISH Addendum 6 Q4: an unlisted type without the wire label reads as its capitalised word.
+    expect(kv("asset")).toBe("Generator");
     const action = within(q('[data-key-value="linked_action"]') as HTMLElement).getByRole("link", { name: "Action c9d0e1f2" });
     expect(action).toHaveAttribute("href", "/sites/KOBO-001/actions/a1");
   });
@@ -633,12 +634,14 @@ describe("Post-W6 W6: work request Overview corrections", () => {
       ),
     );
     await settled();
-    expect(kv("asset")).toBe("EV connector c1");
+    expect(kv("asset")).toBe("Connector c1");
     const cell = q('[data-key-value="linked_action"] dd') as HTMLElement;
     expect(within(cell).getByRole("link", { name: "ACT-000001" })).toBeInTheDocument();
     const disclosures = Array.from(cell.querySelectorAll("[data-work-request-action-id]"));
     expect(disclosures).toHaveLength(1);
-    expect(text(disclosures[0])).toBe(`Stored Action ID${OTHER}`);
+    // POLISH §3 ids: the stored id only inside a closed Technical details region.
+    expect(text(disclosures[0])).toBe(`Technical detailsStored action reference${OTHER}`);
+    expect(disclosures[0].querySelector("[data-technical-details]")).not.toBeNull();
   });
 
   it("R370/R396/R363/R365: verification-open state copy and the visible labels", async () => {
@@ -702,7 +705,9 @@ describe("OUT-C U6 request page repeat-visit notice", () => {
     await waitFor(() => expect(notice()).not.toBeNull());
     expect(board.calls).toEqual([{ siteCode: "KOBO-001", query: {} }]);
     expect(text(notice())).toBe(THIRD);
-    expect(notice()!.nextElementSibling?.hasAttribute("data-work-request-pair")).toBe(true);
+    const wrapper = notice()!.closest("[data-repeat-check]") as HTMLElement;
+    expect(wrapper).toHaveAttribute("data-repeat-check", "found");
+    expect(wrapper.nextElementSibling?.hasAttribute("data-work-request-pair")).toBe(true);
     expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(text(notice()))).toBe(false);
     expect(describeViolations(scanProductVocabulary(notice()!, "work-request", { set: "w1" }).violations)).toBe("");
   });
@@ -721,6 +726,51 @@ describe("OUT-C U6 request page repeat-visit notice", () => {
       expect(notice()).toBeNull();
       view.unmount();
     }
+  });
+
+  it("POLISH P-07: names its state in data-repeat-check: loading, unavailable (refused, failed, rejected), none, found", async () => {
+    const check = () => document.querySelector("[data-repeat-check]") as HTMLElement | null;
+    // loading: the board read has not answered.
+    const pending: OutcomeBoardClient = { getOutcomeBoard: () => new Promise(() => undefined) };
+    let view = mount(PAGE, client(loaded(detail())), pending);
+    await settled();
+    expect(check()).toHaveAttribute("data-repeat-check", "loading");
+    expect(text(check())).toBe("Checking for repeat visits…");
+    view.unmount();
+    // unavailable: a refusal, a failed read and a rejected promise.
+    const unavailable: OutcomeBoardClient[] = [
+      fakeOutcomeBoard({ status: "refused", httpStatus: 503, code: "OUTCOME_BOARD_UNAVAILABLE" }).client,
+      fakeOutcomeBoard({ status: "unavailable" }).client,
+      { getOutcomeBoard: () => Promise.reject(new Error("network")) },
+    ];
+    for (const board of unavailable) {
+      view = mount(PAGE, client(loaded(detail())), board);
+      await settled();
+      await waitFor(() => expect(check()).toHaveAttribute("data-repeat-check", "unavailable"));
+      expect(text(check())).toBe("Repeat visits could not be checked (the site summary could not be read)");
+      expect(notice()).toBeNull();
+      view.unmount();
+    }
+    // none: loaded, no warning names this case; no text.
+    view = mount(
+      PAGE,
+      client(loaded(detail())),
+      fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [outcomeWarning({ href: "/maintenance/requests/another-case" })] }) }).client,
+    );
+    await settled();
+    await waitFor(() => expect(check()).toHaveAttribute("data-repeat-check", "none"));
+    expect(text(check())).toBe("");
+    view.unmount();
+    // found: the amber notice inside the wrapper.
+    view = mount(
+      PAGE,
+      client(loaded(detail())),
+      fakeOutcomeBoard({ status: "loaded", value: boardBody({ warnings: [outcomeWarning({ href: `/maintenance/requests/${CASE}` })] }) }).client,
+    );
+    await settled();
+    await waitFor(() => expect(check()).toHaveAttribute("data-repeat-check", "found"));
+    expect(check()!.querySelector("[data-work-request-repeat-notice]")).not.toBeNull();
+    view.unmount();
   });
 
   it("ordinalsRunSecondToFifthThenVisitN", () => {

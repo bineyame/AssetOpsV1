@@ -23,6 +23,8 @@
  *   outcome or case URL; an answer for another page or cutoff is discarded.
  */
 import { displayCode } from "../ui/displayCode";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
+import { formatDayTime } from "../ui/time";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -211,12 +213,15 @@ export const WORK_STRIP_DETAIL_DOMAIN: Record<WorkKind, string> = {
 export const WORK_LINK_MISSING = "No selected source for linked evidence";
 export const WORK_LINK_PENDING = "Linked evidence is being reassessed";
 
-/** `2026-10-06 16:11 UTC`. */
+/**
+ * `6 Oct 2026, 16:11` in UTC (POLISH §3 times: no per-time "UTC" suffix). Shown only inside "Technical details",
+ * where the fact label names UTC.
+ */
 export function workUtcText(instant: string | null | undefined): string {
   if (!instant) return "not recorded";
   const date = new Date(instant);
   if (Number.isNaN(date.getTime())) return instant;
-  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return formatDayTime(instant);
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -250,14 +255,6 @@ export function workSiteText(instant: string | null | undefined, timezone: strin
   return siteDateTimeText(instant, timezone) ?? instant;
 }
 
-/**
- * W5-02 K3a (P-K3a-3, R89 D4): the wire has only the composite `asset_label` (`generator-1 · GENERATOR`). Only a
- * final exact `GENERATOR` token reads as `backup generator`; any other label is shown unchanged.
- */
-export function coldAssetLabel(label: string): string {
-  const suffix = " · GENERATOR";
-  return label.endsWith(suffix) ? `${label.slice(0, -suffix.length)} · backup generator` : label;
-}
 
 /**
  * W5-02 K3a (P-G-4, MOCK DEVIATION (D1) R68): a cold WR code opens the mounted W6 C2 request Overview for the
@@ -495,35 +492,38 @@ function Basis({ body, timeZone }: { body: WorkIndexBody; timeZone: string | nul
       <FactList>
         <Fact term="Window">
           {workSiteText(body.window.from, timeZone)} to {workSiteText(body.window.to, timeZone)} {body.window.bounds}
-          <span className="muted" data-work-window-utc>
-            {` (${workUtcText(body.window.from)} to ${workUtcText(body.window.to)})`}
-          </span>
         </Fact>
-        <Fact term="Read as of">
-          {workSiteText(body.known_at, timeZone)}
-          <span className="muted">{` (${workUtcText(body.known_at)})`}</span>
-        </Fact>
-        <Fact term="Linked evidence">
-          <span data-work-coverage={body.coverage.state}>
-            {body.coverage.state}
-            {body.coverage.reason ? ` (${body.coverage.reason})` : ""}
-          </span>
-        </Fact>
+        <Fact term="Read as of">{workSiteText(body.known_at, timeZone)}</Fact>
         <Fact term="Source of cited records">
           <span data-source-provenance={state}>{SOURCE_WORDS[state].label}</span>
         </Fact>
-        <Fact term="List fence">
-          <code data-work-selection-token data-vocabulary-exempt="source-reference">
-            {body.selection_token}
-          </code>
-        </Fact>
       </FactList>
+      {/* POLISH §3 (Addendum 5/7): the exact UTC bounds, the stored coverage state and the list fence are audit values. */}
+      <TechnicalDetails name="work-basis-exact">
+        <FactList>
+          <Fact term="Window (UTC)">
+            <span data-work-window-utc>{`${workUtcText(body.window.from)} to ${workUtcText(body.window.to)}`}</span>
+          </Fact>
+          <Fact term="Read as of (UTC)">{workUtcText(body.known_at)}</Fact>
+          <Fact term="Linked evidence">
+            <span data-work-coverage={body.coverage.state}>
+              {body.coverage.state}
+              {body.coverage.reason ? ` (${body.coverage.reason})` : ""}
+            </span>
+          </Fact>
+          <Fact term="List fence">
+            <code data-work-selection-token data-vocabulary-exempt="source-reference">
+              {body.selection_token}
+            </code>
+          </Fact>
+        </FactList>
+      </TechnicalDetails>
       {body.source_provenance ? <SourceProvenanceRecord provenance={body.source_provenance} /> : null}
     </Disclosure>
   );
 }
 
-/** The exact identities and UTC times behind one row: never truncated, closed by default. */
+/** The exact identities and UTC times behind one row: never truncated, closed by default ("Technical details"). */
 function RowDetail({
   row,
   assetId = false,
@@ -541,10 +541,10 @@ function RowDetail({
   plainDomainActions?: boolean;
 }) {
   return (
-    <Disclosure name={`work-row-${row.case_id}`} summary="UTC and IDs" variant="inline">
+    <Disclosure name={`work-row-${row.case_id}`} summary="Technical details" variant="inline" technical>
       <FactList>
-        <Fact term="Occurred">{workUtcText(row.occurred_at)}</Fact>
-        <Fact term="Recorded">{workUtcText(row.recorded_at)}</Fact>
+        <Fact term="Occurred (UTC)">{workUtcText(row.occurred_at)}</Fact>
+        <Fact term="Recorded (UTC)">{workUtcText(row.recorded_at)}</Fact>
         <Fact term="Case ID">
           <code data-vocabulary-exempt="source-reference">{row.case_id}</code>
         </Fact>
@@ -873,10 +873,10 @@ function DomainMaintenanceCells({ row, cells }: { row: WorkRow; cells: DomainCel
         <DomainCaseTitle kind="maintenance" row={row} cells={cells} />
       </td>
       <td>
-        {/* Cold: MOCK DEVIATION (D4) R89, the selected composite label, `generator-1 · backup generator`, with its ID
-            in `UTC and IDs`. EV (readiness ruling 13): the selected W4 `asset_label` unchanged, else the gap. */}
+        {/* POLISH Addendum 6 Q4 / Addendum 12 Q3: the server's plain `asset_label` (`Backup generator`) as sent, on
+            every Site type; the cold asset ID stays in the row's Technical details. */}
         {row.asset_label ? (
-          <span data-work-asset>{lc ? coldAssetLabel(row.asset_label) : row.asset_label}</span>
+          <span data-work-asset>{row.asset_label}</span>
         ) : (
           <span className="muted">No asset linked</span>
         )}

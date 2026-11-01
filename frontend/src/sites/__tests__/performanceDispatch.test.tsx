@@ -446,7 +446,7 @@ describe("Dispatch day Finding links (S4-01 phase 3)", () => {
     ]);
     const { container } = mountWith(findings);
     await settledScreen();
-    const link = await screen.findByRole("link", { name: /Open: 05:15–09:15 UTC/ });
+    const link = await screen.findByRole("link", { name: /Open: 05:15–09:15/ });
     expect(link.getAttribute("href")).toBe("/sites/KOBO-001/findings/f-1");
     expect(findings.days).toEqual(["2026-10-02"]);
     expect(container.querySelector("[data-dispatch-finding='f-2']")).toBeNull();
@@ -486,7 +486,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1");
     await settledScreen();
     // W1-F2: no answer card; the v69 dispatch panels, with the state line in the statusbar above them.
-    expectV69Panels("dispatch", { interval: "04:00–04:15 UTC" }, container.querySelector("[data-dispatch-root]") as HTMLElement);
+    expectV69Panels("dispatch", { interval: "04:00–04:15" }, container.querySelector("[data-dispatch-root]") as HTMLElement);
     expect(container.querySelector("[data-headline-card]")).toBeNull();
     const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
     const blocks = panelTitled("Sources and 15-minute blocks", container);
@@ -500,12 +500,12 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const chosen = links.find((a) => a.getAttribute("aria-current") === "true") as HTMLAnchorElement;
     expect(chosen.getAttribute("href")).toContain("revision=rev-current");
     expect(chosen.getAttribute("href")).toContain("block=1");
-    expect(chosen.getAttribute("aria-label")).toBe("04:00 to 04:15 UTC: Possibly avoidable");
+    expect(chosen.getAttribute("aria-label")).toBe("04:00 to 04:15: Possibly avoidable");
     // Review fix H1: the period chips and the selectable block tiles are in panel 1 under the strip, and
     // panel 2 leads with the selected block's own outcome; the period facts follow under a period label.
     expect(blocks.querySelector("[data-revision-id='rev-current']")).not.toBeNull();
     expect(blocks.querySelector("[data-block='1'][aria-pressed='true']")?.textContent).toBe("Avoidable04:00");
-    const selectedPanel = panelTitled("Selected block · 04:00–04:15 UTC", container);
+    const selectedPanel = panelTitled("Selected block · 04:00–04:15", container);
     expect(selectedPanel.querySelector("[data-block], [data-revision-id]")).toBeNull();
     const firstBadge = selectedPanel.querySelector("[data-claim-level]") as HTMLElement;
     expect(firstBadge.closest("[data-selected-block]")).not.toBeNull();
@@ -563,7 +563,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
       "rule",
       "conclusion",
     ]);
-    expect(story.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the block 04:00 to 04:15 UTC.");
+    expect(story.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the block 04:00 to 04:15.");
     expect(story.textContent).toMatch(/2 accepted readings used/);
     expect(story.textContent).toMatch(/says nothing about fuel, savings or money/);
     expectStateLineVisible(container.querySelector(".dispatch-status") as HTMLElement);
@@ -589,7 +589,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     };
     const assertStored = (container: HTMLElement) => {
       const conclusion = container.querySelector("[data-dispatch-story-conclusion]")?.textContent;
-      expect(conclusion).toBe("Possibly avoidable, for the period 03:45 to 04:15 UTC, from a stored version that is not the current result.");
+      expect(conclusion).toBe("Possibly avoidable, for the period 03:45 to 04:15, from a stored version that is not the current result.");
       expect(container.querySelector("[data-dispatch-pinned]")?.textContent).toMatch(/stored result that is not the current one for 2026-10-02/);
       const line = container.querySelector(".dispatch-status") as HTMLElement;
       expect(line.getAttribute("data-dispatch-shown")).toBe("stored-not-current");
@@ -607,7 +607,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     // Through every non-current link in the visible "Versions of this period" panel.
     const viaPanel = mount(fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, revisions), "?day=2026-10-02&revision=rev-current&view=analysis");
     await settledScreen();
-    expect(viaPanel.container.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the period 03:45 to 04:15 UTC.");
+    expect(viaPanel.container.querySelector("[data-dispatch-story-conclusion]")?.textContent).toBe("Possibly avoidable, for the period 03:45 to 04:15.");
     expect(viaPanel.container.querySelector("[data-dispatch-pinned]")).toBeNull();
     const links = Array.from(viaPanel.container.querySelectorAll("[data-history-revision] a"));
     expect(links.map((a) => a.closest("[data-history-revision]")?.getAttribute("data-history-revision"))).toEqual(["rev-old", "rev-current"]);
@@ -638,8 +638,8 @@ describe("W1-F2: v69 dispatch and analysis panel structure", () => {
   };
 
   it.each([
-    ["stocked, block selected", "?day=2026-10-02&revision=rev-current&block=1", "04:00–04:15 UTC"],
-    ["stocked, period selected", "?day=2026-10-02&revision=rev-current", "03:45–04:15 UTC"],
+    ["stocked, block selected", "?day=2026-10-02&revision=rev-current&block=1", "04:00–04:15"],
+    ["stocked, period selected", "?day=2026-10-02&revision=rev-current", "03:45–04:15"],
     ["stocked, nothing selected", "?day=2026-10-02", "No block selected"],
   ])("dispatch, %s", async (_name, search, interval) => {
     const { container } = mount(stocked(), search);

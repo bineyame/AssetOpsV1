@@ -151,7 +151,7 @@ describe("assessed-period timeline", () => {
       "Generator operation not recorded",
       "Start or stop time uncertain",
     ]);
-    expect(screen.getByText(/Assessed period, 22 Sep 2026, 03:00 to 05:00 UTC/)).toBeInTheDocument();
+    expect(screen.getByText(/Assessed period, 22 Sep 2026, 03:00–05:00/)).toBeInTheDocument();
     expect(document.querySelector("[data-open-end]")).toBeNull();
   });
 
@@ -164,8 +164,8 @@ describe("assessed-period timeline", () => {
     expect(document.querySelector("[data-axis-end]")).toHaveTextContent("04:45");
     const notes = Array.from(document.querySelectorAll("[data-open-note]")).map((n) => n.textContent);
     expect(notes).toEqual([
-      "Start not recorded: no record shows the generator off before 22 Sep 2026 03:15 UTC, so it may have been operating earlier.",
-      "End not recorded: no record shows the generator off after 22 Sep 2026 04:45 UTC, so when it stopped is not known.",
+      "Start not recorded: no record shows the generator off before 22 Sep 2026, 03:15, so it may have been operating earlier.",
+      "End not recorded: no record shows the generator off after 22 Sep 2026, 04:45, so when it stopped is not known.",
     ]);
     expect(screen.getByRole("img").getAttribute("aria-label")).toContain("End not recorded");
   });
@@ -175,8 +175,8 @@ describe("assessed-period timeline", () => {
     expect(document.querySelector("[data-timeline-table]")).toBeNull();
     expect(screen.getByRole("img")).toHaveAccessibleName(
       "Assessed parts of the period: 03:15 to 04:45, Possibly avoidable. " +
-        "Start not recorded: no record shows the generator off before 22 Sep 2026 03:15 UTC, so it may have been operating earlier. " +
-        "End not recorded: no record shows the generator off after 22 Sep 2026 04:45 UTC, so when it stopped is not known.",
+        "Start not recorded: no record shows the generator off before 22 Sep 2026, 03:15, so it may have been operating earlier. " +
+        "End not recorded: no record shows the generator off after 22 Sep 2026, 04:45, so when it stopped is not known.",
     );
     expect(Array.from(document.querySelectorAll("[data-legend]")).map((l) => l.textContent)).toEqual([
       "Possibly avoidable",
@@ -259,7 +259,7 @@ describe("reported values for one part", () => {
     expect(end).toHaveAttribute("aria-pressed", "true");
     expect(document.querySelector('[data-value-row="load_kw"]')).toHaveTextContent("25 kW");
     expect(document.querySelector('[data-value-row="generator_kw"]')).toHaveTextContent("0 kW");
-    expect(screen.getByText(/values used at the end of the assessed part, 22 Sep 2026 04:00 UTC/)).toBeInTheDocument();
+    expect(screen.getByText(/values used at the end of the assessed part, 22 Sep 2026, 04:00/)).toBeInTheDocument();
   });
 
   it("a part without recorded operation has no values and no bars", () => {
@@ -296,11 +296,11 @@ describe("record coverage by input", () => {
     expect(row("load").textContent).not.toMatch(/%/);
     // Evaluated but never usable is a zero count, distinct from not assessed.
     expect(row("discharge_capability")).toHaveTextContent("0 of 4");
-    expect(row("discharge_capability")).toHaveTextContent("22 Sep 2026, 05:00 to 05:15 UTC (15 min)");
+    expect(row("discharge_capability")).toHaveTextContent("22 Sep 2026, 05:00–05:15 (15 min)");
     expect(document.querySelector("caption")).toHaveTextContent("assessed parts of this period");
     expect(document.querySelector("caption")).toHaveTextContent("not shares of elapsed time");
     expect(document.querySelector("[data-coverage-unobserved]")).toHaveTextContent(
-      "Generator operation not recorded: 22 Sep 2026, 04:00 to 04:15 UTC (15 min)",
+      "Generator operation not recorded: 22 Sep 2026, 04:00–04:15 (15 min)",
     );
   });
 });
@@ -361,7 +361,7 @@ describe("the selected part stays this assessment's part", () => {
     );
     expect(analysis.querySelector(".period-timeline__band.is-selected")).toHaveAttribute("data-part", "2");
     expect(analysis.querySelector("[data-analysis-selected-part]")).toHaveTextContent(
-      "Part 3 of 3, 22 Sep 2026, 04:15 to 04:45 UTC: Needed.",
+      "Part 3 of 3, 22 Sep 2026, 04:15–04:45: Needed.",
     );
   });
 

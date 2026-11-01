@@ -4,6 +4,7 @@
  */
 import type { DomainActionPresentation } from "./DomainActionVerification";
 import type { DomainStatus } from "./domainActionClient";
+import { formatDayTime } from "../ui/time";
 
 /** The v69 `cold-work` panel title. */
 export const COLD_WORK_PANEL_TITLE = "Actions at this site";
@@ -70,11 +71,9 @@ export function coldShowAll(rows: number): string {
   return `Show all ${rows} Actions`;
 }
 
-/** `2026-10-20 14:05 UTC`, with the explicit `UTC` suffix. */
+/** `20 Oct 2026, 14:05` (POLISH §3 Times: UTC, named by the page's one time zone note; never the raw string). */
 export function coldUtcText(instant: string): string {
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return formatDayTime(instant);
 }
 
 /** A due date as `YYYY-MM-DD` in UTC, or `Not set`. */

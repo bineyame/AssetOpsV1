@@ -281,7 +281,7 @@ describe("W6-01e E2: global Operational records", () => {
     const earlier = cell(first, 0).querySelector("[data-global-work-supersedes]") as HTMLDetailsElement;
     expect(text(earlier.querySelector("summary"))).toBe("Earlier record version");
     expect(text(earlier)).toContain("00000000-0000-4000-8000-000000000101");
-    expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source unverified");
+    expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(text(cell(first, 1))).toBe("Shift note");
     expect(cell(first, 1).querySelector(".v69-chip, .w1f4-action-badge")).toBeNull();
     expect(within(cell(first, 2)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");

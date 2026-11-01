@@ -23,6 +23,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
+import { formatDay } from "../ui/time";
 import type {
   AssessedDay,
   AssessedPeriod,
@@ -81,8 +82,13 @@ function hhmm(iso: string): string {
   return match === null ? iso : match[1];
 }
 
+/** `6 Oct 2026` for a `YYYY-MM-DD` assessment day (POLISH §3 Times); the day itself when unreadable. */
+function dayWords(day: string): string {
+  return isDay(day) ? formatDay(`${day}T00:00:00Z`) : day;
+}
+
 function period(start: string | undefined, end: string | undefined): string {
-  return start === undefined || end === undefined ? "" : `${hhmm(start)}–${hhmm(end)} UTC`;
+  return start === undefined || end === undefined ? "" : `${hhmm(start)}–${hhmm(end)}`;
 }
 
 function asNumber(value: number | string | null | undefined): number {
@@ -360,13 +366,13 @@ function DayChooser({ day }: { day: string | null }) {
   return (
     <form className="claim-limit__day" onSubmit={submit} data-claim-limit-day-form>
       <label className="evidence-toolbar__field">
-        <span>Assessment day (UTC)</span>
+        <span>Assessment day</span>
         <input
           className="v69-chip-control"
           type="date"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
-          aria-label="Assessment day (UTC)"
+          aria-label="Assessment day"
         />
       </label>
       <button type="submit" className="button">
@@ -462,7 +468,7 @@ function Body({
   if (client === undefined) {
     return (
       <p className="claim-limit__result" data-claim-limit-state="unavailable">
-        <ProductStatus inline words={readResultWords("unavailable")} scope={`Assessment for ${day}`} asOf={null} /> The assessment
+        <ProductStatus inline words={readResultWords("unavailable")} scope={`Assessment for ${dayWords(day)}`} asOf={null} /> The assessment
         store could not be read, so nothing is shown about a selected assessment.
       </p>
     );
@@ -480,7 +486,7 @@ function Body({
           <ProductStatus
             inline
             words={readResultWords(read.status === "not_found" ? "not-found" : read.status === "unavailable" ? "unavailable" : "refused")}
-            scope={revision === null ? `Assessment for ${day}` : `Selected assessment for ${day}`}
+            scope={revision === null ? `Assessment for ${dayWords(day)}` : `Selected assessment for ${dayWords(day)}`}
             asOf={answeredAt}
           />{" "}
           {refusalSentence(read)}
@@ -532,7 +538,7 @@ function Loaded({
   const roles = read.capability?.roles ?? {};
   const roleKeys = read.capability?.required_roles ?? Object.keys(roles);
   const selected = read.assessment_revision_id;
-  const whenText = selected === null ? `Day ${read.day}` : `${read.day}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`;
+  const whenText = selected === null ? `Day ${dayWords(read.day)}` : `${dayWords(read.day)}, ${read.scope === "WINDOW" ? "whole day" : assessedPeriod(read)}`;
 
   const detail = (
     <>

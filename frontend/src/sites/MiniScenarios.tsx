@@ -24,6 +24,8 @@ import { ClaimLabel } from "./ClaimLabel";
 import { siteLocalDate, siteLocalEndUtc, siteLocalLastDay, siteLocalMidnightUtc, siteZoneDisplayLabel } from "./siteTime";
 import "../ui/mock-deviation.css";
 import "./w4-mini-decisions.css";
+import { formatDayTime } from "../ui/time";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 export const SCENARIOS_HEADING_ID = "mini-scenarios-heading";
 export const SCENARIOS_NOTICE =
@@ -84,12 +86,9 @@ function declared(a: ScenarioAssumption): string {
   return `${ASSUMPTION_LABELS[a.key] ?? a.key} ${a.value ?? ""}${a.unit ? ` ${a.unit}` : ""}`.trim();
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** uF 8 (L8): the exact six-digit UTC token read as a plain UTC date and second; never local time. */
+/** uF 8 (L8): the exact UTC token as a plain date and second (`ui/time.ts`); the page note names the zone. */
 export function plainUtc(token: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?Z$/.exec(token);
-  return m === null ? token : `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]} ${m[1]}, ${m[4]} UTC`;
+  return formatDayTime(token, { seconds: true });
 }
 
 function illustrative(row: ScenarioRow): string {
@@ -213,7 +212,8 @@ function Loaded({
     <div data-scenarios-loaded>
       {through === null ? null : (
         <p className="mini-scenarios-through" data-scenarios-through>
-          Scenarios created through <time dateTime={through}>{plainUtc(through)}</time>
+          Scenarios created through <time dateTime={through}>{plainUtc(through)}</time>{" "}
+          <TimeZoneNote />
         </p>
       )}
       {body.rows.length === 0 ? (

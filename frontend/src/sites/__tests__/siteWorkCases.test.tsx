@@ -245,9 +245,9 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(text(first.querySelector("[data-work-case-title]"))).toBe("INC-001 · Witnessed start request failed");
     // `url: null`: plain text, no link, handler or tab stop.
     expect(first.querySelector("td:first-child a, td:first-child [tabindex], td:first-child button")).toBeNull();
-    // post-W6 W4 R320: Site-local with the zone label (the shared siteTime formatter); exact UTC stays in `UTC and IDs`.
+    // post-W6 W4 R320: Site-local with the zone label (the shared siteTime formatter); exact UTC stays in the row Technical details.
     expect(text(first.querySelector("[data-work-window]"))).toBe("6 Oct · from 19:11 EAT");
-    expect(text(first)).toContain("2026-10-06 16:11 UTC");
+    expect(text(first)).toContain("6 Oct 2026, 16:11");
     expect(text(first)).toContain("No linked finding");
     expect(Array.from(panel.querySelectorAll("[data-work-state]")).map((c) => [c.textContent, c.getAttribute("data-work-tone")])).toEqual([
       ["Open", "red"],

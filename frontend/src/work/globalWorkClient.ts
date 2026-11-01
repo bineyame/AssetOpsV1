@@ -124,6 +124,20 @@ export interface GlobalPreventiveRow {
   correction_reason: string | null;
   source_provenance: GlobalWorkProvenance;
   links: { site: GlobalWorkLink };
+  /** POLISH P-09 (PA-2): the plan due state against the window `to`; optional so an older build still renders. */
+  due_state?: GlobalPreventiveDueState;
+  /** POLISH Addendum 12 Q2 (PA-3): the Site's declared IANA zone, or null; optional. */
+  site_time_zone?: string | null;
+}
+
+/** POLISH P-09: the per-plan due state (`outcomes/plan_due.py`). */
+export type GlobalPreventiveDueState = "OVERDUE" | "DUE_SOON" | "NOT_DUE" | "NOT_ASSESSED";
+
+/** POLISH P-09: the due counts over all plans matching the filters, not just the page. */
+export interface GlobalPreventiveSummary {
+  overdue_count: number;
+  due_soon_count: number;
+  not_assessed_count: number;
 }
 
 /** W6-01e E2 (P-E2-1): the four stored operational record kinds. */
@@ -184,7 +198,7 @@ export interface GlobalWorkEnvelope<Row, Counts> {
 
 export type GlobalIncidentsBody = GlobalWorkEnvelope<GlobalIncidentRow, Record<GlobalIncidentState, number>>;
 export type GlobalMaintenanceBody = GlobalWorkEnvelope<GlobalMaintenanceRow, Record<GlobalMaintenanceState, number>>;
-export type GlobalPreventiveBody = GlobalWorkEnvelope<GlobalPreventiveRow, null>;
+export type GlobalPreventiveBody = GlobalWorkEnvelope<GlobalPreventiveRow, null> & { summary?: GlobalPreventiveSummary };
 export type GlobalOperationalBody = GlobalWorkEnvelope<GlobalOperationalRow, null>;
 
 /** The list root a read asks for; it decides the `state_counts` shape the answer must carry (P-B2-2). */
@@ -454,7 +468,8 @@ export interface GlobalWorkDetailBody {
     site_domain: GlobalSiteDomain;
   };
   work_detail: WorkCaseDetail;
-  work_asset: { code: string; type: string } | null;
+  /** POLISH Addendum 12 Q3 (PA-3): `asset_label` is the server's plain asset words; optional on older builds. */
+  work_asset: { code: string; type: string; asset_label?: string | null } | null;
   history: { revisions: GlobalWorkDetailRevision[]; operational_records: GlobalWorkDetailOperationalRecord[] };
   links: {
     site: GlobalWorkLink;

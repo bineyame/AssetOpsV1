@@ -12,6 +12,7 @@
 import { useEffect, useState } from "react";
 
 import { KeyValues, Notice, Panel } from "../ui";
+import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";
 import type { OutcomeBoardClient, OutcomeBoardRead, OutcomeWarning } from "../sites/outcomeBoardClient";
 import type { GlobalWorkClient, GlobalWorkDetailBody } from "./globalWorkClient";
 import { LinkOrText, MockDeviation, assetWords, joined } from "./globalWorkParts";
@@ -21,7 +22,7 @@ export const NO_MAINTENANCE_ACTIVITY = "No maintenance activity recorded";
 export const WARRANTY_NOT_RECORDED = "Warranty not recorded";
 export const NO_ASSET_RECORDED = "No asset recorded";
 export const NO_LINKED_ACTION = "No linked action recorded";
-export const LIFECYCLE_NOTE = "Completed is not Verified. No work-case outcome evaluator is available.";
+export const LIFECYCLE_NOTE = "Completed is not Verified. Whether this work fixed the problem is not checked yet.";
 export const CANCELLED_NOTE = "Cancelled · work stopped";
 export const LIFECYCLE_STEPS = ["Finding", "Triage", "Assigned", "Visit", "Completed", "Verified"] as const;
 
@@ -64,10 +65,11 @@ function LinkedActions({ body }: { body: GlobalWorkDetailBody }) {
             <span key={`${link.label}-${index}`}>
               <LinkOrText link={link} data={{ "data-work-request-action": "" }} />
               {!link.label.startsWith("ACT-") && stored ? (
-                <details className="global-work-details" data-work-request-action-id>
-                  <summary>Stored Action ID</summary>
-                  {stored}
-                </details>
+                <span data-work-request-action-id>
+                  <TechnicalDetails name={`work-request-action-${index}`}>
+                    <TechnicalReferenceList references={[{ label: "Stored action reference", value: stored }]} />
+                  </TechnicalDetails>
+                </span>
               ) : null}
             </span>
           );
@@ -93,8 +95,8 @@ function WorkDone({ body }: { body: GlobalWorkDetailBody }) {
         label="Work request facts"
         rows={[
           ["Type", CASE_KIND_LABEL[body.selected.case_kind] ?? body.selected.case_kind, "type"],
-          // Post-W6 W6 Q18: plain asset words from the stored code and type (`EV connector c1`).
-          ["Asset", asset === null ? NO_ASSET_RECORDED : assetWords(asset.code, asset.type), "asset"],
+          // POLISH Addendum 12 Q3: the server's plain `asset_label`; the code-and-type words only when it is absent.
+          ["Asset", asset === null ? NO_ASSET_RECORDED : (asset.asset_label ?? assetWords(asset.code, asset.type)), "asset"],
           ["Warranty", WARRANTY_NOT_RECORDED, "warranty"],
           ["Linked action", <LinkedActions body={body} />, "linked_action"],
         ]}
@@ -164,29 +166,60 @@ export function repeatWarningFor(warnings: readonly OutcomeWarning[], caseId: st
   );
 }
 
-/** OUT-C U6: the Site board read with no window (the board's own default, as the Overview page); refused shows nothing. */
+export const REPEAT_CHECK_LOADING = "Checking for repeat visits…";
+export const REPEAT_CHECK_UNAVAILABLE = "Repeat visits could not be checked (the site summary could not be read)";
+
+/** A rejected board promise reads as unavailable, like a refusal or a failed read. */
+type RepeatRead = OutcomeBoardRead | { status: "rejected" };
+
+/**
+ * OUT-C U6: the Site board read with no window (the board's own default, as the Overview page). POLISH P-07 (§1.2):
+ * the wrapper names its state in `data-repeat-check` (loading / unavailable / none / found), and the capture tool
+ * settles only once no `loading` remains.
+ */
 function RepeatVisitNotice({ board, siteCode, caseId }: { board: OutcomeBoardClient; siteCode: string; caseId: string }) {
-  const [read, setRead] = useState<{ key: string; read: OutcomeBoardRead } | null>(null);
+  const [read, setRead] = useState<{ key: string; read: RepeatRead } | null>(null);
   useEffect(() => {
     let live = true;
-    void board
+    board
       .getOutcomeBoard(siteCode, {})
-      .then((r) => {
-        if (live) setRead({ key: siteCode, read: r });
-      })
-      .catch(() => undefined);
+      .then(
+        (r) => {
+          if (live) setRead({ key: siteCode, read: r });
+        },
+        () => {
+          if (live) setRead({ key: siteCode, read: { status: "rejected" } });
+        },
+      );
     return () => {
       live = false;
     };
   }, [board, siteCode]);
   const current = read?.key === siteCode ? read.read : null;
-  if (current?.status !== "loaded") return null;
+  if (current === null) {
+    return (
+      <div data-repeat-check="loading">
+        <p className="v69-chart-note" role="status">
+          {REPEAT_CHECK_LOADING}
+        </p>
+      </div>
+    );
+  }
+  if (current.status !== "loaded") {
+    return (
+      <div data-repeat-check="unavailable">
+        <p className="v69-chart-note">{REPEAT_CHECK_UNAVAILABLE}</p>
+      </div>
+    );
+  }
   const warning = repeatWarningFor(current.value.warnings ?? [], caseId);
-  if (warning === null || warning.count === null || !warning.subject_label) return null;
+  if (warning === null || warning.count === null || !warning.subject_label) return <div data-repeat-check="none" />;
   return (
-    <Notice tone="amber" data={{ "data-work-request-repeat-notice": "" }}>
-      <p>{repeatVisitNotice(warning.count, warning.subject_label, warning.fault_name)}</p>
-    </Notice>
+    <div data-repeat-check="found">
+      <Notice tone="amber" data={{ "data-work-request-repeat-notice": "" }}>
+        <p>{repeatVisitNotice(warning.count, warning.subject_label, warning.fault_name)}</p>
+      </Notice>
+    </div>
   );
 }
 

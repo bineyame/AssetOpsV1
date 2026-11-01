@@ -403,7 +403,7 @@ describe("W3-02 estate Financials root", () => {
       expect(note(REGISTER_PANEL, "partial")).toBe(STILL_ASSESSED);
       expect(note(REGISTER_PANEL, "prior-mini-grid")).toBe(PRIOR_MINI_GRID_UNAVAILABLE);
       const unknown = panelTitled(AGGREGATION_PANEL).querySelector("[data-estate-group-state='UNKNOWN_COVERAGE']");
-      expect(unknown?.textContent).toBe("Coverage incomplete");
+      expect(unknown?.textContent).toBe("Some data missing");
       expect(panelTitled(AGGREGATION_PANEL).textContent).toContain("No consequence lines in this category; some Sites have no complete selection");
       expect(main().textContent).not.toMatch(/no prior|no mini-grid consequence/i);
       view.unmount();

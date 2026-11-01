@@ -273,6 +273,7 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
           ? `Historical as of ${globalWorkUtcSeconds(body.selected.known_at)}`
           : `Updated ${globalWorkUtc(body.selected.known_at)}`}
         <span aria-hidden="true"> · </span>
+        {/* POLISH Addendum 13 L1: the request pages show no due dates, so they use the plain note. */}
         <TimeZoneNote />
       </p>
     );

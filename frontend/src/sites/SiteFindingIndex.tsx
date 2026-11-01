@@ -62,6 +62,7 @@ import type { Lifecycle } from "./findingClient";
 import "./w1ux02-findings-index.css";
 import { UnavailableChip } from "../ui/UnavailableEntry";
 import { CategoryTags } from "./outcomeCategories";
+import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 /**
  * W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's lens chips and the real window control, at the top
@@ -191,7 +192,7 @@ const NOT_A_ZERO =
   "No Findings are listed and no count is given. This is not a statement that the window has no Findings.";
 
 /** IDX-GAPS: the PARTIAL list's gap sentences (a Finding reaching into a day not checked yet is left out). */
-export const PARTIAL_WITHHELD = "A Finding that reaches into one of those days is not shown until that day is checked.";
+export const PARTIAL_WITHHELD = "A Finding that reaches into one of the unchecked days is not shown until that day is checked.";
 export const OVERVIEW_PARTIAL = "A Finding that reaches into a neighbouring day not checked yet is not shown.";
 
 /** IDX-GAPS: "{g} of {N} days in this window are not checked yet, …"; null when no requested day is a gap. */
@@ -249,7 +250,7 @@ const REFUSAL_WORDS: Record<RefusalKind, Omit<ProductWords, "code" | "unrecognis
   },
   invalid: {
     label: "This window is not valid",
-    sentence: "Windows are whole UTC days, at most 31 days long. Nothing is concluded about this request.",
+    sentence: "Windows are whole days, at most 31 days long. Nothing is concluded about this request.",
     next: "Choose a window of whole days.",
     tone: "neutral",
   },
@@ -346,16 +347,17 @@ function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (sc
       aria-label="Findings window"
     >
       <label className="v69-chip-field">
-        {"From (UTC day)"}
+        {"From"}
         <input type="date" value={first} onChange={(event) => setFirst(event.target.value)} />
       </label>
       <label className="v69-chip-field">
-        {"To (UTC day, included)"}
+        {"To (included)"}
         <input type="date" value={last} onChange={(event) => setLast(event.target.value)} />
       </label>
       <button className="button" type="submit">
         Show Findings
       </button>
+      <TimeZoneNote />
     </form>
   );
 }
@@ -386,7 +388,7 @@ export function Basis({ body }: { body: FindingIndexBody }) {
         <caption id="finding-index-watermarks-heading">Per-day assessment basis</caption>
         <thead>
           <tr>
-            <th scope="col">Day (UTC)</th>
+            <th scope="col">Day</th>
             <th scope="col">State</th>
             <th scope="col">Assessment selection</th>
             <th scope="col">Assessment record</th>
@@ -947,7 +949,7 @@ function Refused({ result, scope, links }: { result: FindingIndexResult; scope: 
               <p>No Findings are listed and no count is given.</p>
             </>
           }
-          todo={<p>Choose whole UTC days, at most 31 days long, above.</p>}
+          todo={<p>Choose whole days, at most 31 days long, above.</p>}
           references={[
             { label: "Recorded reason", value: result.code ?? null },
             { label: "Field named", value: result.field ?? null },

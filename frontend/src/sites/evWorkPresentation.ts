@@ -104,7 +104,8 @@ export const EV_ACTION_HEADINGS = { loading: "Loading Action…", notFound: "Act
 
 /** R348: the one title of an unreadable selected window (W2-EV ruling 5). */
 export const EV_ACTION_WINDOW_TITLE = "Window cannot be read";
-export const EV_WINDOW_NOT_UTC_TEXT = "The selected window start and end must be UTC times.";
+// POLISH §3 Times: no visible "UTC"; the wire needs UTC instants, so a time carrying a local offset is refused.
+export const EV_WINDOW_NOT_UTC_TEXT = "The selected window start and end must be times without a local offset.";
 export const EV_ACTION_WITHOUT_WINDOW = "Open this Action without a window";
 
 /**

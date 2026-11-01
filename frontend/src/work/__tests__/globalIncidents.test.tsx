@@ -242,7 +242,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(text(full.querySelector("summary"))).toBe("Full title text");
     expect(text(full)).toBe(`Full title text${TITLE200}`);
     const source = cell(first, 0).querySelector("[data-global-work-source]") as HTMLDetailsElement;
-    expect(text(source.querySelector("summary"))).toBe("Source unverified");
+    expect(text(source.querySelector("summary"))).toBe("Source not checked");
     expect(text(source)).toContain("The origin of this authored work record is not established. No work outcome is verified.");
     expect(within(cell(first, 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
     expect(text(cell(first, 2))).toBe("19 Oct 2026, 09:00");

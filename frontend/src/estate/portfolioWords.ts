@@ -80,11 +80,11 @@ export const CARD_LABEL: Readonly<Record<EstateValueCardKey, string>> = {
 /** Closure 1: display strings the API leaves null for the unsupported/unknown card states. */
 export const CARD_VALUE: Readonly<Record<string, string>> = {
   UNPRICED: "Unpriced",
-  WITHHELD: "Not comparable for this selection",
+  WITHHELD: "Can't be compared across these sites yet",
   NO_LINE: "No supported value",
   UNKNOWN: "Not assessed",
-  UNSUPPORTED: "Not established",
-  NOT_ESTABLISHED: "Not established",
+  UNSUPPORTED: "Not known yet",
+  NOT_ESTABLISHED: "Not known yet",
 };
 
 
@@ -119,7 +119,7 @@ export function domainSummary(body: EstatePortfolioBody): string {
 }
 
 export const PULSE_NOTE = "Distinct consequence categories · no combined savings total";
-export const OPPORTUNITY_NOTE = "A scenario needs reviewed physical headroom, demand and an authored economic assumption.";
+export const OPPORTUNITY_NOTE = "A what-if needs reviewed physical headroom, demand and an agreed cost assumption.";
 export const OUTCOME_NOTE = "Observed change → comparable evidence → verified outcome → eligible financial value";
 export const NO_SNAPSHOT_NOTICE =
   "No previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.";
@@ -130,7 +130,7 @@ export const NO_ENERGY_TOTAL = "Cross-Site energy and tariff totals are not esta
 export const ENERGY_UNAVAILABLE = "Energy basis unavailable";
 export const EV_COVERAGE_WARNING = "Other Sites may lack comparable full-window coverage.";
 export const CATEGORIES_SEPARATE = "Categories and windows remain separate.";
-export const CURRENT_SITE_VIEW = "Opens current Site view";
+export const CURRENT_SITE_VIEW = "Current view";
 export const SCOPE_RULE =
   "Each Site keeps its own selected assessment and evidence limits. Portfolio does not create a combined site health score.";
 export const VALUE_OWNERSHIP =
