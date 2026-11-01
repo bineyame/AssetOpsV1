@@ -61,3 +61,117 @@
 - Kobo timeline caption/aria "on 2026-10-29, 00:00 to 24:00 UTC" → "on 29 Oct 2026, 00:00 to 24:00"; Kobo
   "one whole UTC day (2026-10-29)" → "one whole day (29 Oct 2026)" (PB-2 still deletes that line per §3.1).
 - Site Finding index scope "… · {days} (UTC)" → "… · {days}".
+- Missing-claim scan: one new reviewed exemption, `ui/time.ts` `TIME_NOT_AVAILABLE` "Time not available yet" (the
+  invalid-input word ruled by §5 PB-1 and Addendum 7 Q3). **Guard change for review**; see Known deviations D3.
+
+## Acceptance criteria
+
+| Criterion | Status |
+|---|---|
+| P-04 (Addendum 1 Q1): one review-mode `kobo-board-S`, R453 visible at 390 and hidden at 1440; 0 MOCK DEVIATION in client-mode `portfolio-week`/`findings-all` | Met. In review mode, 390 records `mock deviation label: MOCK DEVIATION` and `R453`; 1440 records none. Client mode: 0 MOCK DEVIATION hits on all 28 captures. |
+| P-03: no Confidence chip box crosses into the Action cell; chip `right` ≤ its `td` right on every row | Met. 1440: 5/5 chips, 0 failing (chip right 876.2 ≤ td right 892.6). 390: 5/5, 0 failing. Non-vacuous: with the old long text injected the rule keeps 5/5 inside; with the rule overridden 5/5 fail at 1440 (chip right 929 > 892.6, intersects the Action cell). |
+| Banner (D-1, R651) and "Example data" badge | Met; visible in `portfolio-week-1440.png` |
+| Rail "Simulator Lab"; navigation truthfulness stays green | Met; guard PASS; `w1-ux-07-rail-evidence.mjs` updated |
+| `time.ts`, `TimeZoneNote` (two variants; plain note on every captured page per Addendum 7 Q6), formatter delegation, `EstateDateBar` | Met |
+| Frontend UTC hits reach zero (PB-0 baseline: 13 per width) | Met: **0** "time zone suffix" hits on all 28 captures. The note's own "UTC" is recorded as one exempt hit per capture (`data-time-zone-note=utc`). |
+| `reviewLabels.test.ts` | Landed in PB-0 (Addendum 1 Q1); passes |
+| `time.test.ts`: same-day, cross-day, midnight, invalid | Met (8 tests) |
+| Register R650-R652 | Met |
+
+## Checks run (final code `dfca8d5a8`)
+
+- `npx vitest run src/ui/__tests__/time.test.ts`: 8 passed.
+- Scoped vitest over `src/estate src/shell src/ui src/work src/sites`. The first run on the source change had 196
+  failing expectations; after the test updates every listed file passes except the 3 known `w1f4VerificationStructure`.
+- `npx tsc --noEmit`: exit 0.
+- `node --test tools/checks/test_evidence_checks.mjs`: 12/12. `test_missing_claim_scan.mjs`: 26/26 (+2 PB-1 tests).
+  `test_mock_deviation_labels.mjs`: 12/12. `node --check tools/w1-ux-07-rail-evidence.mjs`: OK.
+- `tools\check-all.ps1 -Python …plan2\.venv\Scripts\python.exe` at `dfca8d5a8`: **All 12 guards passed**. The first
+  run failed 2/12 on the missing-claim scan (the "Time not available yet" literal); D3 fixed it.
+- **Full `npx vitest run` once at `dfca8d5a8`:** 315 s; **3563 passed, 5 failed**, 147 files.
+  - The 3 known `w1f4VerificationStructure` failures ("elements before panel 1 of v69 screen verification").
+  - `evEnergy` "energy_states_table_loading" ("the store read has not settled") and `evScenarios` R347 (window not
+    yet carried). Both pass in isolation (16/16), so they are load-timing flakes under the full run, not PB-1 output.
+- Test updates were made by a helper agent on test files only; I reviewed the non-string changes:
+  - `siteFoundationRevision` gets a `pageNote()` helper, because the banner is a second `role="note"`.
+  - `s5SiteWindowOverview` gets `expectLatestCheckedLine`.
+  - `simulatorLabWorkspaceEntryPoint`'s "no entry-point link" check ignores the Lab's own `aria-current="page"` link,
+    now that both read "Simulator Lab".
+  - The badge assertions expect "Example data".
+
+## Live captures (Addendum 3 setup)
+
+- Serve ran from `AssetOpsV1-demo3` on `assetops_demo3_full_test` / `var/demo3_full`, PID 18564. Vite ran from
+  `polB1/frontend` with `ASSETOPS_API_PORT=8990`, PID 25400. The serve log showed
+  `performance: Performance cutover: permitted`. There were no manual writes, `prepare` or `add-day`. Both were stopped
+  by PID (`taskkill /T`), and ports 8990 and 5490 were free afterwards.
+- **Strict run, all 14 keys × 2 widths** (before the chart-tick fix): exit 1; 678 counted hits (PB-0 baseline: 692; the 6 remaining UTC hits are the chart ticks).
+  The only PB-1 class left was 6 chart-tick "UTC" hits (cold-board-failure, cold-board-normal and ev-board-fault, at
+  both widths). These were fixed in `assessmentGraphics.tsx`.
+- **Strict re-run** of `portfolio-week`, `findings-all`, `cold-board-failure`, `cold-board-normal` and
+  `ev-board-fault` after the fix: **0 UTC hits**; 88 counted hits, all in classes owned by other slices.
+- Counts per owner, per width, over the 14 keys after the fix: the 5 re-captured keys plus the other 9 from the full
+  run. That is **333 per width, 666 overall** (PB-0 baseline: 346 and 692). Both widths are identical. The
+  classification follows PB-0's.
+
+| Owner | Hits per width | What |
+|---|---|---|
+| PB-1 (this slice) | **0** | baseline 13 UTC; 0 MOCK DEVIATION |
+| PB-2 | 258 | `-open` ids 256 (251 UUID, 2 enum, 3 raw timestamps); portfolio "scenario" 2 |
+| PB-3 | 9 | EV `REC <uuid>` 3; EV "scenario" 2; preventive "draft" 2 and "running" 1; cold-normal "running" 1 |
+| Awaiting PA-2 | 47 | padded codes 19 (+5 on `-open`); `Finding <8 hex>` 10; Portfolio row UUIDs 5; Finding-title words 6 ("candidate" 2, "candidate avoidable" 2, "running" 2 on portfolio/findings-all); "load" 2 (critical-load labels, kobo S and S+1) |
+| Awaiting PA-3 | 19 | Lab names 12; "replay" 7 |
+
+- `portfolio-week` did not settle in the re-run (both widths) or in the full run at 1440. The page holds "Loading
+  outcomes across the estate…", the outcome-matrix read from the DEMO-A backend. At 390 in the full run it settled
+  with identical hits, and the screenshot shows every PB-1 element. This is recorded, not a PB-1 output.
+- `exempt_hits`: every capture has 1 (`time zone suffix | data-time-zone-note=utc`, the note itself), except
+  `kobo-board-S-open`, which has 24 (PB-0's 23 `data-vocabulary-exempt` plus the note).
+- Review mode: run `DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=kobo-board-S`. The log says "review labels on". R453 shows at
+  390 and is absent at 1440.
+- Output: scratchpad `pb1/cap-strict`, `pb1/cap-strict2`, `pb1/cap-review`; the P-03 measurement script is `pb1/p03-check.mjs`.
+
+## UTC left for PB-3 (Addendum 7 Q1: PB-1 stopped at the 14 capture screens)
+
+Visible "UTC" remains on non-captured screens:
+- `PerformanceDispatch.tsx` (18), `SiteFinding.tsx` (10), `LedgerSiteEvidence.tsx` (10), `SiteFindingIndex.tsx`
+  (5: day-window inputs and copy), `SiteFindingEvidence.tsx` (5), `EvAvailability.tsx` (5), `SiteWorkActions.tsx` (4),
+  `siteWorkCases.tsx` (3), `findingPresentation.tsx` (3: `readablePeriod`/`readableTime`), `EvidenceClaimLimit.tsx`
+  (3), `SiteFindingHistory.tsx` (2), `MiniPerformance.tsx` (2), `ColdAssessmentViews.tsx` (2).
+- One each in `SitePerformance`, `MiniScenarios`, `ColdScenarios` (`utcDayHm`), `ColdCooling`, `coldDepthGraphics`,
+  `evDepthGraphics`, `coldWorkPresentation`, `SiteAction`, `FoundationRevisionPanel`/`FoundationBindingsPanel`
+  ("Effective from (UTC)"), and `domainActionClient` (an error message).
+- Each of those pages also needs its `TimeZoneNote`.
+- Left on purpose: `title` attributes ("exact UTC"); the Analysis column labels that state a missing Site zone
+  ("UTC; Site time zone unavailable"); the verification Dig-deeper fact "UTC, attested per day"; and the
+  Simulator Lab tooling (`GatewayPublicationPanels`, `RunSetupFrame`, `RegisteredDeliveryView`).
+
+## Known deviations
+
+- **D1.** Addendum 7 Q1 asks for every visible UTC in all files, capped at 6 units. The full set is about 30 files, so
+  PB-1 covered the 14 capture screens plus the shared formatters and lists the rest above for PB-3.
+- **D2.** "One page note" is met on every captured page. Pages that use only delegated formatters (for example Site
+  Health and Foundation) lost the per-time "UTC" but have no note yet; they are in the PB-3 list.
+- **D3. Guard change (review):** I added a fourth `REVIEWED_EXEMPTIONS` entry in `tools/checks/missing-claim-scan.mjs`
+  for `ui/time.ts` `TIME_NOT_AVAILABLE`, with a pass test and a narrowness mutation test. Moving the const to another
+  file, or inlining the text, still fails. Without the entry the live scan fails, as the first check-all showed. The
+  sheet rules the text, and it names a malformed value rather than a missing capability.
+- **D4.** Serve stdout is block-buffered when redirected, so the `performance:` line arrived late. The API answered
+  throughout.
+- **D5.** `.ai/ACTIVE_CONTEXT.md` is not updated: two lanes run in parallel and the coordinator owns routing (as in PB-0).
+
+## Residual risk
+
+- The banner adds a second `role="note"` on every operator page. Tests that query `getByRole("note")` must scope
+  their query (one test needed a helper).
+- The CURRENT Kobo state line is a local rendering (`DayStateLine`); other states still use the shared `ProductStatus`.
+- PB-2 and PB-3 rewrite the surrounding copy on the Kobo and verification pages. They should keep using `ui/time.ts`
+  for any time they touch.
+
+## User-review focus
+
+None required (USER_REVIEW_REQUIRED: false). The reviewer should check:
+- D3, the guard exemption;
+- the Q1a rows table;
+- the builder copy list;
+- `portfolio-week-1440.png` (banner, date bar, note, chips).
