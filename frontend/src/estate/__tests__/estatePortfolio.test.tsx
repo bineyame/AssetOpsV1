@@ -145,19 +145,19 @@ describe("estate Portfolio page", () => {
       "Confidence",
       "Action / next move",
     ]);
-    expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 selected Findings · coverage incomplete");
+    expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 findings · some days not checked");
     const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
     expect(text(partialObjectives)).not.toContain("Site detail is unavailable for these cells.");
     expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
-    expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
-    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support");
-    expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026, 14:20–15:20");
+    expect(cells[0]).toBe("Kobo Mini-grid Current view");
+    expect(cells[1]).toBe("Extended generator support Possible extended generator support");
+    expect(cells[2]).toBe("$3.31–$3.97 Cost basis not available yet 6 Oct 2026, 14:20–15:20");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
     expect(cells[4]).toBe("Well supported Supported Finding · Prepared example data source");
-    expect(cells[5]).toBe("No accepted Action Next move not recorded Recommendation not accepted Review Finding");
+    expect(cells[5]).toBe("No action yet Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
@@ -372,9 +372,11 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     const opportunity = panel("An opportunity beyond reducing cost");
     expect(text(opportunity)).toContain("GROW USEFUL DEMAND");
-    expect(text(opportunity)).toContain("No reviewed scenario");
+    expect(text(opportunity)).toContain("No reviewed what-if yet");
+    expect(text(opportunity)).toContain("What-if");
+    expect(text(opportunity)).not.toMatch(/scenario/i);
     expect(text(opportunity)).toContain("No eligible headroom or demand basis");
-    expect(text(opportunity)).toContain("A scenario needs reviewed physical headroom, demand and an authored economic assumption.");
+    expect(text(opportunity)).toContain("A what-if needs reviewed physical headroom, demand and an agreed cost assumption.");
     expect(opportunity.querySelector("a, button")).toBeNull();
     expect(within(opportunity).getByLabelText("Review opportunity Finding, Not available yet")).toBeTruthy();
     expect(within(opportunity).getByLabelText("Inspect physical headroom, Not available yet")).toBeTruthy();
@@ -404,15 +406,20 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     const progress = panel("What changed in this review");
     expect(text(progress)).toContain("Completed activity · Not established");
-    expect(text(progress)).toContain("Policy trial awaiting outcome · Unknown");
-    expect(text(progress)).toContain("Verified resolutions · 2");
+    expect(text(progress)).toContain("Trials waiting for a result · Unknown");
+    expect(text(progress)).toContain("Fixes confirmed · 2");
     expect(text(progress)).toContain("Recovered value not established");
     expect(text(progress)).toContain(
       "No previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.",
     );
     expect(progress.querySelectorAll("[data-portfolio-origin-unselected]")).toHaveLength(1);
-    expect(text(progress.querySelector("[data-portfolio-progress-row='act-2']"))).toContain("Origin Finding revision not selected");
-    expect(text(progress.querySelector("[data-portfolio-progress-row='act-1']"))).not.toContain("Origin Finding revision not selected");
+    expect(text(progress.querySelector("[data-portfolio-progress-row='act-2']"))).toContain("The version of the finding it came from is not the one selected");
+    expect(text(progress.querySelector("[data-portfolio-progress-row='act-1']"))).not.toContain("The version of the finding it came from");
+    // POLISH §3 ids: the raw action, event, plan and outcome ids sit only inside Technical details.
+    for (const li of Array.from(progress.querySelectorAll("[data-portfolio-progress-row]"))) {
+      expect(text(li.querySelector("[data-portfolio-progress-words]"))).not.toMatch(/act-|event|plan/);
+      expect(li.querySelector("[data-technical-details]")?.textContent).toContain("event");
+    }
     expect(text(progress)).not.toMatch(/\$|USD/);
   });
 
@@ -435,8 +442,8 @@ describe("estate Portfolio page", () => {
       expect(document.querySelectorAll("section.panel")).toHaveLength(4);
       if (status === "PENDING") expect(text(document.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-value]"))).toBe("Updating · Unpriced");
       if (status === "EMPTY_SCOPE") {
-        expect(text(document.querySelector("[data-portfolio-count]"))).toBe("0 selected Findings");
-        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/coverage incomplete/i);
+        expect(text(document.querySelector("[data-portfolio-count]"))).toBe("0 findings");
+        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/some days not checked/i);
         expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No selected Findings for this window");
         expect(text(document.querySelector("[data-portfolio-domains]"))).toBe("0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV charging");
       }
@@ -497,7 +504,8 @@ describe("estate Portfolio page", () => {
     const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const footer = () => document.querySelector("[data-portfolio-footer]") as HTMLElement;
-    expect(text(footer())).toContain("Business context: Depot delivered 120 kWh in selected records; $36.00 gross tariff scenario.");
+    expect(text(footer())).toContain("Business context: Depot delivered 120 kWh in selected records; $36.00 at the recorded tariff, before costs (a what-if).");
+    expect(footer()?.querySelector("[data-technical-details] [data-portfolio-footer-source]")).not.toBeNull();
     const basis = footer().querySelector("details") as HTMLDetailsElement;
     expect(text(basis.querySelector("summary"))).toBe("Energy basis ↗");
     fireEvent.click(basis.querySelector("summary") as HTMLElement);
@@ -537,11 +545,11 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] })))));
     await settledScreen();
     const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
-    expect(new Set(labels).size).toBe(2);
-    expect(labels).toEqual([
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support",
-      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Possible extended generator support",
-    ]);
+    // POLISH §3.1: the mechanism words only; the Finding ids stay on the row attribute, never in the text.
+    expect(labels).toEqual(["Possible extended generator support", "Possible extended generator support"]);
+    const visible = document.querySelector("[data-portfolio-panel='priority']")!.cloneNode(true) as HTMLElement;
+    visible.querySelectorAll("[data-technical-details]").forEach((e) => e.remove());
+    expect(visible.textContent).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-|Finding KOBO-001/);
     expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     expectV69Panels("portfolio");
     expectPlantedPanelRejected("portfolio");
@@ -691,7 +699,9 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
       "Kobo · No price is recorded",
       "Cold-chain line · Excluded from comparison",
     ]);
-    expect(items[1].querySelector("details summary")?.textContent).toBe("Record details");
+    expect(items[1].querySelector("details summary")?.textContent).toBe("Technical details");
+    expect(items[1].querySelector("details")?.hasAttribute("data-technical-details")).toBe(true);
+    expect(ids.hasAttribute("data-technical-details")).toBe(true);
     expect(items[1].querySelector("details")?.textContent).toContain("cold_chain:c9 · no group · SOMETHING_NEW");
     // CSS: 160px inner scroll for the IDs; the drawer keeps 320px.
     const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
@@ -907,7 +917,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-basis]"))).toBe("Measured events, counted separately · loss not priced");
     expect(card("PROTECT_ASSET").className).toContain("red");
     // Assure: the fixture has 1 evidence gap among 4 Sites; no outcome summary is read, so no target claim (OUT-D).
-    expect(value("ASSURE_PERFORMANCE")).toBe("Not established");
+    expect(value("ASSURE_PERFORMANCE")).toBe("Not known yet");
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
       "No verified result yet · evidence gap at 1 site",
     );
@@ -1128,7 +1138,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     );
     expect(kobo?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
     expect(text(kobo?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Days not checked yet: 11 Oct, 12 Oct");
-    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Partly checked · Value withheld");
+    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Partly checked · value shown once every day is checked");
     // no state code on screen, in a title or in an aria-label
     const page = document.body.textContent ?? "";
     expect(page).not.toMatch(/PARTIAL|UNASSESSED|NO_ASSESSED_SELECTION|estate-coverage/);

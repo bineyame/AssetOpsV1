@@ -632,8 +632,11 @@ describe("W3-02 estate Evidence root", () => {
     expect(rows.every((r) => r !== undefined)).toBe(true);
     const text = (i: number) => (within(rows[i]).getAllByRole("cell")[1].querySelector("details") as HTMLElement).textContent ?? "";
     const labels = (i: number) => Array.from((within(rows[i]).getAllByRole("cell")[1].querySelector("details") as HTMLElement).querySelectorAll("dt")).map((e) => e.textContent);
-    expect(labels(0)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references", "Selected observations", "Reasons", "Earlier selection"]);
+    expect(labels(0)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected observations", "Reasons", "Earlier selection", "Selected record references", "Evidence record references"]);
     expect(labels(1)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references"]);
+    // POLISH §3 ids: the record references sit in the nested Technical details only.
+    const technical = (within(rows[0]).getAllByRole("cell")[1].querySelector("[data-technical-details]") as HTMLElement).textContent ?? "";
+    expect(technical).toContain("Selected record references");
     expect(text(0)).toContain("Power transfer position — Limited. No record of power transferring to the generator. Missing: Transfer position.");
     expect(text(0)).toContain("Transfer position missing.");
     expect(text(0)).toContain("Reason details are not available");

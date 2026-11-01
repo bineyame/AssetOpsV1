@@ -10,6 +10,7 @@
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, Notice, PageHeader, Panel, StatusBar } from "../ui";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
 import type { EstateEnvelope } from "./estateClient";
 import {
   createEstateFinancialsClient,
@@ -115,20 +116,6 @@ function BasisDetails({ row }: { row: FinancialRow }) {
         <dd>{row.site_name.trim() !== "" ? `${row.site_name} · ${row.site_code}` : row.site_code}</dd>
         <dt>Limits</dt>
         <dd data-estate-limits>{row.limit ?? LIMIT_NOT_RECORDED}</dd>
-        <dt>Assumption references</dt>
-        <dd>{ids(row.assumption_revision_ids)}</dd>
-        <dt>Assumption fingerprint</dt>
-        <dd>{row.assumption_fingerprint ?? "Not comparable"}</dd>
-        <dt>Consequence reference</dt>
-        <dd>{row.consequence_revision_id}</dd>
-        <dt>Line reference</dt>
-        <dd>{row.line_key}</dd>
-        <dt>Technical inputs</dt>
-        <dd>{ids(row.technical_interval_ids)}</dd>
-        <dt>Evidence references</dt>
-        <dd>{ids(row.basis_evidence_ids)}</dd>
-        <dt>Overlap group</dt>
-        <dd>{row.overlap_group ?? "None recorded"}</dd>
         {row.reason_codes.length > 0 ? (
           <>
             <dt>Reasons</dt>
@@ -142,6 +129,24 @@ function BasisDetails({ row }: { row: FinancialRow }) {
           </>
         ) : null}
       </dl>
+      <TechnicalDetails name="estate-financials-row-technical">
+        <dl className="estate-evidence-facts">
+          <dt>Assumption references</dt>
+          <dd>{ids(row.assumption_revision_ids)}</dd>
+          <dt>Assumption fingerprint</dt>
+          <dd>{row.assumption_fingerprint ?? "Not comparable"}</dd>
+          <dt>Consequence reference</dt>
+          <dd>{row.consequence_revision_id}</dd>
+          <dt>Line reference</dt>
+          <dd>{row.line_key}</dd>
+          <dt>Technical inputs</dt>
+          <dd>{ids(row.technical_interval_ids)}</dd>
+          <dt>Evidence references</dt>
+          <dd>{ids(row.basis_evidence_ids)}</dd>
+          <dt>Overlap group</dt>
+          <dd>{row.overlap_group ?? "None recorded"}</dd>
+        </dl>
+      </TechnicalDetails>
     </Disclosure>
   );
 }
@@ -298,7 +303,7 @@ function GroupResult({ group, body }: { group: FinancialGroup; body: EstateFinan
               const row = byKey.get(e.line_key);
               return (
                 <li key={e.line_key} data-estate-exclusion={e.line_key}>
-                  {row === undefined ? e.line_key : `${siteLabel(row)} · ${categoryLabel(row.category)}`}
+                  {row === undefined ? "Consequence line" : `${siteLabel(row)} · ${categoryLabel(row.category)}`}
                   {": "}
                   {reasonText(e.reason_codes)}
                 </li>

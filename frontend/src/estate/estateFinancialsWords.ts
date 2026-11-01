@@ -40,7 +40,7 @@ export const GROUP_STATE_WORDS: Readonly<Record<FinancialGroupState, { text: str
   SINGLE_LINE: { text: "Single line", tone: "amber" },
   INELIGIBLE: { text: "Not totalled", tone: "gray" },
   OVERLAPPING_BASIS: { text: "Overlapping basis", tone: "red" },
-  UNKNOWN_COVERAGE: { text: "Coverage incomplete", tone: "gray" },
+  UNKNOWN_COVERAGE: { text: "Some data missing", tone: "gray" },
   NO_LINES: { text: "No lines", tone: "gray" },
 };
 

@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";
 import { CategoryTags } from "../sites/outcomeCategories";
 import { EarlyWarningList } from "../sites/EarlyWarnings";
@@ -81,17 +82,17 @@ const LENS_EMPTY: Readonly<Record<EstateLens, string | null>> = {
 };
 
 const SUBTITLE: Readonly<Record<EstateLens, string>> = {
-  all: "Evidence-backed operating conclusions · one global object model",
-  cost: "Evidence-backed operating conclusions · one object model",
-  risks: "Evidence-backed operating conclusions · one object model",
-  opportunities: "Evidence-backed operating conclusions · one object model",
+  all: "Evidence-backed operating conclusions",
+  cost: "Evidence-backed operating conclusions",
+  risks: "Evidence-backed operating conclusions",
+  opportunities: "Evidence-backed operating conclusions",
 };
 
 const LIFECYCLE_WORDS: Readonly<Record<EstateLifecycle, { text: string; tone: string; filter: EstateStateFilter }>> = {
-  SUPPORTED: { text: "Supported", tone: "blue", filter: "supported" },
-  UNCONFIRMED: { text: "Unconfirmed", tone: "amber", filter: "unconfirmed" },
-  NO_LONGER_SUPPORTED: { text: "No longer supported", tone: "neutral", filter: "no_longer_supported" },
-  MERGED: { text: "Merged", tone: "neutral", filter: "merged" },
+  SUPPORTED: { text: "Confirmed", tone: "blue", filter: "supported" },
+  UNCONFIRMED: { text: "Not yet confirmed", tone: "amber", filter: "unconfirmed" },
+  NO_LONGER_SUPPORTED: { text: "No longer applies", tone: "neutral", filter: "no_longer_supported" },
+  MERGED: { text: "Combined with another", tone: "neutral", filter: "merged" },
 };
 
 const LENS_FLAG_WORDS: Readonly<Record<string, string>> = { COST: "Cost", RISK: "Risk", OPPORTUNITY: "Opportunity" };
@@ -108,7 +109,7 @@ export const FINDINGS_UNLINKED_NOTICE =
 /**
  * The Main consequence cell (Run 6 Blocker 2, Run 8 rulings 3-4): a PRICED row shows its stored interval, never a
  * sum or point estimate; a withheld amount on a historical basis says `Historical as of {known_at}`; another
- * withheld amount says `Source unverified`; a stored unpriced row says `Unpriced`; no row says `No consequence
+ * withheld amount says `Source not checked`; a stored unpriced row says `Unpriced`; no row says `No consequence
  * recorded`.
  */
 export function consequenceWords(consequence: EstateConsequence, rowStatus: string, knownAt: string): string {
@@ -117,16 +118,16 @@ export function consequenceWords(consequence: EstateConsequence, rowStatus: stri
   }
   // COV-PARTIAL MOCK DEVIATION R622: a partly checked Site's row never shows an amount (the backend sends none).
   if (rowStatus === "PARTIAL") {
-    return `Partly checked · ${consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "Value withheld"}`;
+    return `Partly checked · ${consequence.source_revision_id === null ? "No consequence recorded" : consequence.state === "UNPRICED" ? "Unpriced" : "value shown once every day is checked"}`;
   }
   if (consequence.source_revision_id === null) return "No consequence recorded";
   if (consequence.state === "UNPRICED") return "Unpriced";
   if (rowStatus === "HISTORICAL") return `Historical as of ${utcInstant(knownAt)}`;
-  return "Source unverified";
+  return "Source not checked";
 }
 
 function count(value: number | null): string {
-  return value === null ? "Coverage incomplete" : String(value);
+  return value === null ? "Some data missing" : String(value);
 }
 
 function Cards({ body }: { body: EstateFindingsBody }) {
@@ -322,11 +323,11 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
           </>
         )}
         <CategoryTags categories={row.categories} />
-        <Disclosure summary={row.finding_label} name={`estate-finding-${row.finding_id}`} variant="inline">
+        <TechnicalDetails name={`estate-finding-${row.finding_id}`}>
           <span className="estate-cell__detail">
             Finding {row.finding_id} · revision {row.finding_revision_id} · {source.label}
           </span>
-        </Disclosure>
+        </TechnicalDetails>
       </td>
       <td>
         <Link to={row.links.site} data-estate-site-link>
@@ -344,7 +345,7 @@ function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string;
       </td>
       <td data-estate-consequence={row.consequence.state}>{consequenceWords(row.consequence, row.status, knownAt)}</td>
       <td>
-        {row.lens_flags.length === 0 ? "No supported lens" : row.lens_flags.map((flag) => LENS_FLAG_WORDS[flag]).join(", ")}
+        {row.lens_flags.length === 0 ? "Not in any category" : row.lens_flags.map((flag) => LENS_FLAG_WORDS[flag]).join(", ")}
       </td>
     </tr>
   );

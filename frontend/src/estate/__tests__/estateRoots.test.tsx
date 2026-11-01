@@ -119,7 +119,7 @@ describe("W3-01 estate roots", () => {
       ]);
       const chips = within(screen.getByRole("list", { name: "Workflow state" })).getAllByRole("link");
       // Run 13 ruling 2: five stable chips in fixed order, whatever rows are on the page.
-      expect(chips.map((c) => c.textContent)).toEqual(["All states", "Supported", "Unconfirmed", "No longer supported", "Merged"]);
+      expect(chips.map((c) => c.textContent)).toEqual(["All states", "Confirmed", "Not yet confirmed", "No longer applies", "Combined with another"]);
       expect(chips.map((c) => c.getAttribute("aria-current"))).toEqual([null, "true", null, null, null]);
       for (const chip of chips) expect(chip.getAttribute("href")).not.toContain("cursor=");
       expect(main().textContent).toContain(FINDINGS_NOTICE);
@@ -136,9 +136,14 @@ describe("W3-01 estate roots", () => {
     expect(links[0].getAttribute("href")).toBe(priced.links.finding);
     expect(screen.getAllByText("KOBO-001")[0].getAttribute("href")).toBe("/sites/KOBO-001");
     expect(main().textContent).toContain("120.00–180.00 USD");
-    expect(main().textContent).toContain("No supported lens");
+    expect(main().textContent).toContain("Not in any category");
+    // POLISH §3.1: "Finding <uuid> · revision <uuid>" sits only inside Technical details.
+    const outside = main().cloneNode(true) as HTMLElement;
+    expect(outside.querySelectorAll("[data-technical-details]").length).toBeGreaterThan(0);
+    outside.querySelectorAll("[data-technical-details]").forEach((e) => e.remove());
+    expect(outside.textContent).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     expect(screen.getByText("First page").getAttribute("href")).not.toContain("cursor=");
-    fireEvent.click(screen.getByRole("link", { name: "Supported" }));
+    fireEvent.click(screen.getByRole("link", { name: "Confirmed" }));
     await settledScreen();
     expect(location()).toBe(`/findings?from=${FROM}&to=${TO}&state=supported`);
     // Actions root: panel, exact Action and pinned source links, and a Site link per domain row (L1, L4).
@@ -163,7 +168,7 @@ describe("W3-01 estate roots", () => {
     expect(actionRows).toHaveLength(3);
     const first = actionRows[0];
     expect(within(first).getByText("Action ACT-000001").getAttribute("href")).toBe(actionRow().links.action);
-    expect(within(first).getByText("Finding 10000000").getAttribute("href")).toBe(actionRow().links.source);
+    expect(within(first).getByText("Source finding").getAttribute("href")).toBe(actionRow().links.source);
     for (const [row, name, code] of [
       [actionRows[0], "Kobo Mini-grid", "KOBO-001"],
       [actionRows[1], "Cold Store", "COLD 7/a"],
@@ -277,10 +282,10 @@ describe("W3-01 estate roots", () => {
       "MERGED",
     ]);
     expect(rows.slice(0, 4).map((r) => lifecycle(r)?.textContent)).toEqual([
-      "Supported",
-      "Unconfirmed",
-      "No longer supported",
-      "Merged",
+      "Confirmed",
+      "Not yet confirmed",
+      "No longer applies",
+      "Combined with another",
     ]);
     expect(main().querySelector("[data-estate-limitation]")?.textContent).toContain(
       "Some sites' results may miss newer readings.",
@@ -291,7 +296,7 @@ describe("W3-01 estate roots", () => {
     view = renderAt(`/findings?${WINDOW}&state=merged`, fakeClient(() => loaded(findingsBody("all", { rows: [] }))));
     await settledScreen();
     const stable = within(screen.getByRole("list", { name: "Workflow state" })).getAllByRole("link");
-    expect(stable.map((c) => c.textContent)).toEqual(["All states", "Supported", "Unconfirmed", "No longer supported", "Merged"]);
+    expect(stable.map((c) => c.textContent)).toEqual(["All states", "Confirmed", "Not yet confirmed", "No longer applies", "Combined with another"]);
     expect(main().querySelector("[data-estate-empty]")?.textContent).toContain("No findings match.");
     view.unmount();
 
@@ -338,7 +343,7 @@ describe("W3-01 estate roots", () => {
         (c) => c.querySelector(".v69-metric__label")?.textContent === label,
       ) as HTMLElement;
     for (const label of ["Open actions", "Due / overdue", "Verification window", "Verified in 30 days"]) {
-      expect(card(label).querySelector(".v69-metric__value")?.textContent).toBe("Coverage incomplete");
+      expect(card(label).querySelector(".v69-metric__value")?.textContent).toBe("Some data missing");
     }
     expect(main().textContent).not.toContain("No verified outcome in the last 30 days");
     view.unmount();
@@ -404,23 +409,23 @@ describe("W3-01 estate roots", () => {
     expectV69Panels("findings");
     const cards = within(screen.getByRole("list", { name: "Findings summary" })).getAllByRole("listitem");
     expect(cards.map((c) => c.querySelector(".v69-metric__value")?.textContent)).toEqual([
-      "Coverage incomplete",
+      "Some data missing",
       "Not assessed",
       "Not assessed",
-      "Coverage incomplete",
+      "Some data missing",
     ]);
     const text = main().textContent ?? "";
     for (const words of [
       "No consequence recorded",
       "Unpriced",
-      "Source unverified",
+      "Source not checked",
       "Some sites have no selected result; totals are unknown.",
       "New evidence is being assessed.",
       "Some sites are not yet assessed; estate totals are unknown.",
     ]) {
       expect(text).toContain(words);
     }
-    expect(screen.getByRole("link", { name: "Unconfirmed" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Not yet confirmed" })).toBeTruthy();
     expect(text).not.toContain("No findings match.");
     const notices = Array.from(main().querySelectorAll(".notice"));
     expect(notices.map((n) => n.hasAttribute("data-estate-limitation"))).toEqual([true, false]);
@@ -495,7 +500,7 @@ describe("W3-01 estate roots", () => {
     }
     expect(screen.getAllByText("Not set").length).toBeGreaterThanOrEqual(3);
     expect(screen.getAllByText("Action ACT-000001")[0].getAttribute("href")).toBe(actionRow().links.action);
-    expect(screen.getAllByText("Finding 10000000")[0].getAttribute("href")).toBe(actionRow().links.source);
+    expect(screen.getAllByText("Source finding")[0].getAttribute("href")).toBe(actionRow().links.source);
     view.unmount();
 
     // Refusals through the real client: exact UI copy; a 409/422 cursor refusal offers page one.
@@ -729,7 +734,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       ]);
       const tr = main().querySelector("tbody tr") as HTMLElement;
       expect(tr.querySelector("[data-estate-site-state='PARTIAL']")?.textContent).toBe("Some days not checked yet");
-      expect(tr.querySelector("[data-estate-consequence]")?.textContent).toBe("Partly checked · Value withheld");
+      expect(tr.querySelector("[data-estate-consequence]")?.textContent).toBe("Partly checked · value shown once every day is checked");
       expect(main().textContent).not.toMatch(/PARTIAL|UNASSESSED|estate-coverage/);
       view.unmount();
     }
