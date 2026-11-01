@@ -17,6 +17,11 @@ from assetops_backend.site_outcomes.board import (
 GROW, COST, PROTECT, ASSURE = CATEGORIES
 
 
+def legacy(items):
+    """The pre-Addendum-12 item fields: case/plan items also carry `kind`/`occurred_at` (pinned in test_out_b1_board)."""
+    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at")} for i in items]
+
+
 def t(day: int) -> datetime:
     return datetime(2026, 10, day, 12, tzinfo=timezone.utc)
 
@@ -214,9 +219,9 @@ def test_cold_protect_lists_domain_action_in_hand_and_completed_request_not_yet_
     p = rows_by_cat(cold())[PROTECT]
     assert p["must_not_harm"] is None  # domain Actions carry no verification
     assert [i["text"] for i in p["issues"]] == ["Backup did not start", "Chamber above limit"]
-    assert p["in_hand"] == [{"text": "DA-001 · Witnessed automatic-start test", "href": "/sites/C/actions/da1",
+    assert legacy(p["in_hand"]) == [{"text": "DA-001 · Witnessed automatic-start test", "href": "/sites/C/actions/da1",
                              "state_label": "Open"}]
-    assert p["earlier"] == [{"text": "MR1 · Inspect mr1", "href": "/maintenance/requests/mr1",
+    assert legacy(p["earlier"]) == [{"text": "MR1 · Inspect mr1", "href": "/maintenance/requests/mr1",
                              "result_label": "Not yet verified", "detail": None}]
 
 
@@ -225,7 +230,7 @@ def test_later_request_on_same_asset_marks_earlier_did_not_fix_it() -> None:
     p = rows_by_cat(cold(cases=(request("mr1", "COMPLETED", 5), later)))[PROTECT]
     assert [e["result_label"] for e in p["earlier"]] == ["Did not fix it"]
     assert {"text": "MR2 · Inspect mr2", "href": "/maintenance/requests/mr2",
-            "state_label": "Open · not linked to a finding"} in p["in_hand"]
+            "state_label": "Open · not linked to a finding"} in legacy(p["in_hand"])
     # an earlier request on the same asset does not change the result
     p2 = rows_by_cat(cold(cases=(request("mr1", "COMPLETED", 5), request("mr0", "COMPLETED", 2))))[PROTECT]
     assert [(e["text"], e["result_label"]) for e in p2["earlier"]] == [
@@ -241,7 +246,22 @@ def test_incidents_and_closed_cases() -> None:
     p = rows_by_cat(cold(cases=(inc, inc_open)))[PROTECT]
     assert p["earlier"] == [] and p["earlier_empty_text"] == EARLIER_EMPTY_OPEN
     assert p["in_hand"][-1] == {"text": "INC-002 · Power cut", "href": "/sites/C/work/incidents",
-                                "state_label": "In progress · not linked to a finding"}
+                                "state_label": "In progress · not linked to a finding",
+                                "kind": "INCIDENT", "occurred_at": "2026-10-03T12:00:00Z"}  # POLISH Addendum 12 Q1
+
+
+def test_case_items_carry_their_stored_kind_and_occurred_at() -> None:
+    """POLISH Addendum 12 Q1: in-hand and earlier case items carry the stored `kind` and ISO `occurred_at`; plan items
+    carry kind PLAN; the existing fields are unchanged."""
+    p = rows_by_cat(cold(cases=(request("mr1", "COMPLETED", 5), request("mr3", "OPEN", 8))))[PROTECT]
+    earlier = next(i for i in p["earlier"] if i["href"] == "/maintenance/requests/mr1")
+    assert (earlier["kind"], earlier["occurred_at"]) == ("MAINTENANCE_REQUEST", "2026-10-05T12:00:00Z")
+    assert set(earlier) == {"text", "href", "result_label", "detail", "kind", "occurred_at"}
+    open_item = next(i for i in p["in_hand"] if i["href"] == "/maintenance/requests/mr3")
+    assert (open_item["kind"], open_item["occurred_at"]) == ("MAINTENANCE_REQUEST", "2026-10-08T12:00:00Z")
+    plan = PlanFact("p1", "PM-001", "Generator service", "RUN_HOURS", None, 500, "DRAFT", "gen", "/maintenance/preventive")
+    item = rows_by_cat(cold(plans=(plan,), actions=(), cases=()))[PROTECT]["in_hand"][0]
+    assert item["kind"] == "PLAN" and "occurred_at" not in item
 
 
 def test_plans_in_hand_on_protect_only() -> None:
@@ -329,7 +349,7 @@ def test_unresolved_linked_finding_is_kept_under_protect_with_suffix() -> None:
     facts = cold(cases=(orphan_case,))
     rows = rows_by_cat(facts)
     assert {"text": "MR9 · Inspect mr9", "href": "/maintenance/requests/mr9",
-            "state_label": "Open · linked finding outside this view"} in rows[PROTECT]["in_hand"]
+            "state_label": "Open · linked finding outside this view"} in legacy(rows[PROTECT]["in_hand"])
     assert board_module.unresolved_links(facts) == (("mr9", "missing"),)
     done = request("mr8", "COMPLETED", 2, findings=("missing",))
     rows = rows_by_cat(cold(cases=(done,)))

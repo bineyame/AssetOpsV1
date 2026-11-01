@@ -257,7 +257,20 @@ def test_work_asset_code_and_type(store) -> None:  # noqa: F811
             W401_FIXTURE_SERVICE_PRINCIPAL_ID)
     finally:
         w.close()
-    assert detail(info, made["id"])["work_asset"] == {"code": asset_code, "type": asset_type}
+    # POLISH Addendum 12 Q3: plus the plain label by the PA-2b rule (type word; code only when the type repeats).
+    from assetops_backend.outcomes.asset_words import asset_label as plain_asset_label
+
+    engine_ = create_engine(URL)
+    try:
+        with engine_.connect() as c:
+            same, site_type = c.execute(text(
+                "SELECT (SELECT count(*) FROM asset WHERE site_id = :s AND asset_type = :t AND retired_at IS NULL), "
+                "(SELECT site_type FROM site WHERE id = :s)"), {"s": site, "t": asset_type}).one()
+    finally:
+        engine_.dispose()
+    label = plain_asset_label(asset_code, asset_type, site_type, same)
+    assert label and label != asset_code
+    assert detail(info, made["id"])["work_asset"] == {"code": asset_code, "type": asset_type, "asset_label": label}
     assert detail(info, info["requests"][0])["work_asset"] is None
 
 

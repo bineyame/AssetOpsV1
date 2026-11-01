@@ -25,7 +25,8 @@ from assetops_backend.work.model import WorkStoreUnavailable
 
 # A1Q Q5: verbatim estate predicate and order; no `known_at` predicate (W3 parity); inactive imported Sites included.
 _IMPORTED_SITES = (
-    "SELECT s.id, s.site_code, s.name, s.site_type, s.site_code_key FROM site s WHERE s.tenant_id = :t AND EXISTS ("
+    "SELECT s.id, s.site_code, s.name, s.site_type, s.site_code_key, s.timezone FROM site s WHERE s.tenant_id = :t "
+    "AND EXISTS ("
     "SELECT 1 FROM site_import i WHERE i.tenant_id = s.tenant_id AND i.site_id = s.id AND i.imported_at < :to) "
     "ORDER BY s.site_code_key, s.id")
 # A1Q Q7: scoped request codes whose stored `incident_id` is this case, at the cutoff, with no window filter.
@@ -81,7 +82,10 @@ _OPERATIONAL = (
 # Post-W6 W6 Q2/Q3 (R352/R353): the selected Site's stored `site_type`, for the detail domain and Site home.
 _SITE_TYPE = "SELECT site_type FROM site WHERE tenant_id = :t AND id = :s"
 # W6-01c C1: the scoped Asset code/type of a case's stored `asset_id` (the W4 `_ELIGIBLE` label inputs).
-_ASSET = "SELECT asset_code, asset_type FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a"
+# POLISH Addendum 12 Q3: with the same-type count of non-retired assets at the Site (the PA-2b label rule).
+_ASSET = ("SELECT a.asset_code, a.asset_type, (SELECT count(*) FROM asset b WHERE b.tenant_id = a.tenant_id "
+          "AND b.site_id = a.site_id AND b.asset_type = a.asset_type AND b.retired_at IS NULL) "
+          "FROM asset a WHERE a.tenant_id = :t AND a.site_id = :s AND a.id = :a")
 
 
 class GlobalReadTx:
@@ -95,8 +99,8 @@ class GlobalReadTx:
 
     def imported_sites(self, tenant_id: UUID, to: datetime) -> list[dict[str, Any]]:
         rows = self._c.execute(text(_IMPORTED_SITES), {"t": tenant_id, "to": to}).all()
-        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3], "site_code_key": r[4]}
-                for r in rows]
+        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3], "site_code_key": r[4],
+                 "site_time_zone": r[5]} for r in rows]
 
     def site(self, tenant_id: UUID, site_id: UUID, site_code: str) -> _ReadTx:
         return _ReadTx(self._c, tenant_id, site_id, site_code, self.read_at, self._link_rows, self._ports)
@@ -138,7 +142,7 @@ class GlobalReadTx:
 
     def asset(self, tenant_id: UUID, site_id: UUID, asset_id: str) -> dict[str, Any] | None:
         row = self._c.execute(text(_ASSET), {"t": tenant_id, "s": site_id, "a": asset_id}).first()
-        return None if row is None else {"code": row[0], "type": row[1]}
+        return None if row is None else {"code": row[0], "type": row[1], "type_count": row[2]}
 
 
 class PostgresGlobalWorkRead:

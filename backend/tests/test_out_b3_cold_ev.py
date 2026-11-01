@@ -16,6 +16,11 @@ HI = LO + timedelta(days=1)
 ZONE = "Africa/Nairobi"  # UTC+3
 
 
+def legacy(items):
+    """The pre-Addendum-12 item fields: case/plan items also carry `kind`/`occurred_at` (pinned in test_out_b1_board)."""
+    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at")} for i in items]
+
+
 def T(hour: int, minute: int = 0, day: int = 20) -> str:
     return datetime(2026, 10, day, hour, minute, tzinfo=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -277,7 +282,7 @@ def test_closed_linked_finding_resolved_through_single_read() -> None:
     assert [args[0] for name, args in fake.calls if name == "ev_finding"] == ["f120"]  # only the missing link
     assert {f.finding_id for f in comp.facts.findings} == {"f130", "f120"} and comp.diagnostics == ()
     assert {"text": "MR-009 · Replace connector latch", "href": "/maintenance/requests/mr9",
-            "result_label": "Not yet verified", "detail": None} in rows[PROTECT]["earlier"]
+            "result_label": "Not yet verified", "detail": None} in legacy(rows[PROTECT]["earlier"])
     assert "outside this view" not in str(rows)
 
 

@@ -27,6 +27,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.estate.evidence_money import site_home_href
+from assetops_backend.outcomes.asset_words import asset_label as plain_asset_label
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at, select_case_detail
@@ -35,6 +36,15 @@ from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
 
 SCHEMA_GLOBAL_DETAIL = "global-work-detail-1"
+
+
+def _work_asset(raw: dict[str, Any] | None, site_type: str | None) -> dict[str, Any] | None:
+    """POLISH Addendum 12 Q3: the stored `code`/`type` plus the plain `asset_label` (PA-2b rule: the type word, with the
+    code appended only when the Site has more than one non-retired asset of that type)."""
+    if raw is None:
+        return None
+    return {"code": raw["code"], "type": raw["type"],
+            "asset_label": plain_asset_label(raw["code"], raw["type"], site_type, raw.get("type_count"))}
 
 
 def _q(value: str) -> str:
@@ -130,7 +140,8 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
         "selected": {"site_code": site_code, "site_id": str(site_id), "case_id": cid, "case_code": case["code"],
                      "case_kind": case["kind"], "known_at": m.iso(known_at), "site_domain": site_domain},
         "work_detail": work_detail,
-        "work_asset": None if case["asset_id"] is None else gx.asset(tenant_id, site_id, case["asset_id"]),
+        "work_asset": None if case["asset_id"] is None else _work_asset(gx.asset(tenant_id, site_id, case["asset_id"]),
+                                                                        site_domain),
         "history": {"revisions": revisions, "operational_records": operational},
         "links": {
             "site": {"label": rx.site_name(), "href": site_home_href(site_code, site_domain)},
