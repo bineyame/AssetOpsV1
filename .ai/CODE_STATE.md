@@ -6275,3 +6275,20 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   `demo_combined.py links`) are not routes (P-01). Cold/EV boards read on `days.json` start/end windows.
 - Global work lists window by recorded time (build day), not story time (R629).
 - Open: R626, R630 (open rows), polish P-01..P-10 and the client-copy list in `.agent/DEMO-B-packet.md`.
+
+## POLISH PA-1 - board truth (built, in_review)
+
+- Contract: `.agent/build-sheet-POLISH.md` §1.1/§1.3/§1.6/§1.7/§6 D-2 and Addendum 2; packet `.agent/POLISH-PA-1-packet.md`.
+- `site_outcomes/mini.py`: Cost copy "possible extra fuel cost on this day" / "No fuel cost estimated for this day";
+  a PRICED `amount_high == 0` gives `COST_ZERO` and no headline money (R626 backend; idle fuel not modelled, owner Q1).
+- `mini.no_run_day`: MG-7 settles when the overview day reading is `claim_level == "COMPLETE"` with no
+  `dispatch_intervals` and readiness exactly `UNKNOWN`; the Readings line is `NO_RUN_READINGS`. Shared
+  `claim_limit_read.reduce_day` is unchanged (Portfolio still reads zero intervals as UNKNOWN).
+- `site_outcomes/board.py`: EV Optimize row uses `catalogue.ROW_NOT_MEASURED_EV_COST_UNPRICED` unless
+  `headline_money["GROW_REVENUE"]` is set (R635). `cost_line` credits MODELLED_IMPROVEMENT only to VERIFIED, else
+  `COST_NOT_CREDITED` (D-2, OUT-E L4).
+- `ev.py` option "Investigate {connector_name(label)}". Trial comparison `history()` orders by
+  `recorded_at, revision_no, id` (OUT-E L3).
+- Open: EV-2 `missing_records` text still claims a tariff estimate but nothing renders it (Addendum 2 Q-C). Kobo
+  Grow stays Unknown (R636: no sales records). Frontend fixtures still carry the old "exposure in this hour"
+  headline (Lane B, PB-2). The S+1 Readings chip still shows readiness "Unknown" beside "readings complete".
