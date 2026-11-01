@@ -1,0 +1,10 @@
+// Fixture (guard 12): a visible label whose element has no data-mock-deviation.
+export function Page() {
+  return (
+    <section>
+      <p className="mock-deviation-line">
+        MOCK DEVIATION D1 (R900)
+      </p>
+    </section>
+  );
+}

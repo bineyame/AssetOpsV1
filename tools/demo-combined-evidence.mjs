@@ -18,12 +18,23 @@
  * compare: pairs every product capture with its mock measurement (same width) and writes <out>/comparison.json:
  *   panel headings in the mock and not on the product and the reverse, card counts, page height ratio, and
  *   horizontal overflow. It reports differences; triage into register rows or polish defects is the reviewer's.
+ *
+ * POLISH PB-0 (build sheet §2, §5 PB-0, Addendum 1):
+ *   DEMOB_STRICT=1        exit 1 when any capture records a counted vocabulary hit (the strict client-mode gate).
+ *   DEMOB_REVIEW_LABELS=1 open `/?review=labels` once before capturing (review mode for MOCK DEVIATION labels); label
+ *                         hits are then recorded but not counted.
+ *   The vocabulary scan and its region rules live in tools/demo-combined-vocabulary.mjs (Addendum 5): ids are checked
+ *   on all visible <main> text except `[data-technical-details]`; `[data-vocabulary-exempt]` exempts product kinds
+ *   only and `[data-time-zone-note]` only "UTC"; "MOCK DEVIATION" is never exempt; exempt hits go to `exempt_hits`.
+ *   The `-open` stress capture counts ids and "MOCK DEVIATION" only. Settling also waits for no `[aria-busy="true"]` and no
+ *   `[data-repeat-check="loading"]` in <main>, and treats only whole loading lines as loading (`mainSettled`).
  */
 import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { widthGuard } from "./evidence-checks.mjs";
+import { SETTLE_PROBE, mainSettled, widthGuard } from "./evidence-checks.mjs";
+import { CAPTURE_TEXTS, classifyCapture } from "./demo-combined-vocabulary.mjs";
 
 const CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const PORT = Number(process.env.ASSETOPS_CDP_PORT ?? 9491);
@@ -75,32 +86,8 @@ function screens(work) {
   };
 }
 const ONLY = process.env.DEMOB_ONLY ? process.env.DEMOB_ONLY.split(",") : null;
-
-/** Visible text a client should not meet. Each entry: [name, regex]. Hits are recorded with context, not judged. */
-const VOCAB = [
-  ["enum code", /\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/g],
-  ["zero-padded record code", /\b(?:ACT|INC|WR|F|PLAN|CHG)-0{2,}\d+\b/g],
-  ["uuid", /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi],
-  ["raw timestamp", /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?\b/g],
-  ["service actor", /\bservice:[\w-]+/g],
-  ["register or slice id", /\b(?:R\d{3}|OUT-[A-E]\d?|S\d-\d\d[a-z]?|W\d-\d\d[a-z]?|DD-\d\d|CO-\d+)\b/g],
-  ["dev term", /\b(?:producer|projection|fixture|payload|schema|cursor|known_at|seed|epoch|adapter|endpoint|analytic_id|null|undefined|NaN|TODO|debug|MOCK DEVIATION|mock|scenario_id|revision_id|basis_ref|v\d+ manifest)\b/gi],
-];
-
-function scan(text) {
-  const hits = [];
-  const seen = new Set();
-  for (const [name, re] of VOCAB) {
-    for (const m of text.matchAll(re)) {
-      const k = `${name}|${m[0]}`;
-      if (seen.has(k)) continue;
-      seen.add(k);
-      const at = m.index ?? 0;
-      hits.push({ kind: name, match: m[0], context: text.slice(Math.max(0, at - 50), at + m[0].length + 50).replace(/\s+/g, " ").trim() });
-    }
-  }
-  return hits;
-}
+const STRICT = process.env.DEMOB_STRICT === "1";
+const REVIEW_LABELS = process.env.DEMOB_REVIEW_LABELS === "1";
 
 const MEASURE = `(()=>{const R=e=>{const b=e.getBoundingClientRect();return {top:Math.round(b.top+scrollY),h:Math.round(b.height),w:Math.round(b.width)}};
  const main=document.querySelector('main')||document.body; const out=[];
@@ -149,14 +136,15 @@ async function capture([work, out, base = "http://localhost:5490"]) {
     return r.result.value;
   };
   const requireWidth = widthGuard({ send });
-  /** Settled: <main> present, no "Loading" sentence, and its text unchanged over three reads 600 ms apart. */
+  /** Settled: `mainSettled` (no loading line, no aria-busy, no loading repeat check), text unchanged over three reads 600 ms apart. */
   const settle = async () => {
     const end = Date.now() + 60000;
     let last = "";
     let same = 0;
     while (Date.now() < end) {
-      const t = await js(`(()=>{const m=document.querySelector('main');return m?m.innerText:''})()`);
-      const busy = !t || /\bLoading\b/.test(t);
+      const probe = await js(SETTLE_PROBE);
+      const t = probe.text;
+      const busy = !mainSettled(probe);
       same = !busy && t === last ? same + 1 : 0;
       last = t;
       if (same >= 3) return true;
@@ -176,6 +164,15 @@ async function capture([work, out, base = "http://localhost:5490"]) {
     }
   };
   await send("Page.enable");
+  if (REVIEW_LABELS) {
+    // POLISH §2: review mode is session-scoped, so one visit per tab turns the labels on for every capture after it.
+    await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+    await send("Page.navigate", { url: `${base}/?review=labels` });
+    await requireWidth(1440, 1000, "review labels", { record: false });
+    await settle();
+    const on = await js(`document.documentElement.dataset.reviewLabels === "on"`);
+    console.log(`review labels ${on ? "on" : "NOT on (this build has no review mode)"}`);
+  }
   const measures = [];
   const records = [];
   for (const s of list) {
@@ -200,21 +197,25 @@ async function capture([work, out, base = "http://localhost:5490"]) {
       const file = join(out, `${s.key}-${w}.png`);
       const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true });
       writeFileSync(file, Buffer.from(shot.data, "base64"));
-      const hits = scan(m.text);
+      // Addendum 5: ids everywhere but Technical details; exemptions for product kinds only; exempt hits recorded.
+      const { vocabulary: hits, exempt_hits, counted } = classifyCapture(await js(CAPTURE_TEXTS), { open: !!s.open, reviewLabels: REVIEW_LABELS });
       const states = [...new Set((m.text.match(/\b(?:STALE_PROJECTION|SCHEDULE_STOPPED|PRODUCER_NOT_SETTLED|UNASSESSED)\b/g) ?? []))];
       const { text, ...rest } = m;
       measures.push({ key: s.key, mock: s.mock, width: w, url: base + path, settled, ...rest });
-      records.push({ key: s.key, label: s.label, mock: s.mock, width: w, url: base + path, png: file, settled, h1: m.h1, pageH: m.pageH, overflow: m.docScrollW > m.clientW, stale_words: states, vocabulary: hits });
-      console.log(`${settled ? "OK  " : "WAIT"}  ${s.key} ${w}  h1=${JSON.stringify(m.h1)} pageH=${m.pageH} overflow=${m.docScrollW > m.clientW} vocab=${hits.length}`);
+      records.push({ key: s.key, label: s.label, mock: s.mock, width: w, url: base + path, png: file, settled, h1: m.h1, pageH: m.pageH, overflow: m.docScrollW > m.clientW, stale_words: states, vocabulary: hits, vocabulary_counted: counted, exempt_hits });
+      console.log(`${settled ? "OK  " : "WAIT"}  ${s.key} ${w}  h1=${JSON.stringify(m.h1)} pageH=${m.pageH} overflow=${m.docScrollW > m.clientW} vocab=${hits.length} counted=${counted} exempt=${exempt_hits.length}`);
     }
   }
   writeFileSync(join(out, "product-measure.json"), JSON.stringify(measures, null, 1));
-  writeFileSync(join(out, "captures.json"), JSON.stringify({ story_S: story.S_date, code: story.code, base, captures: records }, null, 1));
+  const counted = records.reduce((n, r) => n + (r.vocabulary_counted ?? 0), 0);
+  writeFileSync(join(out, "captures.json"), JSON.stringify({ story_S: story.S_date, code: story.code, base, strict: STRICT, review_labels: REVIEW_LABELS, vocabulary_counted: counted, captures: records }, null, 1));
   console.log(`wrote ${records.length} captures to ${out}`);
   // DEMO-B review L4: an unsettled (WAIT) capture or a missing work request fails the run; its files stay for reading.
   const bad = records.filter((r) => r.error || r.settled === false);
   if (bad.length) console.log(`FAIL  ${bad.length} capture(s) unsettled or missing: ${bad.map((r) => `${r.key}${r.width ? ` ${r.width}` : ""}`).join(", ")}`);
-  return bad.length ? 1 : 0;
+  console.log(`vocabulary: ${counted} counted hit(s) across ${records.length} capture(s)${STRICT ? " (strict)" : ""}`);
+  if (STRICT && counted) console.log(`FAIL  strict gate: ${counted} vocabulary hit(s); see captures.json "vocabulary"`);
+  return bad.length || (STRICT && counted) ? 1 : 0;
   } finally {
     try { ws?.close(); } catch { /* already closed */ }
     chrome.kill();

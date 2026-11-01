@@ -1,0 +1,22 @@
+// Fixture (guard 12): every label tagged with a registered id; comment mentions are ignored.
+// MOCK DEVIATION D1 (R900): a line comment naming a departure is not a label.
+export function MockDeviation({ category, id }: { category: "D1" | "D2" | "D4"; id: string }) {
+  return (
+    <p className="global-work-deviation" data-mock-deviation={id}>
+      {`MOCK DEVIATION ${category} (${id})`}
+    </p>
+  );
+}
+
+export function Page() {
+  return (
+    <section>
+      {/* MOCK DEVIATION D2 (R901): a JSX comment is not a label either. */}
+      <p className="mock-deviation-line" data-mock-deviation="R900">
+        MOCK DEVIATION D1 (R900)
+      </p>
+      <MockDeviation category="D2" id="R901" />
+      <a href="http://example.test/x">link</a>
+    </section>
+  );
+}

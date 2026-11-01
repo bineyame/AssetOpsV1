@@ -1,0 +1,3 @@
+.mock-deviation-line { margin: 0; }
+/* :root:not([data-review-labels="on"]) [data-mock-deviation] { display: none !important; } (commented out: no rule) */
+[data-mock-deviation] { color: gray; }

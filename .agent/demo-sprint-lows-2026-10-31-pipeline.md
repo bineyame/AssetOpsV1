@@ -7,3 +7,7 @@
 - L1: CO-1 lacks the original U6 assertion `"Reliable service and battery and generator life" in mnh["text"]` (`tools/demo_combined_finish.py:142-149`); text is present in the kept build, add the line back.
 - L2: CO-1 "Action on the Cost row" reads `items(cost)` incl. `earlier`, so it cannot tell a linked Action from CO-3's line (`tools/demo_combined_finish.py:145-147`); restrict to `issues` + `in_hand`. The href assertion is the real guard.
 - L3: register R535/R552 description text and `.ai/CODE_STATE.md:6251-6252` ("main `15eed62c8`", "Addenda 1-3") are stale; statuses closed by coordinator at merge, descriptions still historical.
+
+## POLISH PB-0 re-review Lows (`.agent/review-POLISH-PB-0.md` re-review section)
+- N1: gloss test (`tools/checks/test_mock_deviation_labels.mjs:110-114`) cannot fail if gloss stripping is removed; add an assertion that "generator running" alone counts 0.
+- N2: `CAPTURE_TEXTS` in-page selectors (`tools/demo-combined-vocabulary.mjs:104-119`) are untested; a selector change could reintroduce the M1 bug unnoticed. Add a string or jsdom test.

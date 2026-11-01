@@ -1,0 +1,11 @@
+// Fixture (guard 12): a tagged label and a MockDeviation whose ids are not register rows.
+export function Page() {
+  return (
+    <section>
+      <p className="mock-deviation-line" data-mock-deviation="R999">
+        MOCK DEVIATION D1 (R999)
+      </p>
+      <MockDeviation category="D1" id="R998" />
+    </section>
+  );
+}

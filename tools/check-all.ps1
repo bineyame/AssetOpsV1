@@ -63,6 +63,7 @@ try {
     Invoke-Guard "Missing-claim orphan scan"     $Node @("tools/checks/missing-claim-scan.mjs")
     Invoke-Guard "Missing-claim scan fixtures"   $Node @("--test", "tools/checks/test_missing_claim_scan.mjs")
     Invoke-Guard "Evidence width check (W1-UX-06)" $Node @("--test", "tools/checks/test_evidence_checks.mjs")
+    Invoke-Guard "Mock deviation labels and client vocabulary" $Node @("--test", "tools/checks/test_mock_deviation_labels.mjs")
     Invoke-Guard "Screen ledger"                 $Python @("frontend/docs/architecture/check_v69_ledger.py")
 
     $failed = @($results | Where-Object { $_.Status -ne "PASS" })
