@@ -10,6 +10,7 @@
  * the API `links.detail` (Site code and explicit cutoff kept), with the Site maintenance window only as a fallback. W6-01b B3 (CL3-2, P-B2-4, P-B3-8) made the Preventive tab and the third card's separate
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
+import { displayCode } from "../ui/displayCode";
 import { Link } from "react-router-dom";
 import type { EstateClient, EstateOutcomeSummarySite } from "../estate/estateClient";
 import { useOutcomeSummary } from "../estate/useOutcomeSummary";
@@ -117,7 +118,7 @@ function Badge({ tone, children, data }: { tone: "red" | "amber" | "blue" | "neu
 }
 
 function WorkRequestCell({ row }: { row: GlobalMaintenanceRow }) {
-  const text = `${row.code} · ${row.title}`;
+  const text = `${displayCode(row.code)} · ${row.title}`;
   // W6-01c C2: the primary link is the exact request Overview (`links.detail`); Site maintenance is the fallback.
   const href = row.links.detail?.href ?? row.links.site_maintenance.href;
   // Post-W6 W6 Q2 (R352): cold and EV Findings are plain `Finding {id8}`; a mini-grid Finding keeps its link.

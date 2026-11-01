@@ -1,4 +1,5 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
+import { displayCode } from "../ui/displayCode";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -1553,7 +1554,7 @@ function DomainActionShell({
           </li>
           {loaded === null ? null : (
             <li className="breadcrumbs__item" data-domain-action-crumb-code>
-              {loaded.action.action_code}
+              {displayCode(loaded.action.action_code)}
             </li>
           )}
           <li className="breadcrumbs__item">
@@ -1570,7 +1571,7 @@ function DomainActionShell({
       <PageHeader
         title={
           loaded !== null
-            ? `${loaded.action.action_code} · ${loaded.action.title}`
+            ? `${displayCode(loaded.action.action_code)} · ${loaded.action.title}`
             : p.headings === undefined
               ? "Action"
               : state.status === "loading"

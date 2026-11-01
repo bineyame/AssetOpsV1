@@ -421,8 +421,9 @@ function Loaded({
           </>
         ) : null}
         <span data-overview-finding-shown={partial ? "first-page" : "all"}>
-          {partial ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list. ` : ""}
+          {partial ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.` : ""}
         </span>
+        {partial ? " " : null}
         <Link to={full} data-overview-finding-full-list>
           Open all findings for this day
         </Link>

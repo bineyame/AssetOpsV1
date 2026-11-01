@@ -276,7 +276,7 @@ describe("W6-01e E2: global Operational records", () => {
     expect(trs).toHaveLength(5);
     const first = trs[0];
     expect(first.getAttribute("data-global-work-head")).toBe("00000000-0000-4000-8000-000000000999");
-    expect(text(cell(first, 0).querySelector("[data-global-work-code]"))).toBe("REC-000001");
+    expect(text(cell(first, 0).querySelector("[data-global-work-code]"))).toBe("REC-001");
     expect(text(cell(first, 0).querySelector("[data-global-work-correction]"))).toBe("Correction: Log wording corrected after review");
     const earlier = cell(first, 0).querySelector("[data-global-work-supersedes]") as HTMLDetailsElement;
     expect(text(earlier.querySelector("summary"))).toBe("Earlier record version");

@@ -185,13 +185,13 @@ describe("W6-01c C2: work request Overview", () => {
 
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: null }]);
     expect(screen.getByRole("heading", { level: 1, name: "Inspect starter and control circuit again" })).toBeInTheDocument();
-    expect(subtitle()).toBe("WR-000001 · Kobo · corrective");
+    expect(subtitle()).toBe("WR-001 · Kobo · corrective");
 
     // P-C2-2: Maintenance link (no window), WR code and Overview as text, Site link.
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(within(crumbs).getByRole("link", { name: "Maintenance" })).toHaveAttribute("href", "/maintenance");
-    expect(within(crumbs).queryByRole("link", { name: "WR-000001" })).toBeNull();
-    expect(text(crumbs)).toContain("WR-000001");
+    expect(within(crumbs).queryByRole("link", { name: "WR-001" })).toBeNull();
+    expect(text(crumbs)).toContain("WR-001");
     expect(within(crumbs).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
     expect(text(q("[data-work-request-breadcrumb-site]"))).toBe("· site: Kobo");
 

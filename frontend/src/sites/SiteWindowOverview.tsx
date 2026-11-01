@@ -20,7 +20,7 @@
 import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { TechnicalDetails, TechnicalReferenceList, WorkedOut } from "../ui/TechnicalDetails";
+import { WorkedOut } from "../ui/TechnicalDetails";
 import { Link } from "react-router-dom";
 
 import {
@@ -308,7 +308,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
     <div className="window-freshness" data-freshness-card>
         {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1.
             POLISH §3.1: an open source is said inside "How this was worked out"; a closed one stays visible. */}
-        {sameAsStatusbar && f.source_open ? null : (
+        {(
           <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
             {sameAsStatusbar ? null : (
               <>
@@ -912,8 +912,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           </Fact>
         </FactList>
         <MoneyLinks money={m} links={links} day={summary.window.utc_date} />
-        <TechnicalDetails name="window-money">
-          <TechnicalReferenceList
+        <WorkedOut
+          name="window-money"
           references={[
             { label: "Amount state", value: m.state },
             { label: "Finding reference", value: m.finding_id },
@@ -927,8 +927,7 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             { label: "Money gate note", value: m.eligibility?.note ?? null },
             { label: "Recorded cost label", value: m.label },
           ]}
-          />
-        </TechnicalDetails>
+        />
         {/* W1-F5b (carry 8): the source record folds into this one closed row, not a second one. */}
         {m.finding_id && m.source_provenance ? (
           <div className="window-money__source-record" data-source-record="overview-money">

@@ -233,7 +233,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(trs).toHaveLength(5);
     const first = trs[0];
     const titleLink = within(cell(first, 0)).getByRole("link");
-    expect(titleLink.textContent).toBe(`INC-000001 · ${TITLE200}`);
+    expect(titleLink.textContent).toBe(`INC-001 · ${TITLE200}`);
     expect(titleLink.getAttribute("href")).toBe(SITE_INCIDENTS);
     expect(cell(first, 0).querySelector(".global-work-clamp")).toContainElement(titleLink);
     const full = cell(first, 0).querySelector("[data-global-work-full-title]") as HTMLDetailsElement;

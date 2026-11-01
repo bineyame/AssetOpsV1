@@ -9,6 +9,7 @@
  * A refusal, a read failure, an empty scope or a changed list is stated and never shown as zero. Severity is not
  * recorded on work cases. No mock case or ID is rendered.
  */
+import { displayCode } from "../ui/displayCode";
 import { Link } from "react-router-dom";
 import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
@@ -103,7 +104,7 @@ function StateChip({ state }: { state: GlobalIncidentState }) {
 }
 
 function IncidentRow({ row }: { row: GlobalIncidentRow }) {
-  const text = `${row.code} · ${row.title}`;
+  const text = `${displayCode(row.code)} · ${row.title}`;
   return (
     <tr data-global-work-row={row.case_id}>
       <td>

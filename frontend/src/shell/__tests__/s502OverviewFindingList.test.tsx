@@ -281,7 +281,7 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
       `/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`,
       `/sites/${SITE_ID}/findings/${OTHER_FID}?revision_id=${OTHER_RID}`,
     ]);
-    expect(screen.getByText("3 Findings overlap this day.")).toBeInTheDocument();
+    expect(screen.getByText("3 findings on this day")).toBeInTheDocument();
     expect(document.querySelector('[data-overview-finding-shown="first-page"]')?.textContent).toBe(
       "Showing the first 2 of 3. This is not the whole list.",
     );
@@ -350,7 +350,7 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     await settledScreen();
     expect(parity()).toBe("different");
     expect(screen.queryByText(/is the same Finding version/)).toBeNull();
-    expect(document.querySelector('[data-overview-finding-shown="all"]')?.textContent).toBe("Showing all 1.");
+    expect(document.querySelector('[data-overview-finding-shown="all"]')?.textContent).toBe("");
     expect(document.querySelector(`[data-known-finding="${FID}"]`)).not.toBeNull();
   });
 
@@ -458,7 +458,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     for (const row of rows) {
       expect(row.querySelector("code")).toBeNull();
       expect(row.querySelector("h3")?.textContent).not.toBe("");
-      expect(row.querySelector("p")?.textContent).toMatch(/version \d+( · the Finding chosen for this day)?$/);
+      expect(row.querySelector("p")?.textContent).toMatch(/^\d{1,2} [A-Z][a-z]{2}, \d\d:\d\d.* · [A-Z][a-z ]+( · main finding for this day)?$/);
     }
     expect(rows[0].getAttribute("data-known-finding")).toBe(FID);
     expect(document.querySelectorAll(`[data-known-finding="${FID}"]`)).toHaveLength(1);

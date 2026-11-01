@@ -10,6 +10,7 @@
  * once. C3 promoted Maintenance record (`${WORK_REQUEST_PATH_PREFIX}/{id}/record`) and W6-01d C4 promoted History
  * (`${WORK_REQUEST_PATH_PREFIX}/{id}/history`); Verification stays unavailable until its page mounts.
  */
+import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -149,7 +150,7 @@ export function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBo
           <Link to="/maintenance">Maintenance</Link>
         </li>
         <li className="breadcrumbs__item">
-          <span>{body?.selected.case_code ?? WORK_REQUEST_TITLE}</span>
+          <span>{displayCode(body?.selected.case_code) ?? WORK_REQUEST_TITLE}</span>
         </li>
         <li className="breadcrumbs__item">
           <span className="breadcrumbs__current" aria-current="page">
@@ -181,7 +182,7 @@ export function OpenSite({ body }: { body: GlobalWorkDetailBody | null }) {
 }
 
 export function subtitleOf(page: WorkRequestRead): string {
-  if (page.body !== null) return `${page.body.selected.case_code} · ${page.body.links.site.label} · corrective`;
+  if (page.body !== null) return `${displayCode(page.body.selected.case_code)} · ${page.body.links.site.label} · corrective`;
   if (page.failure !== null) return WORK_REQUEST_REFUSED_SUBTITLE;
   return WORK_REQUEST_LOADING;
 }

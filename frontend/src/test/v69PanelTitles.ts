@@ -33,6 +33,9 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   // OUT-B B6 (R521): the v7.0 mock's Portfolio panel title (`portfolio.js:50`); the outcome matrix replaces the v69
   // objectives matrix in the same slot.
   "portfolio:2": "Outcomes across the estate",
+  // POLISH §3.1 Kobo rows and Addendum 8 Q3 (Architect, R655 plain-language row): the Kobo/mini Overview slot titles.
+  "mini:1": "What happened on this day",
+  "mini:4": "Possible cost",
 };
 
 function need(values: Record<string, string>, key: string): string {

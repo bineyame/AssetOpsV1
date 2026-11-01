@@ -38,6 +38,7 @@
  * shown separately as a second reason, and Accept is disabled with the reason
  * stated. A 409 `PRIOR_ACTION_UNRESOLVED` on accept is reported the same way.
  */
+import { displayCode } from "../ui/displayCode";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
@@ -172,7 +173,7 @@ export function SiteRecommendation({
     <ChartNote data={{ "data-recommendation-accepted-action": accepted.action_id }}>
       Accepted {when(accepted.accepted_at)} as{" "}
       <Link to={links.action(accepted.action_id)} data-recommendation-action-link>
-        {accepted.action_code}
+        {displayCode(accepted.action_code)}
       </Link>
       {acceptedAction ? ` (${applicationText(acceptedAction)})` : null}; stored as accepted, so a later change on the
       Site does not alter it. Accepting changes nothing on the Site.
@@ -216,7 +217,7 @@ export function SiteRecommendation({
             {" "}
             (
             <Link to={links.action(block.actionId)} data-recommendation-prior-block-link>
-              {block.actionCode ?? "the earlier Action"}
+              {displayCode(block.actionCode) ?? "the earlier Action"}
             </Link>
             )
           </>
@@ -501,7 +502,7 @@ function AcceptOutcome({ outcome, links }: { outcome: CommandResult | null; link
       <p role="status" className="v69-chart-note" data-action-command-done={outcome.replayed ? "replayed" : "created"}>
         {outcome.replayed ? "This command was already recorded; " : "Accepted; "}
         {outcome.action ? (
-          <Link to={links.action(outcome.action.action_id)}>open {outcome.action.action_code}</Link>
+          <Link to={links.action(outcome.action.action_id)}>open {displayCode(outcome.action.action_code)}</Link>
         ) : (
           "the Action is recorded"
         )}
@@ -511,7 +512,7 @@ function AcceptOutcome({ outcome, links }: { outcome: CommandResult | null; link
   }
   if (outcome.code === "PRIOR_ACTION_UNRESOLVED" && typeof outcome.detail?.blocking_action_id === "string") {
     const detail = outcome.detail;
-    const code = typeof detail.blocking_action_code === "string" ? detail.blocking_action_code : null;
+    const code = typeof detail.blocking_action_code === "string" ? displayCode(detail.blocking_action_code) : null;
     const revisionNo = typeof detail.origin_revision_no === "number" ? detail.origin_revision_no : null;
     const live = (detail.live_status ?? null) as Pick<LiveStatus, "state" | "unavailable"> | null;
     return (
@@ -776,7 +777,7 @@ function PriorActionList({ items, links }: { items: PriorAction[]; links: SiteRe
             data-prior-action-selected-revision={item.origin.is_selected_revision ? "yes" : "no"}
           >
             <Link to={links.action(item.action_id)} data-recommendation-prior-action-link>
-              {item.action_code}
+              {displayCode(item.action_code)}
             </Link>{" "}
             accepted {when(item.accepted_at)} on{" "}
             <Link to={links.finding(item.origin.finding_revision_id)} data-prior-action-origin={item.origin.finding_revision_id}>
