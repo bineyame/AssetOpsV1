@@ -370,10 +370,10 @@ export function accessWords(basis: string | null | undefined): string {
 
 /** POLISH §3.1 Kobo: "from 13 measured inputs", or the missing-coverage words. */
 function coverageInputs(coverage: unknown): string {
-  if (coverage === null || typeof coverage !== "object") return "measured inputs not available yet for this day";
+  if (coverage === null || typeof coverage !== "object") return "measured inputs not recorded for this day";
   const n = Object.keys(coverage as Record<string, unknown>).length;
   return n === 0
-    ? "measured inputs not available yet for this day"
+    ? "measured inputs not recorded for this day"
     : `from ${n.toLocaleString("en-GB")} measured ${n === 1 ? "input" : "inputs"}`;
 }
 
