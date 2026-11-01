@@ -19,6 +19,9 @@ from urllib.parse import quote
 
 import pytest
 
+from assetops_backend.outcomes.display_code import display_code  # POLISH PA-2a
+from assetops_backend.analytics.finding_episode import SUPPORTED, TITLES  # POLISH PA-2a
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -332,7 +335,7 @@ def test_linked_request_destinations(store, key) -> None:  # noqa: F811
     for body, href in ((now, base), (old, base + "&known_at=2026-10-22T12%3A00%3A00.000000Z")):
         [linked] = [r for r in body["rows"] if r["title"] == "Generator stopped"]
         assert linked["linked_request_codes"] == [request["code"]]
-        assert linked["linked_requests"] == [{"label": request["code"], "href": href}]
+        assert linked["linked_requests"] == [{"label": display_code(request["code"]), "href": href}]
         assert all(r["linked_requests"] == [] for r in body["rows"] if r["title"] != "Generator stopped")
     assert [r["case_id"] for r in one["rows"] + two["rows"]] == [r["case_id"] for r in now["rows"]]
     assert two["selection_token"] == one["selection_token"] == now["selection_token"]
@@ -587,7 +590,7 @@ def test_missing_lineage_matches_site_row(runner, monkeypatch, key) -> None:  # 
     assert global_row["source_provenance"]["classification"] == "UNKNOWN"
     assert "LINK_SELECTION_MISSING" in {x["code"] for x in global_row["source_provenance"]["reasons"]}
     assert global_row["finding_links"] == [{"label": x["label"], "href": x["href"]} for x in site_row["finding_links"]]
-    assert global_row["finding_links"] == [{"label": f"Finding {fid[:8]}", "href": None}]
+    assert global_row["finding_links"] == [{"label": TITLES[SUPPORTED], "href": None}]
     assert body["status"] == "HISTORICAL"
 
 

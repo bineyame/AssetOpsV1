@@ -236,7 +236,7 @@ def test_w302_evidence_authorized_scope_and_placeholders(coverage) -> None:
     for row in holders:
         assert row["readiness"] == "UNKNOWN" and row["current_ceiling"] is None and row["next_evidence"] is None
         assert row["selected_revision_ids"] == [] and row["source_provenance"]["basis_sha256"] is None
-        assert row["links"]["site_readiness_label"] == "Opens current Site view"
+        assert row["links"]["site_readiness_label"] == "Current view"
     assert next(r for r in holders if r["site_code"] == "COLD 1")["links"]["site"] == "/sites/COLD%201"
     ev_holder = next(r for r in holders if r["site_code"] == "EV-1")["links"]  # post-W6 W3-estate Q9 placeholder
     assert ev_holder["site"] == ev_holder["site_readiness"] == "/sites/EV-1/ev"
@@ -289,7 +289,7 @@ def test_w302_evidence_grouped_rows_and_full_citations() -> None:
     # (EV `/sites/{code}/ev`, post-W6 W3-estate Q2/Q9).
     bad = evidence_money.window_links("EV-1", "ev_charging", pin(D0), CUT - timedelta(hours=1), READ_AT)
     assert bad == {"site": "/sites/EV-1/ev", "site_readiness": "/sites/EV-1/ev",
-                   "site_readiness_label": "Opens current Site view"}
+                   "site_readiness_label": "Current view"}
     late = evidence_money.window_links("EV-1", "ev_charging", pin(D0), CUT, CUT - timedelta(hours=1))
     assert late["site_readiness"] == "/sites/EV-1/ev"
 

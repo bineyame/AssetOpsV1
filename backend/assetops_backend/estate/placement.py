@@ -18,13 +18,15 @@ GROUP_LABEL = {"NEEDS_INVESTIGATION": "Needs investigation first", "ACT_NOW": "A
                "COMPARE_VALUE": "Compare value", "UNPRICED_RISK": "Unpriced risk", "MONITOR": "Monitor"}
 CONFIDENCE_STATES = ("SUPPORTED_SOURCE_COHERENT", "LIMITED", "UNKNOWN")
 
+#: POLISH Addendum 6 Q3: RECURRED names the earlier Finding by its stored title when one is held.
+RECURRED_TITLED = "Happened again after an earlier occurrence ({other})"
 REASON_TEXT = {
     "EVIDENCE_SOURCE_MIXED": "Evidence comes from mixed sources; check the source before acting",
     "EVIDENCE_SOURCE_UNKNOWN": "Evidence source is not resolved; check the source before acting",
     "LIFECYCLE_UNCONFIRMED": "The latest assessment no longer confirms this Finding; check its basis",
     "CONSEQUENCE_WITHHELD": "Cost is withheld because its basis is not current",
-    "EPISODE_OPEN": "No end is recorded for this episode",
-    "RECURRED": "Returned after an earlier episode ({other})",
+    "EPISODE_OPEN": "No end time yet",
+    "RECURRED": "Happened again after an earlier occurrence",
     "REOPENED": "Reopened after it had closed",
     "NO_ACTION_RECORDED": "No accepted Action; open the recommendation",
     "ACTION_PENDING": "Action accepted, not yet applied",
@@ -43,7 +45,7 @@ REASON_TEXT = {
 }
 
 #: Rule 2: the action reason for each `portfolio.workflow_label` that leaves the work open.
-_ACTION_REASON = {"Recommendation not accepted": "NO_ACTION_RECORDED", "No action yet": "ACTION_PENDING",
+_ACTION_REASON = {"No action agreed yet": "NO_ACTION_RECORDED", "No action yet": "ACTION_PENDING",
                   "Pending": "ACTION_PENDING", "Outcome pending": "OUTCOME_PENDING",
                   "Resolution withdrawn": "RESOLUTION_WITHDRAWN"}
 #: Rule 3: checked after rule 2 and before COMPARE_VALUE (Q-C6).
@@ -83,7 +85,8 @@ class Placement:
 
 def _reason(code: str, row: Mapping[str, Any]) -> Reason:
     if code == "RECURRED":
-        return Reason(code, REASON_TEXT[code].format(other="Finding " + str(row["_recurs_after"])[:8]))
+        title = row.get("_recurs_after_title")
+        return Reason(code, RECURRED_TITLED.format(other=title) if title else REASON_TEXT[code])
     return Reason(code, REASON_TEXT[code])
 
 

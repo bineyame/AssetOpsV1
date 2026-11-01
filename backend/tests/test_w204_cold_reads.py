@@ -132,7 +132,7 @@ def test_run5_exact_copy() -> None:
         "The reported source contact happened after this window ended.")
     assert list(csr.ATTENTION) == ["COLD_RECOMPUTE_PENDING", "COLD_PROBE_GAP", "COLD_START_FAILURE",
                                    "COLD_TRANSFER_UNKNOWN", "COLD_POLICY_MISSING"]
-    assert csr.ATTENTION["COLD_START_FAILURE"] == "Automatic generator start failed in the accepted record"
+    assert csr.ATTENTION["COLD_START_FAILURE"] == "Backup generator did not start on its own"
     assert csr.OBJECTIVE_TEXT.format(low="2", high="4") == \
         "Keep the chamber between 2\u20134\u00b0C through power, cooling and operating disturbances."
     assert csr.NOT_INCLUDED_TEXT["SOURCE_GATE_WITHHELD"] == SCREEN_WORDING["SOURCE_GATE_WITHHELD"]

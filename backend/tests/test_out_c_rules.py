@@ -49,7 +49,7 @@ def test_repeat_needs_two_completed_visits() -> None:
     assert w.title == "Repeated maintenance without a result"
     assert w.seen == "generator-1 visited 2 times in 60 days (24 Oct, 27 Oct); the linked finding is still open"
     assert [r["kind"] for r in w.evidence_refs] == ["WORK_CASE", "WORK_CASE", "FINDING"]
-    assert w.evidence_refs[0] == {"kind": "WORK_CASE", "id": "c1", "label": "WR-1", "href": "/work/c1"}
+    assert w.evidence_refs[0] == {"kind": "WORK_CASE", "id": "c1", "label": "WR-001", "href": "/work/c1"}
     assert w.evidence_refs[2] == {"kind": "FINDING", "id": "f1", "label": None, "href": "/findings/f1"}
     assert w.visit_ids == ("c1", "c2")
     assert w.fault_name == "linked finding"  # no fault name on record: the fallback
@@ -114,7 +114,7 @@ def test_repeat_categories_link_excludes_own_key() -> None:
 # ---- PLAN_OVERDUE / PLAN_DUE_SOON
 
 def plan(due: datetime | None, pid: str = "p1", asset: str | None = "a1") -> PlanCue:
-    return PlanCue(plan_id=pid, code="PM-1", title="Witnessed backup start test", due_at=due,
+    return PlanCue(plan_id=pid, code="PM-001", title="Witnessed backup start test", due_at=due,
                    due_on=due.date() if due else None, asset_id=asset)
 
 
@@ -126,7 +126,7 @@ def test_plan_bounds() -> None:
     assert (w.kind, w.title, w.seen) == (
         PLAN_OVERDUE, "Witnessed backup start test overdue", "Planned for 28 Oct, not done")
     assert (w.badge, w.lens, w.status_effect, w.href) == ("EARLY_WARNING", "RISK", "WATCH", "/maintenance/preventive")
-    assert w.evidence_refs == ({"kind": "PLAN", "id": "p1", "label": "PM-1", "href": "/maintenance/preventive"},)
+    assert w.evidence_refs == ({"kind": "PLAN", "id": "p1", "label": "PM-001", "href": "/maintenance/preventive"},)
     assert w.key == f"{PLAN_OVERDUE}:S1:p1"
     assert [o["key"] for o in w.categories["items"][0]["outcomes"]] == ["CC-5"]
 

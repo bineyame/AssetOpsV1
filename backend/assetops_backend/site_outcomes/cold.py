@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import COLD
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import COLD_KIND_MECHANISM
 from assetops_backend.outcomes.warnings import LINKED_FINDING, REPEATED, evaluate
 from assetops_backend.site_outcomes.board import (
@@ -310,7 +311,7 @@ def _cost(c: str, wf: Any, repeat: Any, visits_failed: bool, rc: Any) -> tuple[C
         effect = Contributor("maintenance_effectiveness", "Maintenance effectiveness", NO_REPEAT, rc)
     done = sorted((v for v in wf.visits if v.state == "COMPLETED" and v.code), key=lambda v: (v.occurred_at, v.case_id))
     repair = Contributor("repair_cost", "Repair and call-out",
-                         f"No cost on work record {done[-1].code}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
+                         f"No cost on work record {display_code(done[-1].code)}" if done else NO_REPAIR_COST, UNKNOWN_CHIP,
                          f"/sites/{c}/financials")
     cooling = Contributor("cooling_energy", "Cooling energy", NO_COOLING_METER)
     return effect, repair, cooling
@@ -351,7 +352,7 @@ def _verified(cases: list[CaseFact], failed: bool) -> Contributor:
     if not done:
         return Contributor("verified_results", "Verified results", NO_VERIFIED)
     latest = max(done, key=lambda x: (x.occurred_at is not None, x.occurred_at or datetime.min, x.case_id))
-    return Contributor("verified_results", "Verified results", f"{latest.code} completed; not yet verified",
+    return Contributor("verified_results", "Verified results", f"{display_code(latest.code)} completed; not yet verified",
                        PENDING_CHIP, latest.href)
 
 

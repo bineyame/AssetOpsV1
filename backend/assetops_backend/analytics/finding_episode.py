@@ -94,10 +94,12 @@ SERIES_LIMIT = "SERIES_LIMIT"
 _OPEN_AFTER = "OPEN_BOUND: no OFF evidence after"
 _OPEN_BEFORE = "OPEN_BOUND: no OFF evidence before"
 
+#: POLISH §3 / Addendum 4: plain client titles (stored per revision, so they apply from the rebuild on). MERGED
+#: is not ruled and stays as it was.
 TITLES = {
-    SUPPORTED: "Generator support merits review: bounded candidate avoidable running",
-    UNCONFIRMED: "Generator support candidate unconfirmed by the current assessment",
-    NO_LONGER_SUPPORTED: "Generator support candidate no longer supported (not a repair or a saving)",
+    SUPPORTED: "Generator may have been on longer than needed",
+    UNCONFIRMED: "Extra generator time not confirmed by the latest check",
+    NO_LONGER_SUPPORTED: "Extra generator time no longer supported by the latest check",
     MERGED: "Generator support episode merged into an earlier episode",
 }
 

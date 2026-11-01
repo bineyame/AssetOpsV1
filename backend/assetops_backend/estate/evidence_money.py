@@ -16,14 +16,16 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from datetime import datetime, timedelta
 from typing import Any, Callable
 from urllib.parse import quote, urlencode
 
 from assetops_backend.analytics import cold, dispatch_v3
 from assetops_backend.analytics import claim_limit_read as w1
-from assetops_backend.analytics.cold_site_reads import EXC, START
+# POLISH Addendum 6 Q5: the cold observation words and their rewrite live with the cold Site read, which also
+# applies them; estate re-exports them unchanged.
+from assetops_backend.analytics.cold_site_reads import (  # noqa: F401 (re-exported)
+    COLD_OBSERVATION_WORDS, EXC, START, UNREADABLE_OBSERVATIONS, plain_limitation)
 from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as EV_NEXT, TARIFF_ROLE, EvSiteReads
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
@@ -40,7 +42,7 @@ EMPTY_SCOPE, EMPTY = "EMPTY_SCOPE", "EMPTY"
 FULL, LIMITED, NONE, CONTRADICTORY = "FULL", "LIMITED", "NONE", "CONTRADICTORY"
 UNASSESSED = "UNASSESSED"
 DOMAIN_LABEL = {MINI_GRID: "mini-grid", COLD: "cold-chain", EV: "EV charging"}
-CURRENT_VIEW = "Opens current Site view"
+CURRENT_VIEW = "Current view"
 HISTORICAL_AS_OF = "Historical as of {known_at}"
 NO_CURRENT_CEILING = "No current ceiling"
 Admit = Callable[[str], bool]
@@ -65,36 +67,6 @@ COLD_ROWS = (("temperature", "Temperature compliance", ("TEMPERATURE_POINT", "EX
              ("exposure", "Product exposure", ("PRODUCT_EXPOSURE",), EXC))
 COLD_ROLE_LABEL = {r.role: r.label for r in COLD_ROLES_1}
 
-# c2c (c2-q7): the complete reachable `ColdStep.step` codes of `analytics/cold.py` and their literal plain
-# sentences. A stored `Not observed: CODE[, CODE...].` fragment is replaced before it reaches any client field.
-COLD_OBSERVATION_WORDS = {
-    "GRID": "No record of a grid power loss.",
-    "START_REQUEST": "No record of a generator start request.",
-    "START_RESULT": "No record of a generator start result.",
-    "GENERATOR": "No record of the generator running or failing.",
-    "TRANSFER": "No record of power transferring to the generator.",
-    "BUS": "No record of the electrical bus state.",
-    "COMPRESSOR": "No record of the compressor state.",
-    "PROBE": "No record of a room temperature reading.",
-}
-UNREADABLE_OBSERVATIONS = "Some required observations have no readable description."
-_NOT_OBSERVED = re.compile(r"Not observed:([^.]*)\.?")
-
-
-def plain_limitation(text: str | None, words: dict[str, str] = COLD_OBSERVATION_WORDS) -> str | None:
-    """The stored limitation with each `Not observed:` fragment as one plain sentence per code in stored order;
-    any other sentence is kept in place. An unexpected or malformed fragment fails closed to one fixed sentence.
-    EV passes an empty mapping, so any future EV fragment fails closed until a mapping is approved."""
-    if not text:
-        return text
-
-    def sentence(m: re.Match[str]) -> str:
-        codes = [c.strip() for c in m.group(1).split(",")]
-        if m.group(0).endswith(".") and codes and all(c in words for c in codes):
-            return " ".join(words[c] for c in codes)
-        return UNREADABLE_OBSERVATIONS
-
-    return _NOT_OBSERVED.sub(sentence, text)
 
 #: Closure 1 Q3: EV display rows as `EvSiteViews.tsx:CAP_ROWS`; the other three `CLAIMS` stay in disclosure.
 EV_ROWS = (("sessions", "Session outcomes", ("SESSION_OUTCOME",)),

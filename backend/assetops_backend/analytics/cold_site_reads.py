@@ -12,6 +12,7 @@ reading verdicts.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -70,7 +71,7 @@ CONTACT_AFTER_WINDOW = "The reported source contact happened after this window e
 ATTENTION = {
     "COLD_RECOMPUTE_PENDING": "New evidence is waiting to be assessed",
     "COLD_PROBE_GAP": "Chamber temperature has an unmeasured gap",
-    "COLD_START_FAILURE": "Automatic generator start failed in the accepted record",
+    "COLD_START_FAILURE": "Backup generator did not start on its own",
     "COLD_TRANSFER_UNKNOWN": "Transfer-switch position was not observed",
     "COLD_POLICY_MISSING": "Chamber temperature policy is not declared for this window",
 }
@@ -106,6 +107,39 @@ REQUIREMENTS = {
     f"{START}/{cold.MODEL_VERSION}": "Correlated accepted grid, start request, start result, generator, transfer, "
                                      "bus, compressor and chamber reports to explain the backup chain.",
 }
+
+
+# c2c (c2-q7): the complete reachable `ColdStep.step` codes of `analytics/cold.py` and their literal plain
+# sentences. A stored `Not observed: CODE[, CODE...].` fragment is replaced before it reaches any client field
+# (estate reads and this Site read alike; POLISH Addendum 6 Q5).
+COLD_OBSERVATION_WORDS = {
+    "GRID": "No record of a grid power loss.",
+    "START_REQUEST": "No record of a generator start request.",
+    "START_RESULT": "No record of a generator start result.",
+    "GENERATOR": "No record of the generator running or failing.",
+    "TRANSFER": "No record of switching to backup power.",
+    "BUS": "No record of the electrical bus state.",
+    "COMPRESSOR": "No record of the compressor state.",
+    "PROBE": "No record of a room temperature reading.",
+}
+UNREADABLE_OBSERVATIONS = "Some required observations have no readable description."
+_NOT_OBSERVED = re.compile(r"Not observed:([^.]*)\.?")
+
+
+def plain_limitation(text: str | None, words: dict[str, str] = COLD_OBSERVATION_WORDS) -> str | None:
+    """The stored limitation with each `Not observed:` fragment as one plain sentence per code in stored order;
+    any other sentence is kept in place. An unexpected or malformed fragment fails closed to one fixed sentence.
+    EV passes an empty mapping, so any future EV fragment fails closed until a mapping is approved."""
+    if not text:
+        return text
+
+    def sentence(m: re.Match[str]) -> str:
+        codes = [c.strip() for c in m.group(1).split(",")]
+        if m.group(0).endswith(".") and codes and all(c in words for c in codes):
+            return " ".join(words[c] for c in codes)
+        return UNREADABLE_OBSERVATIONS
+
+    return _NOT_OBSERVED.sub(sentence, text)
 
 
 def _plain(value: Any) -> Any:
@@ -206,7 +240,7 @@ class ColdSiteReadService:
     @staticmethod
     def _limits(snap, analytic: str) -> str | None:
         sel = snap["selected"].get(analytic)
-        return NO_SELECTION_NOTE if sel is None else _joined(sel.result.get("limitations") or ())
+        return NO_SELECTION_NOTE if sel is None else plain_limitation(_joined(sel.result.get("limitations") or ()))
 
     # --- money -----------------------------------------------------------------------------------------------
 

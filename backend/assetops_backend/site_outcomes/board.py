@@ -9,6 +9,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     ROW_NOT_MEASURED_EV_COST_UNPRICED, SiteOutcome, row_not_measured)
@@ -41,7 +42,7 @@ ISSUE_KIND_LABEL = {"FINDING": "Finding", "EVIDENCE_GAP": "Evidence gap", "RISK"
                     "EARLY_WARNING": "Early warning", "OPPORTUNITY": "Opportunity"}  # outcomes.js:112
 
 #: Mini Action in-hand label: the Portfolio workflow_label (estate/portfolio.py:137), two words renamed (outcomes.js:67).
-WORKFLOW_IN_HAND = {"Recommendation not accepted": "Plan ready", "Outcome pending": "Awaiting verification"}
+WORKFLOW_IN_HAND = {"No action agreed yet": "Plan ready", "Outcome pending": "Awaiting verification"}
 CASE_STATE_LABEL = {"OPEN": "Open", "IN_PROGRESS": "In progress", "ASSIGNED": "Assigned"}
 
 #: Earlier interventions result labels for a mini Action, by verification state (§B.2 table). NO_PLAN / None: not listed.
@@ -49,14 +50,15 @@ ACTION_RESULT = {"VERIFIED": "Verified on test data", "INEFFECTIVE": "Did not fi
                  "INCONCLUSIVE": "Not determined", "PENDING": "Pending", "REASSESSMENT_PENDING": "Pending"}
 REQUEST_REPEATED, REQUEST_UNVERIFIED = "Did not fix it", "Not yet verified"
 #: OUT-E E4 (build sheet OUT-E section 4): the Earlier entry's cost-check and before/after detail lines.
-COST_PREFIX = "Modelled change after the trial · not realised savings: "
-COST_CHANGE = COST_PREFIX + "{amount} {currency} less per kWh of feeder demand"
-COST_NO_CHANGE = COST_PREFIX + "no lower cost per kWh of feeder demand"
+#: POLISH §3.1 / Addendum 6 Q6: plain read-side copy (the stored `trial_fuel_comparison.LABEL` is unchanged).
+COST_PREFIX = "Estimated effect of the trial (not money saved): "
+COST_CHANGE = COST_PREFIX + "{amount} {currency} less supply cost per kWh."
+COST_NO_CHANGE = COST_PREFIX + "no lower supply cost per kWh."
 COST_NOT_CALCULATED = "Modelled change not calculated: {words}"
 COST_NOT_YET = "Not calculated yet"
 #: POLISH D-2 (OUT-E L4): a modelled improvement is credited only to a VERIFIED trial.
 COST_NOT_CREDITED = "The trial did not fix the problem, so no cost change is credited to it"
-TRIAL_ATTRIBUTED = "{label} before the trial: {before} · after: {after}"
+TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"
 TRIAL_VERDICT = {MET: "met", MISSED: "missed"}
@@ -254,14 +256,16 @@ def join_names(labels: Sequence[str]) -> str:
 
 
 def _item_text(code: str | None, title: str) -> str:
-    """"{code} · {title}"; an item with no stored title (every mini Action, addendum 2 item 1) reads its code."""
+    """"{code} · {title}"; an item with no stored title (every mini Action, addendum 2 item 1) reads its code.
+    POLISH §3: the code is shown in its display form."""
+    code = display_code(code)
     if code and title:
         return f"{code} · {title}"
     return code or title
 
 
 def _action_name(a: "ActionFact") -> str:
-    return a.code or a.title
+    return display_code(a.code) or a.title
 
 
 def finding_moved_outcomes(domain: str) -> frozenset[str]:
@@ -411,11 +415,15 @@ def trial_line(a: ActionFact, objective: ObjectiveFact | None) -> str | None:
 
 
 def action_detail(a: ActionFact, cat: str, facts: SiteFacts) -> str | None:
-    """The Earlier ACT entry's `detail` in a MOVES row: the parts that apply, joined by " · "; None when none."""
+    """The Earlier ACT entry's `detail` in a MOVES row: the parts that apply, None when none. POLISH §3.1 (PA-2a review
+    L1): a part that ends a sentence is followed by a single space; otherwise the parts are joined by " · "."""
     objective = next((o for o in facts.objectives if o.measure_key == TRIAL_MEASURE
                       and OUTCOME_BY_KEY[o.outcome_key].category == cat), None)
     parts = [cost_line(a) if cat == "OPTIMIZE_COST" else None, trial_line(a, objective)]
-    return " · ".join(p for p in parts if p) or None
+    out = ""
+    for p in (x for x in parts if x):
+        out = p if not out else out + (" " if out.endswith(".") else " · ") + p
+    return out or None
 
 
 def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | None:

@@ -160,7 +160,7 @@ def test_w302_money_exact_selected_heads_and_unpriced_cold() -> None:
         "CANDIDATE_OPERATING_COST_EXPOSURE", "ELIGIBLE", {"low": "0.00", "high": "3.97", "currency": "USD"})
     assert w1["technical_interval_ids"] == [A[45]] and w1["assumption_revision_ids"] == [A[44]]
     assert w1["links"] == {"site": "/sites/KOBO-001", "bridge": "/sites/KOBO-001/financials",
-                           "evidence": "/sites/KOBO-001/evidence", "current_view_label": "Opens current Site view"}
+                           "evidence": "/sites/KOBO-001/evidence", "current_view_label": "Current view"}
     assert (product["category"], product["eligibility"], product["amount"]) == (
         "POTENTIAL_PRODUCT_EXPOSURE", "UNPRICED", None)
     assert (repair["category"], repair["eligibility"]) == ("RECORDED_REPAIR", "UNPRICED")

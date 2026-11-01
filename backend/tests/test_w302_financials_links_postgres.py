@@ -4,7 +4,7 @@ Each selected cold/EV line's `links.bridge` and `links.evidence` are followed th
 (`/api/sites/{code}/cold/financials` and `/cold/evidence`, `/api/sites/{code}/ev/financials` and `/ev/evidence`)
 with exactly the link's query: the line's own selected window and row-local cutoff, never the estate day bounds.
 Each read must succeed (no 422). A line whose row-local cutoff cannot be proved keeps the base Site route and
-`Opens current Site view`. Mirrors `test_w302_evidence_links_postgres.py`. Needs ASSETOPS_TEST_DATABASE_URL.
+`Current view`. Mirrors `test_w302_evidence_links_postgres.py`. Needs ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ if URL:
     from assetops_backend.ev_site_api import build_ev_site_router
     from assetops_backend.financials.composition import build_cold_consequence_store, build_ev_site_read_service
 
-CURRENT_VIEW = "Opens current Site view"
+CURRENT_VIEW = "Current view"
 
 
 def at(value: str) -> datetime:

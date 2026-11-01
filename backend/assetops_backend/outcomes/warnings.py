@@ -9,6 +9,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
+from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import categories_for, outcome_roles
 
 POLICY = "early-warnings/1"
@@ -192,7 +193,7 @@ def _repeated(f: WarningFacts) -> list[Warning]:
         fault = names.pop() if len(names) == 1 and None not in names else LINKED_FINDING
         seen = (f"{name} visited {len(done)} times in 60 days ({_dates(f, [v.occurred_on for v in done])}); "
                 f"the {fault} is still open")
-        refs = [{"kind": "WORK_CASE", "id": v.case_id, "label": v.code, "href": v.href} for v in done]
+        refs = [{"kind": "WORK_CASE", "id": v.case_id, "label": display_code(v.code), "href": v.href} for v in done]
         refs += [{"kind": "FINDING", "id": fid, "label": None, "href": f.open_findings[fid][1]} for fid in open_ids]
         out.append(_make(f, REPEATED, asset_id, "Repeated maintenance without a result", seen, latest.href,
                          linked=tuple(linked), refs=refs, count=len(done), subject_label=name,
@@ -201,7 +202,7 @@ def _repeated(f: WarningFacts) -> list[Warning]:
 
 
 def _plan_ref(p: PlanCue) -> dict[str, Any]:
-    return {"kind": "PLAN", "id": p.plan_id, "label": p.code, "href": p.href}
+    return {"kind": "PLAN", "id": p.plan_id, "label": display_code(p.code), "href": p.href}
 
 
 def _overdue(f: WarningFacts) -> list[PlanCue]:

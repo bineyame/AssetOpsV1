@@ -128,7 +128,7 @@ class World:
                "_assessments": [FINDING[31]], "_cited": [FINDING[32]], "_token_cited": [],
                "window_start": None, "window_end": None,
                "links": {"site": "/sites/X", "site_readiness": "/sites/X",
-                         "site_readiness_label": "Opens current Site view"}}
+                         "site_readiness_label": "Current view"}}
         return [(s, "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain", cov(), [dict(row)])
                 for s in scope["sites"]], []
 

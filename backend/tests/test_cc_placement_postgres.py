@@ -29,7 +29,7 @@ if URL:
     from assetops_backend.estate.money_invariants import double_count_violations
 
 ACT_NOW_OPEN = {"policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2, "reasons": [
-    {"code": "EPISODE_OPEN", "text": "No end is recorded for this episode"},
+    {"code": "EPISODE_OPEN", "text": "No end time yet"},
     {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
 PRICED_SINGLE = {"policy_version": "estate-placement/1", "group": "COMPARE_VALUE", "group_rank": 3, "reasons": [
     {"code": "PRICED_SINGLE", "text": "Priced cost exposure; no like line to compare with"}]}
@@ -63,7 +63,7 @@ def test_cold_ev_placement_risks_lens_and_paging(request, monkeypatch, capsys) -
     assert sorted(r["mechanism"] for r in cold) == ["COLD_EXCURSION", "COLD_START_FAILURE"]
     assert ev == [] and len(rows) == 3
     for r in cold:
-        assert r["episode_end"] is None and r["workflow_label"] == "Recommendation not accepted"
+        assert r["episode_end"] is None and r["workflow_label"] == "No action agreed yet"
         assert r["placement"] == ACT_NOW_OPEN and r["lens_flags"] == ["RISK"]
         assert (r["confidence"], r["confidence_reasons"]) == (
             "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
@@ -118,7 +118,7 @@ def test_ev_interruption_placement(ev_chain) -> None:
     assert row["episode_end"] == "2026-10-06T08:16:00Z"
     assert row["consequence"]["state"] == "UNPRICED"
     assert (row["domain"], row["mechanism"]) == ("EV_CHARGING", "EV_INTERRUPTION")
-    assert row["workflow_label"] == "Recommendation not accepted"
+    assert row["workflow_label"] == "No action agreed yet"
     assert row["placement"] == EV_UNPRICED and row["priority"] is None
     assert (row["confidence"], row["confidence_reasons"]) == (
         "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])

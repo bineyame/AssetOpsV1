@@ -92,7 +92,7 @@ F = FindingFact("f", "r2", "Generator support review", "GENERATOR_SUPPORT_CANDID
 ACT = ActionFact(action_id="a1", code="ACT-000001", title="", origin_finding_id="f", origin_revision_id="r1",
                  applied=True, open=True, verification_state="PENDING", href="/sites/KOBO-001/actions/a1",
                  workflow_label="Applied", verification_href="/sites/KOBO-001/actions/a1/verification?event_id=e1")
-SAFEGUARDS = ("Reliable service and battery and generator life are checked as safeguards when ACT-000001 is "
+SAFEGUARDS = ("Reliable service and battery and generator life are checked as safeguards when ACT-001 is "
               "verified; a gain that harms them does not count")
 
 

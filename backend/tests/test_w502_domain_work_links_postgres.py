@@ -16,6 +16,7 @@ from types import SimpleNamespace
 import pytest
 
 from test_s4_finding_store_postgres import URL
+from assetops_backend.outcomes.display_code import display_code  # noqa: E402 (POLISH PA-2a)
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -56,8 +57,13 @@ def bind(cold, suffix: str = "a") -> SimpleNamespace:
 
 
 def expected_link(cold, aid: str) -> dict:
+    """POLISH PA-2a (Addendum 6 Q9): the Site row labels the Action by its stored code's display form."""
+    from sqlalchemy import text
+
+    with cold.engine.connect() as c:
+        code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": aid}).scalar_one()
     return {"kind": DOMAIN, "action_id": aid, "action_event_id": None, "finding_revision_id": cold.revision_id,
-            "label": f"Action {aid[:8]}", "href": f"/sites/{cold.code}/actions/{aid}/verification"}
+            "label": display_code(code), "href": f"/sites/{cold.code}/actions/{aid}/verification"}
 
 
 def site_index(cold, kind: str, window: tuple[str, str], known=()) -> dict:
@@ -183,8 +189,8 @@ def assert_global_domain_parity(cold, b: SimpleNamespace, api_class, root: str, 
     with cold.engine.connect() as c:
         code = c.execute(text("SELECT action_code FROM domain_action WHERE id = :a"), {"a": b.aid}).scalar_one()
     assert code.startswith("ACT-")
-    relabel = {domain["label"]: code}
-    assert rows[case_id]["action_links"] == [{"label": code, "href": domain["href"]}]
+    relabel = {domain["label"]: display_code(code)}
+    assert rows[case_id]["action_links"] == [{"label": display_code(code), "href": domain["href"]}]
     assert {r["site_domain"] for r in rows.values()} == {"COLDCHAIN"}
     assert {r["links"]["site"]["href"] for r in rows.values()} == {f"/sites/{cold.code}"}
     for got, site in ((rows, w4), (old_rows, w4_old)):

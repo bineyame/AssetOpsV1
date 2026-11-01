@@ -20,7 +20,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
-from assetops_backend.work.adapters.postgres_work_read import LinkReadPorts, _ReadTx
+from assetops_backend.work.adapters.postgres_work_read import _ACTION_CODES, LinkReadPorts, _ReadTx
 from assetops_backend.work.model import WorkStoreUnavailable
 
 # A1Q Q5: verbatim estate predicate and order; no `known_at` predicate (W3 parity); inactive imported Sites included.
@@ -76,12 +76,6 @@ _OPERATIONAL = (
     "ORDER BY p.recorded_at DESC, p.id DESC LIMIT 1) h ON true "
     "WHERE r.tenant_id = :t AND r.site_id = :s AND r.supersedes_record_id IS NULL AND r.canonical_record_id = r.id "
     "AND r.occurred_at >= :lo AND r.occurred_at < :hi AND r.recorded_at <= :k")
-# Post-W6 W6 Q10 (R366): the stored public `ACT-` code of each linked Action root, W1 `action` or domain
-# `domain_action` (one shared code namespace), scoped to this tenant and Site. Codes are immutable root values.
-_ACTION_CODES = (
-    "SELECT CAST(a.id AS text), a.action_code FROM action a WHERE a.tenant_id = :t AND a.site_id = :s "
-    "AND CAST(a.id AS text) = ANY(:ids) UNION ALL SELECT CAST(d.id AS text), d.action_code FROM domain_action d "
-    "WHERE d.tenant_id = :t AND d.site_id = :s AND CAST(d.id AS text) = ANY(:ids)")
 # Post-W6 W6 Q2/Q3 (R352/R353): the selected Site's stored `site_type`, for the detail domain and Site home.
 _SITE_TYPE = "SELECT site_type FROM site WHERE tenant_id = :t AND id = :s"
 # W6-01c C1: the scoped Asset code/type of a case's stored `asset_id` (the W4 `_ELIGIBLE` label inputs).

@@ -261,7 +261,7 @@ def test_action_reduce_and_verification_counts() -> None:
     assert [x for x in "abc" if rows[x]["_open"]] == ["a", "b"]
     assert [x for x in "abc" if rows[x]["_verification_window"]] == ["b"]
     assert [x for x in "abc" if rows[x]["_verified_recent"]] == ["c"]
-    assert rows["a"]["action_title"] == "Action ACT-000001" and rows["a"]["success_criterion"] is None
+    assert rows["a"]["action_title"] == "Action ACT-001" and rows["a"]["success_criterion"] is None
     assert rows["a"]["source_provenance"]["selected"] == sorted(["a", "a-e1", "fr", "p", "fd", "b1"])
     assert cov["selected_action_event_ids"] == ["a-e1", "b-e2", "c-e3"] and cov["state"] == "CURRENT"
 

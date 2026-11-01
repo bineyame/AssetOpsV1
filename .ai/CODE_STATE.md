@@ -6313,3 +6313,22 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   exempts product kinds only, `data-time-zone-note` only UTC; MOCK DEVIATION never exempt. Tests sit in guard 12.
 - Open: `[data-repeat-check]` (PB-3), `[data-technical-details]`/`[data-time-zone-note]` (PB-1/PB-2) not yet rendered;
   the strict baseline in `.agent/POLISH-PB-0-packet.md` is the hit list later slices clear.
+
+## POLISH PA-2a - server copy, codes and titles (built, in_review)
+
+- Contract: `.agent/build-sheet-POLISH.md` §3/§3.1 BE rows, Addenda 4 and 6; packet `.agent/POLISH-PA-2a-packet.md`.
+- `outcomes/display_code.py`: `display_code` (prefix + number padded to at least 3; no `re`, the package stays pure)
+  and `finding_label` (title, else "Finding"). Applied to warnings refs, board `_item_text`/`_action_name`, mini
+  verification lines, cold contributors and the work link labels (request, incident, detail, linked requests).
+  Stored/wire code fields are unchanged.
+- Finding labels read the stored revision title: `_ReadTx.finding_titles`, `_ReadTx.action_codes` (work read; the
+  `_ACTION_CODES` SQL moved there and global imports it), `title` in `_IndexTx.finding_revisions`, and a private
+  `recurs_after_title` from `estate/coverage.py` heads into `estate/index.py` for placement RECURRED.
+- Action link labels are the display code, else "Action" (`work/site_index.action_label`).
+- `finding_episode.TITLES` per Addendum 4 (MERGED unchanged); stored per revision, so they show from the PA-3 rebuild.
+- The cold observation words and `plain_limitation` moved to `analytics/cold_site_reads.py` (estate re-exports them);
+  the cold read's `_limits` applies them, so TRANSFER reads "No record of switching to backup power.".
+- Open: `mini.FINDING_TITLE` (board name by lifecycle) still mirrors frontend `findingWords.ts` and is pinned
+  equal to it by `test_idx_gaps_board`; it changes together with PB-2's `LIFECYCLE_WORDS` alignment.
+  `board.COST_NOT_CALCULATED` ("Modelled change not calculated") was not ruled and is unchanged. Asset labels and
+  preventive due counts are PA-2b. Captures deferred to PA-3.

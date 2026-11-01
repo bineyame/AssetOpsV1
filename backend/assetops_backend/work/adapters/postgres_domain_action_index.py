@@ -120,7 +120,7 @@ class _IndexTx:
     def finding_revisions(self, revision_ids: list[str], known_at: datetime) -> dict[str, dict[str, Any]]:
         rows = _rows(self._c.execute(text(
             "SELECT CAST(id AS text) AS id, CAST(finding_id AS text) AS finding_id, domain, analytic_id, "
-            "analytic_run_id, assessment_revision_id, episode_start, episode_end, created_at FROM finding_revision "
+            "analytic_run_id, assessment_revision_id, episode_start, episode_end, created_at, title FROM finding_revision "
             "WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:r AS uuid[])) AND created_at <= :k"),
             self._p(r=list(revision_ids), k=known_at)))
         return {r["id"]: r for r in rows}

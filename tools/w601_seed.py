@@ -637,7 +637,8 @@ def _linked_hrefs(url: str, tenant: Any, fid: str, action_id: str, incident_id: 
             request = parse_global_request(kind, [("from", "2026-10-14T00:00:00Z"), ("to", "2026-10-21T00:00:00Z")])
             body = service.read(tenant, kind, request, lambda code: True)
             [row] = [r for r in body["rows"] if r["case_id"] == case_id]
-            finding = [x for x in row["finding_links"] if x["label"] == f"Finding {fid[:8]}" and x["href"]]
+            # POLISH PA-2a: Finding labels are the stored title, so the link is found by its href.
+            finding = [x for x in row["finding_links"] if x["href"] and f"/findings/{fid}?" in x["href"]]
             # Post-W6 W6 Q10 (R366): global Action labels are the stored `ACT-` code, so the link is found by href.
             act = [x for x in row["action_links"] if x["label"].startswith("ACT-") and action_id in (x["href"] or "")]
             if not finding or not act:
