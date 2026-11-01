@@ -1,6 +1,6 @@
 # POLISH-PC Final gate of the client-demo polish round
 
-Status: in_progress
+Status: in_review
 USER_REVIEW_REQUIRED: true
 Lane: after both lanes merge. Units: 3. Branch `task/POLISH-PC-final-gate`.
 
