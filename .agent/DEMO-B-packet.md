@@ -207,3 +207,4 @@ Kept build: `C:\Users\assef\Bineyame\AssetOpsV1-demo3`, work `var/demo3_full`, D
 - **L5:** runbook gives the literal PowerShell `PYTHONPATH`, the venv interpreter in every Python step, the PowerShell
   form of the mock-ids argument, and the re-quote note for the verification link.
 - **L6:** P-11 (EV tariff contradiction) and P-12 (Kobo Assure S vs S+1) added.
+- Guards after the fix round, at `fecb1dd49`: **All 11 guards passed** (exit 0, 346 s); `node --check` clean.
