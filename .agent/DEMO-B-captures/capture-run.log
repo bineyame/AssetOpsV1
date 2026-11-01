@@ -1,0 +1,31 @@
+chrome pid 17584
+OK    portfolio-week 1440  h1="Portfolio Value & Operations" pageH=1910 overflow=false vocab=5
+OK    portfolio-week 390  h1="Portfolio Value & Operations" pageH=3832 overflow=false vocab=5
+OK    kobo-board-S 1440  h1="Kobo mini-grid" pageH=2476 overflow=false vocab=1
+OK    kobo-board-S 390  h1="Kobo mini-grid" pageH=4280 overflow=false vocab=3
+OK    kobo-board-S-open 1440  h1="Kobo mini-grid" pageH=21085 overflow=false vocab=259
+OK    kobo-board-S-open 390  h1="Kobo mini-grid" pageH=30073 overflow=false vocab=261
+OK    kobo-board-S1 1440  h1="Kobo mini-grid" pageH=1994 overflow=false vocab=0
+OK    kobo-board-S1 390  h1="Kobo mini-grid" pageH=3475 overflow=false vocab=2
+OK    kobo-verification 1440  h1="ACT-000001 · Battery reserve trial" pageH=1453 overflow=false vocab=1
+OK    kobo-verification 390  h1="ACT-000001 · Battery reserve trial" pageH=2686 overflow=false vocab=1
+OK    cold-board-failure 1440  h1="Cold replay lab" pageH=2407 overflow=false vocab=4
+OK    cold-board-failure 390  h1="Cold replay lab" pageH=4616 overflow=false vocab=6
+OK    cold-board-normal 1440  h1="Cold replay lab" pageH=1516 overflow=false vocab=0
+OK    cold-board-normal 390  h1="Cold replay lab" pageH=2524 overflow=false vocab=2
+OK    ev-board-fault 1440  h1="EV charging lab" pageH=1994 overflow=false vocab=5
+OK    ev-board-fault 390  h1="EV charging lab" pageH=3503 overflow=false vocab=7
+OK    findings-all 1440  h1="Findings" pageH=1316 overflow=false vocab=0
+OK    findings-all 390  h1="Findings" pageH=1828 overflow=false vocab=0
+OK    findings-cost 1440  h1="Findings" pageH=1000 overflow=false vocab=0
+OK    findings-cost 390  h1="Findings" pageH=1027 overflow=false vocab=0
+OK    findings-risks 1440  h1="Findings" pageH=1183 overflow=false vocab=0
+OK    findings-risks 390  h1="Findings" pageH=1644 overflow=false vocab=0
+OK    findings-opportunities 1440  h1="Findings" pageH=1000 overflow=false vocab=0
+OK    findings-opportunities 390  h1="Findings" pageH=1027 overflow=false vocab=0
+OK    maintenance-preventive 1440  h1="Maintenance" pageH=1096 overflow=false vocab=0
+OK    maintenance-preventive 390  h1="Maintenance" pageH=1661 overflow=false vocab=0
+OK    wr-overview 1440  h1="Starter/control inspection" pageH=1000 overflow=false vocab=7
+OK    wr-overview 390  h1="Starter/control inspection" pageH=1260 overflow=false vocab=7
+wrote 28 captures to .agent/DEMO-B-captures
+exit 0 wall 270 s

@@ -6263,3 +6263,15 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   `finish check`/`get` child in the private tree; SP-7 weekday-bound comparison per DEMO-SPARSE Addendum 4);
   `-Tier all` 4688/0/0/0. R535 and R552 now pass on this build (left for the coordinator to close).
 - Left open: reads go stale 300 s after the last tick (heartbeat): run `serve` or `tick` before a demo.
+
+## DEMO-B - combined-dataset captures, v70 comparison and walkthrough runbook (built, in_review)
+
+- Tool `tools/demo-combined-evidence.mjs`: `capture <work> <out> [web]` (14 screens x 1440/390 from `story.json`,
+  `kobo.json`, `days.json`; settle on no "Loading" + stable text; full-page PNG; measure-mock-panels blocks + overflow;
+  visible-vocabulary scan), `mock-ids`, `compare <out> <mock-measure.json>`. `DEMOB_ONLY=<keys>` filters. No product
+  code, Python or data changed.
+- Route facts it settles: the outcome board renders on the Site Overview (`/sites/KOBO-001?date=`,
+  `/sites/COLD-LAB-001?from&to`, `/sites/EV-LAB-001/ev?from&to`); `/sites/{code}/outcomes` and `/overview` (printed by
+  `demo_combined.py links`) are not routes (P-01). Cold/EV boards read on `days.json` start/end windows.
+- Global work lists window by recorded time (build day), not story time (R629).
+- Open: R626, R630 (open rows), polish P-01..P-10 and the client-copy list in `.agent/DEMO-B-packet.md`.
