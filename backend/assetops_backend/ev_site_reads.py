@@ -71,8 +71,8 @@ NEXT_EVIDENCE = {
                               "Independent requested and allocated readings are needed before a power constraint "
                               "can be assessed.", "analysis"),
     "SITE_IMPORT_GAP": ("Record Site import power", "Needed for Site power context.", "analysis"),
-    "TARIFF_GAP": ("Publish an EV gross tariff", "Needed before a gross tariff scenario can be estimated.",
-                   "financials"),
+    # POLISH Addendum 11 (R655): plain words, no "gross tariff scenario".
+    "TARIFF_GAP": ("Publish a charging tariff", "Needed before charging income can be estimated.", "financials"),
     "BILLING_GAP": ("Connect billing records", "Needed before any amount can be stated as collected.",
                     "financials"),
 }
