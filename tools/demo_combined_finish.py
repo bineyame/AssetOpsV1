@@ -22,6 +22,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from assetops_backend.outcomes.display_code import display_code
+
 KOBO, COLD, EV = "KOBO-001", "COLD-LAB-001", "EV-LAB-001"
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 SAFEGUARD = " · checked here as a safeguard"
@@ -143,8 +145,13 @@ def co1(ctx: Ctx) -> dict:
     mnh = cost.get("must_not_harm") or {}
     href = mnh.get("href") or ""
     assert k["action"] in href and "/verification?event_id=" in href, mnh
-    on_cost_row = [i["text"] for i in items(cost)
-                   if k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "")]
+    # DEMO-A L1: the original U6 safeguards sentence (`site_outcomes/board.py` must_not_harm).
+    assert "Reliable service and battery and generator life" in (mnh.get("text") or ""), mnh
+    # DEMO-A L2 / POLISH Addendum 9 Q4: only the row's issues and in-hand items (not CO-3's `earlier` line); the
+    # Action by its href, or by its display code in the text (§3 / Addendum 6 Q8).
+    shown = display_code(k["action_code"])
+    on_cost_row = [i["text"] for i in [*cost.get("issues", []), *cost.get("in_hand", [])]
+                   if k["action"] in (i.get("href") or "") or (shown and shown in (i.get("text") or ""))]
     assert on_cost_row, items(cost)
     outside = [i["text"] for x in body["rows"] for i in items(x) if i["text"].endswith(OUTSIDE)]
     assert outside == [], outside

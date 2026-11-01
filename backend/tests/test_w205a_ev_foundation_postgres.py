@@ -482,3 +482,18 @@ def test_republish_refuses_a_map_that_is_not_the_known_first_one(store) -> None:
     with pytest.raises(EvLabRepublishRefused, match="not the known first"):
         republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(NOW))
     assert len(store.binding_sets(result.tenant.id, result.site.id)) == before
+
+
+def test_ev_lab_install_keeps_the_fixture_name_without_display_name(store) -> None:
+    """POLISH PA-3 (§3 "Lab Site names"): no `display_name` keeps the fixture YAML's name."""
+    assert install(store).site.name == "EV charging lab"
+
+
+def test_ev_lab_install_stores_a_given_display_name_and_stays_idempotent(store) -> None:
+    """POLISH PA-3: a given `display_name` is the stored Site name; a later install of the same source (as each
+    demo EV story day's chain does) returns the same Site and keeps it."""
+    first = install_ev_lab(store, tenant_slug="demo", clock=Clock(NOW - timedelta(hours=3)),
+                           display_name="Depot Charging Hub")
+    again = install(store)
+    assert first.site.name == "Depot Charging Hub"
+    assert again.site.id == first.site.id and store.find_site(first.tenant.id, "EV-LAB-001").name ==         "Depot Charging Hub"

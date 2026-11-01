@@ -97,3 +97,20 @@ def test_mismatched_v4_tuple_refused_before_publication(store) -> None:
                         effective_from=datetime(2026, 10, 2, tzinfo=timezone.utc), note="wrong role")
     assert refused.value.code == "BINDING_CHANNEL_ROLE_MISMATCH"
     assert len(store.binding_sets(tenant.id, site.id)) == before
+
+
+
+def test_cold_lab_install_keeps_the_fixture_name_without_display_name(store) -> None:
+    """POLISH PA-3 (§3 "Lab Site names"): no `display_name` keeps the fixture YAML's name."""
+    result = install_cold_lab(store, tenant_slug="demo", clock=Clock(NOW - timedelta(hours=3)))
+    assert result.site.name == "Cold replay lab"
+
+
+def test_cold_lab_install_stores_a_given_display_name_and_stays_idempotent(store) -> None:
+    """POLISH PA-3: a given `display_name` is the stored Site name; a later install of the same source (as the demo
+    producer's per-night chains do) returns the same Site and keeps it."""
+    first = install_cold_lab(store, tenant_slug="demo", clock=Clock(NOW - timedelta(hours=3)),
+                             display_name="GreenHarvest Cold Room")
+    again = install_cold_lab(store, tenant_slug="demo", clock=Clock(NOW - timedelta(hours=2)))
+    assert first.site.name == "GreenHarvest Cold Room"
+    assert again.site.id == first.site.id and store.find_site(first.tenant.id, "COLD-LAB-001").name ==         "GreenHarvest Cold Room"

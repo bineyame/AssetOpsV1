@@ -6247,9 +6247,9 @@ Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/b
   `test_w402_mini_stage_postgres.py`.
 - Left open: R624 (an excluded-lifecycle Site with only cold/EV work is not discovered; no cold/EV counts in `health.py`), and
   four more child processes per visited Site in a deployment (fewer Sites per 240 s tick).
-## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (built, in_review)
-Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed62c8` merged). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
-+ Addenda 1-3 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
+## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (merged `4f57261d3`)
+Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to main as `4f57261d3`). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
++ Addenda 1-4 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
 - `tools/demo_combined.py` `prepare | links | serve | tick | add-day | drop` on a private `assetops_demo3_<name>_test` DB; children
   `demo_combined_kobo.py` (day runs + the S/S+1 trial chain), `_cold.py` (ShiftedChain per night, attest at setup instant), `_ev.py`
   (Tuesday days, w504 work rows), `_finish.py` (`check`: CO-1..CO-12 + SP-1..SP-7 via `host/lab_app.py`, `<work>/check.json`).
