@@ -166,7 +166,7 @@ describe("W5-03a E3: EV Energy", () => {
     // Measure/Value detail stays in a closed disclosure with the exact sample facts.
     const details = document.querySelector("details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
-    expect(text('[data-ev-measure="peak-time"] td')).toBe("08:15:00 UTC");
+    expect(text('[data-ev-measure="peak-time"] td')).toBe("08:15:00");
     expect(document.querySelectorAll('[data-ev-measure="sample"]')).toHaveLength(4);
     // Conclusions: the five mock key-value labels; Yes green, Not established amber; battery Unknown with its gap.
     expect(conclusions()).toEqual([

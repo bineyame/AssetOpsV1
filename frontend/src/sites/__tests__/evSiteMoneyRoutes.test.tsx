@@ -333,7 +333,7 @@ describe("W2-07 EV Site routes", () => {
     expect(srcRows.map((r) => r.querySelectorAll("td")[2].textContent)).toEqual(["Sessions and status", "Sessions and status", "No accepted report for this role", "No payment feed"]);
     expect(srcRows.map((r) => r.querySelectorAll("td")[3].textContent)).toEqual(["Sessions", "Sessions", "Site power", "Collections not assessed"]);
     expect(srcRows[0].querySelector(".ev-tone--amber")?.textContent).toBe("Mixed");
-    expect(sources.querySelector("[data-ev-contact-checked]")?.textContent).toBe("Contact checked at 6 Oct 09:00 UTC");
+    expect(sources.querySelector("[data-ev-contact-checked]")?.textContent).toBe("Contact checked at 6 Oct, 09:00");
     const c1 = sources.querySelector('[data-source-detail="CONNECTOR_1"]') as HTMLElement;
     expect(c1.textContent).toContain("Source contacts differ");
     expect(c1.querySelectorAll("[data-source-contact]")).toHaveLength(3);
@@ -456,7 +456,7 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS.ev, client({ state: "HISTORICAL", consequence: GUARD("HISTORICAL_CURRENT_CLAIM", "Historical scenario") }));
     expectV69Panels("ev");
-    expect(strip()).toContain("Historical selection · 6 Oct 09:00 UTC");
+    expect(strip()).toContain("Historical selection · 6 Oct, 09:00");
     const money = panelTitled("Bounded money consequence");
     expect(money.querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
     expect(money.textContent).toContain("Historical scenario");
@@ -599,7 +599,7 @@ describe("W2-07 EV Site routes", () => {
       ["none", "Service window not declared"],
       ["outside", "No configured service hours overlap this selection"],
       ["vary", "Configured service hours vary by connector"],
-      ["common", "Configured service hours 08:00–16:00 UTC"],
+      ["common", "Configured service hours 08:00–16:00"],
     ] as const) {
       await renderAt(PATHS.ev, client({ schedule }));
       expect(main().querySelector("[data-ev-objective]")?.textContent).toContain(text);
@@ -959,7 +959,7 @@ describe("post-W6 W2-EV U3: EV Site refusals, chronology, money links, cards, ev
   it("R284: a non-window refusal keeps its own wording and the requested-window line, never a window title", async () => {
     await renderAt(PATHS.ev, client({}, refused(403, "SITE_SCOPE_FORBIDDEN")));
     expect(strip()).not.toContain("Window cannot be read");
-    expect(main().querySelector("[data-ev-window-requested]")?.textContent).toContain("6 Oct 08:00");
+    expect(main().querySelector("[data-ev-window-requested]")?.textContent).toContain("6 Oct 2026, 08:00");
     expect(gaps().filter((g) => g === "You do not have access to this EV evidence.")).toHaveLength(1);
     expect(main().querySelectorAll("[data-ev-refused-card]")).toHaveLength(5);
   });

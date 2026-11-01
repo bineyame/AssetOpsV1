@@ -564,7 +564,7 @@ describe("W1-F5a: Health and battery state lines (the W1-UX-05/06 words, now in 
     expectV69Panels("health");
     expect(q("[data-headline-card]")).toBeNull();
     expect(expectStateLineVisible(strip())).toBe("Asset condition cannot yet be judged");
-    expect(strip().querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/);
+    expect(strip().querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2}$/);
     expect(strip().querySelector("[data-product-status-scope]")?.textContent).toContain("1 configured battery");
     // Contact never leads and never decides condition.
     expect(strip().textContent).not.toMatch(/contact|gateway/i);

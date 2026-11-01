@@ -398,8 +398,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(2);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
-    expect(expectStateLineVisible(objectiveCard())).toBe("Using the latest checked readings");
-    expect(objectiveCard().querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/);
+    expectLatestCheckedLine(objectiveCard());
   });
 });
 
@@ -407,6 +406,15 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
  * W1-F2: the former objective answer card is gone (v69 `mini` has no leading card). Its state line is the mock's
  * statusbar above the panels; its exact references sit with the day reading in panel 1.
  */
+/** The CURRENT state line reads "Latest checked readings · 29 Oct 2026 · updated 1 Nov 2026, 02:09" (PB-1). */
+function expectLatestCheckedLine(card: HTMLElement): void {
+  const status = card.querySelector("[data-product-status]");
+  expect(status).not.toBeNull();
+  expect(status!.querySelector("[data-product-status-label]")?.textContent).toBe("Latest checked readings");
+  expect(status!.querySelector("[data-product-status-scope]")?.textContent).toMatch(/^[0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}$/);
+  expect(status!.querySelector("[data-product-status-as-of]")?.textContent).toMatch(/^updated [0-9]{1,2} [A-Z][a-z]{2} [0-9]{4}, [0-9]{2}:[0-9]{2}$/);
+}
+
 function objectiveCard(): HTMLElement {
   return document.querySelector("[data-overview-status]") as HTMLElement;
 }
@@ -458,7 +466,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     // Current and priced claims keep a plain "as of" beside them.
     // Review fix M3: said once, in the statusbar; panel 1 keeps only the source sentence.
     expectFreshnessInStatusbar();
-    expect(expectStateLineVisible(objectiveCard())).toBe("Using the latest checked readings");
+    expectLatestCheckedLine(objectiveCard());
     // Review fix M3: panel 1 has one "How this was worked out" disclosure (day reading and freshness merged).
     const happened = freshnessCard().closest(".panel") as HTMLElement;
     expect([...happened.querySelectorAll("summary")].filter((x) => x.textContent === "How this was worked out")).toHaveLength(1);
@@ -516,7 +524,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(coverage.querySelector("[data-window-readings]")).not.toBeNull();
     // The day chooser is the leading chip row (before panel 1, outside every panel), with the day's bounds in it;
     // Next step keeps its button and Dispatch link on one line.
-    expect(container.querySelector(".window-day [data-window-bounds]")?.textContent).toContain("start included, end excluded");
+    expect(container.querySelector(".window-day [data-time-zone-note]")?.textContent).toBe("Times in UTC");
+    expect(container.querySelector(".window-day")?.textContent).not.toContain("end excluded");
     expect(container.querySelector(".window-day")?.closest(".panel")).toBeNull();
     const actions = container.querySelector(".overview-next__actions") as HTMLElement;
     expect(actions.querySelector("[data-overview-next-finding]")).not.toBeNull();
@@ -608,7 +617,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-25`, client);
     await settledScreen();
     expect(expectStateLineVisible(moneyCard())).toBe("No Finding on this day");
-    expect(moneyCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 25 Oct 2026, 12:00 UTC");
+    expect(moneyCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 25 Oct 2026, 12:00");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().textContent).not.toMatch(/\d+\.\d\d/);
     expect(moneyCard().querySelector("[data-value-bars]")).toBeNull();

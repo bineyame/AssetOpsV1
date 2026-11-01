@@ -7,10 +7,11 @@
  * They are views of backend facts. The frontend computes geometry only: every
  * classification, count, bound and sentence arrives from the assessment or its
  * plain reading. Each graphic carries a readable equivalent (a table or text),
- * its units, period, timezone (UTC) and a caption saying whether it shows
+ * its units, period, timezone (UTC, named by the page note) and a caption saying whether it shows
  * reported records or the assessed result. Identity is never colour alone:
  * each kind has its own pattern and a text label.
  */
+import { formatTime } from "../ui/time";
 import { useId, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -33,14 +34,9 @@ const KIND_WORDS: Record<string, string> = {
 const NOT_RECORDED = "Generator operation not recorded";
 const UNCERTAIN = "Start or stop time uncertain";
 
-/** "03:05 UTC" from an ISO time; the date is in the caption. */
+/** "03:05" from an ISO time (POLISH §3 Times); the date is in the caption. */
 function clock(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return iso;
-  }
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+  return formatTime(iso);
 }
 
 /** A round scale maximum at or above `value` (1, 2, 2.5 or 5 times a power of ten). */
@@ -310,7 +306,7 @@ export function AssessedPeriodTimeline({
       <figcaption className="assessment-graphic__caption" id={`${id}-caption`}>
         {compact
           ? `Assessed period, ${period}`
-          : `Assessed period, ${period}. Assessed result from the reported records; times are UTC.`}
+          : `Assessed period, ${period}. Assessed result from the reported records.`}
       </figcaption>
       {geometry === null ? (
         <p data-timeline-unavailable>The times of this period could not be read, so it is not drawn.</p>
@@ -481,10 +477,10 @@ function PartsTable({
   return (
     <div className="period-timeline__table" data-timeline-table>
       <DataTable>
-        <caption className="visually-hidden">Assessed parts of the period, times UTC</caption>
+        <caption className="visually-hidden">Assessed parts of the period</caption>
         <thead>
           <tr>
-            <th scope="col">Time (UTC)</th>
+            <th scope="col">Time</th>
             <th scope="col">Outcome</th>
             <th scope="col">Reason</th>
             <th scope="col">
@@ -809,7 +805,7 @@ export function CoverageByInput({ inputs, unobserved, words }: CoverageByInputPr
         <caption className="assessment-graphic__caption">
           Reported records for this assessed period: for each input, the number
           of assessed parts of this period that had a usable record. Counts of
-          parts, not shares of elapsed time. Times are UTC.
+          parts, not shares of elapsed time.
         </caption>
         <thead>
           <tr>
@@ -974,7 +970,7 @@ export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRea
         ))}
         {ticks.map((t) => (
           <text key={t.toISOString()} className="cold-chart__axis" x={x(t)} y={CHART_H - 8} textAnchor="middle">
-            {`${hm(t.toISOString())} UTC`}
+            {hm(t.toISOString())}
           </text>
         ))}
       </svg>
@@ -1015,12 +1011,12 @@ export function EvPowerChart({ items, from, to, limitKw }: { items: EvAnalysisIt
   const y = (kw: number) => T + ph - (kw / maxKw) * ph;
   return (
     <figure className="ev-site-chart" data-ev-chart>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Charging activity and Site import, ${hm(from)}–${hm(to)} UTC`}>
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Charging activity and Site import, ${hm(from)}–${hm(to)}`}>
         <line x1={L} y1={T + ph} x2={W - R} y2={T + ph} className="ev-site-chart__axis" />
         <line x1={L} y1={T} x2={L} y2={T + ph} className="ev-site-chart__axis" />
         <text x={L - 4} y={T + 8} textAnchor="end" className="ev-site-chart__tick">{`${maxKw} kW`}</text>
-        <text x={L} y={H - 6} className="ev-site-chart__tick">{`${hm(from)} UTC`}</text>
-        <text x={W - R} y={H - 6} textAnchor="end" className="ev-site-chart__tick">{`${hm(to)} UTC`}</text>
+        <text x={L} y={H - 6} className="ev-site-chart__tick">{hm(from)}</text>
+        <text x={W - R} y={H - 6} textAnchor="end" className="ev-site-chart__tick">{hm(to)}</text>
         {energy.map((s, i) => (
           <rect key={`e${i}`} x={x(s.a)} y={T + ph - (s.v / maxKwh) * ph * 0.3} width={Math.max(1, x(s.b) - x(s.a))} height={(s.v / maxKwh) * ph * 0.3} className="ev-site-chart__energy" />
         ))}

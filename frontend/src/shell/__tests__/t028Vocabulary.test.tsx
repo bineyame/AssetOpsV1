@@ -217,7 +217,7 @@ describe("the guard's failing-example proofs", () => {
     renderAt(`/sites/${SITE_ID}`, { lab: true });
     await settledScreen();
     const lab = Array.from(document.querySelectorAll('[data-vocabulary-exempt="lab"]')).map((el) => el.textContent);
-    expect(lab).toContain("Open Simulator Lab");
+    expect(lab).toContain("Simulator Lab");
     expect(lab).toContain("Open in Simulator Lab");
     expect(lab.length).toBeGreaterThanOrEqual(5);
     cleanup();

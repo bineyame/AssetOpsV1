@@ -285,7 +285,7 @@ describe("W6-01e E2: global Operational records", () => {
     expect(text(cell(first, 1))).toBe("Shift note");
     expect(cell(first, 1).querySelector(".v69-chip, .w1f4-action-badge")).toBeNull();
     expect(within(cell(first, 2)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
-    expect(text(cell(first, 3))).toBe("18 Oct 2026, 09:00 UTC");
+    expect(text(cell(first, 3))).toBe("18 Oct 2026, 09:00");
     expect(text(cell(first, 4))).toBe("service:w401-fixture");
     expect(text(cell(first, 5).querySelector("[data-global-work-body]"))).toBe(
       "Shift note at KOBO-001: generator stop handed over to the next shift.",
@@ -316,7 +316,7 @@ describe("W6-01e E2: global Operational records", () => {
     const full = long.querySelector("[data-global-work-full-body]") as HTMLDetailsElement;
     expect(text(full.querySelector("summary"))).toBe("Full record text");
     expect(full.textContent).toContain(LONG.trim());
-    expect(text(cell(trs[2], 3).querySelector("[data-global-work-period-end]"))).toBe("Until 18 Oct 2026, 10:30 UTC");
+    expect(text(cell(trs[2], 3).querySelector("[data-global-work-period-end]"))).toBe("Until 18 Oct 2026, 10:30");
     // Caps ruling 4: the By value is a two-line preview inside the in-cell disclosure.
     expect(cell(trs[2], 4).querySelector("[data-global-work-actor]")?.className).toBe(
       "global-work-clamp global-work-clamp--two cell-disclosure__value",
@@ -412,7 +412,7 @@ describe("W6-01e E2: global Operational records", () => {
       mount(`${PAGE}&kind=${kind}`, reads);
       await settled();
       const zero = document.querySelector("[data-global-work-zero]") as HTMLElement;
-      expect(Array.from(zero.querySelectorAll("p")).map(text)).toEqual([sentence, "Change the UTC window or open a Site record."]);
+      expect(Array.from(zero.querySelectorAll("p")).map(text)).toEqual([sentence, "Change the dates or open a Site record."]);
       expect(cards()?.querySelector("[data-global-work-card='records_in_window'] .v69-metric__value")?.textContent).toBe("0");
       expect(reads.calls[0].kind).toBe(kind === "all" ? undefined : kind);
       cleanup();
@@ -471,7 +471,7 @@ describe("W6-01e E2: global Operational records", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 Times in UTC");
   });
 
   it("states a read failure, an invalid window and no accessible Sites, never a zero", async () => {

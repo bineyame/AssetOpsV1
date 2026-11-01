@@ -216,25 +216,25 @@ describe("W3-01 estate roots", () => {
     const pending = new Promise<never>(() => undefined);
     const loading = { ...fakeClient(() => loaded(findingsBody("all"))), findings: () => pending } as EstateClient;
     let view = renderAt(`/findings?${WINDOW}`, loading);
-    expect(cutoff()).toBe("Evidence cutoff latest");
-    expect(cutoff()).not.toContain("latest (latest at read time)");
+    expect(cutoff()).toBe("Latest information");
+    expect(cutoff()).not.toContain("as of");
     view.unmount();
     const refused = fakeClient(() => ({ status: "refused", httpStatus: 422, code: "INVALID_LENS", copy: "Choose a supported Findings lens." }));
     view = renderAt(`/findings?${WINDOW}`, refused);
     await settledScreen();
-    expect(cutoff()).toBe("Evidence cutoff latest");
+    expect(cutoff()).toBe("Latest information");
     view.unmount();
     view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(findingsBody("all"))));
     await settledScreen();
-    expect(cutoff()).toBe("Evidence cutoff 2026-10-20 09:30:00 UTC (latest at read time)");
+    expect(cutoff()).toBe("Latest information, as of 20 Oct 2026, 09:30");
     view.unmount();
     view = renderAt(`/findings?${WINDOW}&cursor=abc`, fakeClient(() => loaded(findingsBody("all"))));
     await settledScreen();
-    expect(cutoff()).toBe("Evidence cutoff 2026-10-20 09:30:00 UTC");
+    expect(cutoff()).toBe("Information as of 20 Oct 2026, 09:30");
     view.unmount();
     const explicit = "2026-10-18T06:00:00Z";
     view = renderAt(`/findings?${WINDOW}&known_at=${encodeURIComponent(explicit)}`, loading);
-    expect(cutoff()).toBe("Evidence cutoff 2026-10-18 06:00:00 UTC");
+    expect(cutoff()).toBe("Information as of 18 Oct 2026, 06:00");
     view.unmount();
     const explicitBody = actionsBody({ window: { from: FROM, to: TO, bounds: "[from, to)", known_at: explicit } });
     view = renderAt(
@@ -242,7 +242,7 @@ describe("W3-01 estate roots", () => {
       fakeClient(() => loaded(findingsBody("all")), loaded(explicitBody)),
     );
     await settledScreen();
-    expect(cutoff()).toBe("Evidence cutoff 2026-10-18 06:00:00 UTC");
+    expect(cutoff()).toBe("Information as of 18 Oct 2026, 06:00");
     view.unmount();
   });
 
@@ -441,13 +441,13 @@ describe("W3-01 estate roots", () => {
     });
     view = renderAt(`/findings?${WINDOW}&cursor=xyz`, fakeClient(() => loaded(pageTwo)));
     await settledScreen();
-    expect(main().querySelector("[data-estate-historical]")?.textContent).toBe("This is an earlier evidence cutoff.");
-    expect(main().querySelector("[data-estate-limitation]")?.textContent).toContain("This is an earlier evidence cutoff.");
+    expect(main().querySelector("[data-estate-historical]")?.textContent).toBe("Showing an earlier point in time.");
+    expect(main().querySelector("[data-estate-limitation]")?.textContent).toContain("Showing an earlier point in time.");
     expect(main().querySelector('[data-estate-site-state="PENDING_RECOMPUTE"]')?.textContent).toBe(
       "New evidence is being assessed.",
     );
-    expect(main().textContent).toContain(`Historical as of 2026-10-20 09:30:00 UTC`);
-    expect(main().querySelector("[data-estate-cutoff]")?.textContent).toContain("2026-10-20 09:30:00 UTC");
+    expect(main().textContent).toContain(`Historical as of 20 Oct 2026, 09:30`);
+    expect(main().querySelector("[data-estate-cutoff]")?.textContent).toContain("20 Oct 2026, 09:30");
     view.unmount();
 
     // Complete empty lenses: `No findings match.` plus the lens line; awaiting-verification honest zero.
@@ -772,7 +772,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     const view = renderAt(`/findings?${WINDOW}`, fakeClient(() => store));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(store.copy);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
     view.unmount();
   });
 

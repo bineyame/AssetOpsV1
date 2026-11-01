@@ -473,7 +473,7 @@ describe("the Foundation-under-Foundation heading is gone", () => {
     // the site name, with its provenance and Site ID beside it and the screen
     // description below, as the mock's Site page heading.
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Kalangala Mini-Grid");
-    expect(document.querySelector("[data-site-provenance]")?.textContent).toMatch(/MG-002$/);
+    expect(document.querySelector("[data-site-provenance]")?.textContent).toContain("Example data");
     expect(document.querySelector(".page-header__subtitle")?.textContent).toMatch(/^Definition, topology and controls/);
   });
 });

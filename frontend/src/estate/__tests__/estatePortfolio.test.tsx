@@ -79,7 +79,7 @@ describe("estate Portfolio page", () => {
     ]);
     // R5: the Site-owned value is formatted from the exact selected line (outward to the minor unit); now on Optimize.
     expect(text(cards[1].querySelector("[data-portfolio-card-value]"))).toBe("$3.31–$3.97");
-    expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026 · 14:20–15:20 UTC");
+    expect(text(cards[1])).toContain("Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20");
     expect(cards[1].tagName).toBe("A");
     expect(cards[1].getAttribute("href")).toBe("/financials?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z");
     // R6 / A.4: no category counts on this body, so Protect reads `Not assessed` and links to the risk root.
@@ -153,10 +153,10 @@ describe("estate Portfolio page", () => {
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
     expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Possible extended generator support");
-    expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
+    expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026, 14:20–15:20");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
-    expect(cells[4]).toBe("Supported, coherent source Supported Finding · Prepared example data source");
+    expect(cells[4]).toBe("Well supported Supported Finding · Prepared example data source");
     expect(cells[5]).toBe("No accepted Action Next move not recorded Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
@@ -419,7 +419,7 @@ describe("estate Portfolio page", () => {
   it("rendersEmptyPendingHistoricalAndSourceConflict", async () => {
     const expected: Record<EstatePortfolioStatus, string> = {
       CURRENT: "Selected Site records",
-      HISTORICAL: "Historical as of 30 Sep 2026 · 00:00 UTC",
+      HISTORICAL: "Historical as of 30 Sep 2026, 00:00",
       PENDING: "Updating selected Sites",
       PARTIAL: "Some days not checked yet",
       UNKNOWN: "Some Sites cannot be compared yet",
@@ -502,7 +502,7 @@ describe("estate Portfolio page", () => {
     expect(text(basis.querySelector("summary"))).toBe("Energy basis ↗");
     fireEvent.click(basis.querySelector("summary") as HTMLElement);
     const basisText = text(basis);
-    expect(basisText).toContain("Selected window: 6 Oct 2026 · 08:00–16:00 UTC.");
+    expect(basisText).toContain("Selected window: 6 Oct 2026, 08:00–16:00.");
     expect(basisText).toContain("Source basis");
     expect(basisText).toContain("Classification: SITE_RECORD");
     expect(basisText).toContain("State: KNOWN");
@@ -720,7 +720,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     const view = renderAt(ENTRY, portfolioClient(refused(503, "ESTATE_STORE_UNAVAILABLE", "Estate records are unavailable right now. Try again.")));
     await settledScreen();
     expect(text(document.querySelector("[data-page-refusal]"))).toBe("Estate records are unavailable right now. Try again.");
-    expect(text(document.querySelector("[data-estate-window]"))).toBe("Window 2026-10-06 to 2026-10-06 (UTC days)");
+    expect(text(document.querySelector("[data-estate-window]"))).toBe("6 Oct 2026");
     view.unmount();
   });
 });
@@ -959,7 +959,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     const node = card("OPTIMIZE_COST").querySelector("[data-portfolio-card-value]") as HTMLElement;
     expect(node.textContent).toBe("$3.31–$3.97");
     expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-detail]"))).toBe(
-      "Kobo · Candidate operating-cost exposure · 6 Oct 2026 · 14:20–15:20 UTC",
+      "Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20",
     );
     expect(text(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-basis]"))).toBe("Site-owned selected consequence");
     expect(card("OPTIMIZE_COST").className).toContain("amber");

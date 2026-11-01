@@ -217,8 +217,8 @@ describe("W5-03b E6: EV Scenarios", () => {
     expect(Array.from(row.children).map(text)).toEqual([
       "Tariff what-if 1ESCN-000001 revision 1",
       "0.3100 KES/kWh gross tariff",
-      "Selected evidence through 2026-10-06 09:00 UTCReview assumptions →",
-      "2026-10-24 10:00 UTC",
+      "Selected evidence through 6 Oct 2026, 09:00Review assumptions →",
+      "24 Oct 2026, 10:00",
       "Defined",
     ]);
     const review = screen.getByRole("button", { name: "Review assumptions →" });
@@ -296,7 +296,7 @@ describe("W5-03b E6: EV Scenarios", () => {
     expect(await client.list(CODE, { from: null, to: null, known_at: null, scenario_at: null })).toEqual({ status: "unavailable", message: EV_SCENARIOS_UNREACHABLE });
     vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({ ok: false, status: 422, json: () => Promise.resolve({ error: { code: "EV_WINDOW_INVALID", message: "No" } }) })));
     expect(await client.list(CODE, { from: TO, to: FROM, known_at: null, scenario_at: null })).toEqual({ status: "refused", httpStatus: 422, code: "EV_WINDOW_INVALID", message: "No" });
-    expect(utcMinute("2026-10-06T09:05:59.999999Z")).toBe("2026-10-06 09:05 UTC");
+    expect(utcMinute("2026-10-06T09:05:59.999999Z")).toBe("6 Oct 2026, 09:05");
   });
 
   it("basis_disclosure_and_pending_historical: pending, historical and first-page notices", async () => {

@@ -675,7 +675,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     const answer = happened();
     expect(answer.querySelector("[data-finding-claim]")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
     expect(expectFindingStateVisible(answer)).toBe("Using the latest checked readings");
-    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01");
     // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
     // post-W6 W1-a Q10: with no Site timezone the period falls back to UTC visibly; exact UTC sits in a closed detail.
     expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)");
@@ -731,7 +731,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     const answer = card();
     // Historical: the plain "as of" of the shown version stays visible beside the answer.
     expect(expectStateLineVisible(answer)).toBe("Earlier version, kept for the record");
-    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01 UTC");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01");
     expect(answer.querySelector("[data-finding-destination='overview']")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${F}?revision_id=rev-1`);
     const steps = Array.from(answer.querySelectorAll("[data-step-strip] li")).map((li) => li.querySelector(".step-strip__label")?.textContent);
     expect(steps).toEqual(["Conclusion", "Cause", "Consequence", "Next useful step"]);

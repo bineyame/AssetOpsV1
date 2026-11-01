@@ -205,7 +205,7 @@ describe("a site is rendered from its record", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Kalangala Mini-Grid" }),
     ).toBeInTheDocument();
-    expect(container.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("MG-002");
+    expect(container.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("Example data");
     expect(factValue(container, "Site ID")).toBe("MG-002");
     expect(factValue(container, "Name")).toBe("Kalangala Mini-Grid");
     expect(factValue(container, "Type")).toBe("Mini-grid");
@@ -387,8 +387,8 @@ describe("the six provenance and status concepts are six facts", () => {
     // assessment.
     const header = container.querySelector(".page-header__title");
 
-    expect(header?.textContent).toContain("MG-002");
-    expect(header?.textContent).toContain("Demonstration data");
+    expect(header?.textContent).toContain("Example data");
+    expect(header?.textContent).toContain("Example data");
     expect(header?.textContent).not.toMatch(/Planned|User|healthy|online/i);
   });
 

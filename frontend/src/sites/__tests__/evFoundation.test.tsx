@@ -385,8 +385,8 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     const metrics = Array.from(gateway.querySelectorAll("[data-ev-gateway-metric]")).map((m) => m.getAttribute("data-ev-gateway-metric"));
     expect(metrics).toEqual(["status", "availability", "completeness", "clock"]);
     expect(text(gateway)).toContain("Recent contact");
-    expect(text(gateway)).toContain("Contact checked 2026-10-17 12:00 UTC");
-    expect(text(gateway)).toContain("configuration selected 2026-10-06 12:00 UTC");
+    expect(text(gateway)).toContain("Contact checked 17 Oct 2026, 12:00");
+    expect(text(gateway)).toContain("configuration selected 6 Oct 2026, 12:00");
     expect(text(gateway)).toContain("Configured clock error bound: 30 s");
     expect(text(gateway)).toContain("observed sync and delivery speed not assessed");
     expect(text(gateway)).not.toContain("No gateway contact recorded");

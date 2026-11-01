@@ -471,8 +471,8 @@ describe("W2-04: Run-7 date bar", () => {
     await settledScreen();
     const bars = document.querySelectorAll("[data-cold-date-bar]");
     expect(bars).toHaveLength(1);
-    expect(text(bars[0])).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
-    expect(text(bars[0])).toContain("Selected evidence through 6 Oct 17:06 UTC");
+    expect(text(bars[0])).toContain("6 Oct 2026, 16:00–17:05");
+    expect(text(bars[0])).toContain("information up to 17:06");
     for (const strip of Array.from(document.querySelectorAll(".status-strip"))) {
       expect(text(strip)).not.toContain("Selected evidence through");
       expect(text(strip)).not.toContain("16:00–17:05");
@@ -547,7 +547,7 @@ describe("W2-04: cold Overview", () => {
     expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Open Finding →");
     expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.textContent).toBe("Open Finding →");
     expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.textContent).toBe("Performance › Backup →");
-    expect(Array.from(happened.querySelectorAll("[data-timeline-event]")).map((e) => text(e))[0]).toContain("16:11 UTC");
+    expect(Array.from(happened.querySelectorAll("[data-timeline-event]")).map((e) => text(e))[0]).toContain("16:11");
     expect(panelTitled("Chamber temperature").querySelectorAll("[data-cold-point]").length).toBe(4);
   });
 
@@ -636,7 +636,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(group("Inverter-charger + battery")).toContain("Grid meter · Grid power loss and restoration");
     expect(group("Inverter-charger + battery")).toContain(id(23));
     expect(group("Generator controller")).toContain("No gateway diagnostic was available by the window end and evidence cutoff.");
-    expect(group("Chamber probe")).toContain("Last accepted fact 6 Oct 17:04 UTC · 60 s old");
+    expect(group("Chamber probe")).toContain("Last accepted fact 6 Oct, 17:04 · 60 s old");
     expect(group("Chamber probe")).toContain("Other temperature context");
     expect(group("Transfer switch")).toContain("No source-specific record");
     expect(text(sourcesPanel)).not.toContain("How this was worked out");
@@ -860,7 +860,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     renderCold(ROUTES[4][1], { ...STOCKED, assumptions: ok(pending) });
     await settledScreen();
     const cutoff = main().querySelector(".site-date-bar__cutoff")!;
-    expect(text(cutoff)).toMatch(/^Selected evidence through .+ · New evidence is waiting to be assessed$/);
+    expect(text(cutoff)).toMatch(/^· information up to .+ · New evidence is waiting to be assessed$/);
     expect(main().querySelector(".status-strip")).toBeNull();
   });
 });
@@ -1087,8 +1087,8 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
       renderCold(path, all(DOWN as never));
       await settledScreen();
       const bar = document.querySelector("[data-cold-date-bar]")!;
-      expect(text(bar)).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
-      expect(text(bar)).toContain("Selected evidence through 6 Oct 17:06 UTC");
+      expect(text(bar)).toContain("6 Oct 2026, 16:00–17:05");
+      expect(text(bar)).toContain("information up to 17:06");
       expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
       // Cross-card ruling 5: a 503 is never called a window error; the strip names it by its own title.
       expect(text(strip())).toContain("Assessment unavailable");

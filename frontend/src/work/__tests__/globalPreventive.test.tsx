@@ -287,7 +287,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 Times in UTC");
     expect(within(screen.getByRole("navigation", { name: "Maintenance views" })).getByRole("link", { name: "Corrective" })).toHaveAttribute(
       "href",
       `${CORRECTIVE}&known_at=${encodeURIComponent(KNOWN)}`,
@@ -314,7 +314,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     expect(text(cards()!.querySelector(".v69-metric__value"))).toBe("0");
     expect(Array.from(document.querySelectorAll("[data-global-work-zero] p")).map(text)).toEqual([
       "No draft plans in this window.",
-      "Change the UTC window or open a Site record.",
+      "Change the dates or open a Site record.",
     ]);
     expect(document.querySelector("table")).toBeNull();
   });

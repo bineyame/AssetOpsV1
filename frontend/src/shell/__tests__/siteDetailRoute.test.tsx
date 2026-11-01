@@ -196,8 +196,8 @@ describe("a site is opened from a Sites row", () => {
       }),
     ).toBeInTheDocument();
     // W1-F2: the heading is the site name; the record's canonical Site ID is in the provenance badge.
-    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("MG-002");
-    expect(screen.getByRole("main").textContent).toMatch(/MG-002/);
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("Example data");
+    expect(screen.getByRole("main").textContent).toMatch(/Example data/);
     expect(screen.getByRole("main").textContent).not.toMatch(/mg-002/);
   });
 

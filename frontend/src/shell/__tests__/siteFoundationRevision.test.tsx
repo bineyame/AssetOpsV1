@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { expectStateLineVisible } from "../../test/productPresentation";
+import { expectStateLineVisible, AS_OF_PATTERN } from "../../test/productPresentation";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -28,6 +28,13 @@ import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } f
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { KeyValues, UI_GAP_CATALOGUE } from "../../ui";
+
+/** The single page note, ignoring the app-wide demonstration banner (also role="note"). */
+function pageNote(): HTMLElement {
+  const notes = screen.getAllByRole("note").filter((n) => !n.hasAttribute("data-demonstration-banner"));
+  expect(notes).toHaveLength(1);
+  return notes[0];
+}
 
 /**
  * S1-01: the persisted Foundation version on the Foundation route - period
@@ -352,14 +359,14 @@ describe("the persisted Foundation version", () => {
     expect(screen.getByTestId("location").textContent).toBe(
       `/sites/${ID}/foundation?at=${encodeURIComponent(FUTURE.valid_from)}`,
     );
-    expect(screen.getByRole("note").textContent).toMatch(/Scheduled period: you are viewing Foundation v3/);
+    expect(pageNote().textContent).toMatch(/Scheduled period: you are viewing Foundation v3/);
     expect(client.getFoundation).toHaveBeenLastCalledWith(ID, FUTURE.valid_from);
   });
 
   it("reopens a shared URL on the same period", async () => {
     renderAt(`/sites/${ID}/foundation?at=${encodeURIComponent(FUTURE.valid_from)}`, fakeFoundation(byAt));
     await settledScreen();
-    expect(screen.getByRole("note").textContent).toMatch(/not the configuration in effect now/);
+    expect(pageNote().textContent).toMatch(/not the configuration in effect now/);
     expect(screen.getByRole("combobox", { name: "Foundation period" })).toHaveValue(FUTURE.valid_from);
   });
 
@@ -398,7 +405,7 @@ describe("the persisted Foundation version", () => {
     const preview = form.querySelector("[data-resulting-period]") as HTMLElement;
     expect(preview.dataset.resultingPeriod).toBe("bounded");
     expect(preview.textContent).toBe(
-      "Resulting period: from 2026-10-08 00:00 UTC until 2026-10-10 00:00 UTC, when the v2 period ends. The value after that is unchanged.",
+      "Resulting period: from 8 Oct 2026, 00:00 until 10 Oct 2026, 00:00, when the v2 period ends. The value after that is unchanged.",
     );
   });
 
@@ -409,7 +416,7 @@ describe("the persisted Foundation version", () => {
     fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-12T00:00" } });
     const preview = form.querySelector("[data-resulting-period]") as HTMLElement;
     expect(preview.dataset.resultingPeriod).toBe("open");
-    expect(preview.textContent).toMatch(/from 2026-10-12 00:00 UTC, with no end/);
+    expect(preview.textContent).toMatch(/from 12 Oct 2026, 00:00, with no end/);
   });
 
   it("keeps the published period, start and end, on screen after the re-read", async () => {
@@ -422,7 +429,7 @@ describe("the persisted Foundation version", () => {
     fireEvent.change(within(form).getByLabelText(/New reserve/), { target: { value: "40" } });
     fireEvent.change(within(form).getByLabelText(/Effective from/), { target: { value: "2026-10-08T00:00" } });
     fireEvent.click(within(form).getByRole("button", { name: "Publish reserve change" }));
-    const published = "Published Foundation v5, effective 2026-10-08 00:00 UTC to 2026-10-10 00:00 UTC.";
+    const published = "Published Foundation v5, effective 8 Oct 2026, 00:00 to 10 Oct 2026, 00:00.";
     expect(await within(form).findByText(published)).toBeInTheDocument();
     await settledScreen();
     expect(screen.getByText(published)).toBeInTheDocument();
@@ -794,7 +801,7 @@ describe("S1-02 bindings, Readiness and the configured SLD", () => {
     await settledScreen();
     const picker = screen.getByRole("combobox", { name: "Foundation period" });
     const labels = within(picker).getAllByRole("option").map((option) => option.textContent);
-    expect(labels.some((label) => label?.startsWith("Channel links v3 · from 2026-10-05 00:00 UTC"))).toBe(true);
+    expect(labels.some((label) => label?.startsWith("Channel links v3 · from 5 Oct 2026, 00:00"))).toBe(true);
     expect(labels.filter((label) => label?.startsWith("Channel links v")).length).toBe(1);
     fireEvent.change(picker, { target: { value: "2026-10-05T00:00:00Z" } });
     expect(screen.getByTestId("location").textContent).toContain("at=2026-10-05T00%3A00%3A00Z");
@@ -833,7 +840,7 @@ describe("S1-03: three Foundation views at one selected period", () => {
       fireEvent.click(within(screen.getByRole("navigation", { name: "Foundation views" })).getByRole("link", { name: label }));
       await settledScreen();
       expect(screen.getByTestId("location").textContent).toBe(`${path}?at=${futureAt}`);
-      expect(screen.getByRole("note").textContent).toMatch(/Scheduled period: you are viewing Foundation v3/);
+      expect(pageNote().textContent).toMatch(/Scheduled period: you are viewing Foundation v3/);
       expect(screen.getByRole("combobox", { name: "Foundation period" })).toHaveValue(FUTURE.valid_from);
     }
     expect(client.getFoundation).toHaveBeenLastCalledWith(ID, FUTURE.valid_from);
@@ -932,7 +939,7 @@ describe("S1-03: a scheduled binding period is never called the configuration in
     };
     renderAt(`/sites/${ID}/foundation/readiness?at=2026-10-05T00:00:00Z`, fakeFoundation(scheduled));
     await settledScreen();
-    const note = screen.getByRole("note");
+    const note = pageNote();
     expect(note.textContent).toMatch(/Scheduled channel-link period: you are viewing channel links v3/);
     expect(note.textContent).toContain("not the ones in effect now");
     expect(screen.queryByText("This is the configuration in effect now.")).toBeNull();
@@ -1571,8 +1578,8 @@ describe("V-01a round 3: the bounded gateway status panel", () => {
     expect(within(entry).getByText("Enabled")).toBeInTheDocument();
     expect(entry.querySelector(".badge")?.textContent).toBe("Current");
     expect(entry.querySelector(".badge")?.className).toContain("badge--neutral");
-    expect(panel.textContent).toContain("Read at 2026-10-12 09:15 UTC (server clock).");
-    expect(panel.textContent).toContain("2026-10-12 09:14 UTC");
+    expect(panel.textContent).toContain("Read at 12 Oct 2026, 09:15 (server clock).");
+    expect(panel.textContent).toContain("12 Oct 2026, 09:14");
     expect(panel.textContent).toContain("not a live device connection, accepted readings or equipment condition");
     expect(panel.textContent).toContain("Device connection not established here.");
     for (const line of NOT_YET) expect(panel.textContent).toContain(line);
@@ -2103,7 +2110,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     expect(strip().textContent).toContain("This is the configuration in effect now.");
     expect(strip().textContent).toContain("Foundation v2");
-    expect(strip().querySelector("[data-strip-as-of]")?.textContent).toMatch(/^As of \d{4}-\d\d-\d\d \d\d:\d\d UTC$/);
+    expect(strip().querySelector("[data-strip-as-of]")?.textContent).toMatch(AS_OF_PATTERN);
     expect(strip().querySelector("[data-strip-gaps]")?.textContent).toBe("No configuration gap");
     expect(document.querySelector('[data-product-status="positive"]')).toBeNull();
     // The unrecorded setting is named inside the controls panel, never shown as recorded.
@@ -2215,7 +2222,7 @@ describe("W1-UX-05: the former Foundation answer-card facts answer only to the s
     await settledScreen();
     const empty = document.querySelector('[data-page-refusal="no-version"]') as HTMLElement;
     expect(expectStateLineVisible(empty)).toBe("No configuration for this period");
-    expect(empty.querySelector("[data-product-status-scope]")?.textContent).toContain("selected time 1 Jan 2020, 00:00 UTC");
+    expect(empty.querySelector("[data-product-status-scope]")?.textContent).toContain("selected time 1 Jan 2020, 00:00");
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     cleanup();
     const down = { status: "unavailable" as const, message: "The store is down." };

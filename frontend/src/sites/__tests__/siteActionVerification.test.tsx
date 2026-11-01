@@ -361,7 +361,7 @@ describe("Plan view (action-plan:1)", () => {
     expect(q("[data-verification-plan-id]")).toHaveAttribute("data-verification-plan-current", "yes");
     expect(q("[data-verification-criterion='target']")?.textContent).toMatch(/At least 25% lower.*times 4.*times 3.*whole seconds.*45 min/);
     expect(q("[data-verification-criterion='comparability']")?.textContent).toMatch(/within 10%.*within 2 points.*inclusive/);
-    expect(q("[data-verification-window='baseline']")?.textContent).toContain("2026-10-06");
+    expect(q("[data-verification-window='baseline']")?.textContent).toContain("6 Oct 2026");
     expect(q("[data-verification-window='later']")).toHaveAttribute("data-verification-later-bound", "yes");
     expect(document.body.textContent).toMatch(/new, lower reserve/);
     expect(document.body.textContent).toMatch(/not proof of cause/);

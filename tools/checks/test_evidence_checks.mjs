@@ -80,7 +80,9 @@ test("the evidence as-of pattern is the frontend's shared acceptance pattern, by
   const m = ts.match(/export const AS_OF_PATTERN = (\/.+\/);/);
   assert.ok(m, "frontend AS_OF_PATTERN found");
   assert.equal(m[1], String(AS_OF_PATTERN));
-  assert.ok(AS_OF_PATTERN.test("As of 16 Oct 2026, 10:05 UTC"));
+  assert.ok(AS_OF_PATTERN.test("As of 16 Oct 2026, 10:05"));
+  // POLISH PB-1 (R650): no per-time zone suffix; the page's TimeZoneNote names UTC once.
+  assert.ok(!AS_OF_PATTERN.test("As of 16 Oct 2026, 10:05 UTC"));
   assert.ok(AS_OF_PATTERN.test("As of: time not recorded"));
   for (const wrong of ["As of now", "As of ", "As of : time not recorded", "As of 16 Oct 2026"]) assert.ok(!AS_OF_PATTERN.test(wrong), wrong);
 });
