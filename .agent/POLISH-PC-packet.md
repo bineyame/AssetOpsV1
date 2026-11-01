@@ -9,7 +9,7 @@ USER_REVIEW_REQUIRED: true (the owner walkthrough uses `.agent/POLISH-runbook.md
 - Copy pass (review N1, N2, the EV fallback and the EV tabs check), pins updated, no guard touched.
 - `assetops_polish_full_test` rebuilt from this branch (`cb1a92cfc` = main + copy pass): finish check 17/17.
 - Strict capture 14 keys x 2 widths: 28/28 settled, no overflow, 0 counted hits. v70 panel structure unchanged from DEMO-B.
-- Slow demo test 19/19, full vitest 3594/3594, backend `-Tier all` and check-all: see Checks.
+- Slow demo test 19/19, full vitest 3594/3594, backend `-Tier all` 4737/0, check-all 12/12 (section 4).
 - Register: R625-R662 checked unique and statused; R08 (P-B3-3) closed; PC copy added to R655.
 - Runbook: `.agent/POLISH-runbook.md`.
 
@@ -79,12 +79,13 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
   17:07:18-17:24:40 (1042 s): **19 passed**; JUnit tests 19, failures 0, errors 0, skipped 0.
 - Full `npx vitest run` at `c5277805b`, 17:24:50-17:29:17 (267 s): **150 files, 3594/3594 passed** (the evEnergy load
   flake did not fire).
-- Backend `toolsun-backend-suite-in-container.ps1 -Tier all`, run `20261101-172931-803fd5` at `c5277805b`, started
-  17:29:30: **incomplete at handback**. Claude Code reaped the PowerShell wrapper for low system memory; the runner
-  container kept going (console at about 82%). Results land in `var/test-results/OPS-03/20261101-172931-803fd5/`
-  (junit.xml if pytest finishes). The wrapper's wall-time and post-processing did not run. Not restarted.
-- `tools\check-all.ps1` (12): **not run** (it was to follow `-Tier all`). Run on the copy pass alone: the vocabulary
-  guard `mock-deviation-labels.mjs` OK (153 files) and its 12 self-tests passed.
+- Backend `tools\run-backend-suite-in-container.ps1 -Tier all`, run **`20261101-172931-803fd5`** at `c5277805b`
+  (everything except the Addendum 14 copy round): JUnit **4737 tests, 0 failures, 0 errors, 0 skipped**, 3380.9 s;
+  console "4737 passed in 3382.36s (0:56:22)". Claude Code's memory guard killed the PowerShell wrapper; the runner
+  container ran to completion and wrote `junit.xml`, `wall-time.txt` and `exit-code` itself. Not rerun.
+- Addendum 14 round, scoped: pure pytest 135 passed; `test_out_e4_readback_postgres.py` 1 passed (76 s, host tests);
+  vitest 12 files 282 passed.
+- `tools\check-all.ps1 -Python …plan2\.venv\Scripts\python.exe` at `fffbded4b`: **All 12 guards passed** (407 s).
 
 ## 5. Register reconcile (`.agent/mock-departure-register.md`)
 
@@ -110,14 +111,9 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
 
 ## Residual risk and user-review focus
 
-- **Finding for a ruling (not fixed): server text "test data" is still on capture screens.** The Kobo board's
-  Earlier interventions chip reads "Verified on test data" (`site_outcomes/board.py:49` ACTION_RESULT), and the mini
-  Assure line "{code} verified on test data" (`site_outcomes/mini.py:77,81`); Portfolio has a sibling
-  "Change verified on test data; watch for a return" (`estate/placement.py:42`). §3.1 rules "Verified on example data"
-  for the Verification page only, and the vocabulary scan does not flag "test data". Fixing it is lane A server text
-  and needs a rebuild + recapture.
-- `-Tier all` and check-all are owed (above). The whole-diff review of the round by a fresh Claude reviewer (§5 PC) is
-  the coordinator's next step.
+- "test data" on capture screens: ruled by Addendum 14 and fixed (section below).
+- The whole-diff review of the round by a fresh Claude reviewer (§5 PC) is the coordinator's next step.
+- Cold and EV disclosures have no `-open` capture (tool limit); their prose is covered by vitest and the guard scan.
 - Owner confirms at the walkthrough: §6 D-1 banner "Demonstration · example sites and records…" and badge "Example
   data" (R651); D-2 an INEFFECTIVE trial never shows a modelled money line; D-3 no backdating of the Depot Action (R645,
   runbook P-08 line); D-4 one "Times in UTC" note per page (R650), and Addendum 13 L4 UTC clock times on Finding pages
@@ -126,18 +122,22 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
   rebuild); the plain-language copy rows R655 and R662 (including this PC copy pass); R641 hours-of-use plans stay
   "Not assessed"; R08 closure.
 
-## Addendum 14 round (commit `c6854cfab`; rebuild, recapture and check-all still owed)
+## Addendum 14 round (commits `c6854cfab`, recapture `fffbded4b`)
 
 - Server: `board.py:49` "Verified on example data"; `mini.py:77,81` "{code} verified on example data"; `placement.py:42`
   "Change verified on example data; watch for it coming back". Frontend: `globalWorkParts.tsx:53` "Generated example
-  data"; sibling trial note `SiteActionVerification.tsx:556` "Policy trial on Lab or authored example data: …" (on the
-  `kobo-verification` capture, so the new rule would count it). No other "test data" in those maps.
-- Vocabulary: `["test data wording", /\btest data\b/gi]` added to `WORD_KINDS` in `tools/demo-combined-vocabulary.mjs`
-  (the capture VOCAB moved there under Addendum 5; `demo-combined-evidence.mjs` imports it). It matches "test data" and
-  "TEST DATA" and not "testdata"; the guard self-tests pass 12/12.
-- Pins updated in 6 backend tests and 3 vitest files; R655 lists the strings.
-- Scoped runs: pure pytest (cc_placement, out_b1_board, out_b2_mini, out_e4_readback, polish_pa2a_server_copy) 135
-  passed; vitest work + outcomeBoard + siteActionVerification + estatePortfolio 12 files, 282 passed.
-  `test_out_e4_readback_postgres.py` is waiting for a DB slot once the `-Tier all` container exits.
-- Still out of scope: the AUTHORED "Authored test data (test-scoped example)" (`verificationWords.ts:215`) and the EV
-  refusal "Authored test data versions conflict." (`EvAssessmentViews.tsx:451`) are not on the capture screens.
+  data"; sibling trial note `SiteActionVerification.tsx:556` "Policy trial on Lab or authored example data: …"
+  (coordinator accepted). No other "test data" in those maps. Pins updated in 6 backend tests and 3 vitest files; R655.
+- Vocabulary: `["test data wording", /\btest data\b/gi]` in `WORD_KINDS`, `tools/demo-combined-vocabulary.mjs` (the
+  capture VOCAB lives there since Addendum 5; `demo-combined-evidence.mjs` imports it). Non-vacuous: it matches
+  "test data" and "TEST DATA", not "testdata"; guard self-tests 12/12.
+- Rebuild at `e413fc8c8`, 18:29:15-18:50:09, **1254 s** (cap 3120 s): Kobo 854.1 s, cold 49.0 s, EV 85.5 s; **self-check 17
+  pass, 0 fail, 0 skipped**. S unchanged (2026-10-30); new Action and Finding ids (runbook updated).
+- Strict capture, first run 18:52:26-18:59:16: 26 OK, **portfolio-week unsettled at both widths** (still "Loading the
+  Portfolio" two minutes after serve start, cold first read; `capture-run-first-unsettled.log`), 0 counted hits,
+  exit 1. Rerun on the warm serve, 18:59:33-19:04:41 (308 s): **28/28 OK, settled, no overflow, 0 counted hits with
+  "test data" now counted, exit 0**. Exempt: 1 per capture (UTC note), `kobo-board-S-open` 283 per width (no jump).
+- Review mode (67 s): same labels as before (R453 at 390 on `kobo-board-S`; R396, R363, R365 on `wr-overview`).
+- Stack stopped by PID; ports 8990, 5490, 9493 free.
+- Still out of scope: "Authored test data (test-scoped example)" (`verificationWords.ts:215`) and the EV refusal
+  "Authored test data versions conflict." (`EvAssessmentViews.tsx:451`); neither is on a capture screen.
