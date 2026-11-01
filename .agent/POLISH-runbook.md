@@ -1,7 +1,7 @@
 # POLISH runbook (client-demo polish build)
 
 Build: worktree `C:\Users\assef\Bineyame\AssetOpsV1-polC` (branch `task/POLISH-PC-final-gate`), work `var/polish_full`,
-DB `assetops_polish_full_test`, private tree code `cb1a92cfc` (main `06543e540` + the PC copy pass). Story day
+DB `assetops_polish_full_test`, private tree code `e413fc8c8` (main `06543e540` + the PC copy pass + Addendum 14), rebuilt 2026-11-01 18:29-18:50. Story day
 **S = 2026-10-30**. Fallback: the DEMO-B build (`AssetOpsV1-demo3`, `var/demo3_full`, `assetops_demo3_full_test`,
 S = 2026-10-29), runbook in `.agent/DEMO-B-packet.md`; never rebuild or edit it.
 
@@ -17,21 +17,21 @@ untracked; the tree inside it carries its own backend). If a later merge changes
    $py="C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe"
    ```
 1. **Prepare** (only to rebuild; it moves every date): `& $py tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full prepare`
-   - 1007 s (Kobo 716 s, cold 56 s, EV 61 s; cap 3120 s); self-check **17 pass, 0 fail, 0 skipped**.
+   - 1007-1254 s (last run: Kobo 854 s, cold 49 s, EV 86 s; cap 3120 s); self-check **17 pass, 0 fail, 0 skipped**.
    - The DB is guarded by the work folder's marker: prepare refuses a DB made from another worktree's `var/polish_full`.
      Run `drop` from the owning worktree first (PC did this for `AssetOpsV1-polA3`).
 2. **Serve**: `& $py tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full serve`
    - API answers on 8990 at once; first tick and the first `performance:` line about 7-15 s later; then one tick every
      120 s. Wait for the first `performance:` line before showing anything (STALE_PROJECTION before it).
 3. **Frontend** (second window, from `frontend/`): `$env:ASSETOPS_API_PORT="8990"; npm.cmd run dev -- --port 5490 --strictPort`
-   - Vite ready in 0.75 s.
+   - Vite ready in 0.75-2.3 s.
 4. **Links** (S = 2026-10-30; re-quote after every rebuild from `& $py tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full links`):
    - Portfolio, week: `http://localhost:5490/portfolio?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z`
    - Findings, week: `http://localhost:5490/findings?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z` (`/findings/cost|risks|opportunities`)
    - Kobo trial-before S / trial-after S+1: `http://localhost:5490/sites/KOBO-001?date=2026-10-30` / `?date=2026-10-31`
      (other story days: 2026-10-02 normal, 10-09 overcast, 10-16 overuse, 10-20 missing, 10-23 overuse, 10-27 late, 10-29 normal)
-   - Kobo ACT-001 verification: `http://localhost:5490/sites/KOBO-001/actions/9a5787af-a36e-4f2b-9383-ca073accfb6e/verification`
-   - Kobo Finding: `http://localhost:5490/sites/KOBO-001/findings/429d17bd-f795-4b4c-8f9d-0c506fd80b30?revision_id=4ddfadb3-4ff8-47be-a48f-767da69faccd`
+   - Kobo ACT-001 verification: `http://localhost:5490/sites/KOBO-001/actions/79ade806-21a8-41ac-ad9d-664b36f8afd1/verification`
+   - Kobo Finding: `http://localhost:5490/sites/KOBO-001/findings/f5795203-6bcf-49cb-b36b-478cee91002a?revision_id=2047529a-bc34-45ff-bd4e-986167a12454`
    - GreenHarvest failure night S: `http://localhost:5490/sites/COLD-LAB-001?from=2026-10-30T16:00:00Z&to=2026-10-30T17:05:00Z`
      (degraded S-3d `2026-10-27T16:00:00Z`-`17:05`; normal S-7d `2026-10-23T16:00:00Z`-`17:05`)
    - Depot fault S-3d: `http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z`
@@ -52,6 +52,6 @@ untracked; the tree inside it carries its own backend). If a later merge changes
    node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 <out>\mock ((node tools/demo-combined-evidence.mjs mock-ids) -split ' ')
    node tools/demo-combined-evidence.mjs compare <out> <out>\mock\mock-measure.json
    ```
-   28 captures 361 s; review-mode set (`DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=wr-overview,kobo-board-S`) 64 s; mock 55 s.
+   28 captures 308-361 s (open the Portfolio once first: on a cold serve its first read can outlast the settle wait, as the first Addendum 14 run showed); review-mode set (`DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=wr-overview,kobo-board-S`) 64 s; mock 55 s.
 8. **Stop:** Ctrl+C in each window, or `taskkill /PID <pid> /T /F` on the serve and npm PIDs (the serve tree holds
    uvicorn). Check ports 8990 and 5490 are free.
