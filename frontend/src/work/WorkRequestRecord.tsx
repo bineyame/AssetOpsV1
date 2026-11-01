@@ -13,6 +13,7 @@
  * occurrence, filtered to its selected head kind; the link carries `known_at` only when this page's URL had one,
  * exactly as given (a current link omits a cutoff). The interim C3 plain-text deviation (register R34) is resolved.
  */
+import { displayCode } from "../ui/displayCode";
 import type { ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Notice, Panel } from "../ui";
@@ -216,7 +217,7 @@ export function linkedRecHref(record: GlobalWorkDetailOperationalRecord, explici
 
 /** P-C3-3: the exact root REC codes with their kind labels, in the C1 array order. */
 export function recNoticeSentence(records: GlobalWorkDetailOperationalRecord[]): string {
-  const listed = records.map((r) => `${r.code} (${recKindLabel(r.kind)})`).join(", ");
+  const listed = records.map((r) => `${displayCode(r.code)} (${recKindLabel(r.kind)})`).join(", ");
   return `This record is also listed in Operational records as ${listed}.`;
 }
 
@@ -236,7 +237,7 @@ function RecordNotice({ body }: { body: GlobalWorkDetailBody }) {
             <span key={r.canonical_record_id}>
               {index > 0 ? ", " : null}
               <Link to={linkedRecHref(r, explicit)} data-work-record-rec={r.code}>
-                {r.code}
+                {displayCode(r.code)}
               </Link>
               {` (${recKindLabel(r.kind)})`}
             </span>

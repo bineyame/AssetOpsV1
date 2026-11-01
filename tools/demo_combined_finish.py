@@ -30,7 +30,7 @@ SAFEGUARD = " · checked here as a safeguard"
 OUTSIDE = " · linked finding outside this view"
 #: POLISH PA-2a (review M2): the trial cost line prefix, `site_outcomes/board.py` COST_PREFIX (was "not realised savings").
 NOT_REALISED = "Estimated effect of the trial (not money saved): "
-GAPS_TEXT = "Not available yet · {g} of 31 days have no assessed readings"
+GAPS_TEXT = "{g} of the last 31 days have no checked readings yet"
 IDX_POLICY = "finding-index/2"
 #: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
 PROBE_CHOSEN = {"chosen": "a", "window_hour": "06:00", "cost_state": "MODELLED_NO_IMPROVEMENT", "nominal": 0}

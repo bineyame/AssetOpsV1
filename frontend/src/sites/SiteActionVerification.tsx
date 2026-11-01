@@ -33,7 +33,8 @@ import { formatDay, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Link } from "react-router-dom";
 
-import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, ExactReferences, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
+import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
+import { TECHNICAL_DETAILS, WorkedOut } from "../ui/TechnicalDetails";
 import type { ActionBody, ActionReadResult, Refusal } from "./actionClient";
 import { Ref, when } from "./actionPresentation";
 import { ClaimLabel } from "./ClaimLabel";
@@ -381,18 +382,21 @@ export function ActionVerification({
           actualMissing={actualMissing}
           references={references}
           next={next}
+          claim={
+            view === "verification" && (shown?.outcome === "VERIFIED" || shown?.outcome === "INEFFECTIVE") ? (
+              <ClaimLabel inline level="VERIFIED_SIMULATED_TECHNICAL" beneficiary="MINI_OPERATOR" />
+            ) : null
+          }
         />
       ) : null}
-      {/* CC-R1 / R500 (Q-C16, CC-R1-Q1): a VERIFIED or INEFFECTIVE displayed outcome is a verified technical result. */}
-      {view === "verification" && verdict !== null && (shown?.outcome === "VERIFIED" || shown?.outcome === "INEFFECTIVE") ? (
-        <ClaimLabel level="VERIFIED_SIMULATED_TECHNICAL" beneficiary="MINI_OPERATOR" />
-      ) : null}
+      {/* CC-R1 / R500 (Q-C16, CC-R1-Q1): a VERIFIED or INEFFECTIVE displayed outcome is a verified technical result;
+          POLISH PB-2 states it inside the status strip (above), which fixes the W1-F4 C2 leading-element failures. */}
       {view === "verification" ? (
         <>
           <VerificationSummaryRow
             gapped={blocked || refusals.length > 0}
             stateWord={verdict?.words.label ?? null}
-            source={<Link to={links.finding(body.origin.finding_id, body.origin.finding_revision_id)}>Source Finding version</Link>}
+            source={<Link to={links.finding(body.origin.finding_id, body.origin.finding_revision_id)}>Finding it came from</Link>}
             criterion={
               metric(outcome?.metrics ?? [], "target_reduction") || plan !== null
                 ? "At least 25% lower"
@@ -572,7 +576,10 @@ function StateStrip({
   actualMissing,
   references,
   next,
+  claim,
 }: {
+  /** CC-R1 / R500: the claim label, stated in the strip so the v69 panel order stays intact (W1-F4 C2). */
+  claim?: ReactNode;
   verdict: StripVerdict;
   actual: VerificationState | null;
   actualMissing: boolean;
@@ -649,9 +656,10 @@ function StateStrip({
         <span aria-hidden="true"> · </span>
         <TimeZoneNote />
       </span>
+      {claim ? <span className="status-strip__item">{claim}</span> : null}
       <span className="status-strip__spacer" aria-hidden="true" />
       {next === null ? null : <span className="status-strip__action">{next}</span>}
-      <ExactReferences variant="tech" name={`verification-${view}-references`} references={references} />
+      <WorkedOut variant="tech" name={`verification-${view}-references`} references={references} />
     </section>
   );
 }
@@ -686,9 +694,10 @@ function EvidenceIds({ ids, links, limit = 6, name }: { ids: readonly string[]; 
   );
 }
 
-function DigDeeper({ name, summary = "Dig deeper: identifiers and typed values", children }: { name: string; summary?: string; children: ReactNode }) {
+/** POLISH §3 ids (Addendum 8 Q5): the identifier disclosures are "Technical details" regions. */
+function DigDeeper({ name, summary = TECHNICAL_DETAILS, children }: { name: string; summary?: string; children: ReactNode }) {
   return (
-    <Disclosure summary={summary} name={`verification-${name}`}>
+    <Disclosure summary={summary} name={`verification-${name}`} technical>
       {children}
     </Disclosure>
   );
@@ -1129,8 +1138,8 @@ function ActivityPanel({
         {latestFinding && !latestFinding.is_origin ? (
           <span data-verification-later-finding={latestFinding.id}>
             {" "}
-            <Link to={links.finding(body.origin.finding_id, latestFinding.id)}>Finding version {latestFinding.revision_no}</Link> is a
-            new episode; it does not rewrite this trial.
+            <Link to={links.finding(body.origin.finding_id, latestFinding.id)}>A later finding</Link> about the same issue does
+            not change this trial&apos;s result.
           </span>
         ) : null}
       </p>

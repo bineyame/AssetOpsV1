@@ -41,7 +41,7 @@ describe("S4-05b stored source provenance notice", () => {
     expect(authored).toHaveTextContent("pub-1, pub-2");
     const run = shown(block("REGISTERED_SIMULATION", { runs: [{ run_id: "run-1", run_identity_sha256: "x" }] }));
     expect(run).toHaveTextContent(
-      "Generated test data. These records were generated for a test. They are not readings from physical equipment.",
+      "Example data: these readings were prepared for this demonstration, not measured on physical equipment.",
     );
     expect(run).toHaveTextContent("run-1");
   });
@@ -82,7 +82,7 @@ describe("S4-05b stored source provenance notice", () => {
 
   it("keeps the label visible outside the closed disclosure and to assistive technology", () => {
     render(<SourceProvenanceNotice provenance={block("REGISTERED_SIMULATION")} subject="cost" name="a11y" />);
-    const label = screen.getByText("Generated test data.");
+    const label = screen.getByText("Example data:");
     expect(label.closest("details")).toBeNull();
     expect(label).toBeVisible();
   });
@@ -134,7 +134,7 @@ describe("W3-01 public source DTO compatibility", () => {
   it("renders a six-key set-only block without runtime errors and counts its evidence IDs", () => {
     const el = shown(setOnly("REGISTERED_SIMULATION"));
     expect(el).toHaveAttribute("data-source-provenance", "REGISTERED_SIMULATION");
-    expect(el).toHaveTextContent("Generated test data.");
+    expect(el).toHaveTextContent("Example data:");
     expect(el).toHaveTextContent("3 accepted records checked.");
   });
 

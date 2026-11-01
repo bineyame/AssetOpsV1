@@ -32,7 +32,7 @@ export function indexRow(id: string, revision: string, start: string, end: strin
     canonical_finding_id: id,
     finding_revision_id: revision,
     revision_no: 2,
-    title: "Generator support merits review: bounded candidate avoidable running",
+    title: "Generator may have been on longer than needed",
     episode: { start, end },
     lifecycle: "SUPPORTED",
     transition: "OPENED",

@@ -353,8 +353,8 @@ describe("Site Overview, empty, unavailable and gate", () => {
       "Overview unavailable",
     );
     expectV69Panels("mini");
-    expect(spacedText(panelTitled("What happened in the selected hour"))).toContain("could not be read");
-    expect(panelTitled("Bounded money consequence").textContent).toContain("No current amount");
+    expect(spacedText(panelTitled("What happened on this day"))).toContain("could not be read");
+    expect(panelTitled("Possible cost").textContent).toContain("No current amount");
     expect(cards()).toHaveLength(0);
   });
 

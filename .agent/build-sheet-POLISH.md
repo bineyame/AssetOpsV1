@@ -935,3 +935,72 @@ headings go to PB-3.
 - aria-labels and the "Action code" reference row keep the stored code.
 - PB-2's packet lists every file it touched that PB-3 owns, and PB-3 rebases on main first.
 - PB-2 grows by about 0.5 unit. If it would exceed 6 units, PB-2 stops after the capture-screen sites and leaves the rest to PB-3.
+
+---
+
+## Addendum 9 (2026-11-01): PA-3 pre-flight rulings
+
+**Q1: accepted.**
+- `DB_RE` becomes `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$`.
+- `Demo.__init__` accepts `var/demo3*` or `var/polish*` directly under the checkout's `var/`.
+- The marker and drop guard are unchanged, and the help text is updated.
+- Add one pure test case each, for an accepted polish name and for a refused other name (for example `assetops_other_x_test`).
+
+**Q2: accepted.**
+- `demo_combined_cold.py` sets `ns["DEMO_NARRATIVES"] = True`. Only then do the calls at `:202` and `:461` pass `narrative=f"{title}."`.
+- The standalone w502 walkthrough keeps its default, so historical audit evidence stays reproducible.
+- `:315` (worst case only) is unchanged.
+- Kobo `:115` and EV `:116` pass `narrative=f"{v['title']}."` directly.
+
+**Q3: accepted.**
+- A cold or EV story day with null `start`/`end` links to the whole calendar day, `{day}T00:00:00Z` to the next day.
+- Its label says so: `… day S{offset}d ({day}), no event: whole day`. This way the presenter knows the board will read
+  "nothing to show" rather than an event.
+- Do not skip the row. The calendar should list every story day.
+
+**Q4: confirmed. This is the ruled form, not a loosened check.**
+- The CO-1 check reads `issues` + `in_hand` only, which folds in DEMO-A L2.
+- It passes when `k["action"]` is in an item's href, which is the real guard, **or** `display_code(k["action_code"])`
+  is in its text. That is the §3 / Addendum 6 Q8 display form.
+- Import `display_code` from `outcomes/display_code.py`; do not copy it.
+
+DEMO-A L1 stands: add back the assertion that "Reliable service and battery and generator life" is in the safeguards
+text (`board.py:658` still composes it).
+
+---
+
+## Addendum 10 (2026-11-01): CO-1 "Action on the Cost row" (corrects Addendum 9 Q4)
+
+**Ruling: the check's premise was wrong. This is not a board gap.**
+- On day S the trial is VERIFIED, a final outcome. A finished intervention belongs under Earlier interventions, so the
+  board places it correctly.
+- LINK-LINEAGE guarantees that the Action is **linked** on the row (problem → trial → Must-not-harm). It does not
+  guarantee which column the Action appears in.
+
+**CO-1 asserts the linkage by href, with the column chosen by the verification state:**
+1. When `kobo.json`'s verification outcome is final (VERIFIED, INEFFECTIVE or INCONCLUSIVE), the OPTIMIZE_COST row's
+   `earlier` holds an entry whose href path is `/sites/KOBO-001/actions/{k["action"]}`. Otherwise, `issues` + `in_hand`
+   hold such an entry. A text match alone never passes.
+2. The Must-not-harm href contains `k["action"]`, and its text contains `display_code(k["action_code"])` (unchanged).
+3. The safeguards text contains "Reliable service and battery and generator life" (DEMO-A L1, unchanged).
+
+**Why this still fails on behaviour from before LINK-LINEAGE.** The trial Action's origin is an earlier revision of the
+Finding, and that version of the board only linked Actions whose origin revision was the current revision. So it shows
+no Action href on the row and no Must-not-harm, and (1) and (2) both fail. Pin this with a pure test of the CO-1
+function on two row fixtures:
+- a linked `earlier` href passes;
+- the same row with no Action href (text "ACT-001" only) fails.
+
+DEMO-A L2 is resolved by the href requirement: text that only names the code, like CO-3's line, cannot satisfy (1).
+No rebuild is needed. Re-run only the finish check on `assetops_polish_full_test`, and expect 17/17.
+
+The Kobo Finding title still reads "Generator support merits review" until PB-2 merges. That is expected; PC verifies it.
+
+---
+
+## Addendum 11 (2026-11-01): EV TARIFF_GAP wording
+
+`backend/assetops_backend/ev_site_reads.py:74` TARIFF_GAP detail: "Needed before a gross tariff scenario can be
+estimated." becomes **"Needed before charging income can be estimated."** The action title ("Publish an EV gross
+tariff") becomes **"Publish a charging tariff"**. PA-3 owns this change (lane A, still open): update the tests that pin
+the old text, and re-capture `ev-board-fault` after the change. Register: add both strings to the R655 plain-language row.

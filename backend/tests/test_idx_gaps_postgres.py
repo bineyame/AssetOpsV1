@@ -196,12 +196,12 @@ class TestMovingAndBoard:
         board = mini.compose(ports, site_code="KOBO-001", day=date(2026, 10, 6), site_timezone=None)
         assert "finding_index" not in board.failed, board.failed  # PARTIAL, board day 10-06 not a gap: settled
         gaps = board.facts.finding_gaps
-        assert gaps["text"] == "Not available yet · 30 of 31 days have no assessed readings"
+        assert gaps["text"] == "30 of the last 31 days have no checked readings yet"
         assert len(gaps["days"]) == 30 and "2026-10-06" not in gaps["days"] and gaps["days"][0] == "2026-09-06"
         # the board day itself a gap (10-07, no evidence): the Finding source is not settled
         later = mini.compose(ports, site_code="KOBO-001", day=date(2026, 10, 7), site_timezone=None)
         assert "finding_index" in later.failed
-        assert later.facts.finding_gaps["text"] == "Not available yet · 30 of 31 days have no assessed readings"
+        assert later.facts.finding_gaps["text"] == "30 of the last 31 days have no checked readings yet"
 
 
 class TestResidualRiskProbe:

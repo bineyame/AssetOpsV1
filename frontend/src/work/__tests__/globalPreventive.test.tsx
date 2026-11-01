@@ -235,7 +235,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     ]);
     const trs = Array.from(panel.querySelectorAll("tbody tr"));
     expect(trs).toHaveLength(5);
-    expect(text(cell(trs[0], 0).querySelector("[data-global-work-title]"))).toBe(`PM-000001 · ${TITLE200}`);
+    expect(text(cell(trs[0], 0).querySelector("[data-global-work-title]"))).toBe(`PM-001 · ${TITLE200}`);
     expect(cell(trs[0], 0).querySelector("[data-global-work-title] a")).toBeNull();
     expect(text(cell(trs[0], 0).querySelector("[data-global-work-full-title]"))).toBe(`Full title text${TITLE200}`);
     expect(text(cell(trs[0], 0).querySelector("[data-global-work-source] summary"))).toBe("Source unverified");

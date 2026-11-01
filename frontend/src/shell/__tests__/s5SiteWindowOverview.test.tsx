@@ -21,7 +21,15 @@ import type {
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
-import { MINIGRID_OBJECTIVE, MONEY_STATE_WORDS, SiteWindowOverview, overviewReadsStrip } from "../../sites/SiteWindowOverview";
+import {
+  MINIGRID_OBJECTIVE,
+  MONEY_STATE_WORDS,
+  MONEY_ZERO,
+  MONEY_ZERO_NOTE,
+  SiteWindowOverview,
+  dayReadingLine,
+  overviewReadsStrip,
+} from "../../sites/SiteWindowOverview";
 import type { MiniDepthClient, MiniRead, MiniWindowQuery } from "../../sites/miniDepthClient";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
@@ -161,7 +169,7 @@ describe("S5-01 selected-window Overview: money states", () => {
     // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
     // Final review ruling 1 (H3): a MINIGRID Overview states the mini-grid objective, not the dispatch-only line.
     expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
-    expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Possibly avoidable");
+    expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Checked (possibly avoidable): 1 period of generator use");
     const financials = card.querySelector("[data-window-financials-link]")?.getAttribute("href");
     expect(financials).toContain(`finding_id=${FID}`);
     expect(financials).toContain(`revision_id=${RID}`);
@@ -194,6 +202,32 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(within(card).getByText(MONEY_STATE_WORDS[state].label)).toBeTruthy();
     expect(card.textContent).not.toMatch(/\d+\.\d\d to \d/);
     expect(document.querySelector(`[data-known-finding="${FID}"]`)).not.toBeNull();
+  });
+
+  it("POLISH §1.1 (P-06): a PRICED zero says no fuel cost was estimated, never 0.00 to 0.00, and keeps its chip and detail", async () => {
+    const { client } = clientOf(() => summary("2026-10-24", {}, { state: "PRICED", amount_low: "0.00", amount_high: "0.00" }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
+    await settledScreen();
+    const card = moneyCard();
+    expect(card.querySelector('[data-money-amount="zero"]')?.textContent).toBe(MONEY_ZERO);
+    expect(card.querySelector("[data-money-zero-note]")?.textContent).toBe(MONEY_ZERO_NOTE);
+    expect(card.textContent).not.toMatch(/0\.00 to 0\.00/);
+    expect(card.querySelector("[data-value-bars]")).toBeNull();
+    expect(expectStateLineVisible(card)).toBe("Latest estimate");
+    expect(card.querySelector('[data-disclosure="window-money-detail"] summary')?.textContent).toBe("How this estimate was made");
+  });
+
+  it("POLISH §3.1 Kobo: the day reading line names periods of generator use, and the zero case says it was not used", () => {
+    expect(dayReadingLine("COMPLETE", 1, { a: 1, b: 2 })).toBe("Checked: 1 period of generator use, from 2 measured inputs");
+    expect(dayReadingLine("COMPLETE", 3, { a: 1 })).toBe("Checked: 3 periods of generator use, from 1 measured input");
+    expect(dayReadingLine("COMPLETE", 0, Object.fromEntries(Array.from({ length: 13 }, (_, i) => [`r${i}`, 1])))).toBe(
+      "Checked: generator not used on this day, from 13 measured inputs",
+    );
+    expect(dayReadingLine("COMPLETE", 0, null)).not.toMatch(/\brun\b|\bran\b|\brunning\b/);
+    // PB-2 review L1: missing coverage is its own clause.
+    expect(dayReadingLine("COMPLETE", 1, null)).toBe(
+      "Checked: 1 period of generator use; the measured inputs for this day were not recorded",
+    );
   });
 
   it.each([["amount_low"], ["amount_high"]])("a PRICED read missing %s shows no amount and no positive Current amount label", async (missing) => {
@@ -335,7 +369,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     renderAt(`/sites/${SITE_ID}?date=2026-10-24`, client);
     await settledScreen();
     const gaps = document.querySelector("[data-window-gaps]") as HTMLElement;
-    expect(gaps.textContent).toBe("No rule yet says which gaps in the readings matter here; the reading counts are shown instead.");
+    expect(gaps.textContent).toBe("Gaps in the readings are not judged yet; reading counts are shown instead.");
     expect(document.body.textContent).not.toContain(raw);
   });
 
@@ -470,7 +504,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     // Review fix M3: panel 1 has one "How this was worked out" disclosure (day reading and freshness merged).
     const happened = freshnessCard().closest(".panel") as HTMLElement;
     expect([...happened.querySelectorAll("summary")].filter((x) => x.textContent === "How this was worked out")).toHaveLength(1);
-    expect(expectStateLineVisible(moneyCard())).toBe("Current amount");
+    expect(expectStateLineVisible(moneyCard())).toBe("Latest estimate");
     // The amount is drawn as two bounded bars; the raw recorded label and method reference are exact detail only.
     expect(moneyCard().querySelectorAll('[data-value-bar="known"]')).toHaveLength(2);
     const label = summary().money.label;
@@ -507,7 +541,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     // One closed detail disclosure holds the bars, the gate and upstream facts, the links and the exact references.
     const detail = card.querySelector('details[data-disclosure="window-money-detail"]') as HTMLDetailsElement;
     expect(detail.open).toBe(false);
-    for (const sel of ["[data-value-bars]", "[data-money-gate-state]", "[data-money-upstream]", "[data-window-money-links]", "[data-exact-references]"]) {
+    for (const sel of ["[data-value-bars]", "[data-money-gate-state]", "[data-money-upstream]", "[data-window-money-links]", "[data-technical-details]"]) {
       expect(detail.querySelector(sel), sel).not.toBeNull();
       expect(shown(card.querySelector(sel)), sel).toBe(false);
     }
@@ -837,13 +871,14 @@ describe("W4-02 Overview mini cards", () => {
 
   // Final review ruling 1 (H3): the strip names only the readable reads, in Service, Dispatch, Fuel, Renewable order.
   const stripText = () => document.querySelector("[data-overview-status]")?.textContent ?? "";
-  const READS = (names: string) => `Reads on this Overview: ${names}. Each outcome row shows only what these reads support for the selected period.`;
+  // POLISH §3.1 Kobo: "This page uses service, generator, fuel and solar readings for the selected day."
+  const READS = (names: string) => `This page uses ${names} readings for the selected day.`;
 
   it("H3: a numeric MINIGRID set names every read and states the mini-grid objective", async () => {
     const mini = miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) });
     renderMini(mini);
     await readsSettled(mini);
-    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch, Fuel, Renewable")));
+    await waitFor(() => expect(stripText()).toContain(READS("service, generator, fuel and solar")));
     expect(stripText()).not.toContain("dispatch only");
     expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
     expect(document.body.textContent).not.toContain("Objective: nothing here is a current answer.");
@@ -856,7 +891,7 @@ describe("W4-02 Overview mini cards", () => {
     });
     renderMini(mini);
     await readsSettled(mini);
-    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch")));
+    await waitFor(() => expect(stripText()).toContain(READS("service and generator")));
     expect(stripText()).not.toContain("Fuel");
     expect(stripText()).not.toContain("Renewable");
   });
@@ -868,7 +903,7 @@ describe("W4-02 Overview mini cards", () => {
     });
     renderMini(mini);
     await readsSettled(mini);
-    await waitFor(() => expect(stripText()).toContain(READS("Service, Dispatch, Renewable")));
+    await waitFor(() => expect(stripText()).toContain(READS("service, generator and solar")));
     expectOutcomeBoardReplacesCards(OLD_MINI_CARDS);
   });
 
@@ -876,7 +911,7 @@ describe("W4-02 Overview mini cards", () => {
     expect(overviewReadsStrip({ service: false, dispatch: false, fuel: false, renewable: false })).toBe(
       "No objective read is available for this selection.",
     );
-    expect(overviewReadsStrip({ service: false, dispatch: true, fuel: false, renewable: true })).toBe(READS("Dispatch, Renewable"));
+    expect(overviewReadsStrip({ service: false, dispatch: true, fuel: false, renewable: true })).toBe(READS("generator and solar"));
   });
 
   it("H3: a non-MINIGRID Overview (no mini reads) keeps the dispatch-only strip and objective", async () => {

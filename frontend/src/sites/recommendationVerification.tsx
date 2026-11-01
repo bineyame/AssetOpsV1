@@ -6,6 +6,7 @@
  * The accepted recommendation snapshot stays pinned; this only links to the
  * frozen plan once one exists.
  */
+import { displayCode } from "../ui/displayCode";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -131,7 +132,7 @@ export function EvidenceNeededPanel({
             key: "applied",
             title: "Applied change record",
             body: "The applied setting change and when it took effect.",
-            action: <Link to={actionHref}>Open {actionCode} →</Link>,
+            action: <Link to={actionHref}>Open {displayCode(actionCode)} →</Link>,
           },
           {
             key: "later",

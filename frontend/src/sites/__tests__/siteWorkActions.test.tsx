@@ -10,6 +10,7 @@
  * the 1440/390 widths (jsdom has no layout: the measured claim is the
  * layout-evidence script's).
  */
+import { displayCode } from "../../ui/displayCode";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -121,7 +122,7 @@ describe("Site Work Actions list", () => {
       );
       expect(tr.querySelector("[data-site-work-finding-link]")?.getAttribute("href")).toBe(row.links.origin_finding);
       expect(tr.querySelector("[data-site-work-event-link]")?.getAttribute("href")).toBe(row.links.history_at_event);
-      expect(tr.textContent).toContain(row.action_code);
+      expect(tr.textContent).toContain(displayCode(row.action_code));
     });
     // Same lifecycle words as recorded state, never a verdict; owner, due and criterion are stated gaps (W1-F4 fix: mock's six columns).
     expect(rows[0].textContent).toContain("Accepted · not applied (1 failed attempt)");

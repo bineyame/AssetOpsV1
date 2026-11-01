@@ -27,6 +27,7 @@
  * success criterion and any verification verdict are not shown: this read has
  * none of them, and the list derives none.
  */
+import { displayCode } from "../ui/displayCode";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
@@ -249,7 +250,7 @@ function Basis({ body }: { body: ActionIndexBody }) {
           <tbody>
             {body.rows.map((row) => (
               <tr key={row.action_id}>
-                <td>{row.action_code}</td>
+                <td>{displayCode(row.action_code)}</td>
                 <td>
                   <code data-vocabulary-exempt="source-reference">{row.action_id}</code>
                 </td>
@@ -296,7 +297,7 @@ function Rows({ body, links, all }: { body: ActionIndexBody; links: SiteWorkLink
           >
             <td>
               <Link to={links.action(row.action_id)} data-site-work-action-link>
-                {row.action_code} · Battery reserve trial
+                {displayCode(row.action_code)} · Battery reserve trial
               </Link>
             </td>
             <td>
@@ -927,11 +928,11 @@ function DomainRows({ body, all, p, scope }: { body: DomainIndexBody; all: boole
         {body.rows.map((row, index) => {
           const domain = isDomainRow(row);
           // P-K2a-33: a W1 row shows its stored code only (no battery title); a domain row its stored code and title.
-          const label = domain && row.title !== null ? `${row.action_code} · ${row.title}` : row.action_code;
+          const label = domain && row.title !== null ? `${displayCode(row.action_code)} · ${row.title}` : displayCode(row.action_code);
           const owner = row.owner_label ?? p.ownerMissing;
           const content = (
             <>
-              <span className={workClass(lc, "code")}>{row.action_code}</span>
+              <span className={workClass(lc, "code")}>{displayCode(row.action_code)}</span>
               {domain && row.title !== null ? ` · ${row.title}` : null}
             </>
           );

@@ -6375,3 +6375,27 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to ma
   " · " and fall back to showing the plain label (PB-3 replaces them). `global_detail` `work_asset` still returns
   raw `{asset_code, asset_type}`. The preventive cards and chips are PB-3.
 
+## POLISH PB-2 - Kobo board, verification, display codes (built, in_review)
+
+- Ids (§3, Addenda 5 and 8 Q5): `frontend/src/ui/TechnicalDetails.tsx` holds `TechnicalDetails` (a closed "Technical
+  details" disclosure carrying `data-technical-details`), `TechnicalReferenceList`, and `WorkedOut` ("How this was
+  worked out", with plain lines and the values nested in Technical details). `ui/Disclosure.tsx` has an optional
+  `technical` prop. `ExactReferences` is unchanged; its cold/EV/foundation call sites stay PB-3's.
+  Switched: `SiteWindowOverview` (freshness, money and choice references), `OverviewFindingList` `ListReferences`,
+  `SourceProvenanceRecord` id lists (shared by every source record), the verification `DigDeeper` and strip
+  references, and SiteAction History failure/applied/observed codes.
+- Codes (§3): `ui/displayCode.ts` `displayCode()` mirrors `outcomes/display_code.py`. It is applied at the visible
+  record-code renders: SiteAction, SiteRecommendation, recommendationVerification, DomainActionVerification,
+  SiteWorkActions, siteWorkCases, SiteAnalyticsFrames, work/{workRequestShared, GlobalIncidents, GlobalMaintenance,
+  GlobalPreventive, OperationalRecords, WorkRequestRecord}, estate/{actionIndex, EstatePortfolio}.
+  aria-labels, `data-*` attributes and the "Action code" reference row keep the stored code.
+- Kobo copy: §3.1 rows with the Addendum 4 swaps (`dayReadingLine`, `overviewReadsStrip`, `MONEY_ZERO` for P-06).
+  The mini slot titles are "What happened on this day" and "Possible cost" (`v69PanelTitles` `mini:1`/`mini:4`).
+  `dispatchWords` ROLE_WORDS has the essential-service power words, and its fallback capitalises.
+- Titles: `findingWords` `LIFECYCLE_WORDS` and `mini.FINDING_TITLE` use the Addendum 4 titles (MERGED unchanged).
+  `mini.GAPS_NO_READINGS` is "{g} of the last {n} days {verb} no checked readings yet".
+- The verification claim label is an inline item of the status strip (`ClaimLabel inline`), which clears the
+  3 w1f4VerificationStructure failures.
+- Open: the Kobo board server sentences still show stored codes on the DEMO-A build (awaiting the PA-3 rebuild). The
+  Portfolio "scenario" words and the cold/EV headings are PB-3's (Addendum 8 Q3/Q4). `data-vocabulary-exempt="lab"`
+  (10 hits on `kobo-board-S-open`) predates PB-2.

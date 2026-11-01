@@ -143,7 +143,7 @@ describe("cold-action Related activity (ruling 5, R100) and controls (ruling 8, 
   it("states the selected completed WR and opens its Overview from Inspect, without known_at when the URL has none", async () => {
     const { main } = await mount(() => loaded(positive()));
     expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe(
-      "Starter/control inspection WR-000019 is complete. A witnessed outcome test remains required.",
+      "Starter/control inspection WR-019 is complete. A witnessed outcome test remains required.",
     );
     const inspect = main.querySelector("[data-domain-action-inspect]") as HTMLButtonElement;
     expect(inspect.tagName).toBe("BUTTON");
@@ -188,7 +188,7 @@ describe("cold-action Related activity (ruling 5, R100) and controls (ruling 8, 
     const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work: linkedWork(state, null) } })));
     expect(main.querySelector("[data-domain-action-related]")?.getAttribute("data-domain-action-related")).toBe(kind);
     expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe(
-      `Starter/control inspection WR-000019 ${phrase}. A witnessed outcome test remains required.`,
+      `Starter/control inspection WR-019 ${phrase}. A witnessed outcome test remains required.`,
     );
     const inspect = main.querySelector("[data-domain-action-inspect]") as HTMLButtonElement;
     expect(inspect.disabled).toBe(false);
@@ -254,7 +254,7 @@ describe("cold-action strip, currentness and non-loaded states (rulings 3, 4, 6,
     const title = `Witness ${"t".repeat(152)}`;
     const owner = `Lead ${"y".repeat(155)}`;
     const { main } = await mount(() => loaded(detailBody({ action: { ...detailBody().action, title, owner_label: owner }, intent: null, results: null, links: { finding: detailBody().links.finding, work: NO_WORK } })));
-    expect(text(main.querySelector("h1"))).toBe(`ACT-000051 · ${title}`);
+    expect(text(main.querySelector("h1"))).toBe(`ACT-051 · ${title}`);
     expect(text(main.querySelector("[data-domain-action-owner]"))).toBe(owner);
     expect(main.textContent).not.toContain("…");
   });
@@ -452,10 +452,10 @@ describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
     const { main, client } = await mountEv(() => loaded(evDetail()));
     expectV69Panels("ev-action");
     // Mock breadcrumb `Actions › {code} › Verification · site: {site}`, heading, question subtitle and Open site.
-    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map(text)).toEqual(["Actions", "ACT-000061", "Verification"]);
+    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map(text)).toEqual(["Actions", "ACT-061", "Verification"]);
     expect(main.querySelector("[data-domain-action-crumbs] a")?.getAttribute("href")).toBe("/actions");
     expect(text(main.querySelector("[data-domain-action-crumb-site]"))).toBe(`· site: ${EV_SITE_NAME}`);
-    expect(text(main.querySelector("h1"))).toBe("ACT-000061 · Investigate connector 2");
+    expect(text(main.querySelector("h1"))).toBe("ACT-061 · Investigate connector 2");
     expect(main.textContent).toContain("What would establish successful service restoration?");
     expect(main.querySelector("[data-domain-action-open-site]")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}`);
     // One Verification tab only.
@@ -502,7 +502,7 @@ describe("ev-action loaded page (rulings 15, 41, 43; pre-flight 44-46)", () => {
     expect(text(main.querySelector("[data-domain-action-owner]"))).toBe("Not assigned");
     cleanup();
     const long = await mountEv(() => loaded(evDetail({ action: { ...evDetail().action, title, owner_label: owner } })));
-    expect(text(long.main.querySelector("h1"))).toBe(`ACT-000061 · ${title}`);
+    expect(text(long.main.querySelector("h1"))).toBe(`ACT-061 · ${title}`);
     expect(text(long.main.querySelector("[data-domain-action-owner]"))).toBe(owner);
     expect(long.main.querySelector("[data-domain-action-owner]")?.className).toBe("domain-action-owner");
   });

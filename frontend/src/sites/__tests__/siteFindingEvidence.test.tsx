@@ -260,7 +260,7 @@ async function mount(client: FindingClient, search = "") {
 
 const q = (selector: string) => document.querySelector(selector);
 /** W1-F3: panel 1 of finding-evidence, titled with the selected Finding's plain title. */
-const BUNDLE = "Evidence bundle · Generator support merits review";
+const BUNDLE = "Evidence bundle · Generator may have been on longer than needed";
 /** W1-F3: the selection state block inside panel 1 (formerly the answer card). */
 const stateBlock = () => q("[data-evidence-state]") as HTMLElement;
 
@@ -583,7 +583,7 @@ describe("Finding frame sections (S4-03 phase 2)", () => {
     expect(document.querySelectorAll(`nav[aria-label="Finding sections"] a[href*="${R1}"]`)).toHaveLength(0);
     expect(q("[data-finding-financials-link]")).toBeNull();
     // W1-F5b carry 10: the heading is the Finding's own name, as on the Finding and in the mock.
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support merits review$/);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator may have been on longer than needed$/);
     // W4-03 unit 6b (u5 6b, u6) and post-W6 W1-a Q7/Q16: the canonical mini row is Overview, Analysis, Evidence,
     // Alternatives, Recommendation, History. This fake's W1 Finding read refuses, so Analysis is plain text and
     // Alternatives is the short disabled tab, with its full reason on the line below the row.
@@ -850,7 +850,7 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
 
   it("W1-F3: leads with the supporting records in the evidence bundle, the record trail in source lineage, exact references last; W1 vocabulary on <main>", async () => {
     await mount(fake({ status: "loaded", value: body() }));
-    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectV69Panels("finding-evidence", { finding: "Generator may have been on longer than needed" });
     expect(q("[data-headline-card]")).toBeNull();
     const bundle = panelTitled(BUNDLE);
     const answer = stateBlock();
@@ -910,7 +910,7 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
     const a = await mount(fake({ status: "loaded", value: earlier }), `?revision_id=${R1}`);
     expect(expectStateLineVisible(stateBlock())).toBe("Earlier version, kept for the record");
     expect(stateBlock().querySelector("[data-evidence-earlier-version] a")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
-    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectV69Panels("finding-evidence", { finding: "Generator may have been on longer than needed" });
     let w1 = scanProductVocabulary(main(), "finding evidence earlier (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
     a.unmount();
@@ -941,7 +941,7 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
     // W1-F3: the failing links are named inside Inspect source lineage.
     expect(lineage().querySelector("[data-evidence-lineage-broken]")).toHaveTextContent("Some record links do not resolve.");
     expect(lineage().querySelector(`[data-evidence-broken-record='${tampered.evidence_id}']`)).not.toBeNull();
-    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectV69Panels("finding-evidence", { finding: "Generator may have been on longer than needed" });
     expectStateLineVisible(stateBlock());
     const w1 = scanProductVocabulary(main(), "finding evidence broken (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -990,7 +990,7 @@ describe("W1-F3: finding-evidence renders exactly the v69 panels", () => {
 
   it("stocked: the evidence bundle (Input / Source / Records / Coverage / Use, records, assessments) and source lineage", async () => {
     await mount(fake({ status: "loaded", value: body() }));
-    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectV69Panels("finding-evidence", { finding: "Generator may have been on longer than needed" });
     expect(titles()).toEqual([BUNDLE, "Inspect source lineage"]);
     const bundle = panelTitled(BUNDLE);
     const heads = Array.from(bundle.querySelectorAll("table[aria-labelledby='finding-evidence-inputs'] th")).map((th) => th.textContent);
@@ -1037,7 +1037,7 @@ describe("W1-F3: finding-evidence renders exactly the v69 panels", () => {
   it("one record, selected: the inspector sits inside Inspect source lineage; still two panels", async () => {
     const one = record(1);
     await mount(fake({ status: "loaded", value: body({}, [one]) }), `?record=${one.evidence_id}`);
-    expectV69Panels("finding-evidence", { finding: "Generator support merits review" });
+    expectV69Panels("finding-evidence", { finding: "Generator may have been on longer than needed" });
     expect(panelTitled("Inspect source lineage").querySelector(`[data-evidence-record='${one.evidence_id}']`)).not.toBeNull();
     expect(panelTitled(BUNDLE).querySelectorAll("[data-evidence-id]")).toHaveLength(1);
   });
@@ -1045,7 +1045,7 @@ describe("W1-F3: finding-evidence renders exactly the v69 panels", () => {
   it("no cited records and a not-confirmed version: the same two panels, titled with that Finding's title", async () => {
     const base = body();
     await mount(fake({ status: "loaded", value: body({ revision: { ...base.revision, lifecycle: "UNCONFIRMED" } }, []) }));
-    expectV69Panels("finding-evidence", { finding: "Generator support review: not confirmed" });
+    expectV69Panels("finding-evidence", { finding: "Extra generator time not confirmed by the latest check" });
     expect(stateBlock().querySelector("[data-evidence-headline]")).toHaveTextContent("This version cites no accepted records");
   });
 

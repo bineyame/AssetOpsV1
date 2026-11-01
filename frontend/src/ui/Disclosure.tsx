@@ -20,6 +20,8 @@ export interface DisclosureProps {
    * `inline`: the same link-styled summary set inline on a row's link line (W1-F3 height phase).
    */
   variant?: "tech" | "inline";
+  /** POLISH §3 ids: a "Technical details" region (`data-technical-details`), the only place ids may be shown. */
+  technical?: boolean;
   children: ReactNode;
 }
 
@@ -28,12 +30,14 @@ export function Disclosure({
   name,
   defaultOpen = false,
   variant,
+  technical = false,
   children,
 }: DisclosureProps) {
   return (
     <details
       className={variant === "inline" ? "disclosure disclosure--tech disclosure--inline" : variant === "tech" ? "disclosure disclosure--tech" : "disclosure"}
       data-disclosure={name}
+      {...(technical ? { "data-technical-details": "" } : {})}
       open={defaultOpen}
     >
       <summary className="disclosure__summary">{summary}</summary>

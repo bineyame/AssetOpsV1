@@ -373,6 +373,8 @@ describe("what canonical screen two draws and this product does not", () => {
       /\d{4}-\d{2}-\d{2}T[\d:]+Z/g,
     );
 
-    expect(timestamps).toEqual(["2026-09-14T09:12:00Z"]);
+    // POLISH §3: shown in day-time form, never as ISO text.
+    expect(timestamps).toBeNull();
+    expect(main.textContent).toContain("14 Sep 2026, 09:12");
   });
 });

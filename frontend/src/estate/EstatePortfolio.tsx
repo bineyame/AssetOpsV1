@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { displayCode } from "../ui/displayCode";
 import { formatDayRange } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
@@ -431,7 +432,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
               <ul className="portfolio-progress-rows">
                 {p.rows.map((r) => (
                   <li key={r.action_id} data-portfolio-progress-row={r.action_id}>
-                    Action {r.action_code} · {r.action_id} · event {r.selected_action_event_id ?? "none"} · plan{" "}
+                    Action {displayCode(r.action_code)} · {r.action_id} · event {r.selected_action_event_id ?? "none"} · plan{" "}
                     {r.verification_plan_id ?? "none"} · outcome {r.verification_outcome_id ?? "none"}
                     {r.verification_outcome ? ` (${r.verification_outcome})` : ""}
                     {r.origin_revision_selected ? null : <small data-portfolio-origin-unselected> Origin Finding revision not selected</small>}

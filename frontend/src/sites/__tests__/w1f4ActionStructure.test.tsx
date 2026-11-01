@@ -309,7 +309,7 @@ describe("W5-02 K2a: cold-action placeholder shell structure", () => {
     expect(main.querySelector('nav[aria-label="Site sections"]')).toBeNull();
     expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map((li) => li.textContent)).toEqual([
       "Actions",
-      "ACT-000051",
+      "ACT-051",
       "Verification",
     ]);
     const sections = Array.from(main.querySelectorAll('nav[aria-label="Action sections"] li'));

@@ -11,6 +11,7 @@
  * the panel footer and the notice keep their slots with bounded copy (no plan-completion command; the mock incident
  * story cannot be attributed to stored plans). A refusal, a read failure or a changed list is stated, never zero.
  */
+import { displayCode } from "../ui/displayCode";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { UnavailableInline } from "../ui/UnavailableEntry";
 import { CellDisclosure } from "./CellDisclosure";
@@ -75,7 +76,7 @@ function PlanRow({ row }: { row: GlobalPreventiveRow }) {
   return (
     <tr data-global-work-row={row.root_id}>
       <td>
-        <Clamp data={{ "data-global-work-title": "" }}>{`${row.code} · ${row.title}`}</Clamp>
+        <Clamp data={{ "data-global-work-title": "" }}>{`${displayCode(row.code)} · ${row.title}`}</Clamp>
         <details className="global-work-details" data-global-work-full-title>
           <summary>Full title text</summary>
           {row.title}

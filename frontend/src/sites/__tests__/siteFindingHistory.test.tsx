@@ -167,7 +167,7 @@ function client(ledger: Ledger): FindingClient & { asked: Asked[] } {
           site_code: siteCode,
           finding: { id: findingId },
           selection: { revision_id: revisionId ?? rid(ledger.total) },
-          revision: { title: "Generator support merits review" },
+          revision: { title: "Generator may have been on longer than needed" },
         },
       }) as unknown as Awaited<ReturnType<FindingClient["getFinding"]>>,
     getFindingWindow: async () => ({ status: "not_found", message: null }),
@@ -257,7 +257,7 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     expect(q("[data-finding-section='history']")).toHaveAttribute("aria-current", "page");
     // W1-F5b carry 10: the heading is the selected version's Finding name, not a generic "Finding history".
     // post-W6 W1-a Q16: the heading is "Finding" until the read settles, then set from the frame's title effect.
-    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support/));
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator may have been on/));
     expect(screen.getByRole("heading", { level: 1 })).not.toHaveTextContent(/history/i);
     const { violations } = scanProductVocabulary(container, "finding history");
     expect(violations, describeViolations(violations)).toEqual([]);

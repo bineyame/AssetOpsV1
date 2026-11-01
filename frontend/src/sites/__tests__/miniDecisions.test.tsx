@@ -237,7 +237,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     // CC-R1 / R500: the claim label sits under the gross scenario figure, in the same cell; no other row has one.
     expect(first[3]).toBe(
       "$2.50 gross sales scenario per eligible window, before costs" +
-        "Modelled opportunity · declared assumptions · benefits: mini-grid operator",
+        "Modelled opportunity · declared assumptions · benefits the mini-grid operator",
     );
     const labels = document.querySelectorAll("[data-scenarios-table] .claim-label");
     expect(labels).toHaveLength(1);
@@ -480,7 +480,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
   const F = "49281b7c-96ac-456d-ab6b-040bb0760444";
   const REV = id(31);
   const LATEST = id(32);
-  const TITLE = "Generator support merits review";
+  const TITLE = "Generator may have been on longer than needed";
 
   function w1(siteCode: string, revisionId: string, findingId = F): FindingReadResult<FindingDetailBody> {
     return {
