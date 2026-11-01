@@ -1,0 +1,86 @@
+Findings
+
+Evidence-backed operating conclusions
+
+All findings
+Cost
+Risks
+Opportunities
+24–30 Oct 2026
+Latest information, as of 1 Nov 2026, 17:04
+From
+to (included)
+Show
+View an earlier point in time
+Times in UTC
+Supported findings
+Some data missing
+High priority
+Not assessed
+Low confidence
+Not assessed
+Awaiting verification
+Some data missing
+All states
+Confirmed
+Not yet confirmed
+No longer applies
+Combined with another
+Findings across the estate
+
+Lens is how a finding is read, not a second object · state is a filter
+
+FINDING	SITE	PRIORITY	CONFIDENCE	STATE	MAIN CONSEQUENCE	LENS
+
+Cold room temperature outside its policy band
+Affects
+Protect asset and capital
+Technical details
+	COLD-LAB-001
+GreenHarvest Cold Room
+	Not assessed	Not assessed	Confirmed	Unpriced	Risk
+
+Backup generator did not start when the grid failed
+Affects
+Protect asset and capital
+Also checked under
+Optimize cost and efficiency
+Technical details
+	COLD-LAB-001
+GreenHarvest Cold Room
+	Not assessed	Not assessed	Confirmed	No consequence recorded	Risk
+
+Generator may have been on longer than needed
+Affects
+Optimize cost and efficiency
+Also checked under
+Protect asset and capital
+Technical details
+	KOBO-001
+Kobo mini-grid
+	Not assessed	Not assessed	ConfirmedSome days not checked yet	Partly checked · value shown once every day is checked	Not in any category
+
+Backup generator did not start when the grid failed
+Affects
+Protect asset and capital
+Also checked under
+Optimize cost and efficiency
+Technical details
+	COLD-LAB-001
+GreenHarvest Cold Room
+	Not assessed	Not assessed	Confirmed	No consequence recorded	Risk
+
+Observed EV charging interruption
+Affects
+Protect asset and capital
+Affects
+Grow revenue
+Technical details
+	EV-LAB-001
+Depot Charging Hub
+	Not assessed	Not assessed	Confirmed	No consequence recorded	Risk
+
+Kobo mini-grid is partly checked; totals are unknown.
+
+Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.
+Priority, confidence and workflow state stay separate. A finding title that is a link opens that finding with its site in the breadcrumb; other titles are shown without a link.

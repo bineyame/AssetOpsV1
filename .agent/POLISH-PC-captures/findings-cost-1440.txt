@@ -1,0 +1,36 @@
+Findings
+
+Evidence-backed operating conclusions
+
+All findings
+Cost
+Risks
+Opportunities
+24–30 Oct 2026
+Latest information, as of 1 Nov 2026, 17:04
+From
+to (included)
+Show
+View an earlier point in time
+Times in UTC
+Supported findings
+Some data missing
+High priority
+Not assessed
+Low confidence
+Not assessed
+Awaiting verification
+Some data missing
+All states
+Confirmed
+Not yet confirmed
+No longer applies
+Combined with another
+Cost lens
+
+Lens is how a finding is read, not a second object · state is a filter
+
+Kobo mini-grid is partly checked; totals are unknown.
+
+Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.
+Priority, confidence and workflow state stay separate.

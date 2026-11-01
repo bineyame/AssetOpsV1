@@ -1,0 +1,100 @@
+Sites
+GreenHarvest Cold Room
+GreenHarvest Cold Room
+Example data
+
+Overview · operating objectives for the selected period
+
+Overview
+Foundation
+Health
+Performance
+Findings
+Work
+Financials
+Evidence
+
+23 Oct 2026, 16:00–17:05
+· information up to 30 Oct, 17:05
+Times in UTC
+
+No excursion observed Confidence: partial Stock risk not known yet
+Inspect evidence
+
+Keep the chamber between 2–4°C through power, cooling and operating disturbances.
+
+How this site is doing
+i
+Grow revenue
+Capture more value from existing infrastructure and expand earning potential
+Not measured yet
+Needs occupancy, storage contract, income and sales records
+Optimize cost and efficiency
+Eliminate avoidable expenditure and get more output from operational resources
+No objective declared
+No open issues
+Protect asset and capital
+Preserve asset value, avoid premature replacement and reduce service disruption
+No objective declared
+No open issues
+Assure performance and returns
+Establish with defensible evidence whether the infrastructure is delivering expected results
+Watch
+Event fully reconstructed · no verified result yet
+No open issues
+What happened · power → cooling → product conditions
+
+No incident recorded in this period
+
+16:05
+Grid supply · Lost
+16:05
+Start requested · Requested
+16:07
+Start result · Succeeded
+16:07
+Generator · On
+16:08
+Transfer to backup · Succeeded
+16:08
+Backup bus · Powered
+16:10
+Compressor · Off
+16:10
+Chamber temperature · 3.1 °C
+
+These steps come from the recorded readings. A step with no reading is marked Missing.
+
+Chamber temperature
+
+Operating conditions, not an inventory-loss model
+
+Single line diagram →
+1°
+2°
+3°
+4°
+5°
+16:00
+16:15
+16:30
+16:45
+17:00
+Chamber temperature
+Policy band
+
+Policy band 2–4°C. Gaps between accepted readings remain unmeasured.
+
+Needs attention
+
+No recorded need for attention in this window
+
+Possible cost
+
+No product exposure consequence assessed
+
+Open financial bridge →
+
+Next step
+
+No recorded next step

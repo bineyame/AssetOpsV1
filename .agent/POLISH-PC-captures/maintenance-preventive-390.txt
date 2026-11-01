@@ -1,0 +1,127 @@
+Maintenance
+Preventive · scheduled
+Maintenance
+
+Scheduled maintenance by calendar or hours of use
+
+Corrective
+Preventive · scheduled
+From
+To (not included)
+Show records
+Reload
+
+Listed in the order plans were added.
+
+Updated 1 Nov 2026, 17:04 · Times in UTC · due dates in each site's local date
+
+2 overdue
+Scheduled by calendar or hours of use · due dates as set in each plan
+Assets · Not available yet
+Scheduled items
+5
+Across 3 sites
+Overdue
+2
+Calendar plans due before 2 Nov 2026
+Due in the next 14 days
+2
+Calendar plans due by 16 Nov 2026
+Feeds evidence
+Not established
+No linked evidence yet
+
+1 plan based on hours of use; not checked here yet
+
+Preventive plan
+
+Plans can't be completed from this page yet.
+
+Scroll table horizontally
+
+PLAN ITEM	ASSET / SITE	TRIGGER	LAST DONE	NEXT DUE	STATE	WHAT IT PROVES
+
+PM-013 · Connector inspection
+Full title text
+Source not checked
+	
+Connector c1 · Depot Charging Hub
+Show full
+	
+Calendar
+	
+Not linked
+	
+21 Oct 2026
+Overdue	Not yet approved	
+No completed work confirmed yet
+Show full
+
+
+PM-010 · Compressor coil cleaning
+Full title text
+Source not checked
+	
+Compressor · GreenHarvest Cold Room
+Show full
+	
+Calendar
+	
+Not linked
+	
+8 Nov 2026
+Due soon	Not yet approved	
+No completed work confirmed yet
+Show full
+
+
+PM-009 · Witnessed backup start test
+Full title text
+Source not checked
+	
+Backup generator · GreenHarvest Cold Room
+Show full
+	
+Calendar
+	
+Not linked
+	
+26 Oct 2026
+Overdue	Not yet approved	
+No completed work confirmed yet
+Show full
+
+
+PM-004 · Battery capacity test
+Full title text
+Source not checked
+	
+Battery · Kobo mini-grid
+	
+Calendar
+	
+Not linked
+	
+3 Nov 2026
+Due soon	Not yet approved	
+No completed work confirmed yet
+Show full
+
+
+PM-003 · Generator 500-hour service
+Full title text
+Source not checked
+	
+Generator · Kobo mini-grid
+	
+Every 500 hours of use
+	
+Not linked
+	
+At 500 hours of use
+No date	Not yet approved	
+No completed work confirmed yet
+Show full
+Showing 1–5 of 5
+
+These plans are not yet approved, and none is linked to an incident or a cause.

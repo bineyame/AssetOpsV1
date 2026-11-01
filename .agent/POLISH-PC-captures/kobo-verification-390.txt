@@ -1,0 +1,88 @@
+ActionsACT-001Verification· site: Kobo mini-grid
+ACT-001 · Battery reserve trial
+
+Kobo mini-grid · an action raised from a finding
+
+Open site
+Overview
+Plan
+Application
+Evidence
+Verification
+History
+AFFECTS
+Optimize cost and efficiency
+supply cost per kWh
+SAFEGUARDS CHECKED
+Protect asset and capital
+reliable service, battery and generator life
+Target met within the sampled limits
+Current state Target met within every limit
+The measured target was met, and the reserve and service limits held at every five-minute sample. This is not continuous proof of battery charge between samples.
+Source: Example data, not field readings
+This Action's measured trial · As of 31 Oct 2026, 13:00 · Times in UTC
+Verified on example data · benefits the mini-grid operator
+Technical details
+OWNER
+Not recorded
+DUE / SLA
+Not set
+STATE
+Target met within the sampled limits
+SOURCE
+Finding it came from
+SUCCESS CRITERION
+At least 25% lower
+Target change
+60 min → 0 min
+Avoidable generator time · target pass
+Reserve breaches
+0 min
+Time below reserve, sampled every five minutes · pass
+Critical service
+0 kWh
+Critical demand not served · pass
+Final outcome
+Verified
+Target met within every limit
+Target and guardrails evaluated together
+
+Target met within every limit · recorded 31 Oct 2026, 13:00 · outcome: Verified.
+
+Target and limits, both windows
+METRIC	ROLE	BEFORE	AFTER	LIMIT	RESULT
+Reduction in avoidable generator time	Target	60 min	0 min	At least 25% lower	Pass
+Critical demand not served	Service limit	0 kWh	0 kWh	No more than before	Pass
+Time below the reserve (checked every five minutes)	Reserve limit	0 min	0 min	None	Pass
+Battery charge at the end of the window	Stored-energy limit	77.36%	77.36%	At least as high as before	Pass
+
+Rule fixed in the plan before the later window was read · reserve checked at five-minute samples, not continuously · Open the success criteria
+
+Technical details
+Activity evidence
+Policy application record
+Battery reserve 30% to 25%
+Change status
+Applied · applied 30 Oct 2026, 14:00
+Resolution
+Resolved 31 Oct 2026, 13:00 (outcome).
+Owner
+Not recorded
+
+Completed work is evidence of activity, not resolution. A resolution can be withdrawn by later evidence; it is not permanent. A later finding about the same issue does not change this trial's result.
+
+Outcome evidence
+Earlier window
+30 Oct 2026, 06:00–07:00
+Later window
+31 Oct 2026, 06:00–07:00
+Comparable conditions
+All 4 checks Pass
+Source
+Example data Pass
+
+Inspect the evidence for this outcome →
+
+Earlier outcomes and plans
+
+Policy trial on example data: no proof of cause, no savings or realized benefit; a resolution is never permanent.

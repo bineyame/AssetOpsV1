@@ -105,7 +105,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:00This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
     "top": 268,
     "h": 45,
     "w": 1145
@@ -184,7 +184,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:00This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
     "top": 431,
     "h": 125,
     "w": 358
@@ -263,7 +263,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:01This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
     "top": 268,
     "h": 45,
     "w": 1145
@@ -342,7 +342,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:01This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:02This page uses ",
     "top": 431,
     "h": 125,
     "w": 358
@@ -421,7 +421,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 16:02This page uses ",
+    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 17:02This page uses ",
     "top": 268,
     "h": 45,
     "w": 1145
@@ -500,7 +500,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 16:02This page uses ",
+    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 17:03This page uses ",
     "top": 431,
     "h": 125,
     "w": 358
@@ -569,7 +569,7 @@
   "key": "kobo-verification",
   "mock": "verification",
   "width": 1440,
-  "url": "http://localhost:5490/sites/KOBO-001/actions/79ade806-21a8-41ac-ad9d-664b36f8afd1/verification",
+  "url": "http://localhost:5490/sites/KOBO-001/actions/8f45faa0-2d09-4064-8729-e1719775d565/verification",
   "settled": true,
   "h1": "ACT-001 · Battery reserve trial",
   "pageH": 1418,
@@ -635,7 +635,7 @@
   "key": "kobo-verification",
   "mock": "verification",
   "width": 390,
-  "url": "http://localhost:5490/sites/KOBO-001/actions/79ade806-21a8-41ac-ad9d-664b36f8afd1/verification",
+  "url": "http://localhost:5490/sites/KOBO-001/actions/8f45faa0-2d09-4064-8729-e1719775d565/verification",
   "settled": true,
   "h1": "ACT-001 · Battery reserve trial",
   "pageH": 2670,
@@ -1709,7 +1709,7 @@
   "key": "wr-overview",
   "mock": "wr-overview",
   "width": 1440,
-  "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
   "settled": true,
   "h1": "Starter/control inspection",
   "pageH": 1000,
@@ -1744,7 +1744,7 @@
   "key": "wr-overview",
   "mock": "wr-overview",
   "width": 390,
-  "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
   "settled": true,
   "h1": "Starter/control inspection",
   "pageH": 1381,

@@ -13,7 +13,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:05This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:05This page uses ",
     "top": 268,
     "h": 45,
     "w": 1145
@@ -92,7 +92,7 @@
   "items": [
    {
     "kind": "statusbar",
-    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 16:05This page uses ",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:06This page uses ",
     "top": 451,
     "h": 125,
     "w": 358
@@ -161,7 +161,7 @@
   "key": "wr-overview",
   "mock": "wr-overview",
   "width": 1440,
-  "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
   "settled": true,
   "h1": "Starter/control inspection",
   "pageH": 1000,
@@ -196,7 +196,7 @@
   "key": "wr-overview",
   "mock": "wr-overview",
   "width": 390,
-  "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
   "settled": true,
   "h1": "Starter/control inspection",
   "pageH": 1438,
