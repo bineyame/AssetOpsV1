@@ -105,7 +105,7 @@
   `polB1/frontend` with `ASSETOPS_API_PORT=8990`, PID 25400. The serve log showed
   `performance: Performance cutover: permitted`. There were no manual writes, `prepare` or `add-day`. Both were stopped
   by PID (`taskkill /T`), and ports 8990 and 5490 were free afterwards.
-- **Strict run, all 14 keys × 2 widths** (before the chart-tick fix): exit 1; 678 counted hits (PB-0 baseline: 692; the 6 remaining UTC hits are the chart ticks).
+- **Strict run, all 14 keys × 2 widths** (before the chart-tick fix): exit 1; 672 counted hits (PB-0 baseline: 692; 6 of them were the remaining UTC chart ticks).
   The only PB-1 class left was 6 chart-tick "UTC" hits (cold-board-failure, cold-board-normal and ev-board-fault, at
   both widths). These were fixed in `assessmentGraphics.tsx`.
 - **Strict re-run** of `portfolio-week`, `findings-all`, `cold-board-failure`, `cold-board-normal` and
