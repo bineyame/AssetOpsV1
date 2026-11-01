@@ -27,11 +27,9 @@ import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevis
 import { findingRefusalWords } from "./findingPresentation";
 import { findingCurrentnessWords, LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import { FINDING_NAME } from "./SiteFindingEvidence";
-import { findingLocalTime } from "./findingTime";
-import { siteZoneDisplayLabel } from "./siteTime";
 import "./w1ux02-finding.css";
 import "./w1f3-finding-history.css";
-import { formatDayTime } from "../ui/time";
+import { formatDayTime, instantMs } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 
 /** POLISH §3 Times: `29 Oct 2026, 16:00`; the zone is named once by the page's `TimeZoneNote`. */
@@ -119,13 +117,12 @@ export function SiteFindingHistory({
   client,
   links,
   onTitle,
-  timeZone,
 }: {
   siteId: string;
   findingId: string;
   client: FindingClient;
   links: SiteFindingHistoryLinks;
-  /** post-W6 W1-a Q17 / R195: the Site's timezone for the Time column; missing or invalid falls back to UTC. */
+  /** The Site's timezone; PB-3 L4 (Addendum 13): the Time column shows UTC clock times, so it is not used for display. */
   timeZone?: string | null;
   /** W1-F5b (carry 10): the page heading is the selected version's Finding name, as on the Finding and in the mock. */
   onTitle?: (title: string) => void;
@@ -203,7 +200,7 @@ export function SiteFindingHistory({
       data-history-total={body.page.total}
       data-history-loaded={rows.length}
     >
-      <RevisionHistory body={body} rows={rows} read={read} links={links} timeZone={timeZone} />
+      <RevisionHistory body={body} rows={rows} read={read} links={links} />
     </div>
   );
 }
@@ -316,13 +313,11 @@ function RevisionHistory({
   rows,
   read,
   links,
-  timeZone,
 }: {
   body: FindingHistoryBody;
   rows: HistoryRevision[];
   read: Extract<HistoryRead, { status: "loaded" }>;
   links: SiteFindingHistoryLinks;
-  timeZone?: string | null;
 }) {
   const { selection, state } = body;
   const no = selection.revision_no;
@@ -348,8 +343,8 @@ function RevisionHistory({
   const versionHead = (
     <thead>
       <tr>
-        <th scope="col" data-history-time-zone={siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)}>
-          Time ({siteZoneDisplayLabel(timeZone, rows[0]?.times.recorded_at ?? null)})
+        <th scope="col" data-history-time-zone="UTC">
+          Time
         </th>
         <th scope="col">Event</th>
         <th scope="col">Basis</th>
@@ -363,7 +358,6 @@ function RevisionHistory({
       group={groupOf.get(r.id)}
       previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
       links={links}
-      timeZone={timeZone}
     />
   );
   return (
@@ -500,16 +494,16 @@ function VersionRow({
   group,
   previousRecordedAt,
   links,
-  timeZone,
 }: {
   r: HistoryRevision;
   group: { count: number; first: number; last: number } | undefined;
   previousRecordedAt: string | null;
   links: SiteFindingHistoryLinks;
-  timeZone?: string | null;
 }) {
-  // post-W6 W1-a Q17 / R195: Site-local `D Mon · HH:MM`, exact UTC in the title and the technical disclosure.
-  const recorded = findingLocalTime(r.times.recorded_at, timeZone);
+  // PB-3 L4 (Addendum 13): the UTC clock time `6 Oct, 14:10` through `ui/time.ts` (one clock across screens; the
+  // page's `TimeZoneNote` names the zone); the exact UTC instant stays in the title and the technical disclosure.
+  const recordedMs = instantMs(r.times.recorded_at);
+  const recorded = recordedMs === null ? null : { utc: new Date(recordedMs).toISOString() };
   const state = LIFECYCLE_WORDS[r.lifecycle];
   const accepted = at(r.times.accepted_at);
   const previous = at(previousRecordedAt);
@@ -530,7 +524,7 @@ function VersionRow({
           dayTime(r.times.recorded_at)
         ) : (
           <time dateTime={recorded.utc} title={`${recorded.utc} (UTC)`}>
-            {recorded.dayMonth} · {recorded.clock}
+            {formatDayTime(r.times.recorded_at, { year: false })}
           </time>
         )}
       </td>

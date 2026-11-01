@@ -677,11 +677,11 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(expectFindingStateVisible(answer)).toBe("Using the latest checked readings");
     expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 12 Oct 2026, 08:01");
     // W1-F3 review M4: the version and period are said once, in the strip; the panel subtitle keeps the period.
-    // post-W6 W1-a Q10: with no Site timezone the period falls back to UTC visibly; exact UTC sits in a closed detail.
-    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)");
+    // PB-3 L4 (Addendum 13): the period reads in UTC like every other screen; the page's one note names the zone.
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("6 Oct 2026, 08:00–09:00");
     expect(answer.querySelector("[data-product-status-scope]")).toBeNull();
     expect(answer.querySelector("[data-product-status-label]")).toBeNull();
-    expect(answer.textContent).toMatch(/Period covered · 2026-10-06 08:00–09:00 UTC \(site time zone unavailable; UTC shown\) · 1 h/);
+    expect(answer.textContent).toMatch(/Period covered · 6 Oct 2026, 08:00–09:00 · 1 h/);
     // The consequence is not worked out on this page: a muted word, never an amount.
     const money = document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
     expect(money.className).toMatch(/v69-metric--muted/);
@@ -904,44 +904,29 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
   };
   const moneyCard = () => document.querySelector("[data-finding-card='MONEY']") as HTMLElement;
 
-  it("Q10 / R187: the status period is Site-local with a closed UTC detail holding both exact instants", async () => {
-    mount(loaded(), "", F, true, { timeZone: "Africa/Addis_Ababa" });
-    await settledScreen();
-    const period = document.querySelector("[data-finding-statusbar] [data-chip='period']") as HTMLElement;
-    expect(period.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 11:00–12:00 EAT");
-    const utc = period.querySelector("details[data-period-utc]") as HTMLDetailsElement;
-    expect(utc.open).toBe(false);
-    expect(utc.querySelector("summary")?.textContent).toBe("UTC time");
-    expect(Array.from(utc.querySelectorAll("time")).map((t) => t.getAttribute("dateTime"))).toEqual([
-      "2026-10-06T08:00:00.000Z",
-      "2026-10-06T09:00:00.000Z",
-    ]);
-  });
+  // PB-3 L4 (Addendum 13): one clock across screens. Whatever the Site zone, the status period reads in UTC with no zone
+  // tag, under the page's one "Times in UTC" note; the exact stored instants stay in the title.
+  it.each(["Africa/Addis_Ababa", "Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu", "Etc/UTC"])(
+    "L4: a %s Site reads the status period in UTC with no zone tag",
+    async (timeZone) => {
+      mount(loaded(), "", F, true, { timeZone });
+      await settledScreen();
+      const bar = document.querySelector("[data-finding-statusbar]") as HTMLElement;
+      const period = bar.querySelector("[data-chip='period'] [data-period-local]") as HTMLElement;
+      expect(period.textContent).toBe("6 Oct 2026, 08:00–09:00");
+      expect(period.getAttribute("title")).toContain("exact UTC");
+      expect(bar.querySelector("details[data-period-utc]")).toBeNull();
+      expect(bar.textContent).not.toMatch(/EAT|site time zone unavailable/);
+      expect(bar.querySelectorAll("[data-time-zone-note]")).toHaveLength(1);
+    },
+  );
 
-  // post-W6 W2-EV (W1-a closeout ruling 5): Asmara, Djibouti and Mogadishu read EAT from the canonical table, with
-  // the exact UTC instants in the closed detail.
-  it.each(["Africa/Asmara", "Africa/Djibouti", "Africa/Mogadishu"])("Q10: a %s Site reads EAT with exact UTC detail", async (timeZone) => {
-    mount(loaded(), "", F, true, { timeZone });
-    await settledScreen();
-    const period = document.querySelector("[data-finding-statusbar] [data-chip='period']") as HTMLElement;
-    expect(period.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 11:00–12:00 EAT");
-    const utc = period.querySelector("details[data-period-utc]") as HTMLDetailsElement;
-    expect(Array.from(utc.querySelectorAll("time")).map((t) => t.getAttribute("dateTime"))).toEqual([
-      "2026-10-06T08:00:00.000Z",
-      "2026-10-06T09:00:00.000Z",
-    ]);
-  });
-
-  it("Q10: a UTC Site reads UTC, and a local-midnight crossing names both local days", async () => {
+  it("L4: a period across UTC midnight names both UTC days, not Site-local days", async () => {
     const crossing = body([summary(1, "OPENED")]);
-    crossing.revision = { ...crossing.revision, episode: { start: "2026-10-06T20:30:00+00:00", end: "2026-10-06T22:00:00+00:00" } };
-    const first = mount(fake({ status: "loaded", value: crossing }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
+    crossing.revision = { ...crossing.revision, episode: { start: "2026-10-06T23:30:00+00:00", end: "2026-10-07T01:00:00+00:00" } };
+    mount(fake({ status: "loaded", value: crossing }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
     await settledScreen();
-    expect(document.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 23:30 – 2026-10-07 01:00 EAT");
-    first.unmount();
-    mount(loaded(), "", F, true, { timeZone: "Etc/UTC" });
-    await settledScreen();
-    expect(document.querySelector("[data-period-local]")?.textContent).toBe("2026-10-06 08:00–09:00 UTC");
+    expect(document.querySelector("[data-period-local]")?.textContent).toBe("6 Oct 2026, 23:30 – 7 Oct 2026, 01:00");
   });
 
   it("Q11 / R188: What happened links to this Finding's Evidence at the selected version from its panel head", async () => {
@@ -1025,33 +1010,31 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     );
   });
 
-  it("ruling 2: What happened repeats the Site-time period with the exact template, and every prose repeat agrees", async () => {
+  it("ruling 2 / L4: What happened repeats the UTC period with the exact template, and every prose repeat agrees", async () => {
     mount(loaded(), "", F, true, { timeZone: "Africa/Addis_Ababa" });
     await settledScreen();
     const answer = happened();
     expect(answer.querySelector(".panel__description, [data-panel-description]")?.textContent ?? answer.textContent).toContain(
-      "Period covered · 2026-10-06 11:00–12:00 EAT · 1 h",
+      "Period covered · 6 Oct 2026, 08:00–09:00 · 1 h",
     );
-    expect(answer.textContent).toContain("The generator stayed on from 2026-10-06 11:00–12:00 EAT.");
-    expect(answer.textContent).not.toContain("08:00–09:00");
-    expect(document.querySelector("details[data-period-utc]")).not.toBeNull();
+    expect(answer.textContent).toContain("The generator stayed on from 6 Oct 2026, 08:00–09:00.");
+    expect(answer.textContent).not.toMatch(/11:00–12:00|EAT/);
   });
 
-  it("ruling 2: a series-limit end line uses Site time", async () => {
+  it("ruling 2 / L4: a series-limit end line uses UTC", async () => {
     const base = body([summary(1, "OPENED")]);
     const limited = { ...base, revision: { ...base.revision, claim: { ...base.revision.claim, end_reason: "SERIES_LIMIT" as const } } };
     mount(fake({ status: "loaded", value: limited }), "", F, true, { timeZone: "Africa/Addis_Ababa" });
     await settledScreen();
-    expect(document.querySelector("[data-finding-end-reason='SERIES_LIMIT']")?.textContent).toContain("ends at 2026-10-06 12:00 EAT because");
+    expect(document.querySelector("[data-finding-end-reason='SERIES_LIMIT']")?.textContent).toContain("ends at 6 Oct 2026, 09:00 because");
   });
 
-  it.each([["missing", null], ["invalid", "Not/AZone"]])("ruling 3: a %s Site zone shows UTC with the one fallback suffix", async (_n, zone) => {
+  it.each([["missing", null], ["invalid", "Not/AZone"]])("ruling 3 / L4: a %s Site zone reads the same UTC period with no fallback suffix", async (_n, zone) => {
     mount(loaded(), "", F, true, { timeZone: zone });
     await settledScreen();
-    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe(
-      "2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown)",
-    );
-    expect(happened().textContent).toContain("Period covered · 2026-10-06 08:00–09:00 UTC (site time zone unavailable; UTC shown) · 1 h");
+    expect(document.querySelector("[data-chip='period'] [data-period-local]")?.textContent).toBe("6 Oct 2026, 08:00–09:00");
+    expect(happened().textContent).toContain("Period covered · 6 Oct 2026, 08:00–09:00 · 1 h");
+    expect(document.body.textContent).not.toContain("site time zone unavailable");
     expect(document.body.textContent).not.toContain("site time zone not recorded");
   });
 
