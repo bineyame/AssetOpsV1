@@ -270,7 +270,8 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
       <p className="work-request-asof" data-work-request-asof={target?.knownAt ? "historical" : "current"}>
         {target?.knownAt
           ? `Historical as of ${globalWorkUtcSeconds(body.selected.known_at)}`
-          : `Updated ${globalWorkUtc(body.selected.known_at)}`}{" "}
+          : `Updated ${globalWorkUtc(body.selected.known_at)}`}
+        <span aria-hidden="true"> · </span>
         <TimeZoneNote />
       </p>
     );

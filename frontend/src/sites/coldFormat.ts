@@ -27,12 +27,12 @@ export function dayHm(value: string | null | undefined): string {
   return d === null ? "—" : formatDayTime(d, { year: false, seconds: d.getUTCSeconds() !== 0 });
 }
 
-/** "29 Oct 2026, 16:00–17:05", or both ends in full across days. */
+/** "29 Oct 2026, 16:00–17:05", or both ends in full across days; seconds shown when either bound has them (as `hm`). */
 export function windowText(from: string | null, to: string | null): string {
   const a = date(from);
   const b = date(to);
   if (a === null || b === null) return "No window selected";
-  return formatRange(a, b);
+  return formatRange(a, b, { seconds: a.getUTCSeconds() !== 0 || b.getUTCSeconds() !== 0 });
 }
 
 export function num(value: string | number | null | undefined): number | null {

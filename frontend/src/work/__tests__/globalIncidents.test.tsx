@@ -198,7 +198,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
     expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Show records", "Reload"]);
     expect(bar.querySelectorAll("input")).toHaveLength(2);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // A2Q1 cards: Open = OPEN + IN_PROGRESS over the full selection, not the page.
     expect(
@@ -307,7 +307,7 @@ describe("W6-01a A2: global Incidents", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): the historical line names its cutoff to the second.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
     expect(cards()).not.toBeNull();
   });
 

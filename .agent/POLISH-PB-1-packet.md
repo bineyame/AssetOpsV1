@@ -133,7 +133,8 @@
 
 ## UTC left for PB-3 (Addendum 7 Q1: PB-1 stopped at the 14 capture screens)
 
-Visible "UTC" remains on non-captured screens:
+Visible "UTC" remains on non-captured screens. The counts below are of source strings that render visibly, not of
+capture hits:
 - `PerformanceDispatch.tsx` (18), `SiteFinding.tsx` (10), `LedgerSiteEvidence.tsx` (10), `SiteFindingIndex.tsx`
   (5: day-window inputs and copy), `SiteFindingEvidence.tsx` (5), `EvAvailability.tsx` (5), `SiteWorkActions.tsx` (4),
   `siteWorkCases.tsx` (3), `findingPresentation.tsx` (3: `readablePeriod`/`readableTime`), `EvidenceClaimLimit.tsx`
@@ -141,6 +142,10 @@ Visible "UTC" remains on non-captured screens:
 - One each in `SitePerformance`, `MiniScenarios`, `ColdScenarios` (`utcDayHm`), `ColdCooling`, `coldDepthGraphics`,
   `evDepthGraphics`, `coldWorkPresentation`, `SiteAction`, `FoundationRevisionPanel`/`FoundationBindingsPanel`
   ("Effective from (UTC)"), and `domainActionClient` (an error message).
+- Added from review M1:
+  - `SiteHealth.tsx:295-297` `clockTime` renders "Status at 09:10 UTC";
+  - `EvEnergy.tsx:211` has the table header "Peak sample time (UTC)";
+  - `evWorkPresentation.ts:107` has `EV_WINDOW_NOT_UTC_TEXT`.
 - Each of those pages also needs its `TimeZoneNote`.
 - Left on purpose: `title` attributes ("exact UTC"); the Analysis column labels that state a missing Site zone
   ("UTC; Site time zone unavailable"); the verification Dig-deeper fact "UTC, attested per day"; and the
@@ -150,15 +155,32 @@ Visible "UTC" remains on non-captured screens:
 
 - **D1.** Addendum 7 Q1 asks for every visible UTC in all files, capped at 6 units. The full set is about 30 files, so
   PB-1 covered the 14 capture screens plus the shared formatters and lists the rest above for PB-3.
-- **D2.** "One page note" is met on every captured page. Pages that use only delegated formatters (for example Site
-  Health and Foundation) lost the per-time "UTC" but have no note yet; they are in the PB-3 list.
+- **D2.** "One page note" is met on every captured page. Pages outside the capture set have no note yet. Some lost
+  their per-time "UTC" through the delegated formatters, such as Foundation's `formatInstant` and Site Health's
+  `formatInstant`. Others still show UTC from local helpers, such as Site Health's `clockTime` "Status at 09:10 UTC"
+  (review M1). They are all in the PB-3 list.
 - **D3. Guard change (review):** I added a fourth `REVIEWED_EXEMPTIONS` entry in `tools/checks/missing-claim-scan.mjs`
   for `ui/time.ts` `TIME_NOT_AVAILABLE`, with a pass test and a narrowness mutation test. Moving the const to another
   file, or inlining the text, still fails. Without the entry the live scan fails, as the first check-all showed. The
-  sheet rules the text, and it names a malformed value rather than a missing capability.
+  sheet rules the text, and it names a malformed value rather than a missing capability. The reviewer accepted it
+  for this slice. It also goes to PC's whole-diff review and to the Architect's decision log (review L4).
 - **D4.** Serve stdout is block-buffered when redirected, so the `performance:` line arrived late. The API answered
   throughout.
 - **D5.** `.ai/ACTIVE_CONTEXT.md` is not updated: two lanes run in parallel and the coordinator owns routing (as in PB-0).
+- **D6. Layout evidence: not run** (review L3). I did not run `node tools/layout-evidence.mjs`. The layout claims
+  rest on the PB-0 capture gate:
+  - captures at 1440 and 390, with their `overflow` measurements;
+  - the P-03 chip-rectangle measurement (5/5 chips at both widths, shown to be non-vacuous).
+  Shell layout outside the 14 keys, such as the banner at other widths, is not separately measured.
+
+## Review fold-in (`.agent/review-POLISH-PB-1.md`, ACCEPT)
+
+- **L1:** "Updated …" and "Historical as of …" are now separated from the note by " · " (`aria-hidden`), as on the
+  verification strip. This is in `globalWorkParts.tsx` `StatusLine` and the work request as-of line in
+  `workRequestShared.tsx`. Seven work test files were updated.
+- **L2:** `coldFormat.windowText` passes `{seconds: true}` when either bound has non-zero seconds, matching the old
+  `hm` behaviour. A test was added to `ui/__tests__/time.test.ts`.
+- **M1, L3, L4:** packet changes above (the PB-3 list, D2, D6 and D3).
 
 ## Residual risk
 

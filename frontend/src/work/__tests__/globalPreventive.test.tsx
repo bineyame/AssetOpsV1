@@ -287,7 +287,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 20 Oct 2026, 12:00:03 · Times in UTC");
     expect(within(screen.getByRole("navigation", { name: "Maintenance views" })).getByRole("link", { name: "Corrective" })).toHaveAttribute(
       "href",
       `${CORRECTIVE}&known_at=${encodeURIComponent(KNOWN)}`,

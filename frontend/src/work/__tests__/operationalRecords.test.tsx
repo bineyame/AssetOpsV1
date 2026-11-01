@@ -471,7 +471,7 @@ describe("W6-01e E2: global Operational records", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 Times in UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
   });
 
   it("states a read failure, an invalid window and no accessible Sites, never a zero", async () => {

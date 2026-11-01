@@ -229,7 +229,9 @@ export function StatusLine({ body }: { body: GlobalWorkBodyBase }) {
       : `Updated ${globalWorkUtc(body.known_at)}`;
   return (
     <p className="global-work-status" data-global-work-status={body.status}>
-      {text} <TimeZoneNote />
+      {text}
+      <span aria-hidden="true"> · </span>
+      <TimeZoneNote />
     </p>
   );
 }

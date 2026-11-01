@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { windowText } from "../../sites/coldFormat";
 import { formatDay, formatDayRange, formatDayTime, formatRange, formatTime, TIME_NOT_AVAILABLE } from "../time";
 
 describe("time.ts (POLISH §3 Times, R650)", () => {
@@ -53,5 +54,12 @@ describe("time.ts (POLISH §3 Times, R650)", () => {
     expect(formatDayRange("2026-12-28T00:00:00Z", "2027-01-04T00:00:00Z")).toBe("28 Dec 2026 – 3 Jan 2027");
     expect(formatDayRange("2026-10-29T00:00:00Z", "2026-10-30T00:00:00Z")).toBe("29 Oct 2026");
     expect(formatDayRange("2026-10-30T00:00:00Z", "2026-10-23T00:00:00Z")).toBe(TIME_NOT_AVAILABLE);
+  });
+});
+
+describe("cold windowText keeps seconds like hm (review L2, Addendum 7 Q2)", () => {
+  it("shows seconds only when a bound has them", () => {
+    expect(windowText("2026-10-29T16:00:00Z", "2026-10-29T17:05:00Z")).toBe("29 Oct 2026, 16:00–17:05");
+    expect(windowText("2026-10-29T16:00:05Z", "2026-10-29T17:05:00Z")).toBe("29 Oct 2026, 16:00:05–17:05:00");
   });
 });

@@ -248,7 +248,7 @@ describe("W6-01d C4: work request History page", () => {
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("aria-current", "page");
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", PAGE);
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", OVERVIEW);
-    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 Times in UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC");
     expect(q(".v69-mheader")).not.toBeNull();
     expectV69Panels("wr-history");
 
@@ -376,7 +376,7 @@ describe("W6-01d C4: work request History page", () => {
     await settled();
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical date bar.
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59:04 Times in UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59:04 · Times in UTC");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", `${PAGE}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
