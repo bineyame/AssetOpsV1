@@ -327,7 +327,7 @@ def estate_assertions(spec: dict) -> dict:
                  f05["source_provenance"]["state"], _placed(f05), f05["confidence"], f05["confidence_reasons"])
         want = ("2026-10-21T08:00:00Z", "UNCONFIRMED", "GENERATOR_SUPPORT_CANDIDATE", "No action agreed yet",
                 "UNKNOWN", ("NEEDS_INVESTIGATION", ["EVIDENCE_SOURCE_UNKNOWN", "LIFECYCLE_UNCONFIRMED"]), "UNKNOWN",
-                ["Unconfirmed Finding", "Source not resolved"])
+                ["Unconfirmed finding", "Source not resolved"])
         if facts != want:
             failures.append(f"10-21 F05 {facts}")
     counts = {"NEEDS_INVESTIGATION": 1, "ACT_NOW": 0, "COMPARE_VALUE": 0, "UNPRICED_RISK": 0, "MONITOR": 0}

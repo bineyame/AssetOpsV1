@@ -28,7 +28,7 @@ REASON_TEXT = {
     "EPISODE_OPEN": "No end time yet",
     "RECURRED": "Happened again after an earlier occurrence",
     "REOPENED": "Reopened after it had closed",
-    "NO_ACTION_RECORDED": "No accepted Action; open the recommendation",
+    "NO_ACTION_RECORDED": "No action agreed yet · review the recommendation",
     "ACTION_PENDING": "Action accepted, not yet applied",
     "OUTCOME_PENDING": "Change applied; verification result pending",
     "RESOLUTION_WITHDRAWN": "Earlier resolution withdrawn after new evidence",
@@ -53,11 +53,12 @@ _MONITOR_REASON = {"Verified": "VERIFIED_WATCH_RETURN", "Applied": "APPLIED_AWAI
 #: Rule 5: the unpriced reason per stored mechanism; anything else (mini `GENERATOR_SUPPORT_CANDIDATE`, null) is OTHER.
 _UNPRICED_REASON = {"COLD_EXCURSION": "UNPRICED_PRODUCT_EXPOSURE", "COLD_START_FAILURE": "UNPRICED_START_FAILURE",
                     "EV_INTERRUPTION": "UNPRICED_SERVICE_INTERRUPTION"}
-_SOURCE_TEXT = {"REGISTERED_SIMULATION": "Generated test data source",
+# POLISH Addendum 13 item 3 (§3.1): "Supported finding · example data".
+_SOURCE_TEXT = {"REGISTERED_SIMULATION": "example data",
                 "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 _SITE_COVERED = ("CURRENT", "HISTORICAL")
 # CC-R2-Q1 ruling: customer words; `claim` and `simulation` stay guarded.
-_LIFECYCLE_TEXT = {"UNCONFIRMED": "Unconfirmed Finding", None: "Supported Finding"}
+_LIFECYCLE_TEXT = {"UNCONFIRMED": "Unconfirmed finding", None: "Supported finding"}
 _SOURCE_UNRESOLVED_TEXT = "Source not resolved"
 _WITHHELD_TEXT = "Cost basis withheld"
 _COVERAGE_TEXT = "Site coverage incomplete; other Findings may be missing"

@@ -30,7 +30,7 @@ if URL:
 
 ACT_NOW_OPEN = {"policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2, "reasons": [
     {"code": "EPISODE_OPEN", "text": "No end time yet"},
-    {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
+    {"code": "NO_ACTION_RECORDED", "text": "No action agreed yet · review the recommendation"}]}
 PRICED_SINGLE = {"policy_version": "estate-placement/1", "group": "COMPARE_VALUE", "group_rank": 3, "reasons": [
     {"code": "PRICED_SINGLE", "text": "Priced cost exposure; no like line to compare with"}]}
 EV_UNPRICED = {"policy_version": "estate-placement/1", "group": "UNPRICED_RISK", "group_rank": 4, "reasons": [
@@ -66,7 +66,7 @@ def test_cold_ev_placement_risks_lens_and_paging(request, monkeypatch, capsys) -
         assert r["episode_end"] is None and r["workflow_label"] == "No action agreed yet"
         assert r["placement"] == ACT_NOW_OPEN and r["lens_flags"] == ["RISK"]
         assert (r["confidence"], r["confidence_reasons"]) == (
-            "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
+            "SUPPORTED_SOURCE_COHERENT", ["Supported finding", "example data"])
     assert kobo["placement"] == PRICED_SINGLE and kobo["lens_flags"] == ["COST"]
     assert kobo["episode_end"] is not None and kobo["consequence"]["state"] == "PRICED"
     assert body["summary"]["placement_counts"] == {"NEEDS_INVESTIGATION": 0, "ACT_NOW": 2, "COMPARE_VALUE": 1,
@@ -121,7 +121,7 @@ def test_ev_interruption_placement(ev_chain) -> None:
     assert row["workflow_label"] == "No action agreed yet"
     assert row["placement"] == EV_UNPRICED and row["priority"] is None
     assert (row["confidence"], row["confidence_reasons"]) == (
-        "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"])
+        "SUPPORTED_SOURCE_COHERENT", ["Supported finding", "example data"])
     risks = view.ok(**EV_WINDOW, lens="risks", limit=100)
     assert [(r["finding_id"], r["finding_revision_id"]) for r in risks["rows"]] == [
         (row["finding_id"], row["finding_revision_id"])]

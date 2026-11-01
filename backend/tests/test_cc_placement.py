@@ -99,7 +99,7 @@ def test_rule_2_signals_in_order_with_recurrence_text() -> None:
         ("RECURRED", "Happened again after an earlier occurrence"),
         ("REOPENED", "Reopened after it had closed"),
         ("EPISODE_OPEN", "No end time yet"),
-        ("NO_ACTION_RECORDED", "No accepted Action; open the recommendation")]
+        ("NO_ACTION_RECORDED", "No action agreed yet · review the recommendation")]
     assert placed(row(recurs=OTHER), None) == ("ACT_NOW", ["RECURRED", "NO_ACTION_RECORDED"])
     assert placed(row(transition="REOPENED"), "Pending") == ("ACT_NOW", ["REOPENED", "ACTION_PENDING"])
 
@@ -162,18 +162,18 @@ def test_every_reason_code_is_reachable() -> None:
 
 
 @pytest.mark.parametrize("facts, cov, state, reasons", [
-    ({}, COVERED, "SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"]),
+    ({}, COVERED, "SUPPORTED_SOURCE_COHERENT", ["Supported finding", "example data"]),
     ({"src": "AUTHORED_DEMONSTRATION"}, {"state": "HISTORICAL"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported Finding", "Prepared example data source"]),
-    ({"src": "MIXED", "lifecycle": "UNCONFIRMED"}, COVERED, "UNKNOWN", ["Unconfirmed Finding", "Mixed sources"]),
-    ({"src": "UNKNOWN"}, COVERED, "UNKNOWN", ["Supported Finding", "Source not resolved"]),
-    ({"src": None}, COVERED, "UNKNOWN", ["Supported Finding", "Source not resolved"]),
-    ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed Finding", "Generated test data source"]),
+     ["Supported finding", "Prepared example data source"]),
+    ({"src": "MIXED", "lifecycle": "UNCONFIRMED"}, COVERED, "UNKNOWN", ["Unconfirmed finding", "Mixed sources"]),
+    ({"src": "UNKNOWN"}, COVERED, "UNKNOWN", ["Supported finding", "Source not resolved"]),
+    ({"src": None}, COVERED, "UNKNOWN", ["Supported finding", "Source not resolved"]),
+    ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed finding", "example data"]),
     ({"cons": "WITHHELD"}, {"state": "PARTIAL"}, "LIMITED",
-     ["Supported Finding", "Generated test data source", "Cost basis withheld",
+     ["Supported finding", "example data", "Cost basis withheld",
       "Site coverage incomplete; other Findings may be missing"]),
     ({}, {"state": "UNKNOWN"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported Finding", "Generated test data source", "Site coverage incomplete; other Findings may be missing"]),
+     ["Supported finding", "example data", "Site coverage incomplete; other Findings may be missing"]),
 ])
 def test_confidence_from_row_facts_with_site_text_only(facts, cov, state, reasons) -> None:
     p = place(row(**facts), None, cov, None)
@@ -186,7 +186,7 @@ def test_wire_shape() -> None:
     assert p.wire() == {"policy_version": "estate-placement/1", "group": "ACT_NOW", "group_rank": 2, "reasons": [
         {"code": "RECURRED", "text": "Happened again after an earlier occurrence"},
         {"code": "EPISODE_OPEN", "text": "No end time yet"},
-        {"code": "NO_ACTION_RECORDED", "text": "No accepted Action; open the recommendation"}]}
+        {"code": "NO_ACTION_RECORDED", "text": "No action agreed yet · review the recommendation"}]}
     assert p.confidence in placement.CONFIDENCE_STATES
 
 
