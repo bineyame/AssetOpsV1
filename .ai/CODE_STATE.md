@@ -6399,3 +6399,28 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
 - Open: the Kobo board server sentences still show stored codes on the DEMO-A build (awaiting the PA-3 rebuild). The
   Portfolio "scenario" words and the cold/EV headings are PB-3's (Addendum 8 Q3/Q4). `data-vocabulary-exempt="lab"`
   (10 hits on `kobo-board-S-open`) predates PB-2.
+
+## POLISH PB-3 - Estate, cold/EV and work copy; P-07, P-09, P-10 (built, in_review)
+
+- P-07: `work/WorkRequestOverview.tsx` `RepeatVisitNotice` wrapper always carries `data-repeat-check`
+  (`loading` | `unavailable` | `none` | `found`). The capture settle waits on `loading`. R630 closed.
+- P-09: `work/GlobalPreventive.tsx` reads the optional `summary` (all three counts, or treated as not sent) and the
+  per-row `due_state` and `site_time_zone`. It renders the cards, the strip badge ("{n} overdue" / "None overdue")
+  and the row chips; due dates use `formatDay(value, {timeZone})`. `GlobalWorkBar`/`StatusLine` take `dueDates`
+  (Preventive, Maintenance) and `WorkRequestBar` always shows the two-part note. DRAFT reads "Not yet approved".
+- P-10: `sites/OutcomeBoard.tsx` has an optional `onRead(read)` with no extra fetch. `outcomeBoardClient`
+  `OutcomeLinkItem` has optional `kind`/`occurred_at`. `coldSiteViews` `windowIncident()` picks the first INCIDENT
+  item in `[from, to)` for the "What happened" description and "Open incident →".
+- Asset words: the frontend label parsers are gone; rows render the wire `asset_label`. `WorkRequestOverview` uses
+  `work_asset.asset_label`, falling back to `assetWords` (backend word map, no "EV connector").
+- Ids: `ui/TechnicalDetails.tsx` gains `TechnicalReferences` (one closed Technical details region). It is used by
+  the cold/EV views in place of `ExactReferences`; it sits in `ui/` because the substrate rule bars a `variant`
+  prop in `sites/`. EV `REC`/`F` ids now show as "Charger report"/"Finding", with the id in `title`,
+  `data-vocabulary-reference` and Technical details. Estate progress rows, findings ids and financials references
+  sit in Technical details.
+- Time: the PB-1 out-of-capture UTC list is done through `ui/time.ts`, with one `TimeZoneNote` per page.
+  `findingPresentation` `readableTime`/`readablePeriod` now delegate to `time.ts`.
+- Open: `MiniScenarios.tsx:216` "Scenarios created through" (banned "scenario", not a capture screen).
+  The MiniPerformance Site-local `YYYY-MM-DD` day. `coldDueText` `YYYY-MM-DD`. `SiteEvidence`/`FindingDetail`/
+  assessment pages use `readableTime` but may have no `TimeZoneNote`. SiteFinding pages mix Site-local times with
+  the "Times in UTC" note. Lane A strings noted in the packet (placement/portfolio display values).
