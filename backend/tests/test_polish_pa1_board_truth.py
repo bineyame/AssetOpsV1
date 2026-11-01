@@ -70,8 +70,14 @@ def test_complete_zero_interval_day_settles_mg7_with_unknown_readiness() -> None
     _, rows = b2.run(b2.Fake(overview=NO_RUN, readiness="UNKNOWN"))
     assert b2.outcome(rows[ASSURE], "MG-7") == "NO_OBJECTIVE"
     assert rows[ASSURE]["state"] == "NO_OBJECTIVE" and rows[ASSURE]["state_label"] == "No objective declared"
-    assert b2.contributor(rows[ASSURE], "readings")["text"] == (
-        "Generator not used on this day, so nothing to check · readings complete")
+    readings = b2.contributor(rows[ASSURE], "readings")
+    assert readings["text"] == "Generator not used on this day, so nothing to check · readings complete"
+    # Addendum 4 item 3: the line's chip is the FULL chip, never Unknown, and no Assure text says Unknown
+    assert readings["confidence"] == board.readiness_confidence("FULL")
+    assert readings["confidence"] != mini.UNKNOWN_CHIP
+    assert all("Unknown" not in (c["text"] or "") and "Unknown" not in ((c.get("confidence") or {}).get("label") or "")
+               for c in rows[ASSURE]["contributors"] if c["key"] == "readings")
+    assert all("Unknown" not in (c["text"] or "") for c in rows[ASSURE]["contributors"])
 
 
 def test_no_run_rule_is_narrow() -> None:

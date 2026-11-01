@@ -728,7 +728,9 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
     if not overview_ok:
         out.append(not_available("readings", "Readings", f"/sites/{c}/evidence"))
     elif no_run:
-        out.append(Contributor("readings", "Readings", NO_RUN_READINGS, rc, f"/sites/{c}/evidence"))
+        # Addendum 4 item 3: the settled no-run day reads FULL on this line only; the shared readiness is unchanged
+        out.append(Contributor("readings", "Readings", NO_RUN_READINGS, readiness_confidence("FULL"),
+                               f"/sites/{c}/evidence"))
     else:
         src = ((body.get("money") or {}).get("source_provenance") or {}).get("state")
         word = READINESS_WORD.get(readiness or "UNKNOWN", "Unknown")
