@@ -1,6 +1,6 @@
 {
  "story_S": "2026-10-30",
- "code": "cb1a92cfc",
+ "code": "e413fc8c8",
  "base": "http://localhost:5490",
  "strict": false,
  "review_labels": true,
@@ -73,7 +73,7 @@
    "label": "Work request overview (the cold starter/control inspection on Maintenance; else the first request)",
    "mock": "wr-overview",
    "width": 1440,
-   "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+   "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
    "png": ".agent\\POLISH-PC-captures\\review-mode\\wr-overview-1440.png",
    "settled": true,
    "h1": "Starter/control inspection",
@@ -84,12 +84,12 @@
     {
      "kind": "register or slice id",
      "match": "R396",
-     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in UTC Reloa"
+     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 · Times in UTC Reloa"
     },
     {
      "kind": "register or slice id",
      "match": "R363",
-     "context": "14:04 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
+     "context": "16:05 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
     },
     {
      "kind": "register or slice id",
@@ -99,12 +99,12 @@
     {
      "kind": "dev term",
      "match": "MOCK",
-     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 ·"
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 ·"
     },
     {
      "kind": "mock deviation label",
      "match": "MOCK DEVIATION",
-     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in U"
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 · Times in U"
     }
    ],
    "vocabulary_counted": 4,
@@ -122,7 +122,7 @@
    "label": "Work request overview (the cold starter/control inspection on Maintenance; else the first request)",
    "mock": "wr-overview",
    "width": 390,
-   "url": "http://localhost:5490/maintenance/requests/3728022d-cb5b-46f2-b3ab-986eed865455?site_id=COLD-LAB-001",
+   "url": "http://localhost:5490/maintenance/requests/2946e7cd-3f34-4166-adf0-66c7b9b8cf30?site_id=COLD-LAB-001",
    "png": ".agent\\POLISH-PC-captures\\review-mode\\wr-overview-390.png",
    "settled": true,
    "h1": "Starter/control inspection",
@@ -133,12 +133,12 @@
     {
      "kind": "register or slice id",
      "match": "R396",
-     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in UTC Reloa"
+     "context": "n · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 · Times in UTC Reloa"
     },
     {
      "kind": "register or slice id",
      "match": "R363",
-     "context": "14:04 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
+     "context": "16:05 · Times in UTC Reload MOCK DEVIATION D2 (R363) OWNER Maintenance lead Full owner text DUE / SL"
     },
     {
      "kind": "register or slice id",
@@ -148,12 +148,12 @@
     {
      "kind": "dev term",
      "match": "MOCK",
-     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 ·"
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 ·"
     },
     {
      "kind": "mock deviation label",
      "match": "MOCK DEVIATION",
-     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 14:04 · Times in U"
+     "context": "record Verification · Not available yet History MOCK DEVIATION D1 (R396) Updated 1 Nov 2026, 16:05 · Times in U"
     }
    ],
    "vocabulary_counted": 4,

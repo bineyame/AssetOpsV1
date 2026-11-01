@@ -1,4 +1,4 @@
-chrome pid 31936
+chrome pid 26600
 OK    portfolio-week 1440  h1="Portfolio Value & Operations" pageH=1902 overflow=false vocab=0 counted=0 exempt=1
 OK    portfolio-week 390  h1="Portfolio Value & Operations" pageH=3849 overflow=false vocab=0 counted=0 exempt=1
 OK    kobo-board-S 1440  h1="Kobo mini-grid" pageH=2420 overflow=false vocab=0 counted=0 exempt=1
@@ -29,4 +29,4 @@ OK    wr-overview 1440  h1="Starter/control inspection" pageH=1000 overflow=fals
 OK    wr-overview 390  h1="Starter/control inspection" pageH=1381 overflow=false vocab=0 counted=0 exempt=1
 wrote 28 captures to .agent\POLISH-PC-captures
 vocabulary: 0 counted hit(s) across 28 capture(s) (strict)
-capture 16:57:23-17:03:24 rc=0 wall=361s
+capture 18:59:33-19:04:41 rc=0 wall=308s
