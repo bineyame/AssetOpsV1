@@ -153,7 +153,7 @@ Every change follows rulings already made (§3.1 pattern "no Finding/Action capi
 | M3 | `sites/verificationWords.ts` `sourceWords` | "Registered Lab trial data" → "Example data"; "Authored test data (test-scoped example)" → "Prepared example data" |
 | M3 | `SiteActionVerification.tsx:1290` | "Policy trial on demonstration data: …" → "Policy trial on example data: …" |
 | M3 | `ui/productWords.ts` `DEMONSTRATION_OUTCOME_NOTE` | "This is a policy trial on demonstration data: …" → "… on example data: …" (same Verification page) |
-| M3 | `tools/demo-combined-vocabulary.mjs` lab name | `(?:replay|charging) lab` → also `lab trial data` |
+| M3 | `tools/demo-combined-vocabulary.mjs` lab name | `(?:replay\|charging) lab` → also `lab trial data` |
 | L1 | `OverviewFindingList.tsx:405` (Kobo board), `ColdAssessmentViews.tsx:466` | "Open the Finding →" → "Open the finding →" |
 | L1 | `estate/portfolioWords.ts:29` | "Selected Findings across accessible Sites, …" → "Selected findings across accessible Sites, …" |
 | L1 | `findingWords.ts` (16 strings), `SiteFinding.tsx` (36), `actionPresentation.tsx:128-129` | "Finding(s)" after a lower-case word in prose → "finding(s)" (e.g. "Joined into an earlier finding", "Related findings", "not a no-finding result", "Open the finding to see what it found."); sentence-initial "Finding …" headings stay |
@@ -162,7 +162,7 @@ Every change follows rulings already made (§3.1 pattern "no Finding/Action capi
 | L2 | `ev_site_reads.py:31,37,42` | "No stored gross tariff estimate matches …" → "No stored charging income estimate matches …"; "…; no current gross tariff estimate." → "…; no current charging income estimate."; "Gross tariff scenario; not cash collected." → "Charging income estimate; not cash collected." |
 | L3 | `estateEvidenceWords.ts:16`, `estateFinancialsWords.ts:19` | "Potential product exposure" → "Stock may be at risk" |
 | L3 | `EstatePortfolio.tsx:370,417,462,473`, `portfolioWords.ts:129` | "… not established" / "Completed activity · Not established" → "… not known yet" / "Completed activity · Not known yet"; "Cross-Site energy and tariff totals are not established." → "… are not known yet." |
-| L4 | `demo-combined-vocabulary.mjs` | new id kind "stored record code": `(?:ACT|INC|WR|F|PLAN|CHG|PM|REC)-(?!000)\d{6,}` (three-zero codes stay on the existing rule, so a code counts once) |
+| L4 | `demo-combined-vocabulary.mjs` | new id kind "stored record code": `(?:ACT\|INC\|WR\|F\|PLAN\|CHG\|PM\|REC)-(?!000)\d{6,}` (three-zero codes stay on the existing rule, so a code counts once) |
 | L5 | `estatePortfolio.test.tsx`, `portfolioFixtures.ts` | "Supported/Unconfirmed Finding", "Generated test data source", "No accepted Action; open the recommendation" → the server copy ("Supported finding", "example data", "No action agreed yet · review the recommendation") |
 | L5 | `tools/s405-provenance-evidence.mjs:36`, `s602b-verification-evidence.mjs:194,311` | "Generated test data" → "Example data"; `/Registered Lab trial data/` → `/Example data/`; "…confirms this Finding…" → "finding" |
 | Item 8 | `tools/demo_combined.py` `serve`, `prewarm`, `story_week_query` | after the first tick, one `GET /api/estate/outcome-summary?<story week>` (timeout 900 s); prints `ready: Portfolio outcome summary for the story week answered HTTP <s> in <n> s. Do not restart serve once the client has joined.` only when it returns; a transport failure prints `pre-warm did not finish …` and no `ready:` line. Runbook step 2: wait for `ready:`; never restart serve once the client has joined |
