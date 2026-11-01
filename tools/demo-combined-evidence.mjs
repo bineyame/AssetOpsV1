@@ -180,8 +180,10 @@ async function capture([work, out, base = "http://localhost:5490"]) {
     let path = s.path;
     if (s.find) {
       await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+      await requireWidth(1440, 1000, `${s.key} find`, { record: false });
       await send("Page.navigate", { url: base + s.find });
       await settle();
+      await requireWidth(1440, 1000, `${s.key} find loaded`, { record: false });
       path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter.control|control-circuit/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
       if (!path) { records.push({ ...s, error: `no work request link on ${s.find}` }); console.log(`FAIL  ${s.key}: no work request link`); continue; }
     }
