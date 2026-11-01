@@ -124,6 +124,8 @@ async function capture([work, out, base = "http://localhost:5490"]) {
   console.log(`chrome pid ${chrome.pid}`);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   let ws;
+  // DEMO-B review L4: Chrome is stopped and its profile removed whatever happens below (no orphan headless Chrome).
+  try {
   for (let i = 0; i < 80 && !ws; i += 1) {
     try {
       const p = (await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json()).find((t) => t.type === "page");
@@ -208,11 +210,17 @@ async function capture([work, out, base = "http://localhost:5490"]) {
   }
   writeFileSync(join(out, "product-measure.json"), JSON.stringify(measures, null, 1));
   writeFileSync(join(out, "captures.json"), JSON.stringify({ story_S: story.S_date, code: story.code, base, captures: records }, null, 1));
-  ws.close();
-  chrome.kill();
-  await sleep(500);
-  try { rmSync(profile, { recursive: true, force: true }); } catch { /* Chrome may still hold the profile */ }
   console.log(`wrote ${records.length} captures to ${out}`);
+  // DEMO-B review L4: an unsettled (WAIT) capture or a missing work request fails the run; its files stay for reading.
+  const bad = records.filter((r) => r.error || r.settled === false);
+  if (bad.length) console.log(`FAIL  ${bad.length} capture(s) unsettled or missing: ${bad.map((r) => `${r.key}${r.width ? ` ${r.width}` : ""}`).join(", ")}`);
+  return bad.length ? 1 : 0;
+  } finally {
+    try { ws?.close(); } catch { /* already closed */ }
+    chrome.kill();
+    await sleep(500);
+    try { rmSync(profile, { recursive: true, force: true }); } catch { /* Chrome may still hold the profile */ }
+  }
 }
 
 function compare([out, mockFile]) {
@@ -246,7 +254,7 @@ function compare([out, mockFile]) {
   }
 }
 
-if (CMD === "capture") await capture(REST);
+if (CMD === "capture") process.exitCode = await capture(REST);
 else if (CMD === "compare") compare(REST);
 else if (CMD === "mock-ids") {
   const ids = ["portfolio", "mini", "verification", "cold", "ev", "findings", "findings-cost", "findings-risks", "findings-opportunities", "maintenance-preventive", "wr-overview"];
@@ -255,4 +263,4 @@ else if (CMD === "mock-ids") {
   console.error("usage: see the header of tools/demo-combined-evidence.mjs");
   process.exit(2);
 }
-process.exit(0);
+process.exit(process.exitCode ?? 0);

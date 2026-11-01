@@ -617,7 +617,7 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 Build `assetops_demo3_full_test` / `var/demo3_full` (code `79dda4ea0`, S = 2026-10-29), captured under `serve`. Layout
 departures already registered are cited in the packet, not repeated (mini R153, R158, R160-R163, R388; shell R114,
 R116, R117; portfolio R305, R502, R620; findings R288, R291, R575, R622; preventive R08, R10; wr-overview R363, R365,
-R396; cold names R235).
+R396; cold names R235; mini status strip R154).
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -629,5 +629,5 @@ R396; cold names R235).
 | R630 | DEMO-B B2 | wr-overview | "This is the third visit to this generator in 60 days..." notice | WR-000006 Overview shows no repeat-visit notice, while the cold board on the failure window lists "Repeated maintenance without a result" for the same visits | D3 (cause unconfirmed) | Not diagnosed in this slice (no product code changes); polish defect P-07 | polish P-07 | open |
 | R631 | DEMO-B B2 | portfolio, findings | One row per GreenHarvest fault | Two rows titled "Backup generator did not start when the grid failed" (the S-3d degraded night and the S failure night), told apart only by an 8-character id | D4 data reading | Two real events give two Findings; the titles need a date to tell them apart (polish copy) | DEMO-B | standing |
 | R632 | DEMO-B B2 | verification | Trial cards "-100% · 30 -> 0 min", Critical service "Incomplete", Final outcome "Pending"; no cost line on this page | "60 min -> 0 min", "0 kWh · pass", Final outcome "Verified". The page carries no cost-check line in the mock or the product: CO-4's cost check reads on the Kobo Cost row Earlier entry (R590, R591), captured on the Kobo board | D4 data reading | The registered trial verified (R617) | DEMO-B | standing |
-| R633 | DEMO-B B2 | mini | Status bar "Needs attention · Confidence Low · Assessed this hour: dispatch only" | Freshness strip "Using the latest checked readings · This answer uses the latest readings that have been checked · {day}, one UTC day at this site · As of {time}" with "Reads on this Overview: Service, Dispatch, Fuel, Renewable" | D2 | No existing row found by keyword search; the reviewer confirms it is not a duplicate | DEMO-B | standing |
+| R633 | DEMO-B B2 | mini | Status bar (see R154) | Cross-reference only, not a new departure: see R154. The DEMO-B capture shows the freshness strip text "Using the latest checked readings · This answer uses the latest readings that have been checked" where the mock has the assessment chips | D1 | Duplicate of R154 (DEMO-B review M1); R154 owns the departure | R154 | duplicate (of R154) |
 | R634 | DEMO-B B2 | mini | Assure Verified results line with the modelled change (R594) | Day S+1: "ACT-000001 verified on test data" with no modelled change, because the stored cost check is "no modelled improvement" (R617) | D4 data reading | The line adds a modelled change only when there is one | DEMO-B | standing |

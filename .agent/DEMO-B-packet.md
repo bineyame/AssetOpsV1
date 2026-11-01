@@ -12,7 +12,7 @@ coordinator brief of 2026-11-01. USER_REVIEW: the owner walkthrough (sequence st
   full-page PNGs, measures the same blocks as `tools/measure-mock-panels.mjs` (plus overflow), and scans the visible
   text for codes, ids and developer words. `compare` pairs each capture with its v70 measurement.
 - **B2** 28 product captures + 22 v70 mock captures, compared; 10 new register rows (R625-R634), 10 polish defects
-  (P-01..P-10), and a client-copy list. No product code or data changed.
+  (P-01..P-12), and a client-copy list. No product code or data changed.
 - **B3** the runbook below, timed on a real restart.
 
 ## Sheet mapping (COMBINED §6 → SPARSE calendar; build S = 2026-10-29, built 2026-10-31)
@@ -43,11 +43,11 @@ Every capture settled (no "Loading" sentence, text stable); no capture overflows
 
 portfolio 4/4 ×0.93 · mini 5/8 ×1.26 (extra = the R163 Site record disclosure's three panels) · verification 3/3 ×1.11 ·
 cold failure 5/5 ×1.02, normal 5/5 ×0.64 (no incident that night, R616) · ev 5/5 ×0.99 · findings ×4 1/1 ×0.90-1.00 ·
-preventive 1/1 ×1.04 · wr-overview 2/2 ×1.00. Cards match 4/4 where the mock has them. The panel structure matches
+preventive 1/1 ×1.04 · wr-overview 2/2 ×1.00. Cards match 4/4 on verification, the four Findings lenses and preventive. The Portfolio and mini outcome cards were not card-compared: neither the tool's `.cards,.v69-cards` selector nor the mock's `.cards` matches them (both read 0/0), a measurement limit (review L3; the shared mock tool was not changed). The panel structure matches
 everywhere; the differences are content, triaged below.
 
 **Already registered (cited, not repeated):** shell topbar/rail R114, R116, R117; mini R153 (UTC day control), R158
-(hour timeline), R160 (Needs attention), R161 (money format), R162 (Next step), R163 (Site record), R388 (operating
+(hour timeline), R160 (Needs attention), R161 (money format), R162 (Next step), R163 (Site record), R154 (status strip), R388 (operating
 context); portfolio R305, R502 (Placement), R620; findings R288, R291 (Not assessed priority/confidence), R575 (no
 warnings on the week), R622; preventive R08, R10 (Not assessed / Draft); wr-overview R363, R365, R396; cold/EV
 record-derived names R235.
@@ -56,7 +56,7 @@ record-derived names R235.
 numbers on the week; R626 Kobo day S "0.00 USD" over 200 avoidable minutes (open, cause unconfirmed); R627 Kobo Grow
 Unknown / Assure No objective declared; R628 EV no tariff → unpriced; R629 work lists by recorded (build) time; R630 WR
 repeat-visit notice absent (open); R631 two identical cold Finding titles; R632 verification values (verified trial)
-and where the cost check reads; R633 mini freshness strip vs status bar; R634 Assure line without a modelled change.
+and where the cost check reads; R633 is only a cross-reference to R154 (review M1: duplicate); R634 Assure line without a modelled change.
 
 ## Polish-round defects (not fixed here)
 
@@ -66,7 +66,10 @@ and where the cost check reads; R633 mini freshness strip vs status bar; R634 As
 - **P-03** Portfolio table at 1440: the Confidence chip "Supported, coherent source" overlaps the Action cell
   ("No accepted Action") on all four rows (`portfolio-week-1440.png`).
 - **P-04** Visible "MOCK DEVIATION" lines: wr-overview "D1 (R396)", "D2 (R363)", "D1 (R365)" at both widths; the Site
-  tab row "D2 (R453)" under every Site Overview at 390 (in the text at 1440 too). The sheet requires none visible.
+  tab row "D2 (R453)" under every Site Overview at 390 only (hidden at 1440; `captures.json` has the R453 and MOCK
+  DEVIATION hits only at 390). COMBINED §6 requires none visible, but register line 212 requires every open
+  D1/D2/D4/D5/D6 row to show `MOCK DEVIATION Dn` beside its element: removing the labels needs an Architect ruling
+  in the polish round first (for example a demo-mode suppression, or closing the rows).
 - **P-05** Raw ids on screen: full UUIDs in the Portfolio Finding cells; "Finding d374e29a"-style ids on estate
   Findings and WR; "REC <uuid>" on the EV timeline; all-open Kobo board: 251 UUIDs, `DEVELOPMENT_TENANT_OPERATOR_CONTEXT`,
   `LATEST_RECORDED_REVISION_OF_EACH_CANONICAL_FINDING`, raw ISO timestamps (`captures.json`).
@@ -76,6 +79,10 @@ and where the cost check reads; R633 mini freshness strip vs status bar; R634 As
   (`ev.json` `fault_day.action`, code null) is not shown anywhere on the board. Diagnose.
 - **P-09** Preventive reads "Overdue: Not assessed · No due evaluator" while the Kobo/cold/EV boards show plan-overdue
   warnings for the same plans: a client sees two answers.
+- **P-11** Depot fault window: the Optimize row says "a tariff estimate exists in Financials", while Grow, the money
+  panel and Next step all say no EV tariff is published (R628). Two answers on one screen, like P-09.
+- **P-12** Kobo Assure reads "No objective declared" on day S but "Unknown" on S+1 (`kobo-board-S-1440.png`,
+  `kobo-board-S1-1440.png`); R627 explains day S only. Diagnose the S+1 chip.
 - **P-10** Cold failure board: "What happened" says "No incident recorded" while INC-000005 is listed Open under Already
   in hand.
 
@@ -116,11 +123,14 @@ and where the cost check reads; R633 mini freshness strip vs status bar; R634 As
 Kept build: `C:\Users\assef\Bineyame\AssetOpsV1-demo3`, work `var/demo3_full`, DB `assetops_demo3_full_test`, S = 2026-10-29.
 
 1. **Prepare** (only to rebuild; it moves every date): from `AssetOpsV1-demo3`,
-   `python tools/demo_combined.py --db assetops_demo3_full_test --work var/demo3_full prepare` - 797.6 s at `79dda4ea0`
+   with the step 2 `PYTHONPATH`, `& "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe" tools/demo_combined.py --db assetops_demo3_full_test --work var/demo3_full prepare` - 797.6 s at `79dda4ea0`
    (DEMO-A Final round). Not rerun here.
-2. **Serve** (PowerShell, from `AssetOpsV1-demo3`): set `$env:PYTHONPATH` to that tree's
-   `backend;contracts;tools;simulator;gateway;host;field`, then
-   `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe tools/demo_combined.py --db assetops_demo3_full_test --work var/demo3_full serve`.
+2. **Serve** (PowerShell):
+   ```powershell
+   cd C:\Users\assef\Bineyame\AssetOpsV1-demo3
+   $env:PYTHONPATH="C:\Users\assef\Bineyame\AssetOpsV1-demo3\backend;C:\Users\assef\Bineyame\AssetOpsV1-demo3\contracts;C:\Users\assef\Bineyame\AssetOpsV1-demo3\tools;C:\Users\assef\Bineyame\AssetOpsV1-demo3\simulator;C:\Users\assef\Bineyame\AssetOpsV1-demo3\gateway;C:\Users\assef\Bineyame\AssetOpsV1-demo3\host;C:\Users\assef\Bineyame\AssetOpsV1-demo3\field"
+   & "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe" tools/demo_combined.py --db assetops_demo3_full_test --work var/demo3_full serve
+   ```
    Measured: API answering on 8990 after **3.1 s**; first tick done **39 s**; first Performance comparison **41 s**; then
    one tick every 120 s. Wait for the first `performance:` line before showing anything (a stale build reads
    STALE_PROJECTION until then; DEMO-A caution 1).
@@ -137,10 +147,17 @@ Kept build: `C:\Users\assef\Bineyame\AssetOpsV1-demo3`, work `var/demo3_full`, D
    - Findings: `http://localhost:5490/findings?from=2026-10-23T00:00:00Z&to=2026-10-30T00:00:00Z` (`/findings/cost|risks|opportunities`)
    - Maintenance (must reach the build day, R629): `http://localhost:5490/maintenance/preventive?from=2026-10-01T00:00:00Z&to=2026-11-01T00:00:00Z`;
      WR-000006 opens from the Corrective list on the same window.
-   After a rebuild, quote the new dates from `python tools/demo_combined.py ... links` and apply the P-01 route forms.
-5. **Captures** (optional, with 2-3 running): `node tools/demo-combined-evidence.mjs capture <demo3>\var\demo3_full <out>`
-   (28 captures, 270-303 s), then `node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 <out>/mock $(node tools/demo-combined-evidence.mjs mock-ids)`
-   (56 s) and `node tools/demo-combined-evidence.mjs compare <out> <out>/mock/mock-measure.json`.
+   After every rebuild, re-quote all dates **and the verification link** (the Action id changes) from
+   `& "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe" tools/demo_combined.py --db assetops_demo3_full_test --work var/demo3_full links`, then apply
+   the P-01 route forms.
+5. **Captures** (optional, with 2-3 running; PowerShell, from `AssetOpsV1-demob`; exits 1 if any capture is unsettled):
+   ```powershell
+   node tools/demo-combined-evidence.mjs capture C:\Users\assef\Bineyame\AssetOpsV1-demo3\var\demo3_full <out>
+   New-Item -ItemType Directory -Force <out>\mock | Out-Null
+   node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 <out>\mock ((node tools/demo-combined-evidence.mjs mock-ids) -split ' ')
+   node tools/demo-combined-evidence.mjs compare <out> <out>\mock\mock-measure.json
+   ```
+   (28 captures 270-303 s; mock 56 s.)
 6. **Stop:** Ctrl+C in each window, or `taskkill /PID <pid> /T /F` on the serve and npm PIDs (the serve tree holds
    uvicorn). Check ports 8990 and 5490 are free.
 
@@ -167,13 +184,26 @@ Kept build: `C:\Users\assef\Bineyame\AssetOpsV1-demo3`, work `var/demo3_full`, D
   Overview. Captures use the Overview routes (P-01).
 - CO-4: the verification page carries no cost check (neither mock nor product); it is captured where it reads, the Kobo
   Cost row Earlier entry (R632, R590). R594's Assure modelled line does not show on this data (R634).
-- The tool's vocabulary scan reads `innerText`, so it also counts text hidden by CSS at one width (R453 at 1440).
+- The tool's vocabulary scan reads `innerText`, which leaves out `display:none` text: the R453 label counts at 390 only.
 - `demo_combined.py` was not changed (Python; P-01/P-02 go to the polish round).
 
 ## Residual risk / review focus
 
 - Triage judgement: whether R626 (0.00 USD) and R630/P-08 are data or product defects is unconfirmed; they must be
   diagnosed before the client demo.
-- R633 may duplicate an older mini row not found by keyword search.
 - The all-open Kobo capture clicks every `aria-expanded="false"` button and `<details>` in `<main>`; it is a stress
   view (pageH ×10.7), not a demo view.
+
+## Fix round (review `.agent/review-DEMO-B.md`, REVISE: M1, L1-L6)
+
+- **M1:** R633 is now a cross-reference to R154 (category D1, status "duplicate (of R154)"); R154 added to the
+  register preamble and to "Already registered" above.
+- **L1, L2:** P-04 names the register line 212 label rule and the Architect ruling it needs; R453 hits are at 390 only.
+- **L3:** the card statement now names the Portfolio and mini outcome cards as not card-compared (selector limit). The
+  selector was not widened: the mock side (`measure-mock-panels.mjs`, shared) misses them too. Captures unchanged.
+- **L4:** `capture` wraps the Chrome lifetime in `try/finally` and exits 1 when any capture is unsettled or the work
+  request link is missing. Proven against a dead web port (`DEMOB_ONLY=findings-all`, base `http://localhost:5999`):
+  two WAIT lines, `FAIL 2 capture(s) unsettled or missing`, exit 1, no headless Chrome left. Captures were not re-run.
+- **L5:** runbook gives the literal PowerShell `PYTHONPATH`, the venv interpreter in every Python step, the PowerShell
+  form of the mock-ids argument, and the re-quote note for the verification link.
+- **L6:** P-11 (EV tariff contradiction) and P-12 (Kobo Assure S vs S+1) added.
