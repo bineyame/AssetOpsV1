@@ -141,3 +141,75 @@ cold 56.1 s (3 runs, 4 findings), EV 61.3 s (2 runs); objectives 6; both cutover
 - Stack stopped by PID; ports 8990, 5490, 9493 free.
 - Still out of scope: "Authored test data (test-scoped example)" (`verificationWords.ts:215`) and the EV refusal
   "Authored test data versions conflict." (`EvAssessmentViews.tsx:451`); neither is on a capture screen.
+
+## Whole-diff fix round (review `review-POLISH-whole-diff.md`; commits `a08bf548b`, `e547140a7`, `9d96ffc04`, `945002e04`)
+
+Every change follows rulings already made (§3.1 pattern "no Finding/Action capitals in running text", Addenda 5, 13, 14).
+
+| Item | Where | Old → new |
+|---|---|---|
+| M1 | `ui/ProductStatus.tsx` `ExactReferences` | a "How this was worked out" `<details>` with no tag → renders through `WorkedOut`: with no `extra`, one closed "Technical details" (`data-technical-details`; hooks `data-exact-references`/`data-disclosure` kept); with `extra`, "How this was worked out" keeps the plain detail and nests the ids in Technical details |
+| M1 | `sites/FindingConsequence.tsx` `MethodDetail` | counted-readings table (Record reference column) in the plain `extra` → inside `TechnicalDetails name="financials-consequence-readings"`; method paragraphs stay plain |
+| M3 | `sites/verificationWords.ts` `sourceWords` | "Registered Lab trial data" → "Example data"; "Authored test data (test-scoped example)" → "Prepared example data" |
+| M3 | `SiteActionVerification.tsx:1290` | "Policy trial on demonstration data: …" → "Policy trial on example data: …" |
+| M3 | `ui/productWords.ts` `DEMONSTRATION_OUTCOME_NOTE` | "This is a policy trial on demonstration data: …" → "… on example data: …" (same Verification page) |
+| M3 | `tools/demo-combined-vocabulary.mjs` lab name | `(?:replay|charging) lab` → also `lab trial data` |
+| L1 | `OverviewFindingList.tsx:405` (Kobo board), `ColdAssessmentViews.tsx:466` | "Open the Finding →" → "Open the finding →" |
+| L1 | `estate/portfolioWords.ts:29` | "Selected Findings across accessible Sites, …" → "Selected findings across accessible Sites, …" |
+| L1 | `findingWords.ts` (16 strings), `SiteFinding.tsx` (36), `actionPresentation.tsx:128-129` | "Finding(s)" after a lower-case word in prose → "finding(s)" (e.g. "Joined into an earlier finding", "Related findings", "not a no-finding result", "Open the finding to see what it found."); sentence-initial "Finding …" headings stay |
+| L1 | `estate/placement.py:26,40,64` | "…no longer confirms this Finding…", "No price basis for this Finding", "…other Findings may be missing" → "finding"/"findings" |
+| L2 | `site_outcomes/ev.py:45` NO_TARIFF | "Gross tariff estimate not available yet" → "Charging income estimate not available yet" |
+| L2 | `ev_site_reads.py:31,37,42` | "No stored gross tariff estimate matches …" → "No stored charging income estimate matches …"; "…; no current gross tariff estimate." → "…; no current charging income estimate."; "Gross tariff scenario; not cash collected." → "Charging income estimate; not cash collected." |
+| L3 | `estateEvidenceWords.ts:16`, `estateFinancialsWords.ts:19` | "Potential product exposure" → "Stock may be at risk" |
+| L3 | `EstatePortfolio.tsx:370,417,462,473`, `portfolioWords.ts:129` | "… not established" / "Completed activity · Not established" → "… not known yet" / "Completed activity · Not known yet"; "Cross-Site energy and tariff totals are not established." → "… are not known yet." |
+| L4 | `demo-combined-vocabulary.mjs` | new id kind "stored record code": `(?:ACT|INC|WR|F|PLAN|CHG|PM|REC)-(?!000)\d{6,}` (three-zero codes stay on the existing rule, so a code counts once) |
+| L5 | `estatePortfolio.test.tsx`, `portfolioFixtures.ts` | "Supported/Unconfirmed Finding", "Generated test data source", "No accepted Action; open the recommendation" → the server copy ("Supported finding", "example data", "No action agreed yet · review the recommendation") |
+| L5 | `tools/s405-provenance-evidence.mjs:36`, `s602b-verification-evidence.mjs:194,311` | "Generated test data" → "Example data"; `/Registered Lab trial data/` → `/Example data/`; "…confirms this Finding…" → "finding" |
+| Item 8 | `tools/demo_combined.py` `serve`, `prewarm`, `story_week_query` | after the first tick, one `GET /api/estate/outcome-summary?<story week>` (timeout 900 s); prints `ready: Portfolio outcome summary for the story week answered HTTP <s> in <n> s. Do not restart serve once the client has joined.` only when it returns; a transport failure prints `pre-warm did not finish …` and no `ready:` line. Runbook step 2: wait for `ready:`; never restart serve once the client has joined |
+| M2 support | `tools/demo-combined-evidence.mjs` | each capture also writes `<key>-<width>.txt` (visible `<main>` text) beside its PNG |
+
+Pins updated: `productStatus.test.tsx` (+1 test for the `extra` nesting), `s404SiteFindingIndex.test.tsx`,
+`siteActionVerification.test.tsx`, `siteFinding.test.tsx`, `siteFindingEvidence.test.tsx`, `performanceDispatch.test.tsx`,
+`evEnergy.test.tsx`, `estate{Portfolio,Evidence,Financials}.test.tsx`; backend `test_cc_placement`, `test_cov_partial_portfolio`,
+`test_out_b3_cold_ev`, `test_w207_ev_site_reads_postgres`; `test_demo_combined_links` +2 pre-warm tests.
+
+M1 callers spot-checked: `SiteFinding.tsx:513`, `SiteFindingHistory.tsx:477`, `SiteAction.tsx:648,896,1093` and
+`SiteRecommendation.tsx:890` pass `references` only (now Technical details); `FindingConsequence.tsx:931` is the one
+`extra` user (fixed above). The `extra` props in `ColdAssessmentViews`/`EvAssessmentViews` are on `TechnicalReferences`,
+already a Technical details region.
+
+Guard proofs (non-vacuous): with `lab trial data` removed from the lab-name regex the M3 self-test fails (13/14); with
+the stored-code regex replaced by `/(?!)/g` the L4 self-test fails (13/14); restored by `git checkout`, 14/14.
+
+Register (`mock-departure-register.md`), checked against the new capture texts: R08 status leads with "closed by
+POLISH"; R625 headlines "Can't be compared across these sites yet" / "Not known yet"; R628 "Charging income estimate
+not available yet", "Publish a charging tariff"; R631 stays standing (the Portfolio tells the two rows apart by date;
+the Findings list rows still read alike, with the id in closed Technical details); R632 "60 min → 0 min", "0 kWh" with
+"Critical demand not served · pass"; R634 "ACT-001 Verified on example data" with no modelled improvement; R655 and
+R662 append this round's words; R656 narrowed to the shared exact-reference components and the 28 captured screens.
+Other R625-R662 product strings were found in the captures as written (R626, R627, R630, R635, R646, R650, R652, R655
+Kobo/Verification words, R660, R661, R662). Not on a capture: R651's banner (outside `<main>`), R655's EV Energy and
+Financials tab words.
+
+Results (one heavy job at a time):
+
+| Check | Result | Wall |
+|---|---|---|
+| Scoped pytest (links, placement, cold/EV outcomes, partial portfolio, PA-2a/PA-3 copy, finish CO-1) | 99 passed | 2 s |
+| `test_w207_ev_site_reads_postgres.py` (run-host-tests) | 19 passed | 347 s |
+| Scoped vitest (26 files; then the 2 Finding files after pin updates) | 717/731, 14 pin failures fixed; then 127/127 | 45 s + 8 s |
+| `npx tsc --noEmit` | exit 0 | 28 s |
+| Guard node tests (mock-deviation, evidence, missing-claim) | 52/52; labels OK, 153 files | under 5 s |
+| Rebuild at `e547140a7` | exit 0, self-check **17 pass, 0 fail, 0 skipped** | 828 s |
+| Serve pre-warm | `ready:` HTTP 200 in 11 s, 58 s after serve start | |
+| Strict 28-capture | **28/28 OK on the first run**, `portfolio-week` settled at both widths, 0 counted, no overflow; exempt 1 per capture, 283 per width on `kobo-board-S-open` (unchanged) | 312 s |
+| Review-mode set | R453 (390, `kobo-board-S`); R363, R365, R396 (`wr-overview`), as before | 66 s |
+| Full `npx vitest run` | 3593/3595: 2 pin failures in `performanceDispatch.test.tsx` ("no finding"); pins fixed (`945002e04`), file rerun 44/44. The `evEnergy` flake did not occur | 253 s + 7 s |
+| check-all | **All 12 guards passed** | 396 s |
+
+Stack stopped by PID (serve 28388 tree, npm 18316 tree); ports 8990, 5490 and 9493 free.
+
+Residual: capitalised "Finding" remains in link and button labels outside this list ("Review Finding" on Portfolio
+rows, "Open Finding →" on the EV board, the `SiteOverview`/`SitePerformance`/`SiteRecommendation` "Open the Finding"
+links, `OverviewFindingList.tsx:94,165,201`); "Demonstration data" as a foundation Mode value on the `-open` stress
+capture (inside Technical details); the "Gross tariff estimate" tile label stays mock wording (R628/R655).
