@@ -605,3 +605,142 @@ These stay in the Lows log:
 - FIX-S4 Lows.
 
 None is client-visible.
+
+---
+
+## Addendum 1 (2026-11-01): PB-0 pre-flight rulings
+
+**Q1: option (a).** PB-0 lands the whole P-04 mechanism, so guard 12 passes in full in the slice that adds it:
+- the hide rule in `frontend/src/ui/mock-deviation.css`;
+- `frontend/src/ui/reviewLabels.ts` with `src/ui/__tests__/reviewLabels.test.ts` and `mockDeviationStyle.test.ts`;
+- `main.tsx` calls `reviewLabels` first and imports `mock-deviation.css` app-wide. This is required: the `MockDeviation`
+  component in `globalWorkParts` (`.global-work-deviation`) does not load the file today;
+- the register rule sentence (§2 text, verbatim).
+
+PB-0 becomes **3.5 units**. In PB-1, the P-04 unit becomes 0.25 unit of verification only:
+- one review-mode capture (`DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=kobo-board-S`) at 390 shows the R453 label, and at 1440 the label stays hidden by its width rule;
+- the client-mode `portfolio-week` and `findings-all` captures have zero "MOCK DEVIATION" hits.
+
+PB-1 becomes **5.25 units**. The freed 0.75 unit is held as slack for the time consolidation. Register ids are unchanged:
+PB-0 and PB-1 share R650-R654.
+
+**M1: confirmed.** The file is `tools/evidence-checks.mjs`. Export a pure ready predicate from it, test it in
+`tools/checks/test_evidence_checks.mjs`, and call it from `settle()` in `demo-combined-evidence.mjs`. The §5 path was wrong.
+
+**M2: confirmed.** Use the whole-line regex. Fixtures must cover:
+- "Loading the site's overview." counts as not settled;
+- "Loading and door records" counts as settled;
+- "Loading…" counts as not settled.
+
+Keep the `aria-busy` and `[data-repeat-check="loading"]` waits; the latter is inert until PB-3 adds the attribute, which is expected.
+
+**M3: confirmed, with two conditions.**
+- Excluding `w1.codes` is accepted. Upper-case codes are still caught by the existing enum-code regex and the
+  zero-padded code regex.
+- Gloss stripping must use only the allowed phrases and glosses already in `productVocabulary.json`, with no
+  tool-local allow-list. Each stripped phrase is listed in the PB-0 packet.
+
+The rest of M3 stands as planned: "MOCK DEVIATION" is always scanned on the full `<main>` text, and with
+`DEMOB_REVIEW_LABELS=1` hits are recorded but not strict.
+
+---
+
+## Addendum 2 (2026-11-01): PA-1 pre-flight rulings (these apply to every lane)
+
+**Q-A (OUT-E L3): accepted.** `history()` orders by `ORDER BY recorded_at, revision_no, id`. `revision_no` is unique
+only within one verification outcome, so `recorded_at` leads and `id` makes the order total. The pinning test needs
+two outcomes for one Action, with interleaved revisions.
+
+**Q-B: one capture rule for all lanes (option 3, serialised).**
+- Serving the kept DB is allowed. "Read-only" means no manual writes, no `prepare` and no `add-day` against it.
+  The serve loop's ticks only refresh projections and comparisons, which is what the walkthrough itself does and what
+  DEMO-B did. No migration lands in this round, so slice code can safely tick it.
+- **Only one serve may run against a DB at a time** (two schedulers on one DB is the real risk). Lanes take a
+  capture slot from the coordinator. Each run, in order:
+  1. Start `demo_combined.py … serve` from the slice worktree with `--db assetops_demo3_full_test --work <AssetOpsV1-demo3>\var\demo3_full`.
+  2. Start Vite from the same worktree.
+  3. Wait for the first `performance:` line.
+  4. Capture with `DEMOB_ONLY`.
+  5. Stop both by PID and confirm ports 8990 and 5490 are free.
+  6. Release the slot.
+- No template copies (option 1). The I/O cost and the risk to the file store are not worth it for re-capture.
+- No deferral (option 2). Each slice proves its own screens.
+- After PA-3 merges, the same rule applies with `assetops_polish_full_test` and `var/polish_full`. From then on,
+  `assetops_demo3_full_test` is only the walkthrough fallback.
+
+**Q-C: accepted.** Leave EV-2 `missing_records` (`catalogue.py:53-54`) unchanged and note in the packet that nothing
+renders it while the row sentence takes precedence. Drop the §1.6 clause "the same condition where EV-2
+`missing_records` is shown".
+
+**Pre-flight results: accepted.**
+- **Grow (§1.7 pre-flight).** Kobo Grow is Unknown on both S and S+1 because MG-1 cannot be judged without sales
+  records (`mini.py:457`, OBJECTIVE_NOT_JUDGED). This is a different cause from the readiness rule. Add R636 (D4)
+  with that reason; Grow is not changed.
+- **MG-7 settled rule.** Accepted as the builder planned it: `assessment.claim_level == "COMPLETE"`, zero dispatch
+  intervals, and readiness exactly `UNKNOWN`. The chip then reads "No objective declared", and the Readings line reads
+  "No generator run to check on this day · readings complete".
+
+---
+
+## Addendum 3 (2026-11-01): capture rule re-ruled (supersedes Addendum 2 Q-B)
+
+The PA-1 implementer verified that Addendum 2 Q-B cannot work:
+- `Demo.__init__` only accepts its own `var/demo3*` work dir;
+- serve runs uvicorn and ticks from the private tree `<work>\tree`, which is frozen at DEMO-A `e2df244c2`;
+- slice backend code served directly against the kept DB gets 409 AWAITING_EVIDENCE_MIGRATION, because of the file-store root binding.
+
+**Frontend slices (PB-0, PB-1, PB-2, and the frontend part of PB-3): confirmed as the coordinator set it.**
+- Run serve from `AssetOpsV1-demo3`, unchanged, against its own DB and work dir. Run Vite from the slice worktree with `ASSETOPS_API_PORT=8990`.
+- One serve at a time, as in Addendum 2: the coordinator holds the slot, and processes are stopped by PID when done.
+- Captures therefore show the slice's frontend over the DEMO-A backend. In the strict gate (PB-0 tool), a hit whose
+  source is server text owned by PA-1 or PA-2 (§3.1 "BE" rows, display codes inside server sentences, Finding titles,
+  asset labels) is recorded as `awaiting PA-x` in the packet, not as a slice failure. Any frontend-sourced hit fails the slice.
+
+**Backend slices (PA-1, PA-2): option (a).**
+- Captures are deferred to the PA-3 rebuild (`assetops_polish_full_test`, whose private tree contains PA-1 and PA-2).
+  Each packet records "captures: deferred to PA-3 (Addendum 3)".
+- Options (b) and (c) are refused:
+  - (b) the overlay edits the kept walkthrough build's private tree; one missed restore corrupts the fallback;
+  - (c) is expected to hit the same store-root refusal.
+- Screen proof in place of captures: each changed board or read sentence and value is pinned by a compose- or
+  read-level test that asserts the exact output (for example the PA-1 zero-amount headline, the EV unpriced sentence,
+  the MG-7 chip and Readings line, and COST_NOT_CREDITED). These tests are the review evidence until PA-3.
+
+**PA-3** captures all 14 keys from the rebuild, as before. Its packet adds a "PA-1/PA-2 screen check" list: each
+capture-visible change from §1.1, §1.6, §1.7, §1.3 (connector wording), §1.4 (backend counts present in the read) and
+§3.1 "BE" rows, each with the capture file where it shows. A miss there goes back to the owning slice as a fix round.
+
+**PB-3 (touches the frontend only; it consumes PA-2's preventive counts):**
+- Its non-P-09 captures follow the frontend rule above.
+- P-09 is proven by vitest with the PA-2 read shape. Its `maintenance-preventive` capture comes from the PA-3 rebuild
+  when PA-3 has merged before PB-3 is reviewed; otherwise it is deferred to PC.
+- P-07 step 0 (§1.2): the GET runs against the demo3 serve. The DEMO-A backend has the same warning logic, so the check is valid there.
+
+**PC** is unchanged: the strict 28-capture run on merged main, served from the PA-3 rebuild.
+
+---
+
+## Addendum 4 (2026-11-01): PA-1 sign-off items
+
+The product vocabulary guard bans "run"/"running". The guard stays as it is: copy must avoid run, ran and running.
+
+1. **MG-7 Readings line: accepted.** The text is "Generator not used on this day, so nothing to check · readings complete".
+2. **Finding titles (§3, PA-2) are replaced:**
+   - SUPPORTED: "Generator may have been on longer than needed"
+   - UNCONFIRMED: "Extra generator time not confirmed by the latest check"
+   - NO_LONGER_SUPPORTED: "Extra generator time no longer supported by the latest check"
+
+   These other §3/§1 strings use "run" and change with them, in their owning slice:
+   - §3.1 Kobo "Checked: 1 generator run, from 13 measured inputs" becomes "Checked: 1 period of generator use, from 13
+     measured inputs". The zero case becomes "Checked: generator not used on this day, from 13 measured inputs". (PB-2)
+   - §3.1 "When the generator ran and when readings arrived" becomes "When the generator was on and when readings arrived". (PB-2)
+   - §1.4 "{n} plan(s) run on running hours; not checked here yet" becomes "{n} plan(s) based on hours of use; not checked here yet". (PB-3)
+
+   For any other guard-banned word in a ruled string, the builder may swap in the nearest plain synonym without
+   asking, and must list the swap in the packet.
+3. **S+1 readiness chip changes in a PA-1 fix round before merge.** It does not wait for a later slice, because the same
+   line would otherwise say "Unknown" and "complete" at once.
+   - In the MG-7 settled case only (the three Addendum 2 conditions), the Readings contributor's chip is the chip
+     `mini.py` gives FULL readiness. Any readiness word the line or chip shows is the FULL word, never "Unknown".
+   - The shared readiness value and `reduce_day` are unchanged.
+   - Pin it in the existing settled-case compose test: assert the chip is not UNKNOWN_CHIP and the text has no "Unknown".
