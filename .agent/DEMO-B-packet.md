@@ -146,16 +146,20 @@ Kept build: `C:\Users\assef\Bineyame\AssetOpsV1-demo3`, work `var/demo3_full`, D
 
 ## Checks run
 
-- `node --check tools/demo-combined-evidence.mjs` at each commit; final capture run on `5d6ff3cf9` (28/28 OK, exit 0).
-- `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe`: see the closing
-  commit's line in "Guards" below.
+- `node --check tools/demo-combined-evidence.mjs` at each commit; final full capture run on `5d6ff3cf9` (28/28 OK, exit 0);
+  `3dc50c75b` adds only the find-step width checks (re-run on wr-overview, 2/2 OK).
+- `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe`: see "Guards".
 - No backend/frontend suites: the slice adds one `.mjs` tool and `.agent` records; no product code, no Python.
 - Processes started here (serve 16300/19900, Vite 24816/11972, headless Chrome per run) were stopped by PID; ports
   8990/5490 free at the end; keep-awake untouched.
 
 ## Guards
 
-GUARDS_RESULT_PLACEHOLDER
+- First run at `56fdc1f3e`: 10/11; **Evidence width check (W1-UX-06) failed** on
+  `demo-combined-evidence.mjs:182-183` (the work-request find step resized and navigated without `requireWidth`).
+  Fixed in `3dc50c75b` (two `requireWidth` calls; behaviour otherwise unchanged); the find step re-run once
+  (`DEMOB_ONLY=wr-overview`, 2/2 OK, same WR-000006 page).
+- Rerun at `3dc50c75b`: **All 11 guards passed** (exit 0, 361 s).
 
 ## Known deviations
 
