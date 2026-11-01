@@ -22,6 +22,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
 
+from assetops_backend.outcomes.display_code import display_code
+
 KOBO, COLD, EV = "KOBO-001", "COLD-LAB-001", "EV-LAB-001"
 CATEGORIES = ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
 SAFEGUARD = " · checked here as a safeguard"
@@ -127,6 +129,31 @@ def _kobo_board_s(ctx: Ctx) -> dict:
     return ctx.board(KOBO, ctx.S, ctx.day(1))
 
 
+#: POLISH Addendum 10: verification outcomes that are final; a finished trial is listed under Earlier.
+FINAL_VERIFICATION = frozenset({"VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"})
+
+
+def cost_row_action_links(cost: dict, action_id: str, action_code: str, verification_state: str | None):
+    """CO-1's linkage assertions on day S's OPTIMIZE_COST row (POLISH Addendum 10, correcting Addendum 9 Q4).
+    1. The Action is linked by href path `/sites/KOBO-001/actions/{id}`: under `earlier` when its verification outcome
+       is final, else under `issues` + `in_hand`. A text match alone never passes (DEMO-A L2).
+    2. Must-not-harm (LINK-LINEAGE): its href carries the Action id and the verification event; its text names the
+       Action by display code. This is the guard that fails on the board from before LINK-LINEAGE, whose CO-3
+       `earlier` line already carried the Action href (DEMO-A L2 review).
+    3. The safeguards sentence (DEMO-A L1). Returns (must_not_harm, the linked items' texts)."""
+    mnh = cost.get("must_not_harm") or {}
+    href, text = mnh.get("href") or "", mnh.get("text") or ""
+    assert action_id in href and "/verification?event_id=" in href, mnh
+    assert display_code(action_code) in text, mnh
+    assert "Reliable service and battery and generator life" in text, mnh
+    path = f"/sites/{KOBO}/actions/{action_id}"
+    column = (cost.get("earlier", []) if verification_state in FINAL_VERIFICATION
+              else [*cost.get("issues", []), *cost.get("in_hand", [])])
+    linked = [i.get("text") for i in column if (i.get("href") or "").split("?")[0] == path]
+    assert linked, (verification_state, items(cost))
+    return mnh, linked
+
+
 @row("CO-1", idx=True)
 def co1(ctx: Ctx) -> dict:
     k = ctx.docs["kobo"]
@@ -137,15 +164,8 @@ def co1(ctx: Ctx) -> dict:
     checked = [i for i in finding_issues(protect, k["finding"]) if i["text"].endswith(SAFEGUARD)]
     assert moves, cost["issues"]
     assert checked, protect["issues"]
-    # Original §5 text, restored by LINK-LINEAGE §5: the board links the Action across the post-apply
-    # BASIS_REFRESHED revision of the same Finding (D-2026-10-31 refresh lineage), so day S's Cost row carries the
-    # Action's Must-not-harm line with its verification href and the Action itself.
-    mnh = cost.get("must_not_harm") or {}
-    href = mnh.get("href") or ""
-    assert k["action"] in href and "/verification?event_id=" in href, mnh
-    on_cost_row = [i["text"] for i in items(cost)
-                   if k["action"] in (i.get("href") or "") or k["action_code"] in (i.get("text") or "")]
-    assert on_cost_row, items(cost)
+    state = ((_action(ctx).get("verification") or {}).get("state")) or None
+    mnh, on_cost_row = cost_row_action_links(cost, k["action"], k["action_code"], state)
     outside = [i["text"] for x in body["rows"] for i in items(x) if i["text"].endswith(OUTSIDE)]
     assert outside == [], outside
     outcomes = {o["key"]: (o["state"], o.get("reason")) for o in cost["outcomes"]}

@@ -410,6 +410,8 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
                 "site_domain": site["site_type"],
+                # POLISH Addendum 12 Q2: the Site's declared IANA zone (or null) for the due date's Site-local day.
+                "site_time_zone": site.get("site_time_zone") or None,
                 "canonical_plan_id": root_id, "root_id": root_id, "head_id": head_id, "code": plan["root_code"],
                 "title": plan["title"], "trigger_kind": plan["trigger_kind"],
                 "next_due_at": None if plan["next_due_at"] is None else wire_time(plan["next_due_at"]),

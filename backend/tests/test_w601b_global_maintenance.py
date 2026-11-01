@@ -36,7 +36,7 @@ MAINTENANCE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_
 PREVENTIVE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "canonical_plan_id", "root_id", "head_id",
                    "code", "title", "trigger_kind", "next_due_at", "next_due_hours", "state", "asset_id",
                    "asset_label", "asset_type", "due_state", "root_occurred_at", "occurred_at", "recorded_at", "supersedes_plan_id",
-                   "correction_reason", "source_provenance", "links", "site_domain"}
+                   "correction_reason", "source_provenance", "links", "site_domain", "site_time_zone"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
 
@@ -389,6 +389,16 @@ def test_preventive_draft_rows_and_run_hours(store, key) -> None:  # noqa: F811
     assert (cal["trigger_kind"], cal["next_due_at"], cal["next_due_hours"]) == ("CALENDAR", "2026-10-29T00:00:00Z",
                                                                                  None)
     assert by_title["Inspect pump seals"]["next_due_at"] == "2026-10-25T00:00:00Z"
+    # POLISH Addendum 12 Q2: each row carries its Site's declared zone as stored (null when none is declared).
+    engine_ = create_engine(URL)
+    try:
+        with engine_.connect() as c:
+            zones = dict(c.execute(text("SELECT site_code, timezone FROM site")).all())
+    finally:
+        engine_.dispose()
+    assert {r["site_code"]: r["site_time_zone"] for r in rows} == {
+        code: (zones[code] or None) for code in ("KOBO-001", "KOBO-002")}
+    assert all(r["site_time_zone"] for r in rows), [r["site_time_zone"] for r in rows]
     for r in rows:
         assert r["root_id"] == r["canonical_plan_id"] == r["head_id"] and r["supersedes_plan_id"] is None
         assert r["root_occurred_at"] == r["occurred_at"] == "2026-10-18T11:00:00Z"

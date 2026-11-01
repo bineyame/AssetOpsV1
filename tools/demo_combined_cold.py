@@ -86,6 +86,10 @@ def _day_swaps(P, w202, base, day: "sd.DayRun"):
     return P.ShiftedChain
 
 
+#: POLISH §3 "Lab Site names" (D-5, R646): the demo build's GreenHarvest name, the mock's; the fixture YAML keeps its own.
+DISPLAY_NAME = "GreenHarvest Cold Room"
+
+
 def install(url: str, install_at) -> None:
     from test_s1_bindings_postgres import Clock
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
@@ -94,7 +98,7 @@ def install(url: str, install_at) -> None:
 
     store = PostgresFoundationStore(url)
     try:
-        install_cold_lab(store, tenant_slug="demo", clock=Clock(install_at))
+        install_cold_lab(store, tenant_slug="demo", clock=Clock(install_at), display_name=DISPLAY_NAME)
     finally:
         pg_harness.dispose(store)
 
@@ -108,7 +112,8 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun") -> dict:
     if day.kind == "failure":
         import w502_cold_work_walkthrough as W
 
-        argv, ns = sys.argv, {"__name__": "__w502_build__"}
+        # POLISH Addendum 9 Q2: the demo build passes each request title as its narrative; standalone w502 does not.
+        argv, ns = sys.argv, {"__name__": "__w502_build__", "DEMO_NARRATIVES": True}
         sys.argv = ["w502-build", "positive", str(out)]
         try:
             exec(compile(W.BUILD, "w502_cold_work_walkthrough.BUILD", "exec"), ns)

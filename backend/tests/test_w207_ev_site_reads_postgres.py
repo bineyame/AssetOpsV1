@@ -286,7 +286,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
                ("started", "completed", "observed_abort", "incomplete", "contradictory", "orphan",
                 "confirmed_delivery", "fault_aborted"))
     assert empty["overview"]["consequence_summary"]["amount"] is None
-    assert empty["overview"]["consequence_summary"]["limitation"] == "No gross tariff scenario assessed."
+    assert empty["overview"]["consequence_summary"]["limitation"] == "No charging income estimate yet."
     assert empty["evidence"]["capabilities"] == [] and empty["evidence"]["next_evidence"] == []
     assert (empty["analysis"]["items"], empty["analysis"]["claim_rules"], empty["analysis"]["next_cursor"]) == (
         [], [], None)

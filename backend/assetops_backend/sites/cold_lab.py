@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 
@@ -49,11 +50,16 @@ def publish_v4_revision(store, service: BindingService, tenant, site) -> Binding
     )
 
 
-def install_cold_lab(store, *, tenant_slug: str, clock: Callable[[], datetime], source_path: str | None = None):
+def install_cold_lab(store, *, tenant_slug: str, clock: Callable[[], datetime], source_path: str | None = None,
+                   display_name: str | None = None):
     """Import COLD-LAB-001, replay its first conversion and publish the v4 revision (idempotent per step)."""
     from assetops_backend.sites.foundation_service import ImportSource, import_site
 
     source = read_site_import_source(FIXTURE_PATH)
+    if display_name is not None:
+        # POLISH §3 "Lab Site names" (D-5): a caller's display name overrides the fixture's. The source bytes and
+        # sha256 are the fixture's, so a later idempotent install of the same Site matches the registered import.
+        source = replace(source, record=replace(source.record, display_name=display_name))
     result = import_site(
         store, tenant_slug=tenant_slug, configured_tenant_slug=tenant_slug,
         source=ImportSource(path=source_path or "var/sites/cold-lab-001.yaml", sha256=source.sha256,

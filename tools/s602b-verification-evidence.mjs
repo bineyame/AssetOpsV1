@@ -312,8 +312,8 @@ async function portfolioSuite(label, c) {
   // 4. Confidence; no guarded word and no raw code in the priority panel.
   const panel = await js(`document.querySelector('[data-portfolio-panel="priority"]')?.textContent ?? ''`);
   const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(panel)).map(String);
-  claim(`${label} estate Portfolio: F05 confidence UNKNOWN, "Unconfirmed Finding · Source not resolved"; no guarded word or raw code`,
-    got.confidence === "UNKNOWN" && got.confidenceText === "Unconfirmed Finding · Source not resolved"
+  claim(`${label} estate Portfolio: F05 confidence UNKNOWN, "Unconfirmed finding · Source not resolved"; no guarded word or raw code`,
+    got.confidence === "UNKNOWN" && got.confidenceText === "Unconfirmed finding · Source not resolved"
       && words.length === 0 && !/[A-Z]+_[A-Z_]+/.test(panel), { confidence: got.confidence, text: got.confidenceText, words });
   // 5. Bottom line and the closed policy disclosure.
   const policy = await js(`(() => { const d = document.querySelector('[data-placement-policy]');

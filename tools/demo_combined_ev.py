@@ -113,8 +113,10 @@ def write_work(url: str, built, story: dict, asset_id: str, tag: str, shift: tim
     try:
         for v in e["visits"]:
             when, key = at(v["at"]) + shift, f"demo3-ev-{v['key']}-{tag}"
-            s, case = work.create_case(tenant, site, request(key, title=v["title"], occurred_at=iso(when),
-                                                             asset_id=asset_id, finding_links=[]), PRINCIPAL)
+            # POLISH §3 "Request narratives": the request's own title as a sentence, not the test default.
+            s, case = work.create_case(tenant, site, request(key, title=v["title"], narrative=f"{v['title']}.",
+                                                             occurred_at=iso(when), asset_id=asset_id,
+                                                             finding_links=[]), PRINCIPAL)
             assert s == 201, (v["key"], s, case)
             s, rec = work.post_record(tenant, site, case["id"], record(
                 f"{key}-rec", activity=v["title"], occurred_at=iso(when + timedelta(minutes=20)),
@@ -153,11 +155,28 @@ def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: d
     asset_id = declared["selection"]["connector_asset_id"]
     if not asset_id:
         raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")
-    return {"action": {"id": declared["action"]["id"], "code": declared["action"].get("code"),
-                       "raised_at": declared["R"]}, "intent_id": declared["intent"].get("id"),
+    # POLISH §1.3 (P-08): the API returns `action_code`/`intent_id`; record them and the Action's own `raised_at`
+    # as posted (build time, after every story window, so the fault-window board does not list it: R645). The create
+    # response carries no `raised_at`, so it is the posted body's.
+    return {"action": {"id": declared["action"]["id"], "code": declared["action"]["action_code"],
+                       "raised_at": declared["action_posted"]["raised_at"]},
+            "intent_id": declared["intent"]["intent_id"],
             "finding_id": declared["selection"]["finding_id"],
             "finding_revision_id": declared["selection"]["finding_revision_id"],
             "work": write_work(url, built, story, asset_id, tag, timedelta(days=day.offset))}
+
+
+#: POLISH §3 "Lab Site names" (D-5, R646): the demo build's Depot name, the mock's; the fixture YAML keeps its own.
+DISPLAY_NAME = "Depot Charging Hub"
+
+
+def _install(registered):
+    """The chain's install (the reviewed `install_ev_lab` at the swapped `INSTALL_AT`) with the demo display name."""
+    from test_s1_bindings_postgres import Clock
+    from assetops_backend.sites.ev_lab import install_ev_lab
+
+    return lambda store: install_ev_lab(store, tenant_slug="demo", clock=Clock(registered.INSTALL_AT),
+                                        display_name=DISPLAY_NAME)
 
 
 def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: dict | None = None) -> dict:
@@ -195,7 +214,8 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
                                                                  scenario_id))
         built = DayChain(case, tmp / f"{day.day}-{day.kind}")
         try:
-            built.open(fresh=False, scenarios=FakeScenarios((definition,)), scenario_id=scenario_id)
+            built.open(fresh=False, install=_install(registered), scenarios=FakeScenarios((definition,)),
+                       scenario_id=scenario_id)
             built.start_release_upload()
             outcomes = run_worker(built)
             select_exact(built, P.E_START, P.E_END)

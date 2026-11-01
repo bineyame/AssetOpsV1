@@ -84,6 +84,10 @@ import json, secrets, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 mode, out = sys.argv[1], Path(sys.argv[2])
+# POLISH Addendum 9 Q2: `demo_combined_cold` sets DEMO_NARRATIVES in this namespace; then the fixture WR and the
+# earlier visits pass their title as the narrative. The standalone walkthrough keeps the test default.
+def narrated(title):
+    return {"narrative": f"{title}."} if globals().get("DEMO_NARRATIVES") else {}
 CASE = {"positive": "ordinary", "worstcase": "ordinary", "pending": "pending", "stale": "stale",
         "unknown": "no-probe"}[mode]
 MECH = {"positive": "COLD_START_FAILURE", "worstcase": "COLD_START_FAILURE", "pending": "COLD_EXCURSION",
@@ -201,7 +205,7 @@ try:
     assert s == 201, inc
     s, wr = work.create_case(built.tenant_id, built.site_id, request(
         f"w502b-{mode}-wr-{tag}", title="Starter/control inspection", occurred_at=iso(wr_at), asset_id=str(gen.id),
-        finding_links=flink, incident_id=inc["id"]), PRINCIPAL)
+        finding_links=flink, incident_id=inc["id"], **narrated("Starter/control inspection")), PRINCIPAL)
     assert s == 201, wr
     s, rec = work.post_record(built.tenant_id, built.site_id, wr["id"], record(
         f"w502b-{mode}-rec-{tag}", activity="Starter and control inspection", occurred_at=iso(rec_at),
@@ -460,7 +464,7 @@ try:
             v_at = wr_at - timedelta(days=days)
             s, v = work.create_case(built.tenant_id, built.site_id, request(
                 f"w502b-{mode}-wr-e{n}-{tag}", title=title, occurred_at=iso(v_at), asset_id=str(gen.id),
-                finding_links=[]), PRINCIPAL)
+                finding_links=[], **narrated(title)), PRINCIPAL)
             if s != 201:
                 return None, (s, v)
             s, r = work.post_record(built.tenant_id, built.site_id, v["id"], record(

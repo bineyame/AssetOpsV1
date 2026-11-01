@@ -91,7 +91,7 @@ READINESS_WORD = {"FULL": "Full", "LIMITED": "Limited", "NONE": "None", "UNKNOWN
 CLOSED_LABELS = ("Verified", "Resolution withdrawn")  # B-Q18
 #: The Portfolio's source words (`estate/placement.py:54`, `:59`), copied as a local plain-text mapping so the
 #: composer imports no private estate name (B2 review L1); test_out_b2_mini asserts equality.
-SOURCE_TEXT = {"REGISTERED_SIMULATION": "Generated test data source",
+SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
 #: Addendum 3 M1: a mini Finding index body in one of these overall states leaves the Finding source unsettled.

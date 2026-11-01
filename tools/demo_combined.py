@@ -21,8 +21,8 @@ story instant. The data is registered Lab simulation placed on a story calendar 
 walkthrough-only schedule loop (one tick every 120 s, then the Performance comparison) that stops with serve.
 `drop` removes the database and work folder only when the work folder's marker records this tool made them.
 
-Guards: `--db` must match `^assetops_demo3_[a-z0-9]{1,20}_test$`; `--work` must be a `var/demo3*` folder directly
-under this repository's `var/`. A wall cap of twice the expected time stops only the PIDs this tool started.
+Guards: `--db` must match `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$`; `--work` must be a `var/demo3*` or
+`var/polish*` folder directly under this repository's `var/` (POLISH Addendum 9 Q1). A wall cap of twice the expected time stops only the PIDs this tool started.
 """
 
 from __future__ import annotations
@@ -49,7 +49,8 @@ PY = Path(sys.executable)
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
-DB_RE = re.compile(r"^assetops_demo3_[a-z0-9]{1,20}_test$")
+DB_RE = re.compile(r"^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$")
+WORK_PREFIXES = ("demo3", "polish")
 MARKER = ".demo3-combined-work"
 STORY_FILE = REPO / "backend" / "conversions" / "demo-combined-story-v1.json"
 API_PORT, WEB_PORT = 8990, 5490
@@ -162,13 +163,55 @@ def resolve_story(db_now: datetime, doc: dict | None = None, days_doc: dict | No
             "days": [r.payload() for r in days], **story}
 
 
+#: POLISH §4 P-01/P-02: the route forms `story_links` prints (the board is the Site Overview; there is no
+#: `/sites/{code}/outcomes` or `/sites/{code}/overview` route).
+LINK_FORMS = ("/portfolio?", "/findings?", "/maintenance/preventive?", "/maintenance?", "/sites/KOBO-001?date=",
+              "/sites/COLD-LAB-001?from=", "/sites/EV-LAB-001/ev?from=", "/sites/KOBO-001/actions/",
+              "/sites/KOBO-001/findings/")
+
+
+def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> list[tuple[str, str]]:
+    """The walkthrough links (POLISH §4, Addendum 9 Q3): week and month lists around S, one board per story day (Kobo
+    by `date`; cold and EV on the day's event window from `days.json`, or the whole calendar day when the day has
+    no event), the Kobo Overview on S, and the Kobo Action's verification and Finding when `kobo.json` exists."""
+    S = at(story["S"])
+    base = f"http://localhost:{web}"
+    week = f"from={iso(S - timedelta(days=6))}&to={iso(S + timedelta(days=1))}"
+    month = f"from={iso(S - timedelta(days=28))}&to={iso(S + timedelta(days=3))}"
+    rows = [("Portfolio, week to story day S", f"{base}/portfolio?{week}"),
+            ("Findings, week to story day S", f"{base}/findings?{week}"),
+            ("Maintenance, Preventive, month to S+3d", f"{base}/maintenance/preventive?{month}"),
+            ("Maintenance, month to S+3d", f"{base}/maintenance?{month}")]
+    for site in story["sites"]:
+        code = SITE_CODE[site]
+        for d in sorted((d for d in days if d["site"] == site), key=lambda d: d["offset"]):
+            label = f"{code} board, {d['kind']} day S{d['offset']:+d}d ({d['day']})"
+            if site == "kobo":
+                rows.append((label, f"{base}/sites/{code}?date={d['day']}"))
+                continue
+            start, end = d.get("start"), d.get("end")
+            if not start or not end:
+                day = datetime.fromisoformat(d["day"]).replace(tzinfo=timezone.utc)
+                start, end = iso(day), iso(day + timedelta(days=1))
+                label += ", no event: whole day"
+            path = f"/sites/{code}/ev" if site == "ev" else f"/sites/{code}"
+            rows.append((label, f"{base}{path}?from={start}&to={end}"))
+    if kobo is not None:
+        rows += [("KOBO-001 Overview, day S", f"{base}/sites/KOBO-001?date={story['S_date']}"),
+                 (f"Action {kobo.get('action_code')} verification",
+                  f"{base}/sites/KOBO-001/actions/{kobo['action']}/verification"),
+                 ("Finding", f"{base}/sites/KOBO-001/findings/{kobo['finding']}?revision_id={kobo['finding_revision']}")]
+    return rows
+
+
 class Demo:
     def __init__(self, db: str, work: str) -> None:
         if not DB_RE.fullmatch(db):
             raise SystemExit(f"Refused: --db {db!r} must match {DB_RE.pattern}")
         path = (REPO / work).resolve() if not Path(work).is_absolute() else Path(work).resolve()
-        if path.parent != (REPO / "var").resolve() or not path.name.startswith("demo3"):
-            raise SystemExit(f"Refused: --work {path} must be a var/demo3* folder directly under {REPO / 'var'}")
+        if path.parent != (REPO / "var").resolve() or not path.name.startswith(WORK_PREFIXES):
+            raise SystemExit(f"Refused: --work {path} must be a var/demo3* or var/polish* folder directly under "
+                             f"{REPO / 'var'}")
         self.db, self.work, self.tree = db, path, path / "tree"
         self.url = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{db}"
         self.deadline: float | None = None
@@ -432,25 +475,11 @@ class Demo:
     # ---- reading -----------------------------------------------------------------------------------------------
     def links(self, web: int) -> None:
         story = self.story()
-        S = at(story["S"])
-        # Addendum 1 (a): the week period S-6d..S+1d holds every Site's latest story event (EV: the Tuesday <= S);
-        # mini reads its day as `mini_summary_day(to)` = S.
-        frm, to = iso(S - timedelta(days=6)), iso(S + timedelta(days=1))
-        base = f"http://localhost:{web}"
-        rows = [("Portfolio, week to story day S", f"{base}/portfolio?from={frm}&to={to}")]
         days_file = self.work / "days.json"
         story_days = json.loads(days_file.read_text(encoding="utf-8"))["days"] if days_file.is_file() else []
-        for site in story["sites"]:
-            for d in (d for d in story_days if d["site"] == site):
-                day = datetime.fromisoformat(d["day"]).replace(tzinfo=timezone.utc)
-                rows.append((f"{SITE_CODE[site]} outcome board, {d['kind']} day S{d['offset']:+d}d ({d['day']})",
-                             f"{base}/sites/{SITE_CODE[site]}/outcomes?from={iso(day)}&to={iso(day + timedelta(days=1))}"))
         kobo = self.work / "kobo.json"
-        if kobo.is_file():
-            k = json.loads(kobo.read_text(encoding="utf-8"))
-            rows += [("KOBO-001 Overview, day S", f"{base}/sites/KOBO-001/overview?date={story['S_date']}"),
-                     (f"Action {k.get('action_code')} verification", f"{base}/sites/KOBO-001/actions/{k['action']}/verification"),
-                     ("Finding", f"{base}/sites/KOBO-001/findings/{k['finding']}?revision_id={k['finding_revision']}")]
+        k = json.loads(kobo.read_text(encoding="utf-8")) if kobo.is_file() else None
+        rows = story_links(story, story_days, k, web)
         say(f"Story day S = {story['S_date']} (dates move on every rebuild; quote them from here). Code {story['code']}.")
         for label, url in rows:
             say(f"  {label}\n    {url}")
@@ -539,8 +568,8 @@ def _kill_tree(pid: int) -> None:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="tools/demo_combined.py")
-    parser.add_argument("--db", required=True, help="private database, assetops_demo3_<name>_test")
-    parser.add_argument("--work", required=True, help="work folder var/demo3* under this repository")
+    parser.add_argument("--db", required=True, help="private database, assetops_demo3_<name>_test or assetops_polish_<name>_test")
+    parser.add_argument("--work", required=True, help="work folder var/demo3* or var/polish* under this repository")
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("prepare")
     p.add_argument("--sites", default=",".join(SITES), help="development only: a subset of kobo,cold,ev")

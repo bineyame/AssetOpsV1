@@ -426,6 +426,20 @@ def action_detail(a: ActionFact, cat: str, facts: SiteFacts) -> str | None:
     return out or None
 
 
+#: POLISH Addendum 12 Q1: the stored kind of a board work item (cases carry theirs: INCIDENT | MAINTENANCE_REQUEST).
+PLAN_KIND = "PLAN"
+
+
+def _case_wire(case: CaseFact) -> dict[str, Any]:
+    """POLISH Addendum 12 Q1: a case item's stored `kind` and its `occurred_at` (ISO UTC; None when not an instant)."""
+    at = case.occurred_at
+    if hasattr(at, "utcoffset") and hasattr(at, "isoformat"):  # stored instants are UTC (timestamptz)
+        at = at.isoformat().replace("+00:00", "Z")
+    elif not isinstance(at, str):
+        at = None
+    return {"kind": case.kind, "occurred_at": at}
+
+
 def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | None:
     """§B.2: a COMPLETED request is "Did not fix it" when another request on the same asset, or sharing a Finding,
     occurred later; otherwise "Not yet verified". Incidents and open requests are not listed."""
@@ -633,20 +647,23 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
             continue
         if case.state not in CLOSED_CASE_STATES:
             label = _case_label(case) + suffix
-            in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label})
+            in_hand.append({"text": _item_text(case.code, case.title), "href": case.href, "state_label": label,
+                            **_case_wire(case)})
     for case in sorted(facts.cases, key=lambda c: (c.occurred_at is None, c.occurred_at, c.case_id)):
         cats, suffix = _case_placement(case, by_id, roles, unresolved_suffix(facts))
         result = earlier_result_for_case(case, facts.cases)
         if cat in cats | repeat_cats.get(case.case_id, set()) and result is not None:
             earlier.append({"text": _item_text(case.code, case.title), "href": case.href,
-                            "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else ""), "detail": None})
+                            "result_label": result + (suffix if suffix in UNRESOLVED_SUFFIXES else ""), "detail": None,
+                            **_case_wire(case)})
 
     if cat == "PROTECT_ASSET":
         cue = {w.subject: w.kind for w in facts.warnings if w.kind in PLAN_CUE_LABEL}
         for p in sorted(facts.plans, key=lambda p: (p.code or "", p.plan_id)):
             if p.state in ("DRAFT", "ACTIVE"):
                 label = PLAN_CUE_LABEL[cue[p.plan_id]] if p.plan_id in cue else _plan_label(p, facts.date_suffix)
-                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href, "state_label": label})
+                in_hand.append({"text": _item_text(p.code, p.title), "href": p.href, "state_label": label,
+                                "kind": PLAN_KIND})
 
     # Must not harm (B-Q19, addendum 1): only where a mini Action verification exists.
     must_not_harm = None

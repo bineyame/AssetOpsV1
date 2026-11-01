@@ -112,9 +112,10 @@ def write_work(url: str, store, result, story: dict) -> dict:
         for v in k["visits"]:
             asset = by_type[v["asset_type"]][0]
             when = at(v["at"])
+            # POLISH §3 "Request narratives": the request's own title as a sentence, not the test default.
             s, case = work.create_case(tenant, site, request(
-                f"demo3-kobo-{v['key']}", title=v["title"], occurred_at=iso(when), asset_id=str(asset.id),
-                finding_links=[]), PRINCIPAL)
+                f"demo3-kobo-{v['key']}", title=v["title"], narrative=f"{v['title']}.", occurred_at=iso(when),
+                asset_id=str(asset.id), finding_links=[]), PRINCIPAL)
             assert s == 201, (v["key"], s, case)
             s, rec = work.post_record(tenant, site, case["id"], record(
                 f"demo3-kobo-{v['key']}-rec", activity=v["title"], occurred_at=iso(when + timedelta(minutes=20)),

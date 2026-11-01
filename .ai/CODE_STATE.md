@@ -6247,9 +6247,9 @@ Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/b
   `test_w402_mini_stage_postgres.py`.
 - Left open: R624 (an excluded-lifecycle Site with only cold/EV work is not discovered; no cold/EV counts in `health.py`), and
   four more child processes per visited Site in a deployment (fewer Sites per 240 s tick).
-## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (built, in_review)
-Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed62c8` merged). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
-+ Addenda 1-3 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
+## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (merged `4f57261d3`)
+Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to main as `4f57261d3`). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
++ Addenda 1-4 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
 - `tools/demo_combined.py` `prepare | links | serve | tick | add-day | drop` on a private `assetops_demo3_<name>_test` DB; children
   `demo_combined_kobo.py` (day runs + the S/S+1 trial chain), `_cold.py` (ShiftedChain per night, attest at setup instant), `_ev.py`
   (Tuesday days, w504 work rows), `_finish.py` (`check`: CO-1..CO-12 + SP-1..SP-7 via `host/lab_app.py`, `<work>/check.json`).
@@ -6399,3 +6399,23 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
 - Open: the Kobo board server sentences still show stored codes on the DEMO-A build (awaiting the PA-3 rebuild). The
   Portfolio "scenario" words and the cold/EV headings are PB-3's (Addendum 8 Q3/Q4). `data-vocabulary-exempt="lab"`
   (10 hits on `kobo-board-S-open`) predates PB-2.
+
+## POLISH PA-3 - producers, links and rebuild (built, in_review)
+Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from main `c4a39b1dc`, main `0ad27df7f` merged).
+- Contract: `.agent/build-sheet-POLISH.md` §1.3, §3, §4, §5 PA-3, Addenda 3, 9-12; packet `.agent/POLISH-PA-3-packet.md`.
+- `tools/demo_combined.py`: pure `story_links` + `LINK_FORMS` (no `/outcomes`/`/overview`; cold/EV on the `days.json`
+  event window, whole day "no event" otherwise); guards accept `assetops_polish_<name>_test` and `var/polish*`.
+- `demo_combined_ev`: `ev.json` records `action_code`, `intent_id`, posted `raised_at` (P-08; R645). Narratives
+  `"{title}."` in Kobo/EV and, via `ns["DEMO_NARRATIVES"]`, in w502's fixture WR and visits (standalone unchanged).
+- `install_cold_lab`/`install_ev_lab(display_name=)` override the fixture name (same sha256); the demo passes
+  "GreenHarvest Cold Room"/"Depot Charging Hub" (R646; R111 closed for the demo build).
+- `demo_combined_finish.cost_row_action_links` (Addendum 10): Action href in `earlier` when the trial is final, else
+  issues/in_hand; Must-not-harm href + display code; L1 sentence. `ev_site_reads` TARIFF_GAP plain words (R655).
+- Addendum 12 wire: board case items `kind`/`occurred_at` (plan items `kind: "PLAN"`); preventive rows
+  `site_time_zone`; `global_detail.work_asset.asset_label`.
+- Build: `assetops_polish_full_test` / `var/polish_full` at `84ab3ca3d`, S = 2026-10-30, self-check 17/17; slow build
+  test 19/19. `assetops_demo3_full_test` untouched (walkthrough fallback).
+- Fix round (Addendum 13 item 3): Portfolio confidence/action text "Supported finding · example data", "No action agreed
+  yet · review the recommendation"; Kobo Assure readings "Example data · readiness …" (not in the polish build; PC rebuilds).
+- Left open: strict capture 15 hits per width, all PB-3 frontend (portfolio Finding ids and "Scenario", cold
+  "Running", EV `REC <uuid>` and "Scenario details", preventive "running hours"/"draft").

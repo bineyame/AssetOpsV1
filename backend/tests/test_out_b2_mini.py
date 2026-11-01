@@ -16,6 +16,11 @@ ZONE = "Africa/Nairobi"  # UTC+3, no DST
 C = "KOBO-001"
 
 
+def legacy(items):
+    """The pre-Addendum-12 item fields: case/plan items also carry `kind`/`occurred_at` (pinned in test_out_b1_board)."""
+    return [{k: v for k, v in i.items() if k not in ("kind", "occurred_at")} for i in items]
+
+
 def iso(dt: datetime) -> str:
     return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -157,7 +162,7 @@ def test_kobo_board_from_ports() -> None:
     assert contributor(rows[PROTECT], "service_delivery")["text"] == "Delivered power measured; demand not measured"
     assert contributor(rows[PROTECT], "backup_readiness")["text"] == "No backup event in this window"
     assert contributor(rows[ASSURE], "verified_results")["text"] == "ACT-048 not yet verified"
-    assert contributor(rows[ASSURE], "readings")["text"] == "Generated test data source · readiness Limited"
+    assert contributor(rows[ASSURE], "readings")["text"] == "Example data · readiness Limited"
     assert contributor(rows[ASSURE], "battery_reporting")["text"] == "Battery output not reported"
     assert [i["text"] for i in rows[ASSURE]["issues"]] == ["Battery output not reported limits this conclusion"]
     assert [o["text"] for o in rows[ASSURE]["options"]] == ["Restore battery reporting"]
@@ -192,7 +197,7 @@ def test_every_linked_finding_is_supplied_closed_included() -> None:
     linked = {a.origin_finding_id for a in comp.facts.actions} | {
         fid for case in comp.facts.cases if case.case_id == "mr1" for fid in case.finding_ids}
     assert linked <= set(ids)
-    assert rows[COST]["earlier"] == [{"text": "MR-001 · Check generator stop", "href": "/maintenance/requests/mr1",
+    assert legacy(rows[COST]["earlier"]) == [{"text": "MR-001 · Check generator stop", "href": "/maintenance/requests/mr1",
                                       "result_label": "Not yet verified", "detail": None}]
     assert not [i for i in rows[COST]["issues"] if i["ref"] and i["ref"]["finding_id"] == "f090"]
 
@@ -201,7 +206,7 @@ def test_unresolved_link_is_kept_and_recorded_not_on_the_wire() -> None:
     comp, rows = run()
     assert comp.diagnostics == (("in1", "f-old"),)
     assert {"text": "IN-001 · Feeder trip", "href": f"/sites/{C}/work/incidents",
-            "state_label": "Open · linked finding outside this view"} in rows[PROTECT]["in_hand"]
+            "state_label": "Open · linked finding outside this view"} in legacy(rows[PROTECT]["in_hand"])
     assert "diagnostics" not in str(rows) and "f-old" not in str(rows)
 
 
@@ -282,9 +287,9 @@ def _assert_finding_source_unsettled(comp, rows) -> None:
     assert {"text": "ACT-048", "href": f"/sites/{C}/actions/a48?event_id=e1",
             "state_label": "Pending" + loaded} in rows[PROTECT]["in_hand"]
     assert {"text": "IN-001 · Feeder trip", "href": f"/sites/{C}/work/incidents",
-            "state_label": "Open" + loaded} in rows[PROTECT]["in_hand"]
+            "state_label": "Open" + loaded} in legacy(rows[PROTECT]["in_hand"])
     assert {"text": "MR-001 · Check generator stop", "href": "/maintenance/requests/mr1",
-            "result_label": "Not yet verified" + loaded, "detail": None} in rows[PROTECT]["earlier"]
+            "result_label": "Not yet verified" + loaded, "detail": None} in legacy(rows[PROTECT]["earlier"])
     assert "outside this view" not in str(rows)
     assert ("a48", "f104") in comp.diagnostics and ("in1", "f-old") in comp.diagnostics
 
@@ -400,7 +405,8 @@ def test_singular_for_one_in_count_templates() -> None:
 
 def test_source_words_match_the_portfolio() -> None:
     from assetops_backend.estate import placement
-    assert mini.SOURCE_TEXT == placement._SOURCE_TEXT  # noqa: SLF001 - equality pin for the local copy (L1)
+    # POLISH Addendum 13: the mini line starts with the source words, so the copy is the Portfolio's, first letter capitalised.
+    assert mini.SOURCE_TEXT == {k: v[:1].upper() + v[1:] for k, v in placement._SOURCE_TEXT.items()}  # noqa: SLF001
     assert mini.SOURCE_UNRESOLVED == placement._SOURCE_UNRESOLVED_TEXT  # noqa: SLF001
 
 
