@@ -6,3 +6,7 @@
   line-height: 1.4;
   color: var(--text-muted);
 }
+
+/* POLISH §2 (P-04): client screens never show MOCK DEVIATION labels. Every label carries `data-mock-deviation` and
+   renders only in review mode (`?review=labels`, ui/reviewLabels.ts). Guard 12 requires this rule verbatim. */
+:root:not([data-review-labels="on"]) [data-mock-deviation] { display: none !important; }

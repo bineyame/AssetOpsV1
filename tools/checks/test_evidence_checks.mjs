@@ -6,7 +6,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { AS_OF_PATTERN, WIDTH_SLACK, widthGuard, widthVerdict } from "../evidence-checks.mjs";
+import { AS_OF_PATTERN, LOADING_LINE, WIDTH_SLACK, mainSettled, widthGuard, widthVerdict } from "../evidence-checks.mjs";
 
 const TOOLS = join(dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = join(TOOLS, "..");
@@ -83,6 +83,29 @@ test("the evidence as-of pattern is the frontend's shared acceptance pattern, by
   assert.ok(AS_OF_PATTERN.test("As of 16 Oct 2026, 10:05 UTC"));
   assert.ok(AS_OF_PATTERN.test("As of: time not recorded"));
   for (const wrong of ["As of now", "As of ", "As of : time not recorded", "As of 16 Oct 2026"]) assert.ok(!AS_OF_PATTERN.test(wrong), wrong);
+});
+
+// --- Settle predicate (POLISH PB-0, OUT-D L1) ----------------------------------------------------------------
+
+test("a whole-line loading sentence is not settled; content that starts with the word is", () => {
+  const page = (line) => `Kobo Mini-Grid
+Today
+${line}
+Reliable service`;
+  for (const busy of ["Loading the site's overview.", "Loading…", "Loading...", "Loading", "  Loading the Finding.  "]) {
+    assert.equal(mainSettled({ text: page(busy) }), false, busy);
+  }
+  for (const content of ["Loading and door records", "Loading and door records are not connected, so stock impact cannot be judged.", "Loading / batch", "Loading / door log", "Door opening during Loading the site."]) {
+    assert.equal(mainSettled({ text: page(content) }), true, content);
+  }
+  assert.ok(LOADING_LINE.test("Loading the site's overview."));
+});
+
+test("aria-busy, a loading repeat check or an empty <main> is not settled", () => {
+  assert.equal(mainSettled({ text: "Overview", busy: true }), false);
+  assert.equal(mainSettled({ text: "Overview", repeatLoading: true }), false);
+  assert.equal(mainSettled({ text: "" }), false);
+  assert.equal(mainSettled({ text: "Overview" }), true);
 });
 
 // --- Inventory rule ----------------------------------------------------------------------------------------

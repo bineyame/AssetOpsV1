@@ -20,4 +20,12 @@ describe("mock-deviation line styling is not owned by a Mini page stylesheet", (
       expect(source).toContain('import "../ui/mock-deviation.css";');
     }
   });
+
+  it("is loaded app-wide by main.tsx, which applies review mode before rendering (POLISH §2)", async () => {
+    const main = await readDisk("src/main.tsx");
+    expect(main).toContain('import "./ui/mock-deviation.css";');
+    expect(main).toContain('import { applyReviewLabels } from "./ui/reviewLabels";');
+    expect(main.indexOf("applyReviewLabels();")).toBeGreaterThan(-1);
+    expect(main.indexOf("applyReviewLabels();")).toBeLessThan(main.indexOf("createRoot("));
+  });
 });

@@ -33,6 +33,27 @@ export const WIDTH_SLACK = 20;
  */
 export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2} UTC|: time not recorded)$/;
 
+/**
+ * POLISH PB-0 (OUT-D L1): a loading sentence is a whole line that is "Loading", "Loading…"/"Loading..." or
+ * "Loading <words>" ending in ".", "…" or "...". Labels that merely start with the word ("Loading and door records",
+ * "Loading / batch") are content, not a loading state.
+ */
+export const LOADING_LINE = /^Loading(?:\.|…|\.\.\.)?$|^Loading\s(?!and\b|\/)[^\n]*(?:\.|…|\.\.\.)$/m;
+
+/** In-page probe for `mainSettled`: the <main> text plus its busy markers (evaluated with returnByValue). */
+export const SETTLE_PROBE = `(()=>{const m=document.querySelector('main');if(!m)return {text:'',busy:false,repeatLoading:false};
+ return {text:m.innerText,busy:m.matches('[aria-busy="true"]')||!!m.querySelector('[aria-busy="true"]'),repeatLoading:!!m.querySelector('[data-repeat-check="loading"]')};})()`;
+
+/**
+ * True when <main> has text, nothing in it is `aria-busy="true"` or `[data-repeat-check="loading"]`, and no line
+ * of its text is a loading sentence (`LOADING_LINE`, lines trimmed). Text stability is the caller's.
+ */
+export function mainSettled({ text, busy = false, repeatLoading = false }) {
+  if (!text || busy || repeatLoading) return false;
+  const lines = text.split("\n").map((l) => l.trim()).join("\n");
+  return !LOADING_LINE.test(lines);
+}
+
 export const WIDTH_PROBE = "({ innerWidth: window.innerWidth, clientWidth: document.documentElement.clientWidth, innerHeight: window.innerHeight })";
 
 /** Pure verdict: the page was laid out at `requested` only if both widths agree with it. */

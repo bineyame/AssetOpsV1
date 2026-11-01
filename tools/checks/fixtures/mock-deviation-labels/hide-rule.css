@@ -1,0 +1,2 @@
+.mock-deviation-line { margin: 0; }
+:root:not([data-review-labels="on"]) [data-mock-deviation] { display: none !important; }
