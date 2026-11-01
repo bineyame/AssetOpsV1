@@ -68,7 +68,7 @@ function screens(work) {
       { key: "findings-risks", label: "Estate Findings, Risks lens", path: `/findings/risks?${week}`, mock: "findings-risks" },
       { key: "findings-opportunities", label: "Estate Findings, Opportunities lens", path: `/findings/opportunities?${week}`, mock: "findings-opportunities" },
       { key: "maintenance-preventive", label: "Maintenance, Preventive (31 days to S+3)", path: `/maintenance/preventive?${month}`, mock: "maintenance-preventive" },
-      { key: "wr-overview", label: "Work request overview (the cold starter/control inspection on Maintenance)", find: `/maintenance?${month}`, mock: "wr-overview" },
+      { key: "wr-overview", label: "Work request overview (the cold starter/control inspection on Maintenance; else the first request)", find: `/maintenance?${month}`, mock: "wr-overview" },
     ].filter((s) => !ONLY || ONLY.includes(s.key)),
   };
 }
@@ -180,7 +180,7 @@ async function capture([work, out, base = "http://localhost:5490"]) {
       await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
       await send("Page.navigate", { url: base + s.find });
       await settle();
-      path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
+      path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter.control|control-circuit/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
       if (!path) { records.push({ ...s, error: `no work request link on ${s.find}` }); console.log(`FAIL  ${s.key}: no work request link`); continue; }
     }
     for (const [w, h] of WIDTHS) {
