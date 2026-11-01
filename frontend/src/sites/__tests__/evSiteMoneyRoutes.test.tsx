@@ -271,6 +271,12 @@ async function renderAt(path: string, evSite: EvSiteClient, outcomeBoard: Outcom
 }
 
 const main = () => document.querySelector("main") as HTMLElement;
+/** PB-3 review M2: the text a region shows outside its nested "Technical details" blocks (what the strict scan reads). */
+const plainOf = (el: Element) => {
+  const copy = el.cloneNode(true) as Element;
+  copy.querySelectorAll("[data-technical-details]").forEach((t) => t.remove());
+  return copy.textContent ?? "";
+};
 const strip = () => (document.querySelector(".status-strip") as HTMLElement | null)?.textContent ?? "";
 const subtabs = (label: string) =>
   Array.from(document.querySelectorAll(`nav[aria-label="${label}"] li`)).map((li) => ({
@@ -289,15 +295,17 @@ describe("W2-07 EV Site routes", () => {
     expect(within(records).getAllByText(/No analysis link/)).toHaveLength(3);
     const details = records.querySelector('[data-disclosure="ev-site-record-details"]') as HTMLElement;
     const row = details.querySelector(`[data-record-detail="${UNVERIFIED_ID}"]`) as HTMLElement;
-    expect(row.textContent).toContain(UNVERIFIED_ID);
-    expect(row.textContent).toContain("Source or binding unverified for this record.");
-    expect(row.textContent).toContain("use EXCLUDED · SOURCE_UNVERIFIED");
+    // PB-3 review M2: the record id sits only in the row's nested Technical details; the plain lines stay outside.
+    expect(row.querySelector("[data-technical-details]")?.textContent).toContain(UNVERIFIED_ID);
+    expect(plainOf(row)).not.toContain(UNVERIFIED_ID);
+    expect(row.textContent).toContain("Source or its assignment to this charger is unverified for this record.");
+    expect(row.textContent).toContain("use Excluded · Source unverified");
     expect(row.textContent).toContain("Analysis view not available for this EV record");
     expect(row.querySelector("a")).toBeNull();
-    expect(details.querySelector("[data-ev-record-selection]")?.textContent).toBe(`Site ${CODE} · ${FROM} to ${TO} · known at ${KNOWN}`);
+    expect(details.querySelector("[data-ev-record-selection]")?.textContent).toBe(`Site ${CODE} · 6 Oct 2026, 08:00–09:05 · known at 6 Oct, 09:00`);
     // The sentence is per record, never a panel banner.
     expect(records.querySelector("[data-panel-gap]")).toBeNull();
-    expect(strip()).not.toContain("Source or binding unverified");
+    expect(strip()).not.toContain("Source or its assignment");
     expect(main().querySelectorAll("[data-ev-record-note]")).toHaveLength(1);
   });
 
@@ -364,7 +372,7 @@ describe("W2-07 EV Site routes", () => {
     expect(claim.querySelector("[data-claim-prose]")?.textContent).toBe(
       "Each capability lists the readings it needs. Missing readings narrow the conclusion to covered periods; gaps are shown.Source reporting is not equipment condition.",
     );
-    expect(claim.querySelector('[data-claim-rule="GROSS_TARIFF_SCENARIO"]')?.textContent).toContain("Gross tariff scenario: Full · 1800/1800 session-seconds covered");
+    expect(claim.querySelector('[data-claim-rule="GROSS_TARIFF_SCENARIO"]')?.textContent).toContain("Gross tariff estimate: Full · 1800/1800 session-seconds covered");
   });
 
   it("claim_details_use_plain_capability_and_chip_words", async () => {
@@ -382,7 +390,7 @@ describe("W2-07 EV Site routes", () => {
     const rules = Array.from(claim.querySelectorAll("[data-claim-rule]")).map((r) => (r.firstChild?.textContent ?? "").split(" · ")[0]);
     expect(rules).toEqual([
       "Session outcomes: Full", "Connector availability: Limited", "Delivered energy: None", "Cause of interruption: Contradictory",
-      "Site power context: Full", "Site power constraint: Limited", "Gross tariff scenario: None",
+      "Site power context: Full", "Site power constraint: Limited", "Gross tariff estimate: None",
     ]);
     expect(claim.textContent).not.toMatch(/SESSION_OUTCOME|SERVICE_STATE|SUPPORTED|UNAVAILABLE|CONTRADICTORY/);
     // Review r1 L2: four rows and four counts; the three other claims never change the chip or the count.
@@ -464,7 +472,32 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS["ev-financials"], client({ state: "HISTORICAL", consequence: GUARD("HISTORICAL_CURRENT_CLAIM", "Historical scenario") }));
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
     const history = main().querySelector(`[data-ev-history="${id(699)}"]`) as HTMLElement;
-    expect(history.textContent).toContain("Historical scenario · revision 1 · KES 7.000000");
+    expect(history.textContent).toContain("Earlier what-if · version 1 · KES 7.000000");
+  });
+
+  it("pb3_m2_assumption_details_keep_plain_lines_outside_technical_details", async () => {
+    await renderAt(PATHS["ev-financials"], client());
+    const assumption = panelTitled("Assumptions in use").querySelector('[data-disclosure="ev-site-assumption-details"]') as HTMLElement;
+    // The named disclosure is not itself a Technical details region, so its prose stays under the strict scan.
+    expect(assumption.hasAttribute("data-technical-details")).toBe(false);
+    expect(assumption.querySelector("summary")?.textContent).toBe("Assumption details");
+    const tech = assumption.querySelectorAll("[data-technical-details]");
+    expect(tech).toHaveLength(1);
+    // The tariff revision id is inside the nested block, and only there.
+    expect(tech[0].textContent).toContain(id(800));
+    expect(plainOf(assumption)).not.toContain(id(800));
+    // The plain lines are outside it: readable times, no raw ISO.
+    expect(plainOf(assumption)).toContain("Tariff · currency/kWh · Authored estimate");
+    expect(plainOf(assumption)).toContain("Valid 1 Oct, 00:00 to open · recorded 6 Oct, 09:30");
+    expect(plainOf(assumption)).toContain("Billing / collections:");
+    expect(tech[0].textContent).not.toContain("Billing / collections");
+    expect(plainOf(assumption)).not.toMatch(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/);
+    // The same split on the What-if and Basis details of the same page.
+    const basis = main().querySelector('[data-disclosure="ev-site-basis-details"]') as HTMLElement;
+    expect(basis.hasAttribute("data-technical-details")).toBe(false);
+    expect(basis.querySelector("[data-technical-details]")?.textContent).toContain(id(800));
+    expect(plainOf(basis)).not.toContain(id(800));
+    expect(plainOf(basis)).toContain("2 meter records · 1 session version · tariff declared");
   });
 
   it("financial_tabs_and_price_gate", async () => {
@@ -669,12 +702,12 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
   it("selected_claim_rules_and_money_lines_ignore_pending_class", async () => {
     await renderAt(PATHS["ev-evidence"], withEnv(siblings(SEL)));
     const details = main().querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
-    expect(details.textContent).toContain("source REGISTERED_SIMULATION");
-    expect(details.textContent).not.toContain("source MIXED");
+    expect(details.textContent).toContain("source Generated test data");
+    expect(details.textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-financials"], withEnv(siblings(SEL)));
-    expect(main().textContent).toContain("source REGISTERED_SIMULATION");
-    expect(main().textContent).not.toContain("source MIXED");
+    expect(main().textContent).toContain("source Generated test data");
+    expect(main().textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-assumptions"], withEnv(siblings(SEL)));
     expect(main().textContent).toContain("Generated test data");
@@ -683,7 +716,7 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
     await renderAt(PATHS["ev-evidence"], withEnv(siblings(null)));
     const none = main().querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
     expect(none.textContent).toContain("source Unknown");
-    expect(none.textContent).not.toContain("source MIXED");
+    expect(none.textContent).not.toContain("source Mixed sources");
     cleanup();
     await renderAt(PATHS["ev-assumptions"], withEnv(siblings(null)));
     expect(main().textContent).not.toContain("Generated test data");
@@ -692,10 +725,10 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
   it("current_accepted_record_line_names_pending_class", async () => {
     await renderAt(PATHS["ev-evidence-analysis"], withEnv(siblings(SEL)));
     const row = main().querySelector(`[data-record-detail="${UNVERIFIED_ID}"]`) as HTMLElement;
-    expect(row.textContent).toContain("current accepted evidence source MIXED");
-    expect(row.textContent).not.toContain("source REGISTERED_SIMULATION");
+    expect(row.textContent).toContain("current accepted evidence source Mixed sources");
+    expect(row.textContent).not.toContain("source Generated test data");
     const rule = main().querySelector("[data-claim-rule]") as HTMLElement;
-    expect(rule.textContent).toContain("source REGISTERED_SIMULATION");
+    expect(rule.textContent).toContain("source Generated test data");
   });
 });
 

@@ -13,7 +13,7 @@ import type {
   ColdOverviewRead,
   ColdSiteClient,
 } from "../coldSiteClient";
-import { coldUiHref, COLD_SITE_UNAVAILABLE, NO_COLD_ASSESSMENT, SOURCE_FORBIDDEN, eatTime } from "../coldSiteViews";
+import { coldUiHref, COLD_SITE_UNAVAILABLE, NO_COLD_ASSESSMENT, SOURCE_FORBIDDEN, eatTime, incidentHref } from "../coldSiteViews";
 import { coldSiteRoutes } from "../../shell/coldSiteRoutes";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -21,7 +21,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { OutcomeBoardClient } from "../outcomeBoardClient";
+import type { OutcomeBoardClient, OutcomeBoardRead } from "../outcomeBoardClient";
 import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 
 // OUT-B B5 (R540): the cold Overview shows the outcome board in place of the five objective cards. The cold board
@@ -366,6 +366,15 @@ const LEDGER_CLAIM = new RegExp(
 );
 const main = () => document.querySelector("main") as HTMLElement;
 const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ");
+/** PB-3 review M2: the top-level disclosures of a region (a `details` not inside another `details`); nested
+ * "Technical details" blocks inside a named disclosure do not count toward the one-disclosure rule. */
+const topLevelDetails = (el: Element) => Array.from(el.querySelectorAll("details")).filter((d) => !d.parentElement?.closest("details"));
+/** The text a region shows outside its nested "Technical details" blocks (what the strict scan still reads). */
+const plainOf = (el: Element) => {
+  const copy = el.cloneNode(true) as Element;
+  copy.querySelectorAll("[data-technical-details]").forEach((t) => t.remove());
+  return text(copy);
+};
 
 // Cross-card ruling 5 (post-W6 W2-cold): the sentence once, in the first panel; every later refused panel says Not assessed.
 const expectSentenceOnce = (panels: readonly string[], sentence: string) => {
@@ -396,7 +405,7 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     // Run-7: cold-assumptions has the mock's one panel and notice and no status strip.
     expect(document.querySelectorAll(".status-strip")).toHaveLength(screenId === "cold-assumptions" ? 0 : 1);
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
-      expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
+      expect(topLevelDetails(panel).length).toBeLessThanOrEqual(1);
     }
     // W5-01b C5 (P-C5-6/7/8): the scan takes this screen's exact glossary, which allows the live Scenarios tab.
     const result = scanProductVocabulary(main(), screenId, { set: "w1", screen: screenId });
@@ -626,7 +635,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
     expect(sourcesPanel.querySelectorAll("[data-cold-contact-checked]")).toHaveLength(1);
     expect(text(sourcesPanel).match(/Contact checked at window end/g)).toHaveLength(1);
-    const details = sourcesPanel.querySelectorAll("details");
+    const details = topLevelDetails(sourcesPanel);
     expect(details).toHaveLength(1);
     expect((details[0] as HTMLDetailsElement).open).toBe(false);
     expect(details[0].querySelector("summary")?.textContent).toBe("Source details");
@@ -720,12 +729,17 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(cells[3].textContent).toBe("19:19:02");
     expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
     expect(records.querySelector("[data-cold-more]")).toBeNull();
-    const details = records.querySelectorAll("details");
+    const details = topLevelDetails(records);
     expect(details).toHaveLength(1);
     expect((details[0] as HTMLDetailsElement).open).toBe(false);
     expect(details[0].querySelector("summary")?.textContent).toBe("Record details");
     expect(Array.from(details[0].querySelectorAll("[data-record-detail]")).map((d) => d.getAttribute("data-record-detail"))).toEqual([id(11), id(12), id(13)]);
-    expect(text(details[0])).toContain(`Assessment: ${id(51)}`);
+    // PB-3 review M2: the record's ids sit only in the nested Technical details; its plain lines stay outside.
+    const firstRecord = details[0].querySelector(`[data-record-detail="${id(11)}"]`)!;
+    expect(text(firstRecord.querySelector("[data-technical-details]")!)).toContain(`Assessment${id(51)}`);
+    expect(plainOf(firstRecord)).toContain("Record 1 · Chamber temperature · Kind: Measurement · Target: Unavailable");
+    expect(plainOf(firstRecord)).not.toContain(id(51));
+    expect(plainOf(firstRecord)).not.toContain(id(11));
     fireEvent.click(screen.getByRole("button", { name: "Show all 12 accepted records" }));
     expect(visible()).toHaveLength(5);
     expect(records.querySelector("[data-cold-all-records]")).toBeNull();
@@ -737,11 +751,14 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
       "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",
       "Source reporting describes data availability, not equipment condition.",
     ]);
-    const claim = limit.querySelectorAll("details");
+    const claim = topLevelDetails(limit);
     expect(claim).toHaveLength(1);
     expect((claim[0] as HTMLDetailsElement).open).toBe(false);
     expect(claim[0].querySelector("summary")?.textContent).toBe("Claim details");
-    expect(text(claim[0].querySelector('[data-claim-rule="cold-excursion/1"]')!)).toContain("cold-excursion/1 · Observed excursion");
+    const rule = claim[0].querySelector('[data-claim-rule="cold-excursion/1"]')!;
+    expect(plainOf(rule)).toContain("Rule 1 · Observed excursion");
+    expect(plainOf(rule)).not.toContain("cold-excursion/1");
+    expect(text(rule.querySelector("[data-technical-details]")!)).toContain("cold-excursion/1");
   });
 
   it("analysis: no selected assessment says 'Claim limit not assessed' instead of the two sentences", async () => {
@@ -826,11 +843,15 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(bridge)).toContain("Chamber thermal exposure · Above the limit by at least 50 °C·min (degrees × minutes); the full extent is not known yet");
     expect(text(bridge)).toContain("Observed backup start failure");
     // Run-7: one closed 'Basis details' disclosure holds the exact basis; closed cells carry no reason or ID.
-    const basis = bridge.querySelectorAll("details");
+    const basis = topLevelDetails(bridge);
     expect(basis).toHaveLength(1);
     expect((basis[0] as HTMLDetailsElement).open).toBe(false);
     expect(basis[0].querySelector("summary")?.textContent).toBe("Basis details");
     expect(basis[0].textContent).toContain(id(911));
+    // PB-3 review M2: the named disclosure is not a Technical details region; only its id block is.
+    expect(basis[0].hasAttribute("data-technical-details")).toBe(false);
+    expect(plainOf(basis[0])).not.toContain(id(911));
+    expect(plainOf(basis[0])).toContain("Thermal exposure does not establish product damage or loss.");
     expect(basis[0].textContent).toContain("The excursion has no recorded end, so its total exposure has no upper bound.");
     expect(text(basis[0])).toContain("No stored consequence or exact cost basis for this row.");
     const table = bridge.querySelector("table")!;
@@ -1395,9 +1416,23 @@ describe("POLISH P-10: cold What happened incident line from the outcome board",
     expect(text(happened())).not.toContain("No incident recorded");
     const link = happened().querySelector("[data-cold-incident-link]") as HTMLAnchorElement;
     expect(text(link)).toBe("Open incident →");
-    expect(link.getAttribute("href")).toBe("/work/incidents/INC-000005");
+    // PB-3 review L2: the link carries the page's window, so the incidents list opens on the window that holds it.
+    expect(link.getAttribute("href")).toBe(`/work/incidents/INC-000005?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`);
     // No extra fetch: the board client is read for the page's window only.
     expect(new Set(board.calls.map((c) => JSON.stringify(c.query))).size).toBe(1);
+  });
+
+  it("p10_incident_href_merges_window_into_an_existing_query (PB-3 review L2)", () => {
+    const read = { status: "loaded", value: { ...COLD_BOARD, window: { ...COLD_BOARD.window, from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" } } } as OutcomeBoardRead;
+    const window = { from: FROM, to: TO, known_at: KNOWN };
+    const merged = new URL(incidentHref("/sites/COLD-LAB-001/work/incidents?status=open&from=old", read, window), "http://x");
+    expect(merged.pathname).toBe("/sites/COLD-LAB-001/work/incidents");
+    expect(merged.searchParams.get("status")).toBe("open");
+    expect(merged.searchParams.get("from")).toBe(FROM);
+    expect(merged.searchParams.get("to")).toBe(TO);
+    // With no page window, the board's resolved window is used.
+    const fallback = new URL(incidentHref("/sites/COLD-LAB-001/work/incidents", read, { from: null, to: null, known_at: null }), "http://x");
+    expect([fallback.searchParams.get("from"), fallback.searchParams.get("to")]).toEqual(["2026-10-01T00:00:00Z", "2026-10-08T00:00:00Z"]);
   });
 
   it("p10_loaded_without_incident: an incident outside [from, to) or without a time does not count", async () => {

@@ -42,7 +42,7 @@ import type {
   ColdSource,
 } from "./coldSiteClient";
 import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, outcomeText, refusalText } from "./ColdAssessmentViews";
-import { TechnicalReferences } from "../ui/TechnicalDetails";
+import { TechnicalDetails, TechnicalReferenceList, TechnicalReferences } from "../ui/TechnicalDetails";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
@@ -611,6 +611,23 @@ export function windowIncident(read: OutcomeBoardRead, window: ColdWindowQuery):
   return null;
 }
 
+/**
+ * PB-3 review L2: the board's incident href with this page's window (`from`/`to`, else the window the board
+ * resolved), merged into any query it already has, so the incidents list opens on the window that holds it
+ * instead of the wall-clock default.
+ */
+export function incidentHref(href: string, read: OutcomeBoardRead, window: ColdWindowQuery): string {
+  const from = window.from ?? (read.status === "loaded" ? read.value.window.from : null) ?? null;
+  const to = window.to ?? (read.status === "loaded" ? read.value.window.to : null) ?? null;
+  if (from === null || to === null) return href;
+  const at = href.indexOf("?");
+  const base = at < 0 ? href : href.slice(0, at);
+  const params = new URLSearchParams(at < 0 ? "" : href.slice(at + 1));
+  params.set("from", from);
+  params.set("to", to);
+  return withQuery(base, params);
+}
+
 export const STEPS_FROM_READINGS = "Steps from the recorded readings";
 export const NO_INCIDENT_IN_PERIOD = "No incident recorded in this period";
 export const incidentLine = (item: OutcomeLinkItem): string => `Incident ${displayCode(item.text.split(" · ")[0])} · steps from the recorded readings`;
@@ -678,7 +695,7 @@ function OverviewScreen(p: ScreenProps) {
           (incident === null || incident.href === null) && firstFinding === null ? undefined : (
             <>
               {incident === null || incident.href === null ? null : (
-                <Link to={incident.href} data-cold-incident-link>
+                <Link to={incidentHref(incident.href, boardRead!, p.window)} data-cold-incident-link>
                   Open incident →
                 </Link>
               )}
@@ -873,7 +890,7 @@ function SourceChannel({ source: s, name, caps }: { source: ColdSource; name: st
   return (
     <li data-source-channel={s.role}>
       <span className="cold-site-line">
-        {name} · {roleLabel(s.role)} · Source <code data-vocabulary-exempt="source-reference">{s.id}</code>
+        {name} · {roleLabel(s.role)}
       </span>
       <span className="cold-site-line">{word === at ? word : `${word} · ${at}`}</span>
       {s.limitation === null ? null : <span className="cold-site-line">{s.limitation}</span>}
@@ -887,6 +904,10 @@ function SourceChannel({ source: s, name, caps }: { source: ColdSource; name: st
       </span>
       <span className="cold-site-line">What it provides: {roleName(s.role)}</span>
       <span className="cold-site-line">Affects: {affects(caps, [s.role])}</span>
+      {/* PB-3 review M2: only the source id sits in the nested region; the plain lines stay scanned. */}
+      <TechnicalDetails name="cold-site-source-details-technical">
+        <TechnicalReferenceList references={[{ label: "Source", value: s.id }]} />
+      </TechnicalDetails>
     </li>
   );
 }
@@ -1070,7 +1091,7 @@ function EvidenceScreen(p: ScreenProps) {
                   })}
                 </tbody>
               </DataTable>
-              <Disclosure summary="Source details" name="cold-site-source-details" technical>
+              <Disclosure summary="Source details" name="cold-site-source-details">
                 {SOURCE_ROWS.map((row) => {
                   const owned = channels.filter((s) => row.roles.includes(s.role));
                   const others = row.other === undefined ? [] : channels.filter((s) => row.other!.roles.includes(s.role));
@@ -1312,25 +1333,33 @@ function AnalysisScreen(p: ScreenProps) {
               </p>
             )}
             {shown.length === 0 ? null : (
-              <Disclosure summary="Record details" name="cold-site-record-details" technical>
+              <Disclosure summary="Record details" name="cold-site-record-details">
                 <ul className="cold-site-list">
-                  {shown.map((r) => (
+                  {shown.map((r, i) => (
                     <li key={r.evidence_id} data-record-detail={r.evidence_id}>
                       <span className="cold-site-line">
-                        Record <code data-vocabulary-exempt="source-reference">{r.evidence_id}</code>
+                        {`Record ${i + 1}`}
                         {r.role === null ? null : ` · ${roleLabel(r.role)}`}
-                        {` · Kind: ${r.kind}`}
+                        {` · Kind: ${plainCode(r.kind)}`}
                         {` · Target: ${plainCode(r.record_target_state)}`}
                       </span>
                       <span className="cold-site-line">
-                        Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)} · Assessment:{" "}
-                        <code data-vocabulary-exempt="source-reference">{r.assessment_revision_id ?? NOT_RECORDED}</code>
+                        Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)}
                       </span>
                       <span className="cold-site-line">
-                        Source <code data-vocabulary-exempt="source-reference">{r.source_id ?? NOT_RECORDED}</code> ·{" "}
-                        {selectedClassification(a!) === null ? "Source classification unknown" : classificationWord(selectedClassification(a!))}
+                        {selectedClassification(a!) === null ? "Source classification unknown" : `Source: ${classificationWord(selectedClassification(a!))}`}
                       </span>
                       {r.limitation === null ? null : <span className="cold-site-line">{plainLimitation(r.limitation)}</span>}
+                      {/* PB-3 review M2: only the record, assessment and source ids sit in the nested region. */}
+                      <TechnicalDetails name="cold-site-record-details-technical">
+                        <TechnicalReferenceList
+                          references={[
+                            { label: "Record", value: r.evidence_id },
+                            { label: "Assessment", value: r.assessment_revision_id },
+                            { label: "Source", value: r.source_id },
+                          ]}
+                        />
+                      </TechnicalDetails>
                     </li>
                   ))}
                 </ul>
@@ -1351,12 +1380,12 @@ function AnalysisScreen(p: ScreenProps) {
                 <p key={t}>{t}</p>
               ))}
             </div>
-            <Disclosure summary="Claim details" name="cold-site-claim-details" technical>
+            <Disclosure summary="Claim details" name="cold-site-claim-details">
               {a!.accepted_records.items.length === 0 ? null : (<p className="prose" data-claim-record-pointer>Accepted record IDs for this assessment are in Record details.</p>)}
-              {a!.claim_rules.map((rule) => (
+              {a!.claim_rules.map((rule, i) => (
                 <div className="cold-site-rule" key={rule.rule_id} data-claim-rule={rule.rule_id}>
                   <p className="prose">
-                    <code data-vocabulary-exempt="source-reference">{rule.rule_id}</code> · {rule.result === null ? NOT_ASSESSED : plainCode(rule.result)}
+                    {`Rule ${i + 1}`} · {rule.result === null ? NOT_ASSESSED : plainCode(rule.result)}
                   </p>
                   <KeyValues
                     label={`${rule.rule_id} details`}
@@ -1371,6 +1400,10 @@ function AnalysisScreen(p: ScreenProps) {
                       ...(rule.limitation === null ? [] : ([["Limit", plainLimitation(rule.limitation), "limit"]] as [string, string, string][])),
                     ]}
                   />
+                  {/* PB-3 review M2: only the rule id sits in the nested region. */}
+                  <TechnicalDetails name="cold-site-claim-details-technical">
+                    <TechnicalReferenceList references={[{ label: "Rule", value: rule.rule_id }]} />
+                  </TechnicalDetails>
                 </div>
               ))}
             </Disclosure>
@@ -1506,7 +1539,7 @@ function FinancialsScreen(p: ScreenProps) {
               </p>
             ) : null}
             {exposures.length === 0 && start === null ? null : (
-              <Disclosure summary="Basis details" name="cold-site-basis-details" technical>
+              <Disclosure summary="Basis details" name="cold-site-basis-details">
                 {exposures.length === 0 ? null : (
                   <p className="prose" data-cold-thermal-basis-note>
                     Thermal exposure does not establish product damage or loss. The consequence bound may be wider than the observed excursion estimate.
@@ -1514,18 +1547,20 @@ function FinancialsScreen(p: ScreenProps) {
                 )}
                 {exposures.map((c, i) => {
                   const bs = c.exact_basis;
-                  const code = (v: string | null) => (v === null ? NOT_RECORDED : <code data-vocabulary-exempt="source-reference">{v}</code>);
                   const rows: [string, ReactNode][] = [
                     ["Quantity bounds", quantityPhrase(c.quantity_bounds)],
                     ["Reason", c.reason === null ? NOT_RECORDED : plainLimitation(c.reason)],
                     ["Limitation", c.limitation === null ? NOT_RECORDED : plainLimitation(c.limitation)],
-                    ["Finding version", code(bs.finding_revision_id)],
-                    ["Episode version", code(bs.episode_revision_id)],
-                    ["Assessment version", code(bs.assessment_revision_id)],
-                    ["Accepted records", bs.evidence_ids.length === 0 ? NOT_RECORDED : code(bs.evidence_ids.join(", "))],
-                    ["Source gate", code(bs.source_gate_sha256)],
-                    ["Assumption versions", bs.assumption_revision_ids.length === 0 ? NOT_RECORDED : code(bs.assumption_revision_ids.join(", "))],
-                    ["Consequence basis", code(bs.consequence_basis_sha256)],
+                  ];
+                  // PB-3 review M2: only the versions, record ids and fingerprints sit in the nested region.
+                  const references = [
+                    { label: "Finding version", value: bs.finding_revision_id },
+                    { label: "Episode version", value: bs.episode_revision_id },
+                    { label: "Assessment version", value: bs.assessment_revision_id },
+                    { label: "Accepted records", value: bs.evidence_ids.length === 0 ? null : bs.evidence_ids.join(", ") },
+                    { label: "Source gate", value: bs.source_gate_sha256 },
+                    { label: "Assumption versions", value: bs.assumption_revision_ids.length === 0 ? null : bs.assumption_revision_ids.join(", ") },
+                    { label: "Consequence basis", value: bs.consequence_basis_sha256 },
                   ];
                   return (
                     <div className="cold-site-group" key={c.id} data-basis-detail={c.id}>
@@ -1540,6 +1575,9 @@ function FinancialsScreen(p: ScreenProps) {
                           </div>
                         ))}
                       </dl>
+                      <TechnicalDetails name="cold-site-basis-details-technical">
+                        <TechnicalReferenceList references={references} />
+                      </TechnicalDetails>
                     </div>
                   );
                 })}
