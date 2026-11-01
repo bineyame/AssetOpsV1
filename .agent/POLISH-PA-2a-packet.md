@@ -60,7 +60,7 @@ Captures: deferred to PA-3 (Addendum 3). The exact-output tests below are the sc
 - "Not comparable for this selection" → "Can't be compared across these sites yet". "Opens current Site view" → "Current view".
 - "Automatic generator start failed in the accepted record" → "Backup generator did not start on its own".
 - Cold observation codes (review L2). The cold Site read now applies the whole estate map, so each stored
-  "Not observed: CODE[, CODE].` fragment becomes one plain sentence per code (estate already did this):
+  `Not observed: CODE[, CODE].` fragment becomes one plain sentence per code (estate already did this):
   - GRID: "Not observed: GRID." → "No record of a grid power loss."
   - START_REQUEST → "No record of a generator start request."
   - START_RESULT → "No record of a generator start result."
@@ -146,3 +146,14 @@ the board title-words pairing left to PB-2.
 - L1: `board.action_detail` joins after a sentence-ending part with one space; pins in `test_out_e4_readback.py`
   and `test_out_e4_readback_postgres.py` updated.
 - L2, L3: packet only (above).
+- More 6-digit pins found while running the touched tests: `test_out_e4_readback_postgres.py` (Cost item text and the
+  Protect safeguards sentence now read `ACT-001`), `test_link_lineage.py` (safeguards sentence) and
+  `test_out_c_rules.py` (fake codes padded `WR-1` → `WR-001`, as in the other OUT tests).
+- Merged main `ab248b4c3` (CODE_STATE append conflict: both entries kept, PB-0 then PA-2a).
+- Checks after the merge, with PYTHONPATH set to this worktree (`assetops_backend` and `assetops_contracts` import from `AssetOpsV1-polA2`):
+  - pure and unit tests: PA-2a, e4 readback, PA-1, w303 workflow labels, OUT-B2 vocabulary, OUT-A1: 54 passed;
+  - every backend test file without a DB: 3551 passed. The only failures and errors are Postgres modules run with no URL;
+  - host wrapper, Postgres: `test_w301_estate_api`, `test_w303_portfolio_api`, `test_w303_portfolio_workflow_labels`,
+    `test_w303_selectors_postgres`, `test_out_e4_readback{,_postgres}`, `test_polish_pa2a_server_copy`,
+    `test_link_lineage`, `test_out_c_rules`: 89 passed (1.1 min);
+  - `tools\check-all.ps1 -Python …plan2\.venv\Scripts\python.exe`: All 12 guards passed.
