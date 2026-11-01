@@ -167,7 +167,7 @@ export function repeatWarningFor(warnings: readonly OutcomeWarning[], caseId: st
 }
 
 export const REPEAT_CHECK_LOADING = "Checking for repeat visits…";
-export const REPEAT_CHECK_UNAVAILABLE = "Repeat visits: not available yet (the site summary could not be read)";
+export const REPEAT_CHECK_UNAVAILABLE = "Repeat visits could not be checked (the site summary could not be read)";
 
 /** A rejected board promise reads as unavailable, like a refusal or a failed read. */
 type RepeatRead = OutcomeBoardRead | { status: "rejected" };

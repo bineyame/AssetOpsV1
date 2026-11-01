@@ -118,7 +118,7 @@ function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined
 }
 
 function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
-  const episode = moneyWindowText(row.episode_start, row.episode_end) ?? "Time not available yet";
+  const episode = moneyWindowText(row.episode_start, row.episode_end) ?? "No time recorded yet";
   return (
     <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
       <td>
@@ -150,7 +150,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <strong className="impact" data-portfolio-value>
           {consequenceFirst(row, siteState)}
         </strong>
-        <small>Cost basis not available yet</small>
+        <small>No cost basis recorded yet</small>
         <small>{episode}</small>
       </td>
       <td data-portfolio-placement={row.placement.group}>
@@ -370,7 +370,7 @@ function OpportunityPanel() {
         <span className="story-arrow">→</span>
         <div>
           <span className="opportunity-quantity">No eligible headroom or demand basis</span>
-          <p>What-if value not available yet</p>
+          <p>No what-if value worked out yet</p>
         </div>
       </div>
       <p className="chart-note">{OPPORTUNITY_NOTE}</p>

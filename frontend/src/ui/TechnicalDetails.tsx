@@ -93,3 +93,22 @@ export function WorkedOut({
     </details>
   );
 }
+
+/**
+ * POLISH Addendum 8 Q5 (cold/EV): the exact references a panel keeps for audit, in ONE closed "Technical details"
+ * disclosure (`data-technical-details`, the `ExactReferences` hooks kept), so a panel still holds one disclosure.
+ * Any extra detail folded in sits inside the same region.
+ */
+export function TechnicalReferences({ name, references, extra, variant }: { name: string; references: readonly ExactReference[]; extra?: ReactNode; variant?: "tech" }) {
+  if (references.length === 0 && (extra === undefined || extra === null)) return null;
+  const className = variant === "tech" ? "disclosure exact-references exact-references--tech disclosure--tech" : "disclosure exact-references disclosure--tech";
+  return (
+    <details className={className} data-disclosure={name} data-exact-references data-technical-details="">
+      <summary className="disclosure__summary">{TECHNICAL_DETAILS}</summary>
+      <div className="disclosure__body">
+        <TechnicalReferenceList references={references} />
+      </div>
+      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
+    </details>
+  );
+}

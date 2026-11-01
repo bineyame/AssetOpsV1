@@ -747,7 +747,7 @@ describe("OUT-C U6 request page repeat-visit notice", () => {
       view = mount(PAGE, client(loaded(detail())), board);
       await settled();
       await waitFor(() => expect(check()).toHaveAttribute("data-repeat-check", "unavailable"));
-      expect(text(check())).toBe("Repeat visits: not available yet (the site summary could not be read)");
+      expect(text(check())).toBe("Repeat visits could not be checked (the site summary could not be read)");
       expect(notice()).toBeNull();
       view.unmount();
     }

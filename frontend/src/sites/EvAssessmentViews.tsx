@@ -18,8 +18,7 @@ import {
   StatusBar,
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
-import { TECHNICAL_DETAILS } from "../ui/TechnicalDetails";
-import { TechnicalReferences } from "./ColdAssessmentViews";
+import { TECHNICAL_DETAILS, TechnicalReferences } from "../ui/TechnicalDetails";
 import { coldWindowSearch } from "./coldAssessmentClient";
 import { ReportSelected, renderEvTabs, selectedWindowSearch, type EvTabs } from "./evSelectedWindow";
 import { selectedSourceBlock } from "./sourceProvenance";

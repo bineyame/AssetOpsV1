@@ -153,7 +153,7 @@ describe("estate Portfolio page", () => {
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Current view");
     expect(cells[1]).toBe("Extended generator support Possible extended generator support");
-    expect(cells[2]).toBe("$3.31–$3.97 Cost basis not available yet 6 Oct 2026, 14:20–15:20");
+    expect(cells[2]).toBe("$3.31–$3.97 No cost basis recorded yet 6 Oct 2026, 14:20–15:20");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
     expect(cells[4]).toBe("Well supported Supported Finding · Prepared example data source");

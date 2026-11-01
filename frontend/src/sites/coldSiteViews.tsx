@@ -41,7 +41,8 @@ import type {
   ColdSiteClient,
   ColdSource,
 } from "./coldSiteClient";
-import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, TechnicalReferences, outcomeText, refusalText } from "./ColdAssessmentViews";
+import { ADVERSE, COLD_ASSESSMENT_LOADING, RUNNING, outcomeText, refusalText } from "./ColdAssessmentViews";
+import { TechnicalReferences } from "../ui/TechnicalDetails";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";

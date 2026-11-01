@@ -53,8 +53,7 @@ import {
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeMinutes, hm, num, range, windowText } from "./coldFormat";
 import { UnavailableInline, UnavailableTab } from "../ui/UnavailableEntry";
-import { TECHNICAL_DETAILS, TechnicalReferenceList } from "../ui/TechnicalDetails";
-import type { ExactReference } from "../ui/ProductStatus";
+import { TechnicalReferences } from "../ui/TechnicalDetails";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
@@ -143,25 +142,6 @@ function Gap({ id, children, alert = false }: { id: string; children: ReactNode;
     <p className="not-available-yet v69-chart-note" data-panel-gap={id} role={alert ? "alert" : undefined}>
       {children}
     </p>
-  );
-}
-
-/**
- * POLISH Addendum 8 Q5 (cold/EV): the exact references a panel keeps for audit, in ONE closed "Technical details"
- * disclosure (`data-technical-details`, the `ExactReferences` hooks kept), so a panel still holds one disclosure.
- * Any extra detail folded in sits inside the same region.
- */
-export function TechnicalReferences({ name, references, extra, variant }: { name: string; references: readonly ExactReference[]; extra?: ReactNode; variant?: "tech" }) {
-  if (references.length === 0 && (extra === undefined || extra === null)) return null;
-  const className = variant === "tech" ? "disclosure exact-references exact-references--tech disclosure--tech" : "disclosure exact-references disclosure--tech";
-  return (
-    <details className={className} data-disclosure={name} data-exact-references data-technical-details="">
-      <summary className="disclosure__summary">{TECHNICAL_DETAILS}</summary>
-      <div className="disclosure__body">
-        <TechnicalReferenceList references={references} />
-      </div>
-      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
-    </details>
   );
 }
 

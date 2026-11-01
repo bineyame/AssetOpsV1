@@ -1415,7 +1415,7 @@ function AssumptionDetails({ s }: { s: EvAssumptionsRead | null }) {
     <ul className="ev-site-list">
       <li>
         Tariff revision <code data-vocabulary-exempt="source-reference">{t.revision_id}</code>
-        {` · ${t.unit} · ${t.basis ? basisText(t.basis) : "Cost basis not available yet"}`}
+        {` · ${t.unit} · ${t.basis ? basisText(t.basis) : "No cost basis recorded yet"}`}
       </li>
       <li>{`Valid ${instant(t.valid_from)} to ${t.valid_to ?? "open"} · recorded ${instant(t.recorded_at)} · ${s.tariff_revision_count} published revisions`}</li>
       {s.publication_note === null ? null : <li data-ev-assumption-publication-note>{s.publication_note}</li>}

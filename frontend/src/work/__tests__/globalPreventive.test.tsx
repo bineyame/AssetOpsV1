@@ -192,7 +192,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     // answer without `summary` (an older build) states the due status as not available yet, never zero.
     const strip = document.querySelector("[data-global-work-strip]") as HTMLElement;
     expect(strip.className).toContain("status-strip");
-    expect(text(strip.querySelector(".status-strip__lead"))).toBe("Due status not available yet");
+    expect(text(strip.querySelector(".status-strip__lead"))).toBe("Due status not sent with this list");
     expect(text(strip.querySelector(".v69-statusbar__other"))).toBe("Scheduled by calendar or hours of use · due dates as set in each plan");
     expect(text(strip.querySelector(".status-strip__action"))).toBe("Assets · Not available yet");
     expect(strip.querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "neutral");
@@ -211,8 +211,8 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
       ]),
     ).toEqual([
       ["Scheduled items", "6", "Across 2 sites"],
-      ["Overdue", "Not available yet", "The due counts are not available yet"],
-      ["Due in the next 14 days", "Not available yet", "The due counts are not available yet"],
+      ["Overdue", "Not shown", "This list did not include the due counts"],
+      ["Due in the next 14 days", "Not shown", "This list did not include the due counts"],
       ["Feeds evidence", "Not established", "No linked evidence yet"],
     ]);
     expect(document.querySelector("[data-global-work-not-assessed]")).toBeNull();

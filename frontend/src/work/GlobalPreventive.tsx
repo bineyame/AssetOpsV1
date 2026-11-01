@@ -12,7 +12,7 @@
  * story cannot be attributed to stored plans). A refusal, a read failure or a changed list is stated, never zero.
  *
  * POLISH P-09 (§1.4, PB-3): the cards, the strip badge and a per-row chip read the optional wire `summary` and
- * `due_state`; an older build without them states "not available yet", never zero. Due dates use the Site zone
+ * `due_state`; an older build without them states that the counts were not sent, never zero. Due dates use the Site zone
  * (`site_time_zone`) when sent, else UTC (Addendum 12 Q2). The DRAFT state reads "Not yet approved" (Addendum 12 Q4).
  */
 import { displayCode } from "../ui/displayCode";
@@ -52,7 +52,7 @@ const TABLE_HEADING_ID = "global-preventive-plan-heading";
 export const GLOBAL_PREVENTIVE_SUBTITLE = "Scheduled maintenance by calendar or hours of use";
 export const GLOBAL_PREVENTIVE_LOADING = "Loading the preventive plans across the estate.";
 /** POLISH P-09: the strip badge before the summary is read, or when this build does not send it. */
-export const PREVENTIVE_STRIP_BADGE_UNAVAILABLE = "Due status not available yet";
+export const PREVENTIVE_STRIP_BADGE_UNAVAILABLE = "Due status not sent with this list";
 export const PREVENTIVE_STRIP_TEXT = "Scheduled by calendar or hours of use · due dates as set in each plan";
 export const PREVENTIVE_PLAN_FOOTER = "Plans can't be completed from this page yet.";
 export const PREVENTIVE_NOTICE = "These plans are not yet approved, and none is linked to an incident or a cause.";
@@ -61,8 +61,8 @@ export const NO_PREVENTIVE_PLANS = "No preventive plans in this window.";
 export const PREVENTIVE_MEMBERSHIP = "Listed in the order plans were added.";
 /** POLISH Addendum 12 Q4: the stored DRAFT state, in plain words (neutral tone). */
 export const PLAN_NOT_APPROVED = "Not yet approved";
-const DUE_NOT_AVAILABLE = "Not available yet";
-const DUE_COUNTS_NOT_AVAILABLE = "The due counts are not available yet";
+const DUE_NOT_AVAILABLE = "Not shown";
+const DUE_COUNTS_NOT_AVAILABLE = "This list did not include the due counts";
 const DAY_MS = 86_400_000;
 const SOON_DAYS = 14;
 
@@ -76,7 +76,7 @@ const DUE_CHIP: Readonly<Partial<Record<GlobalPreventiveDueState, { label: strin
 /** `1 plan` / `{n} plans`. */
 const planCount = (n: number): string => `${n} ${n === 1 ? "plan" : "plans"}`;
 
-/** The optional wire summary, only when every count is a non-negative number (else "not available yet"). */
+/** The optional wire summary, only when every count is a non-negative number (else the not-sent wording). */
 function summaryOf(body: GlobalPreventiveBody | null): GlobalPreventiveSummary | null {
   const summary: unknown = body?.summary;
   if (typeof summary !== "object" || summary === null) return null;
