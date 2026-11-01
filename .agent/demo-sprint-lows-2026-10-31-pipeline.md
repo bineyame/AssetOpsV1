@@ -11,3 +11,6 @@
 ## POLISH PB-0 re-review Lows (`.agent/review-POLISH-PB-0.md` re-review section)
 - N1: gloss test (`tools/checks/test_mock_deviation_labels.mjs:110-114`) cannot fail if gloss stripping is removed; add an assertion that "generator running" alone counts 0.
 - N2: `CAPTURE_TEXTS` in-page selectors (`tools/demo-combined-vocabulary.mjs:104-119`) are untested; a selector change could reintroduce the M1 bug unnoticed. Add a string or jsdom test.
+
+## Clock time bomb found in PA-2a review (2026-11-01)
+- RESOLVED by FIX-W401b merge. `test_w401_work_service_postgres::test_foreign_asset_and_evidence_refuse` failed on main since ~02:05Z 2026-11-01: the `clocked` fixture freezes the store clock at `POSITIVE_NOW` (2026-11-01T01:00Z) but request bodies use real-clock `at()` (lines 43-48), so `check_occurrence` (`work/model.py:236-238`) returns `WORK_OCCURRED_AT_FUTURE`. Other `clocked` tests with default times are exposed. Fix: derive those times from `POSITIVE_NOW`. Blocks a clean `-Tier all` until fixed.
