@@ -56,7 +56,7 @@ ASSURE_SUBLINE = "Loading and door records are not connected, so stock impact ca
 OPTION_START_TEST = "Witnessed automatic-start test"
 OPTION_STOCK = "Stock value what-if"
 OPTION_LOG = "Record stock and door log"
-#: B-Q23: the asset-type part of a plan's `asset_label` ("{asset_code} · {asset_type}") for each Protect contributor.
+#: B-Q23: a plan's stored `asset_type` (the wire field, POLISH Addendum 6 Q4) for each Protect contributor.
 PLAN_TYPE_TOKENS = {"backup_generator": ("GENERATOR",), "compressor": ("COMPRESSOR",)}
 UNKNOWN_CHIP = {"label": "Unknown", "tone": "gray"}
 #: C (U3): the Cost row, measured from catalogue/2 (R541 resolved).
@@ -140,7 +140,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
                                        sum(1 for s in strip if s.get("state") == "CONTRADICTORY"))
     suffix = "" if tz is not None else UTC_SUFFIX
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
-    labels = {str(p["canonical_plan_id"]): p.get("asset_label") for p in plans or ()}
+    labels = {str(p["canonical_plan_id"]): p.get("asset_type") for p in plans or ()}
 
     contributors = {
         GROW: (), COST: (),
@@ -324,7 +324,7 @@ def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, A
         return Contributor(key, label, NOT_LOADED, None, href)
     tokens = PLAN_TYPE_TOKENS[key]
     match = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id))
-             if _asset_type(labels.get(p.plan_id)) in tokens]
+             if (labels.get(p.plan_id) or "").upper() in tokens]
     if not match:
         return Contributor(key, label, NO_PLAN_RECORDED, PLAN_RECORD, href)
     p = match[0]
@@ -337,12 +337,6 @@ def _plan(key: str, label: str, plans: tuple[PlanFact, ...], labels: dict[str, A
     else:
         due = "due date not recorded"
     return Contributor(key, label, f"{p.title} {due}", PLAN_RECORD, href)
-
-
-def _asset_type(asset_label: Any) -> str | None:
-    if not asset_label or " · " not in str(asset_label):
-        return None
-    return str(asset_label).rsplit(" · ", 1)[1].strip().upper()
 
 
 def _verified(cases: list[CaseFact], failed: bool) -> Contributor:

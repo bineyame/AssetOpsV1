@@ -21,6 +21,8 @@ from urllib.parse import quote
 
 import pytest
 
+from assetops_backend.outcomes.display_code import display_code  # POLISH PA-2a
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -320,11 +322,11 @@ def test_case_link_by_kind(store, key) -> None:  # noqa: F811
     reading = stored(info, "MANUAL_READING", "KOBO-001")[0]
     day = "from=2026-10-19T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z"  # incident root occurrence 2026-10-19 09:00
     rows = {r["root_id"]: r for r in all_rows(demo)}
-    assert rows[log["id"]]["links"]["case"] == {"label": incident["code"],
+    assert rows[log["id"]]["links"]["case"] == {"label": display_code(incident["code"]),  # POLISH PA-2a
                                                 "href": f"/sites/KOBO-001/work/incidents?{day}"}
     assert rows[log["id"]]["case_code"] == incident["code"] and rows[log["id"]]["case_id"] == incident["case_id"]
     assert rows[reading["id"]]["links"]["case"] == {
-        "label": req["code"], "href": f"/maintenance/requests/{req['case_id']}?site_id=KOBO-001"}
+        "label": display_code(req["code"]), "href": f"/maintenance/requests/{req['case_id']}?site_id=KOBO-001"}
     assert rows[reading["id"]]["case_kind"] == "MAINTENANCE_REQUEST"
     unlinked = [r for r in rows.values() if r["root_id"] not in (log["id"], reading["id"])]
     assert unlinked and all(r["links"]["case"] is None and r["case_id"] is None and r["case_kind"] is None
@@ -347,7 +349,7 @@ def test_case_link_by_kind(store, key) -> None:  # noqa: F811
     finally:
         writer.close()
     moved = {r["root_id"]: r for r in all_rows(demo)}[reading["id"]]
-    assert moved["links"]["case"] == {"label": incident["code"], "href": f"/sites/KOBO-001/work/incidents?{day}"}
+    assert moved["links"]["case"] == {"label": display_code(incident["code"]), "href": f"/sites/KOBO-001/work/incidents?{day}"}
 
 
 def test_non_submitted_and_missing_case_fail_closed(store, key) -> None:  # noqa: F811

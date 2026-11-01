@@ -36,7 +36,9 @@ from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.work import model as m
 from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
                                            provenance_dto)
-from assetops_backend.work.site_index import _action_link, _finding_link, action_label, action_selection_key
+from assetops_backend.work.site_index import (_action_link, _finding_link, action_label, action_selection_key,
+                                              asset_fields)
+from assetops_backend.outcomes.plan_due import DUE_SOON, NOT_ASSESSED, OVERDUE, plan_due_state
 
 SCHEMA = "global-work-index-1"
 SELECTION_VERSION = "global-work-selection/1"
@@ -331,7 +333,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
                 raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE") from error
             if state not in states:  # P-B1-11: e.g. VERIFICATION_WINDOW is a consistency failure, never uncounted
                 raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")
-            asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
+            asset_label, asset_type = asset_fields(case, site["site_type"])
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
                 "site_domain": site["site_type"],
@@ -340,7 +342,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
                 "occurred_at": wire_time(case["occurred_at"]), "created_at": wire_time(case["created_at"]),
                 "recorded_at": wire_time(revision["recorded_at"]), "state": state,
                 "owner": _owner(events), "asset_id": case["asset_id"], "asset_label": asset_label,
-                "incident_id": case["incident_id"]}
+                "asset_type": asset_type, "incident_id": case["incident_id"]}
             basis = {"site_id": sid, "case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
                      "selected_record_id": record_id,
                      "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
@@ -402,7 +404,7 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
             if plan["state"] != "DRAFT":  # the wire admits only DRAFT; another stored state is a consistency failure
                 raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")
             asset_id = None if plan["asset_id"] is None else str(plan["asset_id"]).lower()
-            asset_label = None if plan["asset_code"] is None else f"{plan['asset_code']} · {plan['asset_type']}"
+            asset_label, asset_type = asset_fields(plan, site["site_type"])
             supersedes = None if plan["supersedes_plan_id"] is None else str(plan["supersedes_plan_id"]).lower()
             dto = provenance_dto(rx, tenant_id, site_id, [], [head_id])
             wire = {
@@ -412,7 +414,9 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
                 "title": plan["title"], "trigger_kind": plan["trigger_kind"],
                 "next_due_at": None if plan["next_due_at"] is None else wire_time(plan["next_due_at"]),
                 "next_due_hours": m.decimal_text(plan["next_due_hours"]), "state": plan["state"],
-                "asset_id": asset_id, "asset_label": asset_label,
+                # POLISH §1.4 (P-09): the shared due rule at the read's `to`.
+                "due_state": plan_due_state(plan["trigger_kind"], plan["next_due_at"], hi),
+                "asset_id": asset_id, "asset_label": asset_label, "asset_type": asset_type,
                 "root_occurred_at": wire_time(plan["root_occurred_at"]), "occurred_at": wire_time(plan["occurred_at"]),
                 "recorded_at": wire_time(plan["recorded_at"]), "supersedes_plan_id": supersedes,
                 "correction_reason": plan["correction_reason"], "source_provenance": dto,
@@ -425,7 +429,7 @@ def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo:
                      "next_due_hours": wire["next_due_hours"], "state": plan["state"],
                      "occurred_at": token_time(plan["occurred_at"]), "recorded_at": token_time(plan["recorded_at"]),
                      "supersedes_plan_id": supersedes, "correction_reason": plan["correction_reason"],
-                     "asset_label": asset_label, "selected_source_ids": [head_id]}
+                     "asset_label": asset_label, "asset_type": asset_type, "selected_source_ids": [head_id]}
             key = (-_micros(plan["recorded_at"]), site["site_code_key"], sid, root_id)
             marker = [token_time(plan["recorded_at"]), site["site_code_key"], sid, root_id]
             out.append({"wire": wire, "key": key, "marker": marker, "basis": basis, "id": root_id})
@@ -520,6 +524,11 @@ class GlobalWorkIndexService:
                                                        for name in names}
             if state_counts is not None and sum(state_counts.values()) != len(rows):
                 raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")  # P-B1-11
+            extra = {}
+            if kind == "preventive":  # POLISH §1.4 / Addendum 6 Q2: the full selection, before paging
+                due = [r["wire"]["due_state"] for r in rows]
+                extra["summary"] = {"overdue_count": due.count(OVERDUE), "due_soon_count": due.count(DUE_SOON),
+                                    "not_assessed_count": due.count(NOT_ASSESSED)}
             return {
                 "schema_version": SCHEMA,
                 "scope": {"tenant_id": None if tenant_id is None else str(tenant_id),
@@ -532,7 +541,7 @@ class GlobalWorkIndexService:
                              "sites": [{"site_code": s["site_code"], "site_id": str(s["site_id"]), "state": "COVERED"}
                                        for s in sites]},
                 "total_count": len(rows), "state_counts": state_counts, "rows": [r["wire"] for r in page], "next_cursor": next_cursor,
-                "selection_token": token,
+                "selection_token": token, **extra,
             }
 
         return self._reads.snapshot(work)

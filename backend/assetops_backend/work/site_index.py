@@ -30,6 +30,7 @@ from uuid import UUID
 from assetops_backend.actions.lifecycle import ACCEPTED, Selector
 from assetops_backend.actions.service import selected_action_links
 from assetops_backend.actions.site_index import ActionIndexService, index_token, window_scope
+from assetops_backend.outcomes.asset_words import asset_label as plain_asset_label
 from assetops_backend.outcomes.display_code import display_code, finding_label
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at
@@ -204,6 +205,15 @@ def action_selection_key(link: Mapping[str, Any]) -> tuple[str, str, str]:
     return "ACTION", link["action_id"], link["action_event_id"]
 
 
+def asset_fields(row: Mapping[str, Any], site_type: str | None) -> tuple[str | None, str | None]:
+    """POLISH Addendum 6 Q4: a work row's plain `asset_label` ("Backup generator", or "Connector c1" when the Site has
+    more than one non-retired asset of that type) and its stored `asset_type`; both None when no asset is named."""
+    if row.get("asset_code") is None:
+        return None, None
+    return (plain_asset_label(row["asset_code"], row.get("asset_type"), site_type, row.get("asset_type_count")),
+            row.get("asset_type"))
+
+
 #: POLISH Addendum 6 Q9: an Action link with no read code is plain "Action" (never an 8-character id).
 ACTION_LABEL = "Action"
 
@@ -270,14 +280,14 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
         finding_links = sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"]))
         action_links = all_action_links(links)
         state = m.reduce_state(case["kind"], events)
-        asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
+        asset_label, asset_type = asset_fields(case, case.get("site_type"))
         titles = rx.finding_titles([x["finding_revision_id"] for x in finding_links])
         codes = rx.action_codes([x["action_id"] for x in action_links])
         row = {
             "case_id": cid, "revision_id": rid, "code": case["public_code"], "title": revision["title"],
             "narrative": revision["narrative"], "occurred_at": m.iso(case["occurred_at"]),
             "recorded_at": m.iso(revision["recorded_at"]), "state": state, "asset_id": case["asset_id"],
-            "asset_label": asset_label,
+            "asset_label": asset_label, "asset_type": asset_type,
             "finding_links": [_finding_link(site_code, x, by_key.get(
                 ("FINDING", x["finding_id"], x["finding_revision_id"]), {"lineage": False})["lineage"], titles)
                 for x in finding_links],

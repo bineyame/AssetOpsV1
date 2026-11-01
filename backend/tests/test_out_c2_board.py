@@ -36,7 +36,7 @@ class WorkPort:
 
 def mr(cid: str, at: datetime, state: str = "COMPLETED") -> dict:
     return {"case_id": cid, "code": cid.upper(), "title": "Visit", "state": state, "asset_id": "gen",
-            "asset_label": "generator-1 · GENERATOR", "finding_links": [{"finding_id": "f118"}],
+            "asset_label": "Backup generator", "asset_type": "GENERATOR", "finding_links": [{"finding_id": "f118"}],
             "occurred_at": at.isoformat()}
 
 

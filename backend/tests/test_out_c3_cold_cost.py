@@ -87,7 +87,7 @@ def test_cost_subline_falls_back_without_a_fault_name() -> None:
 def test_overdue_plan_contributor_text() -> None:
     plans = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Witnessed backup start test",
               "trigger_kind": "CALENDAR", "next_due_at": T(0, 0, 16), "next_due_hours": None, "state": "DRAFT",
-              "asset_id": "gen", "asset_label": "generator-1 · GENERATOR"}]
+              "asset_id": "gen", "asset_label": "Backup generator", "asset_type": "GENERATOR"}]
     _, rows = run([MR5], plans=plans)
     assert contributor(rows[PROTECT], "backup_generator")["text"] == "Witnessed backup start test overdue since 16 Oct"
     assert "Witnessed backup start test overdue" in [i["text"] for i in rows[PROTECT]["issues"]]
