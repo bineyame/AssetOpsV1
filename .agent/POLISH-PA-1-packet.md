@@ -85,3 +85,15 @@ mutation was not separately executed against Postgres.
 ## User-review focus
 
 Readings wording deviation; the zero-cost headline as the honest Q1 answer.
+
+## Fix round 1 (review REVISE, `.agent/review-POLISH-PA-1.md`; Addendum 4)
+
+- **H-1 (Addendum 4 item 3):** `mini._assure` `elif no_run:` gives the Readings line `readiness_confidence("FULL")`;
+  `rc` unchanged on every other line; shared readiness and `reduce_day` untouched. The settled-case test now asserts
+  the chip equals the FULL chip, is not `mini.UNKNOWN_CHIP`, and no Assure contributor text contains "Unknown".
+  Non-vacuity: with the chip reverted to `rc`, that test fails (1 failed, 7 passed); restored with `git checkout`.
+- **L-1:** `test_out_b2_vocabulary._constants()` now scans `COST_NOT_CREDITED`, `COST_CHANGE` (formatted) and
+  `COST_NO_CHANGE`.
+- **L-2:** R636 cites "see R627, R582". **L-3:** no change.
+- Readings wording accepted by Addendum 4 item 1 (deviation closed).
+- Checks at `c385f4d29`: PA-1 pure + vocabulary + b1/b2/b3/a1/e4 files 118 passed; `test_out_b4_board_postgres.py` via `run-host-tests.ps1` 5 passed (143.5 s); `check-all` **All 11 guards passed**.
