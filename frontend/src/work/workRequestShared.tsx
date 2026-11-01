@@ -273,8 +273,8 @@ export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
           ? `Historical as of ${globalWorkUtcSeconds(body.selected.known_at)}`
           : `Updated ${globalWorkUtc(body.selected.known_at)}`}
         <span aria-hidden="true"> · </span>
-        {/* POLISH Addendum 7 Q6 / Addendum 12 Q2: the work request pages use the two-part note. */}
-        <TimeZoneNote dueDates />
+        {/* POLISH Addendum 13 L1: the request pages show no due dates, so they use the plain note. */}
+        <TimeZoneNote />
       </p>
     );
   } else if (failure !== null) {

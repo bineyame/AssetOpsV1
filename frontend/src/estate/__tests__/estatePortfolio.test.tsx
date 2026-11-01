@@ -153,7 +153,7 @@ describe("estate Portfolio page", () => {
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Current view");
     expect(cells[1]).toBe("Extended generator support Possible extended generator support");
-    expect(cells[2]).toBe("$3.31–$3.97 No cost basis recorded yet 6 Oct 2026, 14:20–15:20");
+    expect(cells[2]).toBe("$3.31–$3.97 6 Oct 2026, 14:20–15:20");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
     expect(cells[4]).toBe("Well supported Supported Finding · Prepared example data source");
@@ -315,6 +315,17 @@ describe("estate Portfolio page", () => {
     expect(within(priority).getByRole("link", { name: "Open all Findings →" }).getAttribute("href")).toBe(
       "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00Z",
     );
+  });
+
+  it("PB-3 review M1: an open episode shows its start; no time only when neither end is held; no basis claim", async () => {
+    const open = { ...COLD_ROW, episode_start: "2026-10-30T16:15:00Z", episode_end: null };
+    const none = { ...COLD_ROW, finding_id: "f3f3f3f3-0000-4000-8000-000000000003", episode_start: null, episode_end: null };
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [open, none], total_count: 2 }))));
+    await settledScreen();
+    const cell = (id: string) => text(document.querySelector(`[data-portfolio-row^='${id}'] td:nth-child(3)`));
+    expect(cell("f2f2f2f2")).toContain("From 30 Oct 2026, 16:15 · no end time yet");
+    expect(cell("f3f3f3f3")).toContain("No time recorded yet");
+    expect(text(document.body)).not.toContain("cost basis");
   });
 
   it("rendersIncompleteAndNoGapPromptWithoutSite", async () => {

@@ -222,7 +222,7 @@ describe("W6-01c C2: work request Overview", () => {
 
     // P-C2-4: As known at + Reload in the date bar.
     const bar = q(".site-date-bar");
-    expect(text(bar?.querySelector("[data-work-request-asof]") ?? null)).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC · due dates in each site's local date");
+    expect(text(bar?.querySelector("[data-work-request-asof]") ?? null)).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC");
     expect(within(bar as HTMLElement).getByRole("button", { name: "Reload" })).toBeInTheDocument();
 
     // CL3-5 mheader.
@@ -411,7 +411,7 @@ describe("W6-01c C2: work request Overview", () => {
     mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
     await settled();
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 · Times in UTC · due dates in each site's local date");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 · Times in UTC");
     expect(within(screen.getByRole("navigation", { name: "Context tabs" })).getByRole("link", { name: "Overview" })).toHaveAttribute(
       "href",
       href,

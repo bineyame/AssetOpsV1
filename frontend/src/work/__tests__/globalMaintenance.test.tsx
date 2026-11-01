@@ -216,7 +216,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
     expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
     expect(bar.querySelectorAll("input")).toHaveLength(2);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC · due dates in each site's local date");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // P-B2-3/4: the four mock cards; Open work over the full selection; the separate View detail slot unavailable.
     expect(
@@ -356,7 +356,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC · due dates in each site's local date");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
     expect(cards()).not.toBeNull();
   });
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
-import { formatDayRange } from "../ui/time";
+import { formatDayRange, formatDayTime } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
@@ -118,7 +118,10 @@ function consequenceFirst(row: EstatePortfolioRow, siteState: string | undefined
 }
 
 function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: string | undefined }) {
-  const episode = moneyWindowText(row.episode_start, row.episode_end) ?? "No time recorded yet";
+  // PB-3 review M1: an open episode shows its recorded start; "No time recorded yet" only when neither end is held.
+  const episode =
+    moneyWindowText(row.episode_start, row.episode_end) ??
+    (row.episode_start !== null ? `From ${formatDayTime(row.episode_start)} · no end time yet` : "No time recorded yet");
   return (
     <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
       <td>
@@ -150,7 +153,6 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         <strong className="impact" data-portfolio-value>
           {consequenceFirst(row, siteState)}
         </strong>
-        <small>No cost basis recorded yet</small>
         <small>{episode}</small>
       </td>
       <td data-portfolio-placement={row.placement.group}>

@@ -356,7 +356,7 @@ export function GlobalMaintenancePage({ client, estate = NO_SUMMARY }: { client?
       <Breadcrumbs trail={[{ label: "Maintenance" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_MAINTENANCE_HEADING_ID} subtitle={GLOBAL_MAINTENANCE_SUBTITLE} />
       <MaintenanceViews current="corrective" query={query} />
-      <GlobalWorkBar page={page} label="Maintenance window" membership={MAINTENANCE_MEMBERSHIP} dueDates />
+      <GlobalWorkBar page={page} label="Maintenance window" membership={MAINTENANCE_MEMBERSHIP} />
       <GlobalWorkSlot
         page={page}
         loading={GLOBAL_MAINTENANCE_LOADING}
