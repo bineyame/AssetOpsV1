@@ -23,9 +23,14 @@ Addenda 3, 5 and 9. USER_REVIEW_REQUIRED: no (merge on review ACCEPT).
 - `backend/assetops_backend/sites/cold_lab.py`, `backend/assetops_backend/sites/ev_lab.py`.
 - Tests: new `backend/tests/test_demo_combined_links.py` (5 pure), new `test_demo_combined_finish_co1.py` (5 pure); 2 new tests each in
   `test_w202_cold_lab_bindings_postgres.py` and `test_w205a_ev_foundation_postgres.py`.
-- Records: `.agent/mock-departure-register.md` (R645, R646, R111 note, R535/R552 L3), `.ai/CODE_STATE.md`, task file.
+- Addendum 11/12: `backend/assetops_backend/ev_site_reads.py`, `site_outcomes/board.py`, `work/global_index.py`,
+  `work/global_detail.py`, `work/adapters/postgres_global_read.py`; tests `test_polish_pa3_ev_tariff_copy.py` (new),
+  `test_out_b1_board.py` (new Q1 test; `legacy()` strip in exact-item asserts, also in `test_out_b2_mini.py`,
+  `test_out_b3_cold_ev.py`), `test_w601b_global_maintenance.py` (Q2), `test_w601c_request_detail.py` (Q3).
+- Records: `.agent/mock-departure-register.md` (R645, R646, R111 note, R535/R552 L3, R655 TARIFF_GAP), `.ai/CODE_STATE.md`,
+  `.ai/ACTIVE_CONTEXT.md`, task file.
 
-## Acceptance criteria (interim; final after the post-PB-2 rebuild)
+## Acceptance criteria
 
 1. `story_links` and test: **met** (pure test; serve printed the links, Runbook below).
 2. Guards: **met** (pure test: polish accepted; `assetops_other_x_test` and `var/other_x` refused).
@@ -33,10 +38,13 @@ Addenda 3, 5 and 9. USER_REVIEW_REQUIRED: no (merge on review ACCEPT).
 4. Narratives: built; `wr-overview` shows the cold fixture WR.
 5. Lab names: **met** (Postgres tests; `cold-board-failure` h1 "GreenHarvest Cold Room").
 6. CO-1: **met** per Addendum 10 (pure test 5/5; finish check 17/17 on the H1 build).
-7. Rebuild: H1 done. Final rebuild, H2 and the final strict capture are held until PB-2 merges (coordinator).
-8. Captures and screen check: interim run below.
+7. Rebuild: **met**. Final build at `84ab3ca3d` (main `0ad27df7f` merged): self-check 17/17; slow build test 19/19,
+   0 skipped (Final run below). `assetops_demo3_full_test` was never written.
+8. Captures and screen check: **met**. Final strict capture: 15 hits per width, all PB-3 frontend; Kobo 0;
+   server text awaiting lane A 0. Screen check: no PA-1/PA-2 misses.
+9. Addendum 12 wire fields: **met** (one read-level test each; shapes in Final run).
 
-## Heavy jobs
+## Heavy jobs (interim, on the pre-PB-2 build)
 
 - **H1** `tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full prepare` at `5e0c00970`:
   12:33:44-12:57:14 (about 1410 s; cap 3120 s). Kobo 1003.8 s (machine loaded, PB-2 in parallel), cold 58.2 s,
@@ -94,7 +102,7 @@ also confirmed visually in `cold-board-failure-1440.png`.
 
 Misses: none among the PA-1/PA-2 rows. One unowned server string (EV TARIFF_GAP "scenario", above).
 
-## Runbook (H1 build, S = 2026-10-30; dates move on the final rebuild)
+## Runbook (final build `84ab3ca3d`, S = 2026-10-30; dates move on every rebuild, quote them from `links`)
 
 `python tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full serve`; from `frontend/`:
 `$env:ASSETOPS_API_PORT="8990"; npm.cmd run dev -- --port 5490 --strictPort`. The first `performance:` line follows
@@ -107,3 +115,46 @@ Depot: the follow-up Action is on Work › Actions; the fault-window board shows
 ## Checks run
 
 - `tools\run-host-tests.ps1 -- test_w202_cold_lab_bindings_postgres.py test_w205a_ev_foundation_postgres.py test_demo_combined_links.py`: 32 passed.
+- Pure: `test_demo_combined_links.py`, `test_demo_combined_finish_co1.py`, `test_polish_pa3_ev_tariff_copy.py`; with the lab
+  Postgres tests after the main merge: 38 passed. `test_w207_ev_site_reads_postgres.py` + tariff pin: 20 passed.
+- Addendum 12 set (`-n 4 --dist loadfile`): w601b, w601c, out_b1/b2/b3/c2, out_c3 repeat-visits, out_e4 readback, w601a,
+  out_w1, w301 estate api, cov_partial: 179 passed.
+- `tools\check-all.ps1` on `84ab3ca3d`: 12/12 guards passed (13:53-14:11).
+
+## Final run (post-PB-2, `84ab3ca3d`)
+
+- **H1** prepare into `assetops_polish_full_test` / `var/polish_full`: 14:11:47-14:34:07, 1339.4 s (cap 3120 s);
+  Kobo 955.0 s, cold 68.4 s, EV 78.3 s; self-check **17 pass, 0 fail, 0 skipped**.
+- **H2** `toolsun-host-tests.ps1 -- backend/tests/test_demo_combined_postgres.py -m slow -q --junitxml=…` (60-min cap):
+  14:34:28-15:05:50, **19 passed** in 1878.8 s; JUnit tests 19, failures 0, errors 0, skipped 0. Its own DB was
+  dropped by the fixture (`var/` holds only `polish_full` and `sites`).
+- **H3** serve + Vite from this worktree, CDP 9493, `DEMOB_STRICT=1`, 15:07:14-15:14:31: 28 captures, all settled,
+  no overflow; **30 counted hits (15 per width), all PB-3 frontend**:
+  portfolio-week 5 "Finding <site> · <uuid>" (`EstatePortfolio.tsx:142`) + 2 "Scenario"; cold-board-normal "Running";
+  ev-board-fault 3 `REC <uuid>` + "Scenario details"; maintenance-preventive "running hours", "draft" x2.
+  Kobo boards, verification and wr-overview 0 (PB-2 merged); EV TARIFF_GAP "scenario" gone (Addendum 11).
+  Exempt hits: `kobo-board-S-open` 283 per width (was 24): PB-2's Technical details regions, recorded not counted.
+  Stack stopped by PID; ports 8990, 5490, 9493 free.
+
+### Addendum 12 wire shapes (for PB-3)
+
+- Outcome board row items (`GET /api/sites/{code}/outcome-board`), case items in `in_hand` and `earlier` add
+  `"kind": "INCIDENT" | "MAINTENANCE_REQUEST"` (as stored; not "WORK_REQUEST") and `"occurred_at": "2026-10-30T16:11:00Z" | null`.
+  Plan items in `in_hand` add `"kind": "PLAN"` (no `occurred_at`). Action items are unchanged (no `kind`).
+- `GET /api/work/preventive` rows add `"site_time_zone": "<IANA zone>" | null` (the Site's stored `timezone`).
+- `GET /api/work/requests/{id}` `work_asset`: `{"code": "...", "type": "GENERATOR", "asset_label": "Backup generator"} | null`
+  (PA-2b rule: code appended only when the Site has more than one non-retired asset of the type).
+
+## Known deviations
+
+- CO-1 reads the verification state from the Action read (`verification.state`); `kobo.json` stores only the outcome id.
+- Board item `kind` is the stored `MAINTENANCE_REQUEST`, not the Addendum 12 wording "WORK_REQUEST" ("as stored").
+- Existing exact-dict board item assertions now compare through `legacy()` (drops the two new keys); the new keys are
+  pinned in `test_case_items_carry_their_stored_kind_and_occurred_at`.
+- The aborted first H2 run (pre-hold) and the interim captures are superseded by the final run.
+
+## Residual risk / review focus
+
+- `var/polish_full/tree` is `84ab3ca3d`; PC serves it. Re-check after any later backend merge needs a rebuild.
+- The screen check above was made on the interim build; the final build adds only PB-2 and Addenda 11-12.
+
