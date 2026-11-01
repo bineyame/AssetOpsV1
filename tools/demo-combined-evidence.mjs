@@ -104,9 +104,9 @@ function scan(text) {
 
 const MEASURE = `(()=>{const R=e=>{const b=e.getBoundingClientRect();return {top:Math.round(b.top+scrollY),h:Math.round(b.height),w:Math.round(b.width)}};
  const main=document.querySelector('main')||document.body; const out=[];
- const SEL='.cards,.v69-metrics,.statusbar,.v69-statusbar,section.panel,.notice';
+ const SEL='.cards,.v69-cards,.statusbar,.v69-statusbar,section.panel,.notice';
  for(const e of main.querySelectorAll(SEL)){ if(e.closest('section.panel')&&!e.matches('section.panel')) continue;
-   const kind=e.matches('.cards,.v69-metrics')?'cards':e.matches('.statusbar,.v69-statusbar')?'statusbar':e.matches('.notice')?'notice':'panel';
+   const kind=e.matches('.cards,.v69-cards')?'cards':e.matches('.statusbar,.v69-statusbar')?'statusbar':e.matches('.notice')?'notice':'panel';
    const title=kind==='panel'?(e.querySelector('h2,h3')?.textContent||'').trim():kind==='cards'?[...e.querySelectorAll('.metric-label,.v69-metric__label')].map(x=>x.textContent).join(' | '):e.textContent.trim().slice(0,80);
    const o={kind,title,...R(e)}; if(kind==='cards') o.children=[...e.children].map(R);
    const tw=e.querySelector('.table-wrap,.data-table-wrap,table'); if(tw){o.tableClient=tw.clientWidth;o.tableScroll=tw.scrollWidth;}
