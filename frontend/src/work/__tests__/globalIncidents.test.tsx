@@ -272,7 +272,7 @@ describe("W6-01a A2: global Incidents", () => {
       "/maintenance/requests/00000000-0000-4000-8000-000000000909?site_id=KOBO-001",
     );
     expect(cell(trs[2], 4).querySelector("[data-global-work-tone]")).toHaveAttribute("data-global-work-tone", "red");
-    expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Generated test data");
+    expect(text(cell(trs[3], 0).querySelector("[data-global-work-source] summary"))).toBe("Generated example data");
     expect(text(cell(trs[4], 0).querySelector("[data-global-work-source] summary"))).toBe("Sources do not agree");
 
     // Scroll affordance, pager (A2Q10) and the Case boundaries panel.

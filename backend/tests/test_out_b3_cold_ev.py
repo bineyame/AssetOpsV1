@@ -321,7 +321,7 @@ def test_ev_unpriced_and_declared_limit() -> None:
     body = dict(EV_OVERVIEW, consequence_summary={"state": None, "amount": None, "currency": None},
                 site_power={"observed_peak_kw": None, "configured_limit_kw": "120"})
     _, rows = run_ev(Fake(ev_overview=body), tz=None)
-    assert rows[GROW]["headline"] == "Gross tariff estimate not available yet" and rows[GROW]["headline_money"] is None
+    assert rows[GROW]["headline"] == "Charging income estimate not available yet" and rows[GROW]["headline_money"] is None
     power = contributor(rows[PROTECT], "site_power")
     assert power["confidence"] == {"label": "Declared", "tone": "neutral"}
     assert contributor(rows[ASSURE], "connector_status")["text"] == (

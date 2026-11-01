@@ -26,7 +26,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 PROTECT = "Reliable service and battery and generator life checked as safeguards in ACT-001"
 COST_DETAIL = ("Estimated effect of the trial (not money saved): 0.042–0.046 USD less supply cost per kWh."
                " Goal before the trial: missed; after: met.")
-ASSURE = ("ACT-001 verified on test data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
+ASSURE = ("ACT-001 verified on example data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
           "supply cost per kWh")
 CODES = ("MODELLED_IMPROVEMENT", "MODELLED_NO_IMPROVEMENT", "UNAVAILABLE", "OUTCOME_INCONCLUSIVE",
          "trial-fuel-comparison", "candidate", "VERIFIED")
@@ -73,10 +73,10 @@ def test_kobo_verified_protect_entry_and_assure_read_back(kobo_verified, monkeyp
     rows = {r["category"]: r for r in body["rows"]}
     cost = rows["OPTIMIZE_COST"]["earlier"]
     assert [(e["text"], e["result_label"], e["detail"]) for e in cost] == [
-        ("ACT-001", "Verified on test data", COST_DETAIL)], cost
+        ("ACT-001", "Verified on example data", COST_DETAIL)], cost
     assert cost[0]["href"].startswith("/sites/KOBO-001/actions/")
     entry = next(e for e in rows["PROTECT_ASSET"]["earlier"] if e["text"] == PROTECT)
-    assert (entry["result_label"], entry["detail"]) == ("Verified on test data", None)
+    assert (entry["result_label"], entry["detail"]) == ("Verified on example data", None)
     assert entry["href"].startswith("/sites/KOBO-001/actions/") and "/verification?event_id=" in entry["href"]
     assert "outside this view" not in json.dumps(body["rows"])
     # IDX-GAPS: only the Cost row's Earlier entry carries a detail (the modelled change pinned above)

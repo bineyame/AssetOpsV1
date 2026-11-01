@@ -91,7 +91,7 @@ export function row(over: Partial<EstatePortfolioRow> = {}): EstatePortfolioRow 
       reasons: [{ code: "PRICED_SINGLE", text: "Priced cost exposure; no like line to compare with" }],
     },
     confidence: "SUPPORTED_SOURCE_COHERENT",
-    confidence_reasons: ["Supported Finding", "Prepared example data source"],
+    confidence_reasons: ["Supported finding", "Prepared example data source"],
     consequence: {
       state: "PRICED",
       amount: null,
@@ -138,10 +138,10 @@ export const COLD_ROW = row({
     group_rank: 2,
     reasons: [
       { code: "EPISODE_OPEN", text: "No end is recorded for this episode" },
-      { code: "NO_ACTION_RECORDED", text: "No accepted Action; open the recommendation" },
+      { code: "NO_ACTION_RECORDED", text: "No action agreed yet · review the recommendation" },
     ],
   },
-  confidence_reasons: ["Supported Finding", "Generated test data source"],
+  confidence_reasons: ["Supported finding", "example data"],
   consequence: { state: "UNPRICED", amount: null, amount_low: null, amount_high: null, currency: null, source_revision_id: "c2" },
   links: { site: "/sites/COLD-001", finding: null, action: null },
 });

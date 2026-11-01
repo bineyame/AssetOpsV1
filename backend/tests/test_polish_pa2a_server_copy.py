@@ -66,7 +66,7 @@ def test_mini_verified_results_text_uses_display_code() -> None:
     assert mini.VERIFICATION_TEXT["PENDING"].format(code=display_code("ACT-000001")) == "ACT-001 not yet verified"
     text = mini.VERIFIED_WITH_COST.replace("{amount}", "0.12").replace("{currency}", "USD")
     assert text.format(code=display_code("ACT-000001")) == (
-        "ACT-001 verified on test data: estimated effect of the trial (not money saved): "
+        "ACT-001 verified on example data: estimated effect of the trial (not money saved): "
         "0.12 USD less supply cost per kWh")
 
 

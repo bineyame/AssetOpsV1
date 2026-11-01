@@ -1,0 +1,189 @@
+Sites
+GreenHarvest Cold Room
+GreenHarvest Cold Room
+Example data
+
+Overview · operating objectives for the selected period
+
+Overview
+Foundation
+Health
+Performance
+Findings
+Work
+Financials
+Evidence
+
+30 Oct 2026, 16:00–17:05
+· information up to 17:05
+Times in UTC
+
+Service affected Confidence: partial Stock may be at risk
+Inspect evidence
+
+Keep the chamber between 2–4°C through power, cooling and operating disturbances.
+
+How this site is doing
+i
+Grow revenue
+Capture more value from existing infrastructure and expand earning potential
+Not measured yet
+Needs occupancy, storage contract, income and sales records
+Optimize cost and efficiency
+Eliminate avoidable expenditure and get more output from operational resources
+Needs attention
+3 repair visits in 60 days without a result
+2 issues
+
+None of the visits has fixed the automatic start failure yet; repair cost is not recorded
+
+Must not harm Cooling continuity, stock kept saleable and compressor life: a repair counts only when the fault it answers stops
+
+WHAT DRIVES IT
+Maintenance effectiveness
+3 visits (6 Oct, 19 Oct, 30 Oct); the automatic start failure is still open
+Low
+Repair and call-out
+No cost on work record WR-006
+Unknown
+Cooling energy
+Not available yet · no cooling energy meter
+ISSUES
+Finding Backup generator did not start when the grid failed · checked here as a safeguard
+Risk Repeated maintenance without a result
+WHAT CAN BE DONE
+Witnessed automatic-start test
+ALREADY IN HAND
+
+No open action or work
+
+EARLIER INTERVENTIONS
+WR-007 · Starter battery replaced Did not fix it
+WR-008 · Control relay reset Did not fix it
+WR-006 · Starter/control inspection Not yet verified
+Financial bridge →
+Protect asset and capital
+Preserve asset value, avoid premature replacement and reduce service disruption
+Needs attention
+Cold room temperature outside its policy band
+5 issues · 3 in hand
+
+Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed
+
+WHAT DRIVES IT
+Chamber temperature
+Peak 4.9°C against a 4°C limit
+Low
+Backup start
+Automatic start failed; started by hand
+Low
+Cooling recovery
+Not available yet · no reading confirms that cooling restarted and the chamber returned to its limits
+Backup generator
+Witnessed backup start test overdue since 26 Oct
+Plan record
+Compressor
+Compressor coil cleaning due 8 Nov
+Plan record
+Declared objective
+Stock kept saleable: chamber held between 2 and 4°C · above 4°C in this window
+Missed
+Declared objective
+Cooling continuity: every backup start succeeds by itself · automatic start failed
+Missed
+ISSUES
+Finding Backup generator did not start when the grid failed
+Finding Cold room temperature outside its policy band
+Early warning Witnessed backup start test overdue
+Early warning Compressor coil cleaning due soon
+Risk Repeated maintenance without a result
+WHAT CAN BE DONE
+Witnessed automatic-start test
+Stock value what-if
+ALREADY IN HAND
+INC-005 · Backup response failure Open
+PM-009 · Witnessed backup start test Overdue
+PM-010 · Compressor coil cleaning Due soon
+EARLIER INTERVENTIONS
+WR-007 · Starter battery replaced Did not fix it
+WR-008 · Control relay reset Did not fix it
+WR-006 · Starter/control inspection Not yet verified
+Cold-room evidence →
+Assure performance and returns
+Establish with defensible evidence whether the infrastructure is delivering expected results
+Watch
+Event partly reconstructed · no verified result yet
+No open issues
+What happened · power → cooling → product conditions
+
+Incident INC-005 · steps from the recorded readings
+
+Open incident → Open Finding →
+16:00
+Grid supply · Lost
+16:00
+Start requested · Requested
+16:05
+Start result · Failed
+16:05
+Generator · Failed
+—
+Transfer to backup · Missing
+No record of switching to backup power
+16:05
+Backup bus · Unpowered
+16:05
+Compressor · Off
+16:05
+Chamber temperature · 3.9 °C
+
+These steps come from the recorded readings. A step with no reading is marked Missing.
+
+Chamber temperature
+
+Operating conditions, not an inventory-loss model
+
+Single line diagram →
+1°
+2°
+3°
+4°
+5°
+6°
+Above policy at least 45 min
+16:00
+16:15
+16:30
+16:45
+17:00
+Chamber temperature
+Policy band
+
+Policy band 2–4°C. Gaps between accepted readings remain unmeasured.
+
+Needs attention
+1
+Backup generator did not start on its own
+
+No record of switching to backup power.
+
+Open Finding →
+
+2
+Transfer-switch position was not observed
+
+Performance › Backup →
+
+Possible cost
+Not priced yet
+
+Above the limit by at least 19.5 °C·min (degrees × minutes); the full extent is not known yet
+
+Stock may be at risk. No stock value has been entered, so no loss figure is shown.
+
+Open financial bridge →
+
+Next step
+Backup generator did not start on its own
+
+Open Finding →

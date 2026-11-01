@@ -1,0 +1,922 @@
+Sites
+Kobo mini-grid
+Overview
+Kobo mini-grid
+Example data
+
+Overview · operating objectives for the selected period
+
+Overview
+Foundation
+Health
+Performance
+Findings
+Work
+Financials
+Evidence
+Day
+Previous day
+Next day
+Times in UTC
+Latest checked readings
+· 30 Oct 2026 · updated 1 Nov 2026, 17:02
+This page uses service, generator, fuel and solar readings for the selected day.
+Open this day in Performance > Dispatch
+
+Objective: serve residential, clinic and productive loads while protecting the battery reserve.
+
+How this site is doing
+i
+Grow revenue
+Capture more value from existing infrastructure and expand earning potential
+Unknown
+No open issues
+
+Sales to productive users are not metered, so revenue itself is not measured yet
+
+WHAT DRIVES IT
+Productive use
+Not available yet · solar headroom not read for this day
+Cash collected
+Not available yet · no billing or payment records
+Site earnings
+Not available yet · needs site income, operating cost and capital records
+Declared objective
+Productive electricity sales: at least 300 kWh sold for productive use a month · sales not recorded
+Not checked yet
+ISSUES
+
+None open
+
+WHAT CAN BE DONE
+Productive-use what-if
+ALREADY IN HAND
+
+No open action or work
+
+EARLIER INTERVENTIONS
+
+Not available yet · no completed work or checked change for this outcome
+
+Renewable evidence →
+Optimize cost and efficiency
+Eliminate avoidable expenditure and get more output from operational resources
+Needs attention
+No fuel cost estimated: the generator was on but delivered no measured power
+1 issue
+
+Generator stayed on 200 minutes longer than needed
+
+Must not harm Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count
+
+WHAT DRIVES IT
+Generator use
+200 min avoidable, 30 min unclear
+High
+Fuel
+No complete fuel balance yet
+Unknown
+Fuel price
+Declared at 1.25 USD per litre
+Declared
+Declared objective
+Supply cost per kWh: no generator time longer than needed · 200 min longer than needed on this day
+Missed
+ISSUES
+Finding Generator may have been on longer than needed
+WHAT CAN BE DONE
+Trial a lower generator stop setting
+Proposed setting change
+ALREADY IN HAND
+
+No open action or work
+
+EARLIER INTERVENTIONS
+ACT-001 Verified on example data Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met.
+Dispatch evidence →
+Protect asset and capital
+Preserve asset value, avoid premature replacement and reduce service disruption
+Watch
+1 early warning on battery and generator
+2 issues · 2 in hand
+
+Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured
+
+WHAT DRIVES IT
+Battery
+No generator period at or near the reserve (1 assessed)
+High
+Generator
+Service due at 500 operating hours · hours since service not recorded
+Plan record
+Service delivery
+Not available yet · delivered power not read for this hour
+Backup readiness
+No backup event in this window
+Unknown
+Declared objective
+Reliable service: all critical demand served · critical demand not measured
+Not checked yet
+ISSUES
+Finding Generator may have been on longer than needed · checked here as a safeguard
+Early warning Battery capacity test due soon
+WHAT CAN BE DONE
+
+Nothing proposed yet
+
+ALREADY IN HAND
+PM-003 · Generator 500-hour service Due at 500 operating hours
+PM-004 · Battery capacity test Due soon
+EARLIER INTERVENTIONS
+Reliable service and battery and generator life checked as safeguards in ACT-001 Verified on example data
+WR-001 · Generator inspection Did not fix it
+WR-002 · Generator inspection Not yet verified
+Battery evidence →
+Assure performance and returns
+Establish with defensible evidence whether the infrastructure is delivering expected results
+No objective declared
+1 verified result
+No open issues
+WHAT DRIVES IT
+Verified results
+ACT-001 verified on example data
+Actual against plan
+0 of 3 declared objectives met · 2 not checked yet
+Readings
+Example data · readiness Full
+High
+ISSUES
+
+None open
+
+WHAT CAN BE DONE
+
+Nothing proposed yet
+
+ALREADY IN HAND
+
+No open action or work
+
+EARLIER INTERVENTIONS
+
+Not available yet · no completed work or checked change for this outcome
+
+Evidence overview →
+
+24 of the last 31 days have no checked readings yet
+
+What happened on this day
+
+30 Oct 2026 · the periods we checked; Dispatch has the detail
+
+04:05 to 07:55
+Generator possibly avoidable
+Open in Dispatch
+
+Checked: 1 period of generator use, from 13 measured inputs
+
+How this was worked out
+
+The reading source is active.
+
+Access: operator account
+
+Technical details
+Day assessment
+9d815fd1-b429-4f46-a4ac-e470554a7ed0
+Assessment pass
+57a5b9ff-7436-43b7-89c9-568f2a9a62ca
+Assessment state
+CURRENT
+Day state
+CURRENT
+Source state
+Empty-set comparison: the file-backed baseline holds no dispatch claim for KOBO-001, so no claim is said to match; a zero-inventory statement, not claim parity.
+Accepted records counted
+1430
+Accepted records reference
+a2b8b6176ffdef8b3044556a372df0ecce75516fe14dc64d59a40ce528aedf43
+Input reference
+a3cc5eef3b694cacd5d6b1111903da85396a360e1721bf6d0ccf3b51a62e5b26
+Finding match reference
+34f87b9f-5b3e-4161-bf13-7916d59cca6c
+Access reference
+DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human principal exists yet; the read is admitted for the configured development tenant, as the S3 Performance read is
+Operating context
+
+When the generator was on and when readings arrived
+
+Single line diagram →
+When the generator was in use and when readings arrived on 30 Oct 2026, 00:00 to 24:00.
+00:00
+06:00
+12:00
+18:00
+24:00
+Assessed periods
+Battery output
+Battery output limit
+Battery charge
+Feeder demand · Clinic meter
+Essential services: power supplied
+Essential services: power requested
+Generator output
+Generator on/off
+Feeder demand · Mill meter
+Solar output
+Available solar power
+Feeder demand · Residential meter
+Generator possibly avoidable
+Readings received
+
+1,036 readings on this day (first 500 shown)
+
+Gaps in the readings are not judged yet; reading counts are shown instead.
+
+Readings per input, with links to each record
+READING	RECORDS	GOOD	FIRST	LAST
+Battery output
+battery-pcs-controller/ac-power
+	33	32	03:00	11:00
+Battery output limit
+battery-pcs-controller/discharge-capability
+	97	96	03:00	11:00
+Battery charge
+battery-pcs-controller/state-of-charge
+	97	97	03:00	11:00
+Feeder demand
+clinic-meter/active-power
+	97	96	03:00	11:00
+Essential services: power supplied
+clinic-meter/delivered-power
+	97	96	03:00	11:00
+Essential services: power requested
+clinic-meter/requested-power
+	97	96	03:00	11:00
+Generator output
+generator-controller/ac-power
+	97	96	03:00	11:00
+Generator on/off
+generator-controller/status
+	97	97	03:00	11:00
+Feeder demand
+mill-meter/active-power
+	97	96	03:00	11:00
+Solar output
+pv-inverter-controller/ac-power
+	33	32	03:00	11:00
+Available solar power
+pv-inverter-controller/available-power
+	97	96	03:00	11:00
+Feeder demand
+residential-meter/active-power
+	97	96	03:00	11:00
+03:00 Available solar power: no value kW
+03:00 Solar output: no value kW
+03:00 Battery output: no value kW
+03:00 Essential services: power supplied: no value kW
+03:00 Generator output: no value kW
+03:00 Battery charge: 42.5 %
+03:00 Feeder demand: no value kW
+03:00 Battery output limit: no value kW
+03:00 Essential services: power requested: no value kW
+03:00 Feeder demand: no value kW
+03:00 Feeder demand: no value kW
+03:00 Generator on/off: STOPPED state
+03:05 Feeder demand: 5 kW
+03:05 Feeder demand: 10 kW
+03:05 Feeder demand: 0 kW
+03:05 Generator on/off: STOPPED state
+03:05 Battery output limit: 30 kW
+03:05 Essential services: power requested: 5 kW
+03:05 Available solar power: 0 kW
+03:05 Battery charge: 41.842105 %
+03:05 Essential services: power supplied: 5 kW
+03:05 Generator output: 0 kW
+03:10 Generator output: 0 kW
+03:10 Feeder demand: 5 kW
+03:10 Available solar power: 0 kW
+03:10 Battery output limit: 30 kW
+03:10 Feeder demand: 0 kW
+03:10 Essential services: power supplied: 5 kW
+03:10 Generator on/off: STOPPED state
+03:10 Battery charge: 41.184211 %
+03:10 Essential services: power requested: 5 kW
+03:10 Feeder demand: 10 kW
+03:15 Solar output: 0 kW
+03:15 Battery output limit: 30 kW
+03:15 Generator on/off: STOPPED state
+03:15 Battery output: 15 kW
+03:15 Feeder demand: 10 kW
+03:15 Battery charge: 40.526316 %
+03:15 Feeder demand: 0 kW
+03:15 Available solar power: 0 kW
+03:15 Essential services: power supplied: 5 kW
+03:15 Feeder demand: 5 kW
+03:15 Generator output: 0 kW
+03:15 Essential services: power requested: 5 kW
+03:20 Essential services: power requested: 5 kW
+03:20 Feeder demand: 5 kW
+03:20 Generator output: 0 kW
+03:20 Battery charge: 39.868421 %
+03:20 Battery output limit: 30 kW
+03:20 Feeder demand: 10 kW
+03:20 Essential services: power supplied: 5 kW
+03:20 Feeder demand: 0 kW
+03:20 Available solar power: 0 kW
+03:20 Generator on/off: STOPPED state
+03:25 Essential services: power requested: 5 kW
+03:25 Generator on/off: STOPPED state
+03:25 Battery charge: 39.210526 %
+03:25 Feeder demand: 0 kW
+03:25 Essential services: power supplied: 5 kW
+03:25 Available solar power: 0 kW
+03:25 Battery output limit: 30 kW
+03:25 Generator output: 0 kW
+03:25 Feeder demand: 10 kW
+03:25 Feeder demand: 5 kW
+03:30 Generator on/off: STOPPED state
+03:30 Feeder demand: 10 kW
+03:30 Essential services: power supplied: 5 kW
+03:30 Battery charge: 38.552632 %
+03:30 Solar output: 0 kW
+03:30 Essential services: power requested: 5 kW
+03:30 Battery output limit: 30 kW
+03:30 Feeder demand: 0 kW
+03:30 Battery output: 15 kW
+03:30 Feeder demand: 5 kW
+03:30 Available solar power: 0 kW
+03:30 Generator output: 0 kW
+03:35 Essential services: power requested: 5 kW
+03:35 Feeder demand: 10 kW
+03:35 Battery charge: 37.894737 %
+03:35 Generator on/off: STOPPED state
+03:35 Feeder demand: 0 kW
+03:35 Battery output limit: 30 kW
+03:35 Generator output: 0 kW
+03:35 Essential services: power supplied: 5 kW
+03:35 Available solar power: 0 kW
+03:35 Feeder demand: 5 kW
+03:40 Feeder demand: 5 kW
+03:40 Battery charge: 37.236842 %
+03:40 Feeder demand: 0 kW
+03:40 Feeder demand: 10 kW
+03:40 Battery output limit: 30 kW
+03:40 Essential services: power requested: 5 kW
+03:40 Available solar power: 0 kW
+03:40 Essential services: power supplied: 5 kW
+03:40 Generator output: 0 kW
+03:40 Generator on/off: STOPPED state
+03:45 Battery output: 15 kW
+03:45 Battery charge: 36.578947 %
+03:45 Feeder demand: 10 kW
+03:45 Feeder demand: 5 kW
+03:45 Battery output limit: 30 kW
+03:45 Generator output: 0 kW
+03:45 Generator on/off: STOPPED state
+03:45 Essential services: power requested: 5 kW
+03:45 Available solar power: 0 kW
+03:45 Essential services: power supplied: 5 kW
+03:45 Solar output: 0 kW
+03:45 Feeder demand: 0 kW
+03:50 Feeder demand: 0 kW
+03:50 Essential services: power supplied: 5 kW
+03:50 Feeder demand: 10 kW
+03:50 Essential services: power requested: 5 kW
+03:50 Generator output: 0 kW
+03:50 Available solar power: 0 kW
+03:50 Battery output limit: 30 kW
+03:50 Feeder demand: 5 kW
+03:50 Battery charge: 35.921053 %
+03:50 Generator on/off: STOPPED state
+03:55 Feeder demand: 0 kW
+03:55 Battery output limit: 30 kW
+03:55 Battery charge: 35.263158 %
+03:55 Generator output: 0 kW
+03:55 Available solar power: 0 kW
+03:55 Generator on/off: STOPPED state
+03:55 Essential services: power requested: 5 kW
+03:55 Feeder demand: 10 kW
+03:55 Essential services: power supplied: 5 kW
+03:55 Feeder demand: 5 kW
+04:00 Solar output: 0 kW
+04:00 Feeder demand: 5 kW
+04:00 Battery charge: 34.605263 %
+04:00 Essential services: power requested: 5 kW
+04:00 Feeder demand: 10 kW
+04:00 Essential services: power supplied: 5 kW
+04:00 Generator on/off: STOPPED state
+04:00 Battery output: 15 kW
+04:00 Available solar power: 0 kW
+04:00 Battery output limit: 30 kW
+04:00 Feeder demand: 0 kW
+04:00 Generator output: 0 kW
+04:05 Essential services: power supplied: 5 kW
+04:05 Generator output: 0 kW
+04:05 Feeder demand: 10 kW
+04:05 Battery output limit: 30 kW
+04:05 Available solar power: 48 kW
+04:05 Generator on/off: RUNNING state
+04:05 Battery charge: 35.792763 %
+04:05 Feeder demand: 0 kW
+04:05 Feeder demand: 5 kW
+04:05 Essential services: power requested: 5 kW
+04:10 Available solar power: 48 kW
+04:10 Battery charge: 36.980263 %
+04:10 Essential services: power requested: 5 kW
+04:10 Feeder demand: 5 kW
+04:10 Generator on/off: RUNNING state
+04:10 Battery output limit: 30 kW
+04:10 Essential services: power supplied: 5 kW
+04:10 Generator output: 0 kW
+04:10 Feeder demand: 0 kW
+04:10 Feeder demand: 10 kW
+04:15 Solar output: 45 kW
+04:15 Battery output: -30 kW
+04:15 Battery charge: 38.167763 %
+04:15 Available solar power: 48 kW
+04:15 Feeder demand: 0 kW
+04:15 Generator on/off: RUNNING state
+04:15 Feeder demand: 10 kW
+04:15 Essential services: power requested: 5 kW
+04:15 Feeder demand: 5 kW
+04:15 Battery output limit: 30 kW
+04:15 Generator output: 0 kW
+04:15 Essential services: power supplied: 5 kW
+04:20 Battery charge: 39.355263 %
+04:20 Generator output: 0 kW
+04:20 Feeder demand: 0 kW
+04:20 Generator on/off: RUNNING state
+04:20 Available solar power: 48 kW
+04:20 Feeder demand: 10 kW
+04:20 Battery output limit: 30 kW
+04:20 Essential services: power supplied: 5 kW
+04:20 Feeder demand: 5 kW
+04:20 Essential services: power requested: 5 kW
+04:25 Essential services: power supplied: 5 kW
+04:25 Essential services: power requested: 5 kW
+04:25 Feeder demand: 5 kW
+04:25 Generator output: 0 kW
+04:25 Feeder demand: 10 kW
+04:25 Battery output limit: 30 kW
+04:25 Battery charge: 40.542763 %
+04:25 Feeder demand: 0 kW
+04:25 Available solar power: 48 kW
+04:25 Generator on/off: RUNNING state
+04:30 Battery charge: 41.730263 %
+04:30 Generator output: 0 kW
+04:30 Feeder demand: 5 kW
+04:30 Essential services: power requested: 5 kW
+04:30 Battery output limit: 30 kW
+04:30 Generator on/off: RUNNING state
+04:30 Feeder demand: 0 kW
+04:30 Essential services: power supplied: 5 kW
+04:30 Battery output: -30 kW
+04:30 Solar output: 45 kW
+04:30 Feeder demand: 10 kW
+04:30 Available solar power: 48 kW
+04:35 Generator on/off: RUNNING state
+04:35 Battery output limit: 30 kW
+04:35 Feeder demand: 0 kW
+04:35 Battery charge: 42.917763 %
+04:35 Feeder demand: 10 kW
+04:35 Available solar power: 48 kW
+04:35 Essential services: power requested: 5 kW
+04:35 Essential services: power supplied: 5 kW
+04:35 Generator output: 0 kW
+04:35 Feeder demand: 5 kW
+04:40 Available solar power: 48 kW
+04:40 Battery output limit: 30 kW
+04:40 Feeder demand: 5 kW
+04:40 Generator output: 0 kW
+04:40 Essential services: power supplied: 5 kW
+04:40 Battery charge: 44.105263 %
+04:40 Feeder demand: 10 kW
+04:40 Generator on/off: RUNNING state
+04:40 Essential services: power requested: 5 kW
+04:40 Feeder demand: 0 kW
+04:45 Essential services: power supplied: 5 kW
+04:45 Solar output: 45 kW
+04:45 Available solar power: 48 kW
+04:45 Feeder demand: 5 kW
+04:45 Battery charge: 45.292763 %
+04:45 Feeder demand: 10 kW
+04:45 Generator output: 0 kW
+04:45 Feeder demand: 0 kW
+04:45 Generator on/off: RUNNING state
+04:45 Battery output: -30 kW
+04:45 Essential services: power requested: 5 kW
+04:45 Battery output limit: 30 kW
+04:50 Essential services: power supplied: 5 kW
+04:50 Battery output limit: 30 kW
+04:50 Generator output: 0 kW
+04:50 Available solar power: 48 kW
+04:50 Feeder demand: 5 kW
+04:50 Battery charge: 46.480263 %
+04:50 Feeder demand: 10 kW
+04:50 Feeder demand: 0 kW
+04:50 Essential services: power requested: 5 kW
+04:50 Generator on/off: RUNNING state
+04:55 Feeder demand: 0 kW
+04:55 Essential services: power requested: 5 kW
+04:55 Generator on/off: RUNNING state
+04:55 Available solar power: 48 kW
+04:55 Feeder demand: 5 kW
+04:55 Feeder demand: 10 kW
+04:55 Generator output: 0 kW
+04:55 Essential services: power supplied: 5 kW
+04:55 Battery charge: 47.667763 %
+04:55 Battery output limit: 30 kW
+05:00 Solar output: 45 kW
+05:00 Battery output: -30 kW
+05:00 Generator on/off: RUNNING state
+05:00 Generator output: 0 kW
+05:00 Available solar power: 48 kW
+05:00 Essential services: power supplied: 5 kW
+05:00 Feeder demand: 10 kW
+05:00 Battery output limit: 30 kW
+05:00 Battery charge: 48.855263 %
+05:00 Feeder demand: 0 kW
+05:00 Feeder demand: 5 kW
+05:00 Essential services: power requested: 5 kW
+05:05 Feeder demand: 5 kW
+05:05 Essential services: power supplied: 5 kW
+05:05 Battery charge: 50.042763 %
+05:05 Essential services: power requested: 5 kW
+05:05 Available solar power: 48 kW
+05:05 Feeder demand: 0 kW
+05:05 Battery output limit: 30 kW
+05:05 Generator output: 0 kW
+05:05 Generator on/off: RUNNING state
+05:05 Feeder demand: 10 kW
+05:10 Generator on/off: RUNNING state
+05:10 Essential services: power requested: 5 kW
+05:10 Generator output: 0 kW
+05:10 Feeder demand: 5 kW
+05:10 Battery charge: 51.230263 %
+05:10 Battery output limit: 30 kW
+05:10 Feeder demand: 10 kW
+05:10 Available solar power: 48 kW
+05:10 Essential services: power supplied: 5 kW
+05:10 Feeder demand: 0 kW
+05:15 Feeder demand: 5 kW
+05:15 Essential services: power supplied: 5 kW
+05:15 Generator on/off: RUNNING state
+05:15 Feeder demand: 10 kW
+05:15 Battery output limit: 30 kW
+05:15 Feeder demand: 0 kW
+05:15 Available solar power: 48 kW
+05:15 Battery output: -30 kW
+05:15 Essential services: power requested: 5 kW
+05:15 Battery charge: 52.417763 %
+05:15 Solar output: 45 kW
+05:15 Generator output: 0 kW
+05:20 Available solar power: 48 kW
+05:20 Generator on/off: RUNNING state
+05:20 Feeder demand: 10 kW
+05:20 Essential services: power requested: 5 kW
+05:20 Battery charge: 53.605263 %
+05:20 Feeder demand: 5 kW
+05:20 Essential services: power supplied: 5 kW
+05:20 Battery output limit: 30 kW
+05:20 Generator output: 0 kW
+05:20 Feeder demand: 0 kW
+05:25 Available solar power: 48 kW
+05:25 Feeder demand: 0 kW
+05:25 Generator output: 0 kW
+05:25 Generator on/off: RUNNING state
+05:25 Battery charge: 54.792763 %
+05:25 Feeder demand: 5 kW
+05:25 Battery output limit: 30 kW
+05:25 Essential services: power supplied: 5 kW
+05:25 Feeder demand: 10 kW
+05:25 Essential services: power requested: 5 kW
+05:30 Essential services: power requested: 5 kW
+05:30 Generator output: 0 kW
+05:30 Feeder demand: 5 kW
+05:30 Feeder demand: 0 kW
+05:30 Solar output: 45 kW
+05:30 Essential services: power supplied: 5 kW
+05:30 Battery charge: 55.980263 %
+05:30 Battery output limit: 30 kW
+05:30 Available solar power: 48 kW
+05:30 Generator on/off: RUNNING state
+05:30 Feeder demand: 10 kW
+05:30 Battery output: -30 kW
+05:35 Feeder demand: 5 kW
+05:35 Generator on/off: RUNNING state
+05:35 Available solar power: 48 kW
+05:35 Feeder demand: 0 kW
+05:35 Generator output: 0 kW
+05:35 Essential services: power requested: 5 kW
+05:35 Battery output limit: 30 kW
+05:35 Essential services: power supplied: 5 kW
+05:35 Battery charge: 57.167763 %
+05:35 Feeder demand: 10 kW
+05:40 Feeder demand: 0 kW
+05:40 Essential services: power requested: 5 kW
+05:40 Essential services: power supplied: 5 kW
+05:40 Generator on/off: RUNNING state
+05:40 Available solar power: 48 kW
+05:40 Feeder demand: 5 kW
+05:40 Feeder demand: 10 kW
+05:40 Generator output: 0 kW
+05:40 Battery charge: 58.355263 %
+05:40 Battery output limit: 30 kW
+05:45 Battery charge: 59.542763 %
+05:45 Battery output: -30 kW
+05:45 Feeder demand: 0 kW
+05:45 Generator on/off: RUNNING state
+05:45 Solar output: 45 kW
+05:45 Feeder demand: 10 kW
+05:45 Generator output: 0 kW
+05:45 Available solar power: 48 kW
+05:45 Battery output limit: 30 kW
+05:45 Feeder demand: 5 kW
+05:45 Essential services: power supplied: 5 kW
+05:45 Essential services: power requested: 5 kW
+05:50 Feeder demand: 10 kW
+05:50 Essential services: power supplied: 5 kW
+05:50 Feeder demand: 0 kW
+05:50 Available solar power: 48 kW
+05:50 Generator output: 0 kW
+05:50 Battery output limit: 30 kW
+05:50 Feeder demand: 5 kW
+05:50 Generator on/off: RUNNING state
+05:50 Essential services: power requested: 5 kW
+05:50 Battery charge: 60.730263 %
+05:55 Feeder demand: 5 kW
+05:55 Generator output: 0 kW
+05:55 Essential services: power requested: 5 kW
+05:55 Generator on/off: RUNNING state
+05:55 Battery charge: 61.917763 %
+05:55 Battery output limit: 30 kW
+05:55 Feeder demand: 0 kW
+05:55 Feeder demand: 10 kW
+05:55 Available solar power: 48 kW
+05:55 Essential services: power supplied: 5 kW
+06:00 Generator output: 0 kW
+06:00 Feeder demand: 0 kW
+06:00 Battery charge: 63.105263 %
+06:00 Essential services: power requested: 5 kW
+06:00 Battery output limit: 30 kW
+06:00 Generator on/off: RUNNING state
+06:00 Feeder demand: 10 kW
+06:00 Battery output: -30 kW
+06:00 Available solar power: 48 kW
+06:00 Essential services: power supplied: 5 kW
+06:00 Solar output: 45 kW
+06:00 Feeder demand: 5 kW
+06:05 Essential services: power supplied: 5 kW
+06:05 Battery charge: 64.292763 %
+06:05 Feeder demand: 5 kW
+06:05 Feeder demand: 10 kW
+06:05 Essential services: power requested: 5 kW
+06:05 Available solar power: 48 kW
+06:05 Generator on/off: RUNNING state
+06:05 Battery output limit: 30 kW
+06:05 Feeder demand: 0 kW
+06:05 Generator output: 0 kW
+06:10 Feeder demand: 5 kW
+06:10 Feeder demand: 10 kW
+06:10 Battery charge: 65.480263 %
+06:10 Battery output limit: 30 kW
+06:10 Essential services: power requested: 5 kW
+06:10 Feeder demand: 0 kW
+06:10 Available solar power: 48 kW
+06:10 Generator output: 0 kW
+06:10 Essential services: power supplied: 5 kW
+06:10 Generator on/off: RUNNING state
+06:15 Battery charge: 66.667763 %
+06:15 Available solar power: 48 kW
+06:15 Essential services: power supplied: 5 kW
+06:15 Generator output: 0 kW
+06:15 Battery output: -30 kW
+06:15 Feeder demand: 0 kW
+06:15 Solar output: 45 kW
+06:15 Feeder demand: 5 kW
+06:15 Essential services: power requested: 5 kW
+06:15 Generator on/off: RUNNING state
+06:15 Battery output limit: 30 kW
+06:15 Feeder demand: 10 kW
+06:20 Generator output: 0 kW
+06:20 Essential services: power supplied: 5 kW
+06:20 Generator on/off: RUNNING state
+06:20 Battery charge: 67.855263 %
+06:20 Feeder demand: 0 kW
+06:20 Feeder demand: 10 kW
+06:20 Available solar power: 48 kW
+06:20 Feeder demand: 5 kW
+06:20 Essential services: power requested: 5 kW
+06:20 Battery output limit: 30 kW
+06:25 Generator on/off: RUNNING state
+06:25 Battery charge: 69.042763 %
+06:25 Battery output limit: 30 kW
+06:25 Generator output: 0 kW
+06:25 Feeder demand: 10 kW
+06:25 Essential services: power supplied: 5 kW
+06:25 Feeder demand: 0 kW
+06:25 Available solar power: 48 kW
+06:25 Feeder demand: 5 kW
+06:25 Essential services: power requested: 5 kW
+06:30 Essential services: power requested: 5 kW
+06:30 Available solar power: 48 kW
+06:30 Battery output: -30 kW
+06:30 Solar output: 45 kW
+06:30 Battery charge: 70.230263 %
+06:30 Essential services: power supplied: 5 kW
+06:30 Generator on/off: RUNNING state
+06:30 Feeder demand: 10 kW
+06:30 Battery output limit: 30 kW
+06:30 Feeder demand: 5 kW
+06:30 Generator output: 0 kW
+06:30 Feeder demand: 0 kW
+06:35 Essential services: power requested: 5 kW
+06:35 Feeder demand: 10 kW
+06:35 Generator output: 0 kW
+06:35 Essential services: power supplied: 5 kW
+06:35 Available solar power: 48 kW
+06:35 Feeder demand: 5 kW
+06:35 Feeder demand: 0 kW
+06:35 Battery output limit: 30 kW
+06:35 Battery charge: 71.417763 %
+06:35 Generator on/off: RUNNING state
+06:40 Essential services: power requested: 5 kW
+06:40 Feeder demand: 10 kW
+06:40 Generator on/off: RUNNING state
+06:40 Battery charge: 72.605263 %
+06:40 Available solar power: 48 kW
+06:40 Battery output limit: 30 kW
+06:40 Feeder demand: 0 kW
+06:40 Essential services: power supplied: 5 kW
+06:40 Feeder demand: 5 kW
+06:40 Generator output: 0 kW
+06:45 Essential services: power supplied: 5 kW
+06:45 Feeder demand: 0 kW
+06:45 Battery output limit: 30 kW
+06:45 Generator on/off: RUNNING state
+06:45 Battery output: -30 kW
+06:45 Available solar power: 48 kW
+06:45 Battery charge: 73.792763 %
+06:45 Solar output: 45 kW
+06:45 Feeder demand: 10 kW
+06:45 Feeder demand: 5 kW
+06:45 Essential services: power requested: 5 kW
+06:45 Generator output: 0 kW
+06:50 Feeder demand: 10 kW
+06:50 Battery output limit: 30 kW
+06:50 Feeder demand: 0 kW
+06:50 Essential services: power requested: 5 kW
+06:50 Available solar power: 48 kW
+06:50 Generator output: 0 kW
+06:50 Feeder demand: 5 kW
+06:50 Generator on/off: RUNNING state
+Needs attention
+
+The main finding for this day
+
+1
+Generator may have been on longer than needed
+
+30 Oct, 04:35–07:55 · Open · main finding for this day
+
+Open the finding →
+
+1 finding on this day · Open all findings for this day
+
+How this was worked out
+
+List built 1 Nov 2026, 17:02
+
+Technical details
+List state
+CURRENT
+List selection reference
+sfi2-deb96a23d3e5ae311f853ce4f73419dc93f20ce0d815e05de44818b72396b63a
+List built at
+2026-11-01T17:02:28.442701+00:00
+List known as of
+2026-10-30T14:01:00+00:00
+Listed Finding 1 reference
+891b85fd-86fb-4ac1-b79f-ae1546f537c7
+Listed Finding 1 version reference
+8ed17dfa-83b5-4a15-b8da-d76604f1ca49
+How it was chosen
+DISCOVERED
+Choice rule
+LATEST_RECORDED_REVISION_OF_EACH_CANONICAL_FINDING; half-open day intersection (episode_start < day_end and episode_end > day_start); merge-superseded excluded; greatest episode_start, then smallest Finding UUID
+Finding reference
+891b85fd-86fb-4ac1-b79f-ae1546f537c7
+Finding version reference
+8ed17dfa-83b5-4a15-b8da-d76604f1ca49
+Possible cost
+Open fuel cost →
+
+No fuel cost estimated
+
+The generator was on longer than needed but delivered no measured power. Fuel used while idling is not estimated yet.
+
+Latest estimate Based on the latest finding and the recorded diesel price. One finding overlapping 30 Oct 2026 · As of 1 Nov 2026, 17:02
+
+Example data: these readings were prepared for this demonstration, not measured on physical equipment.
+
+An estimate of possible extra fuel cost, not money lost or saved.
+
+How this estimate was made
+Money gate
+Eligible
+Upstream
+Using the latest checked readings
+Fuel cost for this Finding version
+Price assumption revision
+Assessment this amount uses
+40 accepted records this amount uses: record 1, record 2, record 3, record 4, record 5, record 6, record 7, record 8, record 9, record 10, record 11, record 12, record 13, record 14, record 15, record 16, record 17, record 18, record 19, record 20 and 20 more on the fuel cost page
+Technical details
+Amount state
+PRICED
+Finding reference
+891b85fd-86fb-4ac1-b79f-ae1546f537c7
+Finding version reference
+8ed17dfa-83b5-4a15-b8da-d76604f1ca49
+Fuel cost version reference
+160dda1d-4ad4-4791-a6e2-7ccbabf1eab9
+Cost method reference
+fuel-cost-1
+Money gate state
+ELIGIBLE
+Upstream state
+CURRENT
+Money gate note
+No pending reassessment and no unresolved generator-series refusal touches this finding. This gate alone is not an amount: a current cost also needs the latest consequence to be current and priced.
+Recorded cost label
+fuel-cost-1 model-conditioned potential fuel-cost exposure: zero lower bound, bounded upper value, with assumption and evidence lineage. Not savings and not a physical maximum.
+
+Source record for this cost
+
+Each record behind this result is checked against the source registration made before the record was accepted. A result is labelled as prepared or generated only when every one of its records has that same registered source.
+
+Technical details
+
+Finding version: 8ed17dfa-83b5-4a15-b8da-d76604f1ca49
+
+Fuel cost version: 160dda1d-4ad4-4791-a6e2-7ccbabf1eab9
+
+Source registrations: 0048a3de-31a5-4d51-a4d9-0a3f100df8d3, 00dc74e9-9334-4489-9fe7-0280a36ea008, 0171fcb7-4cd5-44c4-9117-08254ec2ff67, 019773cd-ed3e-448c-9d51-39d013241f6f, 0260892e-1e5f-4fa6-8624-8c2fe6232074, 07fb7d56-552e-4c5e-adf6-d0e393379f7e, 0866cd64-0994-41dc-b8a2-0a7baba87246, 08d923e2-6cae-4116-8ff2-840f7af86a92, 0963a4ae-f6e1-462b-87c2-44170cbcf1da, 0a6c2723-2de5-42b2-8c39-008c09a4079a, 0acf38d7-1385-4822-9007-3ac5b0f33758, 0b572032-c105-44a1-b52d-27295e9de03e, 0ebd3540-31be-4e2c-b102-b95389359ff3, 134361e2-e352-40fc-9e15-41c8fa5620de, 14465a66-4df9-4eba-b4c2-9e122fb63270, 146f4ab7-8d70-40c4-bcbf-f1a14dc5a9ba, 152af5a1-ef5b-4f95-ba28-f8d0926e70ba, 158a777d-3ea3-4cef-8dc1-d08147a7dd8d, 18a314d0-d24d-481c-afa0-364e01fdcaeb, 1c971413-7d13-4cef-a9d5-dc6675a0e2a7, 1d5a43d1-08f4-4e8e-9f87-3edb6ca50fe0, 1e4abb36-e5ab-4d92-adfe-b198205ac06a, 1e899310-f6a9-4a73-b70a-8ca8d0da405e, 1fa6ab55-83e2-402b-8dae-e5cee12624be, 226e6014-54b6-4cce-99c2-745846de3ced, 229b5688-8eb6-47e6-b011-af9e0c69cd4e, 235d613d-7792-45a6-9da2-8dcd7a1646f2, 237c3b6e-e34f-4ec6-832a-992e0d94e5c7, 242694c5-ed10-4efc-9822-f82540c1f28a, 252e3f2d-f70a-441c-8c54-07a7530cf910, 262547e3-1643-4d33-b6ae-0cc96516ed68, 269127f3-9310-4cbb-98cb-1500f92168cd, 26eb1e37-e22a-4fce-9023-72ad9ad3d6b7, 27518cef-bcb1-4176-8782-cca26131e846, 27e234f4-48f3-4f7f-88c1-be158f480a95, 293650b6-bf55-4727-b7c9-4db4c5fb80fb, 2b1a76c5-0d85-4eb7-9bbc-a8676c78fc74, 2c8d483b-b923-4ec4-8ba9-4d259b2863a0, 2d4826c5-8b19-426d-9601-2f7104bc3b08, 2eb2e54d-bd49-4d07-a01f-0c72bdd188c1, 32d61ead-27b4-4a6d-a44c-cf0ee2de5e0b, 3362cd14-0f8a-4687-9183-83492c9e1353, 336680b6-2ae9-4adf-ab88-b96e1de46932, 35dbf0f7-cf7e-4903-abdb-c6ad96cb9794, 3601f3a0-a589-4fb7-8a81-21ae6873cb4f, 36e12166-77b7-4c54-9cdd-e5fccccc8ab6, 3717a8bb-7e29-4313-ba8a-3dada7e293d0, 3733fed1-08e7-4963-b5b1-52da8d5c153d, 37572605-78cb-4473-8267-cfac0ba80b7e, 3795751d-601d-4488-b50e-b0507fb9c7e5, 3806cb51-fb2d-4a47-9a49-4261a3ab8695, 39eba1bf-482d-4d86-8636-7786ef851d29, 3a22b80f-9479-4c86-a727-58fbf0c6daaa, 3b066be7-fce3-4042-a8ce-0f6530cede79, 3b6bd5b0-313d-4e1e-a841-9bdf831d7977, 3c911b30-3a16-495e-a28e-bbc11c07321e, 3e5d7ab9-5f1f-4814-a783-bb8e4dff558b, 3f2a7576-f298-44a0-8c8a-ecc02ff03d1a, 4000753f-2faa-4a53-b4ca-669eb624f4c2, 40c679bb-d42c-43c5-be1b-1ed74beebace, 40d466a8-70bb-4de4-954d-1e9ac7cf2644, 411ae014-6e32-4060-b530-07430b99f831, 417e4606-a405-42a3-bf22-e8d599a1cb55, 418566cd-01f0-482f-a357-9a6c8703a292, 41d92fa9-a57f-4616-9c99-d7bcb0e2bc5e, 4379251d-b4c3-467c-b752-ab7c88226465, 45f4738e-e541-47c3-83ac-badb98cea2bf, 46cc5df1-f22d-4224-add2-223508014adb, 478f7ded-723c-4e76-9054-34d3b88748f9, 4af8905a-38e2-48c1-b24d-310a8f736e1a, 4b37edd7-67fa-444a-9813-ebbf4c7f7c00, 4de8a060-bdf7-4db4-9c13-d86c4dd06063, 4eb45bfb-f3c5-449a-9db4-c8597116994c, 4f043dbd-0dd0-4df0-834f-93dc64b4f86c, 534ed943-4e70-4cf5-8b37-fbf9f7328fb5, 53e02b7a-6bc7-4ae7-984a-8b535abb54bd, 540f30de-ddd6-4382-93b6-e365dcd0a49e, 582a94f1-a44c-4d3d-8963-77bc994bb31f, 59213d7d-2bd5-4cfb-b74f-fb22fe832fe8, 5a64b388-877a-487a-ae39-4fb389ef5323, 5c4efd27-8139-4e37-93b9-d636752b2c67, 5d73169e-abc8-4131-8f26-a5bf49861120, 5ed71cda-09fe-48e7-af3a-eed27ed0444d, 5f19af95-ae8b-4a78-a581-727744993c30, 5faa8778-949d-48db-8e2d-ab3477bfff2c, 5fc73e77-379f-46fc-b562-5fd499ee3eb5, 61a4bc2b-0b45-4a1b-845a-70bc6ff057c7, 61e1054c-227d-4a5f-9e71-c7d9ad0bafa2, 621f51f4-ccdd-479c-a7da-e077bbac72e2, 63eef6f8-e5a5-4c08-a9ea-8df537e2b0b4, 6689a133-4366-438a-9151-8d673e2a65d9, 66d0fca5-5254-4d08-8ea4-377dc91c2730, 674d2638-a048-4c5c-b861-5cd09a4d9c89, 68461a0a-8deb-4eb5-803f-7d026b5bbe3b, 6ae6b53c-131a-4b7b-bb92-4f47854bec2d, 6e67c8c5-0104-497e-b34e-fbd24309086c, 70710c11-f44b-4734-84b3-9cb8a58405b8, 71458d0e-3941-4a91-91fa-add8a6fcaf13, 725ee3da-51d6-47eb-b823-ce83a540a468, 73e2c7eb-1c4e-40a8-8869-e3b6d2059db0, 751e547a-43ef-4755-be83-9ff9b0d26619, 757f05ad-8907-4601-baac-9919ab592538, 75c0e163-927e-44a5-9d55-b6cb11cf6e20, 76ee0296-5ac6-4a73-9bd4-87622ad863e0, 7726f8c3-832f-4db9-9d61-9b7d00abbcb0, 77e7cfb6-9c69-49fd-aeba-dc9dd7c1761b, 77fb02dc-c85e-4ee8-a248-4d93114e3c3d, 78c677f8-218d-474d-947e-653971b69648, 797d47fb-692e-4a3b-b791-74b75d64d3a5, 7b19c161-738e-4781-b71f-c641482c068c, 7b410080-7470-47ac-ad98-3e267a9b7db3, 7bd284b0-2865-4691-98ea-b3f621c0caa8, 7da26d32-1255-4cbf-a8f4-24f7fbacba1b, 7e4b9f36-5328-4b6b-aefc-10e0f68e6df7, 7fb3c061-2f5b-4a4e-b05d-b7d31c10817d, 8083b569-3204-400c-8e6b-266b3c8b42f1, 8101f977-8910-4912-9fe3-882bc14310a1, 82454a69-f276-4536-bf03-8b0f9c051eef, 83d0d359-2474-4e45-9c26-24eec226dd5c, 851f4ca8-137e-44c9-89b3-603c3f6d13a0, 87635cf9-47cf-4e85-a296-dc90ca3605a6, 881fac09-a276-43eb-a4b5-4e6f40e241dd, 895fbbd6-da65-408a-9fdd-4891dccbdda1, 89bcbad6-ee45-4854-a484-9181039ebebd, 8a8ef8d5-caeb-4009-b166-beeb44d65fa3, 8b312fcd-ab35-471c-bb1d-f82e492bf800, 8c4e185c-1a6a-426f-be4e-b001cafdc694, 8cc0e4e0-32e0-44eb-8b80-b1b661006a9d, 8dba9ef1-89db-4665-9e09-d0edb1f1ab15, 8dcda0f3-3c6e-449e-9a39-dc5c268a38e9, 9062bed6-8c6a-48a1-9520-c740bde25ca7, 9176e348-af72-4eb2-b2b7-c25f27a9078c, 925e0070-5635-46fe-b3cb-8f522a809ac9, 9351d39f-6788-4c97-bb16-565cffe44350, 9468def5-ddf3-4ac1-8509-6d554fba1d72, 94c3ee1f-e837-4d5e-8e77-d6173b88eba6, 95185708-c30b-4638-8e8e-0b80f01af215, 971f94c6-ff38-49ca-b231-322ac6dc6573, 97d30c18-b6af-4974-9b5e-8878c0ddd541, 9880bacf-b470-41a8-b3a9-67423e3ab3cc, 989e79c6-164f-46a7-93cd-504700eea8e8, 98fd8032-52c0-4ac2-82b7-32ad6387d0ef, 99851d28-326e-489f-a8bb-5ca5fadb0a36, 9c82b2ec-870a-4e0f-8e9f-0553cf5be8b1, 9c881b98-75da-4642-8d29-390b74ed4dfe, 9e5a917b-1ffa-4efa-89dc-079aa6baa816, 9f8a3274-7796-4af9-a74e-3892e81e0441, a086a2d7-d678-4bd3-8a24-984ab491020d, a1dd0fd0-9bda-46a7-ad32-5692c4f8c36b, a35c36c8-776b-47bb-99d4-6d696250c106, a4449295-f0cf-4d2e-882d-cb365a0b5e42, a4f7754f-c7a2-4cc6-99bf-f5bcbddd6a07, a6501f20-ee3b-468a-9890-eae7a10d166f, a6a96d0f-0322-46e8-b88f-df7b1db319b3, a761660a-8719-4c6c-a12c-0bed9522e05a, a79fdb52-6c87-47c8-97bd-d9f91b2783be, a86406a7-0fe9-4a27-bde0-99bdf789345d, a887d4d8-3cb6-4958-ace5-0cfa45c5de6d, a9a81e26-4081-4b1b-9302-393985522c16, aa08b80f-e7e4-49a6-8c54-e287373cf471, aa35e542-49a6-469c-8035-5804bd782f0a, aaea6a99-82db-4a2f-b40c-73aa9d551074, ab743a9f-012e-4801-a1f6-538090c1c119, ac3d14f2-4714-40df-a069-e3eb0a1f0f76, adce44fd-e132-4934-b2a5-06edaf4bc3c9, b0aa051e-5a1b-44ab-951d-5a1cbd65e7f4, b1b7bb68-7274-41ef-9018-2c939db07609, b4248f76-58d0-4357-a399-3a33230fb88d, b425b190-678b-464e-b648-50f25f9110af, b4bf88cb-7784-4f19-b406-b4c2a70f98f2, b672360d-d090-4d52-8225-e956ac9090de, b9cf5b5c-1e43-4565-a8f9-f685cb886288, bb08dfc8-f1b9-49e4-9813-f263b1d4b6e9, bb8aba3f-1f9e-469a-ae95-c04a4ad25b5d, bc028c4d-514b-4768-a808-22926e47492d, bc6413f6-88c5-41c1-8269-bb245bb533f1, bc908c26-f843-457e-9e0f-ac2474d4dc79, bc93dc2d-5880-46a7-8bdb-4c2a5a0fd089, bca1d742-0701-4e84-934e-37d472a3eaeb, bd36b3dd-afbb-403c-9564-9cf836e23135, bde6d270-03b1-4b19-b7e5-0be10ed50114, bdec1981-3730-4bd5-9dd9-8bd608e1e65c, be4f106b-62c6-4854-bdfc-41bb831d3aa0, c1caa0ed-275a-4564-98df-35964b6f2be3, c22e58a9-c833-479f-81c4-dd954f26cc35, c356a334-8b93-44dc-803a-50dda5811826, c484856c-a7e4-4231-9cdc-4528d1d26fa2, c561e507-ae9e-4cb8-ae15-5f1d724c24c7, c565326c-ca85-4b5b-8fbe-c9761fa418d2, c7e58ea8-2224-4fbf-a13a-1f76155fb999, c904be91-af86-46f6-aabb-b32fb6ae9251, cb017e04-968b-4c4a-89de-7f7b1d678864, cb18b9b4-733e-4052-900b-648a53b9e642, cd7a1c9e-8e75-44b1-a950-2f8dcece6702, cf05a676-289d-4363-b0a9-db8c9ef88166, cf2c85c5-7509-421e-8d9c-149e5f2ca72e, cf50deae-5acd-4515-90ac-78c804fba6e8, cfa31b7e-7bdb-4cdb-b3cb-723a9d97aefe, d05661a7-67d3-4dee-a3e5-ded3056aeb1d, d08e5de3-4c28-4e6f-b83c-d6d4d2df5587, d0a2b31d-729d-4d40-bc75-a5f8c66d9db1, d2acfc34-30c8-4de4-a4c5-d6a570620315, d4418540-8189-480f-8526-94a90eadf909, d4c45985-58b0-4e1e-a510-83f2b6dee870, d4f8d8db-f237-4df7-8aa7-fd7a61d1a552, d548cbd0-c111-46f5-884c-75a5762ef6c6, d5bc6e42-834c-4503-a688-c6cc391d7a56, d6443395-2c03-4160-92da-0da08c5d704c, d7644563-2b1d-4313-aee7-fc6de1a3e8ab, d95e8b18-c290-475e-816a-0d38de5d15d1, d9810d8c-816a-44b2-857b-0fe9b39e6931, d9cb9e32-d447-46fb-9d7a-efb7f0dde831, da6be2f7-4ca8-4768-825b-e4c56956628c, db3989d8-9828-45d9-9cf4-f60a8f60a423, db5aea48-8a68-4f6e-8e84-e39d17ae8501, dbc34567-d5ae-4f74-b0ed-b65e301a7dd3, dc7b2d58-3908-46f6-bfcb-45ba93ac47ba, dd03b7bb-dbf9-48b1-ab93-9357e4484806, df9267f9-1f28-4498-b12e-915ce91964f8, e04ecf30-5962-49c9-a293-ec229f40233b, e057efd6-1bd5-4703-adcc-3c2905da1dda, e0df2ade-6c50-4a2c-9cdc-e63148178b58, e280afe0-8ac0-4efa-8239-46a458340146, e2dd6942-cbe3-425c-a159-16f190d154d4, e3644d6a-47dc-43ce-bb6e-5c15dc6b7522, e4795214-7425-4e92-8335-ec46144e2a4a, e4afdcad-311b-43c0-b0cd-dc3d029ff998, e652bc12-06db-49c8-867d-44e883e7c56a, e805f66b-e95b-4337-ac74-8bdaf4eca8d1, e9b805e3-1136-4caf-8d6d-16c03dfe3593, ea66ac83-a546-4f33-8229-2c0ae1190307, ea7499ea-0830-43ec-9519-d58f3683eb04, eea0547e-95cb-4b00-ad28-242fbc8d32ce, f0a01c78-90e1-4268-a2c7-3329067a9667, f2630f03-577f-47cb-8e02-3337bcd6e57c, f3b2e295-9456-49e0-bc1c-f51d0b7c323d, f42f0063-9047-4a12-99eb-7ad0473c29a6, f554b0a7-00fc-4fd2-a118-38b3c4e80f95, f5e2b599-dca2-4492-9e53-528f83f64b62, f663b506-f57e-4cb8-bdfc-89ffc2b8195a, f69e887c-6b26-49e9-a31f-50b422d5e7a6, f6e1afa5-4c35-4072-926c-ab191016a5aa, f8263d97-b18f-4bdd-be45-f7c66fffc81a, fba2c37c-7612-45fc-9cbf-f1d7aa999282, fdc68cc0-ae53-4585-a276-d1b682bbbd6e
+
+Generated test sets: run-c4fa6fbe284943ad8d2ac08382513ccc
+
+286 accepted records checked (246 cited by the finding, 40 generator readings used for the cost).
+
+Next step
+Review the finding for this day
+
+Start from the finding to decide what to do next.
+
+Open the finding
+Open this day in Dispatch →
+
+Site record: identity, provenance and actions
+Site information
+Site ID
+KOBO-001
+Name
+Kobo mini-grid
+Type
+Mini-grid
+Location
+Kobo, Ethiopia
+Timezone
+Africa/Addis_Ababa
+Lifecycle status
+Planned
+Foundation version
+9
+Valid from
+31 Oct 2026, 00:00
+Summary
+Village solar-plus-storage mini-grid with a diesel generator for backup, serving a residential feeder, a health clinic and a grain mill as three separately metered loads. Declares design ratings, typed physical and control properties, typed Site Controls for source and critical-load priority, the electrical topology, the configured devices and signals, the device-to-signal mappings, and the operating assumptions the archetype makes.
+
+The foundation is the site's configured content, copied from the template when the site was created. It is component truth declared by a document: nothing here states that a device exists, is commissioned, or has ever reported a measurement.
+
+Provenance and status
+Mode
+Demonstration data
+Configuration origin
+User
+Created from template
+kobo-mini-grid-60kw v1
+
+These are separate facts about a site and none is derived from another. Mode is where the site's evidence comes from, and it is provenance rather than status, health, or an assessment. Configuration origin is where the site's configuration document came from. Neither is lifecycle status, which is where the site is in its own life and is listed above with the site's other facts.
+
+Quick actions
+Open in Simulator Lab
+
+The Simulator Lab has no Site view. Its scenarios, runs and run setup are reached from the Simulator Lab workspace, not from a Site.
+
+Start Simulation
+
+A run is not started from a Site. It is set up and started from a scenario's Run setup in the Simulator Lab, which binds the scenario to this site.
+
+View Live Data
+
+Live data is not a capability of this build. Accepted evidence for this site is on the Evidence tab.

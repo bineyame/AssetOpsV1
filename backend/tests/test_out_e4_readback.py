@@ -91,11 +91,11 @@ def act_entry(rows: dict) -> dict:
 def test_board_cost_row_earlier_detail_and_assure_line() -> None:
     rows = run({"state": "VERIFIED", "cost_check": IMPROVED, "trial_hours": HOURS})
     entry = act_entry(rows)
-    assert entry["result_label"] == "Verified on test data"
+    assert entry["result_label"] == "Verified on example data"
     assert entry["detail"] == f"{CHANGE} {ATTRIBUTED}"  # POLISH PA-2a review L1
     assert all(e["detail"] is None for r in rows.values() for e in r["earlier"] if e is not entry)
     assure = d4.b2.contributor(rows[ASSURE], "verified_results")["text"]
-    assert assure == ("ACT-048 verified on test data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
+    assert assure == ("ACT-048 verified on example data: estimated effect of the trial (not money saved): 0.042–0.046 USD less "
                       "supply cost per kWh")
 
 
@@ -107,7 +107,7 @@ def test_board_not_verified_credits_nothing_to_the_trial() -> None:
     assert d4.b2.contributor(rows[ASSURE], "verified_results")["text"] == "ACT-048 result not determined"
     rows = run({"state": "VERIFIED", "cost_check": None, "trial_hours": HOURS})
     assert act_entry(rows)["detail"] == f"Not calculated yet · {ATTRIBUTED}"
-    assert d4.b2.contributor(rows[ASSURE], "verified_results")["text"] == "ACT-048 verified on test data"
+    assert d4.b2.contributor(rows[ASSURE], "verified_results")["text"] == "ACT-048 verified on example data"
 
 
 def test_board_no_before_after_without_the_mg2_objective() -> None:

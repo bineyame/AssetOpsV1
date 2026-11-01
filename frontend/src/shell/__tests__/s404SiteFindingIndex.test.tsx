@@ -347,7 +347,9 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(exactValue("List reference")).toBe(TOKEN);
     const details = card().querySelector("details[data-exact-references]") as HTMLDetailsElement;
     expect(details.open).toBe(false);
-    expect(details.querySelector("summary")?.textContent).toBe("How this was worked out");
+    // POLISH whole-diff review M1: the exact references are the closed "Technical details" region.
+    expect(details.querySelector("summary")?.textContent).toBe("Technical details");
+    expect(details.hasAttribute("data-technical-details")).toBe(true);
     const outside = outsideDisclosure();
     for (const raw of ["cursor-page-2", TOKEN, FID_A, FID_B, RID_A, RID_B, FID_A.slice(0, 8), "CURRENT", "SUPPORTED"]) {
       expect(outside).not.toContain(raw);

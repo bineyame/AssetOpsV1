@@ -28,18 +28,18 @@ NO_MONEY = "No charging income estimate yet."  # POLISH PA-3 review residual (R6
 HISTORY_LABEL = "Historical scenario"
 NOT_INCLUDED = ["lost_sales", "collections", "margin", "repair", "warranty"]
 #: post-W6 final-fix L3: one plain sentence for the withheld tariff state, Site and estate pinned reads alike.
-STALE_BASIS_COPY = "No stored gross tariff estimate matches the evidence at this cutoff."
+STALE_BASIS_COPY = "No stored charging income estimate matches the evidence at this cutoff."
 #: q1 R5/R6 visible copy per (guard or stored) reason.
 MONEY_COPY = {
     "HISTORICAL_CURRENT_CLAIM": HISTORY_LABEL,
     em.ERROR_PENDING: "New evidence is being assessed. The previous result may change.",
     em.SOURCE_GATE: "EV source or binding is unverified; session outcomes cannot be assessed.",
-    em.CONTRADICTORY: "Accepted EV records conflict; no current gross tariff estimate.",
+    em.CONTRADICTORY: "Accepted EV records conflict; no current charging income estimate.",
     "STALE_BASIS": STALE_BASIS_COPY,
     em.INCOMPLETE: "Delivered energy is incomplete for pricing; partial metered energy is shown separately.",
     em.TARIFF_MISSING: "No published EV tariff covers the eligible delivery.",
     em.PRICE_GAP: "One tariff revision does not cover all eligible delivery intervals.",
-    em.ELIGIBLE: "Gross tariff scenario; not cash collected.",
+    em.ELIGIBLE: "Charging income estimate; not cash collected.",
 }
 #: Public claim vocabulary role -> accepted binding role (`sites/binding_roles.EV_ROLES_1`).
 ROLE_OF = {"session_event": "ev_session_event", "connector_meter_delta": "ev_connector_energy",

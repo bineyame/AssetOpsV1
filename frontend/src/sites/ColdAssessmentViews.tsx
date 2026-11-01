@@ -463,7 +463,7 @@ function TemperaturePanels({
               {x === undefined ? null : finding !== null ? (
                 <p className="cold-panel-link">
                   <Link to={links.finding(finding.finding_id)} data-finding-link={finding.finding_id}>
-                    Open the Finding →
+                    Open the finding →
                   </Link>
                 </p>
               ) : (

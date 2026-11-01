@@ -210,9 +210,9 @@ export function cellWord(state: string): string {
 export function sourceWords(state: string | null | undefined): string {
   switch (state) {
     case "REGISTERED_SIMULATION":
-      return "Registered Lab trial data";
+      return "Example data";
     case "AUTHORED_DEMONSTRATION":
-      return "Authored test data (test-scoped example)";
+      return "Prepared example data";
     case "MIXED":
       return "Mixed sources";
     case "UNKNOWN":

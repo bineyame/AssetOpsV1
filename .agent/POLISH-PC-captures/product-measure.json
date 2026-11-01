@@ -1,0 +1,1778 @@
+[
+ {
+  "key": "portfolio-week",
+  "mock": "portfolio",
+  "width": 1440,
+  "url": "http://localhost:5490/portfolio?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 1902,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 573,
+    "h": 1008,
+    "w": 824,
+    "tableClient": 775,
+    "tableScroll": 775
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 573,
+    "h": 587,
+    "w": 305
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 1598,
+    "h": 229,
+    "w": 565
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 1598,
+    "h": 229,
+    "w": 565,
+    "tableClient": 323,
+    "tableScroll": 323
+   }
+  ]
+ },
+ {
+  "key": "portfolio-week",
+  "mock": "portfolio",
+  "width": 390,
+  "url": "http://localhost:5490/portfolio?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 3849,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 1260,
+    "h": 1207,
+    "w": 358,
+    "tableClient": 720,
+    "tableScroll": 720
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 2483,
+    "h": 536,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 3179,
+    "h": 247,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 3453,
+    "h": 308,
+    "w": 358,
+    "tableClient": 323,
+    "tableScroll": 323
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 2420,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
+    "top": 268,
+    "h": 45,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 1110,
+    "h": 236,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1364,
+    "h": 685,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1364,
+    "h": 685,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 2067,
+    "h": 253,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2067,
+    "h": 253,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 2375,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 2852,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 3116,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 4094,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
+    "top": 431,
+    "h": 125,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 2097,
+    "h": 236,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 2351,
+    "h": 875,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3241,
+    "h": 215,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 3472,
+    "h": 322,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3810,
+    "h": 193,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 4057,
+    "h": 1475,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 5550,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 5995,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S-open",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 21048,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:01This page uses ",
+    "top": 268,
+    "h": 45,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 2043,
+    "h": 693,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 2754,
+    "h": 12976,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2754,
+    "h": 12976,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 15748,
+    "h": 4147,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 15748,
+    "h": 4147,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 19951,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 20427,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 20692,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S-open",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-30",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 29972,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 30 Oct 2026 · updated 1 Nov 2026, 17:02This page uses ",
+    "top": 431,
+    "h": 125,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 3935,
+    "h": 1079,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 5032,
+    "h": 13551,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 18598,
+    "h": 954,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 19569,
+    "h": 7682,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 27267,
+    "h": 193,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 27514,
+    "h": 1475,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 29007,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 29452,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S1",
+  "mock": "mini",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-31",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 1944,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 17:02This page uses ",
+    "top": 268,
+    "h": 45,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 767,
+    "h": 179,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 964,
+    "h": 685,
+    "w": 725,
+    "tableClient": 685,
+    "tableScroll": 685
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 964,
+    "h": 685,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 1667,
+    "h": 176,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1667,
+    "h": 176,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 1899,
+    "h": 458,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 2375,
+    "h": 247,
+    "w": 1111
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 2640,
+    "h": 281,
+    "w": 1111
+   }
+  ]
+ },
+ {
+  "key": "kobo-board-S1",
+  "mock": "mini",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001?date=2026-10-31",
+  "settled": true,
+  "h1": "Kobo mini-grid",
+  "pageH": 3336,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Latest checked readings · 31 Oct 2026 · updated 1 Nov 2026, 17:03This page uses ",
+    "top": 431,
+    "h": 125,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on this day",
+    "top": 1352,
+    "h": 179,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1549,
+    "h": 849,
+    "w": 358,
+    "tableClient": 330,
+    "tableScroll": 330
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2414,
+    "h": 450,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 2880,
+    "h": 194,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3091,
+    "h": 154,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Site information",
+    "top": 3299,
+    "h": 1475,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Provenance and status",
+    "top": 4791,
+    "h": 427,
+    "w": 324
+   },
+   {
+    "kind": "panel",
+    "title": "Quick actions",
+    "top": 5237,
+    "h": 452,
+    "w": 324
+   }
+  ]
+ },
+ {
+  "key": "kobo-verification",
+  "mock": "verification",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/KOBO-001/actions/8f45faa0-2d09-4064-8729-e1719775d565/verification",
+  "settled": true,
+  "h1": "ACT-001 · Battery reserve trial",
+  "pageH": 1418,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 502,
+    "h": 115,
+    "w": 1145,
+    "children": [
+     {
+      "top": 502,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 502,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 502,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 502,
+      "h": 115,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 650,
+    "h": 347,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1031,
+    "h": 338,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 1031,
+    "h": 338,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "kobo-verification",
+  "mock": "verification",
+  "width": 390,
+  "url": "http://localhost:5490/sites/KOBO-001/actions/8f45faa0-2d09-4064-8729-e1719775d565/verification",
+  "settled": true,
+  "h1": "ACT-001 · Battery reserve trial",
+  "pageH": 2670,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 958,
+    "h": 295,
+    "w": 358,
+    "children": [
+     {
+      "top": 958,
+      "h": 155,
+      "w": 173
+     },
+     {
+      "top": 958,
+      "h": 155,
+      "w": 173
+     },
+     {
+      "top": 1125,
+      "h": 127,
+      "w": 173
+     },
+     {
+      "top": 1125,
+      "h": 127,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 1286,
+    "h": 659,
+    "w": 358,
+    "tableClient": 361,
+    "tableScroll": 361
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1979,
+    "h": 298,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 2292,
+    "h": 338,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "cold-board-failure",
+  "mock": "cold",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-30T16:00:00Z&to=2026-10-30T17:05:00Z",
+  "settled": true,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 2436,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Service affected Confidence: partial Stock may be at riskInspect evidence",
+    "top": 249,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 1490,
+    "h": 252,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 1760,
+    "h": 386,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1760,
+    "h": 386,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 2165,
+    "h": 222,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2165,
+    "h": 222,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "cold-board-failure",
+  "mock": "cold",
+  "width": 390,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-30T16:00:00Z&to=2026-10-30T17:05:00Z",
+  "settled": true,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 4595,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Service affected Confidence: partial Stock may be at riskInspect evidence",
+    "top": 408,
+    "h": 66,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 2942,
+    "h": 591,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 3551,
+    "h": 295,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3862,
+    "h": 214,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 4092,
+    "h": 265,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 4372,
+    "h": 182,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "cold-board-normal",
+  "mock": "cold",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+  "settled": true,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 1546,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "No excursion observed Confidence: partial Stock risk not known yetInspect eviden",
+    "top": 249,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 720,
+    "h": 222,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 960,
+    "h": 386,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 960,
+    "h": 386,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 1364,
+    "h": 131,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1364,
+    "h": 131,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "cold-board-normal",
+  "mock": "cold",
+  "width": 390,
+  "url": "http://localhost:5490/sites/COLD-LAB-001?from=2026-10-23T16:00:00Z&to=2026-10-23T17:05:00Z",
+  "settled": true,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 2524,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "No excursion observed Confidence: partial Stock risk not known yetInspect eviden",
+    "top": 408,
+    "h": 87,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 1279,
+    "h": 521,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 1818,
+    "h": 295,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2129,
+    "h": 96,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 2241,
+    "h": 131,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2388,
+    "h": 96,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "ev-board-fault",
+  "mock": "ev",
+  "width": 1440,
+  "url": "http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z",
+  "settled": true,
+  "h1": "Depot Charging Hub",
+  "pageH": 2023,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attentionConfidence: measuredEvidence limited Example dataExample charger ",
+    "top": 249,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 1116,
+    "h": 236,
+    "w": 1145
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 1370,
+    "h": 374,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1370,
+    "h": 374,
+    "w": 403
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 1762,
+    "h": 211,
+    "w": 725
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1762,
+    "h": 211,
+    "w": 403
+   }
+  ]
+ },
+ {
+  "key": "ev-board-fault",
+  "mock": "ev",
+  "width": 390,
+  "url": "http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&to=2026-10-27T09:00:00Z",
+  "settled": true,
+  "h1": "Depot Charging Hub",
+  "pageH": 3468,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attentionConfidence: measuredEvidence limited Example dataExample charger ",
+    "top": 387,
+    "h": 103,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 2025,
+    "h": 389,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 2432,
+    "h": 315,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2763,
+    "h": 251,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Possible cost",
+    "top": 3030,
+    "h": 208,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 3254,
+    "h": 174,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-all",
+  "mock": "findings",
+  "width": 1440,
+  "url": "http://localhost:5490/findings?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1309,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 235,
+    "h": 92,
+    "w": 1145,
+    "children": [
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 393,
+    "h": 745,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1156,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1217,
+    "h": 43,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "findings-all",
+  "mock": "findings",
+  "width": 390,
+  "url": "http://localhost:5490/findings?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1754,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 394,
+    "h": 197,
+    "w": 358,
+    "children": [
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 658,
+    "h": 895,
+    "w": 358,
+    "tableClient": 672,
+    "tableScroll": 672
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1571,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1632,
+    "h": 80,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-cost",
+  "mock": "findings-cost",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/cost?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 235,
+    "h": 92,
+    "w": 1160,
+    "children": [
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 393,
+    "h": 126,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 537,
+    "h": 43,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 598,
+    "h": 43,
+    "w": 1160
+   }
+  ]
+ },
+ {
+  "key": "findings-cost",
+  "mock": "findings-cost",
+  "width": 390,
+  "url": "http://localhost:5490/findings/cost?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 970,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 394,
+    "h": 197,
+    "w": 358,
+    "children": [
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 658,
+    "h": 149,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 825,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 885,
+    "h": 43,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-risks",
+  "mock": "findings-risks",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/risks?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1177,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 235,
+    "h": 92,
+    "w": 1145,
+    "children": [
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 393,
+    "h": 612,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1023,
+    "h": 43,
+    "w": 1145
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1084,
+    "h": 43,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "findings-risks",
+  "mock": "findings-risks",
+  "width": 390,
+  "url": "http://localhost:5490/findings/risks?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1600,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 394,
+    "h": 197,
+    "w": 358,
+    "children": [
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 658,
+    "h": 741,
+    "w": 358,
+    "tableClient": 672,
+    "tableScroll": 672
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 1417,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. A finding title that is a",
+    "top": 1478,
+    "h": 80,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "findings-opportunities",
+  "mock": "findings-opportunities",
+  "width": 1440,
+  "url": "http://localhost:5490/findings/opportunities?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 235,
+    "h": 92,
+    "w": 1160,
+    "children": [
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     },
+     {
+      "top": 235,
+      "h": 92,
+      "w": 280
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 393,
+    "h": 126,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 537,
+    "h": 43,
+    "w": 1160
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 598,
+    "h": 43,
+    "w": 1160
+   }
+  ]
+ },
+ {
+  "key": "findings-opportunities",
+  "mock": "findings-opportunities",
+  "width": 390,
+  "url": "http://localhost:5490/findings/opportunities?from=2026-10-24T00:00:00Z&to=2026-10-31T00:00:00Z",
+  "settled": true,
+  "h1": "Findings",
+  "pageH": 970,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral",
+   "LI",
+   "v69-chip estate-state-chip estate-state-chip--neutral"
+  ],
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Supported findings | High priority | Low confidence | Awaiting verification",
+    "top": 394,
+    "h": 197,
+    "w": 358,
+    "children": [
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 394,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     },
+     {
+      "top": 499,
+      "h": 92,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 658,
+    "h": 149,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Kobo mini-grid: 3 of 7 days checked · 4 days not available yet.",
+    "top": 825,
+    "h": 43,
+    "w": 358
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate.",
+    "top": 885,
+    "h": 43,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "maintenance-preventive",
+  "mock": "maintenance-preventive",
+  "width": 1440,
+  "url": "http://localhost:5490/maintenance/preventive?from=2026-10-02T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "settled": true,
+  "h1": "Maintenance",
+  "pageH": 1143,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "2 overdueScheduled by calendar or hours of use · due dates as set in each planAs",
+    "top": 336,
+    "h": 42,
+    "w": 1145
+   },
+   {
+    "kind": "cards",
+    "title": "Scheduled items | Overdue | Due in the next 14 days | Feeds evidence",
+    "top": 396,
+    "h": 115,
+    "w": 1145,
+    "children": [
+     {
+      "top": 396,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 396,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 396,
+      "h": 115,
+      "w": 277
+     },
+     {
+      "top": 396,
+      "h": 115,
+      "w": 277
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Preventive plan",
+    "top": 544,
+    "h": 489,
+    "w": 1145,
+    "tableClient": 1105,
+    "tableScroll": 1105
+   },
+   {
+    "kind": "notice",
+    "title": "These plans are not yet approved, and none is linked to an incident or a cause.",
+    "top": 1051,
+    "h": 42,
+    "w": 1145
+   }
+  ]
+ },
+ {
+  "key": "maintenance-preventive",
+  "mock": "maintenance-preventive",
+  "width": 390,
+  "url": "http://localhost:5490/maintenance/preventive?from=2026-10-02T00:00:00Z&to=2026-11-02T00:00:00Z",
+  "settled": true,
+  "h1": "Maintenance",
+  "pageH": 1792,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "2 overdueScheduled by calendar or hours of use · due dates as set in each planAs",
+    "top": 578,
+    "h": 104,
+    "w": 358
+   },
+   {
+    "kind": "cards",
+    "title": "Scheduled items | Overdue | Due in the next 14 days | Feeds evidence",
+    "top": 699,
+    "h": 267,
+    "w": 358,
+    "children": [
+     {
+      "top": 699,
+      "h": 127,
+      "w": 173
+     },
+     {
+      "top": 699,
+      "h": 127,
+      "w": 173
+     },
+     {
+      "top": 839,
+      "h": 127,
+      "w": 173
+     },
+     {
+      "top": 839,
+      "h": 127,
+      "w": 173
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Preventive plan",
+    "top": 1000,
+    "h": 672,
+    "w": 358,
+    "tableClient": 720,
+    "tableScroll": 720
+   },
+   {
+    "kind": "notice",
+    "title": "These plans are not yet approved, and none is linked to an incident or a cause.",
+    "top": 1690,
+    "h": 60,
+    "w": 358
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 1440,
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1000,
+  "docScrollW": 1440,
+  "clientW": 1440,
+  "wide": [],
+  "items": [
+   {
+    "kind": "notice",
+    "title": "This is the third visit to Backup generator in 60 days, and the automatic start ",
+    "top": 385,
+    "h": 42,
+    "w": 1160
+   },
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 445,
+    "h": 346,
+    "w": 734
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 445,
+    "h": 346,
+    "w": 408
+   }
+  ]
+ },
+ {
+  "key": "wr-overview",
+  "mock": "wr-overview",
+  "width": 390,
+  "url": "http://localhost:5490/maintenance/requests/44e99c1e-b394-4ba9-bb16-d788461ac1c5?site_id=COLD-LAB-001",
+  "settled": true,
+  "h1": "Starter/control inspection",
+  "pageH": 1381,
+  "docScrollW": 390,
+  "clientW": 390,
+  "wide": [],
+  "items": [
+   {
+    "kind": "notice",
+    "title": "This is the third visit to Backup generator in 60 days, and the automatic start ",
+    "top": 681,
+    "h": 97,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Work done",
+    "top": 795,
+    "h": 346,
+    "w": 358
+   },
+   {
+    "kind": "panel",
+    "title": "Lifecycle",
+    "top": 1157,
+    "h": 184,
+    "w": 358
+   }
+  ]
+ }
+]

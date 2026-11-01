@@ -481,7 +481,7 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();
     const source = main().querySelector("[data-cold-source]") as HTMLElement;
-    expect(source.textContent).toBe("Generated test data");
+    expect(source.textContent).toBe("Example data");
     expect(source.nextElementSibling?.textContent).toBe("Generated for a test; not readings from physical equipment.");
     expect(main().textContent).not.toContain("Registered simulation");
   });
@@ -586,7 +586,7 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
     expect(details.getAttribute("data-disclosure")).toBe("cold-claim-references");
     expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toMatch(/set aside/);
     expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toContain("13 of 13 expected readings usable");
-    expect(details.querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
+    expect(details.querySelector("[data-cold-source]")?.textContent).toBe("Example data");
     expect(details.querySelector("[data-cold-limitations]")?.textContent).toContain("No spoilage");
     expect(details.querySelector("[data-cold-source-sentence]")?.textContent).toBe("Generated for a test; not readings from physical equipment.");
     expect(details.textContent).toContain("Records not used");
@@ -758,7 +758,7 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy on the cold claim 
   it("pending_source_does_not_relabel_cold_claim_or_site_rows", async () => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
     await settledScreen();
-    expect(claimRefs().querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
+    expect(claimRefs().querySelector("[data-cold-source]")?.textContent).toBe("Example data");
     expect(claimRefs().querySelector("[data-cold-source-sentence]")).not.toBeNull();
     expect(claimRefs().textContent).toContain("cold-backup-failed");
     expect(claimRefs().textContent).not.toContain("other-run");
@@ -807,7 +807,7 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     await settledScreen();
     expect(strip().querySelector(".badge, [class*='badge']")?.textContent ?? strip().textContent).toContain("Open");
     expect(strip().textContent).toContain("Confidence: Bounded");
-    expect(strip().textContent).toContain("Selected source: Generated test data");
+    expect(strip().textContent).toContain("Selected source: Example data");
     expect(strip().textContent).not.toMatch(/evidence (bounded|observed)/);
     cleanup();
     renderCold(ROUTES[2][1], STOCKED);

@@ -134,7 +134,7 @@ def test_applied_action_moves_to_earlier_with_checked_entry() -> None:
 
 
 def test_earlier_result_labels_for_mini_action() -> None:
-    expected = {"VERIFIED": "Verified on test data", "INEFFECTIVE": "Did not fix it",
+    expected = {"VERIFIED": "Verified on example data", "INEFFECTIVE": "Did not fix it",
                 "INCONCLUSIVE": "Not determined", "REASSESSMENT_PENDING": "Pending"}
     for state, label in expected.items():
         rows = rows_by_cat(kobo(actions=(act048(applied=True, open=False, verification_state=state),)))

@@ -703,7 +703,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(withSiblings(sel)) });
     await settledScreen();
     const records = panelTitled("Accepted records behind the conclusions");
-    expect(text(records.querySelector(`[data-record-detail="${id(11)}"]`)!)).toContain("Generated test data");
+    expect(text(records.querySelector(`[data-record-detail="${id(11)}"]`)!)).toContain("Example data");
     expect(text(records.querySelector(`[data-record-detail="${id(11)}"]`)!)).not.toContain("Mixed");
     expect(text(panelTitled("How a claim limit is set"))).not.toContain("Mixed");
     cleanup();

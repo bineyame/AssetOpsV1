@@ -156,14 +156,14 @@ describe("estate Portfolio page", () => {
     expect(cells[2]).toBe("$3.31–$3.97 6 Oct 2026, 14:20–15:20");
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
-    expect(cells[4]).toBe("Well supported Supported Finding · Prepared example data source");
+    expect(cells[4]).toBe("Well supported Supported finding · Prepared example data source");
     expect(cells[5]).toBe("No action yet Recommendation not accepted Review Finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
     // CC-R2-Q3 ruling: the subtitle and the bottom line (no longer computed from priority).
     expect(text(priority)).toContain(
-      "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.",
+      "Selected findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.",
     );
     expect(text(priority.querySelector(".panel-bottom span"))).toBe("Placement and confidence answer different questions.");
     const lenses = within(priority).getAllByRole("button").filter((b) => b.closest("[aria-label='Finding lens']"));
@@ -416,10 +416,10 @@ describe("estate Portfolio page", () => {
     renderAt(`${ENTRY}&lens=opportunities`, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
     const progress = panel("What changed in this review");
-    expect(text(progress)).toContain("Completed activity · Not established");
+    expect(text(progress)).toContain("Completed activity · Not known yet");
     expect(text(progress)).toContain("Trials waiting for a result · Unknown");
     expect(text(progress)).toContain("Fixes confirmed · 2");
-    expect(text(progress)).toContain("Recovered value not established");
+    expect(text(progress)).toContain("Recovered value not known yet");
     expect(text(progress)).toContain(
       "No previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.",
     );
@@ -539,7 +539,7 @@ describe("estate Portfolio page", () => {
     });
     renderAt(ENTRY, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
-    expect(text(footer())).toContain("Cross-Site energy and tariff totals are not established.");
+    expect(text(footer())).toContain("Cross-Site energy and tariff totals are not known yet.");
     expect(text(footer())).toContain("Energy basis unavailable");
     expect(footer().querySelector("a")).toBeNull();
     expect(footer().querySelector("details")).toBeNull();
@@ -771,7 +771,7 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     ]);
     const cold = priority.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-placement]") as HTMLElement;
     expect(cold.getAttribute("data-portfolio-placement")).toBe("ACT_NOW");
-    expect(lines(cold)).toBe("Act now No end is recorded for this episode · No accepted Action; open the recommendation");
+    expect(lines(cold)).toBe("Act now No end is recorded for this episode · No action agreed yet · review the recommendation");
     for (const cell of Array.from(priority.querySelectorAll("[data-portfolio-placement-reasons]"))) {
       expect(text(cell)).not.toBe("");
       expect(text(cell)).not.toMatch(/saving|saved/i);
@@ -830,12 +830,12 @@ describe("CC-R2-Q1 placement and confidence words", () => {
   const REASONS = [
     "Evidence comes from mixed sources; check the source before acting",
     "Evidence source is not resolved; check the source before acting",
-    "The latest assessment no longer confirms this Finding; check its basis",
+    "The latest assessment no longer confirms this finding; check its basis",
     "Cost is withheld because its basis is not current",
     "No end is recorded for this episode",
     "Returned after an earlier episode (Finding 1a2b3c4d)",
     "Reopened after it had closed",
-    "No accepted Action; open the recommendation",
+    "No action agreed yet · review the recommendation",
     "Action accepted, not yet applied",
     "Change applied; verification result pending",
     "Earlier resolution withdrawn after new evidence",
@@ -844,16 +844,16 @@ describe("CC-R2-Q1 placement and confidence words", () => {
     "Product temperature risk; no price basis",
     "Backup start failure; no price basis",
     "Charging service interruption; no price basis",
-    "No price basis for this Finding",
-    "Change verified on test data; watch for a return",
+    "No price basis for this finding",
+    "Change verified on example data; watch for it coming back",
     "Change applied; no verified result yet",
     "No open signal",
   ];
   const CONFIDENCE: [string, string[]][] = [
-    ["SUPPORTED_SOURCE_COHERENT", ["Supported Finding", "Generated test data source"]],
-    ["LIMITED", ["Unconfirmed Finding", "Prepared example data source", "Cost basis withheld"]],
-    ["UNKNOWN", ["Supported Finding", "Mixed sources", "Site coverage incomplete; other Findings may be missing"]],
-    ["UNKNOWN", ["Unconfirmed Finding", "Source not resolved"]],
+    ["SUPPORTED_SOURCE_COHERENT", ["Supported finding", "example data"]],
+    ["LIMITED", ["Unconfirmed finding", "Prepared example data source", "Cost basis withheld"]],
+    ["UNKNOWN", ["Supported finding", "Mixed sources", "Site coverage incomplete; other findings may be missing"]],
+    ["UNKNOWN", ["Unconfirmed finding", "Source not resolved"]],
   ];
 
   it("everyPlacementAndConfidenceTextIsFreeOfGuardedWords", async () => {

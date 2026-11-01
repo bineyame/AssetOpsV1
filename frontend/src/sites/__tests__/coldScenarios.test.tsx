@@ -369,7 +369,7 @@ describe("cold Scenarios page states", () => {
     expect(values[5].querySelector("[data-scenario-evidence-count]")?.textContent).toBe("1 record");
     expect(values[5].textContent).toBe(`1 record${EV_1}`);
     expect(values[6].textContent).toBe("None");
-    expect(values[7].textContent).toBe("Generated test data");
+    expect(values[7].textContent).toBe("Example data");
     expect(values[8].textContent).toBe(REVISION);
     // Every ID is its own exempt reference value.
     const refs = Array.from(expansion.querySelectorAll('[data-vocabulary-exempt="source-reference"]')).map((n) => n.textContent);

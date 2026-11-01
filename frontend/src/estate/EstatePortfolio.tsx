@@ -367,7 +367,7 @@ function OpportunityPanel() {
       <div className="opportunity-story">
         <div>
           <span className="opportunity-quantity">No reviewed what-if yet</span>
-          <p>Eligible productive demand not established</p>
+          <p>Eligible productive demand not known yet</p>
         </div>
         <span className="story-arrow">→</span>
         <div>
@@ -414,7 +414,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
                 <tr>
                   <td>Maintenance work</td>
                   <td>No completed-work source selected</td>
-                  <td>Activity not established</td>
+                  <td>Activity not known yet</td>
                 </tr>
                 <tr>
                   <td>Policy trial</td>
@@ -459,7 +459,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
       </div>
       <div className="change-line">
         <span className="change-dot" />
-        <strong>Completed activity · Not established</strong>
+        <strong>Completed activity · Not known yet</strong>
         <span>Outcome unverified</span>
       </div>
       <div className="change-line">
@@ -470,7 +470,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
       <div className="change-line">
         <span className={`change-dot${(p.verified_resolution_count ?? 0) > 0 ? " blue" : ""}`} />
         <strong>Fixes confirmed · {verified}</strong>
-        <span>Recovered value not established</span>
+        <span>Recovered value not known yet</span>
       </div>
       <div className="outcome-note">{OUTCOME_NOTE}</div>
     </section>

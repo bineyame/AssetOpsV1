@@ -1,0 +1,298 @@
+Portfolio Value & Operations
+
+Operating decisions across the estate: cost, service, productive use and asset value
+
+24–30 Oct 2026
+Latest information, as of 1 Nov 2026, 17:00
+From
+to (included)
+Show
+View an earlier point in time
+Times in UTC
+Some days not checked yet
+Portfolio: Partly checked
+3 accessible Sites · 1 mini-grid / 1 cold-chain / 1 EV charging
+Kobo mini-grid: 3 of 7 days checked · 4 days not available yet · not checked: 24 Oct, 25 Oct, 26 Oct, 28 Oct
+Assessment scope & periods ↗
+Grow revenue
+→
+
+Capture more value from existing infrastructure and expand earning potential
+
+Not available yet
+
+Site income not recorded
+
+GreenHarvest Cold Room
+: Not measured yet
+Depot Charging Hub
+: Watch
+Kobo mini-grid
+: Unknown
+Opportunities · revenue not measured yet
+Optimize cost and efficiency
+→
+
+Eliminate avoidable expenditure and get more output from operational resources
+
+Can't be compared across these sites yet
+
+Inspect Site records and exclusions
+
+GreenHarvest Cold Room
+: Needs attention
+Depot Charging Hub
+: Not measured yet
+Kobo mini-grid
+: Needs attention
+No combined operating-cost amount
+Protect asset and capital
+→
+
+Preserve asset value, avoid premature replacement and reduce service disruption
+
+Not assessed
+
+Service disruptions recorded in Findings · 7 early warnings, counted separately · loss not priced
+
+GreenHarvest Cold Room
+: Needs attention
+Depot Charging Hub
+: Needs attention
+Kobo mini-grid
+: Watch
+Measured events, counted separately · loss not priced
+Assure performance and returns
+→
+
+Establish with defensible evidence whether the infrastructure is delivering expected results
+
+Not known yet
+
+No verified result yet · targets declared at 3 sites · evidence gaps not assessed
+
+GreenHarvest Cold Room
+: Watch
+Depot Charging Hub
+: Watch
+Kobo mini-grid
+: No objective declared
+Completed work does not establish savings
+Not assessed
+priority sites
+Unknown
+opportunity
+Unknown
+site evidence gaps
+1
+accepted actions
+7
+warnings not yet priced
+Distinct consequence categories · no combined savings total
+Where management should act first
+
+Selected findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.
+
+5 FINDINGS · SOME DAYS NOT CHECKED
+All findings
+Cost
+Risks
+Opportunities
+5 findings · some days not checked
+SITE	FINDING / OPERATING MECHANISM	VALUE / CONSEQUENCE	PLACEMENT	CONFIDENCE	ACTION / NEXT MOVE
+ACT NOW
+GreenHarvest Cold Room
+Cold-chain
+Current view
+	Cold room temperature outside its policy band
+Chamber temperature above policy
+Affects
+Protect asset and capital
+	
+Unpriced
+From 30 Oct 2026, 16:15 · no end time yet
+	Act now
+No end time yet · No action agreed yet · review the recommendation
+	Well supported
+Supported finding · example data
+	No action yet
+No action agreed yet
+Review Finding
+
+GreenHarvest Cold Room
+Cold-chain
+Current view
+	Backup generator did not start when the grid failed
+Automatic start failed
+Affects
+Protect asset and capital
+Also checked under
+Optimize cost and efficiency
+	
+No consequence recorded
+From 30 Oct 2026, 16:00 · no end time yet
+	Act now
+No end time yet · No action agreed yet · review the recommendation
+	Well supported
+Supported finding · example data
+	No action yet
+No action agreed yet
+Review Finding
+
+GreenHarvest Cold Room
+Cold-chain
+Current view
+	Backup generator did not start when the grid failed
+Automatic start failed
+Affects
+Protect asset and capital
+Also checked under
+Optimize cost and efficiency
+	
+No consequence recorded
+From 27 Oct 2026, 16:00 · no end time yet
+	Act now
+No end time yet · No action agreed yet · review the recommendation
+	Well supported
+Supported finding · example data
+	No action yet
+No action agreed yet
+Review Finding
+
+UNPRICED RISK
+Kobo mini-grid
+Mini-grid
+Current view
+	Generator may have been on longer than needed
+Possible extended generator support
+Affects
+Optimize cost and efficiency
+Also checked under
+Protect asset and capital
+	
+Partly checked · value shown once every day is checked
+30 Oct 2026, 04:35–07:55
+	Unpriced risk
+No price basis for this finding
+	Well supported
+Supported finding · example data · Site coverage incomplete; other findings may be missing
+	No action yet
+No action agreed yet
+Review Finding
+
+Depot Charging Hub
+EV charging
+Current view
+	Observed EV charging interruption
+Charging session interrupted
+Affects
+Protect asset and capital
+Affects
+Grow revenue
+	
+No consequence recorded
+27 Oct 2026, 08:01–08:16
+	Unpriced risk
+Charging service interruption; no price basis
+	Well supported
+Supported finding · example data
+	No action yet
+No action agreed yet
+Review Finding
+Early warnings · not priced yet
+i
+Risk
+Repeated maintenance without a result
+GreenHarvest · Optimize cost and efficiency · Backup generator visited 3 times in 60 days (6 Oct, 19 Oct, 30 Oct); the automatic start failure is still open
+Early warning
+Witnessed backup start test overdue
+GreenHarvest · Protect asset and capital · Planned for 26 Oct, not done
+Early warning
+Compressor coil cleaning due soon
+GreenHarvest · Protect asset and capital · Due 8 Nov
+Risk
+Connector c1 out of service
+Depot · Protect asset and capital · 44 min out and 16 min unknown on 27 Oct
+How placement works
+Open all Findings →
+Placement and confidence answer different questions.
+Outcomes across the estate
+
+How each site is doing on what matters
+
+GreenHarvest Cold Room
+Depot Charging Hub
+Kobo mini-grid
+Grow revenue
+Capture more value from existing infrastructure and expand earning potential
+Not measured yet
+Paid cold-room use
+Watch
+Charger use
+Unknown
+Productive electricity sales
+Optimize cost and efficiency
+Eliminate avoidable expenditure and get more output from operational resources
+Needs attention
+Cost per cooling unit
+Not measured yet
+Energy cost per km
+Needs attention
+Supply cost per kWh
+Protect asset and capital
+Preserve asset value, avoid premature replacement and reduce service disruption
+Needs attention
+Stock kept saleable
+Needs attention
+Buses ready for service
+Watch
+Battery and generator life
+Assure performance and returns
+Establish with defensible evidence whether the infrastructure is delivering expected results
+Watch
+Evidence quality
+Watch
+Evidence quality
+No objective declared
+Evidence quality
+Needs attention
+Watch
+Opportunity
+On track
+Unknown
+Not measured yet
+
+Evidence that would change a decision
+
+Evidence coverage incomplete
+
+Inspect the constraint →
+GROW USEFUL DEMAND
+An opportunity beyond reducing cost
+What-if
+No reviewed what-if yet
+
+Eligible productive demand not known yet
+
+→
+No eligible headroom or demand basis
+
+No what-if value worked out yet
+
+A what-if needs reviewed physical headroom, demand and an agreed cost assumption.
+
+Review opportunity Finding · Not available yet
+Inspect physical headroom · Not available yet
+CLOSE THE LOOP
+What changed in this review
+Inspect basis ↗
+Completed activity · Not known yet
+Outcome unverified
+Trials waiting for a result · 0
+Guardrails incomplete
+Fixes confirmed · 1
+Recovered value not known yet
+Observed change → comparable evidence → verified outcome → eligible financial value
+Cross-Site energy and tariff totals are not known yet.
+Energy basis unavailable
+Categories and windows remain separate.

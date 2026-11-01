@@ -453,8 +453,8 @@ describe("Dispatch day Finding links (S4-01 phase 3)", () => {
   });
 
   it.each([
-    ["NO_FINDING", /fully assessed and has no Finding/],
-    ["NOT_DETERMINABLE", /not a no-Finding result/],
+    ["NO_FINDING", /fully assessed and has no finding/],
+    ["NOT_DETERMINABLE", /not a no-finding result/],
     ["FINDING_MATCH_PENDING", /not yet been compared/],
   ])("names a %s day without a Finding link", async (state, words) => {
     const { container } = mountWith(findingsFake(state, []));

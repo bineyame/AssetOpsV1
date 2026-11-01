@@ -125,8 +125,8 @@ export function recommendationWords(code: string | null | undefined): ProductWor
       return {
         ...base,
         label: "No trial proposed",
-        sentence: "The fixed rule proposes no trial for this Finding version. This is not a sign that nothing can be improved.",
-        next: "Open the Finding to see what it found.",
+        sentence: "The fixed rule proposes no trial for this finding version. This is not a sign that nothing can be improved.",
+        next: "Open the finding to see what it found.",
         tone: "limited",
       };
     case "ACCEPTED":

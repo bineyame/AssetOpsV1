@@ -276,7 +276,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expectV69Panels("sessions");
     expectPlantedPanelRejected("sessions");
     expect(strip()).toContain("Sessions observed");
-    expect(strip()).toContain("Generated test data");
+    expect(strip()).toContain("Example data");
     expect(strip()).toContain("These records came from a registered simulation, not a live charger.");
     expect(Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__label")).map((x) => x.textContent)).toEqual([
       "Attempts", "Confirmed delivery", "Fault-aborted", "Incomplete",
@@ -855,7 +855,7 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
   it("pending_source_does_not_relabel_ev_selected_badges_or_rows", async () => {
     renderEv(SESSIONS, ok(pendingSessions));
     await settledScreen();
-    expect(strip()).toContain("Generated test data");
+    expect(strip()).toContain("Example data");
     expect(document.querySelector("[data-ev-provenance-note]")).not.toBeNull();
     expect(strip()).toContain("Current accepted evidence source: Mixed sources");
     expect(strip().replace("Current accepted evidence source: Mixed sources", "")).not.toContain("Mixed sources");
@@ -863,7 +863,7 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
     // no selected result: no selected-result badge or simulation note; the pending class is labelled as current evidence
     renderEv(SESSIONS, ok({ ...pendingSessions, selected_source_provenance: null }));
     await settledScreen();
-    expect(strip()).not.toContain("Generated test data");
+    expect(strip()).not.toContain("Example data");
     expect(document.querySelector("[data-ev-provenance-note]")).toBeNull();
     expect(strip()).toContain("Current accepted evidence source: Mixed sources");
   });

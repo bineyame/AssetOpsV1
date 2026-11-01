@@ -1,0 +1,65 @@
+Maintenance
+WR-006
+Overview
+· site: GreenHarvest Cold Room
+Starter/control inspection
+
+WR-006 · GreenHarvest Cold Room · corrective
+
+Open site
+Overview
+Maintenance record
+Verification · Not available yet
+History
+
+MOCK DEVIATION D1 (R396)
+
+Updated 1 Nov 2026, 17:06 · Times in UTC
+
+Reload
+
+MOCK DEVIATION D2 (R363)
+
+OWNER
+Maintenance lead
+Full owner text
+DUE / SLA
+Not set
+STATE
+Completed · outcome not established
+SOURCE
+Incident INC-005 · Backup generator did not start when the grid failed
+Full source text
+SUCCESS CRITERION
+Not recorded
+
+This is the third visit to Backup generator in 60 days, and the automatic start failure is still open. Repeated work without a result costs money; no amount is shown because a cost per visit is not set for this site.
+
+Work done
+Starter/control inspection.
+Full narrative text
+
+Latest activity:
+
+Starter and control inspection
+Full activity text
+Type
+Corrective
+Asset
+Backup generator
+Warranty
+Warranty not recorded
+Linked action
+ACT-002
+
+MOCK DEVIATION D1 (R365)
+
+Lifecycle
+Finding
+Triage
+Assigned
+Visit
+Completed
+Verified
+
+Completed is not Verified. Whether this work fixed the problem is not checked yet.

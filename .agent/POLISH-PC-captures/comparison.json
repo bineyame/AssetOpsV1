@@ -1,0 +1,912 @@
+[
+ {
+  "key": "portfolio-week",
+  "width": 1440,
+  "mock": "portfolio",
+  "h1": {
+   "mock": "Portfolio Value & Operations",
+   "product": "Portfolio Value & Operations"
+  },
+  "panels": {
+   "mock": 4,
+   "product": 4
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 2054,
+   "product": 1902,
+   "ratio": 0.93
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "portfolio-week",
+  "width": 390,
+  "mock": "portfolio",
+  "h1": {
+   "mock": "Portfolio Value & Operations",
+   "product": "Portfolio Value & Operations"
+  },
+  "panels": {
+   "mock": 4,
+   "product": 4
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 3989,
+   "product": 3849,
+   "ratio": 0.96
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S",
+  "width": 1440,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 1963,
+   "product": 2420,
+   "ratio": 1.23
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S",
+  "width": 390,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 3741,
+   "product": 4094,
+   "ratio": 1.09
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S-open",
+  "width": 1440,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 1963,
+   "product": 21048,
+   "ratio": 10.72
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S-open",
+  "width": 390,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 3741,
+   "product": 29972,
+   "ratio": 8.01
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S1",
+  "width": 1440,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 1963,
+   "product": 1944,
+   "ratio": 0.99
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-board-S1",
+  "width": 390,
+  "mock": "mini",
+  "h1": {
+   "mock": "Kobo Mini-grid",
+   "product": "Kobo mini-grid"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 8
+  },
+  "missing_panels": [
+   "what happened in the selected hour",
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "what happened on this day",
+   "possible cost",
+   "site information",
+   "provenance and status",
+   "quick actions"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 3741,
+   "product": 3336,
+   "ratio": 0.89
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-verification",
+  "width": 1440,
+  "mock": "verification",
+  "h1": {
+   "mock": "Reduce extended generator support",
+   "product": "ACT-001 · Battery reserve trial"
+  },
+  "panels": {
+   "mock": 3,
+   "product": 3
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1312,
+   "product": 1418,
+   "ratio": 1.08
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "kobo-verification",
+  "width": 390,
+  "mock": "verification",
+  "h1": {
+   "mock": "Reduce extended generator support",
+   "product": "ACT-001 · Battery reserve trial"
+  },
+  "panels": {
+   "mock": 3,
+   "product": 3
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 2347,
+   "product": 2670,
+   "ratio": 1.14
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "cold-board-failure",
+  "width": 1440,
+  "mock": "cold",
+  "h1": {
+   "mock": "GreenHarvest Cold Room",
+   "product": "GreenHarvest Cold Room"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 2351,
+   "product": 2436,
+   "ratio": 1.04
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "cold-board-failure",
+  "width": 390,
+  "mock": "cold",
+  "h1": {
+   "mock": "GreenHarvest Cold Room",
+   "product": "GreenHarvest Cold Room"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 4659,
+   "product": 4595,
+   "ratio": 0.99
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "cold-board-normal",
+  "width": 1440,
+  "mock": "cold",
+  "h1": {
+   "mock": "GreenHarvest Cold Room",
+   "product": "GreenHarvest Cold Room"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 2351,
+   "product": 1546,
+   "ratio": 0.66
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "cold-board-normal",
+  "width": 390,
+  "mock": "cold",
+  "h1": {
+   "mock": "GreenHarvest Cold Room",
+   "product": "GreenHarvest Cold Room"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 4659,
+   "product": 2524,
+   "ratio": 0.54
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "ev-board-fault",
+  "width": 1440,
+  "mock": "ev",
+  "h1": {
+   "mock": "Depot Charging Hub",
+   "product": "Depot Charging Hub"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 2015,
+   "product": 2023,
+   "ratio": 1
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "ev-board-fault",
+  "width": 390,
+  "mock": "ev",
+  "h1": {
+   "mock": "Depot Charging Hub",
+   "product": "Depot Charging Hub"
+  },
+  "panels": {
+   "mock": 5,
+   "product": 5
+  },
+  "missing_panels": [
+   "bounded money consequence"
+  ],
+  "extra_panels": [
+   "possible cost"
+  ],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 3921,
+   "product": 3468,
+   "ratio": 0.88
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "findings-all",
+  "width": 1440,
+  "mock": "findings",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1468,
+   "product": 1309,
+   "ratio": 0.89
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "findings-all",
+  "width": 390,
+  "mock": "findings",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 2949,
+   "product": 1754,
+   "ratio": 0.59
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": [
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral",
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral"
+   ]
+  }
+ },
+ {
+  "key": "findings-cost",
+  "width": 1440,
+  "mock": "findings-cost",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1001,
+   "product": 1000,
+   "ratio": 1
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "findings-cost",
+  "width": 390,
+  "mock": "findings-cost",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1472,
+   "product": 970,
+   "ratio": 0.66
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": [
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral",
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral"
+   ]
+  }
+ },
+ {
+  "key": "findings-risks",
+  "width": 1440,
+  "mock": "findings-risks",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1261,
+   "product": 1177,
+   "ratio": 0.93
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "findings-risks",
+  "width": 390,
+  "mock": "findings-risks",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 2259,
+   "product": 1600,
+   "ratio": 0.71
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": [
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral",
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral"
+   ]
+  }
+ },
+ {
+  "key": "findings-opportunities",
+  "width": 1440,
+  "mock": "findings-opportunities",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1001,
+   "product": 1000,
+   "ratio": 1
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "findings-opportunities",
+  "width": 390,
+  "mock": "findings-opportunities",
+  "h1": {
+   "mock": "Findings",
+   "product": "Findings"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1498,
+   "product": 970,
+   "ratio": 0.65
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": [
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral",
+    "LI",
+    "v69-chip estate-state-chip estate-state-chip--neutral"
+   ]
+  }
+ },
+ {
+  "key": "maintenance-preventive",
+  "width": 1440,
+  "mock": "maintenance-preventive",
+  "h1": {
+   "mock": "Maintenance",
+   "product": "Maintenance"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1055,
+   "product": 1143,
+   "ratio": 1.08
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "maintenance-preventive",
+  "width": 390,
+  "mock": "maintenance-preventive",
+  "h1": {
+   "mock": "Maintenance",
+   "product": "Maintenance"
+  },
+  "panels": {
+   "mock": 1,
+   "product": 1
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 4,
+   "product": 4
+  },
+  "pageH": {
+   "mock": 1588,
+   "product": 1792,
+   "ratio": 1.13
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "wr-overview",
+  "width": 1440,
+  "mock": "wr-overview",
+  "h1": {
+   "mock": "Starter and control-circuit inspection",
+   "product": "Starter/control inspection"
+  },
+  "panels": {
+   "mock": 2,
+   "product": 2
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 1001,
+   "product": 1000,
+   "ratio": 1
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ },
+ {
+  "key": "wr-overview",
+  "width": 390,
+  "mock": "wr-overview",
+  "h1": {
+   "mock": "Starter and control-circuit inspection",
+   "product": "Starter/control inspection"
+  },
+  "panels": {
+   "mock": 2,
+   "product": 2
+  },
+  "missing_panels": [],
+  "extra_panels": [],
+  "cards": {
+   "mock": 0,
+   "product": 0
+  },
+  "pageH": {
+   "mock": 1472,
+   "product": 1381,
+   "ratio": 0.94
+  },
+  "overflow": {
+   "mock": false,
+   "product": false,
+   "wide": []
+  }
+ }
+]

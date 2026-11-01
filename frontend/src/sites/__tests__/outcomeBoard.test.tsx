@@ -234,12 +234,12 @@ describe("OUT-E Earlier entry detail", () => {
 
   it("showsTheDetailAfterTheResultInsideTheEntry", async () => {
     await renderBoard(withEarlier([
-      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on test data", detail: DETAIL },
+      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on example data", detail: DETAIL },
     ]));
     const item = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='prev'] li") as HTMLElement;
     expect(item.querySelector("small")?.textContent).toBe(DETAIL);
-    expect(item.querySelector(".oc-state")?.textContent).toBe("Verified on test data");
-    expect(item.textContent).toBe(`ACT-048 · Generator stop trial Verified on test data ${DETAIL}`);
+    expect(item.querySelector(".oc-state")?.textContent).toBe("Verified on example data");
+    expect(item.textContent).toBe(`ACT-048 · Generator stop trial Verified on example data ${DETAIL}`);
   });
 
   it("rendersNoDetailWhenNullOrAbsent", async () => {
@@ -252,7 +252,7 @@ describe("OUT-E Earlier entry detail", () => {
 
   it("detailPassesTheVocabularyScanAndSavesOnlyInNotRealisedSavings", async () => {
     await renderBoard(withEarlier([
-      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on test data", detail: DETAIL },
+      { text: "ACT-048 · Generator stop trial", href: "/sites/KOBO-001/actions/a-1", result_label: "Verified on example data", detail: DETAIL },
       { text: "ACT-049 · Generator stop trial", href: "/sites/KOBO-001/actions/a-2", result_label: "Not determined",
         detail: "Modelled change not calculated: the trial result is not determined · Status changed; not attributed" },
     ]));

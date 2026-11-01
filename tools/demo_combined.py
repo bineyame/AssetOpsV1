@@ -18,7 +18,8 @@ story instant. The data is registered Lab simulation placed on a story calendar 
    (`tools/demo_combined_cold.py`), Depot (`tools/demo_combined_ev.py`), each a child process in the tree.
 3. Objectives, the S2 Evidence comparison, two schedule ticks, the Performance comparison, the self-check.
 `serve` runs `host/lab_app.py` on --port (default 8990) with the cursor keys from `<work>/keys.json`, plus a
-walkthrough-only schedule loop (one tick every 120 s, then the Performance comparison) that stops with serve.
+walkthrough-only schedule loop (one tick every 120 s, then the Performance comparison) that stops with serve. After
+the first tick it pre-warms the story-week Portfolio outcome summary once and prints "ready:" when that returns.
 `drop` removes the database and work folder only when the work folder's marker records this tool made them.
 
 Guards: `--db` must match `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$`; `--work` must be a `var/demo3*` or
@@ -170,13 +171,51 @@ LINK_FORMS = ("/portfolio?", "/findings?", "/maintenance/preventive?", "/mainten
               "/sites/KOBO-001/findings/")
 
 
+def story_week_query(story: dict) -> str:
+    """The Portfolio and Findings week window around story day S (from S-6d to S+1d)."""
+    S = at(story["S"])
+    return f"from={iso(S - timedelta(days=6))}&to={iso(S + timedelta(days=1))}"
+
+
+PREWARM_TIMEOUT_SECONDS = 900
+
+
+def prewarm(port: int, story: dict, fetch: Any = None, clock: Any = time.monotonic) -> bool:
+    """POLISH whole-diff review item 8: request the Portfolio outcome-summary for the story week once, so the first
+    Portfolio a presenter opens is not the cold one. Prints "ready:" only when that request has returned (any HTTP
+    status); a request that never returns prints a warning instead, and no "ready:" line."""
+    import urllib.error
+    import urllib.request
+
+    url = f"http://127.0.0.1:{port}/api/estate/outcome-summary?{story_week_query(story)}"
+    if fetch is None:
+        def fetch(target: str) -> int:
+            try:
+                with urllib.request.urlopen(target, timeout=PREWARM_TIMEOUT_SECONDS) as response:
+                    response.read()
+                    return response.status
+            except urllib.error.HTTPError as error:
+                return error.code
+    say("Pre-warming the Portfolio for the story week (outcome summary, once); wait for the ready: line.")
+    started = clock()
+    try:
+        status = fetch(url)
+    except Exception as error:  # noqa: BLE001 - any transport failure means "not warmed"
+        say(f"pre-warm did not finish ({type(error).__name__}: {error}); open the Portfolio week link and wait until "
+            "the outcome matrix fills before the client joins.")
+        return False
+    say(f"ready: Portfolio outcome summary for the story week answered HTTP {status} in {clock() - started:.0f} s. "
+        "Do not restart serve once the client has joined.")
+    return True
+
+
 def story_links(story: dict, days: list[dict], kobo: dict | None, web: int) -> list[tuple[str, str]]:
     """The walkthrough links (POLISH §4, Addendum 9 Q3): week and month lists around S, one board per story day (Kobo
     by `date`; cold and EV on the day's event window from `days.json`, or the whole calendar day when the day has
     no event), the Kobo Overview on S, and the Kobo Action's verification and Finding when `kobo.json` exists."""
     S = at(story["S"])
     base = f"http://localhost:{web}"
-    week = f"from={iso(S - timedelta(days=6))}&to={iso(S + timedelta(days=1))}"
+    week = story_week_query(story)
     month = f"from={iso(S - timedelta(days=28))}&to={iso(S + timedelta(days=3))}"
     rows = [("Portfolio, week to story day S", f"{base}/portfolio?{week}"),
             ("Findings, week to story day S", f"{base}/findings?{week}"),
@@ -522,8 +561,13 @@ class Demo:
             for line in self.next_free_days():
                 say(f"  {line}")
         try:
+            warmed = False
             while api.poll() is None:
                 self.tick()
+                if not warmed:
+                    # Review item 8: after the first tick, warm the story-week Portfolio once before "ready:".
+                    warmed = True
+                    prewarm(port, self.story())
                 for _ in range(TICK_EVERY_SECONDS):
                     if api.poll() is not None:
                         break

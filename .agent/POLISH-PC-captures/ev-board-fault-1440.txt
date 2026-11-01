@@ -1,0 +1,138 @@
+Sites
+Depot Charging Hub
+Depot Charging Hub
+Example data
+
+Overview · operating objectives for the selected period
+
+Overview
+Foundation
+Health
+Performance
+Findings
+Work
+Financials
+Evidence
+
+27 Oct 2026, 08:00–09:00 · as of 27 Oct, 09:00
+Times in UTC
+
+Needs attentionConfidence: measuredEvidence limited Example dataExample charger reports, not from physical chargers.
+Inspect evidence
+
+Let depot vehicles charge when scheduled, within the configured Site import limit. Configured service hours 08:00–16:00 · Site import limit 80 kW
+
+How this site is doing
+i
+Grow revenue
+Capture more value from existing infrastructure and expand earning potential
+Watch
+Charging income estimate not available yet
+1 issue
+Optimize cost and efficiency
+Eliminate avoidable expenditure and get more output from operational resources
+Not measured yet
+Energy cost per km needs odometer readings and a published charging tariff
+Protect asset and capital
+Preserve asset value, avoid premature replacement and reduce service disruption
+Needs attention
+1 interrupted · 0 unknown of 1 session
+4 issues · 1 in hand
+
+Connector c1 was out of service for 44 min; which departures were affected is not known yet. Charger condition is not assessed
+
+WHAT DRIVES IT
+Session service
+1 fault-aborted session, 0 outcomes unknown
+Limited
+Connector availability
+Connector c1: 44 min out, 16 min unknown
+Limited
+Charger condition
+Fault recorded on Connector c1
+Limited
+Site power
+Peak 60 kW of the 80 kW import limit
+Limited
+Warranty
+Not available yet · no warranty record
+Declared objective
+Buses ready for service: no interrupted charging sessions · 1 interrupted
+Missed
+ISSUES
+Finding Observed EV charging interruption
+Risk Connector c1 out of service
+Early warning Connector inspection overdue
+Early warning Charger fault and overdue inspection
+WHAT CAN BE DONE
+Investigate Connector c1
+ALREADY IN HAND
+PM-013 · Connector inspection Overdue
+EARLIER INTERVENTIONS
+WR-011 · Connector inspection Did not fix it
+WR-012 · Connector inspection Not yet verified
+Depot evidence →
+Assure performance and returns
+Establish with defensible evidence whether the infrastructure is delivering expected results
+Watch
+Evidence limited · no verified result yet
+No open issues
+What happened on the service day
+
+Plain sequence from accepted charger and meter records
+
+Review sessions →
+08:01
+Session started · Charger report
+08:16
+Connector fault · Charger report
+08:16
+Session aborted · Charger report
+
+Only accepted records are shown; the cause of an interruption is not established.
+
+Event details
+Charging activity and site power
+
+Power is operating context, not proof of charger condition or cause.
+
+80 kW
+08:00
+09:00
+Connector energy
+Site import
+Configured limit
+Chart details
+
+Single line diagram → Opens the site layout as it was at the end of this period.
+
+Needs attention
+1
+Fault-aborted session
+
+A session ended with a connector fault.
+
+Open Finding →
+
+2
+No tariff set for estimates
+
+No published EV tariff covers the eligible delivery.
+
+Financials →
+
+Possible cost
+Unpriced
+
+No published EV tariff covers the eligible delivery.
+
+What-if details
+
+Open financial bridge →
+
+Next step
+Publish a charging tariff
+
+Needed before charging income can be estimated.
+
+Review recommendation · Not available yet

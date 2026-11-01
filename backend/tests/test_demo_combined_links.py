@@ -83,3 +83,27 @@ def test_guards_accept_polish_and_refuse_other_names() -> None:
         tool.Demo("assetops_other_x_test", "var/polish_full")
     with pytest.raises(SystemExit, match="--work"):
         tool.Demo("assetops_polish_full_test", "var/other_x")
+
+
+def test_prewarm_requests_the_story_week_outcome_summary_once_then_prints_ready(capsys) -> None:
+    """Review item 8: one outcome-summary request for the Portfolio week window; "ready:" only after it returns."""
+    calls: list[str] = []
+    ticks = iter([100.0, 142.0])
+    assert tool.prewarm(8990, STORY, fetch=lambda url: calls.append(url) or 200, clock=lambda: next(ticks)) is True
+    week = next(url for label, url in _links() if label.startswith("Portfolio, week")).split("?", 1)[1]
+    assert calls == [f"http://127.0.0.1:8990/api/estate/outcome-summary?{week}"]
+    out = capsys.readouterr().out.splitlines()
+    assert [line for line in out if line.startswith("ready:")] == [
+        "ready: Portfolio outcome summary for the story week answered HTTP 200 in 42 s. "
+        "Do not restart serve once the client has joined."]
+    assert out[-1].startswith("ready:")
+
+
+def test_prewarm_that_never_returns_prints_no_ready_line(capsys) -> None:
+    def fail(url: str) -> int:
+        raise TimeoutError("timed out")
+
+    assert tool.prewarm(8990, STORY, fetch=fail, clock=lambda: 0.0) is False
+    out = capsys.readouterr().out
+    assert not any(line.startswith("ready:") for line in out.splitlines())
+    assert "pre-warm did not finish (TimeoutError: timed out)" in out

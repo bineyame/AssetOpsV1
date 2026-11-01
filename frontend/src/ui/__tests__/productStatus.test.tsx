@@ -240,13 +240,29 @@ describe("W1 shared presentation: primitives", () => {
       <ExactReferences name="refs" references={[{ label: "Reason code", value: "GUARDRAIL_FAIL" }, { label: "Assessment reference", value: null }]} />,
     );
     const summary = container.querySelector("summary") as HTMLElement;
-    expect(summary.textContent).toBe("How this was worked out");
+    // POLISH whole-diff review M1: the exact references are the closed "Technical details" region.
+    expect(summary.textContent).toBe("Technical details");
+    expect(container.querySelector("details")?.hasAttribute("data-technical-details")).toBe(true);
     expect(summary.getAttribute("aria-label")).toBeNull();
     summary.focus();
     expect(document.activeElement).toBe(summary);
     expect(container.querySelector("code")?.getAttribute("data-vocabulary-exempt")).toBe("source-reference");
     expect(within(container).getByText("not recorded")).toBeTruthy();
     expect(render(<ExactReferences name="none" references={[]} />).container.innerHTML).toBe("");
+  });
+
+  it("with extra detail the plain detail stays readable and the exact values nest in Technical details (M1)", () => {
+    const { container } = render(
+      <ExactReferences name="refs" references={[{ label: "Reason code", value: "GUARDRAIL_FAIL" }]} extra={<p>Plain method note.</p>} />,
+    );
+    const outer = container.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(outer.querySelector(":scope > summary")?.textContent).toBe("How this was worked out");
+    expect(outer.hasAttribute("data-technical-details")).toBe(false);
+    const tech = outer.querySelector("[data-technical-details]") as HTMLElement;
+    expect(tech.querySelector("summary")?.textContent).toBe("Technical details");
+    expect(tech.textContent).toContain("GUARDRAIL_FAIL");
+    expect(tech.textContent).not.toContain("Plain method note.");
+    expect(outer.textContent).toContain("Plain method note.");
   });
 
   it("an unknown value draws a distinct not-known mark and text, never a zero-length bar", () => {

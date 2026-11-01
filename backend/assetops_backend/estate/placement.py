@@ -23,7 +23,7 @@ RECURRED_TITLED = "Happened again after an earlier occurrence ({other})"
 REASON_TEXT = {
     "EVIDENCE_SOURCE_MIXED": "Evidence comes from mixed sources; check the source before acting",
     "EVIDENCE_SOURCE_UNKNOWN": "Evidence source is not resolved; check the source before acting",
-    "LIFECYCLE_UNCONFIRMED": "The latest assessment no longer confirms this Finding; check its basis",
+    "LIFECYCLE_UNCONFIRMED": "The latest assessment no longer confirms this finding; check its basis",
     "CONSEQUENCE_WITHHELD": "Cost is withheld because its basis is not current",
     "EPISODE_OPEN": "No end time yet",
     "RECURRED": "Happened again after an earlier occurrence",
@@ -37,9 +37,9 @@ REASON_TEXT = {
     "UNPRICED_PRODUCT_EXPOSURE": "Product temperature risk; no price basis",
     "UNPRICED_START_FAILURE": "Backup start failure; no price basis",
     "UNPRICED_SERVICE_INTERRUPTION": "Charging service interruption; no price basis",
-    "UNPRICED_OTHER": "No price basis for this Finding",
-    # CC-R1-Q1 ruling: "simulated" stays guarded, so the verified-change text says "test data".
-    "VERIFIED_WATCH_RETURN": "Change verified on test data; watch for a return",
+    "UNPRICED_OTHER": "No price basis for this finding",
+    # CC-R1-Q1 ruling: "simulated" stays guarded, so the verified-change text says "example data" (POLISH Addendum 14).
+    "VERIFIED_WATCH_RETURN": "Change verified on example data; watch for it coming back",
     "APPLIED_AWAITING_PLAN": "Change applied; no verified result yet",
     "NO_OPEN_SIGNAL": "No open signal",
 }
@@ -61,7 +61,7 @@ _SITE_COVERED = ("CURRENT", "HISTORICAL")
 _LIFECYCLE_TEXT = {"UNCONFIRMED": "Unconfirmed finding", None: "Supported finding"}
 _SOURCE_UNRESOLVED_TEXT = "Source not resolved"
 _WITHHELD_TEXT = "Cost basis withheld"
-_COVERAGE_TEXT = "Site coverage incomplete; other Findings may be missing"
+_COVERAGE_TEXT = "Site coverage incomplete; other findings may be missing"
 
 
 @dataclass(frozen=True)

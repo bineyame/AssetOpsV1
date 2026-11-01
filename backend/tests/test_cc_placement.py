@@ -55,7 +55,7 @@ def test_groups_labels_and_reason_texts_are_the_fixed_policy() -> None:
                            "COMPARE_VALUE": "Compare value", "UNPRICED_RISK": "Unpriced risk", "MONITOR": "Monitor"}
     assert len(REASON_TEXT) == 20
     # CC-R1-Q1 ruling: the verified-change text says "test data", never "simulated".
-    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified on test data; watch for a return"
+    assert REASON_TEXT["VERIFIED_WATCH_RETURN"] == "Change verified on example data; watch for it coming back"
     assert not any("simulat" in t.lower() or "saving" in t.lower() or "saved" in t.lower()
                    for t in REASON_TEXT.values())
 
@@ -171,9 +171,9 @@ def test_every_reason_code_is_reachable() -> None:
     ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed finding", "example data"]),
     ({"cons": "WITHHELD"}, {"state": "PARTIAL"}, "LIMITED",
      ["Supported finding", "example data", "Cost basis withheld",
-      "Site coverage incomplete; other Findings may be missing"]),
+      "Site coverage incomplete; other findings may be missing"]),
     ({}, {"state": "UNKNOWN"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported finding", "example data", "Site coverage incomplete; other Findings may be missing"]),
+     ["Supported finding", "example data", "Site coverage incomplete; other findings may be missing"]),
 ])
 def test_confidence_from_row_facts_with_site_text_only(facts, cov, state, reasons) -> None:
     p = place(row(**facts), None, cov, None)

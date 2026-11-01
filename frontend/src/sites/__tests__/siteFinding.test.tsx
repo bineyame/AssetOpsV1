@@ -371,7 +371,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     const { container } = mount(fake({ status: "loaded", value }));
     await settledScreen();
     const item = container.querySelector("[data-finding-recurrence='LINKED']");
-    expect(item?.textContent).toMatch(/does not say the earlier Finding is still open/);
+    expect(item?.textContent).toMatch(/does not say the earlier finding is still open/);
     expect(item?.querySelector("a")?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${PRIOR}`);
     expect(container.querySelector(`[data-finding-related='${PRIOR}']`)).not.toBeNull();
   });
@@ -394,7 +394,7 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
     value.relations.canonical_finding_id = CANON;
     const { container } = mount(fake({ status: "loaded", value }));
     await settledScreen();
-    expect(claim()).toBe("Joined into an earlier Finding");
+    expect(claim()).toBe("Joined into an earlier finding");
     expect(container.querySelector(`[data-finding-merged='${CANON}'] a`)?.getAttribute("href")).toBe(`/sites/KOBO-001/findings/${CANON}`);
   });
 
@@ -419,10 +419,10 @@ describe("Site Finding detail (S4-01 phase 3)", () => {
   });
 
   it.each([
-    ["not_found", /no such Finding/],
+    ["not_found", /no such finding/],
     ["unauthenticated", /Sign in/],
     ["forbidden", /no access/],
-    ["closed", /not released for use yet.*no 'no Finding'/],
+    ["closed", /not released for use yet.*no 'no finding'/],
     ["unavailable", /could not be read/],
   ] as const)("names a %s read without showing a Finding", async (status, words) => {
     const result = (status === "closed" ? { status, message: "gate", note: null } : { status, message: null }) as FindingReadResult<FindingDetailBody>;
@@ -781,7 +781,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     merged.state.merged_into_finding_id = CANON;
     const b = mount(fake({ status: "loaded", value: merged }));
     await settledScreen();
-    expect(expectFindingStateVisible(happened())).toBe("Joined into an earlier Finding");
+    expect(expectFindingStateVisible(happened())).toBe("Joined into an earlier finding");
     b.unmount();
 
     const closed = body([summary(1, "OPENED")], 1, { audit_only: { non_current: true, reason: "closed", statement: "Audit material only" } });
@@ -817,7 +817,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     expectV69Panels("finding");
     for (const title of ["What happened", "What limits this conclusion", "What to do next", "Where to look next"]) {
-      expect(panelTitled(title).querySelector("[data-finding-panel-gap]")?.textContent).toMatch(/nothing is shown here, and this is not a result that no Finding exists/);
+      expect(panelTitled(title).querySelector("[data-finding-panel-gap]")?.textContent).toMatch(/nothing is shown here, and this is not a result that no finding exists/);
     }
     const w1 = scanProductVocabulary(main(), `finding ${status} (W1)`, { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -992,7 +992,7 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     await settledScreen();
     const disclosure = look().querySelector("details[data-show-all='finding-related']") as HTMLDetailsElement;
     expect(disclosure.open).toBe(false);
-    expect(disclosure.querySelector("summary")?.textContent).toBe("Show all 5 related Findings");
+    expect(disclosure.querySelector("summary")?.textContent).toBe("Show all 5 related findings");
     expect(disclosure.querySelectorAll("a[data-finding-related]")).toHaveLength(5);
     expect(look().querySelectorAll("[data-finding-related]")).toHaveLength(5);
   });
@@ -1004,7 +1004,7 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     await screen.findByText("0.00 to 15.82 USD");
     expect(asked).toEqual(["rev-2"]);
     expect(moneyCard().querySelector(".v69-metric__label")?.textContent).toBe("Cost exposure");
-    expect(moneyCard().textContent).toContain("Bounded for this Finding version; see Financials.");
+    expect(moneyCard().textContent).toContain("Bounded for this finding version; see Financials.");
     expect(moneyCard().querySelector("[data-finding-cost-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/financials?finding_id=${F}&revision_id=rev-2`,
     );
@@ -1044,7 +1044,7 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     await settledScreen();
     await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "PRICED");
     expect(moneyCard().querySelector(".v69-metric__note")?.textContent).toBe(
-      "The cost for this Finding version is out of date; no current amount is shown.",
+      "The cost for this finding version is out of date; no current amount is shown.",
     );
     expect(moneyCard().textContent).not.toMatch(/\d+\.\d\d|USD/);
   });
