@@ -224,6 +224,10 @@ describe("S5-01 selected-window Overview: money states", () => {
       "Checked: generator not used on this day, from 13 measured inputs",
     );
     expect(dayReadingLine("COMPLETE", 0, null)).not.toMatch(/\brun\b|\bran\b|\brunning\b/);
+    // PB-2 review L1: missing coverage is its own clause.
+    expect(dayReadingLine("COMPLETE", 1, null)).toBe(
+      "Checked: 1 period of generator use; the measured inputs for this day were not recorded",
+    );
   });
 
   it.each([["amount_low"], ["amount_high"]])("a PRICED read missing %s shows no amount and no positive Current amount label", async (missing) => {

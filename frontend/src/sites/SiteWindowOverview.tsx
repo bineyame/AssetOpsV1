@@ -304,15 +304,11 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   // statusbar carries it and this line keeps only the source sentence.
   const sameAsStatusbar = currentnessWords(f.state).label === objectiveWords(a.state).label;
   return (
-    <div
-      className="window-freshness"
-      data-freshness-card
-      data-freshness-state={f.state}
-      data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}
-    >
+    <div className="window-freshness" data-freshness-card>
         {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1.
             POLISH §3.1: an open source is said inside "How this was worked out"; a closed one stays visible.
             PB-2 review L3: the line renders only when it has something to say. */}
+        <div data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
         {sameAsStatusbar && f.source_open ? null : (
           <p className="v69-chart-note">
             {sameAsStatusbar ? null : (
@@ -327,6 +323,7 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
             )}
           </p>
         )}
+        </div>
         <div data-window-reasons="freshness">
           <WorkedOut
             name="window-assessment"
