@@ -40,8 +40,13 @@ TABLES = ("work_case", "incident", "maintenance_work_request", "work_case_revisi
           "operational_record")
 
 
+# Default request times are offsets from this base: the real clock normally, POSITIVE_NOW inside `clocked` tests
+# (the store clock is frozen there and check_occurrence refuses times more than 5 minutes ahead of it).
+_BASE: list[datetime | None] = [None]
+
+
 def at(**delta) -> str:
-    return (datetime.now(timezone.utc) - timedelta(**delta)).isoformat().replace("+00:00", "Z")
+    return ((_BASE[0] or datetime.now(timezone.utc)) - timedelta(**delta)).isoformat().replace("+00:00", "Z")
 
 
 def incident(key="w401-incident-001", **over) -> dict:
@@ -177,8 +182,12 @@ def clocked(runner):  # noqa: F811
     clock = VirtualDbClock(POSITIVE_NOW)
     owned = Ctx(runner, clock)
     owned.clock = clock
-    yield owned
-    owned.close()
+    _BASE[0] = POSITIVE_NOW
+    try:
+        yield owned
+    finally:
+        _BASE[0] = None
+        owned.close()
 
 
 def test_incident_attestation_reload_and_exact_links(runner, clocked) -> None:  # noqa: F811
