@@ -69,6 +69,8 @@ def _constants() -> list[str]:
              *board.ACTION_RESULT.values(), *(label for label, _ in board.READINESS_CONFIDENCE.values())]
     copy += [link[0] for link in board.EVIDENCE_LINK.values() if link]
     copy += list(mini.COPY) + list(cold.COPY) + list(ev.COPY) + [board.NOT_LOADED_LINK_SUFFIX]
+    copy += [board.COST_NOT_CREDITED, board.COST_CHANGE.format(amount="0.042", currency="USD"),
+             board.COST_NO_CHANGE]  # POLISH PA-1 L-1
     return [c.strip(" ·") for c in copy]
 
 

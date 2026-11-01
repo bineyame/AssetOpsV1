@@ -82,7 +82,7 @@ class PostgresTrialComparisonStore:
     def history(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> list[dict[str, Any]]:
         return self._run(lambda c: [_row(r) for r in c.execute(text(
             f"SELECT {COLUMNS} FROM trial_cost_comparison_revision WHERE tenant_id = :t AND site_id = :s "
-            "AND action_id = :a ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id, "a": action_id})])
+            "AND action_id = :a ORDER BY recorded_at, revision_no, id"), {"t": tenant_id, "s": site_id, "a": action_id})])
 
     def append(self, row: Mapping[str, Any]) -> tuple[dict[str, Any], bool]:
         """(stored row, inserted)."""

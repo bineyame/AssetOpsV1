@@ -45,8 +45,13 @@ PROTECT_HEADLINE = "Battery and generator condition are not assessed"
 PROTECT_CLEAR = "Battery stayed clear of its reserve in {m} assessed generator {periods}"
 PROTECT_SUBLINE = ("Battery and generator condition is not assessed; these are early warnings only. Power was "
                    "delivered, but what customers needed is not measured")
-COST_NO_MONEY = "No priced exposure in this hour"
-COST_MONEY = "exposure in this hour"
+COST_NO_MONEY = "No fuel cost estimated for this day"
+COST_MONEY = "possible extra fuel cost on this day"
+#: POLISH §1.1 (R626, owner Q1): a PRICED amount of zero; idle fuel is not modelled, so no amount is shown.
+COST_ZERO = "No fuel cost estimated: the generator was on but delivered no measured power"
+#: POLISH §1.7: MG-7 settled on a COMPLETE day with no generator use (readiness UNKNOWN only for lack of intervals).
+#: The sheet's "No generator run to check ..." fails the product vocabulary guard ("run"), so the wording avoids it.
+NO_RUN_READINGS = "Generator not used on this day, so nothing to check · readings complete"
 FIXED = {
     "cash": "Not available yet · no billing or payment records",
     "earnings": "Not available yet · needs site income, operating cost and capital records",
@@ -119,7 +124,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         PLAN_NOT_READ, *objective_facts.COPY, NOT_LOADED, UTC_SUFFIX, GAP_GENERIC, NO_VERIFIED, GROW_SUBLINE,
         PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
-        COST_NO_MONEY, COST_MONEY, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
+        COST_NO_MONEY, COST_MONEY, COST_ZERO, NO_RUN_READINGS, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
         NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
@@ -342,9 +347,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     freshness = (body.get("freshness") or {}).get("state")
     assessment = body.get("assessment") or {}
     base = overview is not None and freshness == "CURRENT" and assessment.get("state") != "CLOSED"
+    no_run = no_run_day(base, assessment, readiness)
     settled = {"MG-1": base and depth_ok, "MG-6": base, "MG-3": base, "MG-2": base and dispatch is not None,
                "MG-5": base and depth_ok, "MG-4": base and dispatch is not None,
-               "MG-7": base and readiness not in (None, "UNKNOWN")}
+               "MG-7": base and (readiness not in (None, "UNKNOWN") or no_run)}
     for key in finding_moved_outcomes(MINI):  # addendum 3 M1: the Finding source is a status producer
         settled[key] = settled.get(key, False) and findings_ok
 
@@ -366,7 +372,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
-                        "action_read" in reads.failed or action_rows is None),
+                        "action_read" in reads.failed or action_rows is None, no_run),
     }
     options = {GROW: (Option(OPTION_WHAT_IF, f"/sites/{c}/financials/scenarios"),),
                COST: tuple(o for o in (
@@ -379,14 +385,17 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
     money = body.get("money") or {}
     priced = money.get("state") == "PRICED" and (money.get("eligibility") or {}).get("state") == "ELIGIBLE"
+    zero = priced and _is_zero(money.get("amount_high"))  # §1.1: amount_low is pinned to 0 by the schema
     avoidable, _ = _dispatch_minutes(dispatch)
     verified = sum(1 for a in actions if a.verification_state == "VERIFIED")
     headline = {GROW: f"{lo_kw}–{hi_kw} kW of daytime solar unused" if lo_kw and hi_kw else None,
-                COST: (COST_MONEY if priced else COST_NO_MONEY) if overview is not None else None,
+                COST: (COST_ZERO if zero else COST_MONEY if priced else COST_NO_MONEY)
+                if overview is not None else None,
                 PROTECT: PROTECT_HEADLINE,
                 ASSURE: f"{verified} {plural(verified, 'verified result', 'verified results')}"
                 if verified else NO_VERIFIED}
-    headline_money = {COST: {k: money.get(k) for k in ("amount_low", "amount_high", "currency")} if priced else None}
+    headline_money = {COST: {k: money.get(k) for k in ("amount_low", "amount_high", "currency")}
+                      if priced and not zero else None}
     subline = {GROW: GROW_SUBLINE,
                COST: f"Generator stayed on {num(avoidable)} {plural(num(avoidable), 'minute', 'minutes')} longer "
                      "than needed"
@@ -682,8 +691,23 @@ def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: boo
     return battery, generator, service, backup
 
 
+def no_run_day(base: bool, assessment: dict, readiness: Any) -> bool:
+    """POLISH §1.7 (P-12): a current day whose dispatch reading is COMPLETE with zero assessed intervals and whose
+    readiness is exactly UNKNOWN had no generator run to check, so MG-7 is settled. Narrow to the mini board: the
+    shared `claim_limit_read.reduce_day` still maps zero intervals to UNKNOWN for the Portfolio."""
+    return (base and readiness == "UNKNOWN" and assessment.get("claim_level") == "COMPLETE"
+            and not (assessment.get("dispatch_intervals") or ()))
+
+
+def _is_zero(value: Any) -> bool:
+    try:
+        return value is not None and Decimal(str(value)) == 0
+    except InvalidOperation:
+        return False
+
+
 def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bool, readiness: Any, rc: Any,
-            limitations: list[str], actions_failed: bool) -> tuple[Contributor, ...]:
+            limitations: list[str], actions_failed: bool, no_run: bool = False) -> tuple[Contributor, ...]:
     out: list[Contributor] = []
     mine = sorted((a for a in actions if not a.is_domain), key=lambda a: (a.code or "", a.action_id))
     if actions_failed and not mine:
@@ -703,6 +727,10 @@ def _assure(c: str, actions: tuple[ActionFact, ...], body: dict, overview_ok: bo
     out.append(Contributor("actual_against_plan", "Actual against plan", FIXED["plan_target"]))
     if not overview_ok:
         out.append(not_available("readings", "Readings", f"/sites/{c}/evidence"))
+    elif no_run:
+        # Addendum 4 item 3: the settled no-run day reads FULL on this line only; the shared readiness is unchanged
+        out.append(Contributor("readings", "Readings", NO_RUN_READINGS, readiness_confidence("FULL"),
+                               f"/sites/{c}/evidence"))
     else:
         src = ((body.get("money") or {}).get("source_provenance") or {}).get("state")
         word = READINESS_WORD.get(readiness or "UNKNOWN", "Unknown")

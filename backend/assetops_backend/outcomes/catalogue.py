@@ -72,6 +72,8 @@ ROW_NOT_MEASURED = {
     (EV, "OPTIMIZE_COST"): "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
 }
 ROW_NOT_MEASURED_PREFIX = "Not measured yet · "
+#: POLISH §1.6 (R635): the EV Optimize sentence when no priced charging tariff is held for the window.
+ROW_NOT_MEASURED_EV_COST_UNPRICED = "Energy cost per km needs odometer readings and a published charging tariff"
 
 
 def row_not_measured(domain: str, category: str, lead: SiteOutcome) -> str:

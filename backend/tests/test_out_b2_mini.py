@@ -135,7 +135,7 @@ def test_kobo_board_from_ports() -> None:
     assert [w.kind for w in comp.facts.warnings] == ["PLAN_DUE_SOON"]
     assert rows[GROW]["headline"] == "18–24.3 kW of daytime solar unused"
     assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
-    assert rows[COST]["headline"] == "exposure in this hour"
+    assert rows[COST]["headline"] == "possible extra fuel cost on this day"
     assert rows[COST]["headline_money"] == {"amount_low": "3.31", "amount_high": "3.97", "currency": "USD"}
     assert rows[COST]["subline"] == "Generator stayed on 45 minutes longer than needed"
     gen = contributor(rows[COST], "generator_use")
@@ -370,7 +370,7 @@ def test_limitation_text_never_renders_raw_codes() -> None:
 def test_unpriced_money_and_verified_headline() -> None:
     unpriced = dict(OVERVIEW, money={**OVERVIEW["money"], "state": "NOT_PRICED"})
     _, rows = run(Fake(overview=unpriced, verification={"state": "VERIFIED"}))
-    assert rows[COST]["headline"] == "No priced exposure in this hour" and rows[COST]["headline_money"] is None
+    assert rows[COST]["headline"] == "No fuel cost estimated for this day" and rows[COST]["headline_money"] is None
     assert rows[ASSURE]["headline"] == "1 verified result"  # addendum 3 L7
     assert contributor(rows[ASSURE], "verified_results") == {
         "key": "verified_results", "label": "Verified results", "text": "ACT-048 verified on test data",
