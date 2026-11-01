@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { asOfText, type OutcomeWords, type ProductWords } from "./productWords";
+import { WorkedOut } from "./TechnicalDetails";
 
 /**
  * The shared W1 presentation components (W1-UX-01, D-2026-10-16-w1-ux).
@@ -181,35 +182,15 @@ export interface ExactReferencesProps {
 }
 
 /**
- * The closed "How this was worked out" disclosure: a few individually
- * labelled exact values, nothing else. Each value is one exempt source
- * reference; its label is scanned. The closed summary is fixed text, so a raw
- * code never reaches it or its accessible name. Method, coverage and
- * calculation belong in the owning destination, not here.
+ * POLISH whole-diff review M1: the exact-reference disclosure is the "Technical details" region itself. With no
+ * `extra` it is one closed "Technical details" (`data-technical-details`), so every id, code and raw timestamp a
+ * caller passes sits inside the only region the id checks skip. With `extra` (a plain method note or counted-readings
+ * table) it is a closed "How this was worked out" whose plain detail stays readable and whose exact values nest one
+ * level down in "Technical details". Each value is one exempt source reference; its label is scanned.
  */
 export function ExactReferences({ name, references, variant, extra }: ExactReferencesProps) {
   if (references.length === 0) return null;
-  const className = variant === "tech" ? "disclosure exact-references exact-references--tech" : "disclosure exact-references";
-  return (
-    <details className={className} data-disclosure={name} data-exact-references>
-      <summary className="disclosure__summary">How this was worked out</summary>
-      <dl className="disclosure__body exact-references__list">
-        {references.map((reference) => (
-          <div className="exact-references__row" key={reference.label}>
-            <dt>{reference.label}</dt>
-            <dd>
-              {reference.value === null ? (
-                "not recorded"
-              ) : (
-                <code data-vocabulary-exempt="source-reference">{reference.value}</code>
-              )}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      {extra === undefined || extra === null ? null : <div className="disclosure__body exact-references__extra">{extra}</div>}
-    </details>
-  );
+  return <WorkedOut name={name} references={references} variant={variant} extra={extra} />;
 }
 
 export interface HeadlineVisualCardProps {

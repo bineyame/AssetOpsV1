@@ -32,10 +32,10 @@ export const LIFECYCLE_WORDS: Record<Lifecycle, { label: string; title: string; 
   },
   MERGED: {
     label: "Merged",
-    title: "Generator support review: joined into an earlier Finding",
+    title: "Generator support review: joined into an earlier finding",
     sentence:
-      "Later records showed this was part of one longer period, so it was joined into an earlier Finding, which " +
-      "now carries the review. This Finding's own versions stay available.",
+      "Later records showed this was part of one longer period, so it was joined into an earlier finding, which " +
+      "now carries the review. This finding's own versions stay available.",
   },
 };
 
@@ -43,9 +43,9 @@ export const TRANSITION_WORDS: Record<string, string> = {
   OPENED: "Opened",
   SUPPORT_CHANGED: "Period or amount changed",
   MODEL_REEVALUATED: "Re-checked under updated assessment rules",
-  SPLIT: "Split into separate Findings",
-  MERGED: "Joined with a later Finding",
-  MERGED_INTO: "Joined into an earlier Finding",
+  SPLIT: "Split into separate findings",
+  MERGED: "Joined with a later finding",
+  MERGED_INTO: "Joined into an earlier finding",
   UNCONFIRMED: "Could not be confirmed",
   NO_LONGER_SUPPORTED: "No longer supported",
   BASIS_REFRESHED: "Assessment updated; amount unchanged",
@@ -70,7 +70,7 @@ const FINDING_ONLY: Readonly<Record<string, Omit<ProductWords, "code" | "unrecog
   FINDING_MATCH_PENDING: {
     label: "Being compared with a newer assessment",
     sentence:
-      "A newer assessment of these days is waiting to be compared with this Finding. What is shown is the last " +
+      "A newer assessment of these days is waiting to be compared with this finding. What is shown is the last " +
       "recorded version; it is not current.",
     next: "Look again after the comparison is recorded.",
     tone: "waiting",
@@ -86,8 +86,8 @@ const FINDING_ONLY: Readonly<Record<string, Omit<ProductWords, "code" | "unrecog
     tone: "neutral",
   },
   MERGED_INTO_CANONICAL: {
-    label: "Joined into an earlier Finding",
-    sentence: "The earlier Finding carries the current review; this Finding's own versions are kept for the record.",
+    label: "Joined into an earlier finding",
+    sentence: "The earlier finding carries the current review; this finding's own versions are kept for the record.",
     tone: "neutral",
   },
   /** The Evidence and History reads carry no currentness; they only know the version is the latest when read. */
@@ -95,12 +95,12 @@ const FINDING_ONLY: Readonly<Record<string, Omit<ProductWords, "code" | "unrecog
     label: "Latest recorded version when read",
     sentence:
       "This is the latest version recorded when the page was read. Whether it is up to date is shown on the " +
-      "Finding's own page.",
+      "finding's own page.",
     tone: "neutral",
   },
   LATEST_PINNED: {
     label: "Latest recorded version, opened by its exact reference",
-    sentence: "This exact version is the latest one recorded. Whether it is up to date is shown on the Finding's own page.",
+    sentence: "This exact version is the latest one recorded. Whether it is up to date is shown on the finding's own page.",
     tone: "neutral",
   },
 };
@@ -139,14 +139,14 @@ export const PORTION_FILL: Record<string, string> = {
 
 /** Window states of the bounded `finding-windows/{day}` read, in plain words. */
 export const WINDOW_STATE_WORDS: Record<string, string> = {
-  NOT_ASSESSED: "No assessment exists for this day, so whether there is a Finding is not known.",
-  PENDING: "This day is waiting to be assessed, so whether there is a Finding is not known yet.",
-  STALE: "This day is being reassessed, so whether there is a Finding is not settled.",
-  FAILED: "The latest reassessment of this day failed, so whether there is a Finding is not settled.",
-  NOT_DETERMINABLE: "The assessment of this day could not decide, so this is not a no-Finding result.",
+  NOT_ASSESSED: "No assessment exists for this day, so whether there is a finding is not known.",
+  PENDING: "This day is waiting to be assessed, so whether there is a finding is not known yet.",
+  STALE: "This day is being reassessed, so whether there is a finding is not settled.",
+  FAILED: "The latest reassessment of this day failed, so whether there is a finding is not settled.",
+  NOT_DETERMINABLE: "The assessment of this day could not decide, so this is not a no-finding result.",
   FINDING_MATCH_PENDING:
-    "The newest assessment of this day has not yet been compared with Findings, so this is not a no-Finding result.",
-  NO_FINDING: "This day was fully assessed and has no Finding.",
+    "The newest assessment of this day has not yet been compared with findings, so this is not a no-finding result.",
+  NO_FINDING: "This day was fully assessed and has no finding.",
   FINDINGS_RECORDED: "Findings cover this day.",
 };
 

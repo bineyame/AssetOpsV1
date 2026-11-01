@@ -402,7 +402,7 @@ function Loaded({
                   data-overview-finding-link
                   {...(first && merged ? { "data-window-finding-link": row.finding_id } : {})}
                 >
-                  Open the Finding →
+                  Open the finding →
                 </Link>
               </div>
             </li>

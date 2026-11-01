@@ -26,7 +26,7 @@ export const PRIORITY_PANEL = "Where management should act first";
  * value ranking (the placement policy footer says so).
  */
 export const PRIORITY_SUBTITLE =
-  "Selected Findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.";
+  "Selected findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.";
 /** CC-R2-Q3 ruling. MOCK DEVIATION: v69 (`index.html:135`) says "Priority"; the column is now "Placement". */
 export const PRIORITY_BOTTOM_LINE = "Placement and confidence answer different questions.";
 /** CC-R2 (D5, build spec "CC-R2 Frontend"): placement group labels, in the server's group order. */
@@ -126,7 +126,7 @@ export const NO_SNAPSHOT_NOTICE =
 export const PROGRESS_REFERENCE = "Counts use retained Action and verification records. Portfolio does not decide resolution.";
 export const ACTION_WINDOW_NOTE =
   "Action counts cover only Actions created in the selected window; an earlier Action verified within 30 days is not counted.";
-export const NO_ENERGY_TOTAL = "Cross-Site energy and tariff totals are not established.";
+export const NO_ENERGY_TOTAL = "Cross-Site energy and tariff totals are not known yet.";
 export const ENERGY_UNAVAILABLE = "Energy basis unavailable";
 export const EV_COVERAGE_WARNING = "Other Sites may lack comparable full-window coverage.";
 export const CATEGORIES_SEPARATE = "Categories and windows remain separate.";

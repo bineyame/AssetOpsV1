@@ -1287,7 +1287,7 @@ function OutcomeEvidencePanel({
       {demonstration ? (
         <p className="v69-chart-note w1f4-verification-notice" data-verification-trial-label="POLICY_TRIAL_NO_SAVINGS">
           <span data-product-outcome-demonstration>
-            Policy trial on demonstration data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
+            Policy trial on example data: no proof of cause, no savings or realized benefit; a resolution is never permanent.
           </span>
         </p>
       ) : (

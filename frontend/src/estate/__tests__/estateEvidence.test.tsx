@@ -707,7 +707,7 @@ describe("W3-02 c2d Evidence words", () => {
       BACKUP_START_RESULT: "Backup generator start result",
       TRANSFER_POSITION: "Power transfer position",
       COOLING_RESPONSE: "Cooling response",
-      PRODUCT_EXPOSURE: "Potential product exposure",
+      PRODUCT_EXPOSURE: "Stock may be at risk",
     };
     const labels = Object.entries(expected).map(([claim, label]) => {
       const out = observationSummary({ claim, state: "FULL" }, "fallback");

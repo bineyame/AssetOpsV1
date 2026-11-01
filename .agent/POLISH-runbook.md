@@ -23,6 +23,12 @@ untracked; the tree inside it carries its own backend). If a later merge changes
 2. **Serve**: `& $py tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full serve`
    - API answers on 8990 at once; first tick and the first `performance:` line about 7-15 s later; then one tick every
      120 s. Wait for the first `performance:` line before showing anything (STALE_PROJECTION before it).
+   - **Wait for `ready:`.** After the first tick, serve pre-warms the Portfolio outcome summary for the story week once
+     and prints `ready: Portfolio outcome summary for the story week answered HTTP 200 in N s.` Do not open anything for
+     the client before that line. If it prints `pre-warm did not finish` instead, open the Portfolio week link yourself
+     and wait until the outcome matrix fills.
+   - **Never restart serve once the client has joined:** a fresh serve is cold again and its first Portfolio can sit on
+     a loading line for minutes.
 3. **Frontend** (second window, from `frontend/`): `$env:ASSETOPS_API_PORT="8990"; npm.cmd run dev -- --port 5490 --strictPort`
    - Vite ready in 0.75-2.3 s.
 4. **Links** (S = 2026-10-30; re-quote after every rebuild from `& $py tools/demo_combined.py --db assetops_polish_full_test --work var/polish_full links`):
@@ -52,6 +58,6 @@ untracked; the tree inside it carries its own backend). If a later merge changes
    node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 <out>\mock ((node tools/demo-combined-evidence.mjs mock-ids) -split ' ')
    node tools/demo-combined-evidence.mjs compare <out> <out>\mock\mock-measure.json
    ```
-   28 captures 308-361 s (open the Portfolio once first: on a cold serve its first read can outlast the settle wait, as the first Addendum 14 run showed); review-mode set (`DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=wr-overview,kobo-board-S`) 64 s; mock 55 s.
+   28 captures 308-361 s (start the capture only after serve's `ready:` line: on a cold serve the first Portfolio read can outlast the settle wait, as the first Addendum 14 run showed); review-mode set (`DEMOB_REVIEW_LABELS=1 DEMOB_ONLY=wr-overview,kobo-board-S`) 64 s; mock 55 s.
 8. **Stop:** Ctrl+C in each window, or `taskkill /PID <pid> /T /F` on the serve and npm PIDs (the serve tree holds
    uvicorn). Check ports 8990 and 5490 are free.

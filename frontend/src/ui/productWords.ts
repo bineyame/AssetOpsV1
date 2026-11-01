@@ -257,7 +257,7 @@ export function sourceQualification(sourceClass: string | null | undefined): Sou
 }
 
 export const DEMONSTRATION_OUTCOME_NOTE =
-  "This is a policy trial on demonstration data: it shows no savings or realized benefit.";
+  "This is a policy trial on example data: it shows no savings or realized benefit.";
 
 export interface OutcomeWords extends ProductWords {
   source: SourceQualification;

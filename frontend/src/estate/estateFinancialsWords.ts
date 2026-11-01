@@ -16,7 +16,7 @@ import { formatRange } from "../ui/time";
 /** The ledger's category dictionary; `RECORDED_REPAIR` keeps its own label and is never merged into product exposure. */
 export const CATEGORY_LABEL: Readonly<Record<FinancialCategory, string>> = {
   CANDIDATE_OPERATING_COST_EXPOSURE: "Candidate operating-cost exposure",
-  POTENTIAL_PRODUCT_EXPOSURE: "Potential product exposure",
+  POTENTIAL_PRODUCT_EXPOSURE: "Stock may be at risk",
   GROSS_TARIFF_SCENARIO: "Gross tariff estimate",
   RECORDED_REPAIR: "Recorded repair",
 };

@@ -191,7 +191,7 @@ async function replaySuite(label) {
   claim(`${label} verification current: the replayed VERIFIED outcome ${R.outcome} is current, not historical`,
     v.state === "VERIFIED" && v.outcome === "VERIFIED" && v.id === R.outcome && !v.historical && v.label === "Target met within every limit", v);
   claim(`${label} verification current: registered Lab source, target passes, policy-trial / no-savings label`,
-    /Registered Lab trial data/.test(v.source ?? "") && /Pass/.test(v.target ?? "") && /no savings or realized benefit/.test(v.trial ?? ""), { source: v.source, target: v.target });
+    /Example data/.test(v.source ?? "") && /Pass/.test(v.target ?? "") && /no savings or realized benefit/.test(v.trial ?? ""), { source: v.source, target: v.target });
   claim(`${label} verification current: RESOLVED shown as activity and as withdrawable, never permanent`,
     v.resolved.includes("RESOLVED") && /not permanent/.test(v.withdrawable ?? ""), v.resolved);
   await noOverflow(label, "verification current");
@@ -308,7 +308,7 @@ async function portfolioSuite(label, c) {
   claim(`${label} estate Portfolio: F05 is the one row, NEEDS_INVESTIGATION under its heading, with both reason lines`,
     got.count === 1 && got.placement === "NEEDS_INVESTIGATION" && got.heading === "NEEDS_INVESTIGATION"
       && reasons.includes("Evidence source is not resolved; check the source before acting")
-      && reasons.includes("The latest assessment no longer confirms this Finding; check its basis"), got);
+      && reasons.includes("The latest assessment no longer confirms this finding; check its basis"), got);
   // 4. Confidence; no guarded word and no raw code in the priority panel.
   const panel = await js(`document.querySelector('[data-portfolio-panel="priority"]')?.textContent ?? ''`);
   const words = [/\bclaims?\b/i, /simulat/i, /\bscenarios?\b/i].filter((re) => re.test(panel)).map(String);

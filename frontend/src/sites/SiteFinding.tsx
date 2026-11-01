@@ -135,7 +135,7 @@ export function SiteFinding({
   }, [onTitle, title]);
 
   if (read === null) {
-    return <p>Loading the Finding.</p>;
+    return <p>Loading the finding.</p>;
   }
   if (read.status !== "loaded") {
     return <Refused read={read} pinned={revisionId !== null} />;
@@ -184,23 +184,23 @@ function Refused({ read, pinned }: { read: Exclude<FindingReadResult<FindingDeta
     not_found: {
       heading: "Finding not found",
       text: pinned
-        ? "This site has no such Finding or no such version of it."
-        : "This site has no such Finding.",
+        ? "This site has no such finding or no such version of it."
+        : "This site has no such finding.",
     },
-    unauthenticated: { heading: "Sign-in required", text: "Sign in to read this site's Findings." },
-    forbidden: { heading: "No access", text: "Your account has no access to this site's Findings." },
+    unauthenticated: { heading: "Sign-in required", text: "Sign in to read this site's findings." },
+    forbidden: { heading: "No access", text: "Your account has no access to this site's findings." },
     closed: {
       heading: "Assessments not released",
       text:
-        "This site's assessments are not released for use yet, so no current Finding, and no 'no Finding' " +
+        "This site's assessments are not released for use yet, so no current finding, and no 'no finding' " +
         "result, is shown. A link to an exact earlier version still opens as a record.",
     },
-    unavailable: { heading: "Finding unavailable", text: "The Finding could not be read." },
+    unavailable: { heading: "Finding unavailable", text: "The finding could not be read." },
   };
   const chosen = words[read.status];
   const gap = (name: string) => (
     <p className="v69-gap-line" data-finding-panel-gap={name}>
-      {chosen.heading}: nothing is shown here, and this is not a result that no Finding exists.
+      {chosen.heading}: nothing is shown here, and this is not a result that no finding exists.
     </p>
   );
   // W1-F3: the page-level refusal, then the four v69 panel slots with the gap stated in each.
@@ -212,7 +212,7 @@ function Refused({ read, pinned }: { read: Exclude<FindingReadResult<FindingDeta
         </p>
         <ProductStatus
           words={findingRefusalWords(read.status)}
-          scope={pinned ? "This Finding, at the version in the address" : "This Finding"}
+          scope={pinned ? "This finding, at the version in the address" : "This finding"}
           asOf={null}
         />
         <p data-finding-read={read.status}>{chosen.text}</p>
@@ -255,14 +255,14 @@ function conclusionText(body: FindingDetailBody): string {
     case "NO_LONGER_SUPPORTED":
       return "no possibly avoidable time is counted";
     default:
-      return "carried by an earlier Finding";
+      return "carried by an earlier finding";
   }
 }
 
 function headlineText(body: FindingDetailBody, words: ProductWords & { attention: boolean }): string {
   const lifecycle = LIFECYCLE_WORDS[body.revision.lifecycle];
   if (body.audit_only) return "Record only: this site's assessments are not released";
-  if (body.state.merged_into_finding_id) return "Joined into an earlier Finding";
+  if (body.state.merged_into_finding_id) return "Joined into an earlier finding";
   if (!body.selection.is_latest) return `Earlier version ${body.selection.revision_no} of ${body.revision_page.total}`;
   return words.attention
     ? `${lifecycle.label} in the last recorded version: ${conclusionText(body)}`
@@ -290,7 +290,7 @@ function causalSteps(body: FindingDetailBody, links: SiteFindingLinks): Step[] {
               state: recordGap ? "problem" : "not-known",
               detail: recordGap ? "Some records are missing or conflict" : "The assessment could not decide",
             }
-          : { label: "Cause", state: "not-known", detail: "Carried by the earlier Finding" };
+          : { label: "Cause", state: "not-known", detail: "Carried by the earlier finding" };
   const consequence: Step = {
     label: "Consequence",
     state: "not-known",
@@ -302,7 +302,7 @@ function causalSteps(body: FindingDetailBody, links: SiteFindingLinks): Step[] {
       ? {
           label: "Next useful step",
           state: "waiting",
-          detail: merged ? "Open the Finding that carries the review" : body.audit_only ? "Wait for the assessments to be released" : "Open the latest version",
+          detail: merged ? "Open the finding that carries the review" : body.audit_only ? "Wait for the assessments to be released" : "Open the latest version",
         }
       : selected.lifecycle === "SUPPORTED" && links.recommendation
         ? { label: "Next useful step", state: "waiting", detail: "Review the proposed trial" }
@@ -315,7 +315,7 @@ function couldChangeText(body: FindingDetailBody): string {
     return "Nothing changes this record while the site's assessments are not released; a later released assessment would record a new version.";
   }
   if (body.state.merged_into_finding_id) {
-    return "The earlier Finding now carries the review; later changes are recorded there.";
+    return "The earlier finding now carries the review; later changes are recorded there.";
   }
   if (!body.selection.is_latest) {
     return "A later version already replaces this one; the latest version holds the current conclusion.";
@@ -323,7 +323,7 @@ function couldChangeText(body: FindingDetailBody): string {
   const recordGap = body.revision.indeterminate_cause?.kind === "RECORD_GAP";
   return (
     "A newer assessment of these days, for example after late or corrected readings arrive, would record a new " +
-    "version of this Finding." +
+    "version of this finding." +
     (recordGap ? " Records that fill the missing part could let the undecided time be decided." : "")
   );
 }
@@ -362,8 +362,8 @@ function FindingStateLine({
       ) : null}
       {merged ? (
         <span data-finding-merged={merged}>{" "}
-          Later records showed one longer period. The earlier Finding now carries the review.{" "}
-          <Link to={links.finding(merged)}>Open the Finding that carries the review</Link>
+          Later records showed one longer period. The earlier finding now carries the review.{" "}
+          <Link to={links.finding(merged)}>Open the finding that carries the review</Link>
         </span>
       ) : null}
       {!body.selection.is_latest ? (
@@ -682,15 +682,15 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
         {supported
           ? `${runWords(body)} For ${durationText(avoidable)} of that time, solar power and the battery reported enough capacity to meet site demand, so the generator was possibly avoidable.`
           : selected.lifecycle === "MERGED"
-            ? `This Finding covered ${periodText(selected.episode.start, selected.episode.end)} before it was joined into an earlier Finding.`
+            ? `This finding covered ${periodText(selected.episode.start, selected.episode.end)} before it was joined into an earlier finding.`
             : selected.lifecycle === "UNCONFIRMED"
-              ? `This Finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
-              : `This Finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
+              ? `This finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} cannot decide whether any of that time was possibly avoidable.`
+              : `This finding covers ${periodText(selected.episode.start, selected.episode.end)}. ${body.selection.is_latest ? "The latest assessment" : "This version"} of that period counts no possibly avoidable time.`}
       </p>
       {portions.length > 0 ? (
         <div className="site-finding__timeline">
           <p className="v69-eyebrow" id="site-finding-blocks-heading">
-            Blocks in this Finding
+            Blocks in this finding
           </p>
           <ol className="site-finding__blocks" aria-labelledby="site-finding-blocks-heading">
             {portions.map((p, index) => {
@@ -780,13 +780,13 @@ function useFindingCost(client: FindingCostClient | undefined, siteId: string, f
 /** The cost card's words: an amount only for the loaded exact-version current PRICED answer. */
 function costCard(cost: FindingCost): { priced: true; value: string; revisionId: string } | { priced: false; state: string; note: string } {
   if (cost.status === "none") return { priced: false, state: "none", note: "No fuel or money estimate is made on this page" };
-  if (cost.status === "loading") return { priced: false, state: "loading", note: "Reading the cost for this Finding version" };
+  if (cost.status === "loading") return { priced: false, state: "loading", note: "Reading the cost for this finding version" };
   const { result, revisionId } = cost;
-  if (result.status === "not_found") return { priced: false, state: "missing", note: "No cost is recorded for this Finding version" };
-  if (result.status !== "loaded") return { priced: false, state: "failed", note: "The cost for this Finding version could not be read" };
+  if (result.status === "not_found") return { priced: false, state: "missing", note: "No cost is recorded for this finding version" };
+  if (result.status !== "loaded") return { priced: false, state: "failed", note: "The cost for this finding version could not be read" };
   const body = result.value;
   if (body.selection.revision_id.toLowerCase() !== revisionId.toLowerCase()) {
-    return { priced: false, state: "mismatch", note: "The cost read answered a different Finding version, so no amount is shown" };
+    return { priced: false, state: "mismatch", note: "The cost read answered a different finding version, so no amount is shown" };
   }
   const c = body.consequence;
   if (c.state === "PRICED" && c.currentness === "CURRENT" && c.amount !== null && c.currency !== null) {
@@ -800,8 +800,8 @@ function costCard(cost: FindingCost): { priced: true; value: string; revisionId:
 }
 
 function pricedNotCurrentNote(currentness: string | null): string {
-  if (currentness === "STALE") return "The cost for this Finding version is out of date; no current amount is shown.";
-  return `The cost for this Finding version is not current (${(currentness ?? "unknown").toLowerCase().replace(/_/g, " ")}); no current amount is shown.`;
+  if (currentness === "STALE") return "The cost for this finding version is out of date; no current amount is shown.";
+  return `The cost for this finding version is not current (${(currentness ?? "unknown").toLowerCase().replace(/_/g, " ")}); no current amount is shown.`;
 }
 
 /** The mock's four metric cards: the separate minute counts and the cost card (post-W6 W1-a Q12). */
@@ -812,11 +812,11 @@ function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: 
   const needed = minutes(selected.minutes.necessary) ?? 0;
   const unknown = minutes(selected.minutes.indeterminate) ?? 0;
   return (
-    <MetricCards columns={4} label="Time in this Finding">
+    <MetricCards columns={4} label="Time in this finding">
       <MetricCard
         label="Possibly avoidable"
         value={durationText(avoidable)}
-        note="Counted in this Finding"
+        note="Counted in this finding"
         tone="amber"
         data={{ "data-finding-card": "CANDIDATE_AVOIDABLE" }}
       />
@@ -838,7 +838,7 @@ function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: 
         <MetricCard
           label="Cost exposure"
           value={card.value}
-          note="Bounded for this Finding version; see Financials."
+          note="Bounded for this finding version; see Financials."
           link={
             links.financials === undefined ? undefined : (
               <Link to={links.financials(card.revisionId)} data-finding-cost-link>
@@ -916,12 +916,12 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
         ) : null}
         {prior ? (
           <li data-finding-recurrence={recurrence.status}>
-            This recurred after a recorded stop since an earlier Finding on the same generator, which does not say the
-            earlier Finding is still open. <Link to={links.finding(prior)}>Open the earlier Finding to see its own state</Link>
+            This recurred after a recorded stop since an earlier finding on the same generator, which does not say the
+            earlier finding is still open. <Link to={links.finding(prior)}>Open the earlier finding to see its own state</Link>
           </li>
         ) : recurrence.status === "NOT_ESTABLISHED" && recurrence.reason !== "NO_EARLIER_FINDING" ? (
           <li data-finding-recurrence={recurrence.status}>
-            An earlier Finding exists for this generator, but whether this repeats it is not established.
+            An earlier finding exists for this generator, but whether this repeats it is not established.
           </li>
         ) : null}
       </ul>
@@ -978,10 +978,10 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
       : null;
   const closed = body.links.performance.status === "CLOSED";
   const related: { label: string; id: string }[] = [
-    ...(body.relations.recurs_after_finding_id ? [{ label: "Earlier Finding this repeats", id: body.relations.recurs_after_finding_id }] : []),
-    ...body.relations.recurred_by.map((id) => ({ label: "Later Finding that repeats this", id })),
+    ...(body.relations.recurs_after_finding_id ? [{ label: "Earlier finding this repeats", id: body.relations.recurs_after_finding_id }] : []),
+    ...body.relations.recurred_by.map((id) => ({ label: "Later finding that repeats this", id })),
     ...(body.relations.split_from_finding_id ? [{ label: "Finding this was split from", id: body.relations.split_from_finding_id }] : []),
-    ...body.relations.split_parts.map((id) => ({ label: "Part split from this Finding", id })),
+    ...body.relations.split_parts.map((id) => ({ label: "Part split from this finding", id })),
     ...body.relations.merged_from.map((m) => ({ label: "Finding joined into this one", id: m.superseded_finding_id })),
     ...body.relations.merged_into.map((m) => ({ label: "Finding that carries this review", id: m.canonical_finding_id })),
   ];
@@ -1042,7 +1042,7 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
           {
             key: "history",
             title: "History",
-            body: "Every recorded version of this Finding, oldest first, with what changed and when.",
+            body: "Every recorded version of this finding, oldest first, with what changed and when.",
             action: (
               <Link to={links.history(rev)} data-finding-history-link>
                 Open History →
@@ -1072,13 +1072,13 @@ function WhereToLook({ body, links, params }: { body: FindingDetailBody; links: 
     // MOCK DEVIATION D1 (R393): no stored linked Action for the mock's "Linked action" item; Related Findings stand.
     {
       key: "related",
-      title: "Related Findings",
+      title: "Related findings",
       body: related.length === 0 ? "None recorded." : "Each opens with its own state.",
       action:
         related.length === 0 ? undefined : related.length > RELATED_INLINE_MAX ? (
           // Q15 fallback (W1-a fix round M1): five long related rows exceed the closed Where-to-look-next cap, so more
           // than RELATED_INLINE_MAX related Findings sit behind their count disclosure; every link stays keyboard-reachable.
-          <ShowAll name="finding-related" summary={`Show all ${related.length} related Findings`}>
+          <ShowAll name="finding-related" summary={`Show all ${related.length} related findings`}>
             {relatedList}
           </ShowAll>
         ) : (
@@ -1131,7 +1131,7 @@ function TechnicalDetail({ body }: { body: FindingDetailBody }) {
           <Fact term="Source gate"><Code value={body.links.performance.status} /></Fact>
         </FactList>
         <p className="site-finding__note">
-          Only exact stored versions are offered; a view of the Finding as of an arbitrary past time is not.
+          Only exact stored versions are offered; a view of the finding as of an arbitrary past time is not.
         </p>
         {r.limitations.length > 0 ? (
           <ul className="dispatch-limits dispatch-limits--raw">

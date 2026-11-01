@@ -12,6 +12,7 @@ import {
   Panel,
   ProductStatus,
   StatusBar,
+  TechnicalDetails,
   type ExactReference,
   type ProductWords,
 } from "../ui";
@@ -450,6 +451,9 @@ function MethodDetail({ rev, body }: { rev: ConsequenceRevision; body: FindingCo
         </p>
       </div>
       {rev.lineage.power_intervals.length > 0 ? (
+        // POLISH whole-diff review M1: the counted-readings table carries record references, so it sits in
+        // "Technical details"; the plain method lines above stay readable.
+        <TechnicalDetails name="financials-consequence-readings">
         <div data-consequence-readings={rev.lineage.power_intervals.length}>
           <p>
             <strong>Generator power readings counted ({rev.lineage.power_intervals.length})</strong>
@@ -485,6 +489,7 @@ function MethodDetail({ rev, body }: { rev: ConsequenceRevision; body: FindingCo
             </tbody>
           </DataTable>
         </div>
+        </TechnicalDetails>
       ) : null}
     </>
   );

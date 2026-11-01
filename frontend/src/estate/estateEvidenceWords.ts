@@ -13,7 +13,7 @@ const CLAIM_WORDS: Readonly<Record<string, string>> = {
   BACKUP_START_RESULT: "Backup generator start result",
   TRANSFER_POSITION: "Power transfer position",
   COOLING_RESPONSE: "Cooling response",
-  PRODUCT_EXPOSURE: "Potential product exposure",
+  PRODUCT_EXPOSURE: "Stock may be at risk",
   SESSION_OUTCOME: "Session outcomes",
   SERVICE_STATE: "Connector availability",
   DELIVERED_ENERGY: "Delivered energy",

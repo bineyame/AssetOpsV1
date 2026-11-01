@@ -33,7 +33,7 @@ const WIDTHS = [
 ];
 const LABELS = {
   AUTHORED_DEMONSTRATION: "Prepared example data",
-  REGISTERED_SIMULATION: "Generated test data",
+  REGISTERED_SIMULATION: "Example data",
   MIXED: "Sources do not agree",
   UNKNOWN: "Source unverified",
 };

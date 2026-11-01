@@ -276,7 +276,7 @@ describe("W3-02 estate Financials root", () => {
     ]);
     expect(mini[2].textContent).toContain("0–2.97 L");
     // Cold: every selected head is a row, unpriced, in °C-min, its own limitation; no mock `backup excursion`.
-    expect(cells(registerRows()[1])[1].textContent).toBe("Potential product exposure");
+    expect(cells(registerRows()[1])[1].textContent).toBe("Stock may be at risk");
     expect(cold[2].textContent).toBe("14 Oct 2026, 08:00–16:0025–35 °C-min");
     expect(cold[3].querySelector("[data-estate-eligibility='UNPRICED']")?.textContent).toBe("Unpriced");
     expect(cold[3].querySelector(".estate-chip")?.className).toContain("estate-tone--amber");
@@ -332,7 +332,7 @@ describe("W3-02 estate Financials root", () => {
     expect(results[1].querySelector(".estate-chip")?.className).toContain("estate-tone--green");
     expect(results[2].textContent).not.toContain("$9");
     expect(results[0].querySelector("[data-estate-group-reasons]")?.textContent).toBe("New work is being assessed");
-    expect(results[3].textContent).toContain("Potential product exposure");
+    expect(results[3].textContent).toContain("Stock may be at risk");
     expect(results[3].querySelector("[data-estate-group-reasons]")?.textContent).toBe("No consequence lines in this category");
     expect(aggregation.querySelector("[data-estate-note='no-comparable']")).toBeNull();
     // Ruling c4: every result sits in one closed summary row; four groups plus one diagnostic, one comparable total.

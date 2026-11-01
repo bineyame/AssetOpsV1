@@ -171,9 +171,9 @@ def test_every_reason_code_is_reachable() -> None:
     ({"lifecycle": "UNCONFIRMED"}, COVERED, "LIMITED", ["Unconfirmed finding", "example data"]),
     ({"cons": "WITHHELD"}, {"state": "PARTIAL"}, "LIMITED",
      ["Supported finding", "example data", "Cost basis withheld",
-      "Site coverage incomplete; other Findings may be missing"]),
+      "Site coverage incomplete; other findings may be missing"]),
     ({}, {"state": "UNKNOWN"}, "SUPPORTED_SOURCE_COHERENT",
-     ["Supported finding", "example data", "Site coverage incomplete; other Findings may be missing"]),
+     ["Supported finding", "example data", "Site coverage incomplete; other findings may be missing"]),
 ])
 def test_confidence_from_row_facts_with_site_text_only(facts, cov, state, reasons) -> None:
     p = place(row(**facts), None, cov, None)

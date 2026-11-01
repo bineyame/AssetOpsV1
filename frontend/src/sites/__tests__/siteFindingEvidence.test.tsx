@@ -433,7 +433,7 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
   it("leads with the version's recorded state in plain words, for merged and not-confirmed versions", async () => {
     const base = body();
     for (const [lifecycle, words] of [
-      ["MERGED", "joined into an earlier Finding"],
+      ["MERGED", "joined into an earlier finding"],
       ["UNCONFIRMED", "cannot confirm the earlier result"],
       ["NO_LONGER_SUPPORTED", "finds no possibly avoidable time"],
     ] as const) {

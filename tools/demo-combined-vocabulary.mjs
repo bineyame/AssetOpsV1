@@ -14,6 +14,9 @@ import { readFileSync } from "node:fs";
 export const ID_KINDS = [
   ["enum code", /\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b/g],
   ["zero-padded record code", /\b(?:ACT|INC|WR|F|PLAN|CHG|PM|REC)-0{3,}\d+\b/g],
+  // POLISH whole-diff review L4: a stored code of six or more digits (e.g. `ACT-001000`, only two leading zeros);
+  // display codes (`ACT-001`) stay short. Three leading zeros are the rule above, so a code is counted once.
+  ["stored record code", /\b(?:ACT|INC|WR|F|PLAN|CHG|PM|REC)-(?!000)\d{6,}\b/g],
   ["uuid", /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi],
   ["raw timestamp", /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?(?:\.\d+)?Z?\b/g],
   ["finding id label", /\bFinding [0-9a-f]{8}\b/g],
@@ -25,7 +28,8 @@ export const WORD_KINDS = [
   ["service actor", /\bservice:[\w-]+/g],
   ["register or slice id", /\b(?:R\d{3}|OUT-[A-E]\d?|S\d-\d\d[a-z]?|W\d-\d\d[a-z]?|DD-\d\d|CO-\d+)\b/g],
   ["dev term", /\b(?:producer|projection|fixture|payload|schema|cursor|known_at|seed|epoch|adapter|endpoint|analytic_id|null|undefined|NaN|TODO|debug|mock|scenario_id|revision_id|basis_ref|v\d+ manifest)\b/gi],
-  ["lab name", /\b(?:replay|charging) lab\b/gi],
+  // POLISH whole-diff review M3: "Lab trial data" is a Lab source name too; the client term is "example data".
+  ["lab name", /\b(?:(?:replay|charging) lab|lab trial data)\b/gi],
   ["snake_case name", /\b[a-z]+(?:_[a-z]+)+\b/g],
   // POLISH Addendum 14: the client term is "example data"; a recurrence of "test data" fails the strict gate.
   ["test data wording", /\btest data\b/gi],

@@ -112,3 +112,15 @@ test("vocabulary: glosses come from productVocabulary.json and strip only their 
   const r = classifyCapture(capture("The generator running hours; maintenance by running hours"));
   assert.deepEqual(kinds(r.vocabulary), ["product term (T028): running:running"]);
 });
+
+test("vocabulary: a stored record code with two leading zeros counts once; a display code passes (review L4)", () => {
+  const r = classifyCapture(capture("Stored ACT-001000 and ACT-000001; shown as ACT-001"));
+  assert.deepEqual(kinds(r.vocabulary).sort(), ["stored record code:ACT-001000", "zero-padded record code:ACT-000001"]);
+  assert.equal(r.counted, 2);
+});
+
+test("vocabulary: 'Lab trial data' counts as a Lab name; 'example data' passes (review M3)", () => {
+  const r = classifyCapture(capture("Source: Registered Lab trial data · Verified on example data"));
+  assert.deepEqual(kinds(r.vocabulary), ["lab name:Lab trial data"]);
+  assert.equal(r.counted, 1);
+});

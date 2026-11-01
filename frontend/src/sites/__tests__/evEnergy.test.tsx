@@ -33,7 +33,7 @@ const SAMPLES = [sample(201, t(8, 5), "0"), sample(202, t(8, 15), "60"), sample(
 const ESTIMATED: EvConsequence = {
   revision_id: id(70), revision_no: 1, state: "ESTIMATED", reason: null, quantity_kwh: "30.000", tariff_revision_id: id(71),
   tariff_value: "0.30", currency: "USD", amount: "9.00", overlap_group: null, recorded_at: KNOWN, tariff_recorded_at: KNOWN,
-  source_gate: null, session_revision_ids: [id(60)], evidence_ids: [id(101)], limitation: "Gross tariff scenario; not cash collected.",
+  source_gate: null, session_revision_ids: [id(60)], evidence_ids: [id(101)], limitation: "Charging income estimate; not cash collected.",
 };
 
 function read(energy: Partial<EvEnergyRead["energy"]> = {}, state = "CURRENT"): EvEnergyRead {
@@ -180,7 +180,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(document.querySelector('[data-key-value="interruption"] .badge')?.className).toContain("ev-tone--amber");
     expect(text("[data-ev-conclusion-note]")).toBe("Revenue is an estimate from metered kWh and the declared tariff, not payment evidence.");
     expect(bridge()).toEqual([
-      ["30.000 kWh complete-record delivery", "0.30 USD/kWh charging tariff (charging income estimate)", "9.00 USD gross estimate", "Gross tariff scenario; not cash collected."],
+      ["30.000 kWh complete-record delivery", "0.30 USD/kWh charging tariff (charging income estimate)", "9.00 USD gross estimate", "Charging income estimate; not cash collected."],
       ["Incomplete session", "No complete meter interval", "Unavailable", "No extrapolated energy silently added"],
       ["Interrupted service", "No demand/sales baseline", "Unpriced exposure", "No invented lost revenue"],
     ]);
@@ -232,12 +232,12 @@ describe("W5-03a E3: EV Energy", () => {
   });
 
   it("R346: a read-guard consequence shows the card's metered quantity; a stored null stays Unknown; R06 is labelled", async () => {
-    const guard = { ...ESTIMATED, state: "WITHHELD", quantity_kwh: null, amount: null, tariff_value: null, currency: null, limitation: "No stored gross tariff estimate matches the evidence at this cutoff." };
+    const guard = { ...ESTIMATED, state: "WITHHELD", quantity_kwh: null, amount: null, tariff_value: null, currency: null, limitation: "No stored charging income estimate matches the evidence at this cutoff." };
     expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: guard }))[0]).toEqual([
       "15.000 kWh complete-record delivery",
       "No eligible tariff applied",
       "Unpriced",
-      "No stored gross tariff estimate matches the evidence at this cutoff.",
+      "No stored charging income estimate matches the evidence at this cutoff.",
     ]);
     // A stored (non-withheld) consequence with no quantity is a stored unknown.
     expect(bridgeRows(read({ metered_complete_kwh: "15.000", consequence: { ...guard, state: "UNPRICED" } }))[0][0]).toBe("Unknown");

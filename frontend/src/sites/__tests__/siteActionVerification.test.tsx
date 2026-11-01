@@ -226,7 +226,7 @@ describe("Verification view (verification:1-3)", () => {
     );
     expect(q("[data-verification-row='target_reduction']")?.textContent).toMatch(/45 min.*0 min.*At least 25% lower.*Pass/);
     expect(q("[data-verification-row='below_reserve_seconds']")?.textContent).toContain("checked every five minutes");
-    expect(q("[data-verification-row='source_provenance']")?.textContent).toContain("Authored test data (test-scoped example)");
+    expect(q("[data-verification-row='source_provenance']")?.textContent).toContain("Prepared example data");
     expect(q("[data-verification-trial-label]")?.textContent).toMatch(/Policy trial.*no savings or realized benefit.*never permanent/);
     expect(q("[data-verification-resolution-kind='RESOLVED']")).not.toBeNull();
     expect(q("[data-verification-resolution-kind='RESOLUTION_WITHDRAWN']")).not.toBeNull();
@@ -399,7 +399,7 @@ describe("Evidence view (action-evidence:1)", () => {
       const win = q(`[data-verification-evidence-window='${name}']`);
       expect(win).toHaveAttribute("data-verification-window-complete", "yes");
       expect(win?.querySelectorAll("[data-verification-slot]").length).toBe(12);
-      expect(win?.querySelector("[data-verification-window-source]")?.textContent).toBe("Authored test data (test-scoped example)");
+      expect(win?.querySelector("[data-verification-window-source]")?.textContent).toBe("Prepared example data");
     }
     expect(q("[data-verification-comparability='feeder_demand_energy']")).toHaveAttribute("data-verification-comparability-state", "PASS");
     expect(document.body.textContent).toMatch(/five-minute sample, not continuous/);
@@ -920,9 +920,9 @@ describe("post-W6 W1-b: verification tones, sources, plan row headings and confl
     expect(r385[0].textContent).toBe("MOCK DEVIATION D2 (R385)");
     expect(r385[0].previousElementSibling?.querySelector("[data-verification-requirement-pair='conditions']")).not.toBeNull();
     const sourceCell = document.querySelector("[data-verification-requirement-pair='conditions'] td") as HTMLElement;
-    expect(sourceCell.textContent?.split("Registered Lab trial data").length).toBe(2);
-    expect(sourcePair("REGISTERED_SIMULATION", "REGISTERED_SIMULATION")).toBe("Registered Lab trial data");
-    expect(sourcePair("REGISTERED_SIMULATION", "MIXED")).toBe("Registered Lab trial data / Mixed sources");
+    expect(sourceCell.textContent?.split("Example data").length).toBe(2);
+    expect(sourcePair("REGISTERED_SIMULATION", "REGISTERED_SIMULATION")).toBe("Example data");
+    expect(sourcePair("REGISTERED_SIMULATION", "MIXED")).toBe("Example data / Mixed sources");
   });
 
   it("Q31: Success criteria keep <th scope=row> and the scoped CSS gives them normal weight and table line height", async () => {

@@ -177,7 +177,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     assert (summary["state"], summary["quantity_kwh"], summary["amount"], summary["currency"]) == (
         "ESTIMATED", "30.000", "8.33250000", "KES")
     assert summary["overlap_group"] == head["overlap_group"] and summary["limitation"] == (
-        "Gross tariff scenario; not cash collected.")
+        "Charging income estimate; not cash collected.")
     assert o["links"]["self"] == f"/sites/{CODE}/ev?from={_iso(lo)}&to={_iso(hi)}&known_at={known}"
 
     # Financials: the stored revision with its stored tariff, links and the two clocks.
@@ -250,7 +250,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     guard = stale["financials"]["consequence"]
     assert (guard["state"], guard["reason"], guard["amount"], guard["currency"], guard["revision_id"]) == (
         "WITHHELD", "STALE_BASIS", None, None, None)
-    assert guard["limitation"] == "No stored gross tariff estimate matches the evidence at this cutoff."
+    assert guard["limitation"] == "No stored charging income estimate matches the evidence at this cutoff."
     assert stale["overview"]["consequence_summary"]["amount"] is None
     assert len(ev_money_rows(built)["ev_consequence_revision"]) == 2  # the guard is never inserted
 
