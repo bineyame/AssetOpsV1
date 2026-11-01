@@ -51,7 +51,7 @@ A48 = {"action_id": "a48", "action_code": "ACT-048", "origin": {"finding_id": "f
        "selected_event": {"id": "e1"}, "state": {"application": "PENDING"},
        "links": {"selected_event": f"/sites/{C}/actions/a48?event_id=e1"}}
 MR1 = {"case_id": "mr1", "code": "MR-001", "title": "Check generator stop", "state": "COMPLETED", "asset_id": "gen",
-       "asset_label": "GEN-1 · generator", "finding_links": [{"finding_id": "f090"}], "occurred_at": iso(T(3))}
+       "asset_label": "Generator", "asset_type": "GENERATOR", "finding_links": [{"finding_id": "f090"}], "occurred_at": iso(T(3))}
 IN1 = {"case_id": "in1", "code": "IN-001", "title": "Feeder trip", "state": "OPEN", "asset_id": None,
        "asset_label": None, "finding_links": [{"finding_id": "f-old"}], "occurred_at": iso(T(1))}
 PLANS = [{"canonical_plan_id": "p1", "code": "PM-001", "title": "Generator service", "trigger_kind": "RUN_HOURS",

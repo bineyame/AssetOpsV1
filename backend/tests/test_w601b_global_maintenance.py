@@ -31,11 +31,11 @@ WINDOW = {"from": "2026-10-14T00:00:00Z", "to": "2026-10-21T00:00:00Z"}
 KEY = "b1" * 32
 MAINTENANCE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_id", "code", "kind", "revision_id",
                     "title", "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id",
-                    "asset_label", "incident_id", "record_id", "activity", "outcome_note", "finding_links",
+                    "asset_label", "asset_type", "incident_id", "record_id", "activity", "outcome_note", "finding_links",
                     "action_links", "source_provenance", "links", "site_domain"}
 PREVENTIVE_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "canonical_plan_id", "root_id", "head_id",
                    "code", "title", "trigger_kind", "next_due_at", "next_due_hours", "state", "asset_id",
-                   "asset_label", "root_occurred_at", "occurred_at", "recorded_at", "supersedes_plan_id",
+                   "asset_label", "asset_type", "due_state", "root_occurred_at", "occurred_at", "recorded_at", "supersedes_plan_id",
                    "correction_reason", "source_provenance", "links", "site_domain"}
 ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
@@ -372,7 +372,7 @@ def test_preventive_draft_rows_and_run_hours(store, key) -> None:  # noqa: F811
     info = seed("preventive")
     demo = info["tenants"]["demo"]
     body = read(demo, "preventive", limit="5")
-    assert set(body) == ENVELOPE and body["state_counts"] is None and body["total_count"] == 5
+    assert set(body) == ENVELOPE | {"summary"} and body["state_counts"] is None and body["total_count"] == 5
     assert body["next_cursor"] is None
     rows = body["rows"]
     assert all(set(r) == PREVENTIVE_KEYS and r["state"] == "DRAFT" for r in rows)
@@ -392,7 +392,8 @@ def test_preventive_draft_rows_and_run_hours(store, key) -> None:  # noqa: F811
     for r in rows:
         assert r["root_id"] == r["canonical_plan_id"] == r["head_id"] and r["supersedes_plan_id"] is None
         assert r["root_occurred_at"] == r["occurred_at"] == "2026-10-18T11:00:00Z"
-        assert r["asset_id"] is None and r["asset_label"] is None and r["code"].startswith("PM-")
+        assert r["asset_id"] is None and r["asset_label"] is None and r["asset_type"] is None
+        assert r["code"].startswith("PM-")
         assert r["links"] == {"site": {"label": r["site_name"], "href": f"/sites/{r['site_code']}"}}
         assert r["source_provenance"]["state"] in {"UNKNOWN", "COMPLETE", "INCOMPLETE"}
     assert [r["recorded_at"] for r in rows] == sorted((r["recorded_at"] for r in rows), reverse=True)
@@ -455,8 +456,34 @@ def test_plan_basis_binds_due_correction(store, key) -> None:  # noqa: F811
     assert {r["root_id"]: r for r in fresh["rows"]}[target["root_id"]]["supersedes_plan_id"] == target["head_id"]
 
 
+def test_preventive_due_summary_over_all_pages(store, key) -> None:  # noqa: F811
+    """POLISH §1.4 / Addendum 6 Q2 (P-09): `summary` counts the whole selection before paging, at the request `to`;
+    each row carries `due_state` by the shared rule; `state_counts` stays null. Window `[14 Oct, 30 Oct)`: due 25 Oct
+    and 29 Oct are overdue, due 1 Nov is due soon (before 13 Nov), the two hours-of-use plans are not assessed."""
+    info = seed("preventive")
+    demo = info["tenants"]["demo"]
+    window = {"from": "2026-10-14T00:00:00Z", "to": "2026-10-30T00:00:00Z"}
+    first = read(demo, "preventive", limit="2", **window)
+    assert first["state_counts"] is None and first["total_count"] == 5 and len(first["rows"]) == 2
+    summary = {"overdue_count": 2, "due_soon_count": 1, "not_assessed_count": 2}
+    assert first["summary"] == summary
+    rows, page = list(first["rows"]), first
+    while page["next_cursor"] is not None:
+        page = read(demo, "preventive", limit="2", cursor=page["next_cursor"], **window)
+        assert page["summary"] == summary  # every page carries the full-selection counts
+        rows += page["rows"]
+    assert {r["title"]: r["due_state"] for r in rows} == {
+        "Inspect filters": "OVERDUE", "Inspect pump seals": "OVERDUE", "Check battery cabinet": "DUE_SOON",
+        "Generator 500-hour service": "NOT_ASSESSED", "Review switchgear": "NOT_ASSESSED"}
+    # The default window `[14 Oct, 21 Oct)`: all three calendar plans fall due within 14 days of 21 Oct.
+    assert read(demo, "preventive")["summary"] == {"overdue_count": 0, "due_soon_count": 3, "not_assessed_count": 2}
+    # Incidents and maintenance carry no summary.
+    assert "summary" not in read(demo, "maintenance") and "summary" not in read(demo, "incidents")
+
+
 def test_plan_asset_label(store, key) -> None:  # noqa: F811
-    """A plan written with a stored Foundation asset carries `{asset_code} · {asset_type}`; no invented asset."""
+    """A plan written with a stored Foundation asset carries the plain label and its stored `asset_type` (POLISH
+    Addendum 6 Q4: the code is appended only when the Site has more than one non-retired asset of that type)."""
     info = seed("zero")
     demo = info["tenants"]["demo"]
     sites = seedmod._existing_sites(URL)
@@ -466,6 +493,9 @@ def test_plan_asset_label(store, key) -> None:  # noqa: F811
         with engine_.connect() as c:
             asset = c.execute(text("SELECT CAST(id AS text), asset_code, asset_type FROM asset WHERE site_id = :s "
                                    "ORDER BY asset_code LIMIT 1"), {"s": site["site"]}).one()
+            same = c.execute(text("SELECT count(*) FROM asset WHERE site_id = :s AND asset_type = :y "
+                                  "AND retired_at IS NULL"), {"s": site["site"], "y": asset[2]}).scalar_one()
+            site_type = c.execute(text("SELECT site_type FROM site WHERE id = :s"), {"s": site["site"]}).scalar_one()
     finally:
         engine_.dispose()
     writer = seedmod.Writer(URL, seedmod.WriteClock(CLOCK - timedelta(minutes=1)), sites, CLOCK)
@@ -478,7 +508,12 @@ def test_plan_asset_label(store, key) -> None:  # noqa: F811
         writer.close()
     [row] = read(demo, "preventive")["rows"]
     assert row["head_id"] == made["id"] and row["asset_id"] == asset[0].lower()
-    assert row["asset_label"] == f"{asset[1]} · {asset[2]}" and row["next_due_at"] is None
+    from assetops_backend.outcomes.asset_words import asset_word
+
+    word = asset_word(asset[2], site_type)
+    assert row["asset_label"] == (f"{word} {asset[1]}" if same > 1 else word) and row["asset_type"] == asset[2]
+    assert " · " not in row["asset_label"] and row["next_due_at"] is None
+    assert row["due_state"] == "NOT_ASSESSED"  # a CALENDAR plan with no due date
 
 
 # --- cursors and refusals -------------------------------------------------------------------------------------------

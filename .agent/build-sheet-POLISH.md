@@ -859,3 +859,79 @@ has a code (for example "ACT-003"), and "Action" otherwise.
 - `display_code` uses minimum 3-digit padding.
 - The `plan_due` boundary is as the implementer settled it.
 - Both "Recommendation not accepted" maps change to "No action agreed yet".
+
+---
+
+## Addendum 7 (2026-11-01): PB-1 pre-flight rulings
+
+**Q1: accepted.** PB-1 removes every visible " UTC" and "(UTC)" in the frontend, in all files, including:
+- the PB-2 and PB-3 files;
+- `EstateEvidence.tsx:96`, `estateFinancialsWords.ts:148` and `portfolioWords.ts:93`.
+
+The edits are time-only: `time.ts` calls, dropped "(UTC)" labels, and `TimeZoneNote` in each bar. The lanes run in
+order, so there is no conflict. PB-1 grows to **6 units**, including the 0.75 slack from Addendum 1. If it would
+exceed 6, PB-1 stops at the 14 capture screens and lists the rest for PB-3.
+
+**Q1a: accepted.** Where the time text sits inside a §3.1 row, PB-1 applies the whole row as ruled. These are the
+five rows named (Kobo day control and window sentence, Kobo "Latest checked readings…", Cold window line, EV "as of…",
+Work "Updated… · Reload"). The PB-1 packet lists them as "done in PB-1", and PB-2/PB-3 skip them.
+
+**Q2: accepted.** `{seconds: true}` is optional. Seconds appear only where an existing ruling shows them: R372
+historical "as of" lines, SiteHealth, EvEnergy and the cold hm. Live and latest lines have no seconds.
+
+**Q3: accepted.** Each formatter keeps its own null word. Unparseable input shows "Time not available yet" and never echoes the raw string.
+
+**Q4: accepted.** PB-1 makes the one copy change "Supported, coherent source" → "Well supported"
+(`portfolioWords.ts:40`) with the P-03 CSS. PB-3 skips it.
+
+**Q5: accepted.**
+- `formatDayRange(from, toExclusive)` gives "23–29 Oct 2026" within a month and "28 Sep – 4 Oct 2026" across months.
+  Across years, both ends are written in full.
+- The cutoff picker moves into a `<details>` titled "View an earlier point in time". It is closed by default and open
+  when `known_at` is set. The Show button stays in the bar.
+- "This is an earlier evidence cutoff." becomes "Showing an earlier point in time."
+- The historical line reads "Information as of {dayTime}".
+
+**Q6: corrected.**
+- PB-1 adds `formatDay(value, {timeZone})` to `time.ts`, and uses the plain "Times in UTC" note on **every** page,
+  including Preventive, Maintenance and the work request pages.
+- The two-part note "Times in UTC · due dates in each site's local date" is switched on by PB-3, in the same commit
+  that wires the Site-zone due dates under P-09 with PA-2b's read.
+- This way no page claims local due dates before it shows them.
+
+---
+
+## Addendum 8 (2026-11-01): PB-2 pre-flight rulings
+
+**Q1: accepted, with a lane constraint.**
+- PB-2 changes `mini.py:102` `GAPS_NO_READINGS` to "{g} of the last {n} days {verb} no checked readings yet" and updates
+  `test_idx_gaps_board.py:72`. `GAPS_NOT_ASSESSED` and `GAPS_WITHHELD` are unchanged.
+- PB-2's edits to `mini.py` are limited to string constants (`GAPS_NO_READINGS`, `FINDING_TITLE`); no logic.
+- PA-2a also edits `mini.py` (display codes, `VERIFIED_WITH_COST`), so the coordinator merges whichever lands second
+  after a rebase. A conflict there is constant-level and is resolved by keeping both changes.
+
+**Q2: corrected.** The ROLE_WORDS entries are "Essential services: power supplied" and "Essential services: power
+requested". The fallback capitalises the first letter. Builders must check the result against the vocabulary guard.
+
+**Q3: accepted.** PB-2 changes only the shared Overview slot title (Kobo/mini) to "Possible cost". The cold and EV
+headings go to PB-3.
+
+**Q4: corrected, and moved to PB-3** (`EstatePortfolio.tsx` is a PB-3 file).
+- "Estimate" clashes with the money panel's "Latest estimate" and "How this estimate was made".
+- Use badge "What-if" and "No reviewed what-if yet". This is mock wording, so it goes in the R655 plain-language row.
+
+**Q5: accepted as proposed.**
+- Add the optional `technical` prop on `ui/Disclosure.tsx`, which renders `data-technical-details`.
+- Add `ui/TechnicalDetails.tsx` with two pieces:
+  - "Technical details";
+  - "How this was worked out", with plain lines and the raw references nested in Technical details.
+- `ExactReferences` stays unchanged.
+- Switch the Kobo board, the verification page, SiteAction History and the `SourceProvenanceRecord` id lists.
+- Rename the verification DigDeeper to "Technical details", and tag the two id-holding DigDeepers.
+- Cold/EV/foundation `ExactReferences` sites that leak ids on capture screens are PB-3 (the Addendum 5 baseline decides which).
+
+**Q6: accepted. PB-2 applies `displayCode()` at all ~25 visible render sites, including files owned by PB-3.**
+- Lane B runs in order and PB-3 starts from main after PB-2 merges, so there is no parallel conflict.
+- aria-labels and the "Action code" reference row keep the stored code.
+- PB-2's packet lists every file it touched that PB-3 owns, and PB-3 rebases on main first.
+- PB-2 grows by about 0.5 unit. If it would exceed 6 units, PB-2 stops after the capture-screen sites and leaves the rest to PB-3.

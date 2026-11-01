@@ -14,3 +14,8 @@
 
 ## Clock time bomb found in PA-2a review (2026-11-01)
 - RESOLVED by FIX-W401b merge. `test_w401_work_service_postgres::test_foreign_asset_and_evidence_refuse` failed on main since ~02:05Z 2026-11-01: the `clocked` fixture freezes the store clock at `POSITIVE_NOW` (2026-11-01T01:00Z) but request bodies use real-clock `at()` (lines 43-48), so `check_occurrence` (`work/model.py:236-238`) returns `WORK_OCCURRED_AT_FUTURE`. Other `clocked` tests with default times are exposed. Fix: derive those times from `POSITIVE_NOW`. Blocks a clean `-Tier all` until fixed.
+
+## POLISH PA-2b review Lows (`.agent/review-POLISH-PA-2b.md`)
+- L2 (pre-existing harness): `test_out_b4_board_postgres.py:71-80` `_case_db` uses fixed DB name `assetops_out_b_guardrail_test` with a module-scoped fixture; under `-n` without `--dist loadfile` two workers collide (SITE_NOT_FOUND or killed connection). Always pass `--dist loadfile` with `-n`; later tag `_case_db` names per run/worker.
+- L3: `WarningFacts.soon_until` (`warnings.py:96`) no longer read; drop or assert.
+- Residual: historical asset labels use today's same-type count (no cutoff, per q7-1); PB-3 `assetWords` must not reintroduce "EV connector".

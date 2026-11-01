@@ -12,12 +12,12 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from assetops_backend.outcomes.outcome_map import finding_signal_key, outcome_roles
+from assetops_backend.outcomes.plan_due import NOT_ASSESSED, plan_due_state, soon_until
 from assetops_backend.outcomes.warnings import PlanCue, Visit, WarningFacts
 from assetops_backend.site_outcomes.board import MAINTENANCE_REQUEST, CaseFact, SiteFacts
 
 VISIT_LOOKBACK = timedelta(days=60)
 RECORD_WINDOW = timedelta(days=31)   # the work index's maximum window (work/site_index.py MAX_WINDOW)
-SOON = timedelta(days=14)
 
 
 def record_windows(to: datetime) -> tuple[tuple[datetime, datetime], ...]:
@@ -47,8 +47,9 @@ def _local_date(at: datetime, tz: ZoneInfo | None) -> Any:
 
 
 def asset_name(label: str | None) -> str:
-    """The text before " · " in a work row's asset label, else the label."""
-    return (label or "").split(" · ", 1)[0]
+    """POLISH Addendum 6 Q4: a work row's `asset_label` is already the plain name ("Backup generator"), so it is used
+    as it is; nothing is parsed out of it."""
+    return label or ""
 
 
 #: Rulings C final review F1: the fault noun phrase for an open linked Finding's mechanism.
@@ -67,7 +68,8 @@ def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix
     plans = tuple(
         PlanCue(plan_id=p.plan_id, code=p.code or "", title=p.title, due_at=p.due_at, due_on=p.next_due_at,
                 asset_id=p.asset_id, href=p.href)
-        for p in facts.plans if p.trigger_kind == "CALENDAR" and p.due_at is not None and p.next_due_at is not None)
+        for p in facts.plans if p.next_due_at is not None
+        and plan_due_state(p.trigger_kind, p.due_at, to) != NOT_ASSESSED)
     open_findings: dict[str, tuple[tuple[str, ...], str | None]] = {}
     fault_names: dict[str, str] = {}
     for f in facts.findings:
@@ -78,5 +80,5 @@ def warning_facts(facts: SiteFacts, *, to: datetime, tz: ZoneInfo | None, suffix
                 fault_names[f.finding_id] = FAULT_NAMES[f.mechanism]
     days = (_local_date(lo, tz), _local_date(to - timedelta(microseconds=1), tz))
     return WarningFacts(domain=facts.domain, site_code=facts.site_code, to=to, visits_from=to - VISIT_LOOKBACK,
-                        soon_until=to + SOON, window_days=days, date_suffix=suffix, visits=visits, plans=plans,
+                        soon_until=soon_until(to), window_days=days, date_suffix=suffix, visits=visits, plans=plans,
                         open_findings=open_findings, fault_names=fault_names, **extras)

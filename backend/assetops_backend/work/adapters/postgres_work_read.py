@@ -71,8 +71,13 @@ _DOMAIN_LINKS = (
 # W4-01 commit 4 (spec "Commit 4 implementer dry-read"): eligible cases of one kind before paging. Incidents by root
 # `occurred_at`, requests by root `created_at`, both in `[from, to)` and created by the cutoff; a case needs its
 # revision at the cutoff. q7-1: the scoped Asset label inputs are `asset_code`, `asset_type` (no cutoff, no name).
+# POLISH Addendum 6 Q4: plus the Site's count of non-retired assets of that type and the Site type, so the plain label
+# can append the code only where the type is ambiguous and name a cold-chain generator "Backup generator".
 _ELIGIBLE = ("SELECT CAST(c.id AS text) AS id, c.kind, c.public_code, CAST(c.asset_id AS text) AS asset_id, "
-             "c.occurred_at, c.created_at, CAST(r.incident_id AS text) AS incident_id, a.asset_code, a.asset_type "
+             "c.occurred_at, c.created_at, CAST(r.incident_id AS text) AS incident_id, a.asset_code, a.asset_type, "
+             "(SELECT count(*) FROM asset b WHERE b.tenant_id = a.tenant_id AND b.site_id = a.site_id "
+             "AND b.asset_type = a.asset_type AND b.retired_at IS NULL) AS asset_type_count, "
+             "(SELECT st.site_type FROM site st WHERE st.tenant_id = c.tenant_id AND st.id = c.site_id) AS site_type "
              "FROM work_case c LEFT JOIN maintenance_work_request r ON r.tenant_id = c.tenant_id "
              "AND r.site_id = c.site_id AND r.id = c.id "
              "LEFT JOIN asset a ON a.tenant_id = c.tenant_id AND a.site_id = c.site_id AND a.id = c.asset_id "
