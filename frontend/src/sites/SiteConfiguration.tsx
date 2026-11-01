@@ -1,4 +1,5 @@
-﻿import { Fragment, type ReactNode } from "react";
+﻿import { formatDayTime } from "../ui/time";
+import { Fragment, type ReactNode } from "react";
 
 import {
   Badge,
@@ -416,7 +417,7 @@ export function SiteConfigurationFacts({
               <Fact term="Location">{view.location}</Fact>
               <Fact term="Timezone">{view.timezone}</Fact>
               <Fact term="Foundation version">{view.foundationVersion}</Fact>
-              <Fact term="Valid from">{view.foundationValidFrom}</Fact>
+              <Fact term="Valid from">{formatDayTime(view.foundationValidFrom)}</Fact>
               <Fact term="Summary">{view.foundationSummary}</Fact>
               {/*
                * Three vocabularies, three tones, never one status pill. Template

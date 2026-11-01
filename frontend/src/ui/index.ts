@@ -101,3 +101,5 @@ export {
   type ValueBarItem,
   type ValueBarsProps,
 } from "./ProductStatus";
+export { displayCode } from "./displayCode";
+export { TECHNICAL_DETAILS, TechnicalDetails, TechnicalReferenceList, WorkedOut } from "./TechnicalDetails";

@@ -20,13 +20,14 @@
 import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { TechnicalDetails, TechnicalReferenceList, WorkedOut } from "../ui/TechnicalDetails";
 import { Link } from "react-router-dom";
 
 import {
   currentnessWords,
   DataTable,
   Disclosure,
-  ExactReferences,
+
   Fact,
   FactList,
   CausalTimeline,
@@ -45,8 +46,8 @@ import { portionWords } from "./findingWords";
 import { OUTCOME_WORDS } from "./findingPresentation";
 import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 import type { FindingIndexClient, FindingIndexScope } from "./findingIndexClient";
-import { OverviewFindingList } from "./OverviewFindingList";
-import { HourNotSelected, OverviewGrid } from "./overviewSlots";
+import { choiceLines, OverviewFindingList } from "./OverviewFindingList";
+import { OverviewGrid } from "./overviewSlots";
 import { OutcomeBoard } from "./OutcomeBoard";
 import type { OutcomeBoardClient } from "./outcomeBoardClient";
 import {
@@ -122,8 +123,8 @@ function localMoney(label: string, sentence: string, tone: ProductWords["tone"],
 
 const LOCAL_MONEY_WORDS: Record<string, ProductWords> = {
   PRICED: localMoney(
-    "Current amount",
-    "This range uses the current version of this Finding and a recorded diesel price.",
+    "Latest estimate",
+    "Based on the latest finding and the recorded diesel price.",
     "positive",
   ),
   ABSENT: localMoney(
@@ -305,23 +306,32 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   const sameAsStatusbar = currentnessWords(f.state).label === objectiveWords(a.state).label;
   return (
     <div className="window-freshness" data-freshness-card>
-        {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1. */}
-        <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
-          {sameAsStatusbar ? null : (
-            <>
-              <DayStateLine words={currentnessWords(f.state)} summary={summary} />{" "}
-            </>
-          )}
-          <span data-source-open={f.source_open ? "open" : "closed"}>
-            {f.source_open
-              ? "The source of these readings is open for current use."
-              : "The source of these readings is closed for current use: only records kept for the audit are shown."}
-          </span>
-        </p>
+        {/* W1-F2: one note-size line (readings state and source state), not a second state block in panel 1.
+            POLISH §3.1: an open source is said inside "How this was worked out"; a closed one stays visible. */}
+        {sameAsStatusbar && f.source_open ? null : (
+          <p className="v69-chart-note" data-freshness-state={f.state} data-freshness-in-statusbar={sameAsStatusbar ? "yes" : "no"}>
+            {sameAsStatusbar ? null : (
+              <>
+                <DayStateLine words={currentnessWords(f.state)} summary={summary} />{" "}
+              </>
+            )}
+            {f.source_open ? null : (
+              <span data-source-open="closed">
+                The source of these readings is closed for current use: only records kept for the audit are shown.
+              </span>
+            )}
+          </p>
+        )}
         <div data-window-reasons="freshness">
-          <ExactReferences
+          <WorkedOut
             name="window-assessment"
             variant="tech"
+            lines={
+              <>
+                {f.source_open ? <p data-source-open="open">{SOURCE_ACTIVE}</p> : null}
+                <p data-access-basis>{accessWords(summary.access_basis)}</p>
+              </>
+            }
             references={[
               { label: "Day assessment", value: a.window_assessment_revision_id },
               { label: "Assessment pass", value: a.run_id },
@@ -349,10 +359,34 @@ function FreshnessStrip({ summary }: { summary: SiteWindowSummary }) {
   );
 }
 
-function coverageRoles(coverage: unknown): string {
-  if (coverage === null || typeof coverage !== "object") return "assessment coverage is not available for this day.";
+/** POLISH §3.1 Kobo: the open source state, said inside "How this was worked out". */
+export const SOURCE_ACTIVE = "The reading source is active.";
+
+/** POLISH §3.1 Kobo (open): the access basis in words; its recorded code stays in Technical details. */
+export function accessWords(basis: string | null | undefined): string {
+  if (basis === null || basis === undefined || basis === "") return "Access: not recorded";
+  return /OPERATOR/.test(basis) ? "Access: operator account" : "Access: recorded in the technical details";
+}
+
+/** POLISH §3.1 Kobo: "from 13 measured inputs", or the missing-coverage words. */
+function coverageInputs(coverage: unknown): string {
+  if (coverage === null || typeof coverage !== "object") return "measured inputs not available yet for this day";
   const n = Object.keys(coverage as Record<string, unknown>).length;
-  return n === 0 ? "assessment coverage is not available for this day." : `${n} measured ${n === 1 ? "role" : "roles"} covered.`;
+  return n === 0
+    ? "measured inputs not available yet for this day"
+    : `from ${n.toLocaleString("en-GB")} measured ${n === 1 ? "input" : "inputs"}`;
+}
+
+/**
+ * POLISH §3.1 Kobo (Addendum 4): "Checked: 1 period of generator use, from 13 measured inputs", and on a day with
+ * none "Checked: generator not used on this day, from 13 measured inputs".
+ */
+export function dayReadingLine(claimLevel: string, periods: number, coverage: unknown): string {
+  const word = OUTCOME_WORDS[claimLevel];
+  const lead = word === undefined ? "Checked" : `Checked (${word.toLowerCase()})`;
+  const used =
+    periods === 0 ? "generator not used on this day" : `${periods} ${periods === 1 ? "period" : "periods"} of generator use`;
+  return `${lead}: ${used}, ${coverageInputs(coverage)}`;
 }
 
 /**
@@ -414,6 +448,8 @@ export interface OverviewReadable {
   renewable: boolean;
 }
 
+const READ_WORDS: Record<string, string> = { Service: "service", Dispatch: "generator", Fuel: "fuel", Renewable: "solar" };
+
 /** Ruling 1: the readable names in Service, Dispatch, Fuel, Renewable order; never a value inferred from readability. */
 export function overviewReadsStrip(reads: OverviewReadable): string {
   const names = (
@@ -427,7 +463,10 @@ export function overviewReadsStrip(reads: OverviewReadable): string {
     .filter(([, readable]) => readable)
     .map(([name]) => name);
   if (names.length === 0) return "No objective read is available for this selection.";
-  return `Reads on this Overview: ${names.join(", ")}. Each outcome row shows only what these reads support for the selected period.`;
+  // POLISH §3.1 Kobo: one plain sentence naming the readings the page uses.
+  const words = names.map((n) => READ_WORDS[n]);
+  const list = words.length === 1 ? words[0] : `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+  return `This page uses ${list} readings for the selected day.`;
 }
 
 /**
@@ -517,9 +556,7 @@ function DayReading({ summary }: { summary: SiteWindowSummary }) {
         closed ? null : <ChartNote data={{ "data-assessment-claim": "none" }}>No assessed reading is selected for this day.</ChartNote>
       ) : (
         <ChartNote data={{ "data-assessment-claim": a.claim_level }}>
-          Day reading: {OUTCOME_WORDS[a.claim_level] ?? "Assessed"}. {a.dispatch_intervals.length}{" "}
-          {a.dispatch_intervals.length === 1 ? "operating period" : "operating periods"} assessed;{" "}
-          {coverageRoles(a.coverage)}
+          {dayReadingLine(a.claim_level, a.dispatch_intervals.length, a.coverage)}
         </ChartNote>
       )}
       {/* W1-F2 compaction: each recorded limitation, in its words, on one note line (none dropped). */}
@@ -689,14 +726,14 @@ function Context({ summary, links }: { summary: SiteWindowSummary; links: Window
   return (
     <>
       <ChartNote data={{ "data-window-context": String(c.series.length) }}>
-        {c.total ?? c.series.length} accepted readings on this day
-        {c.truncated ? `; the first ${c.series.length} are listed` : ""}.
-        {c.coverage.length === 0 ? " No accepted reading covers this day." : ""}
+        {(c.total ?? c.series.length).toLocaleString("en-GB")} readings on this day
+        {c.truncated ? ` (first ${c.series.length.toLocaleString("en-GB")} shown)` : ""}
+        {c.coverage.length === 0 ? ". No reading covers this day." : ""}
       </ChartNote>
       {/* Review fix M5(a): the server's gap reason is never shown verbatim; its meaning is stated in plain words. */}
       {c.gaps_reason ? (
         <ChartNote data={{ "data-window-gaps": "" }}>
-          No rule yet says which gaps in the readings matter here; the reading counts are shown instead.
+          Gaps in the readings are not judged yet; reading counts are shown instead.
         </ChartNote>
       ) : null}
       {/* W1-F2 compaction: the per-input table and the record links are reference detail, in one closed disclosure. */}
@@ -808,6 +845,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   const m = summary.money;
   const gate = m.eligibility?.state ?? null;
   const priced = m.state === "PRICED" && m.amount_low !== null && m.amount_high !== null;
+  // POLISH §1.1 (P-06): a priced amount whose upper bound is zero is an honest zero, said in words, never "0.00 to 0.00".
+  const zero = priced && Number(m.amount_high) === 0;
   // A PRICED read missing a bound has no amount to call current: use the shared non-positive fallback words.
   const w = m.state === "PRICED" && !priced ? { ...moneyWords("PRICED"), code: "PRICED" } : overviewMoneyWords(m.state);
   const low = priced ? Number(m.amount_low) : Number.NaN;
@@ -820,7 +859,16 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
         data-money-gate={gate ?? "none"}
         data-consequence-revision-id={m.consequence_revision_id ?? ""}
       >
-        {priced ? (
+        {zero ? (
+          <>
+            <p className="window-money__none v69-money v69-money--word" data-money-amount="zero">
+              {MONEY_ZERO}
+            </p>
+            <p className="v69-chart-note" data-money-zero-note>
+              {MONEY_ZERO_NOTE}
+            </p>
+          </>
+        ) : priced ? (
           <p className="window-money__amount v69-money" data-money-amount>
             {m.amount_low} to {m.amount_high} {m.currency}
           </p>
@@ -839,12 +887,12 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
         ) : null}
         {m.finding_id ? (
           <ChartNote data={{ "data-money-qualifier": "" }}>
-            A modelled range of possible extra fuel cost for one Finding, not money lost or saved.
+            An estimate of possible extra fuel cost, not money lost or saved.
           </ChartNote>
         ) : null}
         {/* W1-F2 compaction: the bars, gate and upstream facts, links and exact references, in one closed disclosure. */}
-        <Disclosure summary={m.finding_id && m.source_provenance ? "Cost range, money gate, source record and links" : "Cost range, money gate and links"} name="window-money-detail" variant="tech">
-        {priced && Number.isFinite(low) && Number.isFinite(high) ? (
+        <Disclosure summary="How this estimate was made" name="window-money-detail" variant="tech">
+        {priced && !zero && Number.isFinite(low) && Number.isFinite(high) ? (
           <ValueBars
             title="Possible extra fuel cost for this Finding"
             items={[
@@ -864,8 +912,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
           </Fact>
         </FactList>
         <MoneyLinks money={m} links={links} day={summary.window.utc_date} />
-        <ExactReferences
-          name="window-money"
+        <TechnicalDetails name="window-money">
+          <TechnicalReferenceList
           references={[
             { label: "Amount state", value: m.state },
             { label: "Finding reference", value: m.finding_id },
@@ -879,7 +927,8 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
             { label: "Money gate note", value: m.eligibility?.note ?? null },
             { label: "Recorded cost label", value: m.label },
           ]}
-        />
+          />
+        </TechnicalDetails>
         {/* W1-F5b (carry 8): the source record folds into this one closed row, not a second one. */}
         {m.finding_id && m.source_provenance ? (
           <div className="window-money__source-record" data-source-record="overview-money">
@@ -894,6 +943,11 @@ function Money({ summary, links }: { summary: SiteWindowSummary; links: WindowOv
   );
 }
 
+/** POLISH §1.1 (P-06): the zero-amount words of the money panel. */
+export const MONEY_ZERO = "No fuel cost estimated";
+export const MONEY_ZERO_NOTE =
+  "The generator was on longer than needed but delivered no measured power. Fuel used while idling is not estimated yet.";
+
 /** W1-F2 compaction: the mock's "Open financial bridge" link, in the money panel's header, for the Finding's fuel cost. */
 function MoneyAction({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
   const m = summary.money;
@@ -904,6 +958,8 @@ function MoneyAction({ summary, links }: { summary: SiteWindowSummary; links: Wi
     </Link>
   );
 }
+
+
 
 /** What happened to the Finding version named in the address, by the server's reason. */
 const PIN_WORDS: Record<string, string> = {
@@ -958,7 +1014,12 @@ function KnownFinding({
           </div>
         ) : null}
         {k.several_intersect ? <p>{k.note}</p> : null}
-        <ExactReferences name="window-finding-choice" variant="tech" references={choiceReferences} />
+        <WorkedOut
+          name="window-finding-choice"
+          variant="tech"
+          lines={choiceLines(k.selection_rule)}
+          references={choiceReferences}
+        />
       </div>
     );
   return (
@@ -1005,8 +1066,7 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
         <>
           <h3>Review the Finding for this day</h3>
           <ChartNote>
-            The Finding records what the assessment concluded about generator operation. No recommendation is
-            recorded on this Overview; any next action starts from the Finding.
+            Start from the finding to decide what to do next.
           </ChartNote>
         </>
       )}
@@ -1065,10 +1125,9 @@ export function SiteWindowOverview({
           </>
         }
         happened={{
-          description: `Selected day ${day} · plain sequence of the assessed periods · the dispatch view has the detail`,
+          description: `${formatDay(day)} · the periods we checked; Dispatch has the detail`,
           body: (
             <>
-              <HourNotSelected scope={`one whole day (${formatDay(day)})`} />
               <PeriodStrip summary={summary} links={links} />
               <DayReading summary={summary} />
               <FreshnessStrip summary={summary} />
@@ -1076,7 +1135,7 @@ export function SiteWindowOverview({
           ),
         }}
         context={{
-          description: "Selected day · when readings arrived; context for the cards, not a status source",
+          description: "When the generator was on and when readings arrived",
           // post-W6 W1-a Q3 / R159: the panel-head link to the single line diagram at the selected window's end.
           actions:
             links.sld === undefined ? undefined : (
@@ -1092,7 +1151,7 @@ export function SiteWindowOverview({
           ),
         }}
         attention={{
-          description: "The Finding chosen for this day and the day's Finding list",
+          description: "The main finding for this day",
           body: <KnownFinding summary={summary} links={links} findingIndex={findingIndex} onReload={onReload} />,
         }}
         money={{ body: <Money summary={summary} links={links} />, actions: <MoneyAction summary={summary} links={links} /> }}

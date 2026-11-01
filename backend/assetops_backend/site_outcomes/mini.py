@@ -99,14 +99,14 @@ SOURCE_UNRESOLVED = "Source not resolved"
 UNSETTLED_INDEX_STATUS = ("FAILED", "STALE_PROJECTION", "STALE", "PENDING", "UNASSESSED")
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
-GAPS_NO_READINGS = "Not available yet · {g} of {n} days {verb} no assessed readings"
+GAPS_NO_READINGS = "{g} of the last {n} days {verb} no checked readings yet"
 GAPS_NOT_ASSESSED = "Not available yet · {g} of {n} days {verb} not assessed yet"
 GAPS_WITHHELD = "; Findings next to those days are not shown yet"
 #: IDX-GAPS Addendum 3: the board names a mini Finding by its lifecycle, in the plain titles of
 #: `frontend/src/sites/findingWords.ts` `LIFECYCLE_WORDS` (copied verbatim); the stored title is never shown here.
-FINDING_TITLE = {"SUPPORTED": "Generator support merits review",
-                 "UNCONFIRMED": "Generator support review: not confirmed",
-                 "NO_LONGER_SUPPORTED": "Generator support review: no longer supported",
+FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
+                 "UNCONFIRMED": "Extra generator time not confirmed by the latest check",
+                 "NO_LONGER_SUPPORTED": "Extra generator time no longer supported by the latest check",
                  "MERGED": "Generator support review: joined into an earlier Finding"}
 FINDING_TITLE_FALLBACK = "Generator support review"
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.

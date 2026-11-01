@@ -218,7 +218,7 @@ describe("a site is rendered from its record", () => {
       "hybrid-mini-grid-100kw v1",
     );
     expect(factValue(container, "Foundation version")).toBe("1");
-    expect(factValue(container, "Valid from")).toBe("2026-09-14T09:12:00Z");
+    expect(factValue(container, "Valid from")).toBe("14 Sep 2026, 09:12");
   });
 
   it("renders the stored canonical site ID, not the one in the address", async () => {
@@ -257,7 +257,7 @@ describe("a site is rendered from its record", () => {
     }
   });
 
-  it("renders the site's own timestamp verbatim and invents no other", async () => {
+  it("renders the site's own timestamp in day-time form (POLISH §3, no ISO text) and invents no other", async () => {
     const { container } = renderSite(USER_SIMULATED_SITE);
     await settledScreen();
 
@@ -266,7 +266,8 @@ describe("a site is rendered from its record", () => {
         /\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2})?Z?)?/g,
       ) ?? [];
 
-    expect(timestamps).toEqual(["2026-09-14T09:12:00Z"]);
+    expect(timestamps).toEqual([]);
+    expect((container.textContent ?? "").split("14 Sep 2026, 09:12").length - 1).toBe(1);
   });
 });
 
@@ -759,7 +760,7 @@ describe("the Site information panel carries the facts assigned to it", () => {
     expect(factValue(panel, "Site ID")).toBe("MG-002");
     expect(factValue(panel, "Lifecycle status")).toBe("Planned");
     expect(factValue(panel, "Foundation version")).toBe("1");
-    expect(factValue(panel, "Valid from")).toBe("2026-09-14T09:12:00Z");
+    expect(factValue(panel, "Valid from")).toBe("14 Sep 2026, 09:12");
   });
 
   it("keeps mode and configuration origin out of it", async () => {

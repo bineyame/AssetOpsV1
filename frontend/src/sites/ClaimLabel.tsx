@@ -4,14 +4,15 @@
  */
 import { BENEFICIARY_WORDS, CLAIM_LABEL, type Beneficiary, type CommercialClaimLevel } from "./actionPresentation";
 
-export function ClaimLabel({ level, beneficiary }: { level: string; beneficiary: string }) {
+export function ClaimLabel({ level, beneficiary, inline = false }: { level: string; beneficiary: string; inline?: boolean }) {
+  const Tag = inline ? "span" : "p";
   const claim = Object.prototype.hasOwnProperty.call(CLAIM_LABEL, level) ? CLAIM_LABEL[level as CommercialClaimLevel] : null;
   const who = Object.prototype.hasOwnProperty.call(BENEFICIARY_WORDS, beneficiary)
     ? BENEFICIARY_WORDS[beneficiary as Beneficiary]
     : null;
   return (
-    <p className="claim-label" data-claim-level={level} data-beneficiary={beneficiary}>
-      {claim !== null && who !== null ? `${claim} · benefits: ${who}` : "Evidence level and beneficiary not stated"}
-    </p>
+    <Tag className="claim-label" data-claim-level={level} data-beneficiary={beneficiary}>
+      {claim !== null && who !== null ? `${claim} · benefits the ${who}` : "Evidence level and beneficiary not stated"}
+    </Tag>
   );
 }

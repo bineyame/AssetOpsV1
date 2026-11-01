@@ -31,9 +31,9 @@ def test_gap_line_counts_requested_non_current_days_only() -> None:
     edge_only = body([(REQUESTED[4], "CURRENT", "EDGE_NEXT_TO_GAP"), ("2026-09-18", "PENDING", "NOT_CURRENT")])
     assert finding_gap_line(edge_only, 31) is None
     one = finding_gap_line(body([(REQUESTED[2], "UNASSESSED", "NOT_CURRENT")]), 31)
-    assert one == {"text": "Not available yet · 1 of 31 days has no assessed readings", "days": [REQUESTED[2]]}
+    assert one == {"text": "1 of the last 31 days has no checked readings yet", "days": [REQUESTED[2]]}
     many = finding_gap_line(body([(d, "UNASSESSED", "NOT_CURRENT") for d in REQUESTED[:23]]), 31)
-    assert many["text"] == "Not available yet · 23 of 31 days have no assessed readings"
+    assert many["text"] == "23 of the last 31 days have no checked readings yet"
     assert many["days"] == REQUESTED[:23]
     mixed = body([(REQUESTED[9], "PENDING", "NOT_CURRENT"), (REQUESTED[1], "UNASSESSED", "NOT_CURRENT")])
     assert finding_gap_line(mixed, 31) == {"text": "Not available yet · 2 of 31 days are not assessed yet",
@@ -43,7 +43,7 @@ def test_gap_line_counts_requested_non_current_days_only() -> None:
     held = body([(REQUESTED[5], "UNASSESSED", "NOT_CURRENT"), (REQUESTED[4], "CURRENT", "WITHHELD_FINDING")],
                 withheld=True)
     assert finding_gap_line(held, 31)["text"] == (
-        "Not available yet · 1 of 31 days has no assessed readings; Findings next to those days are not shown yet")
+        "1 of the last 31 days has no checked readings yet; Findings next to those days are not shown yet")
 
 
 @pytest.mark.parametrize(("status", "gaps", "settled"), [
@@ -96,7 +96,7 @@ def test_board_names_a_finding_by_lifecycle_not_stored_title() -> None:
 
     raw = dict(b2.F104, title="A stored title the board does not show")
     comp, _ = b2.run(b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [raw], "next_cursor": None}))
-    assert [f.title for f in comp.facts.findings] == ["Generator support merits review"]
+    assert [f.title for f in comp.facts.findings] == ["Generator may have been on longer than needed"]
     retired = dict(b2.F090, lifecycle="RETIRED")
     comp, _ = b2.run(b2.Fake(finding_index={"status": "CURRENT", "gaps": [], "rows": [retired], "next_cursor": None}))
     assert [f.title for f in comp.facts.findings] == ["Generator support review"]

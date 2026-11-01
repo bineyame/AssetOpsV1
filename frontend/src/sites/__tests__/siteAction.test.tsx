@@ -30,6 +30,7 @@
  * and prove the same structure (no command control, a read-only reason) at
  * both; rendered layout at both widths is phase-2 browser evidence.
  */
+import { displayCode } from "../../ui/displayCode";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -443,7 +444,7 @@ describe("Action root (action-overview / action-execution / action-history :1#a)
     await settledScreen();
     const body = ov.applied_pending_newer_revision.body;
     await waitFor(() =>
-      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`${body.action.action_code} · Battery reserve trial`),
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(`${displayCode(body.action.action_code)} · Battery reserve trial`),
     );
     expect(q("[data-action-origin-link]")?.getAttribute("href")).toBe(
       `/sites/KOBO-001/findings/${body.origin.finding_id}?revision_id=${body.origin.finding_revision_id}`,
@@ -1160,7 +1161,7 @@ describe("post-W6 shell R203: the W1 Action breadcrumb is Action-rooted", () => 
     await waitFor(() => expect(q("[data-action-crumb-code]")).not.toBeNull());
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
     const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
-    expect(items).toEqual(["Actions", ov.applied_pending_newer_revision.body.action.action_code, label]);
+    expect(items).toEqual(["Actions", displayCode(ov.applied_pending_newer_revision.body.action.action_code), label]);
     expect(crumbs.querySelector("li a")?.getAttribute("href")).toBe("/actions");
     expect(crumbs.querySelector('[aria-current="page"]')?.textContent).toBe(label);
     expect(crumbs.querySelector("[data-action-crumb-site]")?.textContent).toBe(`· site: ${HYBRID_MINI_GRID_SITE.display_name}`);

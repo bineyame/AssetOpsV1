@@ -311,7 +311,7 @@ def test_pending_finding_index_unsettles_finding_outcomes() -> None:
                   "discovery": {"requested_days": REQUESTED}, "gaps": [_gap(d, "UNASSESSED") for d in REQUESTED]}
     comp, rows = run(Fake(finding_index=unassessed))
     _assert_finding_source_unsettled(comp, rows)
-    assert comp.facts.finding_gaps == {"text": "Not available yet · 31 of 31 days have no assessed readings",
+    assert comp.facts.finding_gaps == {"text": "31 of the last 31 days have no checked readings yet",
                                        "days": REQUESTED}
     # PARTIAL whose gaps name the board day: unsettled
     on_day = {"status": "PARTIAL", "rows": [], "next_cursor": None, "withheld": True,
@@ -325,7 +325,7 @@ def test_pending_finding_index_unsettles_finding_outcomes() -> None:
     comp, rows = run(Fake(finding_index=other))
     assert comp.facts.findings_settled and "finding_index" not in comp.failed
     assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
-    assert comp.facts.finding_gaps == {"text": "Not available yet · 2 of 31 days have no assessed readings",
+    assert comp.facts.finding_gaps == {"text": "2 of the last 31 days have no checked readings yet",
                                        "days": REQUESTED[:2]}
 
 

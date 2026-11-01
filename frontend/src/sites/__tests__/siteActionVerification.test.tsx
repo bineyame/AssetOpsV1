@@ -222,7 +222,7 @@ describe("Verification view (verification:1-3)", () => {
     expect(headline?.textContent).toContain("Target met within every limit");
     // CC-R1 (CC-R1-Q1): the VERIFIED verdict carries the claim label.
     expect(q(".claim-label[data-claim-level='VERIFIED_SIMULATED_TECHNICAL']")?.textContent).toBe(
-      "Technical result verified on test data · benefits: mini-grid operator",
+      "Verified on example data · benefits the mini-grid operator",
     );
     expect(q("[data-verification-row='target_reduction']")?.textContent).toMatch(/45 min.*0 min.*At least 25% lower.*Pass/);
     expect(q("[data-verification-row='below_reserve_seconds']")?.textContent).toContain("checked every five minutes");
@@ -303,7 +303,7 @@ describe("Verification view (verification:1-3)", () => {
         expect(claim).toHaveLength(1);
         expect(claim[0]).toHaveAttribute("data-claim-level", "VERIFIED_SIMULATED_TECHNICAL");
         expect(claim[0]).toHaveAttribute("data-beneficiary", "MINI_OPERATOR");
-        expect(claim[0].textContent).toBe("Technical result verified on test data · benefits: mini-grid operator");
+        expect(claim[0].textContent).toBe("Verified on example data · benefits the mini-grid operator");
         expect(claim[0].textContent).not.toMatch(/saving|saved/i);
       }
       noVocabularyViolations(`verification:${label}`);

@@ -1,4 +1,5 @@
 import { Disclosure } from "../ui";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
 
 /**
  * S4-05b phase 1: the stored exact-revision source provenance every Finding and money read carries
@@ -92,9 +93,11 @@ export const SOURCE_WORDS: Record<SourceState, { label: string; statement: strin
     label: "Prepared example data",
     statement: "These records were prepared for an example. They are not readings from physical equipment.",
   },
+  // POLISH §3.1 Kobo: "Example data: these readings were prepared for this demonstration, not measured on physical
+  // equipment." (the label is followed by a colon, see `SOURCE_LEAD_COLON`).
   REGISTERED_SIMULATION: {
-    label: "Generated test data",
-    statement: "These records were generated for a test. They are not readings from physical equipment.",
+    label: "Example data",
+    statement: "These readings were prepared for this demonstration, not measured on physical equipment.",
   },
   MIXED: {
     label: "Sources do not agree",
@@ -105,6 +108,9 @@ export const SOURCE_WORDS: Record<SourceState, { label: string; statement: strin
     statement: "We cannot establish the source of all records behind this result. No current cost is shown.",
   },
 };
+
+/** States whose statement continues the label after a colon (POLISH §3.1). */
+const SOURCE_LEAD_COLON: ReadonlySet<SourceState> = new Set<SourceState>(["REGISTERED_SIMULATION"]);
 
 /** Plain words for each typed reason; the code itself stays in `data-source-reason`. */
 const REASON_WORDS: Record<string, string> = {
@@ -178,7 +184,11 @@ export function SourceProvenanceNotice({
       data-source-provenance-subject={name}
     >
       <p className={compact ? "v69-chart-note source-provenance__line" : `notice ${tone}`.trim()}>
-        <strong>{words.label}.</strong> {words.statement}
+        <strong>
+          {words.label}
+          {SOURCE_LEAD_COLON.has(state) ? ":" : "."}
+        </strong>{" "}
+        {SOURCE_LEAD_COLON.has(state) ? words.statement.charAt(0).toLowerCase() + words.statement.slice(1) : words.statement}
       </p>{" "}
       {provenance && record === "inline" ? (
         <Disclosure
@@ -221,16 +231,23 @@ export function SourceProvenanceRecord({ provenance }: { provenance: SourceProve
           ))}
         </ul>
       ) : null}
-      {provenance.finding_revision_id ? (
-        <IdList title="Finding version" ids={[provenance.finding_revision_id]} />
+      {/* POLISH §3 ids (Addendum 8 Q5): every identifier list sits in the one Technical details region. */}
+      {provenance.finding_revision_id ||
+      provenance.consequence_revision_id ||
+      publications.length + fixtures.length + runs.length + problematic.length > 0 ? (
+        <TechnicalDetails name="source-provenance-ids">
+          {provenance.finding_revision_id ? (
+            <IdList title="Finding version" ids={[provenance.finding_revision_id]} />
+          ) : null}
+          {provenance.consequence_revision_id ? (
+            <IdList title="Fuel cost version" ids={[provenance.consequence_revision_id]} />
+          ) : null}
+          <IdList title="Source registrations" ids={publications} />
+          <IdList title="Prepared examples" ids={fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
+          <IdList title="Generated test sets" ids={runs.map((r) => r.run_id)} />
+          <IdList title="Records whose source is not established" ids={problematic} />
+        </TechnicalDetails>
       ) : null}
-      {provenance.consequence_revision_id ? (
-        <IdList title="Fuel cost version" ids={[provenance.consequence_revision_id]} />
-      ) : null}
-      <IdList title="Source registrations" ids={publications} />
-      <IdList title="Prepared examples" ids={fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
-      <IdList title="Generated test sets" ids={runs.map((r) => r.run_id)} />
-      <IdList title="Records whose source is not established" ids={problematic} />
       <p>
         {accepted.length} accepted records checked
         {provenance.power_accepted_evidence_ids

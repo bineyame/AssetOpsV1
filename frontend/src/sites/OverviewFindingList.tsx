@@ -18,7 +18,6 @@ import { Link } from "react-router-dom";
 import {
   currentnessWords,
   Disclosure,
-  ExactReferences,
   ProductStatus,
   readResultWords,
   type ExactReference,
@@ -33,7 +32,9 @@ import {
   type FindingIndexScope,
   listsRows,
 } from "./findingIndexClient";
-import { OVERVIEW_PARTIAL, utcText } from "./SiteFindingIndex";
+import { OVERVIEW_PARTIAL } from "./SiteFindingIndex";
+import { formatDayTime, formatRange } from "../ui/time";
+import { WorkedOut } from "../ui/TechnicalDetails";
 import { LIFECYCLE_WORDS } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
 
@@ -223,6 +224,18 @@ function listWords(body: FindingIndexBody): ProductWords {
  * W1-UX-02: the list's exact references - the list selection reference, its recorded reasons, each listed row's
  * exact version, and (when parity is not claimed) the Overview's own basis. Labelled one value at a time.
  */
+/** POLISH §3.1 Kobo (open): the choice rule in words; the rule code stays in Technical details. */
+export function choiceLines(rule: string | null | undefined): ReactNode {
+  return rule === "LATEST_RECORDED_REVISION_OF_EACH_CANONICAL_FINDING" ? (
+    <p data-choice-rule>Showing the latest version of each finding</p>
+  ) : null;
+}
+
+/** POLISH §3.1 Kobo: "29 Oct, 04:35–07:55"; an open episode reads "from 29 Oct, 04:35, no end time yet". */
+export function episodeRange(start: string, end: string | null): string {
+  return end === null ? `from ${formatDayTime(start, { year: false })}, no end time yet` : formatRange(start, end, { year: false });
+}
+
 function ListReferences({
   summary,
   body,
@@ -236,9 +249,15 @@ function ListReferences({
 }) {
   return (
     <div data-finding-index-reasons>
-      <ExactReferences
+      <WorkedOut
         name="overview-finding-list"
         variant="tech"
+        lines={
+          <>
+            {choiceLines(extra.find((r) => r.label === "Choice rule")?.value)}
+            <p data-finding-list-built>List built {formatDayTime(body.built_at)}</p>
+          </>
+        }
         references={[
           { label: "List state", value: body.status },
           ...body.status_reasons.map((reason, i) => ({ label: `Recorded reason ${i + 1}`, value: reason })),
@@ -374,9 +393,9 @@ function Loaded({
               <div>
                 <h3>{LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.title ?? "Generator support review"}</h3>
                 <p>
-                  {utcText(row.episode.start)} to {utcText(row.episode.end)} ·{" "}
-                  {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? "Status not recognised"} · version {row.revision_no}
-                  {first && merged ? " · the Finding chosen for this day" : ""}
+                  {episodeRange(row.episode.start, row.episode.end)} ·{" "}
+                  {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? "Status not recognised"}
+                  {first && merged ? " · main finding for this day" : ""}
                 </p>
                 <Link
                   to={links.finding(row.finding_id, row.finding_revision_id)}
@@ -393,20 +412,19 @@ function Loaded({
       {/* The count, the shown count and the full-list link share one note line. */}
       <p className="v69-chart-note">
         <span data-overview-finding-count>
-          {body.total_count} {body.total_count === 1 ? "Finding" : "Findings"} overlap this day.
-        </span>{" "}
+          {body.total_count} {body.total_count === 1 ? "finding" : "findings"} on this day
+        </span>
+        {partial || body.status === "PARTIAL" ? ". " : " · "}
         {body.status === "PARTIAL" ? (
           <>
             <span data-overview-finding-partial>{OVERVIEW_PARTIAL}</span>{" "}
           </>
         ) : null}
         <span data-overview-finding-shown={partial ? "first-page" : "all"}>
-          {partial
-            ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list.`
-            : `Showing all ${shown}.`}
-        </span>{" "}
+          {partial ? `Showing the first ${shown} of ${body.total_count}. This is not the whole list. ` : ""}
+        </span>
         <Link to={full} data-overview-finding-full-list>
-          Open the full Findings list for this day
+          Open all findings for this day
         </Link>
       </p>
       <Parity summary={summary} body={body} onReload={onReload} />

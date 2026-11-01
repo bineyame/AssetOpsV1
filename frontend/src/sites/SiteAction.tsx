@@ -70,6 +70,8 @@ import {
   when,
 } from "./actionPresentation";
 import "./w1f4-action.css";
+import { TechnicalDetails } from "../ui/TechnicalDetails";
+import { displayCode } from "../ui/displayCode";
 import { AffectsLine } from "./outcomeCategories";
 
 export const ACTION_VIEWS = ["overview", "plan", "execution", "evidence", "verification", "history"] as const;
@@ -168,7 +170,7 @@ export function SiteAction({
 
   const body = reads.action?.status === "loaded" ? reads.action.value : lastAction;
   const events = reads.events?.status === "loaded" ? reads.events.value : lastEvents;
-  const title = body ? `${body.action.action_code} · Battery reserve trial` : "Action";
+  const title = body ? `${displayCode(body.action.action_code)} · Battery reserve trial` : "Action";
   useEffect(() => {
     onTitle?.(title);
   }, [onTitle, title]);
@@ -520,7 +522,7 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
             [
               "Action",
               <>
-                {body.action.action_code} · Battery reserve trial, accepted {when(body.state.accepted_at)}
+                {displayCode(body.action.action_code)} · Battery reserve trial, accepted {when(body.state.accepted_at)}
               </>,
               "action",
             ],
@@ -1382,19 +1384,19 @@ function EventDetails({
       <span data-action-event-failure={event.failure_code ?? ""}>
         Nothing was changed; still pending.
         {compact ? null : (
-          <small
-            title={[
-              event.expected_foundation_revision_id ? `expected ${event.expected_foundation_revision_id}` : "",
-              event.current_foundation_revision_id ? `current ${event.current_foundation_revision_id}` : "",
-            ]
-              .filter(Boolean)
-              .join(", ") || undefined}
-          >
-            <span className="w1f4-failure-code"><Ref value={event.failure_code ?? "UNKNOWN"} /></span>
+          <>
             {event.expected_foundation_revision_id && event.current_foundation_revision_id ? (
-              <> The Site configuration had changed since this was accepted.</>
+              <small> The Site configuration had changed since this was accepted.</small>
             ) : null}
-          </small>
+            {/* POLISH §3 ids (Addendum 5): the failure code and Foundation versions sit in Technical details. */}
+            <TechnicalDetails name={`action-event-${event.id}-failure`}>
+              <small>
+                <span className="w1f4-failure-code"><Ref value={event.failure_code ?? "UNKNOWN"} /></span>
+                {event.expected_foundation_revision_id ? <> expected {event.expected_foundation_revision_id}</> : null}
+                {event.current_foundation_revision_id ? <> current {event.current_foundation_revision_id}</> : null}
+              </small>
+            </TechnicalDetails>
+          </>
         )}
       </span>
     );
@@ -1406,10 +1408,30 @@ function EventDetails({
     return (
       <span>
         New Foundation version recorded
-        <small>
-          {event.current_foundation_revision_id ? <Ref value={event.current_foundation_revision_id} attr="data-action-event-effective-revision" /> : "version not stated"}
-          {changeLink ? <>; change record {changeLink}</> : null}
-        </small>
+        {event.current_foundation_revision_id ? null : <small> version not stated</small>}
+        {changeLink && change ? (
+          <small>
+            {" "}
+            ·{" "}
+            <Link to={links.change(change.change_id)} data-action-event-change-link>
+              Change record
+            </Link>
+          </small>
+        ) : null}
+        {event.current_foundation_revision_id || changeLink ? (
+          <TechnicalDetails name={`action-event-${event.id}-applied`}>
+            <small>
+              {event.current_foundation_revision_id ? (
+                <Ref value={event.current_foundation_revision_id} attr="data-action-event-effective-revision" />
+              ) : null}
+              {changeLink && change ? (
+                <>
+                  ; change record <Ref value={change.change_id} attr="data-action-event-change" />
+                </>
+              ) : null}
+            </small>
+          </TechnicalDetails>
+        ) : null}
       </span>
     );
   }
@@ -1418,9 +1440,11 @@ function EventDetails({
       <span>
         A note only; it changes no application or outcome state.
         {compact ? null : (
-          <small>
-            <span className="w1f4-failure-code"><Ref value={event.observation_code ?? "UNKNOWN"} /></span>
-          </small>
+          <TechnicalDetails name={`action-event-${event.id}-observed`}>
+            <small>
+              <span className="w1f4-failure-code"><Ref value={event.observation_code ?? "UNKNOWN"} /></span>
+            </small>
+          </TechnicalDetails>
         )}
       </span>
     );
