@@ -203,7 +203,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
       "Verification · Not available yet",
       "History",
     ]);
-    expect(text(q("[data-work-request-asof]"))).toBe("As known at 22 Oct 2026, 12:00 UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC");
     expect(q(".v69-mheader")).not.toBeNull();
 
     expectV69Panels("wr-record");
@@ -212,14 +212,14 @@ describe("W6-01c C3: work request Maintenance record", () => {
     expect(qa("thead th", panel).map((th) => text(th))).toEqual(["Item", "Detail", "Status", "Basis"]);
     const groups = qa("[data-work-record-group]", panel);
     expect(groups).toHaveLength(1);
-    expect(text(groups[0].querySelector("[data-work-record-group-heading]"))).toBe("Record 1 · 20 Oct 2026, 11:59 UTC");
+    expect(text(groups[0].querySelector("[data-work-record-group-heading]"))).toBe("Record 1 · 20 Oct 2026, 11:59");
     expect(qa("[data-work-record-item]", groups[0]).map((tr) => tr.getAttribute("data-work-record-item"))).toEqual(ITEMS);
     const notes = row(groups[0], "Technician notes");
     expect(notes[0]).toBe("Technician notes");
     expect(notes[1]).toContain("Replaced starter relay and tested the start.");
     expect(notes[1]).toContain("Outcome note: No outcome note recorded");
     expect(notes.slice(2)).toEqual(["Recorded", "Authored maintenance record"]);
-    expect(row(groups[0], "Time on site")).toEqual(["Time on site", "20 Oct 2026, 11:59 UTC", "Recorded", "Authored time"]);
+    expect(row(groups[0], "Time on site")).toEqual(["Time on site", "20 Oct 2026, 11:59", "Recorded", "Authored time"]);
     for (const item of ["Parts", "Return-to-service reading", "Configuration readback", "Witnessed automatic start"]) {
       expect(row(groups[0], item)).toEqual([item, "Not recorded", "Not established", "No stored field"]);
     }
@@ -322,9 +322,9 @@ describe("W6-01c C3: work request Maintenance record", () => {
     const groups = qa("[data-work-record-group]");
     expect(groups.map((g) => g.getAttribute("data-work-record-group"))).toEqual([tieA.id, tieB.id, late.id]);
     expect(groups.map((g) => text(g.querySelector("[data-work-record-group-heading]")))).toEqual([
-      "Record 1 · 18 Oct 2026, 08:00 UTC",
-      "Record 2 · 18 Oct 2026, 08:00 UTC",
-      "Record 3 · 19 Oct 2026, 09:00 UTC",
+      "Record 1 · 18 Oct 2026, 08:00",
+      "Record 2 · 18 Oct 2026, 08:00",
+      "Record 3 · 19 Oct 2026, 09:00",
     ]);
     for (const g of groups) expect(qa("[data-work-record-item]", g)).toHaveLength(6);
   });
@@ -429,7 +429,7 @@ describe("W6-01c C3: work request Maintenance record", () => {
     await settled();
     expect(withCut.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
     // Post-W6 W6 Q14 (R372): the historical date bar names its cutoff to the second.
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 12:00:01 · Times in UTC");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Maintenance record" })).toHaveAttribute("href", `${RECORD}${cut}`);

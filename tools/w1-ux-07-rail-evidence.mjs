@@ -207,14 +207,14 @@ try {
       if (GATE === "on") {
         claim(`${where}: WORKSPACE footer with the one Lab link, after the rail`,
           !!m.footer && m.footer.text.startsWith("WORKSPACE") &&
-            JSON.stringify(m.footer.links) === JSON.stringify([["Open Simulator Lab", "/simulator-lab"]]) && m.footer.afterRail && m.footer.inViewport,
+            JSON.stringify(m.footer.links) === JSON.stringify([["Simulator Lab", "/simulator-lab"]]) && m.footer.afterRail && m.footer.inViewport,
           m.footer);
       } else {
         const clean = await js("!document.querySelector('a[href*=\"simulator\"]') && !/simulator|workspace/i.test(document.body.innerText)");
         claim(`${where}: no workspace footer, no Lab link or label with the gate off`, m.footer === null && clean, m.footer);
       }
       claim(`${where}: no horizontal page overflow`, m.overflow.scrollWidth <= m.overflow.clientWidth, m.overflow);
-      const expected = GATE === "on" ? ["Sites", "Findings", "Open Simulator Lab"] : ["Sites", "Findings"];
+      const expected = GATE === "on" ? ["Sites", "Findings", "Simulator Lab"] : ["Sites", "Findings"];
       const order = await tabOrder(expected.length + 1);
       claim(`${where}: Tab reaches the live links in order and never an unavailable row`,
         JSON.stringify(order.slice(0, expected.length)) === JSON.stringify(expected) && order.every((t) => !String(t).startsWith("UNAVAILABLE")), order);

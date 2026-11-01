@@ -449,7 +449,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     await settledScreen();
     // Review fix M3: the list state equals the statusbar's, so it is said once there; the list's own as-of is a
     // labelled reference in the one closed disclosure.
-    expect(expectStateLineVisible(document.querySelector("[data-overview-status]") as HTMLElement)).toBe("Using the latest checked readings");
+    expect(document.querySelector("[data-overview-status] [data-product-status-label]")?.textContent).toBe("Latest checked readings");
     expect(listCard().querySelector(".product-status")).toBeNull();
     expect(exactValue(listCard(), "List known as of")).toBe(body.knowledge_at);
     // Review fix M4: the mock's numbered items - rank, title, one-line reason, link; item 1 is the chosen Finding.
@@ -484,7 +484,7 @@ describe("W1-UX-02: the scoped Finding list on the W1 set", () => {
     await settledScreen();
     expect(listState()).toBe("current-empty");
     expect(expectStateLineVisible(listCard())).toBe("Checked: nothing to report");
-    expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(listCard().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "overview list zero (W1)", { set: "w1" });
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });

@@ -8,6 +8,8 @@
  * no rows and no count.
  */
 
+import { formatDayTime } from "../ui/time";
+
 export const GLOBAL_WORK_API_PATH = "/api/work";
 export const GLOBAL_WORK_SCHEMA = "global-work-index-1";
 /** Section 2: the UI sends `limit=5` for every root. */
@@ -730,37 +732,14 @@ export function globalWorkHref(
   return `${path}?${params.toString()}`;
 }
 
-const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23",
-  timeZone: "UTC",
-});
 
-/** Section 2: `22 Oct 2026, 12:00 UTC` (en-GB, explicit UTC, no local-zone conversion). */
+/** Section 2: `22 Oct 2026, 12:00` (POLISH §3 Times: `ui/time.ts`, computed in UTC; the page note says UTC). */
 export function globalWorkUtc(instant: string): string {
-  const ms = Date.parse(instant);
-  if (Number.isNaN(ms)) return instant;
-  return `${DATE_FORMAT.format(new Date(ms))} UTC`;
+  return formatDayTime(instant);
 }
 
-const SECONDS_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hourCycle: "h23",
-  timeZone: "UTC",
-});
 
-/** Post-W6 W6 Q14 (R372): `22 Oct 2026, 12:00:01 UTC`, for every historical status line and the WR date bar. */
+/** Post-W6 W6 Q14 (R372): `22 Oct 2026, 12:00:01`, for every historical status line and the WR date bar. */
 export function globalWorkUtcSeconds(instant: string): string {
-  const ms = Date.parse(instant);
-  if (Number.isNaN(ms)) return instant;
-  return `${SECONDS_FORMAT.format(new Date(ms))} UTC`;
+  return formatDayTime(instant, { seconds: true });
 }

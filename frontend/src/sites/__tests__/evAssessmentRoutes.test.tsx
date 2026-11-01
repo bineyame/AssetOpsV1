@@ -289,7 +289,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
       "Session / connector", "Period", "Energy", "Outcome", "Evidence completeness", "Next step",
     ]);
     expect(rowCells()).toEqual([
-      "Session S-10 · Connector c1", "08:01 UTC – 08:31 UTC", "30.000 kWh · complete", "Delivered", "StartTerminalMeterClock", "Not available yet",
+      "Session S-10 · Connector c1", "08:01 – 08:31", "30.000 kWh · complete", "Delivered", "StartTerminalMeterClock", "Not available yet",
     ]);
     expect(outcomeBadge().className).toContain("ev-tone--green");
     const denominator = panelTitled("How to read the denominator").textContent ?? "";
@@ -348,7 +348,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(strip()).toContain("Records disagree");
     expect(strip()).toContain("Accepted terminal records conflict, so a completed outcome is not claimed.");
     const cells = rowCells();
-    expect(cells[1]).toBe("08:01 UTC – Competing end records");
+    expect(cells[1]).toBe("08:01 – Competing end records");
     expect(cells[2]).toBe("30.000 kWh · partial");
     expect(cells[3]).toBe("Contradictory");
     expect(cells[4]).toContain("Meter coverage unknown");
@@ -384,7 +384,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(strip()).toContain("New evidence is being assessed. The previous result may change.");
     expect(strip()).not.toContain("Sessions observed");
     expect(cardValues()).toEqual(["Pending recompute", "Pending recompute", "Pending recompute", "Pending recompute"]);
-    expect(rowCells()[1]).toBe("08:01 UTC – End not recorded");
+    expect(rowCells()[1]).toBe("08:01 – End not recorded");
     expect(rowCells()[4]).toBe("StartMeterClockNo end record");
     cleanup();
 
@@ -443,7 +443,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     await settledScreen();
     expectV69Panels("sessions");
     expect(strip()).toContain("This result reflects records known at the selected cutoff.");
-    expect(strip()).toContain("Historical assessment · 6 Oct 09:00 UTC");
+    expect(strip()).toContain("Historical assessment · 6 Oct, 09:00");
     expect(cardValues()).toEqual(["1", "0", "0", "1"]);
     expect(rowCells()[3]).toBe("Incomplete");
     cleanup();
@@ -976,7 +976,7 @@ describe("post-W6 W2-EV U2: Sessions and Finding links, denominator, plurals and
   it("R275 (Q6): the Finding strip joins claim, Site and the Finding's window; no window says so", async () => {
     renderEv(FINDING_PATH, ok(STATES.interrupted));
     await settledScreen();
-    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · 6 Oct 2026 08:00–09:00 UTC");
+    expect(document.querySelector("[data-ev-finding-scope]")?.textContent).toBe("Observed interruption · EV lab depot · 6 Oct 2026, 08:00–09:00");
     cleanup();
     renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, window: { from: null, to: null, known_at: null } }));
     await settledScreen();

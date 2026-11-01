@@ -6,10 +6,10 @@
  * verification exists (S6-02).
  */
 import type { ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 
 import { Panel, UNRECOGNISED_SENTENCE, type ProductWords, type StepState } from "../ui";
 import type { Limitation, Refusal, SystemDemoCapability } from "./actionClient";
-import { stamp } from "./dispatchWords";
 
 /** The label every command control and resulting actor carries (Architect Q4). */
 import { stateLabel } from "./verificationWords";
@@ -186,8 +186,9 @@ export function outcomeWords(state: string): string {
     : `${stateLabel(state)}.`;
 }
 
+/** `29 Oct 2026, 04:15` (POLISH §3 Times: `ui/time.ts`; one page note names UTC), or `not reported`. */
 export function when(instant: string | null | undefined): string {
-  return `${stamp(instant)} UTC`;
+  return instant ? formatDayTime(instant) : "not reported";
 }
 
 /**

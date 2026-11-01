@@ -11,6 +11,7 @@ import type {
   FinancialGroupState,
   WireDecimal,
 } from "./estateEvidenceMoneyClient";
+import { formatRange } from "../ui/time";
 
 /** The ledger's category dictionary; `RECORDED_REPAIR` keeps its own label and is never merged into product exposure. */
 export const CATEGORY_LABEL: Readonly<Record<FinancialCategory, string>> = {
@@ -136,17 +137,10 @@ export function moneyText(amount: FinancialAmount | null | undefined, rounding: 
   return low === high ? withCurrency(low, amount.currency) : `${withCurrency(low, amount.currency)}–${withCurrency(high, amount.currency)}`;
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-function day(wire: string): string {
-  return `${Number(wire.slice(8, 10))} ${MONTHS[Number(wire.slice(5, 7)) - 1] ?? "?"} ${wire.slice(0, 4)}`;
-}
-
-/** Closure 1: `d MMM yyyy · HH:mm–HH:mm UTC` for one day, otherwise both full UTC endpoints. */
+/** Closure 1: `29 Oct 2026, 16:00–17:05` for one day, otherwise both ends in full (POLISH §3 Times). */
 export function moneyWindowText(start: string | null, end: string | null): string | null {
   if (start === null || end === null) return null;
-  if (start.slice(0, 10) === end.slice(0, 10)) return `${day(start)} · ${start.slice(11, 16)}–${end.slice(11, 16)} UTC`;
-  return `${day(start)} · ${start.slice(11, 16)} UTC – ${day(end)} · ${end.slice(11, 16)} UTC`;
+  return formatRange(start, end);
 }
 
 const UNIT_WORDS: Readonly<Record<string, string>> = { L: "L", kWh: "kWh", degC_min: "°C-min" };

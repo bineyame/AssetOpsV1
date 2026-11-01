@@ -200,7 +200,7 @@ describe("W6-01d C4: history presentation", () => {
       "Created",
       "Assigned to Field team A",
       "Commented: Parts ordered",
-      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:03 UTC",
+      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:03",
       "Closed: Work accepted",
       "Reopened: Fault returned",
       "Cancelled: Duplicate request",
@@ -217,8 +217,8 @@ describe("W6-01d C4: history presentation", () => {
     expect(rows.map((r) => r.text)).toEqual(["Created", "Commented: micro", "Commented: A", "Commented: B"]);
     expect(rows.some((r) => r.kind === "CORRECTION")).toBe(false);
     // Same-second display: seconds are shown, the microsecond string decides the order.
-    expect(historyUtc("2026-10-20T11:59:03.000010Z")).toBe("20 Oct 2026, 11:59:03 UTC");
-    expect(historyUtc("2026-10-06T09:05:00Z")).toBe("6 Oct 2026, 09:05:00 UTC");
+    expect(historyUtc("2026-10-20T11:59:03.000010Z")).toBe("20 Oct 2026, 11:59:03");
+    expect(historyUtc("2026-10-06T09:05:00Z")).toBe("6 Oct 2026, 09:05:00");
   });
 
   it("fails closed on a typed body without CREATED or with a missing known payload", () => {
@@ -248,7 +248,7 @@ describe("W6-01d C4: work request History page", () => {
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("aria-current", "page");
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", PAGE);
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", OVERVIEW);
-    expect(text(q("[data-work-request-asof]"))).toBe("As known at 22 Oct 2026, 12:00 UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Updated 22 Oct 2026, 12:00 · Times in UTC");
     expect(q(".v69-mheader")).not.toBeNull();
     expectV69Panels("wr-history");
 
@@ -261,7 +261,7 @@ describe("W6-01d C4: work request History page", () => {
       "Assigned to Field team A",
       "Commented: Parts ordered",
       // Post-W6 W6 Q10: the stored record UUID is only in the closed disclosure that follows the label.
-      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:04 UTCStored record ID00000000-0000-4000-8000-000000000401",
+      "Completed · outcome not established · maintenance record not in this read · 19 Oct 2026, 08:00:04Stored record ID00000000-0000-4000-8000-000000000401",
       "Reopened: Fault returned",
     ]);
     expect(gapRows()).toEqual([]);
@@ -274,9 +274,9 @@ describe("W6-01d C4: work request History page", () => {
 
     // P-C4-9/10/13: UTC seconds, occurrence disclosure, name gap and stored actor.
     const first = q("[data-history-row]") as HTMLElement;
-    expect(text(first.querySelector("[data-history-time]"))).toBe("20 Oct 2026, 11:59:00 UTC");
+    expect(text(first.querySelector("[data-history-time]"))).toBe("20 Oct 2026, 11:59:00");
     expect(text(first.querySelector("[data-history-occurred] summary"))).toBe("Occurrence time");
-    expect(text(first.querySelector("[data-history-occurred]"))).toBe("Occurrence timeOccurred 19 Oct 2026, 08:00:00 UTC");
+    expect(text(first.querySelector("[data-history-occurred]"))).toBe("Occurrence timeOccurred 19 Oct 2026, 08:00:00");
     expect(text(first.querySelector("[data-history-by]"))).toBe("Name not recorded");
     expect(text(first.querySelector("[data-history-actor]"))).toBe(`Stored actorSERVICE · ${ACTOR}`);
     expect(qa("[data-history-occurred]").every((d) => !(d as HTMLDetailsElement).open)).toBe(true);
@@ -285,7 +285,7 @@ describe("W6-01d C4: work request History page", () => {
     fireEvent.click(pager.querySelector("[data-global-work-next]") as Element);
     expect(kinds()).toEqual(["CORRECTION"]);
     expect(text(q('[data-history-row="CORRECTION"] [data-history-clamp]'))).toBe("Correction: Scope widened Title: Inspect starter and control circuit again");
-    expect(text(q('[data-history-row="CORRECTION"] [data-history-occurred]'))).toBe("Occurrence timeOccurred 19 Oct 2026, 09:00:06 UTC");
+    expect(text(q('[data-history-row="CORRECTION"] [data-history-occurred]'))).toBe("Occurrence timeOccurred 19 Oct 2026, 09:00:06");
     // P-C4-8: two in-table gaps after the last authored row; no time, actor or disclosure; not counted.
     expect(gapRows()).toEqual(GAPS.map((gap) => ["—", gap, "—"]));
     expect(qa("[data-history-gap] details")).toHaveLength(0);
@@ -376,7 +376,7 @@ describe("W6-01d C4: work request History page", () => {
     await settled();
     expect(reads.calls).toEqual([{ case_id: CASE, site_id: "KOBO-001", known_at: KNOWN }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical date bar.
-    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59:04 UTC");
+    expect(text(q("[data-work-request-asof]"))).toBe("Historical as of 20 Oct 2026, 11:59:04 · Times in UTC");
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", `${PAGE}${cut}`);
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", `${OVERVIEW}${cut}`);
@@ -512,7 +512,7 @@ describe("Post-W6 W6: History labels", () => {
     mount(PAGE, client(loaded(body)));
     await settled();
     const cell = q('[data-history-row="COMPLETE"] [data-history-event]') as HTMLElement;
-    expect(cell.firstChild?.textContent).toBe("Completed · outcome not established · maintenance record 2 · 19 Oct 2026, 08:00:03 UTC");
+    expect(cell.firstChild?.textContent).toBe("Completed · outcome not established · maintenance record 2 · 19 Oct 2026, 08:00:03");
     const disclosure = cell.querySelector('[data-history-stored-id="Stored record ID"]') as HTMLDetailsElement;
     expect(disclosure.open).toBe(false);
     expect(text(disclosure)).toBe("Stored record ID00000000-0000-4000-8000-000000000403");

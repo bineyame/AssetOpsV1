@@ -216,9 +216,12 @@ describe("workspace entry point: enabled", () => {
     const navigation = screen.getAllByRole("navigation");
     expect(navigation).toHaveLength(1);
     expect(navigation[0]).toHaveAccessibleName("Simulator Lab routes");
+    // The Lab's own rail names its current page "Simulator Lab" too; the operator-shell entry point is a link that is not current.
     expect(
-      screen.queryByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL }),
-    ).toBeNull();
+      screen
+        .queryAllByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL })
+        .filter((link) => link.getAttribute("aria-current") !== "page"),
+    ).toHaveLength(0);
 
     // Following the entry point must not hand the developer any run,
     // execution, truth, ingestion, analytics, Replay, or Findings surface.

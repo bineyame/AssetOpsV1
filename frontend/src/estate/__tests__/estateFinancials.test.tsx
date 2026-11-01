@@ -251,7 +251,7 @@ describe("W3-02 estate Financials root", () => {
     const header = screen.getByRole("heading", { level: 1 }).closest("header") as HTMLElement;
     expect(within(header).getByText("Financials", { selector: ".page-header__eyebrow" })).toBeTruthy();
     expect(header.textContent).toContain("Estate consequences with source-site ownership and bounded interpretation");
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
     // Static status bar: blue chip and subcopy, no assessment enum.
     const status = screen.getByRole("status", { name: "Financial status" });
     expect(status.querySelector("[data-estate-status-chip]")?.textContent).toBe("Site-owned consequences");
@@ -269,7 +269,7 @@ describe("W3-02 estate Financials root", () => {
     expect(mini.map((c) => c.firstElementChild?.textContent ?? c.textContent)).toEqual([
       "Kobo Mini-grid",
       "Candidate operating-cost exposure",
-      "14 Oct 2026 · 08:00–09:00 UTC",
+      "14 Oct 2026, 08:00–09:00",
       "$0.00–$3.97", // outward to the minor unit: high 3.9612 rounds up
       "Generator fuel quantity is modelled from accepted power readings",
       "Site bridge →",
@@ -277,13 +277,13 @@ describe("W3-02 estate Financials root", () => {
     expect(mini[2].textContent).toContain("0–2.97 L");
     // Cold: every selected head is a row, unpriced, in °C-min, its own limitation; no mock `backup excursion`.
     expect(cells(registerRows()[1])[1].textContent).toBe("Potential product exposure");
-    expect(cold[2].textContent).toBe("14 Oct 2026 · 08:00–16:00 UTC25–35 °C-min");
+    expect(cold[2].textContent).toBe("14 Oct 2026, 08:00–16:0025–35 °C-min");
     expect(cold[3].querySelector("[data-estate-eligibility='UNPRICED']")?.textContent).toBe("Unpriced");
     expect(cold[3].querySelector(".estate-chip")?.className).toContain("estate-tone--amber");
     expect(cold[4].textContent).toContain("Stock value is not declared");
     expect(cold[4].textContent).toContain("Basis details");
     // EV: half even to two places as its Site page; a two-day window shows both endpoints; one kWh value.
-    expect(ev[2].textContent).toBe("14 Oct 2026 · 08:00 UTC – 15 Oct 2026 · 08:00 UTC12.5 kWh");
+    expect(ev[2].textContent).toBe("14 Oct 2026, 08:00 – 15 Oct 2026, 08:00"+"12.5 kWh");
     expect(ev[3].textContent).toBe("$36.00");
     expect(ev[4].textContent).toContain("Gross scenario only; not cash collected.");
     expect(ev[4].textContent).toContain("Basis details");
@@ -418,10 +418,10 @@ describe("W3-02 estate Financials root", () => {
     );
     await settledScreen();
     expectV69Panels("globalfinancials");
-    expect(note(REGISTER_PANEL, "historical")).toBe("Historical as of 2026-10-18 00:00:00 UTC");
+    expect(note(REGISTER_PANEL, "historical")).toBe("Historical as of 18 Oct 2026, 00:00");
     expect(note(REGISTER_PANEL, "conflict")).toBe(BASIS_UNRESOLVED);
     const [conflictRow, historicalRow] = registerRows();
-    expect(cells(historicalRow)[3].textContent).toBe("Historical as of 2026-10-18 00:00:00 UTC");
+    expect(cells(historicalRow)[3].textContent).toBe("Historical as of 18 Oct 2026, 00:00");
     expect(cells(historicalRow)[3].querySelector(".estate-chip")?.className).toContain("estate-tone--blue");
     expect(cells(conflictRow)[3].textContent).toBe("Not comparable");
     expect(cells(conflictRow)[3].querySelector(".estate-chip")?.className).toContain("estate-tone--red");
@@ -627,7 +627,7 @@ describe("post-W6 W3-estate refused window", () => {
     const view = renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
     view.unmount();
   });
 });

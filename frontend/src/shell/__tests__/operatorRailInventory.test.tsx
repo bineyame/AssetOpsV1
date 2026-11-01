@@ -280,18 +280,18 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
       within(footer)
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
-    ).toEqual([["Open Simulator Lab", "/simulator-lab"]]);
+    ).toEqual([["Simulator Lab", "/simulator-lab"]]);
     // Rendered once in the shell: no second copy of the entry point.
-    expect(screen.getAllByRole("link", { name: "Open Simulator Lab" })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "Simulator Lab" })).toHaveLength(1);
     expect(screen.getAllByRole("navigation", { name: "Workspace utilities" })).toHaveLength(1);
 
     // Focus order: the two live roots, then the workspace link.
     const side = rail().parentElement as HTMLElement;
     expect(
       Array.from(side.querySelectorAll<HTMLElement>("a[href]")).map((a) => a.textContent),
-    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials", "Open Simulator Lab"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials", "Simulator Lab"]);
 
-    fireEvent.click(within(footer).getByRole("link", { name: "Open Simulator Lab" }));
+    fireEvent.click(within(footer).getByRole("link", { name: "Simulator Lab" }));
     expect(screen.getByRole("heading", { level: 1, name: "Simulator Lab" })).toBeInTheDocument();
   });
 

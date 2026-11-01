@@ -12,7 +12,7 @@ import { expect } from "vitest";
  * Mirrored by `AS_OF_PATTERN` in `tools/evidence-checks.mjs` for the browser
  * evidence scripts.
  */
-export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2} UTC|: time not recorded)$/;
+export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2}|: time not recorded)$/;
 
 /** True when `el` is rendered outside the body of any closed disclosure. */
 export function visibleOutsideClosedDisclosure(el: Element): boolean {

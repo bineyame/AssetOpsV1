@@ -16,6 +16,7 @@
  * - Exact IDs, rule and watermark sit in "Technical details", closed by default.
  */
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
 
 import {
@@ -81,11 +82,10 @@ export function formatAge(seconds: number): string {
   return `${Math.floor(seconds / 86400)} d${hours ? ` ${hours} h` : ""}`;
 }
 
-/** `2026-10-16 09:10:05 UTC` from the read's UTC instant. */
+/** `16 Oct 2026, 09:10:05` from the read's UTC instant (POLISH §3 Times, seconds kept by ruling). */
 export function formatInstant(value: string | null | undefined): string {
   if (!value) return "none";
-  const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/.exec(value);
-  return match ? `${match[1]} ${match[2]} UTC` : value;
+  return formatDayTime(value, { seconds: true });
 }
 
 const CONTACT_WORDS: Record<string, string> = { CURRENT: "Current", STALE: "Stale", UNKNOWN: "Unknown" };

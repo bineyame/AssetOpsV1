@@ -213,10 +213,10 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     // Controls (section 2) and the status line; no cutoff input (A2Q5).
     expect(bar.getAttribute("class")).toContain("site-date-bar");
     expect(within(bar).getByRole("form", { name: "Maintenance window" })).toBeInTheDocument();
-    expect(within(bar).getByLabelText("From (UTC)")).toHaveValue("2026-10-14");
-    expect(within(bar).getByLabelText("To (UTC, exclusive)")).toHaveValue("2026-10-21");
+    expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
+    expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
     expect(bar.querySelectorAll("input")).toHaveLength(2);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("As known at 21 Oct 2026, 12:00 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // P-B2-3/4: the four mock cards; Open work over the full selection; the separate View detail slot unavailable.
     expect(
@@ -356,7 +356,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): seconds on the historical line.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
     expect(cards()).not.toBeNull();
   });
 
@@ -369,7 +369,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(text(cards()!.querySelector(".v69-metric__note"))).toBe("0 requests in progress or open");
     expect(Array.from(document.querySelectorAll("[data-global-work-zero] p")).map(text)).toEqual([
       "No work requests in this window.",
-      "Change the UTC window or open a Site record.",
+      "Change the dates or open a Site record.",
     ]);
     expect(document.querySelector("table")).toBeNull();
   });

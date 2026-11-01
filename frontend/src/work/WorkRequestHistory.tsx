@@ -19,6 +19,7 @@
  */
 // MOCK DEVIATION (D1, register R41): Undated visit and verification gaps follow authored history; MOCK DEVIATION (D4, register R42): completion does not establish a witness test.
 import { useState, type ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
 import { DataTable, Panel } from "../ui";
 import {
@@ -40,15 +41,10 @@ export const HISTORY_GAPS = ["Site visit start not recorded", "Verification pend
 /** Minimum column widths (px): Time, Event, By; the table scrolls inside its panel below their sum. */
 const MIN_WIDTHS = [210, 340, 200];
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** History-local UTC seconds display, `20 Oct 2026, 11:59:03 UTC`, read from the stored string (no zone math). */
+/** History UTC seconds display (R369), `20 Oct 2026, 11:59:03` (POLISH §3 Times; the page note names UTC). */
 export function historyUtc(instant: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/.exec(instant);
-  if (m === null) return instant;
-  const month = MONTHS[Number(m[2]) - 1];
-  if (month === undefined) return instant;
-  return `${Number(m[3])} ${month} ${m[1]}, ${m[4]}:${m[5]}:${m[6]} UTC`;
+  return formatDayTime(instant, { seconds: true });
 }
 
 /** One authored History row: an event or a successor revision. */

@@ -490,7 +490,7 @@ describe("W1-UX-02: Finding History answer card", () => {
     expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
     expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     // The plain "as of" is the selected version's recorded time (version 205: 6 Oct 14:00 + 2050 min).
-    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 8 Oct 2026, 00:10 UTC");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 8 Oct 2026, 00:10");
     // The mock's Time / Event / Basis table lists every version oldest first, inside the panel.
     expect(versionNos()).toEqual(Array.from({ length: 205 }, (_, i) => i + 1));
     expect(answer.querySelector(`[data-history-revision='${rid(1)}']`)).toHaveTextContent("Version 1 · Opened");
@@ -526,7 +526,7 @@ describe("W1-UX-02: Finding History answer card", () => {
   it("W1-UX-02: a historical selection keeps its plain as-of visible and its exact version selector", async () => {
     await frame(`${HISTORY}?revision_id=${rid(1)}`, client({ total: 3 }));
     expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
-    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 6 Oct 2026, 14:10 UTC");
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 6 Oct 2026, 14:10");
     expect(q("[data-history-select-latest]")).toHaveAttribute("href", `${HISTORY}?revision_id=${rid(3)}`);
     expect(q("[data-history-open-finding]")).toBeNull();
     expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(1)}`);

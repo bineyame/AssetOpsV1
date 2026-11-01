@@ -3,6 +3,10 @@ import { Outlet, useLocation, useOutletContext } from "react-router-dom";
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
+import "./demonstrationBanner.css";
+
+/** POLISH §6 D-1 (R651): the one quiet, app-wide note that this build shows example Sites and records. */
+export const DEMONSTRATION_BANNER = "Demonstration · example sites and records prepared for this walkthrough";
 
 /**
  * Operator navigation layout.
@@ -125,6 +129,9 @@ export function OperatorShellLayout() {
       </div>
 
       <div className="app-frame__body">
+        <p className="demonstration-banner" role="note" data-demonstration-banner>
+          {DEMONSTRATION_BANNER}
+        </p>
         <div className="app-frame__content">
           <Outlet />
         </div>

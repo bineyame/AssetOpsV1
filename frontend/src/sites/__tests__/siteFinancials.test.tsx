@@ -480,7 +480,7 @@ describe("Site > Financials > Assumptions", () => {
     mount(client, `/sites/KOBO-001/financials/assumptions?recorded_at=${encodeURIComponent(at)}`);
     await settledScreen();
     expect(client.asked.series[0].recordedAt).toBe(at);
-    expect(screen.getByText(/Showing the prices as they were recorded on 2026-10-13 09:00 UTC/)).toBeInTheDocument();
+    expect(screen.getByText(/Showing the prices as they were recorded on 13 Oct 2026, 09:00/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("link", { name: "Show the current prices" }));
     await settledScreen();
     expect(screen.getByTestId("where")).toHaveTextContent(/^\/sites\/KOBO-001\/financials\/assumptions$/);
@@ -1442,7 +1442,7 @@ describe("W1-UX-02: Site > Financials (financials)", () => {
     expect(c.querySelector("[data-financials-metric='operating-cost'] [data-financials-headline='amount']")).toHaveTextContent("0.00 to 16.20 USD");
     expect(expectStateLineVisible(c)).toBe("Modelled range, using the latest checked readings");
     // The bound is the time the shown range was worked out, as the read returned it.
-    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 14 Oct 2026, 10:00 UTC$/);
+    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 14 Oct 2026, 10:00$/);
     // S4-05 source provenance stays beside the headline, outside the disclosure.
     const source = c.querySelector("[data-source-provenance='AUTHORED_DEMONSTRATION']") as HTMLElement;
     expect(visibleOutsideClosedDisclosure(source)).toBe(true);
@@ -1619,7 +1619,7 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     expectV69Panels("assumptions");
     expect(c.querySelector("[data-price-selection='PRICED']")).toHaveTextContent(/^In use today\. Diesel price, set by .*1\.25 USD per litre/);
     expect(expectStateLineVisible(c)).toBe("Price recorded for this site");
-    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 16 Oct 2026, 09:30 UTC$/);
+    expect(c.querySelector("[data-product-status-as-of]")).toHaveTextContent(/^As of 16 Oct 2026, 09:30$/);
     expect(Array.from(c.querySelectorAll("[data-price-strip-entry]")).map((e) => e.getAttribute("data-price-strip-entry"))).toEqual([
       "ended",
       "ended",
@@ -1637,7 +1637,7 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     const first = mount(client, path);
     await settledScreen();
     expect(expectStateLineVisible(card("assumptions-price"))).toBe("Prices as recorded at an earlier moment");
-    expect(card("assumptions-price").querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 13 Oct 2026, 09:00 UTC");
+    expect(card("assumptions-price").querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 13 Oct 2026, 09:00");
     // M1: a past-cutoff list does not prove the price is in use now, so neither phrase appears.
     const priced = card("assumptions-price");
     expect(priced).toHaveTextContent("as recorded then");
@@ -1740,7 +1740,7 @@ describe("W1-UX-02: Site > Financials > Assumptions (assumptions)", () => {
     const state = panel.querySelector("[data-history-state='recorded']") as HTMLElement;
     expect(expectStateLineVisible(state)).toBe("Recorded versions, kept for the record");
     expect(state.querySelector("[data-product-status]")).toHaveAttribute("data-product-status", "neutral");
-    expect(state.querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 16 Oct 2026, 09:30 UTC");
+    expect(state.querySelector("[data-product-status-as-of]")).toHaveTextContent("As of 16 Oct 2026, 09:30");
     // The no-current-amount guarantee: a recorded amount is labelled as history, never as current.
     expect(panel.querySelector(`[data-history-row='${H4}'] [data-history-recorded-amount]`)).toHaveTextContent("Not a current cost.");
     expect(panel).not.toHaveTextContent(/current amount|today.s (amount|cost)|the current fuel cost/i);

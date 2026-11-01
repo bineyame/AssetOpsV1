@@ -1,13 +1,12 @@
 /**
  * W2-03: UTC time, window and decimal formatting shared by the cold assessment views and the cold temperature chart.
  */
+import { formatDayTime, formatRange, formatTime } from "../ui/time";
 
 export const NOT_RECORDED = "Not recorded";
 export const NOT_ASSESSED = "Not assessed";
 
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const pad = (n: number) => String(n).padStart(2, "0");
 
 export function date(value: string | null | undefined): Date | null {
   if (value === null || value === undefined) return null;
@@ -15,26 +14,25 @@ export function date(value: string | null | undefined): Date | null {
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
-/** "19:15" (UTC), or "19:11:05" when the instant has seconds. */
+/** "19:15", or "19:11:05" when the instant has seconds (POLISH §3 Times; UTC, named by the page note). */
 export function hm(value: string | null | undefined): string {
   const d = date(value);
   if (d === null) return "—";
-  const base = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
-  return d.getUTCSeconds() === 0 ? base : `${base}:${pad(d.getUTCSeconds())}`;
+  return formatTime(d, { seconds: d.getUTCSeconds() !== 0 });
 }
 
+/** "29 Oct, 19:15" (the §3.1 short form). */
 export function dayHm(value: string | null | undefined): string {
   const d = date(value);
-  return d === null ? "—" : `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${hm(value)}`;
+  return d === null ? "—" : formatDayTime(d, { year: false, seconds: d.getUTCSeconds() !== 0 });
 }
 
+/** "29 Oct 2026, 16:00–17:05", or both ends in full across days; seconds shown when either bound has them (as `hm`). */
 export function windowText(from: string | null, to: string | null): string {
   const a = date(from);
   const b = date(to);
   if (a === null || b === null) return "No window selected";
-  const sameDay = a.toISOString().slice(0, 10) === new Date(b.getTime() - 1).toISOString().slice(0, 10);
-  const end = sameDay ? hm(to) : dayHm(to);
-  return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} ${a.getUTCFullYear()} ${hm(from)}–${end} UTC`;
+  return formatRange(a, b, { seconds: a.getUTCSeconds() !== 0 || b.getUTCSeconds() !== 0 });
 }
 
 export function num(value: string | number | null | undefined): number | null {

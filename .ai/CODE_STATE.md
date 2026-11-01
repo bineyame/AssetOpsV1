@@ -6332,3 +6332,29 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, main `15eed6
   equal to it by `test_idx_gaps_board`; it changes together with PB-2's `LIFECYCLE_WORDS` alignment.
   `board.COST_NOT_CALCULATED` ("Modelled change not calculated") was not ruled and is unchanged. Asset labels and
   preventive due counts are PA-2b. Captures deferred to PA-3.
+## POLISH PB-1 - shell, time consolidation, P-03 (built, in_review)
+
+- Time (§3 Times, D-4 revised by Addendum 6 Q7, Addendum 7): `frontend/src/ui/time.ts` is the one client formatter:
+  `formatDay`, `formatDayTime`, `formatTime`, `formatRange`, `formatDayRange`, options `{timeZone, seconds, year}`;
+  computed in UTC unless a Site zone is passed (due dates only); unparseable input gives `Time not available yet`.
+  `ui/TimeZoneNote.tsx` renders `[data-time-zone-note]` "Times in UTC" (the `dueDates` variant is for PB-3, Addendum 7 Q6).
+- Delegating formatters (names kept): `productWords.plainTime`/`asOfText`, `actionPresentation.when`,
+  `estateShared.utcInstant`, `globalWorkClient.globalWorkUtc[Seconds]`, `coldFormat.hm/dayHm/windowText`,
+  `EvEnergy.utcSeconds`, `EvScenarios.utcMinute`, `SiteFindingIndex.utcText`, `SiteWorkActions.utcText`,
+  `FoundationRevisionPanel.formatInstant`, `SiteHealth.formatInstant`, `portfolioWords.dayMinute`,
+  `estateFinancialsWords.moneyWindowText`, `EstateEvidence` windowText, `WorkRequestHistory.historyUtc`.
+  Seconds only where a ruling shows them (R372 historical lines, R369 history, SiteHealth, EvEnergy, cold `hm`).
+- Notes sit in: `EstateDateBar`, the Kobo day control (`SiteWindowOverview` DaySelector), cold `SelectedWindowBar`/
+  `RequestedWindowBar`, EV `SelectedWindowBar` and the EV assessment requested bar, global work `StatusLine`,
+  the work request as-of line, and the verification status strip.
+- §3.1 rows done in PB-1 (Addendum 7 Q1a; PB-2/PB-3 skip them): Kobo "Day" control with the bounds sentence deleted;
+  Kobo CURRENT line "Latest checked readings · 29 Oct 2026 · updated …" (`DayStateLine`); cold "… · information up to
+  17:05"; EV "… · as of 27 Oct, 09:00"; work "Updated … · Reload"; estate window/cutoff/disclosure (R652);
+  "Supported, coherent source" → "Well supported" (Q4).
+- Shell: rail "Simulator Lab"; `OperatorShellLayout` banner `[data-demonstration-banner]` (R651); `SitePageHeader`
+  badge "Example data" for the SIMULATED mode word. P-03 CSS in `estatePortfolio.css`.
+- Test helper `AS_OF_PATTERN` (and its mirror in `tools/evidence-checks.mjs`) no longer expects " UTC".
+- Open (listed for PB-3 in `.agent/POLISH-PB-1-packet.md`): visible "UTC" left in non-capture screens
+  (PerformanceDispatch, SiteFinding*, LedgerSiteEvidence, EvidenceClaimLimit, EvAvailability, assessmentGraphics,
+  MiniPerformance, MiniScenarios, ColdScenarios, ColdCooling, coldDepthGraphics, evDepthGraphics, siteWorkCases,
+  coldWorkPresentation, SiteAction, Foundation panels, Simulator Lab tooling) and their page notes.

@@ -380,6 +380,10 @@ export interface SitePageHeaderProps {
  * heading, a provenance badge beside it (`.prov-tag`), and the screen's
  * description below. Provenance is never status or health.
  */
+/** The SIMULATED source-mode word (`siteViewModel.ts`). POLISH §3.1 / §6 D-1: its Site badge reads just "Example data". */
+const DEMONSTRATION_MODE = "Demonstration data";
+export const EXAMPLE_DATA_BADGE = "Example data";
+
 export function SitePageHeader({ siteName, siteId, mode, description, headingId, hideBadge = false }: SitePageHeaderProps) {
   return (
     <PageHeader
@@ -388,7 +392,7 @@ export function SitePageHeader({ siteName, siteId, mode, description, headingId,
       badge={
         hideBadge ? undefined : (
           <span className="prov-tag" data-site-provenance={mode ?? "not-read"}>
-            {mode === undefined || mode === null ? siteId : `${mode} · ${siteId}`}
+            {mode === undefined || mode === null ? siteId : mode === DEMONSTRATION_MODE ? EXAMPLE_DATA_BADGE : `${mode} · ${siteId}`}
           </span>
         )
       }

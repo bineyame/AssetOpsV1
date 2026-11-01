@@ -325,8 +325,8 @@ describe("cold Scenarios page states", () => {
     expect(cells[0].textContent).toBe("Vaccine stock at risk" + "CSCN-000001 revision 1");
     expect(cells[0].querySelector('[data-vocabulary-exempt="source-reference"]')?.textContent).toBe("CSCN-000001");
     expect(cells[1].textContent).toBe("1200 dose at 2.75 USD per dose");
-    expect(cells[2].textContent).toBe("Selected evidence through 22 Oct 08:00 UTC" + "Review assumptions →");
-    expect(cells[3].textContent).toBe("22 Oct 09:12 UTC");
+    expect(cells[2].textContent).toBe("Selected evidence through 22 Oct, 08:00 UTC" + "Review assumptions →");
+    expect(cells[3].textContent).toBe("22 Oct, 09:12 UTC");
     expect(cells[4].textContent).toBe("Defined");
     // No observed outcome and no create control.
     expect(root.textContent).not.toMatch(/loss|observed outcome|spoiled/i);
@@ -363,8 +363,8 @@ describe("cold Scenarios page states", () => {
       "Unit value: 2.75",
       "Currency: USD",
     ]);
-    expect(values[2].textContent).toBe("6 Oct 2026 19:00–20:05 UTC");
-    expect(values[3].textContent).toBe("22 Oct 08:00 UTC");
+    expect(values[2].textContent).toBe("6 Oct 2026, 19:00–20:05");
+    expect(values[3].textContent).toBe("22 Oct, 08:00 UTC");
     expect(values[4].textContent).toBe(REV_A);
     expect(values[5].querySelector("[data-scenario-evidence-count]")?.textContent).toBe("1 record");
     expect(values[5].textContent).toBe(`1 record${EV_1}`);
@@ -385,8 +385,8 @@ describe("cold Scenarios page states", () => {
     secBody.window = { ...secBody.window, known_at: SEC, committed_watermark: SEC };
     const secRoot = await renderBody(stub(() => loaded(secBody)).client);
     const secCells = Array.from((secRoot.querySelector(`[data-scenario-row="${SCENARIO}"]`) as HTMLElement).children) as HTMLElement[];
-    expect(secCells[2].textContent).toBe("Selected evidence through 22 Oct 08:00:37 UTC" + "Review assumptions →");
-    expect(secRoot.querySelector("[data-cold-date-bar]")?.textContent).toContain("22 Oct 08:00:37 UTC");
+    expect(secCells[2].textContent).toBe("Selected evidence through 22 Oct, 08:00:37 UTC" + "Review assumptions →");
+    expect(secRoot.querySelector("[data-cold-date-bar]")?.textContent).toContain("information up to 22 Oct, 08:00:37");
     cleanup();
 
     // Q-C5b-4: a 95-ID basis is one keyboard-reachable region with every full ID in order, bounded at 360px.
@@ -569,7 +569,7 @@ describe("authored, pending and historical cold Scenarios", () => {
     expect(icon.nextElementSibling?.tagName).toBe("P");
     expect(icon.nextElementSibling?.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(panel.compareDocumentPosition(closing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("Selected window");
+    expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("6 Oct 2026, 19:00–20:05");
     // W5-01b review H1: no standalone authored-clock line; the mock empty block and closing notice keep their copy.
     expect(main.querySelector("[data-scenarios-through]")).toBeNull();
     cleanup();

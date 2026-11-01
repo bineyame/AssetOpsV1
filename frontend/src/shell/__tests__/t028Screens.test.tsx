@@ -625,7 +625,7 @@ describe("the Overview links to the Finding instead of recomputing it (AC12)", (
     expect(timeline).toHaveAttribute("data-compact", "true");
     expect(document.querySelector(`[data-overview-card-analysis="${CANDIDATE_ID}"]`)).not.toBeNull();
     expect(within(slot).getByRole("img").getAttribute("aria-label")).toContain(
-      "03:10 UTC to 07:10 UTC, Possibly avoidable",
+      "03:10 to 07:10, Possibly avoidable",
     );
     expect(slot.querySelector("[data-fuel-text]")).toHaveTextContent("Low 21.6 litres to high 29.3 litres");
   });
@@ -667,7 +667,7 @@ describe("W1-F2: legacy dispatch and analysis panel structure", () => {
     // W1-F2: the v69 Site page heading: the site name as h1, the provenance badge and the screen description.
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading.textContent).not.toBe("Performance");
-    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain(SITE_ID);
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("Example data");
     expect(document.querySelector("header.page-header")?.textContent).toContain(SITE_SCREEN_DESCRIPTIONS.dispatch);
     view.unmount();
     view = renderAt(`/sites/${SITE_ID}/performance/dispatch?interval=${NECESSARY_ID}&view=analysis`);

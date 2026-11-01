@@ -307,3 +307,25 @@ test('W1-F5b mutation: the in-page exemption is narrow (other file, inline copy)
 ` }); });
   assert.deepEqual(inline.errors.map((e) => [e.type, e.where]), [['untagged_copy', `${IN_PAGE_PATH}:5`]]);
 });
+
+// POLISH PB-1 (build sheet §5 PB-1, Addendum 7 Q3): the time formatter's invalid-input word is the fourth reviewed
+// exemption, equally narrow.
+const TIME = `export const TIME_NOT_AVAILABLE = "Time not available yet";
+export function formatDay(value) {
+  return value ? String(value) : TIME_NOT_AVAILABLE;
+}
+`;
+const TIME_PATH = 'frontend/src/ui/time.ts';
+
+test('POLISH PB-1: the invalid-time const in ui/time.ts is a reviewed exemption', () => {
+  const r = world((w) => { w.files.push({ path: TIME_PATH, text: TIME }); });
+  assert.deepEqual(r.errors, []);
+});
+
+test('POLISH PB-1 mutation: the time exemption is narrow (other file, inline copy)', () => {
+  const moved = world((w) => { w.files.push({ path: 'frontend/src/sites/time2.ts', text: TIME }); });
+  assert.deepEqual(moved.errors.map((e) => [e.type, e.where]), [['untagged_copy', 'frontend/src/sites/time2.ts:1']]);
+  const inline = world((w) => { w.files.push({ path: TIME_PATH, text: `${TIME}export const P = () => "Time not available yet";
+` }); });
+  assert.deepEqual(inline.errors.map((e) => [e.type, e.where]), [['untagged_copy', `${TIME_PATH}:5`]]);
+});

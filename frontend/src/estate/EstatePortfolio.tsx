@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { formatDayRange } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
 import {
@@ -495,7 +496,7 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
                   ) : null}
                 </td>
                 <td>
-                  {s.window.from.slice(0, 10)}–{s.window.to.slice(0, 10)} UTC
+                  {formatDayRange(s.window.from, s.window.to)}
                 </td>
                 <td data-portfolio-scope-coverage>
                   {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}

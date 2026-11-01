@@ -859,7 +859,7 @@ describe("W1-UX-02 / W1-F3: Finding Evidence bundle and lineage", () => {
     // The latest-at-read version is not claimed current: neutral words, plain "as of" the version's recorded time.
     expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
     expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
-    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 9 Oct 2026, 12:00 UTC");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 9 Oct 2026, 12:00");
     expect(answer.querySelector("[data-product-status-scope]")?.textContent).toMatch(/Version 2 of this Finding/);
     expect(steps()).toEqual([
       ["Accepted record", "done"], ["Delivery batch", "done"], ["Stored message", "done"], ["Site setup", "done"], ["Assessment", "done"],

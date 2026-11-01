@@ -209,7 +209,7 @@ describe("W1 shared presentation: state, scope and as-of stay visible with the d
       );
       const details = document.querySelector("details[data-exact-references]") as HTMLDetailsElement;
       expect(details.open).toBe(false);
-      for (const text of [words.label, words.sentence, "Kobo, 16 Oct 2026", "As of 16 Oct 2026, 10:05 UTC"]) {
+      for (const text of [words.label, words.sentence, "Kobo, 16 Oct 2026", "As of 16 Oct 2026, 10:05"]) {
         const el = screen.getByText(text);
         expect(visibleOutsideClosedDisclosure(el), `${name}: ${text}`).toBe(true);
       }
@@ -221,7 +221,7 @@ describe("W1 shared presentation: state, scope and as-of stay visible with the d
 
 describe("W1 shared presentation: primitives", () => {
   it("the as-of bound is plain, and a missing instant never becomes now", () => {
-    expect(asOfText("2026-10-16T10:05:00Z")).toBe("As of 16 Oct 2026, 10:05 UTC");
+    expect(asOfText("2026-10-16T10:05:00Z")).toBe("As of 16 Oct 2026, 10:05");
     expect(asOfText(null)).toBe("As of: time not recorded");
     expect(asOfText("not a time")).toBe("As of: time not recorded");
   });
@@ -230,7 +230,7 @@ describe("W1 shared presentation: primitives", () => {
     for (const instant of ["2026-10-16T10:05:00Z", "2026-01-01T00:00:00Z", "2026-12-31T23:59:00Z", null, "not a time"]) {
       expect(asOfText(instant)).toMatch(AS_OF_PATTERN);
     }
-    for (const wrong of ["As of now", "As of ", "As of : time not recorded", "As of 16 Oct 2026", "As of 16 Oct 2026, 10:05", "as of 16 Oct 2026, 10:05 UTC", "Updated 16 Oct 2026, 10:05 UTC"]) {
+    for (const wrong of ["As of now", "As of ", "As of : time not recorded", "As of 16 Oct 2026", "As of 16 Oct 2026, 10:05 UTC", "as of 16 Oct 2026, 10:05", "Updated 16 Oct 2026, 10:05"]) {
       expect(wrong).not.toMatch(AS_OF_PATTERN);
     }
   });

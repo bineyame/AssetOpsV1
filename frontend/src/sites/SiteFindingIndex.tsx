@@ -26,6 +26,7 @@
  * A Site with no imported record keeps the older summary (`fallback`).
  */
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
 
 import {
@@ -263,12 +264,10 @@ function refusalWords(kind: RefusalKind): ProductWords {
   return { ...REFUSAL_WORDS[kind], code: kind, unrecognised: false };
 }
 
-/** `2026-10-15 08:00 UTC` from an ISO instant (the read's display zone is UTC). */
+/** `15 Oct 2026, 08:00` from an ISO instant (POLISH §3 Times; the display zone is UTC, named by the page note). */
 export function utcText(instant: string | null | undefined): string {
   if (!instant) return "not recorded";
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return instant;
-  return `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return formatDayTime(instant);
 }
 
 const short = (id: string) => id.slice(0, 8);
@@ -286,18 +285,18 @@ function lastDayOf(to: string): string {
 /** "25 Oct 2026" for a `YYYY-MM-DD` UTC day; the day itself when unreadable. */
 function plainDay(day: string): string {
   const text = plainTime(`${day}T00:00:00Z`);
-  return text === null ? day : text.replace(/, \d{2}:\d{2} UTC$/, "");
+  return text === null ? day : text.replace(/, \d{2}:\d{2}$/, "");
 }
 
 function plainInstant(instant: string | null | undefined): string {
   return plainTime(instant) ?? "time not recorded";
 }
 
-/** W1-F3 height phase: a period inside one UTC day names the day once ("15 Oct 2026, 12:00 UTC to 13:30 UTC"). */
+/** W1-F3 height phase: a period inside one day names the day once ("15 Oct 2026, 12:00 to 13:30"). */
 function periodText(start: string, end: string): string {
   const a = plainInstant(start);
   const b = plainInstant(end);
-  const day = /^(.*), (\d{2}:\d{2} UTC)$/;
+  const day = /^(.*), (\d{2}:\d{2})$/;
   const ma = day.exec(a);
   const mb = day.exec(b);
   return ma && mb && ma[1] === mb[1] ? `${a} to ${mb[2]}` : `${a} to ${b}`;
@@ -313,7 +312,7 @@ function windowScope(scope: FindingIndexScope): string {
   const first = dayOf(scope.from);
   const last = lastDayOf(scope.to);
   const days = first === last ? plainDay(first) : `${plainDay(first)} to ${plainDay(last)}`;
-  return `Mini-grid dispatch Findings at this site · ${days} (UTC)`;
+  return `Mini-grid dispatch Findings at this site · ${days}`;
 }
 
 function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (scope: FindingIndexScope) => void }) {

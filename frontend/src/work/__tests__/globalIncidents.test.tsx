@@ -194,11 +194,11 @@ describe("W6-01a A2: global Incidents", () => {
 
     // Controls (section 2) and the status line; no cutoff input (A2Q5).
     const bar = document.querySelector("[data-global-work-bar]") as HTMLElement;
-    expect(within(bar).getByLabelText("From (UTC)")).toHaveValue("2026-10-14");
-    expect(within(bar).getByLabelText("To (UTC, exclusive)")).toHaveValue("2026-10-21");
+    expect(within(bar).getByLabelText("From")).toHaveValue("2026-10-14");
+    expect(within(bar).getByLabelText("To (not included)")).toHaveValue("2026-10-21");
     expect(within(bar).getAllByRole("button").map((b) => b.textContent)).toEqual(["Show records", "Reload"]);
     expect(bar.querySelectorAll("input")).toHaveLength(2);
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("As known at 21 Oct 2026, 12:00 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Updated 21 Oct 2026, 12:00 · Times in UTC");
 
     // A2Q1 cards: Open = OPEN + IN_PROGRESS over the full selection, not the page.
     expect(
@@ -245,7 +245,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(text(source.querySelector("summary"))).toBe("Source unverified");
     expect(text(source)).toContain("The origin of this authored work record is not established. No work outcome is verified.");
     expect(within(cell(first, 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
-    expect(text(cell(first, 2))).toBe("19 Oct 2026, 09:00 UTC");
+    expect(text(cell(first, 2))).toBe("19 Oct 2026, 09:00");
     expect(text(cell(first, 3))).toBe("Not recorded");
     expect(text(cell(first, 4))).toBe("In progress");
     expect(text(cell(first, 5))).toBe(OWNER128);
@@ -307,7 +307,7 @@ describe("W6-01a A2: global Incidents", () => {
     await settled();
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: KNOWN, cursor: null }]);
     // Post-W6 W6 Q14 (R372): the historical line names its cutoff to the second.
-    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 UTC");
+    expect(text(document.querySelector("[data-global-work-status]"))).toBe("Historical as of 21 Oct 2026, 12:00:00 · Times in UTC");
     expect(cards()).not.toBeNull();
   });
 
@@ -319,7 +319,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(text(cards()!.querySelector(".v69-metric__value"))).toBe("0");
     expect(Array.from(document.querySelectorAll("[data-global-work-zero] p")).map(text)).toEqual([
       "No incident cases in this window.",
-      "Change the UTC window or open a Site record.",
+      "Change the dates or open a Site record.",
     ]);
     expect(document.querySelector("table")).toBeNull();
     expect(document.querySelector("[data-global-work-pager]")).toBeNull();
@@ -391,8 +391,8 @@ describe("W6-01a A2: global Incidents", () => {
     mount("/incidents", reads);
     await settled();
     expect(reads.calls[0]).toEqual({ ...defaultGlobalWorkWindow(), known_at: null, cursor: null });
-    fireEvent.change(screen.getByLabelText("From (UTC)"), { target: { value: "2026-10-01" } });
-    fireEvent.change(screen.getByLabelText("To (UTC, exclusive)"), { target: { value: "2026-10-08" } });
+    fireEvent.change(screen.getByLabelText("From"), { target: { value: "2026-10-01" } });
+    fireEvent.change(screen.getByLabelText("To (not included)"), { target: { value: "2026-10-08" } });
     fireEvent.click(screen.getByRole("button", { name: "Show records" }));
     await settled();
     expect(screen.getByTestId("where").textContent).toBe(

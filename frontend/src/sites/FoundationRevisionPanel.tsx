@@ -10,6 +10,7 @@
  */
 
 import { Fragment, useState, type FormEvent, type ReactNode } from "react";
+import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
 
 import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, MissingClaim, Panel } from "../ui";
@@ -23,14 +24,10 @@ import type {
 
 export const FOUNDATION_REVISION_HEADING_ID = "foundation-revision-heading";
 
+/** `29 Oct 2026, 16:00` (POLISH §3 Times), or `no end`. */
 export function formatInstant(value: string | null): string {
   if (value === null) return "no end";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ${pad(
-    date.getUTCHours(),
-  )}:${pad(date.getUTCMinutes())} UTC`;
+  return formatDayTime(value);
 }
 
 function period(revision: FoundationRevisionSummary): string {

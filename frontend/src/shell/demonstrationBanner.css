@@ -1,0 +1,10 @@
+/* POLISH §6 D-1 (R651): a one-line, neutral, non-dismissible note above the page content. */
+.demonstration-banner {
+  margin: 0;
+  padding: 6px 16px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-muted);
+  background: var(--surface-sunken);
+  border-bottom: 1px solid var(--border-subtle);
+}

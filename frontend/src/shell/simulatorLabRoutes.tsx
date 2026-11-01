@@ -139,11 +139,12 @@ export const SITE_TEMPLATE_LINEAGE_API_PATH =
   "/api/simulator-lab/site-template-lineage";
 
 /**
- * The workspace utility entry-point label from the v6.9 product document
- * ("Workspace utility menu: Open Simulator Lab"). It reads as an action that
- * leaves the operator shell, not as the name of an operator route.
+ * The workspace utility entry-point label. The v6.9 product document says
+ * "Workspace utility menu: Open Simulator Lab"; POLISH §3.1 (Shell row) shortens
+ * it to the plain place name "Simulator Lab". It stays in the workspace footer,
+ * outside the operator route list.
  */
-export const SIMULATOR_LAB_ENTRY_POINT_LABEL = "Open Simulator Lab";
+export const SIMULATOR_LAB_ENTRY_POINT_LABEL = "Simulator Lab";
 
 /**
  * The label the operator Sites index uses to reach the create flow.

@@ -18,6 +18,8 @@
  * state is `neutral`, `waiting`, `limited` or `problem`.
  */
 
+import { formatDayTime, instantMs } from "./time";
+
 export type ProductTone = "positive" | "neutral" | "waiting" | "limited" | "problem";
 
 export interface ProductWords {
@@ -388,20 +390,16 @@ export function limitationWords(code: string | null | undefined): ProductWords {
 
 // --- The plain "as of" bound -------------------------------------------------
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** A plain instant: "16 Oct 2026, 10:05 UTC", or null when missing or unreadable. */
+/** A plain instant: "16 Oct 2026, 10:05" (POLISH §3 Times: `ui/time.ts`, UTC named by the page note), or null when missing or unreadable. */
 export function plainTime(instant: string | null | undefined): string | null {
   if (instant === null || instant === undefined || instant.length === 0) return null;
-  const date = new Date(instant);
-  if (Number.isNaN(date.getTime())) return null;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getUTCDate()} ${MONTHS[date.getUTCMonth()]} ${date.getUTCFullYear()}, ${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())} UTC`;
+  return instantMs(instant) === null ? null : formatDayTime(instant);
 }
 
 /**
  * A plain "as of" bound for an instant the read returned: "As of 16 Oct 2026,
- * 10:05 UTC". A missing or unreadable instant says so; it never becomes "now".
+ * 10:05". A missing or unreadable instant says so; it never becomes "now".
  */
 export function asOfText(instant: string | null | undefined): string {
   const text = plainTime(instant);

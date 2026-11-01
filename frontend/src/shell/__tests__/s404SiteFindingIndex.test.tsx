@@ -293,7 +293,7 @@ describe("S4-04 Site Findings index: a Site with no imported record", () => {
 });
 
 describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
-  const AS_OF = /^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/;
+  const AS_OF = /^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2}$/;
 
   function w1Scans(page: string) {
     const main = document.querySelector("main") as HTMLElement;
@@ -322,7 +322,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     await settledScreen();
     expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
     expect(expectStateLineVisible(statusBar())).toBe("Using the latest checked readings");
-    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     expect(statusBar().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
     expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
     // W1-F3 review M4: a one-day window is named by every row's Period cell, so no day strip repeats it beside rows.
@@ -366,7 +366,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(claim()).toBe("No Findings in this window");
     expect(expectStateLineVisible(statusBar())).toBe("Checked: nothing to report");
     expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
-    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(statusBar().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00");
     w1Scans("site findings empty");
     disclosureScan("site findings empty");
   });

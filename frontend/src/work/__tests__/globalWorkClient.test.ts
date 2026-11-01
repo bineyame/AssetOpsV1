@@ -195,7 +195,7 @@ describe("Post-W6 W6: wire extensions and copy", () => {
   it("Q11/Q14: the detail 503 sentence has no Reload word; historical instants carry seconds", () => {
     expect(GLOBAL_WORK_DETAIL_REFUSAL_COPY.WORK_STORE_UNAVAILABLE).toBe("Work records could not be read.");
     expect(GLOBAL_WORK_REFUSAL_COPY.WORK_STORE_UNAVAILABLE).toBe("Work records could not be read. Reload.");
-    expect(globalWorkUtcSeconds("2026-10-22T12:00:01.123456Z")).toBe("22 Oct 2026, 12:00:01 UTC");
-    expect(globalWorkUtc("2026-10-22T12:00:01Z")).toBe("22 Oct 2026, 12:00 UTC");
+    expect(globalWorkUtcSeconds("2026-10-22T12:00:01.123456Z")).toBe("22 Oct 2026, 12:00:01");
+    expect(globalWorkUtc("2026-10-22T12:00:01Z")).toBe("22 Oct 2026, 12:00");
   });
 });

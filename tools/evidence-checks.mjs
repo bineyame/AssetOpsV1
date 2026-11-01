@@ -31,7 +31,7 @@ export const WIDTH_SLACK = 20;
  * "time not recorded". Mirrors `AS_OF_PATTERN` in frontend/src/test/productPresentation.ts; the inventory
  * test asserts the two sources are identical.
  */
-export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2} UTC|: time not recorded)$/;
+export const AS_OF_PATTERN = /^As of(?: \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}, \d{2}:\d{2}|: time not recorded)$/;
 
 /**
  * POLISH PB-0 (OUT-D L1): a loading sentence is a whole line that is "Loading", "Loading…"/"Loading..." or

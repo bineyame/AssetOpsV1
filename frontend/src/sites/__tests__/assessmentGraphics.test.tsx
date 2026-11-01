@@ -137,11 +137,11 @@ describe("assessed-period timeline", () => {
     // The readable equivalent has the same labels and times, including the bracketed spans.
     const table = document.querySelector("[data-timeline-table]") as HTMLElement;
     const rows = within(table).getAllByRole("row").slice(1).map((r) => r.textContent);
-    expect(rows[0]).toContain("03:00 UTC to 03:15 UTC");
+    expect(rows[0]).toContain("03:00 to 03:15");
     expect(rows[0]).toContain("Start or stop time uncertain");
-    expect(rows[2]).toContain("04:00 UTC to 04:15 UTC (15 min)");
+    expect(rows[2]).toContain("04:00 to 04:15 (15 min)");
     expect(rows[2]).toContain("Cannot determine; generator operation not recorded");
-    expect(rows[4]).toContain("04:45 UTC to 05:00 UTC");
+    expect(rows[4]).toContain("04:45 to 05:00");
     // Legend: the three outcome labels and both patterns, in words.
     const legend = Array.from(document.querySelectorAll("[data-legend]")).map((l) => l.textContent);
     expect(legend).toEqual([
@@ -161,7 +161,7 @@ describe("assessed-period timeline", () => {
     expect(document.querySelector('[data-open-end="end"]')).not.toBeNull();
     expect(document.querySelectorAll('[data-band-kind="uncertain"]')).toHaveLength(0);
     // The axis ends at the last supplied time; nothing is drawn past it.
-    expect(document.querySelector("[data-axis-end]")).toHaveTextContent("04:45 UTC");
+    expect(document.querySelector("[data-axis-end]")).toHaveTextContent("04:45");
     const notes = Array.from(document.querySelectorAll("[data-open-note]")).map((n) => n.textContent);
     expect(notes).toEqual([
       "Start not recorded: no record shows the generator off before 22 Sep 2026 03:15 UTC, so it may have been operating earlier.",
@@ -174,7 +174,7 @@ describe("assessed-period timeline", () => {
     inRouter(<AssessedPeriodTimeline compact source={OPEN} outcomes={["Possibly avoidable"]} />);
     expect(document.querySelector("[data-timeline-table]")).toBeNull();
     expect(screen.getByRole("img")).toHaveAccessibleName(
-      "Assessed parts of the period: 03:15 UTC to 04:45 UTC, Possibly avoidable. " +
+      "Assessed parts of the period: 03:15 to 04:45, Possibly avoidable. " +
         "Start not recorded: no record shows the generator off before 22 Sep 2026 03:15 UTC, so it may have been operating earlier. " +
         "End not recorded: no record shows the generator off after 22 Sep 2026 04:45 UTC, so when it stopped is not known.",
     );

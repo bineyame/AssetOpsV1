@@ -235,7 +235,7 @@ describe("W3-02 estate Evidence root", () => {
     expectV69Panels("globalevidence");
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio evidence");
     expect(main().textContent).toContain("Cross-site claim readiness, recurring gaps and instrumentation priorities");
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
     expect(cards()).toEqual([
       { label: "Sites with limited claims", value: "1 of 3", note: "Sites with a selected limited capability" },
       { label: "Priority evidence actions", value: "Not assessed", note: "Priority is not recorded for estate evidence gaps" },
@@ -269,8 +269,8 @@ describe("W3-02 estate Evidence root", () => {
       "EV charging lab · EV charging",
     ]);
     const capability = (cell: HTMLElement) => [cell.querySelector(".estate-evidence-label")?.textContent, cell.querySelector(".estate-evidence-meta")?.textContent];
-    expect(capability(cells[0][1])).toEqual(["Generator support", "2026-10-14 00:00 – 2026-10-15 00:00 UTC"]);
-    expect(capability(cells[1][1])).toEqual(["Temperature compliance", "2026-10-14 08:00–16:00 UTC"]);
+    expect(capability(cells[0][1])).toEqual(["Generator support", "14 Oct 2026, 00:00 – 15 Oct 2026, 00:00"]);
+    expect(capability(cells[1][1])).toEqual(["Temperature compliance", "14 Oct 2026, 08:00–16:00"]);
     expect(cells.map((c) => c[2].querySelector("[data-estate-readiness]")?.textContent)).toEqual(["Limited", "Full", "Unknown"]);
     expect(cells[0][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--amber");
     expect(cells[1][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--green");
@@ -420,9 +420,9 @@ describe("W3-02 estate Evidence root", () => {
     );
     await settledScreen();
     expectV69Panels("globalevidence");
-    expect(main().querySelector("[data-estate-row-context='HISTORICAL']")?.textContent).toBe("Historical as of 2026-10-18 00:00:00 UTC");
+    expect(main().querySelector("[data-estate-row-context='HISTORICAL']")?.textContent).toBe("Historical as of 18 Oct 2026, 00:00");
     expect(main().querySelector("[data-estate-row-context='HISTORICAL']")?.className).toContain("estate-tone--blue");
-    expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note='historical']")?.textContent).toBe("Historical as of 2026-10-18 00:00:00 UTC");
+    expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note='historical']")?.textContent).toBe("Historical as of 18 Oct 2026, 00:00");
     view.unmount();
 
     // Refusals: the exact copy, prior rows removed, no table.
@@ -732,7 +732,7 @@ describe("post-W6 W3-estate refused window", () => {
     const view = renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake({ status: "refused", httpStatus: 403, code: "ESTATE_SCOPE_FORBIDDEN", copy: EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN }));
     await settledScreen();
     expect(main().querySelector("[data-page-refusal] p")?.textContent).toBe(EVIDENCE_REFUSAL_COPY.ESTATE_SCOPE_FORBIDDEN);
-    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("Window 2026-10-13 to 2026-10-19 (UTC days)");
+    expect(main().querySelector("[data-estate-window]")?.textContent).toBe("13–19 Oct 2026");
     view.unmount();
   });
 });

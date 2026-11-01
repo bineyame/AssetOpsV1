@@ -331,7 +331,7 @@ describe("a Sites row is the way into a site", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: SITE.display_name }),
     ).toBeInTheDocument();
-    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain(SITE.site_id);
+    expect(document.querySelector("header.page-header [data-site-provenance]")?.textContent).toContain("Example data");
   });
 
   it("adds exactly one destination and no navigation item", async () => {
