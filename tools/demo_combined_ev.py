@@ -41,6 +41,10 @@ from demo_combined import at, iso
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
 BASE_DAY = datetime(2026, 10, 6, tzinfo=timezone.utc)
+#: WALK1-2 (WN-7, D-W1-1, R675): the Depot's declared charging tariff, published once by the SYSTEM publisher.
+FIXTURE_TARIFF = REPO / "backend" / "conversions" / "demo-ev-tariff-publications.json"
+#: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
+TARIFF_AFTER_INSTALL = timedelta(minutes=30)
 
 
 def _shift_text(value: str, delta: timedelta) -> str:
@@ -233,6 +237,32 @@ def run_day(url: str, tmp: Path, day: "sd.DayRun", install_at: datetime, story: 
         _restore(registered, P, saved)
 
 
+def publish_tariff(url: str, recorded_at: datetime, site_code: str = "EV-LAB-001") -> dict:
+    """WALK1-2 §3.1: publish the demo charging tariff step v1 (`demo_combined_kobo.publish_price`'s pattern). The
+    fixture's idempotency key makes a second call a replay, never a second revision. The EV money recompute is
+    enqueued by the 0026 trigger and drained by the scheduled ticks. Returns the publisher's JSON line."""
+    import contextlib
+    import io
+
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+    from assetops_backend.publish_assumption import main as publish
+    import pg_harness
+
+    store = PostgresAssumptionStore(url, test_recorded_clock_override=lambda: recorded_at)
+    out = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out):
+            code = publish(["fixture", "--site", site_code, "--file", str(FIXTURE_TARIFF), "--step", "v1"],
+                           store=store)
+    finally:
+        pg_harness.dispose(store)
+    if code != 0:
+        raise SystemExit(f"charging tariff v1 publication failed ({code})")
+    line = next(x for x in out.getvalue().splitlines() if x.startswith("{"))
+    print(line, flush=True)
+    return json.loads(line)
+
+
 def build(url: str, work: Path, story: dict) -> dict:
     days = [d for d in sd.from_payload(json.loads((work / "days.json").read_text(encoding="utf-8"))["days"])
             if d.site == "ev"]
@@ -250,6 +280,8 @@ def build(url: str, work: Path, story: dict) -> dict:
         records.append(entry)
         print("ev day", day.day, day.kind, entry.get("run_id"), flush=True)
     doc = {"site_code": e["site_code"], "install_at": e["install_at"], "days": records}
+    if any(r["run_id"] for r in records):  # the Site exists only once a day's replay has installed it
+        doc["tariff"] = publish_tariff(url, install_at + TARIFF_AFTER_INSTALL, e["site_code"])
     (work / "ev.json").write_text(json.dumps(doc, indent=2, default=str), encoding="utf-8")
     print("ev:", len([r for r in records if r["run_id"]]), "runs")
     return doc

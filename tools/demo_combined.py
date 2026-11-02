@@ -19,7 +19,7 @@ story instant. The data is registered Lab simulation placed on a story calendar 
 3. Objectives, the S2 Evidence comparison, two schedule ticks, the Performance comparison, the self-check.
 `serve` runs `host/lab_app.py` on --port (default 8990) with the cursor keys from `<work>/keys.json`, plus a
 walkthrough-only schedule loop (one tick every 120 s, then the Performance comparison) that stops with serve. After
-the first tick it pre-warms the story-week Portfolio outcome summary once and prints "ready:" when that returns.
+the first tick it pre-warms the story-week Portfolio outcome summary once and prints "ready:" when that returns 2xx.
 `drop` removes the database and work folder only when the work folder's marker records this tool made them.
 
 Guards: `--db` must match `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$`; `--work` must be a `var/demo3*` or
@@ -182,8 +182,9 @@ PREWARM_TIMEOUT_SECONDS = 900
 
 def prewarm(port: int, story: dict, fetch: Any = None, clock: Any = time.monotonic) -> bool:
     """POLISH whole-diff review item 8: request the Portfolio outcome-summary for the story week once, so the first
-    Portfolio a presenter opens is not the cold one. Prints "ready:" only when that request has returned (any HTTP
-    status); a request that never returns prints a warning instead, and no "ready:" line."""
+    Portfolio a presenter opens is not the cold one. Prints "ready:" only when that request has returned a 2xx
+    status (WALK1-2 L-B); any other status prints "prewarm returned {status}", and a request that never returns
+    prints a warning; neither prints a "ready:" line."""
     import urllib.error
     import urllib.request
 
@@ -203,6 +204,10 @@ def prewarm(port: int, story: dict, fetch: Any = None, clock: Any = time.monoton
     except Exception as error:  # noqa: BLE001 - any transport failure means "not warmed"
         say(f"pre-warm did not finish ({type(error).__name__}: {error}); open the Portfolio week link and wait until "
             "the outcome matrix fills before the client joins.")
+        return False
+    if not 200 <= int(status) < 300:
+        say(f"prewarm returned {status}; open the Portfolio week link and wait until the outcome matrix fills "
+            "before the client joins.")
         return False
     say(f"ready: Portfolio outcome summary for the story week answered HTTP {status} in {clock() - started:.0f} s. "
         "Do not restart serve once the client has joined.")

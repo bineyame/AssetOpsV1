@@ -99,6 +99,15 @@ def test_prewarm_requests_the_story_week_outcome_summary_once_then_prints_ready(
     assert out[-1].startswith("ready:")
 
 
+@pytest.mark.parametrize("status", [500, 503, 404, 302])
+def test_prewarm_non_2xx_status_prints_no_ready_line(capsys, status) -> None:
+    """WALK1-2 L-B: "ready:" only on a 2xx answer; any other status says what came back."""
+    assert tool.prewarm(8990, STORY, fetch=lambda url: status, clock=lambda: 0.0) is False
+    out = capsys.readouterr().out
+    assert not any(line.startswith("ready:") for line in out.splitlines())
+    assert f"prewarm returned {status}" in out
+
+
 def test_prewarm_that_never_returns_prints_no_ready_line(capsys) -> None:
     def fail(url: str) -> int:
         raise TimeoutError("timed out")

@@ -202,7 +202,9 @@ EV_OVERVIEW = {
                     "orphan": 0, "confirmed_delivery": 4, "fault_aborted": 1},
     "energy": {"complete_kwh": "182.50"},
     "site_power": {"observed_peak_kw": "76", "configured_limit_kw": "120"},
-    "consequence_summary": {"state": "PRICED", "amount": "12.40", "currency": "USD"},
+    # WALK1-2 E2: the overview's real priced state is ESTIMATED; 182.50 kWh at the declared 0.30 USD per kWh.
+    "consequence_summary": {"state": "ESTIMATED", "reason": "ELIGIBLE_COMPLETE_INTERVALS", "tariff_value": "0.30000",
+                            "amount": "54.75000000", "currency": "USD"},
 }
 HEALTH = {"health": {"rows": [{"kind": "CONNECTOR", "label": "C2", "asset_code": "c2",
                                "condition_state": "NEEDS_INVESTIGATION"},
@@ -246,9 +248,20 @@ def test_depot_board_from_ports() -> None:
     assert comp.read_state == "AVAILABLE" and comp.failed == ()
     assert outcome(rows[PROTECT], "EV-1") == "NEEDS_ATTENTION"
     assert contributor(rows[GROW], "charging_delivered")["text"] == "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
-    assert rows[GROW]["headline"] == "gross tariff estimate"
-    assert rows[GROW]["headline_money"] == {"amount_low": "12.40", "amount_high": "12.40", "currency": "USD"}
-    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"
+    assert rows[GROW]["headline"] == "estimated charging income"  # WALK1-2 R674
+    assert rows[GROW]["headline_money"] == {"amount_low": "54.75000000", "amount_high": "54.75000000",
+                                            "currency": "USD"}
+    assert rows[GROW]["subline"] == ("182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD "
+                                     "per kWh · not billed or collected")
+    tariff = contributor(rows[GROW], "charging_tariff")  # WALK1-2 R676: the declared lever input
+    assert (tariff["label"], tariff["text"], tariff["confidence"], tariff["href"]) == (
+        "Charging tariff", "Declared at 0.30 USD per kWh", {"label": "Declared", "tone": "neutral"},
+        f"/sites/{E}/ev/financials")
+    assert [x["key"] for x in rows[GROW]["contributors"]] == [
+        "charging_delivered", "charging_tariff", "charger_use", "energy_billed"]
+    # P-11: a priced tariff keeps the catalogue Optimize sentence (no "published charging tariff" clause).
+    assert rows[COST]["not_measured_text"] == (
+        "Energy cost per km needs odometer readings; a tariff estimate exists in Financials")
     assert contributor(rows[PROTECT], "session_service")["text"] == "1 fault-aborted session, 1 outcome unknown"
     assert contributor(rows[PROTECT], "connector_availability")["text"] == "Connector C2: 1 h 30 min out, 30 min unknown"
     assert contributor(rows[PROTECT], "charger_condition")["text"] == "Fault recorded on C2"
@@ -322,10 +335,30 @@ def test_ev_unpriced_and_declared_limit() -> None:
                 site_power={"observed_peak_kw": None, "configured_limit_kw": "120"})
     _, rows = run_ev(Fake(ev_overview=body), tz=None)
     assert rows[GROW]["headline"] == "Charging income estimate not available yet" and rows[GROW]["headline_money"] is None
+    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"  # unpriced: unchanged
+    assert contributor(rows[GROW], "charging_tariff")["text"] == "Not available yet"  # cause not known here
+    assert rows[COST]["not_measured_text"] == (
+        "Energy cost per km needs odometer readings and a published charging tariff")
     power = contributor(rows[PROTECT], "site_power")
     assert power["confidence"] == {"label": "Declared", "tone": "neutral"}
     assert contributor(rows[ASSURE], "connector_status")["text"] == (
         "Missing 20 Oct 10:00–20 Oct 10:30 · UTC (Site time zone unavailable)")
+
+
+def test_ev_grow_without_a_declared_tariff() -> None:
+    """WALK1-2 §3.2: no tariff covers the window (TARIFF_MISSING): the unpriced texts and the stated cause."""
+    body = dict(EV_OVERVIEW, consequence_summary={"state": "UNPRICED", "reason": "TARIFF_MISSING",
+                                                  "tariff_value": None, "amount": None, "currency": None})
+    _, rows = run_ev(Fake(ev_overview=body))
+    assert rows[GROW]["headline"] == "Charging income estimate not available yet" and rows[GROW]["headline_money"] is None
+    assert rows[GROW]["subline"] == "182.5 kWh with a complete meter record"
+    tariff = contributor(rows[GROW], "charging_tariff")
+    assert (tariff["text"], tariff["confidence"], tariff["href"]) == (
+        "Not available yet · no charging tariff declared", None, None)
+    # A PRICED state is never the EV overview's; it does not price the board.
+    legacy = dict(EV_OVERVIEW, consequence_summary={"state": "PRICED", "amount": "1.00", "currency": "USD"})
+    _, rows = run_ev(Fake(ev_overview=legacy))
+    assert rows[GROW]["headline_money"] is None
 
 
 def test_ev_grow_pairs_meter_record_with_completed_honestly() -> None:  # addendum 9 M1
