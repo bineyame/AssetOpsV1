@@ -438,6 +438,14 @@ export function SiteAssumptions({
         : client.getAssumptions(siteId, { validAt, recordedAt: cutoff, afterRevisionNo: after }),
     [client, siteId, validAt, cutoff, after],
   );
+  // WALK1-3 M2: the declared price per kWh for productive users, read as its own series at the same moment.
+  const productive = useRead<AssumptionSeriesBody | null>(
+    () =>
+      cutoff === null
+        ? Promise.resolve({ status: "loaded", value: null } as const)
+        : client.getAssumptions(siteId, { validAt, recordedAt: cutoff, limit: 1, key: "productive_use_price_per_kwh" }),
+    [client, siteId, validAt, cutoff],
+  );
   const exact = useRead<AssumptionRevisionBody | null>(
     () =>
       revisionId === null
@@ -542,6 +550,7 @@ export function SiteAssumptions({
           exact={exact}
           links={links}
           selectedRevision={revisionId}
+          productive={productive}
         />
         <ImpactPreview />
       </div>
@@ -593,6 +602,45 @@ const CONFLICT_WORDS: ProductWords = {
  * the disabled edit with its reason, the effective-time strip and the schedule. The state line's "as of" is the
  * moment the price list was read at, exactly as the read returned it.
  */
+/** "0.2500" reads "0.25", as the board shows it; the stored string is unchanged. */
+function trimmedDecimal(value: string): string {
+  return value.includes(".") ? value.replace(/0+$/, "").replace(/\.$/, "") : value;
+}
+
+const PRODUCTIVE_NOT_LOADED = "The price for productive users could not be read, so none is shown and none is assumed.";
+const PRODUCTIVE_NOT_DECLARED = "Not available yet · no price per kWh declared";
+
+/** WALK1-3 M2: the declared price productive users are charged, as its own row (the Kobo board's "Price per kWh"). */
+function ProductiveUsePrice({ read }: { read: FinancialReadResult<AssumptionSeriesBody | null> | null }) {
+  const selection = read !== null && read.status === "loaded" ? (read.value?.selection ?? null) : null;
+  const price = selection?.state === "PRICED" ? selection : null;
+  if (read === null) return <p data-productive-price="LOADING">Loading the site's prices.</p>;
+  if (read.status !== "loaded") {
+    return <p className="v69-gap-line" data-productive-price="NOT_LOADED">{PRODUCTIVE_NOT_LOADED}</p>;
+  }
+  if (price === null) {
+    return (
+      <p className="v69-gap-line" data-productive-price="NOT_DECLARED">
+        <MissingClaim gapId="G-assumptions-productive-price" placement="assumptions.productive-price.undeclared">
+          {PRODUCTIVE_NOT_DECLARED}
+        </MissingClaim>
+      </p>
+    );
+  }
+  return (
+    <div data-productive-price="DECLARED">
+      <KeyValues
+        label="Price per kWh for productive users"
+        rows={[
+          ["Price per kWh for productive users", <strong key="p">{trimmedDecimal(price.price.value)} {price.price.currency} per kWh</strong>, "price"],
+          ["Basis", "Declared", "basis"],
+          ["Valid from", day(price.valid.from), "valid-from"],
+        ]}
+      />
+    </div>
+  );
+}
+
 function FinancialAssumptions({
   body,
   siteId,
@@ -600,7 +648,9 @@ function FinancialAssumptions({
   exact,
   links,
   selectedRevision,
+  productive,
 }: {
+  productive: FinancialReadResult<AssumptionSeriesBody | null> | null;
   body: AssumptionSeriesBody;
   siteId: string;
   historical: boolean;
@@ -663,6 +713,7 @@ function FinancialAssumptions({
       ) : pinned !== null ? (
         <ExactVersion body={pinned} />
       ) : null}
+      <ProductiveUsePrice read={productive} />
       <div className="form-footer">
         <DisabledEdit />
         {/* post-W6 W1-b Q24 / R201: the mock's form-footer link beside the (disabled) edit. */}

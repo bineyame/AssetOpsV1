@@ -34,11 +34,15 @@ def _value(r: Mapping[str, Any]) -> Decimal | None:
     return v if v.is_finite() else None
 
 
-def productive_energy(readings: Iterable[Mapping[str, Any]], lo: datetime, hi: datetime) -> dict[str, Any]:
-    """`{"kwh": Decimal | None, "measured_seconds": int, "evidence_count": int}`; `kwh` is None when no GOOD
-    reading overlaps the window."""
+def productive_energy(readings: Iterable[Mapping[str, Any]], lo: datetime, hi: datetime,
+                      names: Mapping[Any, str] | None = None) -> dict[str, Any]:
+    """`{"kwh": Decimal | None, "measured_seconds": int, "evidence_count": int, "conflict_assets": [name, ...]}`;
+    `kwh` is None when no GOOD reading overlaps the window, and also when one asset's own GOOD spans overlap each
+    other (conflicting readings, as the depth `series` rule: no partial sum). Overlap between different assets is
+    correct and sums."""
     kw_seconds = Decimal(0)
     spans: list[tuple[datetime, datetime]] = []
+    by_asset: dict[Any, list[tuple[datetime, datetime]]] = {}
     count = 0
     for r in readings:
         if r.get("quality") != GOOD:
@@ -51,9 +55,18 @@ def productive_energy(readings: Iterable[Mapping[str, Any]], lo: datetime, hi: d
         seconds = Decimal((e - s).total_seconds())
         kw_seconds += value * seconds
         spans.append(clipped)
+        by_asset.setdefault(r.get("asset_id"), []).append(clipped)
         count += 1
     if not count:
-        return {"kwh": None, "measured_seconds": 0, "evidence_count": 0}
+        return {"kwh": None, "measured_seconds": 0, "evidence_count": 0, "conflict_assets": []}
+    names = names or {}
+    conflicts = []
+    for asset, own in by_asset.items():
+        own.sort()
+        if any(own[i][0] < own[i - 1][1] for i in range(1, len(own))):
+            conflicts.append(names.get(asset) or names.get(str(asset)) or str(asset))
+    if conflicts:
+        return {"kwh": None, "measured_seconds": 0, "evidence_count": count, "conflict_assets": sorted(conflicts)}
     covered = 0
     cur_s, cur_e = None, None
     for s, e in sorted(spans):
@@ -64,4 +77,5 @@ def productive_energy(readings: Iterable[Mapping[str, Any]], lo: datetime, hi: d
         elif e > cur_e:
             cur_e = e
     covered += int((cur_e - cur_s).total_seconds())
-    return {"kwh": kw_seconds / SECONDS_PER_HOUR, "measured_seconds": covered, "evidence_count": count}
+    return {"kwh": kw_seconds / SECONDS_PER_HOUR, "measured_seconds": covered, "evidence_count": count,
+            "conflict_assets": []}

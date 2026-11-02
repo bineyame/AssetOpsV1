@@ -19,6 +19,7 @@ export const UI_GAP_CATALOGUE = {
   "G-foundation-financial-assumptions": { status: "open", placements: ["foundation.identity.financial-assumptions"] },
   "G-assumptions-human-edit": { status: "open", placements: ["assumptions.price.human-edit"] },
   "G-assumptions-impact-preview": { status: "open", placements: ["assumptions.preview.unavailable"] },
+  "G-assumptions-productive-price": { status: "open", placements: ["assumptions.productive-price.undeclared"] },
   "G-financials-asset-exposure": { status: "open", placements: ["financials.metrics.asset-exposure"] },
   "G-financials-realised-savings": { status: "open", placements: ["financials.metrics.realised-savings"] },
   "G-financials-revenue-service": { status: "open", placements: ["financials.metrics.revenue-service"] },

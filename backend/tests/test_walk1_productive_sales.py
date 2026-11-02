@@ -40,33 +40,43 @@ def story_day(kw: Any = "12") -> list[dict[str, Any]]:
 
 def test_exact_sum_over_good_intervals() -> None:
     got = productive_energy(story_day("12.6"), LO, HI)
-    assert got == {"kwh": Decimal("100.8"), "measured_seconds": 8 * 3600, "evidence_count": 96}
+    assert got == {"kwh": Decimal("100.8"), "measured_seconds": 8 * 3600, "evidence_count": 96, "conflict_assets": []}
 
 
 def test_clipping_to_the_window() -> None:
     got = productive_energy([reading(LO - timedelta(minutes=3), kw="6")], LO, HI)  # 2 of 5 minutes inside
-    assert got == {"kwh": Decimal("0.2"), "measured_seconds": 120, "evidence_count": 1}
+    assert got == {"kwh": Decimal("0.2"), "measured_seconds": 120, "evidence_count": 1, "conflict_assets": []}
     assert productive_energy([reading(HI, kw="6")], LO, HI)["kwh"] is None  # touching the end is outside
 
 
 def test_non_good_readings_are_gaps_never_zero() -> None:
     rows = [reading(LO, quality="UNAVAILABLE"), reading(LO + timedelta(minutes=5), kw=None),
             reading(LO + timedelta(minutes=10), kw="NaN")]
-    assert productive_energy(rows, LO, HI) == {"kwh": None, "measured_seconds": 0, "evidence_count": 0}
+    assert productive_energy(rows, LO, HI) == {"kwh": None, "measured_seconds": 0, "evidence_count": 0, "conflict_assets": []}
     assert productive_energy([], LO, HI)["kwh"] is None
 
 
 def test_gaps_and_overlaps_in_measured_seconds() -> None:
-    rows = [reading(LO, kw="1"), reading(LO + timedelta(minutes=20), kw="1"),
-            {**reading(LO, kw="2"), "asset": "second user"}]  # two users over the same five minutes
+    rows = [{**reading(LO, kw="1"), "asset_id": "a1"}, {**reading(LO + timedelta(minutes=20), kw="1"), "asset_id": "a1"},
+            {**reading(LO, kw="2"), "asset_id": "a2"}]  # two users over the same five minutes
     got = productive_energy(rows, LO, HI)
     assert got["measured_seconds"] == 600 and got["evidence_count"] == 3
-    assert got["kwh"] == Decimal(4) * Decimal(300) / Decimal(3600)
+    assert got["kwh"] == Decimal(4) * Decimal(300) / Decimal(3600) and got["conflict_assets"] == []
+
+
+def test_one_assets_overlapping_readings_are_conflicting_with_no_partial_sum() -> None:
+    """Review M1: a re-delivered batch over the same interval must not double-count."""
+    rows = [{**reading(LO, kw="5"), "asset_id": "a1"}, {**reading(LO + timedelta(minutes=2), kw="5"), "asset_id": "a1"},
+            {**reading(LO, kw="2"), "asset_id": "a2"}]
+    got = productive_energy(rows, LO, HI, {"a1": "Grain mill", "a2": "Pump"})
+    assert got["kwh"] is None and got["conflict_assets"] == ["Grain mill"]
+    touching = [{**reading(LO, kw="5"), "asset_id": "a1"}, {**reading(LO + timedelta(minutes=5), kw="5"), "asset_id": "a1"}]
+    assert productive_energy(touching, LO, HI)["kwh"] is not None
 
 
 def test_zero_use_is_a_measured_zero() -> None:
     assert productive_energy(story_day("0"), LO, HI) == {"kwh": Decimal(0), "measured_seconds": 28800,
-                                                         "evidence_count": 96}
+                                                         "evidence_count": 96, "conflict_assets": []}
 
 
 # --------------------------------------------------------------- composer (§4.4 table)
@@ -130,11 +140,36 @@ def test_measured_use_without_a_price() -> None:
 
 def test_priced_zero_use() -> None:
     comp, row = run(readings=story_day("0"))
-    assert row["headline"] == "No productive-use sales on this day: Grain mill not used"
+    assert row["headline"] == "18–24.3 kW of daytime solar unused"  # L3: spare solar leads
     assert row["headline_money"] is None
     assert contributor(row, "productive_sales")["text"] == "0 kWh used by Grain mill in 8 measured hours"
     assert contributor(row, "productive_sales")["confidence"] == {"label": "Declared", "tone": "neutral"}
     assert comp.facts.readings["MG-1"].value == Decimal(0)
+
+
+def test_priced_zero_use_without_spare_solar_leads_with_not_used() -> None:
+    """L3: the zero-use headline is used only when there is no spare-solar headline."""
+    none = dict(DEPTH, renewable={"headroom_kw": {"low": None, "high": None}, "eligible_days": None,
+                                  "assessed_days": None})
+    _, row = run(readings=story_day("0"), fake=Fake(cards=none))
+    assert row["headline"] == "No productive-use sales on this day: Grain mill not used"
+
+
+def test_overlapping_readings_of_one_user_are_not_estimated() -> None:
+    twice = story_day() + story_day()
+    for r in twice:
+        r["asset_id"] = "a-mill"
+    comp, row = run(readings=twice)
+    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
+    assert row["subline"] is None
+    assert contributor(row, "productive_sales")["text"] == (
+        "Not available yet · Grain mill has conflicting readings on this day, so use is not estimated")
+    assert comp.facts.readings["MG-1"].actual_text == mini.MG1_ACTUAL
+    two = {"asset_code": "load-pump", "asset_id": "a-pump", "name": "Pump"}
+    both = [{**r, "asset_id": "a-pump"} for r in twice] + [{**r, "asset_id": "a-mill"} for r in twice]
+    _, row2 = run(users=(MILL, two), readings=both)
+    assert contributor(row2, "productive_sales")["text"] == (
+        "Not available yet · Grain mill, Pump have conflicting readings on this day, so use is not estimated")
 
 
 def test_priced_estimate_leads_the_grow_row() -> None:
@@ -176,6 +211,8 @@ def test_a_failed_port_is_not_loaded_and_partial(port: str) -> None:
         assert texts["productive_sales"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
     else:
         assert texts["productive_sales"] == mini.NOT_LOADED
+        if port == "users":
+            assert row["subline"] is None  # L4: no GROW_SUBLINE when the read failed
 
 
 def test_row_state_with_the_estimate_is_unchanged() -> None:

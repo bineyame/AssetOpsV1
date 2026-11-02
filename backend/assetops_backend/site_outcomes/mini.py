@@ -126,6 +126,7 @@ PLAN_NOT_READ = "Not available yet · declared objectives could not be loaded"
 #: kWh. Always an estimate at a declared price; never billed, collected or measured income.
 SALES_NO_USERS = "Not available yet · no productive users identified for this site"
 SALES_NO_READINGS = "Not available yet · no measured use by {names} on this day"
+SALES_CONFLICT = "Not available yet · {names} {verb} conflicting readings on this day, so use is not estimated"
 SALES_USED = "{kwh} kWh used by {names} in {h} measured {hours}"
 SALES_NO_PRICE = SALES_USED + " · no price per kWh declared"
 PRICE_DECLARED = "Declared at {p} {cur} per kWh"
@@ -148,6 +149,7 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
         GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
         SALES_NO_USERS, SALES_NO_READINGS.format(names="Grain mill"),
+        SALES_CONFLICT.format(names="Grain mill", verb="has"), SALES_CONFLICT.format(names="A, B", verb="have"),
         SALES_USED.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
         SALES_USED.format(kwh="0", names="Grain mill", h="1", hours="hour"),
         SALES_NO_PRICE.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
@@ -427,7 +429,9 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                 if verified else NO_VERIFIED}
     headline_money = {COST: {k: money.get(k) for k in ("amount_low", "amount_high", "currency")}
                       if priced and not zero else None}
-    if sales.get("headline") is not None:  # WALK1-3 §4.4: a sales estimate leads; spare solar stays a contributor
+    # WALK1-3 §4.4: a sales estimate leads; spare solar stays a contributor. L3: a zero-use day yields to a
+    # spare-solar headline when one exists.
+    if sales.get("headline") is not None and not (sales.get("zero") and headline[GROW] is not None):
         headline[GROW] = sales["headline"]
         headline_money[GROW] = sales.get("money")
     subline = {GROW: sales.get("subline"),
@@ -629,7 +633,7 @@ def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, e
     price_href = f"/sites/{c}/financials/assumptions"
     users = reads.call("productive_users", ports.productive_users, start)
     if users is None:
-        return {"subline": GROW_SUBLINE, "contributors": (_sales_line(NOT_LOADED),)}
+        return {"subline": None, "contributors": (_sales_line(NOT_LOADED),)}
     if not users:
         return {"subline": GROW_SUBLINE, "contributors": (_sales_line(SALES_NO_USERS),)}
     names = ", ".join(str(u.get("name")) for u in users)
@@ -649,8 +653,12 @@ def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, e
                             price_href)
     if raw is None:
         return {"subline": None, "contributors": (_sales_line(NOT_LOADED), price)}
-    energy = productive_energy(raw, start, end)
+    energy = productive_energy(raw, start, end, {u.get("asset_id"): str(u.get("name")) for u in users})
     kwh = energy["kwh"]
+    if energy["conflict_assets"]:
+        who = energy["conflict_assets"]
+        text = SALES_CONFLICT.format(names=", ".join(who), verb="have" if len(who) > 1 else "has")
+        return {"subline": None, "contributors": (_sales_line(text), price)}
     if kwh is None:
         return {"subline": None, "contributors": (_sales_line(SALES_NO_READINGS.format(names=names)), price)}
     h = num(Decimal(energy["measured_seconds"]) / Decimal(3600))
@@ -659,8 +667,8 @@ def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, e
         return {"kwh": kwh, "subline": None, "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
     out = {"kwh": kwh, "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
            "contributors": (_sales_line(SALES_USED.format(**words), DECLARED), price)}
-    if kwh == 0:
-        return {**out, "headline": SALES_ZERO_HEADLINE.format(names=names), "money": None}
+    if kwh == 0:  # L3: the spare-solar headline leads on a zero-use day when one exists (see compose)
+        return {**out, "headline": SALES_ZERO_HEADLINE.format(names=names), "money": None, "zero": True}
     amount = f"{(kwh * value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):f}"
     return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
 

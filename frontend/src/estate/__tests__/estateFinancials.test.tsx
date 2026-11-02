@@ -328,7 +328,7 @@ describe("W3-02 estate Financials root", () => {
     const results = Array.from(aggregation.querySelectorAll("[data-estate-group]"));
     expect(results.map((r) => r.querySelector("[data-estate-group-state]")?.textContent)).toEqual(["Not totalled", "Comparable", "Single line", "No lines"]);
     // Only COMPARABLE has a number, outward to the KES minor unit; no estate total anywhere.
-    expect(results[1].textContent).toContain("Gross tariff estimate · KES 36.00–KES 36.01 · 2 lines");
+    expect(results[1].textContent).toContain("Estimated charging income · KES 36.00–KES 36.01 · 2 lines");
     expect(results[1].querySelector(".estate-chip")?.className).toContain("estate-tone--green");
     expect(results[2].textContent).not.toContain("$9");
     expect(results[0].querySelector("[data-estate-group-reasons]")?.textContent).toBe("New work is being assessed");
@@ -351,9 +351,9 @@ describe("W3-02 estate Financials root", () => {
     expect(aggregation.textContent).not.toContain("PARTITION_INELIGIBLE");
     // L3: the diagnostic names the category with more than one value, never a pairwise difference.
     const diagnostic = aggregation.querySelector("[data-estate-diagnostic='MIXED_CURRENCY']");
-    expect(diagnostic?.textContent).toBe("Different valuesGross tariff estimate: more than one currency · 3 lines in the differing-value category");
+    expect(diagnostic?.textContent).toBe("Different valuesEstimated charging income: more than one currency · 3 lines in the differing-value category");
     expect(aggregation.textContent).not.toMatch(/differ(s)? from|each other|MIXED_CURRENCY/);
-    expect(diagnosticText("GROSS_TARIFF_SCENARIO", "DIFFERENT_WINDOW", 1)).toBe("Gross tariff estimate: more than one window · 1 line in the differing-value category");
+    expect(diagnosticText("GROSS_TARIFF_SCENARIO", "DIFFERENT_WINDOW", 1)).toBe("Estimated charging income: more than one window · 1 line in the differing-value category");
     // A pending line shows no current value; its pinned value stays in the disclosure as not current.
     const pendingRow = registerRows()[1];
     expect(cells(pendingRow)[3].textContent).toBe("Pending");

@@ -284,11 +284,15 @@ function fake(opts: {
   consequences?: FinancialReadResult<FindingConsequencesBody> | ((pin: ConsequencePin) => FinancialReadResult<FindingConsequencesBody>);
   seriesFor?: (query: SeriesQuery) => FinancialReadResult<AssumptionSeriesBody>;
   history?: ConsequenceHistoryResult | ((query: HistoryQuery) => ConsequenceHistoryResult);
+  productive?: FinancialReadResult<AssumptionSeriesBody>;
 } = {}): FinancialsClient & { asked: Asked } {
   const asked: Asked = { series: [], exact: [], bridge: [], consequences: [], history: [] };
   return {
     asked,
     async getAssumptions(_site, query) {
+      if (query.key === "productive_use_price_per_kwh") {
+        return opts.productive ?? { status: "loaded", value: series({ state: "NO_PRICE", selection: { state: "NO_PRICE", valid_at: "x", revision_id: null, assignment_id: null, note: "" }, timeline: [], revisions: [] }) };
+      }
       asked.series.push(query);
       if (opts.seriesFor) return opts.seriesFor(query);
       return opts.series ?? { status: "loaded", value: series() };
@@ -376,6 +380,25 @@ describe("Site > Financials > Assumptions", () => {
     const { violations, scanned } = scanProductVocabulary(container, "assumptions");
     expect(scanned).toBeGreaterThan(10);
     expect(violations, describeViolations(violations)).toEqual([]);
+  });
+
+  it("WALK1-3 M2: shows the declared productive-use price as its own row, and says when none is declared", async () => {
+    const declared = series({ selection: { state: "PRICED", valid_at: "x", revision_id: V1, assignment_id: "as1", valid: { from: "2026-07-01T00:00:00Z", to: null }, price: price(1, V1, "0.2500") } as never });
+    const withPrice = mount(fake({ productive: { status: "loaded", value: declared } }), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    const row = withPrice.container.querySelector("[data-productive-price='DECLARED']") as HTMLElement;
+    expect(row).toHaveTextContent("Price per kWh for productive users");
+    expect(row).toHaveTextContent("0.25 USD per kWh");
+    expect(row).toHaveTextContent("Declared");
+    expect(row).toHaveTextContent("1 Jul 2026");
+    const scan = scanProductVocabulary(withPrice.container, "assumptions");
+    expect(scan.violations, describeViolations(scan.violations)).toEqual([]);
+    withPrice.unmount();
+    const none = mount(fake(), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    expect(none.container.querySelector("[data-productive-price='NOT_DECLARED']")).toHaveTextContent(
+      "Not available yet · no price per kWh declared");
+    expectV69Panels("assumptions");
   });
 
   it("shows the human edit disabled, with its reason as a catalogued gap", async () => {
@@ -616,6 +639,8 @@ describe("financials client", () => {
       "/api/sites/KOBO-001/findings/f1/financial-consequences?revision_id=r+1&consequence_revision_id=c+1",
       "/api/sites/KOBO-001/financial-assumptions?key=diesel_price_per_litre&valid_at=2026-10-13T00%3A00%3A00Z&recorded_at=2026-10-13T09%3A00%3A00%2B00%3A00",
     ]);
+    await client.getAssumptions("KOBO-001", { key: "productive_use_price_per_kwh", limit: 1 });
+    expect(calls[calls.length - 1]).toBe("/api/sites/KOBO-001/financial-assumptions?key=productive_use_price_per_kwh&limit=1");
   });
 });
 

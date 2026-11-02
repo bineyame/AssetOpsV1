@@ -137,3 +137,35 @@ billed or collected". Nothing is stored. Which loads are productive is declared 
 
 The §4.4 copy (an estimate at a declared price, never billed or collected), deviation 1, the E6 Unknown state beside
 the amount (R678), and the read-only SQL in `mini_depth/read.py`.
+
+## Fix round 1 (review-WALK1-3 Addendum 3: M1, M2, L1, L3, L4)
+
+Merged main (253d6e8c2) first: one conflict, the R655 line in the register; both appendices kept (WALK1-3 then WALK1-1).
+
+- **M1.** `productive_energy` groups GOOD clipped spans by asset; any asset whose own spans overlap makes the whole
+  result `kwh None` with `conflict_assets` (names). Contributor "Not available yet · {names} has/have conflicting
+  readings on this day, so use is not estimated"; no headline money, subline None, MG-1 `MG1_ACTUAL`. Tests: one-asset
+  overlap, touching spans still sum, two users overlapping each other still sum, compose text for one and two names.
+- **M2.** Client `SeriesQuery.key` (default diesel); the Assumptions page reads `productive_use_price_per_kwh` and
+  shows "Price per kWh for productive users", "{p} {cur} per kWh", "Declared", "Valid from" inside the existing
+  Financial assumptions panel (no new panel: the v69 panel-structure guard). Undeclared: "Not available yet · no
+  price per kWh declared" through new catalogued gap `G-assumptions-productive-price` (gapCatalogue, registry,
+  ledger). A failed read says "The price for productive users could not be read, so none is shown and none is
+  assumed." (deviation: not the "Not available yet" wording, which the missing-claim scan requires to be catalogued).
+  R679 corrected.
+- **L1.** EvEnergy "{amount} {cur} estimated"; "Estimated charging income" in EvEnergy card/tile and the two word
+  maps; tests updated; R655 extended.
+- **L3.** Zero-use priced day: spare-solar headline leads when it exists; "No productive-use sales on this day" only
+  without one. Both branches pinned.
+- **L4.** Failed `productive_users` read returns `subline None`; pinned.
+
+Checks (own DB `assetops_walk1c_test`):
+- `run-host-tests` (-n 3, loadfile): test_walk1_productive_sales, test_walk1_productive_price_postgres,
+  test_out_b2_vocabulary, test_out_b2_mini, test_cov_partial_portfolio, test_idx_gaps_board, test_out_b4_route:
+  90 passed, 2 failed, both failing on main 253d6e8c2 as well (`test_board_finding_titles_are_the_frontend_plain_titles`,
+  the known MERGED-title one; `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes`, expects no
+  `withheld` key in `finding_gaps` after WALK1-1 added it; verified failing in the main worktree).
+- vitest: siteFinancials, evEnergy, estateFinancials, supplyUseWords, evSiteMoneyRoutes, src/ui: all passed;
+  `tsc --noEmit` exit 0.
+- `tools/check-all.ps1`: All 12 guards passed (vocabulary, missing-claim, mock-deviation, dependency registry).
+- Not run: full backend/frontend suites, captures.

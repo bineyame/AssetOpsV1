@@ -51,7 +51,7 @@ export function utcSeconds(value: string | null): string {
 
 const estimated = (c: EvConsequence | null): c is EvConsequence => c !== null && c.state === "ESTIMATED";
 
-/** Closure 2: the `Gross tariff estimate` card value. */
+/** Closure 2: the `Estimated charging income` card value. */
 export function grossTariffText(c: EvConsequence | null): string {
   if (c === null) return "Unknown";
   return estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""}`.trim() : "Unpriced";
@@ -75,7 +75,7 @@ export function bridgeRows(read: EvEnergyRead): string[][] {
       : [
           guarded ? delivered : c.quantity_kwh === null ? "Unknown" : `${c.quantity_kwh} kWh complete-record delivery`,
           estimated(c) ? `${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh charging tariff (charging income estimate)`.replace(" /kWh", "/kWh") : "No eligible tariff applied",
-          estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""} gross estimate`.replace("  ", " ") : "Unpriced",
+          estimated(c) ? `${c.amount ?? "Unknown"} ${c.currency ?? ""} estimated`.replace("  ", " ") : "Unpriced",
           c.limitation ?? "No collections or profit claim",
         ];
   const partial = e.partial_kwh !== null && Number(e.partial_kwh) > 0;
@@ -161,7 +161,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
           data={{ "data-ev-energy-card": "limit" }}
         />
         <MetricCard
-          label="Gross tariff estimate"
+          label="Estimated charging income"
           value={grossTariffText(c)}
           note={estimated(c) ? `Charging tariff: ${c.tariff_value ?? "Unknown"} ${c.currency ?? ""}/kWh`.replace(" /kWh", "/kWh") : "Charging tariff not set"}
           data={{ "data-ev-energy-card": "tariff" }}
@@ -294,7 +294,7 @@ export function EvEnergy({ siteCode, window, client, routes }: EvEnergyProps) {
         read={read}
         window={window}
         label="Charging energy"
-        tiles={["Metered session energy", "Observed peak import", "Declared site limit", "Gross tariff estimate"]}
+        tiles={["Metered session energy", "Observed peak import", "Declared site limit", "Estimated charging income"]}
         onRetry={() => setAttempt((n) => n + 1)}
       />
     );
