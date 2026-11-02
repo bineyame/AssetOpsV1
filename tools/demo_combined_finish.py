@@ -453,6 +453,40 @@ def co12(ctx: Ctx) -> dict:
     return out
 
 
+# ---- WALK1 G1 (build sheet §5): declared prices fill Grow; partly checked weeks are counted -------------------
+
+@row("WK-1")
+def wk1(ctx: Ctx) -> dict:
+    """WALK1-2: the Depot Grow row carries the estimated charging income at the declared tariff."""
+    grow = rows(_ev_board(ctx))["GROW_REVENUE"]
+    assert grow["headline"] == "estimated charging income", grow["headline"]
+    money = grow.get("headline_money") or {}
+    assert money.get("amount_high") and money.get("currency"), money
+    return {"headline": grow["headline"], "money": money}
+
+
+@row("WK-2")
+def wk2(ctx: Ctx) -> dict:
+    """WALK1-3: Kobo's day-S Grow row carries the estimated productive-use sales (measured use x declared price)."""
+    grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
+    money = grow.get("headline_money") or {}
+    assert grow["headline"] == "estimated productive-use sales" and money.get("amount_high"), (
+        grow["headline"], money)
+    sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
+    price = next(c for c in grow["contributors"] if c["key"] == "productive_price")
+    return {"headline": grow["headline"], "money": money, "sales": sales["text"], "price": price["text"],
+            "subline": grow["subline"], "state": grow["state"]}
+
+
+@row("WK-3", idx=True)
+def wk3(ctx: Ctx) -> dict:
+    """WALK1-1: the story week's Portfolio counts state their basis (complete, or over the checked days)."""
+    body, _, _, _ = _estate(ctx, ctx.day(-6), ctx.day(1))
+    basis = (body.get("summary") or {}).get("count_basis")
+    assert basis is not None, body.get("summary")
+    return {"count_basis": basis, "checked_days": (body.get("summary") or {}).get("checked_days")}
+
+
 # ---- runner ----------------------------------------------------------------------------------------------------
 
 def load(work: Path, client) -> Ctx:

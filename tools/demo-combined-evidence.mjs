@@ -72,6 +72,9 @@ function screens(work) {
       { key: "kobo-board-S", label: "Kobo board, day S (trial-before)", path: board("KOBO-001", S), mock: "mini" },
       { key: "kobo-board-S-open", label: "Kobo board, day S, every disclosure open", path: board("KOBO-001", S), mock: "mini", open: true },
       { key: "kobo-board-S1", label: "Kobo board, day S+1 (trial-after)", path: board("KOBO-001", S + DAY), mock: "mini" },
+      // WALK1-2 review L3 (G1): the lead Finding's version history, where each version's Basis disclosure nests the
+      // related-findings detail; nothing else captures that cell at desktop width.
+      { key: "finding-history", label: "Kobo lead finding, version history", path: `/sites/KOBO-001/findings/${kobo.finding}/history?revision_id=${kobo.finding_revision}`, mock: "finding-history" },
       { key: "kobo-verification", label: `${kobo.action_code} verification with its cost check (CO-4)`, path: `/sites/KOBO-001/actions/${kobo.action}/verification`, mock: "verification" },
       { key: "cold-board-failure", label: "GreenHarvest board, failure night (S), event window", path: event("cold", "failure"), mock: "cold" },
       { key: "cold-board-normal", label: "GreenHarvest board, normal night (S-7), event window", path: event("cold", "normal"), mock: "cold" },
