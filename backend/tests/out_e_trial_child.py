@@ -37,7 +37,7 @@ def run(url: str, case: str) -> dict:
     h = verifying(runner)
     rec: dict = {"case": case}
     try:
-        publish_price_v1(url)
+        publish_price_v1(url, runner.now)
         if case == "verified":
             ev.complete_windows(Patch(), h, **VERIFIED_WINDOWS)
             action_id, plan, _ = ev.bound_plan(runner, h)
