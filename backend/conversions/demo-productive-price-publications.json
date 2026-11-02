@@ -1,0 +1,20 @@
+{
+  "fixture": "demo-productive-price-publications",
+  "version": 1,
+  "statement": "Illustrative demonstration price per kWh for productive users published by the server-side SYSTEM publisher. It is not a contract rate, a billed amount or collected income. The Site is named on the command line, never here.",
+  "assumption_key": "productive_use_price_per_kwh",
+  "steps": [
+    {
+      "step": "v1",
+      "change_kind": "INITIAL",
+      "currency": "USD",
+      "value": "0.25",
+      "basis": "AUTHORED_ESTIMATE",
+      "source_reference": "Demonstration price per kWh for productive users, set by the system (illustrative, not a contract rate)",
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_to": null,
+      "expected_prior_step": null,
+      "idempotency_key": "demo-productive-price-v1"
+    }
+  ]
+}
