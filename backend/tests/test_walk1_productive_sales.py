@@ -109,7 +109,7 @@ def test_no_productive_user_declared() -> None:
     comp, row = run(users=())
     assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
     assert row["subline"] == mini.GROW_SUBLINE
-    assert keys(row) == ["productive_use", "productive_sales", "cash_collected", "site_earnings"]
+    assert keys(row) == ["productive_sales", "productive_use", "cash_collected", "site_earnings"]  # WALK1-3b §A2.3
     assert contributor(row, "productive_sales")["text"] == (
         "Not available yet · no productive users identified for this site")
     assert comp.facts.readings["MG-1"].actual_text == "sales not recorded"
@@ -134,8 +134,8 @@ def test_measured_use_without_a_price() -> None:
     assert contributor(row, "productive_price") == {
         "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
         "confidence": None, "href": ASSUMPTIONS}
-    assert comp.facts.readings["MG-1"].actual_text == (
-        "96 kWh used by productive users on this day; the monthly target is not compared from one day")
+    # WALK1-3b: MG-1 reads month to date (Nairobi local October through the 20th); no objective is declared here
+    assert comp.facts.readings["MG-1"].actual_text == "96 kWh so far this month, on 1 of 20 days checked"
 
 
 def test_priced_zero_use() -> None:
@@ -178,8 +178,8 @@ def test_priced_estimate_leads_the_grow_row() -> None:
     assert row["headline_money"] == {"amount_low": "25.25", "amount_high": "25.25", "currency": "USD"}
     assert row["subline"] == ("101 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD "
                               "per kWh · not billed or collected")
-    assert keys(row) == ["productive_use", "productive_sales", "productive_price", "cash_collected",
-                         "site_earnings"]
+    assert keys(row) == ["productive_sales", "productive_use", "productive_price", "cash_collected",
+                         "site_earnings"]  # WALK1-3b §A2.3
     assert contributor(row, "productive_sales") == {
         "key": "productive_sales", "label": "Productive-use sales",
         "text": "101 kWh used by Grain mill in 8 measured hours",
@@ -190,9 +190,10 @@ def test_priced_estimate_leads_the_grow_row() -> None:
     # spare solar stays in its contributor and the Portfolio fallback value
     assert contributor(row, "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
     assert comp.short_values == {GROW: "18–24.3 kW unused"}
-    # MG-1 carries the kWh but is never complete: the monthly target is not compared from one day
+    # WALK1-3b: MG-1 carries the month-to-date kWh (only this day has readings) and is complete only at month end
     mg1 = comp.facts.readings["MG-1"]
     assert mg1.value == Decimal("100.98") and mg1.complete is False
+    assert (mg1.checked_days, mg1.elapsed_days, mg1.month_days) == (1, 20, 31)
 
 
 def test_one_measured_hour_is_singular() -> None:
@@ -216,12 +217,12 @@ def test_a_failed_port_is_not_loaded_and_partial(port: str) -> None:
 
 
 def test_row_state_with_the_estimate_is_unchanged() -> None:
-    """Pre-flight E6: the Grow row state rule is not changed by the estimate (reported in the packet)."""
+    """Pre-flight E6: the estimate itself never sets the Grow row state; WALK1-3b judges the declared target."""
     _, priced = run(readings=story_day("12"))
     _, undeclared = run(users=())
-    assert priced["state"] == undeclared["state"] == "OPPORTUNITY"  # the fixture's spare-solar signal
-    # Kobo on S: no spare-solar read and the declared monthly MG-1 target (demo-objectives.json). The target is not
-    # judged from one day, so the row stays Unknown beside the estimate (registered R678; rule not changed here).
+    assert priced["state"] == undeclared["state"] == "OPPORTUNITY"  # no objective: the fixture's spare-solar signal
+    # Kobo with the declared monthly MG-1 target (demo-objectives.json) and one checked day: WALK1-3b reads "Too early
+    # to judge" (Unknown) under the default minimum of 3 checked days; with no productive user nothing is judged.
     kobo = dict(DEPTH, renewable={"headroom_kw": {"low": None, "high": None}, "eligible_days": None,
                                   "assessed_days": None})
     mg1 = [{"outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": "300", "currency": None,
@@ -230,6 +231,9 @@ def test_row_state_with_the_estimate_is_unchanged() -> None:
     _, none = run(users=(), fake=Fake(cards=kobo), objectives=mg1)
     assert estimate["headline_money"] == {"amount_low": "42.08", "amount_high": "42.08", "currency": "USD"}
     assert estimate["state"] == none["state"] == "UNKNOWN"
+    reason = {r["key"]: r["reason"] for r in estimate["outcomes"]}["MG-1"]
+    assert reason == "OBJECTIVE_TOO_EARLY"
+    assert {r["key"]: r["reason"] for r in none["outcomes"]}["MG-1"] == "OBJECTIVE_NOT_JUDGED"
 
 
 def test_new_strings_are_in_copy_and_plain() -> None:
@@ -243,7 +247,8 @@ def test_new_strings_are_in_copy_and_plain() -> None:
         hits = [(t, name) for t in texts for name, pattern in patterns if pattern.search(t)]
         assert hits == [], hits
     ours = [mini.SALES_NO_USERS, mini.SALES_NO_READINGS, mini.SALES_USED, mini.SALES_NO_PRICE, mini.PRICE_DECLARED,
-            mini.PRICE_NOT_DECLARED, mini.SALES_HEADLINE, mini.SALES_ZERO_HEADLINE, mini.SALES_SUBLINE, mini.MG1_USED]
+            mini.PRICE_NOT_DECLARED, mini.SALES_HEADLINE, mini.SALES_ZERO_HEADLINE, mini.SALES_SUBLINE, mini.MG1_SO_FAR,
+            mini.MG1_PACE, mini.MG1_TOO_EARLY, mini.MG1_MISSED]
     for word in ("income", "revenue", "gross", "collected", "billed"):  # an estimate, never billed or collected
         assert [t for t in ours if word in t.lower()] == ([mini.SALES_SUBLINE] if word in ("collected", "billed")
                                                           else []), word

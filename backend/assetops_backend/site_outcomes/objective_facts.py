@@ -14,8 +14,8 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import SITE_OUTCOMES
 from assetops_backend.outcomes.objectives import (
-    AT_MOST, CHAMBER_RANGE_MEASURE, CHAMBER_RANGE_TARGET, CONTRIBUTOR_LABEL, MEASURES, MET, MISSED, ObjectiveFact,
-    target_text)
+    AT_MOST, CHAMBER_RANGE_MEASURE, CHAMBER_RANGE_TARGET, CONTRIBUTOR_LABEL, DEFAULT_MIN_CHECKED_DAYS, MEASURES, MET,
+    MISSED, ObjectiveFact, target_text)
 
 CHAMBER_RANGE_OUTCOME = "CC-1"
 CHAMBER_RANGE_SOURCE = "DECLARED"
@@ -47,7 +47,10 @@ def from_rows(rows: Sequence[Mapping[str, Any]] | None, fmt: Callable[[Any], str
                            currency=r.get("currency"))
         facts.append(ObjectiveFact(measure.outcome, measure.key, measure.comparison, target, target == 0, text,
                                    str(r.get("source")), None if r.get("id") is None else str(r["id"]),
-                                   r.get("source_note")))
+                                   r.get("source_note"),
+                                   # WALK1-3b §A2.5: NULL (or a row read before 0041) is the default minimum
+                                   DEFAULT_MIN_CHECKED_DAYS if r.get("min_checked_days") is None
+                                   else int(r["min_checked_days"])))
     return tuple(sorted(facts, key=lambda f: catalogue_index(f.outcome_key)))
 
 

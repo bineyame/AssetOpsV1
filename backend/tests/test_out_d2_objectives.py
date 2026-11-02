@@ -66,18 +66,20 @@ def test_rule4c_missed_needs_attention_and_loses_only_its_reason_to_4a() -> None
     assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MISSED)[0] == NEEDS_ATTENTION
 
 
-def test_rule7_met_is_on_track_and_loses_to_watch_and_opportunity() -> None:
+def test_rule7_met_is_on_track_and_loses_to_watch_but_not_to_opportunity() -> None:
     assert st(MG2, objective=MET) == (ON_TRACK, "OBJECTIVE_MET")
     assert st(MG2) == (NO_OBJECTIVE, "NO_OBJECTIVE_DECLARED")
     assert st(MG2, [Signal(FINDING, "MG-2", True, True, applied=True)], objective=MET)[0] == WATCH
     assert st(MG7, readiness="LIMITED", objective=MET)[0] == WATCH
-    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MET)[0] == OPPORTUNITY
+    # WALK1-3b §A2.1: an open opportunity no longer outranks a declared objective (the row carries it as potential)
+    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MET) == (ON_TRACK, "OBJECTIVE_MET")
+    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)]) == (OPPORTUNITY, "OPPORTUNITY_OPEN")
 
 
-def test_rule7b_not_judged_is_unknown_after_opportunity() -> None:
+def test_rule7b_not_judged_is_unknown_before_opportunity() -> None:
     assert st(MG2, objective=NOT_JUDGED) == (UNKNOWN, "OBJECTIVE_NOT_JUDGED")
     assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=NOT_JUDGED) == (
-        OPPORTUNITY, "OPPORTUNITY_OPEN")  # Kobo Grow keeps Opportunity
+        UNKNOWN, "OBJECTIVE_NOT_JUDGED")  # WALK1-3b §A2.1: the declared objective sets the state
 
 
 def test_rule7c_failed_objectives_read_is_unknown_never_no_objective() -> None:
@@ -140,4 +142,5 @@ def test_every_template_passes_vocabulary() -> None:
     hits = [(text, name) for text in copy for name, pattern in patterns if pattern.search(text)]
     assert hits == []
     assert any(p.search("critical load") for _, p in patterns)  # non-vacuous: "load" is caught
-    assert set(obj.VERDICT_CHIP) == set(obj.VERDICT_LABEL) == {MET, MISSED, NOT_JUDGED}
+    assert set(obj.VERDICT_CHIP) == set(obj.VERDICT_LABEL) == {MET, MISSED, NOT_JUDGED, obj.ON_PACE,
+                                                                obj.BEHIND_PACE, obj.TOO_EARLY}  # WALK1-3b

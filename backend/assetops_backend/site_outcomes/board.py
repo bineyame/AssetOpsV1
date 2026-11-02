@@ -14,11 +14,11 @@ from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
     ROW_NOT_MEASURED_EV_COST_UNPRICED, SiteOutcome, row_not_measured)
 from assetops_backend.outcomes.objectives import (
-    CONTRIBUTOR_LABEL, MET, MISSED, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge)
+    CONTRIBUTOR_LABEL, MEASURES, MET, MISSED, NOT_JUDGED, VERDICT_CHIP, ObjectiveFact, Reading, judge, judge_month)
 from assetops_backend.outcomes.outcome_map import ENTRIES, finding_signal_key, outcome_roles
 from assetops_backend.outcomes.status import (
-    EVIDENCE_GAP, FINDING, NOT_MEASURED, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal, outcome_state,
-    roll_up)
+    EVIDENCE_GAP, FINDING, NOT_MEASURED, OPPORTUNITY, SIGNAL_OPPORTUNITY, STATE_LABEL, STATE_TONE, WARNING, Signal,
+    outcome_state, roll_up)
 from assetops_backend.outcomes.warnings import PLAN_DUE_SOON, PLAN_OVERDUE, REPEATED, Warning
 
 OPEN_LIFECYCLES = ("SUPPORTED", "UNCONFIRMED")  # Portfolio membership rule (estate/portfolio.py:38)
@@ -27,6 +27,7 @@ MAINTENANCE_REQUEST, INCIDENT = "MAINTENANCE_REQUEST", "INCIDENT"
 NO_PLAN = "NO_PLAN"
 
 SAFEGUARD_SUFFIX = " · checked here as a safeguard"  # mock outcomes.js:71
+POTENTIAL_LABEL = "Opportunity"  # WALK1-3b §A2.1: the second header chip (R690)
 NOT_LINKED_SUFFIX = " · not linked to a finding"
 OUTSIDE_VIEW_SUFFIX = " · linked finding outside this view"  # addendum 2 item 4
 #: Addendum 3 M1: the suffix when the domain's Finding source is unsettled, so an unresolved link is not "outside".
@@ -244,6 +245,8 @@ class SiteFacts:
     objectives_ok: bool = True
     #: IDX-GAPS U2: mini only, the Finding index gap line `{text, days}` under the rows; None = no gap day.
     finding_gaps: Mapping[str, Any] | None = None
+    #: WALK1-3b §A2.3: per category, the contributor key the "Declared objective" lines follow; absent = after all.
+    objective_after: Mapping[str, str] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------- helpers
@@ -459,10 +462,12 @@ def earlier_result_for_case(case: CaseFact, cases: Sequence[CaseFact]) -> str | 
 # ---------------------------------------------------------------- assembly
 
 def objective_verdict(o: ObjectiveFact, readings: Mapping[str, Reading], settled: Mapping[str, bool]) -> str | None:
-    """OUT-D U4: MET | MISSED | NOT_JUDGED for a settled outcome; None when the outcome is not settled."""
+    """OUT-D U4: MET | MISSED | NOT_JUDGED for a settled outcome; None when the outcome is not settled. A monthly
+    measure is judged month to date (WALK1-3b `judge_month`)."""
     if not settled.get(o.outcome_key, False):
         return None
-    return judge(o, readings.get(o.outcome_key))
+    measure = MEASURES.get(o.measure_key)
+    return (judge_month if measure is not None and measure.monthly else judge)(o, readings.get(o.outcome_key))
 
 
 def objective_verdicts(facts: SiteFacts) -> dict[str, str | None]:
@@ -572,6 +577,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     objective_lines = [objective_contributor(declared[o.key], facts.readings.get(o.key), verdicts.get(o.key))
                        for o, st, _ in states if o.key in declared and st != NOT_MEASURED]
     row_state, lead_key = roll_up([(o.key, st) for o, st, _ in states])
+    keys = {o.key for o in outcomes}
     lead = OUTCOME_BY_KEY[lead_key]
     link = EVIDENCE_LINK.get((domain, cat))
     row: dict[str, Any] = {
@@ -583,6 +589,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "contributors": [], "issues": [], "options": [], "in_hand": [], "earlier": [], "earlier_empty_text": None,
         "evidence_link": None if link is None else {"label": link[0], "href": link[1].format(c=code)},
         "outcomes": [{"key": o.key, "label": o.label, "state": st, "reason": reason} for o, st, reason in states],
+        "potential": None,
     }
     if row_state == NOT_MEASURED:
         row["not_measured_text"] = row_not_measured(domain, cat, lead)
@@ -694,10 +701,22 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
                 headline = f.title
                 break
 
+    # WALK1-3b §A2.1: an open opportunity on a row whose state is not "Opportunity" is carried as its potential.
+    potential = None
+    if row_state != OPPORTUNITY and any(s.kind == SIGNAL_OPPORTUNITY and s.open and s.outcome in keys
+                                        for s in signals):
+        text = next((i["text"] for i in issues if i["kind"] == "OPPORTUNITY"), None)
+        potential = {"label": POTENTIAL_LABEL, "text": text}
+    domain_lines = list(facts.contributors.get(cat, ()))
+    after = facts.objective_after.get(cat)
+    at = next((i + 1 for i, c in enumerate(domain_lines) if c.key == after), len(domain_lines))
+    ordered = (*domain_lines[:at], *objective_lines, *domain_lines[at:])
+
     row.update({
+        "potential": potential,
         "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": facts.subline.get(cat),
         "counts": {"issues": len(issues), "in_hand": len(in_hand)}, "must_not_harm": must_not_harm,
-        "contributors": [_contributor(c) for c in (*facts.contributors.get(cat, ()), *objective_lines)],
+        "contributors": [_contributor(c) for c in ordered],
         "issues": issues,
         "options": [{"text": o.text, "href": o.href} for o in facts.options.get(cat, ())],
         "in_hand": in_hand, "earlier": earlier,

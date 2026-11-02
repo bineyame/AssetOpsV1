@@ -10,7 +10,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from assetops_backend.outcomes.catalogue import SiteOutcome
-from assetops_backend.outcomes.objectives import MET, MISSED, NOT_JUDGED
+from assetops_backend.outcomes.objectives import BEHIND_PACE, MET, MISSED, NOT_JUDGED, ON_PACE, TOO_EARLY
 from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS
 
 STATUS_POLICY = "outcome-status/2"
@@ -57,8 +57,13 @@ def outcome_state(outcome: SiteOutcome, *, settled: bool, signals: Sequence[Sign
                   objectives_ok: bool = True) -> tuple[str, str]:
     """(state, reason_code) for one outcome; first match wins (§1.4 rules 1-8; OUT-D 4c, 7, 7b, 7c).
 
-    `objective` is the declared-objective verdict (MET | MISSED | NOT_JUDGED) or None when no objective applies;
-    `objectives_ok` is False when the objectives read failed. The defaults keep every earlier call unchanged."""
+    `objective` is the declared-objective verdict (MET | MISSED | NOT_JUDGED, or a monthly measure's ON_PACE |
+    BEHIND_PACE | TOO_EARLY) or None when no objective applies; `objectives_ok` is False when the objectives read
+    failed. The defaults keep every earlier call unchanged.
+
+    WALK1-3b (build sheet Addendum 2 §A2.1): an open opportunity no longer outranks a declared objective. An outcome
+    with an objective takes its state from the verdict; only an outcome without one reads "Opportunity" (the row
+    carries the opportunity separately as its `potential`)."""
     if not applicable:
         return NOT_APPLICABLE, "CONFIGURATION_NOT_APPLICABLE"
     if not outcome.measured:
@@ -80,12 +85,18 @@ def outcome_state(outcome: SiteOutcome, *, settled: bool, signals: Sequence[Sign
             return WATCH, "WARNING_WATCH"
     if _evidence_outcome(outcome) and readiness in LIMITED_READINESS:
         return WATCH, "EVIDENCE_READINESS_" + readiness
-    if any(s.kind == SIGNAL_OPPORTUNITY for s in mine):
-        return OPPORTUNITY, "OPPORTUNITY_OPEN"
     if objective == MET:
         return ON_TRACK, "OBJECTIVE_MET"
+    if objective == ON_PACE:
+        return ON_TRACK, "OBJECTIVE_ON_PACE"
+    if objective == BEHIND_PACE:
+        return WATCH, "OBJECTIVE_BEHIND_PACE"
+    if objective == TOO_EARLY:
+        return UNKNOWN, "OBJECTIVE_TOO_EARLY"
     if objective == NOT_JUDGED:
         return UNKNOWN, "OBJECTIVE_NOT_JUDGED"
+    if any(s.kind == SIGNAL_OPPORTUNITY for s in mine):
+        return OPPORTUNITY, "OPPORTUNITY_OPEN"
     if not objectives_ok:
         return UNKNOWN, "OBJECTIVES_NOT_READ"
     return NO_OBJECTIVE, "NO_OBJECTIVE_DECLARED"
