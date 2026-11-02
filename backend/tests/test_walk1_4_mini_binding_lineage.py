@@ -91,6 +91,16 @@ def test_old_revision_not_in_force_at_the_reading_is_skipped(monkeypatch) -> Non
     assert hi.evidence_ids == () and list(hi.binding_set_revision_ids) == [pinned_set]
 
 
+def test_pinned_binding_starting_after_the_reading_is_skipped(monkeypatch) -> None:
+    """The pinned set must bind the role on the asset *at the reading*: a pinned binding that starts later does not."""
+    asset = uuid4()
+    raw, pinned_set, _old_set, _rows = _raw(old_asset=asset, rows_asset=asset, pinned_asset=asset)
+    b = raw.bindings[0]
+    later = (b[0], b[1], b[2], WINDOW.start + timedelta(minutes=30), b[4])  # valid_from after both rows
+    hi = _load(monkeypatch, HourRows(**{**raw.__dict__, "bindings": [later]}))
+    assert hi.evidence_ids == () and list(hi.binding_set_revision_ids) == [pinned_set]
+
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
 

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -482,13 +483,33 @@ def wk2a(ctx: Ctx) -> dict:
 
 @row("WK-2b")
 def wk2b(ctx: Ctx) -> dict:
-    """D-W1-13: on day S (sunny; the mill idle) the Grow headline carries no money and the sales line states the
-    measured zero use."""
+    """D-W1-13: on day S (sunny; the mill idle) the Grow headline carries no money, names the unused daytime solar,
+    and the sales line states the measured zero use. Under outcome-status/3 the state follows the MG-1 objective
+    verdict (WK-4), never OPPORTUNITY; the spare solar rides as `potential` (the second chip)."""
     grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
     assert not grow.get("headline_money"), grow.get("headline_money")
+    assert re.fullmatch(r"\d+–\d+ kW of daytime solar unused", grow["headline"]), grow["headline"]
+    assert grow["state"] in ("ON_TRACK", "WATCH", "UNKNOWN"), grow["state"]
+    assert grow.get("potential"), grow.get("potential")
     sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
     assert sales["text"].startswith("0 kWh used by Grain mill"), sales["text"]
-    return {"headline": grow["headline"], "sales": sales["text"], "subline": grow["subline"], "state": grow["state"]}
+    return {"headline": grow["headline"], "sales": sales["text"], "subline": grow["subline"], "state": grow["state"],
+            "potential": grow.get("potential")}
+
+
+@row("WK-4")
+def wk4(ctx: Ctx) -> dict:
+    """WALK1-3b (Addendum 2 §A2.4): Kobo's day-S Grow state is the month-to-date objective verdict, never Unknown
+    beside the money, and its objective line reads the month so far."""
+    grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
+    line = next(c for c in grow["contributors"] if c["key"] == "declared_objective:MG-1")
+    text, state = line["text"], grow["state"]
+    if "too early to judge" in text:   # S early in its month: fewer checked days than the minimum (D-W1-15)
+        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
+    else:
+        assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text)
+    return {"state": grow["state"], "objective": line["text"], "chip": line["confidence"],
+            "potential": grow.get("potential")}
 
 
 @row("WK-3", idx=True)

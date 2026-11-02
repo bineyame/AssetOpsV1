@@ -87,7 +87,7 @@ on S−14, S−7, S and S+1, and none on the cloudy days.
 - WK-2a (S−1): headline "estimated productive-use sales", 42.08 USD (low = high), sales line "168.3 kWh used by Grain
   mill in 8 measured hours", price "Declared at 0.25 USD per kWh".
 - WK-2b (S): no money; headline "25–31 kW of daytime solar unused"; sales line "0 kWh used by Grain mill in 8 measured
-  hours"; state OPPORTUNITY.
+  hours"; state OPPORTUNITY (superseded by Fix round 1: after merging WALK1-3b the state is the MG-1 verdict).
 
 ## Kobo contributor texts the depth domains now feed (walk1e build, S−14..S+1)
 
@@ -128,14 +128,27 @@ spare solar on S. R684 (D2) "Delivered power measured; demand not measured" (moc
 
 ## Residual risk
 
-- In a board read about an hour after the prepare, every Kobo row is UNKNOWN (MG-1 `PRODUCER_NOT_SETTLED`). The
-  finish check ran right after the ticks and read OPPORTUNITY. MG-1 is settled only when the overview is CURRENT, the
-  depth read is ok and the Finding index is settled (`site_outcomes/mini.py:384-388`). Which of the three lapses with
-  wall time has not been diagnosed. It is not in the WALK1-4 diff. G2 captures should run soon after a prepare or tick.
-  Separately, a board read is right only from the tree's `backend/tests` cwd, because the file-backed comparison
-  reports live there.
+- Boards go UNKNOWN (MG-1 `PRODUCER_NOT_SETTLED`) about 5 minutes after the last scheduler tick: the schedule
+  heartbeat is stale after 300 s and the Site visit after 900 s (`scheduling/health.py:47-49`), which makes the
+  overview not CURRENT (`scheduling/upstream.py:179-182`, `site_outcomes/mini.py:382-388`). Not caused by this slice.
+  `serve` ticks every 120 s and keeps boards fresh; G2 captures and finish reruns must run under `serve` or right
+  after a tick. The finish already asserts overview CURRENT (`demo_combined_finish.py:186`).
 - The full backend suite (full tier) has not run here. It is held for the coordinator's quiet-machine run.
 
 ## User-review focus
 
 None for this slice. G2: the S board's spare-solar headline and the S−1 capture (`kobo-board-S-minus-1`).
+
+## Fix round 1
+
+- M1: merged main 635654bf0. Conflicts resolved by keeping both sides: `tools/demo_combined_finish.py` (WK-1, WK-2a,
+  WK-2b, WK-3, WK-4 all present), the register (R681-R684 and R690-R693), `.ai/CODE_STATE.md`.
+  WK-2b updated for outcome-status/3: S has no money; headline matches "N-M kW of daytime solar unused" (expect
+  25-31); sales line starts "0 kWh used by Grain mill"; state in ON_TRACK/WATCH/UNKNOWN (never OPPORTUNITY) with
+  `potential` set. It agrees with WK-4 (same board, same row). No prepare was run: the coordinator's G2 integrated
+  prepare is the end-to-end proof (finish expected 22+, identity gate rerun); S and S-1 Grow rows are recorded there.
+- L1: residual-risk text corrected here and in CODE_STATE (5 min staleness, serve keeps fresh; cwd note removed).
+  No tool change (finish already refuses on a non-CURRENT overview); thresholds untouched.
+- L2: `test_pinned_binding_starting_after_the_reading_is_skipped` added. With the `_in_force(p, r[3])` term removed
+  from `inputs.py` the test fails; restored, it passes.
+- L3: `inputs.py` doc comment corrected. L4: R684 now cites `v70/index.html:334`.

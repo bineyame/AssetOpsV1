@@ -8,6 +8,7 @@ in `MiniComposition.failed`, its contributor reads "Not available yet · this re
 outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
+import calendar
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
@@ -27,7 +28,8 @@ from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
     refresh_chain, unresolved_links)
-from assetops_backend.outcomes.objectives import Reading
+from assetops_backend.outcomes.objectives import (
+    BEHIND_PACE, MISSED, ON_PACE, TOO_EARLY, ObjectiveFact, Reading, judge_month)
 from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.productive_use import productive_energy
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
@@ -108,7 +110,7 @@ GAPS_WITHHELD = "; Findings next to those days are not shown yet"
 FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
                  "UNCONFIRMED": "Extra generator time not confirmed by the latest check",
                  "NO_LONGER_SUPPORTED": "Extra generator time no longer supported by the latest check",
-                 "MERGED": "Generator support review: joined into an earlier Finding"}
+                 "MERGED": "Generator support review: joined into an earlier finding"}
 FINDING_TITLE_FALLBACK = "Generator support review"
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
 ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
@@ -134,7 +136,12 @@ PRICE_NOT_DECLARED = "Not available yet · no price per kWh declared"
 SALES_HEADLINE = "estimated productive-use sales"
 SALES_ZERO_HEADLINE = "No productive-use sales on this day: {names} not used"
 SALES_SUBLINE = SALES_USED + ", at the declared price of {p} {cur} per kWh · not billed or collected"
-MG1_USED = "{kwh} kWh used by productive users on this day; the monthly target is not compared from one day"
+#: WALK1-3b §A2.2/§A2.5: the MG-1 month-to-date reading (Site-local month through the board day). `{c}` checked days
+#: have measured productive-use coverage; `{e}` days have elapsed; `{k}` is the objective's checked-day minimum.
+MG1_SO_FAR = "{mtd} kWh so far this month, on {c} of {e} days checked"
+MG1_PACE = MG1_SO_FAR + " · averages {avg} kWh a day; the target needs {need} kWh a day"
+MG1_TOO_EARLY = "{mtd} kWh so far this month, on {c} checked {d}; too early to judge (needs {k} checked days)"
+MG1_MISSED = "{mtd} kWh this month, all {m} days checked"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
@@ -156,7 +163,9 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         PRICE_DECLARED.format(p="0.25", cur="USD"), PRICE_NOT_DECLARED, SALES_HEADLINE,
         SALES_ZERO_HEADLINE.format(names="Grain mill"),
         SALES_SUBLINE.format(kwh="168.3", names="Grain mill", h="8", hours="hours", p="0.25", cur="USD"),
-        MG1_USED.format(kwh="168.3"))
+        MG1_SO_FAR.format(mtd="673.2", c=4, e=29), MG1_MISSED.format(mtd="250", m=30),
+        MG1_PACE.format(mtd="200", c=4, e=12, avg="50", need="10"),
+        MG1_TOO_EARLY.format(mtd="40", c=1, d="day", k=3), MG1_TOO_EARLY.format(mtd="80", c=2, d="days", k=5))
 
 
 @dataclass(frozen=True)
@@ -370,6 +379,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     objective_rows = reads.call("objectives", ports.objectives)
     sales = _productive_sales(reads, ports, c, start, end)
+    month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
@@ -443,7 +453,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
-    readings = mini_readings(dispatch, depth, sales.get("kwh"))
+    readings = mini_readings(dispatch, depth, month, next((o for o in objectives if o.outcome_key == "MG-1"), None))
     if objective_rows is None:
         plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
         contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
@@ -460,7 +470,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
                       findings_settled=findings_ok, objectives=objectives,
                       finding_gaps=finding_gap_line(first, FINDING_WINDOW_DAYS), readings=readings,
-                      objectives_ok=objective_rows is not None)
+                      objectives_ok=objective_rows is not None,
+                      objective_after={GROW: "productive_sales"})  # WALK1-3b §A2.3: (a), then (b), then (c)
     suffix = "" if tz is not None else UTC_SUFFIX
     warnings = evaluate(warning_facts(facts, to=end, tz=tz, suffix=suffix, lo=start, reserve=reserve))
     w = sum(1 for x in warnings if any(o["key"] == "MG-4" for i in x.categories["items"] if i["role"] == "MOVES"
@@ -493,22 +504,71 @@ def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None)
 
 
 def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None],
-                  productive_kwh: Decimal | None = None) -> dict[str, Reading]:
-    """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 the day's measured use
-    by declared productive users (WALK1-3; never complete: the monthly target is not compared from one day) or no
-    sales record, MG-5 the service depth's unserved critical kWh."""
+                  month: dict[str, Any] | None = None, mg1: ObjectiveFact | None = None) -> dict[str, Reading]:
+    """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 the month-to-date
+    measured use by declared productive users (WALK1-3b, `mg1_reading`) or no sales record, MG-5 the service depth's
+    unserved critical kWh."""
     out: dict[str, Reading] = {}
     avoidable, unclear = _dispatch_minutes(dispatch)
     if avoidable is not None:
         text = (MG2_UNCLEAR.format(m=num(unclear)) if avoidable == 0 < unclear
                 else MG2_LONGER.format(m=num(avoidable)))
         out["MG-2"] = Reading(avoidable, unclear == 0, text)
-    out["MG-1"] = (Reading(None, False, MG1_ACTUAL) if productive_kwh is None
-                   else Reading(productive_kwh, False, MG1_USED.format(kwh=num(productive_kwh))))
+    out["MG-1"] = mg1_reading(month, mg1)
     unserved = (((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"))
     out["MG-5"] = (Reading(None, False, MG5_UNMEASURED) if unserved is None
                    else Reading(Decimal(str(unserved)), True, MG5_UNSERVED.format(kwh=num(unserved))))
     return out
+
+
+def mg1_reading(month: dict[str, Any] | None, mg1: ObjectiveFact | None) -> Reading:
+    """WALK1-3b §A2.2: the month-to-date reading; complete only when the month is over and every day was checked. Its
+    text follows the verdict `judge_month` gives the declared MG-1 objective (the same pure rule the board applies);
+    with no checked day, or no productive user, it is "sales not recorded"."""
+    if month is None or month.get("kwh") is None:
+        return Reading(None, False, MG1_ACTUAL)
+    mtd, c, e, m = month["kwh"], month["checked"], month["elapsed"], month["month_days"]
+    reading = Reading(mtd, e == m and c == m, None, c, e, m)
+    words = {"mtd": num(mtd), "c": c, "e": e, "m": m}
+    verdict = judge_month(mg1, reading) if mg1 is not None else None
+    if verdict in (ON_PACE, BEHIND_PACE):
+        text = MG1_PACE.format(**words, avg=num(mtd / c), need=num(Decimal(mg1.target) / m))
+    elif verdict == TOO_EARLY:
+        text = MG1_TOO_EARLY.format(**words, d=plural(c, "day", "days"), k=mg1.min_checked_days)
+    elif verdict == MISSED:
+        text = MG1_MISSED.format(**words)
+    else:  # MET, or no MG-1 objective declared
+        text = MG1_SO_FAR.format(**words)
+    return replace(reading, actual_text=text)
+
+
+def _productive_month(reads: Reads, ports: MiniPorts, users: list[dict[str, Any]] | None, start: datetime,
+                      tz_name: str | None) -> dict[str, Any] | None:
+    """WALK1-3b §A2.2: measured use by the declared productive users over the Site-local calendar month containing
+    the board day, from its first local day through the end of the board day. A checked day is a local day with any
+    GOOD coverage; a day whose readings conflict (Addendum 3 M1) is not checked and adds nothing. None when no user is
+    declared, the readings could not be read, or the Site zone is refused."""
+    if not users:
+        return None
+    try:
+        name = tz_name or ""
+        local_day = local_day_of(Window(start, start + timedelta(days=1)), name)
+        first = local_day.replace(day=1)
+        bounds = [local_hour(first + timedelta(days=k), 0, name).start for k in range(local_day.day + 1)]
+    except MiniInputsRefused:
+        return None
+    raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
+                     bounds[0], bounds[-1])
+    if raw is None:
+        return None
+    names = {u.get("asset_id"): str(u.get("name")) for u in users}
+    mtd, checked = Decimal(0), 0
+    for lo, hi in zip(bounds, bounds[1:]):
+        kwh = productive_energy(raw, lo, hi, names)["kwh"]
+        if kwh is not None:
+            mtd, checked = mtd + kwh, checked + 1
+    return {"kwh": mtd if checked else None, "checked": checked, "elapsed": local_day.day,
+            "month_days": calendar.monthrange(local_day.year, local_day.month)[1]}
 
 
 def _dispatch_minutes(dispatch: dict[str, Any] | None) -> tuple[Decimal | None, Decimal | None]:
@@ -630,12 +690,18 @@ def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, e
     """WALK1-3 §4.4 table: the Grow headline, money, subline, MG-1 kWh and the two contributors for the board's UTC
     day `[start, end)`. The measured hours are those the readings cover; nothing is scaled to the whole day. A failed
     port reads "Not available yet · this record could not be loaded" and makes the board PARTIAL (B-Q17)."""
-    price_href = f"/sites/{c}/financials/assumptions"
     users = reads.call("productive_users", ports.productive_users, start)
     if users is None:
         return {"subline": None, "contributors": (_sales_line(NOT_LOADED),)}
     if not users:
         return {"subline": GROW_SUBLINE, "contributors": (_sales_line(SALES_NO_USERS),)}
+    return {**_measured_sales(reads, ports, c, start, end, users), "users": list(users)}
+
+
+def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end: datetime,
+                    users: list[dict[str, Any]]) -> dict[str, Any]:
+    """The §4.4 table for declared productive users (the caller handled the failed and empty user reads)."""
+    price_href = f"/sites/{c}/financials/assumptions"
     names = ", ".join(str(u.get("name")) for u in users)
     raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
                      start, end)
@@ -684,8 +750,9 @@ def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
         use = Contributor("productive_use", "Productive use",
                           f"Spare solar on {eligible} of {assessed} well-observed "
                           f"{plural(assessed, 'day', 'days')}", rc, href)
-    # WALK1-3 §4.4 order: Productive use, Productive-use sales, Price per kWh, Cash collected, Site earnings.
-    return (use, *sales, Contributor("cash_collected", "Cash collected", FIXED["cash"]),
+    # WALK1-3b §A2.3 order: Productive-use sales (a), [the "Declared objective" line (b), placed by the board after
+    # "productive_sales"], Productive use spare solar (c), Price per kWh, Cash collected, Site earnings.
+    return (*sales[:1], use, *sales[1:], Contributor("cash_collected", "Cash collected", FIXED["cash"]),
             Contributor("site_earnings", "Site earnings", FIXED["earnings"]))
 
 

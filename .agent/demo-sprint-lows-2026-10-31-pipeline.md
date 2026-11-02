@@ -26,3 +26,13 @@
 - Capital labels: "Review Finding" / "Open Finding →" (`EstatePortfolio.tsx:182`, `coldSiteViews.tsx:662,703`, `EvAssessmentViews.tsx:347`, `EvSiteViews.tsx:237`); "Service disruptions recorded in Findings" on Portfolio.
 - Off-capture "test data": none on demo path now; "Demonstration data" Mode value inside Technical details on Kobo all-open.
 - Test pipeline: evEnergy `energy_states_table_loading` load flake; test_out_b4 `_case_db` fixed-name collision under -n without --dist loadfile.
+
+## WALK1 round (2026-11-02)
+- MAIN TEST FAILURE (pre-existing, from POLISH-PC a08bf548b): `test_idx_gaps_board::test_board_finding_titles_are_the_frontend_plain_titles` fails on main — `findingWords.ts:35` says "earlier finding" but the backend MERGED title still says "Finding". Needs a small fix on main (fold into WALK1-4/5 or a standalone fix).
+- WALK1-1 N1 (pre-existing): board shows unqualified "None open" when the only unchecked days are just outside the board window (`finding_gap_line` returns None, withheld lost). Check on G1 captures.
+- WALK1-1 N2: `SiteAnalyticsFrames.tsx:833` "Open Finding overview" capital F.
+- WALK1-1 L4: Portfolio "Fixes confirmed" (30-day verified resolutions) may differ from the Assure card's verified Actions count; record both on the portfolio-week capture at G1.
+- WALK1-2 L2: identical related-finding link texts when a finding relates to two others. L3: finding-history capture added to G1 list (via WALK1-3).
+- WALK1-2: E2 demo prepare unverified — confirm the EV fault-Tuesday window reads ESTIMATED with an amount at G1 (ev-board-fault capture).
+- MAIN TEST FAILURE (from WALK1-1, missed by its review): `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` expects no `withheld` key in `finding_gaps`; WALK1-1 added it. Update the test expectation (fold into WALK1-3b with the MERGED-title fix).
+- WALK1-3b L5: WK-4 in `tools/demo_combined_finish.py` hard-codes "(needs 3 checked days)"; use regex `\(needs \d+ checked days\)$` (fails safe today).

@@ -31,7 +31,7 @@ class ObjectiveStoreUnavailable(RuntimeError):
 
 COLUMNS = ("id, tenant_id, site_id, outcome_key, revision_no, supersedes_revision_id, measure_key, measure_kind, "
            "comparison, target, unit, currency, window_rule, source, source_note, actor_kind, actor_id, "
-           "authorization_basis, source_channel, idempotency_key, payload_sha256, recorded_at")
+           "authorization_basis, source_channel, idempotency_key, payload_sha256, recorded_at, min_checked_days")
 
 
 IDEMPOTENCY_CONSTRAINT = "outcome_objective_revision_idempotency_unique"
@@ -122,13 +122,13 @@ class PostgresObjectiveStore:
             stored = c.execute(text(
                 f"INSERT INTO outcome_objective_revision ({COLUMNS}) VALUES (:id, :t, :s, :o, :no, :sup, :m, :kind, "
                 ":cmp, :target, :unit, :cur, :win, :src, :note, :actor_kind, :actor_id, :basis, :channel, :k, :sha, "
-                f"clock_timestamp()) RETURNING {COLUMNS}"),
+                f"clock_timestamp(), :min_days) RETURNING {COLUMNS}"),
                 {**scope, "id": uuid4(), "no": 1 if head is None else head.revision_no + 1, "sup": head_id,
                  "m": measure.key, "kind": measure.kind, "cmp": measure.comparison, "target": decl.target,
                  "unit": measure.unit, "cur": decl.currency, "win": measure.window_rule, "src": decl.source,
                  "note": decl.source_note, "actor_kind": principal.actor_kind, "actor_id": principal.actor_id,
                  "basis": principal.authorization_basis, "channel": channel, "k": decl.idempotency_key,
-                 "sha": digest}).one()
+                 "sha": digest, "min_days": decl.min_checked_days}).one()
             return _row(stored), True
 
         try:

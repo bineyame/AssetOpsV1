@@ -6452,4 +6452,18 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   output every 5 min), roles-4 at install +27 min, manifest `d-verification-window-v3.json` for every Kobo day (v2 unchanged).
   The mini-depth hour read judges each row under its own as-accepted binding revision, provided the pinned roles-4 set binds
   the same role and asset at that time (D-W1-10). Revision lineage lists every set used. Finish WK-2a (S-1, 42.08 USD) and WK-2b (S).
-  Open: board Grow state reads UNKNOWN (PRODUCER_NOT_SETTLED) in a read about an hour after prepare; the finish check read OPPORTUNITY.
+  Under outcome-status/3 (WALK1-3b) WK-2b expects S Grow state ON_TRACK/WATCH/UNKNOWN with `potential` set, not OPPORTUNITY.
+  Open: boards go UNKNOWN (PRODUCER_NOT_SETTLED) about 5 min after the last scheduler tick (schedule heartbeat stale after 300 s,
+  Site visit after 900 s, `scheduling/health.py:47-49`); `serve` (tick every 120 s) keeps them fresh. Captures/finish reruns must run
+  under `serve` or right after a tick. Not caused by this slice.
+  WALK1-3b migration `0041_walk1_objective_min_days` is the head (nullable `outcome_objective_revision.min_checked_days`,
+  1-28, `productive_use_kwh` only, NULL = `DEFAULT_MIN_CHECKED_DAYS` 3). Grow row: KPI state from `judge_month` (MG-1 month
+  to date over the Site-local month, `site_outcomes/mini.py` `_productive_month`/`mg1_reading`); a declared objective's
+  verdict outranks an open opportunity (`outcomes/status.py`), carried as row `potential` and a second chip; contributor
+  slot `SiteFacts.objective_after`. Fixed the two main failures (merged Finding title, gap-line `withheld`). Open: the mini Assure "not checked yet" count
+  treats ON_PACE/BEHIND_PACE/TOO_EARLY as not checked; `outcome-status/2` was not bumped.
+- WALK1-3b merged: migration `0041_walk1_objective_min_days` is the head (`min_checked_days`, default 3, 1-28, productive-use only);
+  `judge_month` (MET/ON_PACE/BEHIND_PACE/TOO_EARLY over the Site-local month, no projection); objective-led rows take state from the
+  verdict, opportunity rides as `potential` (second chip); POLICY now `outcome-status/3` and `outcome-objectives/2` (supersedes the /2 and /1
+  mentions above); Assure line lists met / on pace / behind pace / too early / not checked. The two main test failures are fixed.
+  Demo-date rule: S = prepare day - 2; do not prepare on days 3-5 of a month (MG-1 reads "too early to judge").

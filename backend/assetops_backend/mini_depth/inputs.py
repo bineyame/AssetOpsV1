@@ -117,7 +117,7 @@ class HourInputs:
     recovery_target_min: Decimal | None
     #: property key -> the Foundation revision that supplied it (absent when not authored).
     property_revision_ids: Mapping[str, UUID]
-    #: D-W1-10: the superseded roles-4 sets whose as-accepted bindings carried a selected row (pinned set excluded).
+    #: D-W1-10: every other set whose as-accepted binding carried a selected row (pinned set excluded).
     as_accepted_binding_set_revision_ids: tuple[UUID, ...] = ()
 
     @property

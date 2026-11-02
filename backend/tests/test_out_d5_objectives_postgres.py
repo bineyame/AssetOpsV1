@@ -71,7 +71,7 @@ def _check_site(body: dict, keys: set[str], lined: set[str], key: str) -> None:
     assert set(lines) == lined, lines
     assert all(c["confidence"]["label"] in CHIPS for c in lines.values())
     assert all(outcomes[k][0] != "NO_OBJECTIVE" for k in objectives), outcomes
-    assert body["policy_versions"]["objectives"] == "outcome-objectives/1"
+    assert body["policy_versions"]["objectives"] == "outcome-objectives/2"
 
 
 def _summary(c, params: dict, key: str) -> dict:
@@ -93,8 +93,8 @@ def test_kobo_estate_objectives_and_reproducibility(monkeypatch, tmp_path) -> No
     readings: list[dict] = []
     real = mini.mini_readings
 
-    def spy(dispatch, depth):
-        out = real(dispatch, depth)
+    def spy(dispatch, depth, *rest):  # WALK1-3/3b: the composer also passes the MG-1 month and objective
+        out = real(dispatch, depth, *rest)
         avoidable, unclear = mini._dispatch_minutes(dispatch)
         readings.append({"dispatch_loaded": dispatch is not None, "avoidable": avoidable, "unclear": unclear,
                          "unserved_kwh": ((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"),

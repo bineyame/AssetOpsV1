@@ -52,7 +52,7 @@ def st(outcome, signals=(), *, objective=None, objectives_ok=True, settled=True,
 
 
 def test_policy_is_v2() -> None:
-    assert STATUS_POLICY == "outcome-status/2" and obj.POLICY == "outcome-objectives/1"
+    assert STATUS_POLICY == "outcome-status/3" and obj.POLICY == "outcome-objectives/2"
 
 
 def test_rule4c_missed_needs_attention_and_loses_only_its_reason_to_4a() -> None:
@@ -66,18 +66,20 @@ def test_rule4c_missed_needs_attention_and_loses_only_its_reason_to_4a() -> None
     assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MISSED)[0] == NEEDS_ATTENTION
 
 
-def test_rule7_met_is_on_track_and_loses_to_watch_and_opportunity() -> None:
+def test_rule7_met_is_on_track_and_loses_to_watch_but_not_to_opportunity() -> None:
     assert st(MG2, objective=MET) == (ON_TRACK, "OBJECTIVE_MET")
     assert st(MG2) == (NO_OBJECTIVE, "NO_OBJECTIVE_DECLARED")
     assert st(MG2, [Signal(FINDING, "MG-2", True, True, applied=True)], objective=MET)[0] == WATCH
     assert st(MG7, readiness="LIMITED", objective=MET)[0] == WATCH
-    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MET)[0] == OPPORTUNITY
+    # WALK1-3b §A2.1: an open opportunity no longer outranks a declared objective (the row carries it as potential)
+    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=MET) == (ON_TRACK, "OBJECTIVE_MET")
+    assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)]) == (OPPORTUNITY, "OPPORTUNITY_OPEN")
 
 
-def test_rule7b_not_judged_is_unknown_after_opportunity() -> None:
+def test_rule7b_not_judged_is_unknown_before_opportunity() -> None:
     assert st(MG2, objective=NOT_JUDGED) == (UNKNOWN, "OBJECTIVE_NOT_JUDGED")
     assert st(MG1, [Signal(SIGNAL_OPPORTUNITY, "MG-1", True, True)], objective=NOT_JUDGED) == (
-        OPPORTUNITY, "OPPORTUNITY_OPEN")  # Kobo Grow keeps Opportunity
+        UNKNOWN, "OBJECTIVE_NOT_JUDGED")  # WALK1-3b §A2.1: the declared objective sets the state
 
 
 def test_rule7c_failed_objectives_read_is_unknown_never_no_objective() -> None:
@@ -140,4 +142,17 @@ def test_every_template_passes_vocabulary() -> None:
     hits = [(text, name) for text in copy for name, pattern in patterns if pattern.search(text)]
     assert hits == []
     assert any(p.search("critical load") for _, p in patterns)  # non-vacuous: "load" is caught
-    assert set(obj.VERDICT_CHIP) == set(obj.VERDICT_LABEL) == {MET, MISSED, NOT_JUDGED}
+    assert set(obj.VERDICT_CHIP) == set(obj.VERDICT_LABEL) == {MET, MISSED, NOT_JUDGED, obj.ON_PACE,
+                                                                obj.BEHIND_PACE, obj.TOO_EARLY}  # WALK1-3b
+
+
+def test_assure_text_parts_and_order() -> None:
+    """D-W1-14: met first, then on pace, behind pace, too early, not checked yet; each only when counted."""
+    from assetops_backend.site_outcomes.objective_facts import assure_text
+    assert assure_text([obj.MET]) == "1 of 1 declared objectives met"
+    assert assure_text([obj.ON_PACE, obj.MISSED]) == "0 of 2 declared objectives met · 1 on pace"
+    assert assure_text([obj.BEHIND_PACE]) == "0 of 1 declared objectives met · 1 behind pace"
+    assert assure_text([obj.TOO_EARLY]) == "0 of 1 declared objectives met · 1 too early to judge"
+    assert assure_text([obj.NOT_JUDGED, None]) == "0 of 2 declared objectives met · 2 not checked yet"
+    assert assure_text([obj.MET, obj.TOO_EARLY, obj.NOT_JUDGED, obj.BEHIND_PACE, obj.ON_PACE]) == (
+        "1 of 5 declared objectives met · 1 on pace · 1 behind pace · 1 too early to judge · 1 not checked yet")
