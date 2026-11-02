@@ -46,6 +46,7 @@ const ROLE_WORDS: Readonly<Record<string, string>> = {
   requested_power: "Requested charging power",
   allocated_limit: "Allocated charging power limit",
   ev_gross_tariff_per_kwh: "Published EV gross tariff per kWh",
+  productive_use_price_per_kwh: "Price per kWh for productive users", // WALK1-3 §4.1
   // c2d: accepted EV binding-role IDs (describe the recorded input, not completeness).
   ev_session_event: "Charging session start or end",
   ev_connector_fault: "Connector fault report",
