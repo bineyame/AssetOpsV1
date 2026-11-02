@@ -196,7 +196,11 @@ async function capture([work, out, base = "http://localhost:5490"]) {
         for (const [i, sel] of s.hops.entries()) {
           path = await js(`(()=>{const a=document.querySelector(${JSON.stringify(sel)});return a?new URL(a.href).pathname+new URL(a.href).search:null})()`);
           if (!path) break;
-          if (i < s.hops.length - 1) { await send("Page.navigate", { url: base + path }); await settle(); }
+          if (i < s.hops.length - 1) {
+            await send("Page.navigate", { url: base + path });
+            await settle();
+            await requireWidth(1440, 1000, `${s.key} hop ${i + 1} loaded`, { record: false });
+          }
         }
         if (!path) { records.push({ ...s, error: `no link along ${s.hops.join(" > ")} from ${s.find}` }); console.log(`FAIL  ${s.key}: no link along its hops`); continue; }
       } else {

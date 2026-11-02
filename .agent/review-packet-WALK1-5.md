@@ -1,98 +1,117 @@
-# Review packet: WALK1-5 (5-day spare-solar read; declared price in the productive-use what-if)
+# Review packet: WALK1-5 (5-day spare-solar read; declared price on the opportunity page)
 
 Branch `task/WALK1-5-solar-window-whatif`, worktree `AssetOpsV1-w1f`, base main `635654bf0`.
-Spec: `.agent/build-sheet-WALK1.md` §6 WALK1-5, Addendum 4 (fallback copy), Addenda 3/5/6 (headline precedence,
-calendar). **Status: PARTIAL.** Part 1 (5-day solar read) is built. Part 2 (what-if prefill) is blocked at pre-flight
-F3; see Blocking question Q1. Not ready to merge until Q1 is ruled and part 2 is built or descoped.
+Spec: `.agent/build-sheet-WALK1.md` §6 WALK1-5, Addendum 4 (fallback copy), Addendum 7 (F3 ruling: option (b),
+D-W1-17), with Addenda 3/5/6 unchanged in effect. Scoped tier. Built against the existing mini-depth renewable read
+contract; no WALK1-4 area (mini-depth read, simulator v6, publication v5, prepare) is touched.
 
-## Outcome delivered (part 1)
+## Outcome delivered
 
-Mechanism: Grow MG-1 opportunity → driver "spare solar" → evidence (the 5-day renewable read).
+**Part 1: the spare-solar line reads the last 5 days** (Grow MG-1 opportunity → driver "spare solar").
+- `site_outcomes/mini.py` `_depth`: the renewable window is `RENEWABLE_DAYS = 5` Site-local days ending on the board
+  day. Fuel, service and backup still read the noon hour. It uses the existing read (`mini_depth/read.py`
+  `hour_windows`, `MAX_DAYS = 5`, `compose_renewable`).
+- `_grow` "Productive use" line: "Spare solar on {e} of {a} well-observed {day|days}", plus
+  " · {5−a} of the last 5 days not checked" when a < 5. With no checked day: "Not available yet · spare solar not
+  checked on the last 5 days" (Addendum 4). A refused read keeps the generic "Not available yet" line.
+- The headline form, the headroom issue (eligible ≥ 1 over the window), the L3 precedence and the WALK1-3b state
+  rules are unchanged.
 
-- `site_outcomes/mini.py` `_depth`: the renewable window is the `RENEWABLE_DAYS = 5` Site-local days ending on the
-  board day (local midnight of day−4 to local midnight of day+1). Fuel, service, backup are unchanged (noon hour).
-  It uses the existing mini-depth renewable read contract (`mini_depth/read.py` `hour_windows`, `MAX_DAYS = 5`,
-  `compose_renewable`); no read, simulator, publication or prepare code is touched, so WALK1-4's readings flow
-  in unchanged.
-- `_grow` contributor "Productive use": `"Spare solar on {e} of {a} well-observed {day|days}"`; when `a < 5` it
-  appends `" · {5−a} of the last 5 days not checked"`. With no assessed day in the window (read returns
-  `assessed_days: null`): **"Not available yet · spare solar not checked on the last 5 days"** (Addendum 4),
-  replacing "solar headroom not read for this day". A refused read stays the generic "Not available yet" line.
-- Headline / short value unchanged in form (`"{lo}–{hi} kW of daytime solar unused"`, span over the window's
-  eligible days); the `SIGNAL:PRODUCTIVE_USE_HEADROOM` issue fires on `eligible ≥ 1` over the window. The
-  Addendum 3 L3 precedence (spare-solar headline leads on a priced zero-use day) and the WALK1-3b state/potential
-  rules are untouched and still pass their tests.
-- New strings are in `mini.COPY` (vocabulary scan).
+**Part 2: declared price on the opportunity page** (Addendum 7, lever input → estimate).
+- Container `shell/SiteAnalyticsFrames.tsx` `SiteOpportunityFrame`/`OpportunityScreen` gains `financials` (default
+  client; `App.tsx` unchanged) and `useDeclaredPrice`. It reads `getAssumptions(site, {key:
+  "productive_use_price_per_kwh", limit: 1, recordedAt: known_at when one is given})`; no new endpoint.
+  - PRICED → `{value, currency}`; NO_PRICE or no selection → `null`; a failed read or CONFLICT → `"unavailable"`.
+  - The page shows its loading line until the price read settles.
+- `sites/MiniOpportunity.tsx` `ConsequenceBasis`, Tariff row (label unchanged):
+  - "Declared price · {p} {cur} per kWh";
+  - "No price per kWh declared";
+  - read failed: "The declared price could not be loaded, so none is assumed" (KD1);
+  - a linked what-if keeps "Unavailable in this read".
+- New row "Value at declared price" (key `declared_value`), after Tariff. It shows only on a SUPPORTED study with a
+  known headroom bound and a declared price: "Up to {lo×p}–{hi×p} {cur} for each hour the spare solar is used ·
+  estimate, not sales" (one amount when equal). `decimalTimes2dp` is exact BigInt decimal, 2 dp, ROUND_HALF_UP.
+  Nothing is stored, projected or summed. "Gross sales" stays tied to a stored what-if.
+- F4: the strict capture gate (`tools/demo-combined-vocabulary.mjs`) scans all visible `<main>` text, and
+  `productVocabulary.json` bans "scenario". The `screenGlosses` exemptions only apply to vitest. So the gate counts
+  it, and "Scenario energy" is renamed "What-if energy" (R686).
+- G2: capture key `kobo-opportunity` (`tools/demo-combined-evidence.mjs`). It starts at the S+1 board and follows
+  `hops`: the board's renewable link (the Opportunity issue's target), then the renewable page's opportunity link.
+  It has a width check after each hop and mock `opportunity-finding`. Finish row **WK-6**
+  (`tools/demo_combined_finish.py`): finds the Kobo opportunity for the 5-day study ending S+1, asserts no linked
+  what-if and a PRICED declared series, and returns the Tariff text starting "Declared price".
+- Register: R685 (suffix), R686 (re-scoped per Addendum 7: D2 added row and labels, D1 authoring not built),
+  R687 (no-checked-day text), R655 strings. Review-mode `MOCK DEVIATION (R685/R686)` comments at the code sites.
 
 ## Files materially changed
 
-- `backend/assetops_backend/site_outcomes/mini.py` (constants, `_depth` window, `_grow` text).
-- `backend/tests/test_walk1_5_solar_window.py` (new, 8 tests).
-- `backend/tests/test_out_b2_mini.py`, `backend/tests/test_walk1_productive_sales.py` (pinned strings and the
-  renewable window updated to the 5-day form).
-- `.agent/mock-departure-register.md`: R685 (suffix), R687 (no-checked-day fallback), R655 strings added.
+`backend/assetops_backend/site_outcomes/mini.py`; `frontend/src/sites/MiniOpportunity.tsx`;
+`frontend/src/shell/SiteAnalyticsFrames.tsx`; `tools/demo-combined-evidence.mjs`; `tools/demo_combined_finish.py`;
+tests `backend/tests/test_walk1_5_solar_window.py` (new), `test_out_b2_mini.py`, `test_walk1_productive_sales.py`,
+`frontend/src/sites/__tests__/miniDecisions.test.tsx`; `.agent/mock-departure-register.md`.
 
 ## Acceptance status
 
 | Criterion | Status |
 |---|---|
-| Renewable window = 5 local days ending on board day; other domains unchanged | Met: `test_window_is_five_local_days_...` asserts the composer's window and that the real `hour_windows` accepts it and yields the 5 local noons; `test_depth_windows_follow_the_site_local_day` updated (16..21 Oct) |
-| Text "Spare solar on {e} of {a}…" + " · {5−a} of the last 5 days not checked" | Met; pinned for 0/2, 2/3, 1/1 (singular), 5/5 (no suffix) |
-| Compose test over 5 days, mixed eligible/excluded/missing | Met: fixture stored hours run through the read's own `compose_renewable` (ELIGIBLE, EXCLUDED, LIMITED, CONFLICT, missing) |
-| Addendum 4 fallback "Not available yet · spare solar not checked on the last 5 days" | Met (all-missing and all-LIMITED/CONFLICT windows) |
-| Expected S board "0 of 2 … · 3 of the last 5 days not checked" | Met on fixture data of that shape; real-data actuals depend on WALK1-4 and are G2's to report (Addendum 5 forecasts "1 of 3" on S) |
-| Headline/short value unchanged in form; headroom issue on S+1 shape | Met on fixtures (`test_mixed_days_...`) |
-| What-if prefill "Declared price · {p} {cur} per kWh" / "Entered for this what-if" (R686) | **Not built: blocked at F3 (Q1)** |
-| Vitest prefill and label | **Not built (Q1)** |
+| 5-day renewable window; other domains unchanged | Met (composer window plus the real `hour_windows` accepting it) |
+| "… · {5−a} of the last 5 days not checked" suffix | Met (0/2, 2/3, 1/1 singular, 5/5 no suffix) |
+| Compose test, mixed eligible/excluded/missing | Met, through the read's own `compose_renewable` |
+| Addendum 4 no-checked-day text | Met |
+| S board "0 of 2 … · 3 of the last 5 days not checked" | Met on fixture data of that shape; real actuals are G2's (Addendum 5 forecasts "1 of 3") |
+| Container reads the declared price, no new endpoint | Met (request carries `key=productive_use_price_per_kwh`) |
+| Three Tariff states, plus linked unchanged | Met; the failed-read text differs from the ruled text (KD1) |
+| "Value at declared price" row, conditions, Decimal half-up | Met (present/absent cases; 0.125→0.13, 0.3125→0.31, 6.07725→6.08, 0.1×0.3=0.03, single amount) |
+| F4 | Done: counted, renamed "What-if energy" |
+| Vitest: Tariff states, value row, rounding, vocabulary scan | Met (3 new tests; T028+W1 terms and raw codes on every new string) |
+| R686 re-scoped | Done |
+| G2 `kobo-opportunity` + finish check | Added; not run (needs the G2 build) |
 
-## Checks run (revision `9adc4639a` + register edit)
+## Checks run (final revision: see head)
 
-- Scoped backend, no DB: 20 modules (`test_walk1_5_solar_window`, `test_out_b2_mini`, `test_walk1_productive_sales`,
-  `test_walk1_3b_target_progress`, `test_out_b2_vocabulary`, `test_out_b1_*`, `test_out_b3_cold_ev`,
-  `test_out_b4_{imports,read,route,window}`, `test_out_c1/c2/c4`, `test_out_d4_board`, `test_out_w1/w2`,
-  `test_out_a1_outcome_map`): **278 passed**, 8.3 s.
-- Postgres (`assetops_walk1f_test` base): `test_out_b4_board_postgres.py`, `test_walk1_productive_producer_postgres.py`:
-  **7 passed**, 201 s.
-- Non-vacuity: disabling the suffix branch made 3 of the 8 new tests fail; reverted with `git checkout`.
-- `tools/check-architecture.ps1`: passed. `tools/check-agent-workflow.ps1`: passed.
-- Frontend: no frontend file changed; no vitest run. Layout evidence: not run (no layout change; text only).
-- Full suites: not run (scoped tier per §7).
-
-## Blocking question (pre-flight F3)
-
-**Q1. There is no productive-use what-if authoring page to prefill.**
-- `frontend/src/sites/MiniScenarios.tsx` (`/sites/:siteId/financials/scenarios`, the Grow option
-  "Productive-use what-if" target) is read-only by design (header comment, closure 1) and renders the fixed text
-  "Scenario creation unavailable" (`:395-397`). No frontend file authors a PRODUCTIVE_LOAD scenario or holds a
-  `tariff_per_kwh` input (`proposed_kw` appears only as a display label); `miniDecisionsClient.ts` has no POST.
-- The v70 mock's `scenarios` screen is a placeholder ("Placeholder · to be designed with the owner",
-  `screens.js:712-713`); the mock has no authoring layout to follow.
-- The backend create endpoint exists (`POST /api/sites/{code}/financials/scenarios`, `mini_decisions/scenarios.py:119`
-  requires `schema_version, idempotency_key, actor, name, kind, assumptions, pinned_selection…`), and the declared
-  price read exists (`financialsClient.getAssumptions(..., {key: "productive_use_price_per_kwh"})`), so the prefill
-  itself needs no new endpoint. What is missing is the whole authoring surface: a form (name, proposed kW,
-  duration, tariff), renewable-revision pin selection, actor/idempotency, a POST client and its refusal copy.
-- That is a new screen without a mock layout, well beyond the 3-unit slice, so I did not design it.
-- Options for the Architect: (a) a new authoring slice (form + POST + pins), with the declared-price prefill and
-  labels folded in; (b) for this slice, show the declared price read-only on the existing Scenarios page or the
-  opportunity page (`MiniOpportunity.tsx` "Tariff: No tariff declared", `:272`) as "Declared price · {p} {cur} per
-  kWh", with any result labelled an estimate, and defer authoring; (c) descope the what-if half from WALK1-5.
-  G2's `kobo-whatif` capture depends on the choice.
+- Backend, no DB: 20 outcome/board modules **278 passed** (part 1). After the final edit, the 5 mini/Grow modules:
+  **87 passed**.
+- Backend, Postgres `assetops_walk1f_test`: `test_out_b4_board_postgres`, `test_walk1_productive_producer_postgres`
+  **7 passed** (201 s).
+- Vitest: `miniDecisions.test.tsx` + `siteWorkCases.test.tsx` **79 passed**. `tsc --noEmit` exit 0.
+- `tools/check-all.ps1`: **12/12 PASS** (architecture, estate guards, navigation, workflow, registry, delivery,
+  mock-gap, missing-claim scan + fixtures, evidence width, mock labels + vocabulary, screen ledger).
+  - Note: `.venv` and `frontend/node_modules` in this worktree are junctions to `AssetOpsV1-plan2`'s (same lockfile).
+    They are gitignored; without them check-all reports missing tools.
+- Non-vacuity:
+  - turning the suffix branch off failed 3 backend tests;
+  - turning half-up into strictly-greater failed the rounding vitest;
+  - both were reverted with `git checkout`.
+- Not run: full suites (scoped tier); layout evidence (no build or dev server here, and the brief says no demo
+  prepare). The `kobo-opportunity` capture, the WK-6 row and the opportunity page's real layout are unverified
+  until G2.
 
 ## Known deviations
 
-- KD1: part 2 not built (Q1). R686 stays reserved and unused.
-- KD2: no `.ai/CODE_STATE.md` / `ACTIVE_CONTEXT.md` update yet; done when the slice completes (coordinator at merge,
-  as WALK1-3b L5).
+- **KD1. Failed-read Tariff text.** The ruled "Not available yet · the declared price could not be loaded" fails
+  the missing-claim orphan scan. Every "not available yet" string must be a catalogued `mock_gaps` placement through
+  `<MissingClaim>`, and the scan's own rule keeps runtime read failures out of the gap catalogue. I did not loosen
+  the guard or catalogue a read failure as a gap. I used the precedent wording of `SiteFinancials.tsx`
+  `PRODUCTIVE_NOT_LOADED`: **"The declared price could not be loaded, so none is assumed"**. Architect to confirm.
+- KD2. CONFLICT on the price series is treated as "could not be loaded" (no single price). `SiteFinancials` shows
+  CONFLICT as "not declared".
+- KD3. The price read has no `validAt`, so the server default applies; `recordedAt` = the page's single `known_at`.
+- KD4. `.ai/CODE_STATE.md` / `ACTIVE_CONTEXT.md` not updated (coordinator at merge, as WALK1-3b L5).
 
-## Residual risk
+## Open questions / residual risk
 
-- Real-data texts depend on WALK1-4's readings (and its D-W1-10 binding fix); verified here only through fixture
-  hours via the read's pure composer. G2 confirms actuals.
-- The board's renewable read is now 5× the hours; the read already supports it (`MAX_DAYS`), and the Postgres board
-  test passed, but board latency on a large DB is not measured.
+- **Q1 (G2 strict gate).** The opportunity page still renders other counted "scenario" words that Addendum 7 did
+  not rule on: card label "Gross sales scenario" (mock label, `screens.js:586`), note "No scenario linked", basis
+  value "No load scenario", and, when linked, "Linked scenario (name unavailable)" and "{amount} · scenario". The
+  strict `kobo-opportunity` capture will count them. A rename ruling is needed before G2 (for example "What-if"
+  wording, as for "What-if energy").
+- `kobo-opportunity` assumes the renewable page reached from the board shows an opportunity link. With Kobo's
+  sparse story days a 5-day study may not hold 5 assessed days, and then no opportunity may exist ("Opportunity
+  decision unavailable for fewer than five assessed days"). Both the capture and WK-6 fail loudly in that case.
+  This depends on data and needs WALK1-4's readings.
+- The real-data spare-solar texts depend on WALK1-4 (D-W1-10 binding fix, v6/v5 readings).
 
 ## User-review focus
 
-`USER_REVIEW_REQUIRED`: no separate task file; per the W1 rule the owner sees this in the combined walkthrough after
-G2. The Architect must rule on Q1 before the slice can complete.
+No separate task file. Per the W1 rule, the owner sees this in the combined walkthrough after G2. Architect items:
+KD1 and Q1.

@@ -43,7 +43,7 @@ export const NO_OPPORTUNITY_EVIDENCE = "No selected opportunity evidence";
  */
 export type DeclaredPrice = { value: string; currency: string } | null | "unavailable";
 export const TARIFF_NOT_DECLARED = "No price per kWh declared";
-export const TARIFF_UNAVAILABLE = "Not available yet · the declared price could not be loaded";
+export const TARIFF_UNAVAILABLE = "The declared price could not be loaded, so none is assumed";
 export const tariffDeclared = (p: { value: string; currency: string }) => `Declared price · ${p.value} ${p.currency} per kWh`;
 
 /** Exact decimal product of two decimal strings, rounded half up (away from zero) to two decimals. */

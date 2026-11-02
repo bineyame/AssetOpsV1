@@ -1463,7 +1463,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(row("Value at declared price")).toBeUndefined();
     // Read failed: stated, no value row, nothing assumed.
     await show(body({}, unlinked), "fail");
-    expect(row("Tariff")).toBe("Not available yet · the declared price could not be loaded");
+    expect(row("Tariff")).toBe("The declared price could not be loaded, so none is assumed");
     expect(row("Value at declared price")).toBeUndefined();
     // LIMITED or unknown headroom: the price is shown, the value row is omitted.
     await show(body({ status: "LIMITED" }, { ...unlinked, headroom_kw: null }), priced("0.25"));
