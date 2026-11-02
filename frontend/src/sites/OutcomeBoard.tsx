@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { OutcomeGlyph, type OutcomeGlyphName } from "./componentIcons";
 import { DataTable } from "../ui";
 import { OutcomeIcon } from "./outcomeCategories";
+import { money2 } from "../ui/money";
 import type {
   OutcomeBoardBody,
   OutcomeBoardClient,
@@ -71,8 +72,9 @@ const EXPLAIN = [
  */
 export function boardMoneyText(money: OutcomeMoney | null): string | null {
   if (money === null || money.amount_low === null || money.amount_high === null) return null;
-  const low = String(money.amount_low);
-  const high = String(money.amount_high);
+  // WALK1-6 D3 (R696): every board money amount shows two decimals by the shared money2 rule.
+  const low = money2(String(money.amount_low));
+  const high = money2(String(money.amount_high));
   const amount = low === high ? low : `${low} to ${high}`;
   return money.currency ? `${amount} ${money.currency}` : amount;
 }

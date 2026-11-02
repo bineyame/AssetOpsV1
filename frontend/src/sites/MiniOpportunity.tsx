@@ -219,8 +219,8 @@ function OpportunityCards({ body }: { body: OpportunityDetailBody }) {
         note={fiveAssessed(body) ? "Separate five-day study" : "Five-day study incomplete"}
       />
       <MetricCard
-        label="Proposed load"
-        value={o.proposed_load_kw === null ? "No load proposed" : `${o.proposed_load_kw} kW`}
+        label="Proposed new use"
+        value={o.proposed_load_kw === null ? "No new use proposed" : `${o.proposed_load_kw} kW`}
         word={o.proposed_load_kw === null}
         note={linked ? "Linked what-if (name unavailable)" : "No what-if linked"}
       />
@@ -241,8 +241,8 @@ function BoundedOpportunity({ body, recordHref }: { body: OpportunityDetailBody;
   const claim = !supportedRead(body)
     ? "The selected evidence does not establish a recurring productive-use opportunity."
     : proposalFits(body)
-      ? `Renewable capacity appears available for a one-hour productive load in ${o.eligible_days} adequately observed windows.`
-      : `Measured renewable headroom is available in ${o.eligible_days} of ${o.assessed_days} assessed windows; no added load has been validated.`;
+      ? `Renewable capacity appears available for one hour of added productive use in ${o.eligible_days} adequately observed windows.`
+      : `Measured renewable headroom is available in ${o.eligible_days} of ${o.assessed_days} assessed windows; no added use has been checked yet.`;
   return (
     <Panel heading="Bounded opportunity" headingId="mini-opportunity-bounded-heading" className="mini-opportunity-panel">
       <BigClaim data={{ "data-opportunity-claim": "" }}>{claim}</BigClaim>
@@ -286,8 +286,8 @@ function NextDecision({ body, renewable }: { body: OpportunityDetailBody; renewa
     <Panel heading="Next decision" headingId="mini-opportunity-next-heading" className="mini-opportunity-panel">
       <p className="prose">
         {ready
-          ? "Validate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial."
-          : "Complete the missing renewable and service evidence before a load decision."}
+          ? "Validate local demand, schedule any proposed new use, and check critical service and storage guardrails before a trial."
+          : "Complete the missing renewable and service evidence before deciding on a new use."}
       </p>
       <p data-opportunity-renewable>
         {renewable === null ? (
@@ -325,7 +325,7 @@ function ConsequenceBasis({ body, declaredPrice }: { body: OpportunityDetailBody
           ["Technical quantity", technical === null ? UNKNOWN : `${technical} usable headroom`, "technical"],
           // MOCK DEVIATION (R686): "What-if energy" (mock "Scenario energy"), the Tariff line names the declared price
           // and "Value at declared price" is added (not in mock); what-if authoring stays a mock placeholder.
-          ["What-if energy", linked ? "Unavailable in this read" : "No load what-if", "energy"],
+          ["What-if energy", linked ? "Unavailable in this read" : "No what-if for a new use", "energy"],
           ["Tariff", tariffText(linked, declaredPrice), "tariff"],
           ...(value === null ? [] : [["Value at declared price", value, "declared_value"] as [string, string, string]]),
           ["Gross sales", gross === null ? grossGap(body) : `${gross} · what-if`, "gross"],

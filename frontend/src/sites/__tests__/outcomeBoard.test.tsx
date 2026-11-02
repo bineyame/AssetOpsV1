@@ -110,6 +110,13 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(boardMoneyText({ amount_low: "12.40", amount_high: "18.75", currency: "USD" })).toBe("12.40 to 18.75 USD");
     expect(boardMoneyText({ amount_low: "3.31", amount_high: "3.31", currency: "USD" })).toBe("3.31 USD");
     expect(boardMoneyText(null)).toBeNull();
+    // WALK1-6 D3 (R696): every bound shows two decimals by the shared money2 rule (half even), shape unchanged.
+    expect(boardMoneyText({ amount_low: "4.50000", amount_high: "4.50000", currency: "USD" })).toBe("4.50 USD");
+    expect(boardMoneyText({ amount_low: "42.075", amount_high: "42.075", currency: "USD" })).toBe("42.08 USD");
+    expect(boardMoneyText({ amount_low: "8.325", amount_high: "8.325", currency: "USD" })).toBe("8.32 USD");
+    expect(boardMoneyText({ amount_low: "12.4", amount_high: "18.756", currency: "USD" })).toBe("12.40 to 18.76 USD");
+    expect(boardMoneyText({ amount_low: "3", amount_high: "3.000", currency: null })).toBe("3.00");
+    expect(boardMoneyText({ amount_low: null, amount_high: "3", currency: "USD" })).toBeNull();
     await renderBoard();
     expect(rowEl("OPTIMIZE_COST").querySelector(".ob-head")?.textContent).toBe("12.40 to 18.75 USD exposure in this hour");
     expect(rowEl("GROW_REVENUE").querySelector(".ob-head")?.textContent).toBe("18–20 kW of daytime solar unused");

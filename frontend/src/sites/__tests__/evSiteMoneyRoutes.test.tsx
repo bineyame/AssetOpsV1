@@ -18,7 +18,7 @@ import type {
   EvSiteClient,
   EvSource,
 } from "../evSiteClient";
-import { money2 } from "../EvSiteViews";
+import { money2 } from "../../ui/money";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -445,7 +445,7 @@ describe("W2-07 EV Site routes", () => {
     expect(strip()).toContain("Evidence unknown");
     // OUT-B B5 (R540): the five cards are replaced by the outcome board.
     expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
-    expect(panelTitled("Possible cost").textContent).toContain("No charging income estimate yet");
+    expect(panelTitled("Estimated income").textContent).toContain("No charging income estimate yet");
     expect(panelTitled("Needs attention").textContent).toContain("No recorded attention item for this window");
     expect(panelTitled("Next step").textContent).toContain("No recorded next step");
     // post-W6 W2-EV R283: no padding slots; no accepted event says so once.
@@ -457,7 +457,7 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client({ state: "PENDING_RECOMPUTE", consequence: GUARD("PENDING_RECOMPUTE", "New evidence is being assessed. The previous result may change.") }));
     expectV69Panels("ev");
     expect(strip()).toContain("New evidence is being assessed");
-    expect(panelTitled("Possible cost").querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
+    expect(panelTitled("Estimated income").querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
     expect(panelTitled("Needs attention").textContent).toContain("New evidence pending");
     expect(main().textContent).not.toContain("KES 8.33");
 
@@ -465,7 +465,7 @@ describe("W2-07 EV Site routes", () => {
     await renderAt(PATHS.ev, client({ state: "HISTORICAL", consequence: GUARD("HISTORICAL_CURRENT_CLAIM", "Historical scenario") }));
     expectV69Panels("ev");
     expect(strip()).toContain("Historical selection · 6 Oct, 09:00");
-    const money = panelTitled("Possible cost");
+    const money = panelTitled("Estimated income");
     expect(money.querySelector("[data-ev-money]")?.textContent).toBe("Withheld");
     expect(money.textContent).toContain("Earlier what-if");
     cleanup();
@@ -664,8 +664,9 @@ describe("W2-07 EV Site routes", () => {
     expectOutcomeBoardReplacesCards(OLD_EV_CARDS);
     expect(main().textContent).not.toMatch(/Healthy/);
     expect(panelTitled("Needs attention").textContent).toContain("End record missing");
-    const money = panelTitled("Possible cost");
-    expect(money.querySelector("[data-ev-money]")?.textContent).toBe("KES 8.33 estimated charging income");
+    const money = panelTitled("Estimated income");
+    expect(money.querySelector("[data-ev-money]")?.textContent).toBe("KES 8.33");
+    expect(money.querySelector("[data-ev-money-caption]")?.textContent).toBe("estimated charging income");
     expect(money.textContent).toContain("Estimated charging income for 30.000 kWh delivered with complete coverage. Not cash collected.");
     expect(within(money).getByRole("link", { name: "Open financial bridge →" }).getAttribute("href")).toBe(`${PATHS["ev-financials"]}${RAW_Q}`);
     const next = panelTitled("Next step");

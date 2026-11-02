@@ -253,7 +253,7 @@ describe("estate Portfolio page", () => {
     const matrix = screen.getByRole("table", { name: "Outcomes across the estate" });
     for (const cat of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
       const dots = Array.from(document.querySelectorAll(`[data-portfolio-card-dots='${cat}'] > span`));
-      expect(dots.map((d) => text(d))).toEqual(["Kobo: ", "GreenHarvest: ", "Depot: ", "Harbour: "].map((n, i) => n + text(matrix.querySelectorAll(`[data-portfolio-outcome-row='${cat}'] [data-portfolio-outcome-cell] b`)[i])));
+      expect(dots.map((d) => text(d))).toEqual(["Kobo: ", "GreenHarvest: ", "Depot: ", "Harbour: "].map((n, i) => n + text(matrix.querySelectorAll(`[data-portfolio-outcome-row='${cat}'] [data-portfolio-outcome-cell] b`)[i]).replace("No objective declared", "No target for this outcome")));
       // Each dot's tone is the matrix cell's tone for the same Site.
       for (const d of dots) {
         const [code, tone] = (d.getAttribute("data-portfolio-dot") ?? "").split("|");
@@ -1039,8 +1039,8 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
 
   it("assureNamesDeclaredTargetsWhenEverySiteWasRead", async () => {
     await expectAssureDetail([
-      [summaryWith(3, 0), `No verified result yet · targets declared at 3 sites · ${targetsGap}`],
-      [summaryWith(1, 0), `No verified result yet · targets declared at 1 site · ${targetsGap}`],
+      [summaryWith(3, 0), `No verified result yet · targets declared at 3 sites, for any outcome · ${targetsGap}`],
+      [summaryWith(1, 0), `No verified result yet · targets declared at 1 site, for any outcome · ${targetsGap}`],
     ]);
   });
 
@@ -1050,8 +1050,8 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
 
   it("assureNamesTheSitesNotCheckedBesideDeclaredTargets", async () => {
     await expectAssureDetail([
-      [summaryWith(2, 1), `No verified result yet · targets declared at 2 sites, 1 site not checked · ${targetsGap}`],
-      [summaryWith(1, 2), `No verified result yet · targets declared at 1 site, 2 sites not checked · ${targetsGap}`],
+      [summaryWith(2, 1), `No verified result yet · targets declared at 2 sites, for any outcome, 1 site not checked · ${targetsGap}`],
+      [summaryWith(1, 2), `No verified result yet · targets declared at 1 site, for any outcome, 2 sites not checked · ${targetsGap}`],
     ]);
   });
 
@@ -1233,7 +1233,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     );
     expect(detail("OPTIMIZE_COST")).toBe(`Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20 · ${clause}`);
     // The pulse strip: a zero count is qualified; a non-zero count is unchanged.
-    expect(pulse()).toContain("Opportunity: None found on the days checked");
+    expect(pulse()).toContain("Opportunity findings: None found on the days checked");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
     expect(scanCards()).toBe("");
     const strip = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
@@ -1248,7 +1248,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(detail("ASSURE_PERFORMANCE")).toBe(
       "No verified result yet · no targets declared · evidence gap at 1 site · days not checked yet at 2 sites",
     );
-    expect(pulse()).toContain("Opportunity: None found on the days checked");
+    expect(pulse()).toContain("Opportunity findings: None found on the days checked");
     expect(pulse()).toContain("1 site evidence gaps");
   });
 
@@ -1260,9 +1260,9 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
     expect(detail("PROTECT_ASSET")).toMatch(/ · 5 of 7 days checked at Kobo · findings next to unchecked days not shown yet$/);
     expect(detail("ASSURE_PERFORMANCE")).toContain("no evidence gaps on the days checked");
-    expect(pulse()).toContain("Opportunity: None shown yet");
+    expect(pulse()).toContain("Opportunity findings: None shown yet");
     expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
-    expect(pulse()).not.toContain("Opportunity: None found");
+    expect(pulse()).not.toContain("Opportunity findings: None found");
     expect(scanCards()).toBe("");
   });
 
@@ -1280,7 +1280,50 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
     expect(detail("PROTECT_ASSET")).not.toContain("days checked");
     expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · evidence gap at 1 site");
-    expect(pulse()).toContain("0 opportunity");
+    expect(pulse()).toContain("0 opportunity findings");
+  });
+
+  it("walk1_6_d5_strip_names_open_board_opportunities", async () => {
+    // WALK1-6 D5 (R698): the fixture's Kobo Grow row is in Opportunity with a short_value.
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 })))));
+    await settledScreen();
+    const opp = () => text(document.querySelector("[data-portfolio-pulse-opportunity]"));
+    expect(opp()).toBe("Opportunity findings: None found on the days checked · 1 site with an open opportunity on its board");
+    cleanup();
+    // Two such Sites: a short_value alone counts (Addendum 6 M1), and the word is plural.
+    const two = outcomeSummaryBody();
+    two.sites = two.sites.map((site) =>
+      site.site_code !== "EV-LAB-001"
+        ? site
+        : { ...site, rows: site.rows.map((r) => (r.category === "GROW_REVENUE" ? { ...r, short_value: "5 kW unused" } : r)) },
+    );
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 }))), { status: "loaded", value: two }));
+    await settledScreen();
+    expect(opp()).toBe("Opportunity findings: None found on the days checked · 2 sites with an open opportunity on its board");
+    cleanup();
+    // No such Site: the Addendum 1 text alone.
+    const none = outcomeSummaryBody();
+    none.sites = none.sites.map((site) => ({
+      ...site,
+      rows: site.rows.map((r) => (r.category === "GROW_REVENUE" ? { ...r, state: "WATCH" as const, short_value: null } : r)),
+    }));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 }))), { status: "loaded", value: none }));
+    await settledScreen();
+    expect(opp()).toBe("Opportunity findings: None found on the days checked");
+    expect(pulse()).not.toContain("open opportunity");
+  });
+
+  it("walk1_6_d4_card_dots_say_no_target_for_this_outcome", async () => {
+    // WALK1-6 D4 (R697): the fixture's Kobo Protect row is NO_OBJECTIVE; its card dot reads per outcome.
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
+    await settledScreen();
+    const dot = card("PROTECT_ASSET").querySelector('[data-portfolio-dot^="KOBO-001|"]') as HTMLElement;
+    expect(dot.getAttribute("title")).toBe("Kobo: No target for this outcome");
+    expect(text(dot.querySelector(".oc-hidden"))).toContain("No target for this outcome");
+    expect(text(card("PROTECT_ASSET"))).not.toContain("No objective declared");
+    // Other states keep the server word.
+    const other = card("PROTECT_ASSET").querySelector('[data-portfolio-dot^="COLD-001|"]') as HTMLElement;
+    expect(other.getAttribute("title")).toContain(": Needs attention");
   });
 
   it("assureLeadFromTheVerifiedCount", async () => {
