@@ -46,6 +46,12 @@ def _prior(raw: str | None) -> UUID | None:
                                "--expected-prior is a revision UUID or the word 'none'.") from error
 
 
+def _min_days(raw: str | None) -> Any:
+    """WALK1-3b §A2.5: a command-line digit string is the whole number it spells; anything else is passed on to be
+    refused by the declaration's validation (the fixture file passes its JSON value unchanged)."""
+    return int(raw) if raw is not None and raw.isascii() and raw.isdigit() else raw
+
+
 def _emit(row: dict[str, Any], site_code: str, inserted: bool) -> None:
     print(json.dumps({"site_code": site_code, "outcome_key": row["outcome_key"], "revision_id": str(row["id"]),
                       "revision_no": row["revision_no"], "measure_key": row["measure_key"],
@@ -75,6 +81,7 @@ def main(argv: Sequence[str] | None = None, *, store=None) -> int:
     one.add_argument("--source-note", required=True)
     one.add_argument("--expected-prior", required=True)
     one.add_argument("--idempotency-key", required=True)
+    one.add_argument("--min-checked-days")
     for p in (fix, one):
         p.add_argument("--tenant", default=DEVELOPMENT_TENANT_SLUG)
     args = parser.parse_args(argv)
@@ -93,7 +100,8 @@ def main(argv: Sequence[str] | None = None, *, store=None) -> int:
         if args.command == "declare":
             try:
                 decl = Declaration(args.site, args.outcome, args.measure, _target(args.target), args.currency,
-                                   args.source, args.source_note, _prior(args.expected_prior), args.idempotency_key)
+                                   args.source, args.source_note, _prior(args.expected_prior), args.idempotency_key,
+                                   _min_days(args.min_checked_days))
                 row, inserted = store.declare(tenant_id, decl, SYSTEM_DECLARER, "SYSTEM_CLI")
             except ObjectiveRefused as error:
                 return _refused(args.site, args.outcome, error)
@@ -117,7 +125,7 @@ def main(argv: Sequence[str] | None = None, *, store=None) -> int:
                                            f"Entry {entry['idempotency_key']} expects {prior_key}, which is not declared.")
                 decl = Declaration(code, entry["outcome_key"], entry["measure_key"], _target(entry["target"]),
                                    entry.get("currency"), entry["source"], entry["source_note"], prior,
-                                   entry["idempotency_key"])
+                                   entry["idempotency_key"], entry.get("min_checked_days"))
                 row, inserted = store.declare(tenant_id, decl, SYSTEM_DECLARER, "SYSTEM_FIXTURE")
             except ObjectiveRefused as error:
                 return _refused(code, entry["outcome_key"], error)

@@ -317,7 +317,7 @@ def test_pending_finding_index_unsettles_finding_outcomes() -> None:
     comp, rows = run(Fake(finding_index=unassessed))
     _assert_finding_source_unsettled(comp, rows)
     assert comp.facts.finding_gaps == {"text": "31 of the last 31 days have no checked readings yet",
-                                       "days": REQUESTED}
+                                       "days": REQUESTED, "withheld": False}  # WALK1-1: the withheld flag
     # PARTIAL whose gaps name the board day: unsettled
     on_day = {"status": "PARTIAL", "rows": [], "next_cursor": None, "withheld": True,
               "discovery": {"requested_days": REQUESTED},
@@ -331,7 +331,7 @@ def test_pending_finding_index_unsettles_finding_outcomes() -> None:
     assert comp.facts.findings_settled and "finding_index" not in comp.failed
     assert outcome(rows[COST], "MG-2") == "NEEDS_ATTENTION"
     assert comp.facts.finding_gaps == {"text": "2 of the last 31 days have no checked readings yet",
-                                       "days": REQUESTED[:2]}
+                                       "days": REQUESTED[:2], "withheld": False}
 
 
 def test_missing_estate_row_is_partial_and_recorded() -> None:

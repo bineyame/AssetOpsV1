@@ -100,9 +100,11 @@ def test_mg2_unclear_minutes_are_not_checked_yet() -> None:
     assert line["confidence"] == {"label": "Not checked yet", "tone": "gray"}
 
 
-def test_mg1_with_headroom_keeps_opportunity_and_is_not_checked_yet() -> None:
+def test_mg1_with_headroom_is_unknown_with_the_opportunity_as_potential() -> None:
     _, rows = run_mini()
-    assert rows[GROW]["state"] == "OPPORTUNITY" and state(rows[GROW], "MG-1")[0] == "OPPORTUNITY"
+    # WALK1-3b §A2.1: the declared MG-1 objective (no readings: not judged) sets the state; spare solar is potential
+    assert rows[GROW]["state"] == "UNKNOWN" and state(rows[GROW], "MG-1")[0] == "UNKNOWN"
+    assert rows[GROW]["potential"] == {"label": "Opportunity", "text": "Productive-use headroom"}
     [line] = declared(rows[GROW])
     assert line["text"] == ("Productive electricity sales: at least 300 kWh sold for productive use a month · "
                             "sales not recorded")
@@ -172,7 +174,7 @@ def test_unsettled_outcome_has_no_verdict() -> None:
 
 def test_board_wire_objectives_and_policy() -> None:
     comp, _ = run_mini(b2.Fake(dispatch=dispatch("12", "0")))
-    assert read.POLICY_VERSIONS["objectives"] == POLICY == "outcome-objectives/1"
+    assert read.POLICY_VERSIONS["objectives"] == POLICY == "outcome-objectives/2"
     assert [(o["outcome_key"], o["outcome_label"], o["source"], o["verdict"]) for o in objectives_wire(comp.facts)] == [
         ("MG-1", "Productive electricity sales", "DECLARED", "NOT_JUDGED"),
         ("MG-2", "Supply cost per kWh", "DECLARED", "MISSED"),

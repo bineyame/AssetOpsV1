@@ -478,6 +478,21 @@ def wk2(ctx: Ctx) -> dict:
             "subline": grow["subline"], "state": grow["state"]}
 
 
+@row("WK-4")
+def wk4(ctx: Ctx) -> dict:
+    """WALK1-3b (Addendum 2 §A2.4): Kobo's day-S Grow state is the month-to-date objective verdict, never Unknown
+    beside the money, and its objective line reads the month so far."""
+    grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
+    line = next(c for c in grow["contributors"] if c["key"] == "declared_objective:MG-1")
+    text, state = line["text"], grow["state"]
+    if "too early to judge" in text:   # S early in its month: fewer checked days than the minimum (D-W1-15)
+        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
+    else:
+        assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text)
+    return {"state": grow["state"], "objective": line["text"], "chip": line["confidence"],
+            "potential": grow.get("potential")}
+
+
 @row("WK-3", idx=True)
 def wk3(ctx: Ctx) -> dict:
     """WALK1-1: the story week's Portfolio counts state their basis (complete, or over the checked days)."""

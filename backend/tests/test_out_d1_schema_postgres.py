@@ -26,7 +26,7 @@ if URL:
     from test_s1_bindings_postgres import _alembic, engine  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head
 
-HEAD = "0040_walk1_productive_price"  # OUT-E: the merge revision above 0037 and 0038
+HEAD = "0041_walk1_objective_min_days"  # OUT-E: the merge revision above 0037 and 0038
 OBJECTIVES = "0038_out_objectives"
 PARENT = "0035_w5_ev_work"
 TABLE = "outcome_objective_revision"
@@ -35,7 +35,8 @@ SHA = "a" * 64
 CHECKS = sorted([f"{TABLE}_{c}_check" for c in (
     "outcome_key", "revision_no", "measure_key", "measure_kind", "comparison", "target", "unit", "currency",
     "window_rule", "source", "source_note", "actor_kind", "actor_id", "authorization_basis", "source_channel",
-    "idempotency_key", "payload_sha256", "chain", "money")] + [f"{TABLE}_leading_no_money"])
+    "idempotency_key", "payload_sha256", "chain", "money")] + [f"{TABLE}_leading_no_money"]
+    + [f"{TABLE}_min_checked_days_{n}" for n in ("range", "monthly")])  # WALK1-3b: 0041
 FKS = sorted(f"{TABLE}_{n}" for n in ("site_fk", "supersedes_fk"))
 UNIQUES = sorted(f"{TABLE}_{n}" for n in ("no_unique", "id_unique", "idempotency_unique"))
 COLUMNS = [
@@ -46,6 +47,7 @@ COLUMNS = [
     ("source_note", "text", True), ("actor_kind", "text", True), ("actor_id", "text", True),
     ("authorization_basis", "text", True), ("source_channel", "text", True), ("idempotency_key", "text", True),
     ("payload_sha256", "text", True), ("recorded_at", "timestamp with time zone", True),
+    ("min_checked_days", "integer", False),  # WALK1-3b: 0041, nullable (NULL = the default minimum)
 ]
 
 INSERT = (

@@ -1,4 +1,4 @@
-"""OUT-D U2: declared objectives and their verdict, policy `outcome-objectives/1` (build sheet OUT-D §3 U2, §4).
+"""OUT-D U2: declared objectives and their verdict, policy `outcome-objectives/2` (build sheet OUT-D §3 U2, §4).
 
 Pure. One measure per objective outcome fixes its kind, comparison, unit and target templates; the declaring caller
 never supplies them. `judge` only compares values the composer passes (Decimal or int); it never parses prose and
@@ -9,12 +9,21 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-POLICY = "outcome-objectives/1"
+POLICY = "outcome-objectives/2"
 
 MET, MISSED, NOT_JUDGED = "MET", "MISSED", "NOT_JUDGED"
-VERDICT_LABEL = {MET: "Met", MISSED: "Missed", NOT_JUDGED: "Not checked yet"}
+#: WALK1-3b (build sheet Addendum 2 §A2.2): the month-to-date verdicts of a monthly measure (`judge_month`).
+ON_PACE, BEHIND_PACE, TOO_EARLY = "ON_PACE", "BEHIND_PACE", "TOO_EARLY"
+VERDICT_LABEL = {MET: "Met", MISSED: "Missed", NOT_JUDGED: "Not checked yet", ON_PACE: "On pace",
+                 BEHIND_PACE: "Behind pace", TOO_EARLY: "Too early to judge"}
 VERDICT_CHIP = {MET: {"label": "Met", "tone": "green"}, MISSED: {"label": "Missed", "tone": "amber"},
-                NOT_JUDGED: {"label": "Not checked yet", "tone": "gray"}}
+                NOT_JUDGED: {"label": "Not checked yet", "tone": "gray"},
+                ON_PACE: {"label": "On pace", "tone": "green"}, BEHIND_PACE: {"label": "Behind pace", "tone": "amber"},
+                TOO_EARLY: {"label": "Too early to judge", "tone": "gray"}}
+#: WALK1-3b §A2.5 (owner ruling on D-W1-6): the checked-day minimum before a monthly target is judged for pace, when
+#: the declared objective names none. A declaration may set 1 to 28 (28 is the shortest month).
+DEFAULT_MIN_CHECKED_DAYS = 3
+MIN_CHECKED_DAYS_RANGE = (1, 28)
 CONTRIBUTOR_LABEL = "Declared objective"
 
 VALUE, LEADING = "VALUE", "LEADING"
@@ -34,12 +43,13 @@ class Measure:
     target_zero: str       # target text when the target is zero
     target_any: str        # target text otherwise; "{t}" is the formatted target (money: "{t} {currency}")
     zero_only: bool = False  # a non-zero target is refused (CC-6)
+    monthly: bool = False    # WALK1-3b: judged month to date (`judge_month`); only productive_use_kwh
 
 
 def _m(key: str, outcome: str, kind: str, comparison: str, unit: str, window: str, zero: str,
-       any_: str | None = None, zero_only: bool = False) -> tuple[str, Measure]:
+       any_: str | None = None, zero_only: bool = False, monthly: bool = False) -> tuple[str, Measure]:
     return key, Measure(key, outcome, kind, comparison, unit, window, zero, any_ if any_ is not None else zero,
-                        zero_only)
+                        zero_only, monthly)
 
 
 #: The six declarable measures (§4 copy). Architect ruling Q1 (2026-10-30, rev 6 per-outcome table): only
@@ -49,7 +59,7 @@ MEASURES: Mapping[str, Measure] = dict((
        "Supply cost per kWh: no generator time longer than needed",
        "Supply cost per kWh: at most {t} min a day with the generator on longer than needed"),
     _m("productive_use_kwh", "MG-1", LEADING, AT_LEAST, "kWh/month", BOARD_DAY,
-       "Productive electricity sales: at least {t} kWh sold for productive use a month"),
+       "Productive electricity sales: at least {t} kWh sold for productive use a month", monthly=True),
     _m("unserved_critical_kwh", "MG-5", LEADING, AT_MOST, "kWh", BOARD_DAY,
        "Reliable service: all critical demand served",
        "Reliable service: at most {t} kWh of critical demand not served"),
@@ -85,6 +95,7 @@ class ObjectiveFact:
     source: str
     revision_id: str | None   # None = read from an existing Site policy (CC-1)
     source_note: str | None = None   # the declaration's note (wire data; CC-1 None)
+    min_checked_days: int = DEFAULT_MIN_CHECKED_DAYS   # WALK1-3b: resolved (stored value or the default)
 
 
 @dataclass(frozen=True)
@@ -92,6 +103,10 @@ class Reading:
     value: Any | None
     complete: bool
     actual_text: str | None
+    #: WALK1-3b, monthly measures only: days in the month window with measured coverage, days elapsed, days in month.
+    checked_days: int | None = None
+    elapsed_days: int | None = None
+    month_days: int | None = None
 
 
 def judge(o: ObjectiveFact, r: Reading | None) -> str:
@@ -107,3 +122,22 @@ def judge(o: ObjectiveFact, r: Reading | None) -> str:
             return MET
         return MISSED if r.complete else NOT_JUDGED
     return NOT_JUDGED
+
+
+def judge_month(o: ObjectiveFact, r: Reading | None) -> str:
+    """WALK1-3b §A2.2: an at-least monthly target judged month to date; first match wins.
+
+    MET when the month-to-date value reaches the target (missing days can only add); MISSED only for a complete month
+    with every day checked; TOO_EARLY below the objective's checked-day minimum; then ON_PACE when the average over the
+    checked days reaches the daily rate the target needs, else BEHIND_PACE. Rates are compared, never a projected
+    total. No reading, or no checked day, is NOT_JUDGED."""
+    if r is None or r.value is None or not r.checked_days or not r.month_days or r.elapsed_days is None:
+        return NOT_JUDGED
+    if r.value >= o.target:
+        return MET
+    if r.elapsed_days == r.month_days and r.checked_days == r.month_days:
+        return MISSED
+    if r.checked_days < o.min_checked_days:
+        return TOO_EARLY
+    # avg >= need  <=>  value / c >= target / m  <=>  value * m >= target * c (exact, no rounding)
+    return ON_PACE if r.value * r.month_days >= o.target * r.checked_days else BEHIND_PACE

@@ -26,7 +26,8 @@ if URL:
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
-HEAD = "0040_walk1_productive_price"
+HEAD = "0041_walk1_objective_min_days"  # WALK1-3b: the sole head sits above the 0040 migration under test
+THIS = "0040_walk1_productive_price"
 PREVIOUS = "0039_merge_objectives_cc"
 KEY = "productive_use_price_per_kwh"
 REFUSED = "Downgrade of 0040_walk1_productive_price refused"
@@ -79,7 +80,7 @@ def test_0040_widens_checks_and_the_store_publishes_the_price(site, engine) -> N
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+    assert script.get_heads() == [HEAD] and script.get_revision(THIS).down_revision == PREVIOUS
     assert head(engine) == HEAD
     assert constraint(engine, "financial_assumption_revision_assumption_key_check") == KEY_CHECK_0040
     assert constraint(engine, "financial_assumption_revision_unit_check") == UNIT_CHECK_0040

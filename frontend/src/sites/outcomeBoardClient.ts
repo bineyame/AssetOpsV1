@@ -135,6 +135,11 @@ export interface OutcomeBoardRow {
   earlier_empty_text?: string | null;
   evidence_link: { label: string; href: string | null } | null;
   outcomes: { key: string; label: string; state: string; reason: string }[];
+  /**
+   * WALK1-3b: an open opportunity on a row whose state is not "Opportunity" (the declared objective sets the state);
+   * rendered as a second header chip. Null or absent on an older body.
+   */
+  potential?: { label: string; text: string | null } | null;
 }
 
 export interface OutcomeBoardBody {

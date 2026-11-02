@@ -155,6 +155,12 @@ function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean | "wi
       <summary className="ob-sum">
         <Name row={row} />
         <span className={`oc-chip tone-${row.tone}`}>{row.state_label}</span>
+        {row.potential ? (
+          // WALK1-3b (R690): the opportunity beside the KPI state, never folded into it.
+          <span className="oc-chip tone-green" data-outcome-potential title={row.potential.text ?? undefined}>
+            {row.potential.label}
+          </span>
+        ) : null}
         <span className="ob-head">{headline}</span>
         <span className="ob-counts" data-outcome-counts>
           {countsText(row.counts.issues, row.counts.in_hand, gaps)}
