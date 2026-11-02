@@ -18,7 +18,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll } from "../ui";
+import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll, TechnicalDetails, TechnicalReferenceList } from "../ui";
 
 /** W1-F3 height phase: how many of the latest versions the default view shows, as the mock's three rows. */
 const LATEST_SHOWN = 3;
@@ -458,13 +458,13 @@ function RevisionHistory({
       </VersionScroll>
       {related.length === 0 ? null : (
         <p className="site-finding-history__related" data-history-related-line>
-          Related Findings:{" "}
+          {/* WALK1-2 L-A: plain words only; each related Finding's exact reference is under Technical details. */}
+          Related findings:{" "}
           {related.map((item, index) => (
             <span key={`${item.label}-${item.id}`}>
               {index > 0 ? " · " : ""}
               <Link to={links.otherHistory(item.id)} data-history-related={item.id}>
-                {item.label} Finding <code data-vocabulary-exempt="source-reference">{item.id.slice(0, 8)}</code> - its
-                history
+                {item.label} {FINDING_NAME.toLowerCase()}
               </Link>
             </span>
           ))}
@@ -482,6 +482,7 @@ function RevisionHistory({
           { label: "Latest version reference", value: selection.latest_revision_id },
           { label: "How the version was chosen", value: selection.selected_by },
           ...(cutoff === null ? [] : [{ label: "First page ends after version", value: String(cutoff) }]),
+          ...related.map((item, index) => ({ label: `Related finding ${index + 1} (${item.label.toLowerCase()})`, value: item.id })),
         ]}
       />
     </Panel>
@@ -619,32 +620,17 @@ function VersionRow({
             <dt>Analysis finished</dt>
             <dd>{dayTime(r.times.analytic_completed_at)}</dd>
           </div>
-          <div>
-            <dt>Assessment rules reference</dt>
-            <dd>
-              <code data-vocabulary-exempt="source-reference">{r.model_version}</code>
-            </dd>
-          </div>
-          <div>
-            <dt>Assessment behind it</dt>
-            <dd>
-              <code data-vocabulary-exempt="source-reference">{r.primary_assessment_revision_id.slice(0, 8)}</code>
-              {priorIds.length > 0 ? (
-                <>
-                  {" "}
-                  (previously{" "}
-                  {priorIds.map((id, index) => (
-                    <span key={id}>
-                      {index > 0 ? ", " : ""}
-                      <code data-vocabulary-exempt="source-reference">{id.slice(0, 8)}</code>
-                    </span>
-                  ))}
-                  )
-                </>
-              ) : null}
-            </dd>
-          </div>
         </dl>
+        {/* WALK1-2 L-A: the rules reference and assessment references sit inside Technical details. */}
+        <TechnicalDetails name={`finding-history-basis-technical-${r.revision_no}`}>
+          <TechnicalReferenceList
+            references={[
+              { label: "Assessment rules reference", value: r.model_version },
+              { label: "Assessment behind it", value: r.primary_assessment_revision_id },
+              ...priorIds.map((id, index) => ({ label: `Earlier assessment ${index + 1}`, value: id })),
+            ]}
+          />
+        </TechnicalDetails>
         </Disclosure>
         </div>
       </td>

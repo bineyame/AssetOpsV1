@@ -606,10 +606,13 @@ class EvSiteReads:
             energy, site_power = self.energy_on(ctx)
             findings = self._reads.findings_on(c, snap)
             money = self._consequence(ctx)
-            summary = ({"state": None, "reason": None, "quantity_kwh": None, "amount": None, "currency": None,
-                        "overlap_group": None, "as_of": None, "limitation": NO_MONEY} if money is None else
+            # WALK1-2 E3: `tariff_value` is a read-time serialisation of the selected consequence's own tariff (the
+            # Addendum 12 pattern; no new query), so the board can state the declared tariff it was priced at.
+            summary = ({"state": None, "reason": None, "quantity_kwh": None, "tariff_value": None, "amount": None,
+                        "currency": None, "overlap_group": None, "as_of": None, "limitation": NO_MONEY}
+                       if money is None else
                        {"state": money["state"], "reason": money["reason"], "quantity_kwh": money["quantity_kwh"],
-                        "amount": money["amount"], "currency": money["currency"],
+                        "tariff_value": money["tariff_value"], "amount": money["amount"], "currency": money["currency"],
                         "overlap_group": money["overlap_group"], "as_of": money["recorded_at"],
                         "limitation": money["limitation"]})
             links = self._links(ctx, "")

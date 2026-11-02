@@ -619,6 +619,37 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
     );
   });
 
+  it("WALK1-2 L-A: related Findings read in plain words; ids and rules references sit only inside Technical details", async () => {
+    await frame(HISTORY, client({
+      total: 2,
+      body: {
+        relations: {
+          merged_into: [],
+          merged_from: [],
+          split_from_finding_id: null,
+          split_parts: [],
+          recurs_after_finding_id: "f-earlier-0000",
+          recurred_by: [],
+        },
+      } as never,
+    }));
+    const line = panel().querySelector("[data-history-related-line]") as HTMLElement;
+    expect(line.textContent).toBe("Related findings: Recurs after generator support review");
+    // Outside every Technical details region no exact id, id prefix or rules reference is shown.
+    const outside = panel().cloneNode(true) as HTMLElement;
+    outside.querySelectorAll("[data-technical-details]").forEach((n) => n.remove());
+    const text = outside.textContent ?? "";
+    for (const id of ["f-earlier-0000", PA]) expect(text).not.toContain(id.slice(0, 8));
+    expect(text).not.toContain("dispatch-3.1");
+    expect(text).not.toContain("Assessment rules reference");
+    // Both stay reachable inside Technical details: the panel references and each version's own region.
+    const technical = Array.from(panel().querySelectorAll("[data-technical-details]")).map((n) => n.textContent ?? "").join(" ");
+    expect(technical).toContain("f-earlier-0000");
+    expect(technical).toContain("dispatch-3.1");
+    expect(technical).toContain(PA);
+    expect(panel().querySelector("[data-disclosure='finding-history-basis-technical-1'][data-technical-details]")).not.toBeNull();
+  });
+
   it("height phase: the default view shows the latest 3 versions; every earlier version stays reachable, oldest first, behind 'Show all N'", async () => {
     await frame(HISTORY, client({ total: 205 }));
     const shown = all("[data-history-revision]").filter((r) => visibleOutsideClosedDisclosure(r));

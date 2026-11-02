@@ -79,7 +79,7 @@ export interface EvOverviewRead extends EvEnvelope {
     limitation: string | null;
   };
   needs_attention: { code: string; text: string; link: string | null }[];
-  consequence_summary: { state: string | null; reason: string | null; quantity_kwh: string | null; amount: string | null; currency: string | null; overlap_group: string | null; as_of: string | null; limitation: string | null };
+  consequence_summary: { state: string | null; reason: string | null; quantity_kwh: string | null; tariff_value?: string | null; amount: string | null; currency: string | null; overlap_group: string | null; as_of: string | null; limitation: string | null };
   links: EvSiteLinks;
 }
 

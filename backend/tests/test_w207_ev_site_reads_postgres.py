@@ -176,6 +176,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     summary = o["consequence_summary"]
     assert (summary["state"], summary["quantity_kwh"], summary["amount"], summary["currency"]) == (
         "ESTIMATED", "30.000", "8.33250000", "KES")
+    assert summary["tariff_value"] == "0.27775"  # WALK1-2 E3: the selected consequence's own tariff, read time
     assert summary["overlap_group"] == head["overlap_group"] and summary["limitation"] == (
         "Charging income estimate; not cash collected.")
     assert o["links"]["self"] == f"/sites/{CODE}/ev?from={_iso(lo)}&to={_iso(hi)}&known_at={known}"
@@ -214,6 +215,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     ranked = ["TERMINAL_GAP", "METER_GAP", "STATUS_GAP", "INDEPENDENT_POWER_GAP", "SITE_IMPORT_GAP", "TARIFF_GAP",
               "BILLING_GAP"]
     assert len(set(served)) == len(served) and served == sorted(served, key=ranked.index)
+    assert "TARIFF_GAP" not in served  # WALK1-2 §3.2: a priced tariff retires the tariff next step
     an = reads["analysis"]
     keys = [(x["source_time"], x["evidence_id"]) for x in accepted]
     assert keys == sorted(keys) and an["total_count"] == len(accepted) and an["items"] == accepted[:50]
@@ -419,7 +421,8 @@ def test_six_replays_read_through_the_five_routes(chain, case) -> None:  # noqa:
 REVISION_KEYS = {"revision_id", "revision_no", "state", "reason", "quantity_kwh", "tariff_revision_id", "tariff_value",
                  "currency", "amount", "overlap_group", "recorded_at", "tariff_recorded_at", "source_gate",
                  "session_revision_ids", "evidence_ids", "limitation"}
-SUMMARY_KEYS = {"state", "reason", "quantity_kwh", "amount", "currency", "overlap_group", "as_of", "limitation"}
+SUMMARY_KEYS = {"state", "reason", "quantity_kwh", "tariff_value", "amount", "currency", "overlap_group", "as_of",
+                "limitation"}
 ITEM_KEYS = {"evidence_id", "source_label", "role", "record_kind", "value_display", "unit", "source_time", "sent_at",
              "received_at", "quality", "use", "reason", "session_id", "note", "record_target_state", "links",
              "interval_start", "interval_end"}

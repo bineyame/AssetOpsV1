@@ -26,7 +26,7 @@ from assetops_backend.site_outcomes import objective_facts
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 from assetops_backend.site_outcomes.mini import (
     NOT_LOADED, UTC_SUFFIX, WORK_WINDOW, MiniComposition as Composition, Reads, case_fact, day_month, num, plan_fact,
-    plural, site_zone, utc)
+    plural, price_text, site_zone, utc)
 
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 
@@ -41,8 +41,19 @@ NO_WARRANTY = "Not available yet · no warranty record"
 NO_ROSTER = "Not available yet · no bus roster connected"
 EVERY_END = "Every session has an accepted end"
 NO_STATUS_GAP = "No status gap"
-TARIFF_ESTIMATE = "gross tariff estimate"
+TARIFF_ESTIMATE = "estimated charging income"  # WALK1-2 §3.2 (R674; mock "gross tariff estimate")
 NO_TARIFF = "Charging income estimate not available yet"
+#: WALK1-2 §3.2 (R674/R676): the priced Grow subline and the declared-tariff contributor. The tariff is declared,
+#: never measured; the amount is an estimate, never billed or collected income.
+PRICED_SUBLINE = ("{kwh} kWh with a complete meter record, at the declared tariff of {p} {cur} per kWh · "
+                  "not billed or collected")
+TARIFF_DECLARED = "Declared at {p} {cur} per kWh"
+NO_TARIFF_DECLARED = "Not available yet · no charging tariff declared"
+#: The tariff is named only from the selected consequence; a window unpriced for another reason states no cause.
+TARIFF_UNKNOWN = "Not available yet"
+TARIFF_MISSING = "TARIFF_MISSING"  # `financials/ev_money.py` reason: no declared tariff covers the window
+#: The stored EV consequence state of a priced window (`financials/ev_money.py` ESTIMATED).
+PRICED_STATE = "ESTIMATED"
 PROTECT_SUBLINE = "Charger condition is not assessed"
 EVIDENCE_LIMITED = "Evidence limited · no verified result yet"
 NO_VERIFIED = "No verified result yet"
@@ -61,6 +72,8 @@ def interrupted_text(fault: Any, unknown: Any) -> str:
 COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
         SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF,
         PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS,
+        PRICED_SUBLINE.format(kwh="120.0", p="0.30", cur="USD"), TARIFF_DECLARED.format(p="0.30", cur="USD"),
+        NO_TARIFF_DECLARED, TARIFF_UNKNOWN,
         interrupted_text(2, 0), interrupted_text(2, 1), interrupted_text(2, 3))
 
 
@@ -164,8 +177,15 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
         local = at.astimezone(tz or timezone.utc)
         return f"{day_month(local)} {local:%H:%M}"
 
+    money = body.get("consequence_summary") or {}
+    # WALK1-2 pre-flight E2: the overview serialises the stored state, ESTIMATED for a priced window (never PRICED).
+    priced = money.get("state") == PRICED_STATE and money.get("amount") is not None
+    tariff = price_text(money.get("tariff_value")) if priced and money.get("tariff_value") is not None else None
+    cur = money.get("currency")
+
     contributors = {
         GROW: (_charging(overview is not None, kwh, completed, started, rc),
+               _tariff(overview is not None, tariff, cur, c, money.get("reason")),
                Contributor("charger_use", "Charger use", CHARGER_USE),
                Contributor("energy_billed", "Energy billed against metered", NO_SETTLEMENT)),
         COST: (),
@@ -181,8 +201,6 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                  _status_gap(availability, connectors, stamp, suffix, rc)),
     }
 
-    money = body.get("consequence_summary") or {}
-    priced = money.get("state") == "PRICED" and money.get("amount") is not None
     out_text = None
     if out_connectors:
         first = out_connectors[0]
@@ -206,7 +224,9 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
                 ASSURE: EVIDENCE_LIMITED if readiness in ("LIMITED", "NONE") else NO_VERIFIED}
     headline_money = {GROW: ({"amount_low": money.get("amount"), "amount_high": money.get("amount"),
                               "currency": money.get("currency")} if priced else None)}
-    subline = {GROW: f"{kwh} kWh with a complete meter record" if kwh is not None else None,
+    subline = {GROW: (None if kwh is None else
+                      PRICED_SUBLINE.format(kwh=kwh, p=tariff, cur=cur) if tariff is not None and cur
+                      else f"{kwh} kWh with a complete meter record"),
                PROTECT: f"{out_text} {PROTECT_SUBLINE}" if out_text else PROTECT_SUBLINE,
                ASSURE: assure_sub}
 
@@ -255,6 +275,17 @@ def _charging(ok: bool, kwh: str | None, completed: Any, started: Any, rc: Any) 
     if completed is not None and started is not None:
         text += f" · {completed} of {started} {plural(started, 'session', 'sessions')} completed"
     return Contributor("charging_delivered", "Charging delivered", text, rc)
+
+
+def _tariff(ok: bool, tariff: str | None, currency: Any, c: str, reason: Any) -> Contributor:
+    """WALK1-2 §3.2 (R676): the lever input "Charging tariff", the declared tariff the estimate is priced at."""
+    if not ok:
+        return Contributor("charging_tariff", "Charging tariff", NOT_LOADED)
+    if tariff is None or not currency:
+        return Contributor("charging_tariff", "Charging tariff",
+                           NO_TARIFF_DECLARED if reason == TARIFF_MISSING else TARIFF_UNKNOWN)
+    return Contributor("charging_tariff", "Charging tariff", TARIFF_DECLARED.format(p=tariff, cur=currency), DECLARED,
+                       f"/sites/{c}/ev/financials")
 
 
 def _session_service(ok: bool, fault: Any, unknown: Any, rc: Any) -> Contributor:
