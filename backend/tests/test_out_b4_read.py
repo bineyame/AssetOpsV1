@@ -90,10 +90,28 @@ def test_summary_order_unavailable_site_and_short_value(monkeypatch) -> None:
     kobo, cold, odd = out["sites"]
     assert kobo["rows"][0]["short_value"] == "18–24.3 kW unused"
     assert all(r["short_value"] is None for r in kobo["rows"][1:])
+
     assert cold["read_state"] == "PARTIAL" and cold["overview_href"] == "/sites/COLD-LAB-001"
     assert odd["read_state"] == read.UNAVAILABLE and [r["state"] for r in odd["rows"]] == ["UNKNOWN"] * 4
     assert [c["category"] for c in out["categories"]] == list(CATEGORIES)
     assert out["window"] == {"from": "2026-10-01T00:00:00Z", "to": "2026-10-08T00:00:00Z"}
+
+def test_summary_short_value_with_declared_objective_and_potential(monkeypatch) -> None:
+    """WALK1-3b M1: a declared MG-1 (state not OPPORTUNITY) with an open headroom potential still sends it."""
+    real = SiteOutcomeBoardService.board
+
+    def board(self, site, **kw):
+        body = real(self, site, **kw)
+        body["rows"][0].update(state="ON_TRACK", lead_outcome={"key": "MG-1", "label": "Productive use"},
+                               potential={"text": "18-24.3 kW unused"})
+        body["_short_values"] = {"GROW_REVENUE": "18-24.3 kW unused"}
+        return body
+
+    monkeypatch.setattr(SiteOutcomeBoardService, "board", board)
+    lo, hi = datetime(2026, 10, 1, tzinfo=UTC), datetime(2026, 10, 8, tzinfo=UTC)
+    kobo = SiteOutcomeBoardService(BoardServices()).summary([KOBO], lo, hi)["sites"][0]
+    assert kobo["rows"][0]["short_value"] == "18-24.3 kW unused"
+
 
 
 def test_mini_price_cutoff_is_known_at_or_current_never_a_clock() -> None:  # addendum 4 #4

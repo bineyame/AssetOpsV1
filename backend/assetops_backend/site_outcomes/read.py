@@ -484,8 +484,8 @@ def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at
 
 def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str, Any]:
     lead = row.get("lead_outcome") or {}
-    short = (short_values.get(row["category"]) if lead.get("key") == GROW_LEAD and row["state"] == OPPORTUNITY
-             else None)
+    short = (short_values.get(row["category"]) if lead.get("key") == GROW_LEAD
+             and (row["state"] == OPPORTUNITY or row.get("potential")) else None)
     return {"category": row["category"], "state": row["state"], "state_label": row["state_label"],
             "tone": row["tone"], "lead_outcome": row.get("lead_outcome"), "headline": row.get("headline"),
             "short_value": short, "headline_money": row.get("headline_money")}

@@ -52,7 +52,7 @@ def st(outcome, signals=(), *, objective=None, objectives_ok=True, settled=True,
 
 
 def test_policy_is_v2() -> None:
-    assert STATUS_POLICY == "outcome-status/2" and obj.POLICY == "outcome-objectives/1"
+    assert STATUS_POLICY == "outcome-status/3" and obj.POLICY == "outcome-objectives/2"
 
 
 def test_rule4c_missed_needs_attention_and_loses_only_its_reason_to_4a() -> None:
@@ -144,3 +144,15 @@ def test_every_template_passes_vocabulary() -> None:
     assert any(p.search("critical load") for _, p in patterns)  # non-vacuous: "load" is caught
     assert set(obj.VERDICT_CHIP) == set(obj.VERDICT_LABEL) == {MET, MISSED, NOT_JUDGED, obj.ON_PACE,
                                                                 obj.BEHIND_PACE, obj.TOO_EARLY}  # WALK1-3b
+
+
+def test_assure_text_parts_and_order() -> None:
+    """D-W1-14: met first, then on pace, behind pace, too early, not checked yet; each only when counted."""
+    from assetops_backend.site_outcomes.objective_facts import assure_text
+    assert assure_text([obj.MET]) == "1 of 1 declared objectives met"
+    assert assure_text([obj.ON_PACE, obj.MISSED]) == "0 of 2 declared objectives met · 1 on pace"
+    assert assure_text([obj.BEHIND_PACE]) == "0 of 1 declared objectives met · 1 behind pace"
+    assert assure_text([obj.TOO_EARLY]) == "0 of 1 declared objectives met · 1 too early to judge"
+    assert assure_text([obj.NOT_JUDGED, None]) == "0 of 2 declared objectives met · 2 not checked yet"
+    assert assure_text([obj.MET, obj.TOO_EARLY, obj.NOT_JUDGED, obj.BEHIND_PACE, obj.ON_PACE]) == (
+        "1 of 5 declared objectives met · 1 on pace · 1 behind pace · 1 too early to judge · 1 not checked yet")

@@ -1,4 +1,4 @@
-"""OUT-D U2: declared objectives and their verdict, policy `outcome-objectives/1` (build sheet OUT-D §3 U2, §4).
+"""OUT-D U2: declared objectives and their verdict, policy `outcome-objectives/2` (build sheet OUT-D §3 U2, §4).
 
 Pure. One measure per objective outcome fixes its kind, comparison, unit and target templates; the declaring caller
 never supplies them. `judge` only compares values the composer passes (Decimal or int); it never parses prose and
@@ -9,7 +9,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
-POLICY = "outcome-objectives/1"
+POLICY = "outcome-objectives/2"
 
 MET, MISSED, NOT_JUDGED = "MET", "MISSED", "NOT_JUDGED"
 #: WALK1-3b (build sheet Addendum 2 §A2.2): the month-to-date verdicts of a monthly measure (`judge_month`).

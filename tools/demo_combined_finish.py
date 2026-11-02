@@ -484,7 +484,11 @@ def wk4(ctx: Ctx) -> dict:
     beside the money, and its objective line reads the month so far."""
     grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
     line = next(c for c in grow["contributors"] if c["key"] == "declared_objective:MG-1")
-    assert grow["state"] != "UNKNOWN" and "so far this month" in line["text"], (grow["state"], line["text"])
+    text, state = line["text"], grow["state"]
+    if "too early to judge" in text:   # S early in its month: fewer checked days than the minimum (D-W1-15)
+        assert state == "UNKNOWN" and text.endswith("(needs 3 checked days)"), (state, text)
+    else:
+        assert state in ("ON_TRACK", "WATCH") and "so far this month" in text, (state, text)
     return {"state": grow["state"], "objective": line["text"], "chip": line["confidence"],
             "potential": grow.get("potential")}
 

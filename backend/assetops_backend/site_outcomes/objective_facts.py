@@ -15,14 +15,18 @@ from typing import Any
 from assetops_backend.outcomes.catalogue import SITE_OUTCOMES
 from assetops_backend.outcomes.objectives import (
     AT_MOST, CHAMBER_RANGE_MEASURE, CHAMBER_RANGE_TARGET, CONTRIBUTOR_LABEL, DEFAULT_MIN_CHECKED_DAYS, MEASURES, MET,
-    MISSED, ObjectiveFact, target_text)
+    MISSED, BEHIND_PACE, ON_PACE, TOO_EARLY, ObjectiveFact, target_text)
 
 CHAMBER_RANGE_OUTCOME = "CC-1"
 CHAMBER_RANGE_SOURCE = "DECLARED"
 ASSURE_MET = "{met} of {n} declared objectives met"
+ASSURE_ON_PACE = " · {p} on pace"
+ASSURE_BEHIND = " · {b} behind pace"
+ASSURE_TOO_EARLY = " · {t} too early to judge"
 ASSURE_UNCHECKED = " · {u} not checked yet"
 #: Every fixed viewer string, for the vocabulary scan (with the measure templates of `outcomes/objectives.py`).
-COPY = (CONTRIBUTOR_LABEL, ASSURE_MET.format(met=1, n=3), ASSURE_UNCHECKED.format(u=2),
+COPY = (CONTRIBUTOR_LABEL, ASSURE_MET.format(met=1, n=3), ASSURE_ON_PACE.format(p=1),
+        ASSURE_BEHIND.format(b=1), ASSURE_TOO_EARLY.format(t=1), ASSURE_UNCHECKED.format(u=2),
         CHAMBER_RANGE_TARGET.format(low="2", high="8"))
 _ORDER = {o.key: i for i, o in enumerate(SITE_OUTCOMES)}
 
@@ -67,5 +71,8 @@ def chamber_range(objective: Mapping[str, Any] | None, fmt: Callable[[Any], str 
 def assure_text(verdicts: Sequence[str | None]) -> str:
     """The mini Assure "Actual against plan" line over its declared objectives (at least one)."""
     met = sum(1 for v in verdicts if v == MET)
-    unchecked = sum(1 for v in verdicts if v not in (MET, MISSED))
-    return ASSURE_MET.format(met=met, n=len(verdicts)) + (ASSURE_UNCHECKED.format(u=unchecked) if unchecked else "")
+    count = lambda *kinds: sum(1 for v in verdicts if v in kinds)
+    unchecked = sum(1 for v in verdicts if v is None or v == "NOT_JUDGED")
+    parts = ((ASSURE_ON_PACE, "p", count(ON_PACE)), (ASSURE_BEHIND, "b", count(BEHIND_PACE)),
+             (ASSURE_TOO_EARLY, "t", count(TOO_EARLY)), (ASSURE_UNCHECKED, "u", unchecked))
+    return ASSURE_MET.format(met=met, n=len(verdicts)) + "".join(t.format(**{k: n}) for t, k, n in parts if n)

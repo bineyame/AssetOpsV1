@@ -174,7 +174,7 @@ def test_unsettled_outcome_has_no_verdict() -> None:
 
 def test_board_wire_objectives_and_policy() -> None:
     comp, _ = run_mini(b2.Fake(dispatch=dispatch("12", "0")))
-    assert read.POLICY_VERSIONS["objectives"] == POLICY == "outcome-objectives/1"
+    assert read.POLICY_VERSIONS["objectives"] == POLICY == "outcome-objectives/2"
     assert [(o["outcome_key"], o["outcome_label"], o["source"], o["verdict"]) for o in objectives_wire(comp.facts)] == [
         ("MG-1", "Productive electricity sales", "DECLARED", "NOT_JUDGED"),
         ("MG-2", "Supply cost per kWh", "DECLARED", "MISSED"),

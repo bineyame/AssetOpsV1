@@ -71,7 +71,7 @@ def _check_site(body: dict, keys: set[str], lined: set[str], key: str) -> None:
     assert set(lines) == lined, lines
     assert all(c["confidence"]["label"] in CHIPS for c in lines.values())
     assert all(outcomes[k][0] != "NO_OBJECTIVE" for k in objectives), outcomes
-    assert body["policy_versions"]["objectives"] == "outcome-objectives/1"
+    assert body["policy_versions"]["objectives"] == "outcome-objectives/2"
 
 
 def _summary(c, params: dict, key: str) -> dict:

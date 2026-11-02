@@ -1,4 +1,4 @@
-"""OUT-B1: outcome status, policy `outcome-status/2` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17;
+"""OUT-B1: outcome status, policy `outcome-status/3` (build spec outcome sprint 2026-10-29 §1.4, rulings B-Q16/Q17;
 OUT-D U2 adds the declared-objective rules 4c, 7, 7b and 7c, build sheet OUT-D §3 U2).
 
 Pure. The state of one site-level outcome is the first matching rule; a category row rolls its outcomes up by a
@@ -13,7 +13,7 @@ from assetops_backend.outcomes.catalogue import SiteOutcome
 from assetops_backend.outcomes.objectives import BEHIND_PACE, MET, MISSED, NOT_JUDGED, ON_PACE, TOO_EARLY
 from assetops_backend.outcomes.outcome_map import DOMAIN_ALIAS
 
-STATUS_POLICY = "outcome-status/2"
+STATUS_POLICY = "outcome-status/3"
 
 NOT_APPLICABLE, NOT_MEASURED, UNKNOWN = "NOT_APPLICABLE", "NOT_MEASURED", "UNKNOWN"
 NEEDS_ATTENTION, WATCH, OPPORTUNITY = "NEEDS_ATTENTION", "WATCH", "OPPORTUNITY"

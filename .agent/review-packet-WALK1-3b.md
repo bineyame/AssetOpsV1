@@ -37,19 +37,19 @@ merges on review ACCEPT before G1, and the owner sees it at the G1 walkthrough.
   - `tools/demo_combined_finish.py` gains G1 row **WK-4** (§A2.4 finish check): Kobo S Grow is not Unknown, and
     its objective line contains "so far this month".
 
-## Kobo on day S (10-29): actual, not tuned
+## Kobo on day S (10-30 in the polish build): actual, not tuned
 
 A read-only probe against `assetops_polish_full_test` used SELECT only (`SET SESSION CHARACTERISTICS AS TRANSACTION
 READ ONLY`) plus the reader's own read-only transactions. Polish is at `0039_merge_objectives_cc`, so it predates
 WALK1-3: no Foundation declares a productive user there, and the probe used the `load-mill` asset in its place. The
 Site zone is Africa/Addis_Ababa.
 
-- `mtd` = **673.3333 kWh** (shown as "673.3"), **c = 6 checked days of e = 29**, m = 31. The checked days include
+- `mtd` = **673.3333 kWh** (shown as "673.3"), **c = 7 checked days of e = 30** (polish S = 10-30; the earlier "6 of 29" probed S-1), m = 31. The checked days include
   10-16 and 10-23 at 0 kWh, measured.
 - Verdict **MET**, so the Grow state is **On track**, provided no Finding, warning or limited-evidence rule outranks
   it on that day.
 - Line: "Productive electricity sales: at least 300 kWh sold for productive use a month · 673.3 kWh so far this
-  month, on 6 of 29 days checked", with chip "Met".
+  month, on 7 of 30 days checked", with chip "Met".
 - The sheet expected 673.2 (4 × 168.3). The actual is 4 × 168.333… = 673.3. Nothing was tuned.
 - No Opportunity chip on S: Kobo has no spare-solar read until WALK1-4/5.
 - The full board on a 0041 database is checked at G1 (WK-4).
@@ -112,5 +112,22 @@ Site zone is Africa/Addis_Ababa.
 
 ## User-review focus
 
-- Kobo Grow on S reads "On track", with "673.3 kWh so far this month, on 6 of 29 days checked" and the chip "Met".
+- Kobo Grow on S reads "On track", with "673.3 kWh so far this month, on 7 of 30 days checked" and the chip "Met".
 - On S+1, once WALK1-5 adds spare solar, the second "Opportunity" chip appears beside the state.
+
+## Fix round 1 (review REVISE; Addendum 6, D-W1-14..16)
+
+- **M1:** `read._summary_row` sends `short_value` when the lead is MG-1 and (state OPPORTUNITY or `potential` set).
+  New test `test_summary_short_value_with_declared_objective_and_potential` (`test_out_b4_read.py`).
+- **D-W1-14:** `objective_facts.assure_text` now reads "{met} of {n} declared objectives met" then, in order and each
+  only when counted, " · {p} on pace", " · {b} behind pace", " · {t} too early to judge", " · {u} not checked yet"
+  (NOT_JUDGED and None only; MISSED counts in n only). Strings added to `objective_facts.COPY`; pinned by
+  `test_assure_text_parts_and_order` (`test_out_d2_objectives.py`).
+- **D-W1-15:** WK-4 (`tools/demo_combined_finish.py`) now checks text and state agree. A "too early to judge" line
+  requires state UNKNOWN and the text ending "(needs 3 checked days)"; otherwise state ON_TRACK or WATCH and
+  "so far this month". Day-S figure corrected above to 673.3 kWh on 7 of 30 days checked (zero-use S, Met).
+  Demo rule: prepare when S is day 4 or later of its month (not on the 3rd-5th). Flag for the Architect: the
+  build-sheet S calendar in A2.2/4.4 (S = 10-29, 168.3 kWh on S) does not match the S-relative data.
+- **D-W1-16:** `outcome-status/2` to `/3`, `outcome-objectives/1` to `/2` (code, three pinning backend tests, the
+  frontend board fixture).
+- Residual (reviewer): L3 UTC day vs local month, L4 month read cost, N1, N2: no action.
