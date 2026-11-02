@@ -37,6 +37,9 @@ from assetops_backend.site_outcomes.visits import maintenance_cases, warning_fac
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 WORK_WINDOW = timedelta(days=31)  # the Finding, Action, work and estate reads' maximum (B-Q22, addendum 2 item 4)
 DEPTH_DOMAINS = ("renewable", "fuel", "service", "backup")
+#: WALK1-5: the spare-solar read covers the 5 Site-local days ending on the board day (the recurrence rule's day
+#: count, `mini_depth/rules.py` `summarize_renewable`; the read's `mini_depth/read.py` `MAX_DAYS`).
+RENEWABLE_DAYS = 5
 MAX_PAGES = 50
 
 NOT_LOADED = "Not available yet · this record could not be loaded"
@@ -69,7 +72,9 @@ PRICE_FALLBACK = "Declared price · see Assumptions"
 NO_GEN_PLAN = "No preventive plan recorded"
 SERVICE_MEASURED = "Delivered power measured; demand not measured"
 NO_BACKUP_EVENT = "No backup event in this window"
-SOLAR_NOT_READ = "Not available yet · solar headroom not read for this day"
+SOLAR_NOT_READ = "Not available yet · spare solar not checked on the last 5 days"  # WALK1 Addendum 4
+SOLAR_WELL_OBSERVED = "Spare solar on {e} of {a} well-observed {days}"
+SOLAR_NOT_CHECKED = " · {n} of the last 5 days not checked"  # WALK1-5 (WN-2 on the Site row), R685
 SERVICE_NOT_READ = "Not available yet · delivered power not read for this hour"
 HEADROOM_ISSUE = "Productive-use headroom"
 OPTION_WHAT_IF = "Productive-use what-if"
@@ -149,7 +154,8 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         PROTECT_HEADLINE, PROTECT_SUBLINE,
         PROTECT_CLEAR.format(m=1, periods="period"), PROTECT_CLEAR.format(m=2, periods="periods"),
         COST_NO_MONEY, COST_MONEY, COST_ZERO, NO_RUN_READINGS, *FIXED.values(), NO_FUEL_BALANCE, PRICE_FALLBACK, NO_GEN_PLAN, SERVICE_MEASURED,
-        NO_BACKUP_EVENT, SOLAR_NOT_READ, SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
+        NO_BACKUP_EVENT, SOLAR_NOT_READ, SOLAR_WELL_OBSERVED.format(e=1, a=1, days="day"),
+        SOLAR_WELL_OBSERVED.format(e=0, a=2, days="days") + SOLAR_NOT_CHECKED.format(n=3), SERVICE_NOT_READ, HEADROOM_ISSUE, OPTION_WHAT_IF, OPTION_TRIAL,
         OPTION_CHANGE, OPTION_RESTORE, *ALTERNATIVE_LABELS.values(), *SOURCE_TEXT.values(),
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
@@ -487,13 +493,13 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
 
 def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
-    """B-Q6: the Site-local day containing the overview `window.start`; renewable reads that whole local day, the
-    hourly domains read its local noon hour (reading recorded in the packet)."""
+    """B-Q6: the Site-local day containing the overview `window.start`; the hourly domains read its local noon hour
+    (reading recorded in the packet). WALK1-5: renewable reads the `RENEWABLE_DAYS` whole local days ending on it."""
     try:  # the mini_depth/inputs.py helpers (addendum 2 item 6, B2 review L2); a refusal leaves depth unread
         name = tz_name or ""
         local_day = local_day_of(Window(start, start + timedelta(days=1)), name)
         noon = local_noon(local_day, name)
-        day_lo = local_hour(local_day, 0, name).start
+        day_lo = local_hour(local_day - timedelta(days=RENEWABLE_DAYS - 1), 0, name).start
         day_hi = local_hour(local_day + timedelta(days=1), 0, name).start
     except MiniInputsRefused:
         reads.failed.append("mini_depth")
@@ -747,9 +753,10 @@ def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
     elif eligible is None or assessed is None:
         use = Contributor("productive_use", "Productive use", SOLAR_NOT_READ, None, href)
     else:
-        use = Contributor("productive_use", "Productive use",
-                          f"Spare solar on {eligible} of {assessed} well-observed "
-                          f"{plural(assessed, 'day', 'days')}", rc, href)
+        text = SOLAR_WELL_OBSERVED.format(e=eligible, a=assessed, days=plural(assessed, "day", "days"))
+        if assessed < RENEWABLE_DAYS:  # WALK1-5: assess the days read, state the rest
+            text += SOLAR_NOT_CHECKED.format(n=RENEWABLE_DAYS - assessed)
+        use = Contributor("productive_use", "Productive use", text, rc, href)
     # WALK1-3b §A2.3 order: Productive-use sales (a), [the "Declared objective" line (b), placed by the board after
     # "productive_sales"], Productive use spare solar (c), Price per kWh, Cash collected, Site earnings.
     return (*sales[:1], use, *sales[1:], Contributor("cash_collected", "Cash collected", FIXED["cash"]),

@@ -188,7 +188,8 @@ def test_priced_estimate_leads_the_grow_row() -> None:
         "key": "productive_price", "label": "Price per kWh", "text": "Declared at 0.25 USD per kWh",
         "confidence": {"label": "Declared", "tone": "neutral"}, "href": ASSUMPTIONS}
     # spare solar stays in its contributor and the Portfolio fallback value
-    assert contributor(row, "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
+    assert contributor(row, "productive_use")["text"] == ("Spare solar on 1 of 1 well-observed day"
+                                                     " · 4 of the last 5 days not checked")
     assert comp.short_values == {GROW: "18–24.3 kW unused"}
     # WALK1-3b: MG-1 carries the month-to-date kWh (only this day has readings) and is complete only at month end
     mg1 = comp.facts.readings["MG-1"]
