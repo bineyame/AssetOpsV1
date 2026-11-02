@@ -1356,19 +1356,19 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(cards()).toEqual([
       ["Usable headroom", "12–15 kW", "After the selected retained margin"],
       ["Eligible days", "2 / 5", "Separate five-day study"],
-      ["Proposed load", "10 kW", "Linked what-if (name unavailable)"],
+      ["Proposed new use", "10 kW", "Linked what-if (name unavailable)"],
       ["Gross sales what-if", "$2.50", "Before costs; collections unverified"],
     ]);
     // PR-12.2: numeric and monetary values keep the large numeric value; no card is a word value here.
     expect(words()).toEqual([false, false, false, false]);
-    expect(claim()).toBe("Renewable capacity appears available for a one-hour productive load in 2 adequately observed windows.");
+    expect(claim()).toBe("Renewable capacity appears available for one hour of added productive use in 2 adequately observed windows.");
     // H2 (final review): the claim is the shared v69 big-claim headline, not an unstyled paragraph.
     expect(document.querySelector("[data-opportunity-claim]")).toHaveClass("v69-big-claim");
     expect(main().textContent).toContain(
       "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.",
     );
     expect(main().textContent).toContain(
-      "Validate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial.",
+      "Validate local demand, schedule any proposed new use, and check critical service and storage guardrails before a trial.",
     );
     expect(basis()).toEqual([
       ["Technical quantity", "12–15 kW usable headroom"],
@@ -1381,7 +1381,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
 
     // A proposal above one eligible day's lower bound is not claimed to fit every counted hour.
     await show(body({}, { proposed_load_kw: "13" }));
-    expect(claim()).toBe("Measured renewable headroom is available in 2 of 5 assessed windows; no added load has been validated.");
+    expect(claim()).toBe("Measured renewable headroom is available in 2 of 5 assessed windows; no added use has been checked yet.");
 
     // The u4b gated read: a stored SUPPORTED result read while W4-02 is pending or stale keeps its frozen values,
     // withholds money and never renders the positive chip or claim.
@@ -1416,7 +1416,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(chip()?.getAttribute("data-opportunity-chip")).toBe("amber");
     expect(cards()[0][1]).toBe("Unknown");
     expect(claim()).toBe("The selected evidence does not establish a recurring productive-use opportunity.");
-    expect(main().textContent).toContain("Complete the missing renewable and service evidence before a load decision.");
+    expect(main().textContent).toContain("Complete the missing renewable and service evidence before deciding on a new use.");
 
     // UNKNOWN incomplete study without a scenario: every authored slot states its own gap; money is null.
     await show(
@@ -1429,18 +1429,36 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(cards()).toEqual([
       ["Usable headroom", "Unknown", "After the selected retained margin"],
       ["Eligible days", "Not established", "Five-day study incomplete"],
-      ["Proposed load", "No load proposed", "No what-if linked"],
+      ["Proposed new use", "No new use proposed", "No what-if linked"],
       ["Gross sales what-if", "Not calculated", "Before costs; collections unverified"],
     ]);
     expect(words()).toEqual([true, true, true, true]);
     expect(basis()).toEqual([
       ["Technical quantity", "Unknown"],
-      ["What-if energy", "No load what-if"],
+      ["What-if energy", "No what-if for a new use"],
       ["Tariff", "No price per kWh declared"],
       ["Gross sales", "Not calculated"],
       ["Managed Action", "Not yet accepted"],
     ]);
     noMock();
+  });
+
+  it("walk1_6_d2_opportunity_page_never_says_load", async () => {
+    // WALK1-6 D2 (Addendum 9, R655/R695): "load" is a banned product term; every visible state says "new use".
+    const states = [
+      body(),
+      body(
+        { status: "UNKNOWN", currentness: { state: "UNKNOWN", job_state: "NONE" }, selected_source_provenance: null },
+        { assessed_days: 3, eligible_days: 1, headroom_kw: null, proposed_load_kw: null, scenario_id: null, gross_sales_scenario: null },
+      ),
+    ];
+    for (const b of states) {
+      await show(b);
+      const text = main().textContent ?? "";
+      expect(text.length).toBeGreaterThan(100);
+      expect(text).not.toMatch(/load/i);
+    }
+    expect(main().textContent).toContain("No new use proposed");
   });
 
   it("walk1_5_declared_price_tariff_states_and_value_row", async () => {
@@ -1455,7 +1473,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(new URL(priceUrls[0], "http://x").searchParams.get("valid_at")).toBe("2026-10-10T09:00:00Z");
     expect(basis()).toEqual([
       ["Technical quantity", "12–15 kW usable headroom"],
-      ["What-if energy", "No load what-if"],
+      ["What-if energy", "No what-if for a new use"],
       ["Tariff", "Declared price · 0.25 USD per kWh"],
       ["Value at declared price", "Up to 3.00–3.75 USD for each hour the spare solar is used · estimate, not sales"],
       ["Gross sales", "Not calculated"],

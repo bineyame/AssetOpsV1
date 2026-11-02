@@ -37,7 +37,8 @@ export const APPROVED_TITLE_CHANGES: Readonly<Record<string, string | DynamicTit
   "mini:1": "What happened on this day",
   "mini:4": "Possible cost",
   "cold:4": "Possible cost",
-  "ev:4": "Possible cost",
+  // WALK1-6 D1 (R694): the EV slot is always charging income (EV has no cost money).
+  "ev:4": "Estimated income",
 };
 
 function need(values: Record<string, string>, key: string): string {

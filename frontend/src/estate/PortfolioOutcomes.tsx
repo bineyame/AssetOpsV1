@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
 import { boardMoneyText } from "../sites/OutcomeBoard";
 import { MissingClaim } from "../ui";
-import type { EstateOutcomeSummaryBody, EstatePortfolioBody, EstateQuery, EstateResult, EstateValueCard } from "./estateClient";
+import type { EstateOutcomeSummaryBody, EstateOutcomeSummaryRow, EstatePortfolioBody, EstateQuery, EstateResult, EstateValueCard } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE } from "./estateFinancialsWords";
 import { estateHref } from "./estateShared";
@@ -159,6 +159,22 @@ export function growEstimates(summary: EstateOutcomeSummaryBody | null): { site:
   }
   return out;
 }
+/**
+ * WALK1-6 D5 (R698): the Sites whose Grow row shows an open opportunity on the board (state OPPORTUNITY, or a
+ * `short_value`, sent when `potential` is set, Addendum 6 M1). The strip names them beside its findings count.
+ */
+export function openOpportunitySiteCount(summary: EstateOutcomeSummaryBody | null): number {
+  let k = 0;
+  for (const site of summary?.sites ?? []) {
+    const row = site.rows.find((r) => r.category === "GROW_REVENUE");
+    if (row !== undefined && (row.state === "OPPORTUNITY" || (row.short_value ?? null) !== null)) k += 1;
+  }
+  return k;
+}
+export function openOpportunitySuffix(summary: EstateOutcomeSummaryBody | null): string | null {
+  const k = openOpportunitySiteCount(summary);
+  return k === 0 ? null : ` · ${k} ${k === 1 ? "site" : "sites"} with an open opportunity on its board`;
+}
 export const GROW_ESTIMATE_BASIS = "Declared price × measured kWh · not billed or collected";
 
 function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {
@@ -254,7 +270,8 @@ export function assureDetailText(summary: EstateOutcomeSummaryBody | null, gap: 
   if (n === null || (n === 0 && unread > 0)) return `${lead} · ${gap}`;
   if (n === 0) return `${lead} · no targets declared · ${gap}`;
   const unchecked = unread > 0 ? `, ${sites(unread)} not checked` : "";
-  return `${lead} · targets declared at ${sites(n)}${unchecked} · ${gap}`;
+  // WALK1-6 D4 (R697): a Site's target may sit under another outcome than Assure.
+  return `${lead} · targets declared at ${sites(n)}, for any outcome${unchecked} · ${gap}`;
 }
 
 /** WALK1-1 (WN-1, R671): the Assure lead clause from the boards' own verified count (same window as each Site row). */
@@ -270,6 +287,15 @@ export function verifiedText(summary: EstateOutcomeSummaryBody | null): string {
   return v !== null && unread > 0 ? `${lead}, ${sites(unread)} not checked` : lead;
 }
 
+/**
+ * WALK1-6 D4 (R697): a card dot is one outcome row, so a Site whose target sits under another outcome reads "No
+ * target for this outcome" rather than "No objective declared". Card dots only; the board chips keep the server word.
+ */
+export const DOT_NO_OBJECTIVE = "No target for this outcome";
+export function dotStateWord(row: Pick<EstateOutcomeSummaryRow, "state" | "state_label">): string {
+  return row.state === "NO_OBJECTIVE" ? DOT_NO_OBJECTIVE : row.state_label;
+}
+
 /** OUT-B B6: one dot per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`). */
 function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary: EstateOutcomeSummaryBody | null }) {
   return (
@@ -277,16 +303,17 @@ function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary
       {(summary?.sites ?? []).map((site) => {
         const row = site.rows.find((r) => r.category === category);
         if (row === undefined) return null;
+        const word = dotStateWord(row);
         return (
           <span
             key={site.site_id}
             className={`tone-${row.tone}`}
-            title={`${site.site_name}: ${row.state_label}`}
+            title={`${site.site_name}: ${word}`}
             data-portfolio-dot={`${site.site_code}|${row.tone}`}
           >
             <i aria-hidden="true"></i>
             {site.site_name}
-            <span className="oc-hidden">: {row.state_label}</span>
+            <span className="oc-hidden">: {word}</span>
           </span>
         );
       })}

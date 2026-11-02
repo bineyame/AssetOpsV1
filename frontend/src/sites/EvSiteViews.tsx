@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord, plainCode } from "./coldAssessmentWords";
 import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";
+import { money2 } from "../ui/money";
 
 import {
   AttentionList,
@@ -53,7 +54,7 @@ import type { OutcomeBoardClient } from "./outcomeBoardClient";
  * (`.agent/W2-07-build-spec.md` "Commits 4-5", closure section 4, "Run 6 rulings (q5)" and "Run 7 rulings (q6)"):
  *
  *   ev                    1 What happened on the service day, 2 Charging activity and site power, 3 Needs attention,
- *                         4 Possible cost, 5 Next step
+ *                         4 Estimated income (R694), 5 Next step
  *   ev-evidence           1 What we can conclude now, 2 Data sources · data quality, not equipment condition,
  *                         3 Most useful next evidence
  *   ev-evidence-analysis  1 Accepted records behind the conclusions, 2 How a claim limit is set
@@ -180,21 +181,6 @@ function Ids({ name, references }: { name: string; references: { label: string; 
       <TechnicalReferenceList references={references} />
     </TechnicalDetails>
   );
-}
-
-/** Display rounding of an exact Decimal string to two places, half even on the absolute value, without a float. */
-export function money2(value: string): string {
-  const negative = value.startsWith("-");
-  const [whole, frac = ""] = (negative ? value.slice(1) : value).split(".");
-  const padded = frac.padEnd(2, "0");
-  let cents = BigInt(whole || "0") * 100n + BigInt(padded.slice(0, 2));
-  const rest = padded.slice(2);
-  if (/[1-9]/.test(rest)) {
-    const half = rest[0] === "5" && !/[1-9]/.test(rest.slice(1));
-    if (rest[0] > "5" || (rest[0] === "5" && !half) || (half && cents % 2n === 1n)) cents += 1n;
-  }
-  const text = `${cents / 100n}.${String(cents % 100n).padStart(2, "0")}`;
-  return negative && cents !== 0n ? `-${text}` : text;
 }
 
 /** q6 R3: the unit-specific coverage wording, or the claim's own limitation when coverage is unproved. */
@@ -730,20 +716,26 @@ function OverviewScreen(p: EvSiteFrameProps) {
         </Panel>
       </div>
       <div className="panel-pair ev-site-pair">
-        <Panel heading="Possible cost" headingId="ev-site-money-heading">
+        {/* WALK1-6 D1 (R694, MOCK DEVIATION): the EV slot is always charging income, so not "Possible cost". */}
+        <Panel heading="Estimated income" headingId="ev-site-money-heading">
           {refused !== null ? (
             <Gap id="ev-site-money">{NOT_ASSESSED}</Gap>
           ) : (
             <>
               <div className="metric-value v69-metric__value ev-site-amount" data-ev-money={money!.state ?? "none"}>
                 {money!.state === "ESTIMATED" && money!.amount !== null && money!.currency !== null
-                  ? `${money!.currency} ${money2(money!.amount)} estimated charging income`
+                  ? `${money!.currency} ${money2(money!.amount)}`
                   : money!.state === "UNPRICED"
                     ? "Unpriced"
                     : money!.state === "WITHHELD"
                       ? "Withheld"
                       : NO_SCENARIO}
               </div>
+              {money!.state === "ESTIMATED" && money!.amount !== null && money!.currency !== null ? (
+                <p className="v69-metric__note" data-ev-money-caption="">
+                  estimated charging income
+                </p>
+              ) : null}
               <p className="prose">
                 {money!.state === "ESTIMATED"
                   ? `Estimated charging income for ${money!.quantity_kwh} kWh delivered with complete coverage. Not cash collected.`
