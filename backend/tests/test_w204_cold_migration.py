@@ -120,7 +120,8 @@ _DIESEL_ONLY = {
 
 def below_0026(snapshot: dict) -> dict:
     cons = sorted((t, n, _DIESEL_ONLY.get(n, d)) for t, n, d in snapshot["constraints"]
-                  if n != "financial_assumption_revision_ev_positive")
+                  if n not in ("financial_assumption_revision_ev_positive",
+                               "financial_assumption_revision_productive_positive"))  # WALK1-3: 0040
     return {**snapshot, "constraints": cons}
 
 
