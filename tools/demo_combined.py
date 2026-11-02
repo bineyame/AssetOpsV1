@@ -425,6 +425,8 @@ class Demo:
             done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
                            label="s2-comparison")
             say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
+        if "kobo" in story["sites"]:
+            self.drain_mini()
         self.tick(times=2)
         if set(story["sites"]) == set(SITES):
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
@@ -433,6 +435,23 @@ class Demo:
             say("  " + (tail or ["(no output)"])[-1])
             if done.returncode != 0:
                 raise SystemExit(f"SELF-CHECK FAILED; see {self.work / 'check.json'}")
+
+    def drain_mini(self, limit: int = 500) -> None:
+        """WALK1-4 F2: the Kobo mini-depth jobs (roles-4 from commissioning) number in the hundreds and the tick's mini
+        stage takes at most 10 per Site, so prepare drains them with the worker's own CLI until a pass leaves none due."""
+        total = 0
+        while True:
+            done = self.py("-m", "assetops_backend.mini_depth.worker", "run-pending", "--limit", str(limit),
+                           label="mini-depth")
+            line = [x for x in done.stdout.splitlines() if x.startswith("[")]
+            outcomes = json.loads(line[-1]) if line else []
+            failed = [o for o in outcomes if o.get("status") == "FAILED"]
+            if failed:
+                raise SystemExit(f"mini-depth FAILED: {failed[:3]}")
+            total += len(outcomes)
+            if len(outcomes) < limit:
+                break
+        say(f"  mini-depth: {total} jobs processed")
 
     def tick(self, times: int = 1) -> None:
         for _ in range(times):
@@ -496,6 +515,8 @@ class Demo:
                                cwd=self.tree / "backend" / "tests", label=f"add-day-{site}")
                 line = [x for x in done.stdout.splitlines() if x.startswith('{"added"')]
                 out.update(json.loads(line[-1]) if line else {})
+                if site == "kobo" and planned.assess == "build":
+                    self.drain_mini()
             doc["days"].append(planned.payload())
             days_path.write_text(json.dumps(doc, indent=2), encoding="utf-8")
             say(f"added {site_code} {planned.day} {planned.kind}" +

@@ -6447,6 +6447,15 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   "None shown yet"), Assure `verified_result_count`; WALK1-2 Depot declared tariff 0.30/kWh, EV board prices on ESTIMATED;
   WALK1-3 migration `0040_walk1_productive_price` is the head (`productive_use_price_per_kwh`, Kobo 0.25/kWh), `supply-use`
   Foundation property, estimated productive-use sales (overlap per asset = no estimate), Assumptions price row.
+  Known failing on main: `test_board_finding_titles_are_the_frontend_plain_titles`, `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` (WALK1-3b fixes).
+- WALK1-4: Kobo `mini-grid` v6 (charge request at `@{plant.battery}`, mean kW) and publication v5 (v4 + charge request, PV
+  output every 5 min), roles-4 at install +27 min, manifest `d-verification-window-v3.json` for every Kobo day (v2 unchanged).
+  The mini-depth hour read judges each row under its own as-accepted binding revision, provided the pinned roles-4 set binds
+  the same role and asset at that time (D-W1-10). Revision lineage lists every set used. Finish WK-2a (S-1, 42.08 USD) and WK-2b (S).
+  Under outcome-status/3 (WALK1-3b) WK-2b expects S Grow state ON_TRACK/WATCH/UNKNOWN with `potential` set, not OPPORTUNITY.
+  Open: boards go UNKNOWN (PRODUCER_NOT_SETTLED) about 5 min after the last scheduler tick (schedule heartbeat stale after 300 s,
+  Site visit after 900 s, `scheduling/health.py:47-49`); `serve` (tick every 120 s) keeps them fresh. Captures/finish reruns must run
+  under `serve` or right after a tick. Not caused by this slice.
   WALK1-3b migration `0041_walk1_objective_min_days` is the head (nullable `outcome_objective_revision.min_checked_days`,
   1-28, `productive_use_kwh` only, NULL = `DEFAULT_MIN_CHECKED_DAYS` 3). Grow row: KPI state from `judge_month` (MG-1 month
   to date over the Site-local month, `site_outcomes/mini.py` `_productive_month`/`mg1_reading`); a declared objective's

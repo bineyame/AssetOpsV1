@@ -1351,6 +1351,21 @@ MINI_GRID_V5_MODEL = replace(
     ),
 )
 
+#: WALK1-4 (D-W1-7). `mini-grid` v6: v5 unchanged, plus one measured interval
+#: state - the battery controller's raw charge request over the completed step
+#: (D-W1-8) - so `registered-kobo-publication` v5 can publish the storage charge
+#: request the midday spare-solar check reads. Measurements only; a new version
+#: so v1-v5 trajectories and digests are unchanged.
+MINI_GRID_V6_MODEL = replace(
+    MINI_GRID_V5_MODEL,
+    model_profile_version=6,
+    statement=(
+        MINI_GRID_V5_MODEL.statement
+        + " Version six also measures, over each completed step, the charge "
+        "power the battery controller requested."
+    ),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -2018,6 +2033,50 @@ REGISTERED_KOBO_PUBLICATION_PROFILE_V4 = replace(
     ),
 )
 
+#: WALK1-4 (D-W1-7). The registered-Kobo publication profile, version five:
+#: version four unchanged, plus the battery converter's charge request
+#: (`battery-pcs-controller/charge-requested-power`, needs `mini-grid` v6) as a
+#: five-minute interval mean in kW - the controller's raw request, 0 when it asks
+#: for none. Published only where a `minigrid-roles-4` binding maps it to
+#: `storage_charge_requested_power`. D-W1-12: version five also publishes the PV
+#: inverter's delivered power (`pv-inverter-controller/ac-power`) every five
+#: minutes, so a midday hour is completely reported. Versions one to four are
+#: unchanged.
+CHARGE_REQUESTED_SIGNAL = ("battery-pcs-controller", "charge-requested-power")
+PV_OUTPUT_SIGNAL = ("pv-inverter-controller", "ac-power")
+REGISTERED_KOBO_PUBLICATION_PROFILE_V5 = replace(
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
+    publication_profile_version=5,
+    statement=(
+        REGISTERED_KOBO_PUBLICATION_PROFILE_V4.statement
+        + " Version five also publishes, every five minutes, the charge power "
+        "the battery controller requested over the five minutes that just ended, "
+        "and publishes the PV inverter's delivered power every five minutes."
+    ),
+    device_signals=tuple(
+        replace(declaration, cadence_minutes=5) if declaration.signal_key == PV_OUTPUT_SIGNAL else declaration
+        for declaration in REGISTERED_KOBO_PUBLICATION_PROFILE_V4.device_signals
+    )
+    + (
+        DeviceSignalDeclaration(
+            device_id=CHARGE_REQUESTED_SIGNAL[0],
+            signal_id=CHARGE_REQUESTED_SIGNAL[1],
+            state_key="battery-charge-requested-power",
+            reading_class="INTERVAL_SIGNAL",
+            canonical_unit="kW",
+            cadence_minutes=5,
+            bias=0.0,
+            dropout_per_thousand=0,
+            resolution=REGISTERED_KOBO_RESOLUTION,
+            statement=(
+                "The battery converter's controller publishes the mean charge "
+                "power it requested over the five minutes that just ended - its "
+                "raw request, whether or not the battery could take it."
+            ),
+        ),
+    ),
+)
+
 #: W2-02 (`D-2026-10-17-w2-02-buildspec`). The standalone cold-chain pack: one chamber, probe, compressor,
 #: grid supply and a backup generator behind one transfer switch and bus, stepped once a minute by the
 #: simulator's `packs/cold.py`. It reads the thirteen frozen Foundation `cold-*` properties of the selected
@@ -2110,6 +2169,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V3_MODEL,
     MINI_GRID_V4_MODEL,
     MINI_GRID_V5_MODEL,
+    MINI_GRID_V6_MODEL,
     COLD_THERMAL_MODEL,
     EV_CHARGER_MODEL,
 )
@@ -2122,6 +2182,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     REGISTERED_KOBO_PUBLICATION_PROFILE_V2,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
+    REGISTERED_KOBO_PUBLICATION_PROFILE_V5,
     COLD_PUBLICATION_PROFILE,
     EV_PUBLICATION_PROFILE,
 )

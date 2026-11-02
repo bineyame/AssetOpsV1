@@ -209,7 +209,7 @@ def result(domain: str, inputs: HourInputs, hour: Any) -> dict[str, Any]:
         "source_freshness": _freshness(role_coverage, parts, getattr(hour, "limitations", ())),
         "role_coverage": role_coverage,
         "foundation_revision_ids": _ids([inputs.foundation_revision_id]),
-        "binding_set_revision_ids": _ids([inputs.binding_set_revision_id]),
+        "binding_set_revision_ids": _ids(inputs.binding_set_revision_ids),
         "accepted_evidence_ids": _ids(inputs.evidence_ids),
         "model_version": MODEL_VERSIONS[domain],
         "site_timezone": inputs.site_timezone,
@@ -232,7 +232,7 @@ def project(domain: str, inputs: HourInputs) -> MiniRevision:
         tenant_id=inputs.tenant_id, site_id=inputs.site_id, domain=domain, model_version=MODEL_VERSIONS[domain],
         window_start=inputs.window.start, window_end=inputs.window.end, knowledge_cutoff=inputs.knowledge_cutoff,
         input_sha256=inputs.input_sha256, foundation_revision_ids=(inputs.foundation_revision_id,),
-        binding_set_revision_ids=(inputs.binding_set_revision_id,), result=result(domain, inputs, hour),
+        binding_set_revision_ids=inputs.binding_set_revision_ids, result=result(domain, inputs, hour),
         evidence_ids=inputs.evidence_ids,
     )
 

@@ -117,6 +117,13 @@ class HourInputs:
     recovery_target_min: Decimal | None
     #: property key -> the Foundation revision that supplied it (absent when not authored).
     property_revision_ids: Mapping[str, UUID]
+    #: D-W1-10: every other set whose as-accepted binding carried a selected row (pinned set excluded).
+    as_accepted_binding_set_revision_ids: tuple[UUID, ...] = ()
+
+    @property
+    def binding_set_revision_ids(self) -> tuple[UUID, ...]:
+        """D-W1-10 lineage: the pinned set plus every as-accepted set used, sorted."""
+        return tuple(sorted({self.binding_set_revision_id, *self.as_accepted_binding_set_revision_ids}, key=str))
 
     @property
     def committed_watermark(self) -> datetime | None:
@@ -147,7 +154,7 @@ class HourInputs:
             "window": [fuel_cost.iso(self.window.start), fuel_cost.iso(self.window.end)],
             "knowledge_cutoff": fuel_cost.iso(self.knowledge_cutoff),
             "foundation_revision_ids": [str(self.foundation_revision_id)],
-            "binding_set_revision_ids": [str(self.binding_set_revision_id)],
+            "binding_set_revision_ids": [str(i) for i in self.binding_set_revision_ids],
             "accepted_evidence_ids": [str(i) for i in self.evidence_ids],
             "property_revision_ids": {k: str(v) for k, v in sorted(self.property_revision_ids.items())},
             "sfc_property_revision_ids": sorted(str(s.property_revision_id) for s in self.fuel.sfc),
@@ -190,6 +197,11 @@ def _sfc(content: Mapping[str, Any], code: str | None) -> Decimal | None:
         return None
     value = _decimal(found[0].get("value"))
     return value if value is not None and value > 0 else None
+
+
+def _in_force(binding: Any, at: datetime) -> bool:
+    """`binding` = (id, role, asset_id, valid_from, valid_to, ...): in force at `at` on its half-open validity."""
+    return binding[3] <= at and (binding[4] is None or at < binding[4])
 
 
 def _one_bound(bindings: Sequence[Any], role: str) -> UUID | None:
@@ -246,10 +258,17 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
     observations: list[Observation] = []
     selected: list[SelectedRow] = []
     foundation_ids = {f_id}
+    used_sets: set[UUID] = set()
     for r, is_prior in [*((r, False) for r in rows), *((r, True) for r in prior)]:
-        b = by_id.get(r[13])
-        if b is None or b[1] != r[1] or b[2] != r[2] or b[3] > r[3] or (b[4] is not None and r[3] >= b[4]):
-            continue  # not bound (in force) under the pinned roles-4 set: not an input of this hour
+        # D-W1-10: judge the row under its own as-accepted binding revision (as S3 dispatch does), then require the
+        # pinned set to bind the same role on the same asset at the row's time: same meaning, another revision.
+        b = by_id.get(r[13]) or raw.row_bindings.get(r[13])
+        if b is None or b[1] != r[1] or b[2] != r[2] or not _in_force(b, r[3]):
+            continue  # not bound (in force) under its own binding revision: not an input of this hour
+        if b[0] not in by_id:
+            if not any(p[1] == r[1] and p[2] == r[2] and _in_force(p, r[3]) for p in bindings):
+                continue  # the pinned roles-4 set does not bind this role on this asset: not an input
+            used_sets.add(b[5])
         selected.append(SelectedRow(r[0], r[1], r[2], r[15], is_prior))
         if r[1] in OBSERVATION_ROLES:
             observations.append(Observation(r[0], r[12], r[1], r[3], r[6], r[7] if r[1] != rules.START_EVENT else None,
@@ -277,4 +296,5 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
                                   tuple(feeders), critical),
         loads=loads, fuel=FuelInputs(tuple(sfc), fuel_cost.MULTIPLIER), generator_asset_id=generator,
         tank_asset_id=tank, critical_asset_id=critical, recovery_target_min=values["backup-recovery-target"],
-        property_revision_ids=property_revision_ids)
+        property_revision_ids=property_revision_ids,
+        as_accepted_binding_set_revision_ids=tuple(sorted(used_sets - {set_id}, key=str)))
