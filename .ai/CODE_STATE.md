@@ -6453,3 +6453,8 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   verdict outranks an open opportunity (`outcomes/status.py`), carried as row `potential` and a second chip; contributor
   slot `SiteFacts.objective_after`. Fixed the two main failures (merged Finding title, gap-line `withheld`). Open: the mini Assure "not checked yet" count
   treats ON_PACE/BEHIND_PACE/TOO_EARLY as not checked; `outcome-status/2` was not bumped.
+- WALK1-3b merged: migration `0041_walk1_objective_min_days` is the head (`min_checked_days`, default 3, 1-28, productive-use only);
+  `judge_month` (MET/ON_PACE/BEHIND_PACE/TOO_EARLY over the Site-local month, no projection); objective-led rows take state from the
+  verdict, opportunity rides as `potential` (second chip); POLICY now `outcome-status/3` and `outcome-objectives/2` (supersedes the /2 and /1
+  mentions above); Assure line lists met / on pace / behind pace / too early / not checked. The two main test failures are fixed.
+  Demo-date rule: S = prepare day - 2; do not prepare on days 3-5 of a month (MG-1 reads "too early to judge").
