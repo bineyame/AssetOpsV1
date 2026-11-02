@@ -92,7 +92,7 @@ tests `backend/tests/test_walk1_5_solar_window.py` (new), `test_out_b2_mini.py`,
   the missing-claim orphan scan. Every "not available yet" string must be a catalogued `mock_gaps` placement through
   `<MissingClaim>`, and the scan's own rule keeps runtime read failures out of the gap catalogue. I did not loosen
   the guard or catalogue a read failure as a gap. I used the precedent wording of `SiteFinancials.tsx`
-  `PRODUCTIVE_NOT_LOADED`: **"The declared price could not be loaded, so none is assumed"**. Architect to confirm.
+  `PRODUCTIVE_NOT_LOADED`: **"The declared price could not be loaded, so none is assumed"**. Accepted by the coordinator (matches the WALK1-3 re-review precedent).
 - KD2. CONFLICT on the price series is treated as "could not be loaded" (no single price). `SiteFinancials` shows
   CONFLICT as "not declared".
 - KD3. The price read has no `validAt`, so the server default applies; `recordedAt` = the page's single `known_at`.
@@ -100,11 +100,10 @@ tests `backend/tests/test_walk1_5_solar_window.py` (new), `test_out_b2_mini.py`,
 
 ## Open questions / residual risk
 
-- **Q1 (G2 strict gate).** The opportunity page still renders other counted "scenario" words that Addendum 7 did
-  not rule on: card label "Gross sales scenario" (mock label, `screens.js:586`), note "No scenario linked", basis
-  value "No load scenario", and, when linked, "Linked scenario (name unavailable)" and "{amount} · scenario". The
-  strict `kobo-opportunity` capture will count them. A rename ruling is needed before G2 (for example "What-if"
-  wording, as for "What-if energy").
+- **Q1, resolved** under the standing POLISH Addendum 8 Q3/Q4 ruling (R662): "Gross sales what-if", "No what-if linked",
+  "No load what-if", "Linked what-if (name unavailable)" and "{amount} · what-if". The opportunity page now renders no
+  "scenario" word. Pinned tests are updated, and the strings are added to R655/R686. After the change: the two vitest
+  files 79 passed, tsc clean, `test_mock_deviation_labels.mjs` 14/14, check-all 12/12.
 - `kobo-opportunity` assumes the renewable page reached from the board shows an opportunity link. With Kobo's
   sparse story days a 5-day study may not hold 5 assessed days, and then no opportunity may exist ("Opportunity
   decision unavailable for fewer than five assessed days"). Both the capture and WK-6 fail loudly in that case.
@@ -113,5 +112,4 @@ tests `backend/tests/test_walk1_5_solar_window.py` (new), `test_out_b2_mini.py`,
 
 ## User-review focus
 
-No separate task file. Per the W1 rule, the owner sees this in the combined walkthrough after G2. Architect items:
-KD1 and Q1.
+No separate task file. Per the W1 rule, the owner sees this in the combined walkthrough after G2. No Architect items remain open.

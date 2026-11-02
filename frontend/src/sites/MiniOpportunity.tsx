@@ -222,10 +222,10 @@ function OpportunityCards({ body }: { body: OpportunityDetailBody }) {
         label="Proposed load"
         value={o.proposed_load_kw === null ? "No load proposed" : `${o.proposed_load_kw} kW`}
         word={o.proposed_load_kw === null}
-        note={linked ? "Linked scenario (name unavailable)" : "No scenario linked"}
+        note={linked ? "Linked what-if (name unavailable)" : "No what-if linked"}
       />
       <MetricCard
-        label="Gross sales scenario"
+        label="Gross sales what-if"
         value={gross ?? grossGap(body)}
         word={gross === null}
         note="Before costs; collections unverified"
@@ -325,10 +325,10 @@ function ConsequenceBasis({ body, declaredPrice }: { body: OpportunityDetailBody
           ["Technical quantity", technical === null ? UNKNOWN : `${technical} usable headroom`, "technical"],
           // MOCK DEVIATION (R686): "What-if energy" (mock "Scenario energy"), the Tariff line names the declared price
           // and "Value at declared price" is added (not in mock); what-if authoring stays a mock placeholder.
-          ["What-if energy", linked ? "Unavailable in this read" : "No load scenario", "energy"],
+          ["What-if energy", linked ? "Unavailable in this read" : "No load what-if", "energy"],
           ["Tariff", tariffText(linked, declaredPrice), "tariff"],
           ...(value === null ? [] : [["Value at declared price", value, "declared_value"] as [string, string, string]]),
-          ["Gross sales", gross === null ? grossGap(body) : `${gross} · scenario`, "gross"],
+          ["Gross sales", gross === null ? grossGap(body) : `${gross} · what-if`, "gross"],
           ["Managed Action", "Not yet accepted", "action"],
         ]}
       />

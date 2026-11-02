@@ -1355,8 +1355,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(cards()).toEqual([
       ["Usable headroom", "12–15 kW", "After the selected retained margin"],
       ["Eligible days", "2 / 5", "Separate five-day study"],
-      ["Proposed load", "10 kW", "Linked scenario (name unavailable)"],
-      ["Gross sales scenario", "$2.50", "Before costs; collections unverified"],
+      ["Proposed load", "10 kW", "Linked what-if (name unavailable)"],
+      ["Gross sales what-if", "$2.50", "Before costs; collections unverified"],
     ]);
     // PR-12.2: numeric and monetary values keep the large numeric value; no card is a word value here.
     expect(words()).toEqual([false, false, false, false]);
@@ -1373,7 +1373,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       ["Technical quantity", "12–15 kW usable headroom"],
       ["What-if energy", "Unavailable in this read"],
       ["Tariff", "Unavailable in this read"],
-      ["Gross sales", "$2.50 · scenario"],
+      ["Gross sales", "$2.50 · what-if"],
       ["Managed Action", "Not yet accepted"],
     ]);
     noMock();
@@ -1428,13 +1428,13 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(cards()).toEqual([
       ["Usable headroom", "Unknown", "After the selected retained margin"],
       ["Eligible days", "Not established", "Five-day study incomplete"],
-      ["Proposed load", "No load proposed", "No scenario linked"],
-      ["Gross sales scenario", "Not calculated", "Before costs; collections unverified"],
+      ["Proposed load", "No load proposed", "No what-if linked"],
+      ["Gross sales what-if", "Not calculated", "Before costs; collections unverified"],
     ]);
     expect(words()).toEqual([true, true, true, true]);
     expect(basis()).toEqual([
       ["Technical quantity", "Unknown"],
-      ["What-if energy", "No load scenario"],
+      ["What-if energy", "No load what-if"],
       ["Tariff", "No price per kWh declared"],
       ["Gross sales", "Not calculated"],
       ["Managed Action", "Not yet accepted"],
@@ -1451,7 +1451,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(priceUrls[0]).toContain("key=productive_use_price_per_kwh");
     expect(basis()).toEqual([
       ["Technical quantity", "12–15 kW usable headroom"],
-      ["What-if energy", "No load scenario"],
+      ["What-if energy", "No load what-if"],
       ["Tariff", "Declared price · 0.25 USD per kWh"],
       ["Value at declared price", "Up to 3.00–3.75 USD for each hour the spare solar is used · estimate, not sales"],
       ["Gross sales", "Not calculated"],
