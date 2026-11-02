@@ -930,7 +930,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     // Assure: the fixture has 1 evidence gap among 4 Sites; no outcome summary is read, so no target claim (OUT-D).
     expect(value("ASSURE_PERFORMANCE")).toBe("Not known yet");
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
-      "Verified results not available yet · evidence gap at 1 site",
+      "Verified results not known yet · evidence gap at 1 site",
     );
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-basis]"))).toBe("Completed work does not establish savings");
     // Window kept on every link.
@@ -1014,7 +1014,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ evidence_gap_site_count: gaps }, sites))));
       await settledScreen();
       expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
-        `Verified results not available yet · ${expected}`,
+        `Verified results not known yet · ${expected}`,
       );
       view.unmount();
     }
@@ -1059,7 +1059,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     await expectAssureDetail([
       [summaryWith(0, 1), `No verified result yet · ${targetsGap}`],
       [summaryWith(null, 3), `No verified result yet · ${targetsGap}`],
-      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `Verified results not available yet · ${targetsGap}`],
+      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `Verified results not known yet · ${targetsGap}`],
     ]);
   });
 });
@@ -1268,8 +1268,8 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
       [{ verified_result_count: 1 }, "1 verified result"],
       [{ verified_result_count: 2 }, "2 verified results"],
       [{ verified_result_count: 1, verified_sites_unread: 1 }, "1 verified result, 1 site not checked"],
-      [{ verified_result_count: null, verified_sites_unread: 4 }, "Verified results not available yet"],
-      [{ verified_result_count: undefined, verified_sites_unread: undefined }, "Verified results not available yet"],
+      [{ verified_result_count: null, verified_sites_unread: 4 }, "Verified results not known yet"],
+      [{ verified_result_count: undefined, verified_sites_unread: undefined }, "Verified results not known yet"],
     ];
     for (const [over, lead] of cases) {
       const answer = { status: "loaded" as const, value: outcomeSummaryBody(over) };

@@ -251,7 +251,7 @@ export function verifiedText(summary: EstateOutcomeSummaryBody | null): string {
   const unread = summary?.verified_sites_unread ?? 0;
   const lead =
     v === null
-      ? "Verified results not available yet"
+      ? "Verified results not known yet"
       : v === 0
         ? "No verified result yet"
         : `${v} ${v === 1 ? "verified result" : "verified results"}`;
