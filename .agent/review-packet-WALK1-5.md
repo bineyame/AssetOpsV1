@@ -128,3 +128,16 @@ No separate task file. Per the W1 rule, the owner sees this in the combined walk
 - **L2:** WK-6 no longer builds a Tariff string; it asserts the served price fields (PRICED, value > 0, currency) and returns
   them; wording stays with vitest and the capture.
 - Not run here: the G2 finish/capture on a real build.
+
+## Fix round 2 (re-review H1, Addendum 8)
+
+- H1 closed: the opportunity page now reads the declared price with `valid_at` = start of the latest Site-local noon
+  window among the body's pinned day rows (ISO UTC, `opportunityPriceInstant`, `siteLocalNoonUtc` added to
+  `siteTime.ts`); fallback is the page window's `to` (URL, then the body's renewable link) minus 1 s; never omitted.
+  The price read waits for the opportunity read to settle.
+- WK-6 sends the same `valid_at` (S+1 opportunity body, last pinned day noon) and asserts PRICED plus Tariff text
+  "Declared price · 0.25 USD per kWh". Read-only run on `assetops_walk1e_test`: PRICED 0.25 USD, valid_at 2026-11-01T09:00:00Z.
+- Tests: vitest fixture now returns `selection: null` without `valid_at` (as the server does); asserts the outgoing
+  `valid_at` for the pinned case and both fallbacks. Backend: API test and Postgres test pin `selection` null without `valid_at`.
+- Checks: tsc clean; 8 opportunity/financials vitest files 422 passed; `test_s4_assumption_read_api` 22 passed;
+  `test_s4_assumption_read_postgres` 7 passed (walk1f DB).

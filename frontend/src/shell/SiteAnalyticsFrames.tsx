@@ -1,7 +1,7 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { displayCode } from "../ui/displayCode";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
@@ -41,7 +41,7 @@ import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
 import { createWorkClient, defaultWorkWindow, workPageQuery, type WorkClient, type WorkKind, type WorkScope } from "../sites/workClient";
-import { siteSevenDayWindow } from "../sites/siteTime";
+import { siteLocalNoonUtc, siteSevenDayWindow } from "../sites/siteTime";
 import {
   createFindingIndexClient,
   FINDING_INDEX_DOMAIN,
@@ -68,7 +68,7 @@ import {
   useOpportunity,
 } from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
-import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
+import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type OpportunityDetailBody, type ScenarioScope } from "../sites/miniDecisionsClient";
 import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
@@ -1212,13 +1212,14 @@ export function SiteOpportunityFrame({
 
 /**
  * WALK1-5 (Addendum 7): the declared productive-use price per kWh from the Assumptions series (no new endpoint), at
- * the page's own `known_at` when one is given; `null` while loading.
+ * the page's own `known_at` when one is given, priced at `validAt` (Addendum 8; the server selects nothing without it).
  */
 function useDeclaredPrice(
   financials: FinancialsClient,
   siteId: string,
   enabled: boolean,
   knownAt: readonly string[],
+  validAt: string,
 ): DeclaredPrice | undefined {
   const [price, setPrice] = useState<DeclaredPrice | undefined>(undefined);
   const recordedAt = knownAt.length === 1 ? knownAt[0] : null;
@@ -1227,7 +1228,7 @@ function useDeclaredPrice(
     let active = true;
     setPrice(undefined);
     void financials
-      .getAssumptions(siteId, { recordedAt, limit: 1, key: "productive_use_price_per_kwh" })
+      .getAssumptions(siteId, { validAt, recordedAt, limit: 1, key: "productive_use_price_per_kwh" })
       .then((read) => {
         if (!active) return;
         const selection = read.status === "loaded" ? read.value.selection : undefined;
@@ -1242,8 +1243,25 @@ function useDeclaredPrice(
     return () => {
       active = false;
     };
-  }, [financials, siteId, enabled, recordedAt]);
+  }, [financials, siteId, enabled, recordedAt, validAt]);
   return price;
+}
+
+/**
+ * WALK1-5 (Addendum 8): the instant the study's declared price is read at. The start of the latest Site-local noon
+ * window among the pinned renewable day rows; without one, the page window's `to` minus one second. Never absent.
+ */
+export function opportunityPriceInstant(
+  body: OpportunityDetailBody | null,
+  timeZone: string | null | undefined,
+  windowTo: string | null,
+): string {
+  const days = (body?.opportunity?.day_rows ?? []).filter((r) => r.mini_revision_id !== null).map((r) => r.local_day).sort();
+  const noon = days.length > 0 ? siteLocalNoonUtc(days[days.length - 1], timeZone) : "";
+  if (noon !== "") return noon;
+  const to = windowTo ?? (body?.links.renewable ? new URLSearchParams(body.links.renewable.split("?")[1] ?? "").get("to") : null);
+  const t = to === null ? Number.NaN : new Date(to).getTime();
+  return new Date(Number.isNaN(t) ? Date.now() : t - 1000).toISOString().replace(".000Z", "Z");
 }
 
 function OpportunityScreen({
@@ -1261,8 +1279,11 @@ function OpportunityScreen({
 }) {
   const mini = site.site_type === "MINIGRID";
   const read = useOpportunity(client, site.site_id, opportunityId, mini, knownAt);
-  const declaredPrice = useDeclaredPrice(financials, site.site_id, mini, knownAt);
   const loaded = mini && read !== null && read.status === "loaded" && read.value.opportunity !== null ? read.value : null;
+  const [urlParams] = useSearchParams();
+  const windowTo = urlParams.get("to");
+  const priceAt = useMemo(() => opportunityPriceInstant(loaded, site.timezone, windowTo), [loaded, site.timezone, windowTo]);
+  const declaredPrice = useDeclaredPrice(financials, site.site_id, mini && read !== null, knownAt, priceAt);
   const renewable =
     loaded === null ? null : renewableHref(loaded, site.site_id, sitePerformanceHref(site.site_id, "renewable"));
   return (

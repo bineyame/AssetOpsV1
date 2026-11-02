@@ -1296,9 +1296,10 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     vi.stubGlobal("fetch", (url: string) => {
       if (!String(url).includes("/financial-assumptions")) return Promise.reject(new Error("not stubbed"));
       priceUrls.push(String(url));
-      return Promise.resolve(
-        price === "fail" ? new Response("{}", { status: 503 }) : new Response(JSON.stringify(price), { status: 200 }),
-      );
+      if (price === "fail") return Promise.resolve(new Response("{}", { status: 503 }));
+      // Like the server: a read with no `valid_at` selects nothing (`selection: null`, state unchanged).
+      const answer = new URL(String(url), "http://x").searchParams.has("valid_at") ? price : { ...(price as object), selection: null };
+      return Promise.resolve(new Response(JSON.stringify(answer), { status: 200 }));
     });
     const decisions: MiniDecisionsClient = {
       getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
@@ -1449,6 +1450,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     await show(body({}, unlinked), priced("0.25"));
     expect(priceUrls).toHaveLength(1);
     expect(priceUrls[0]).toContain("key=productive_use_price_per_kwh");
+    // Addendum 8: priced at the start of the latest study noon (Site-local 12:00 of 2026-10-10, Africa/Nairobi = 09:00Z)
+    // when the body has pinned day rows. The last row here is pinned (an EXCLUDED day still has its revision).
+    expect(new URL(priceUrls[0], "http://x").searchParams.get("valid_at")).toBe("2026-10-10T09:00:00Z");
     expect(basis()).toEqual([
       ["Technical quantity", "12–15 kW usable headroom"],
       ["What-if energy", "No load what-if"],
@@ -1475,6 +1479,18 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     await show(body(), priced("0.25"));
     expect(row("Tariff")).toBe("Unavailable in this read");
     expect(main().textContent).not.toContain("billed");
+  });
+
+  it("walk1_5_price_instant_falls_back_to_window_to_minus_one_second", async () => {
+    const noPins = { scenario_id: null, day_rows: [] };
+    cleanup();
+    openAt(loaded(body({}, noPins)), "MINIGRID", "?to=2026-10-10T21:00:00Z", priced("0.25"));
+    await settledScreen();
+    expect(new URL(priceUrls[0], "http://x").searchParams.get("valid_at")).toBe("2026-10-10T20:59:59Z");
+    // Never omitted: with no pinned day and no page window, the renewable link's `to` is used.
+    await show(body({}, noPins), priced("0.25"));
+    expect(new URL(priceUrls[0], "http://x").searchParams.get("valid_at")).toBe("2026-10-10T20:59:59Z");
+    expect(basis().find(([k]) => k === "Tariff")?.[1]).toBe("Declared price · 0.25 USD per kWh");
   });
 
   it("walk1_5_value_row_rounding_is_exact_half_up", async () => {

@@ -530,13 +530,23 @@ def wk6(ctx: Ctx) -> dict:
     opp = max(found, key=lambda o: o["last_day"])
     assert opp["last_day"] == ctx.day(1).date().isoformat(), (opp["last_day"], ctx.day(1).date().isoformat())
     assert opp["scenario_id"] is None, opp["scenario_id"]  # a linked what-if reads "Unavailable in this read"
-    series = ctx.get(f"/api/sites/{KOBO}/financial-assumptions", key="productive_use_price_per_kwh", limit=1)
+    # Addendum 8: the page prices the study at the start of its latest noon window (the S+1 opportunity body's last
+    # pinned day, Site-local 12:00; Kobo is Africa/Nairobi, no DST, so that is the study's end minus 12 hours). The
+    # server selects nothing without `valid_at`.
+    detail = ctx.get(f"/api/sites/{KOBO}/opportunities/{opp['id']}")
+    pinned = sorted(r["local_day"] for r in detail["opportunity"]["day_rows"] if r.get("mini_revision_id"))
+    assert pinned and pinned[-1] == opp["last_day"], (pinned, opp["last_day"])
+    valid_at = iso(hi - timedelta(hours=12))
+    series = ctx.get(f"/api/sites/{KOBO}/financial-assumptions", key="productive_use_price_per_kwh", limit=1,
+                     valid_at=valid_at)
     selection = series.get("selection") or {}
-    assert selection.get("state") == "PRICED", selection
+    assert selection.get("state") == "PRICED", (valid_at, selection)
     price = selection.get("price") or {}
     assert Decimal(str(price.get("value"))) > 0 and price.get("currency"), price
-    return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]],
-            "declared_price": f"{price['value']} {price['currency']} per kWh", "link": use["href"],
+    tariff = f"Declared price · {Decimal(str(price['value'])).normalize():f} {price['currency']} per kWh"
+    assert tariff == "Declared price · 0.25 USD per kWh", tariff
+    return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]], "valid_at": valid_at,
+            "declared_price": f"{price['value']} {price['currency']} per kWh", "tariff": tariff, "link": use["href"],
             "path": f"/sites/{KOBO}/opportunities/{opp['id']}"}
 
 

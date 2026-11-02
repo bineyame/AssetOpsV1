@@ -63,6 +63,12 @@ def recorded(client) -> list[datetime]:
 
 
 class TestSelection:
+    def test_no_valid_at_gives_no_selection_though_a_price_is_declared(self, published) -> None:
+        """WALK1-5 (Addendum 8, H1): the timeline holds prices yet `selection` is null without `valid_at`."""
+        client, *_ = published
+        body = client.get(SERIES).json()
+        assert body["selection"] is None and body["timeline"], body
+
     def test_half_open_valid_boundaries_on_the_current_series(self, published) -> None:
         client, _, _, (v1, v2, v3) = published
         for valid_at, expected in ((_t(2026, 5, 31), v1), (_t(2026, 6), v3), (_t(2026, 7), v1),
