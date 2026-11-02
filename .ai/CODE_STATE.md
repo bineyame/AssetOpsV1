@@ -6443,3 +6443,8 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   The MiniPerformance Site-local `YYYY-MM-DD` day. `coldDueText` `YYYY-MM-DD`. `SiteEvidence`/`FindingDetail`/
   assessment pages use `readableTime` but may have no `TimeZoneNote`. SiteFinding pages mix Site-local times with
   the "Times in UTC" note. Lane A strings noted in the packet (placement/portfolio display values).
+- WALK1 (post-polish walkthrough fixes): WALK1-1 Portfolio counts over checked days (`count_basis`, `checked_days[].withheld`,
+  "None shown yet"), Assure `verified_result_count`; WALK1-2 Depot declared tariff 0.30/kWh, EV board prices on ESTIMATED;
+  WALK1-3 migration `0040_walk1_productive_price` is the head (`productive_use_price_per_kwh`, Kobo 0.25/kWh), `supply-use`
+  Foundation property, estimated productive-use sales (overlap per asset = no estimate), Assumptions price row.
+  Known failing on main: `test_board_finding_titles_are_the_frontend_plain_titles`, `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` (WALK1-3b fixes).
