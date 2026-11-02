@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { EstateClient, EstateOutcomeSummaryBody, EstatePortfolioStatus, EstateResult } from "../estateClient";
+import type { EstateCheckedDays, EstateClient, EstateOutcomeSummaryBody, EstatePortfolioStatus, EstateResult } from "../estateClient";
 
 type EstateOutcomeSummaryRead = EstateResult<EstateOutcomeSummaryBody>;
 import { EstatePortfolioPage } from "../EstatePortfolio";
@@ -1203,8 +1203,8 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     ASSURE_PERFORMANCE: { open_findings: null, sites_with_primary_finding: null },
   });
   type Summary = ReturnType<typeof portfolioBody>["summary"];
-  const kobo = { site_id: "s-kobo", site_name: "Kobo", checked: 5, requested: 7 };
-  const harbour = { site_id: "s-harbour", site_name: "Harbour", checked: 6, requested: 7 };
+  const kobo: EstateCheckedDays = { site_id: "s-kobo", site_name: "Kobo", checked: 5, requested: 7 };
+  const harbour: EstateCheckedDays = { site_id: "s-harbour", site_name: "Harbour", checked: 6, requested: 7 };
   const body = (patch: Partial<Summary>) => {
     const base = portfolioBody();
     return portfolioBody({ summary: { ...base.summary, ...patch } });
@@ -1250,6 +1250,27 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     );
     expect(pulse()).toContain("Opportunity: None found on the days checked");
     expect(pulse()).toContain("1 site evidence gaps");
+  });
+
+  it("withheldFindingsNeverReadNoneFound", async () => {
+    const one = { ...kobo, withheld: true };
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [one], { evidence_gap_site_count: 0 })))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("None shown yet");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
+    expect(detail("PROTECT_ASSET")).toMatch(/ · 5 of 7 days checked at Kobo · findings next to unchecked days not shown yet$/);
+    expect(detail("ASSURE_PERFORMANCE")).toContain("no evidence gaps on the days checked");
+    expect(pulse()).toContain("Opportunity: None shown yet");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).not.toContain("Opportunity: None found");
+    expect(scanCards()).toBe("");
+  });
+
+  it("withheldClauseForTwoSites", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo, { ...harbour, withheld: true }])))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("None shown yet");
+    expect(detail("PROTECT_ASSET")).toMatch(/ · days not checked yet at 2 sites · findings next to those days not shown yet$/);
   });
 
   it("completeBasisKeepsTodaysWordsAndNoClause", async () => {
@@ -1306,7 +1327,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     await settledScreen();
     expect(value("GROW_REVENUE")).toBe("4.20 USD estimated");
     expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("estimated");
-    expect(detail("GROW_REVENUE")).toBe("Depot 4.20 USD · latest day per site");
+    expect(detail("GROW_REVENUE")).toBe("Depot 4.20 USD · each site's latest assessed period");
     expect(basis("GROW_REVENUE")).toBe("Declared price × measured kWh · not billed or collected");
     expect(card("GROW_REVENUE").className).toContain("green");
     expect(card("GROW_REVENUE").getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
@@ -1317,7 +1338,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     renderGrow({ "KOBO-001": "1.50", "EV-LAB-001": "4.20" });
     await settledScreen();
     expect(value("GROW_REVENUE")).toBe("2 sites with an estimate");
-    expect(detail("GROW_REVENUE")).toBe("Kobo 1.50 USD · Depot 4.20 USD · latest day per site");
+    expect(detail("GROW_REVENUE")).toBe("Kobo 1.50 USD · Depot 4.20 USD · each site's latest assessed period");
     expect(text(card("GROW_REVENUE"))).not.toContain("5.70");
     expect(scanCards()).toBe("");
   });

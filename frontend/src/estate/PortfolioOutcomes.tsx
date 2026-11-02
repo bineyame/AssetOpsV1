@@ -85,9 +85,20 @@ export function checkedDaysClause(body: EstatePortfolioBody): string | null {
   if ((body.summary.count_basis ?? null) !== "CHECKED_DAYS") return null;
   const days = body.summary.checked_days ?? [];
   if (days.length === 0) return null;
-  if (days.length === 1) return `${days[0].checked} of ${days[0].requested} days checked at ${days[0].site_name}`;
-  return `days not checked yet at ${days.length} sites`;
+  const withheld = anyWithheld(body);
+  if (days.length === 1) {
+    const base = `${days[0].checked} of ${days[0].requested} days checked at ${days[0].site_name}`;
+    return withheld ? `${base} · findings next to unchecked days not shown yet` : base;
+  }
+  const base = `days not checked yet at ${days.length} sites`;
+  return withheld ? `${base} · findings next to those days not shown yet` : base;
 }
+
+/** WALK1-1 fix round (M1): on checked days, any Site whose Findings next to unchecked days were left out. */
+export function anyWithheld(body: EstatePortfolioBody): boolean {
+  return (body.summary.count_basis ?? null) === "CHECKED_DAYS" && (body.summary.checked_days ?? []).some((d) => d.withheld === true);
+}
+export const NONE_SHOWN_YET = "None shown yet";
 
 const withClause = (detail: string, clause: string | null) => (clause === null ? detail : `${detail} · ${clause}`);
 const onCheckedDays = (body: EstatePortfolioBody) => (body.summary.count_basis ?? null) === "CHECKED_DAYS";
@@ -103,8 +114,9 @@ export function evidenceGapText(gaps: number | null, sites: number, checkedDays 
 }
 
 /** Ruling A-Q10: the Protect value for n Sites with a primary Protect Finding (null: not assessed). */
-function protectValue(n: number | null, checkedDays: boolean): ReactNode {
+function protectValue(n: number | null, checkedDays: boolean, withheld = false): ReactNode {
   if (n === null) return "Not assessed";
+  if (n === 0 && withheld) return NONE_SHOWN_YET;
   if (n === 0 && checkedDays) {
     return (
       <>
@@ -168,7 +180,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
               {k} <small>sites with an estimate</small>
             </>
           ),
-        detail: `${estimates.map((e) => `${e.site} ${e.money}`).join(" · ")} · latest day per site`,
+        detail: `${estimates.map((e) => `${e.site} ${e.money}`).join(" · ")} · each site's latest assessed period`,
         basis: GROW_ESTIMATE_BASIS,
         destination: "/findings/opportunities",
         tone: "green",
@@ -207,7 +219,7 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
   if (key === "PROTECT_ASSET") {
     const n = body.summary.category_counts?.PROTECT_ASSET?.sites_with_primary_finding ?? null;
     return {
-      value: protectValue(n, onCheckedDays(body)),
+      value: protectValue(n, onCheckedDays(body), anyWithheld(body)),
       detail: withClause(protectDetailText(summary), clause),
       basis: PROTECT_BASIS,
       destination: "/findings/risks",

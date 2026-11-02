@@ -229,8 +229,21 @@ def test_walk1_partial_estate_counts_over_checked_days(monkeypatch) -> None:
     assert isinstance(s["category_counts"]["PROTECT_ASSET"]["sites_with_primary_finding"], int)
     assert all(isinstance(v, int) for v in s["placement_counts"].values())
     assert isinstance(s["evidence_gap_site_count"], int)  # pre-flight E1: PARTIAL Sites emit evidence rows
-    assert s["checked_days"] == [{"site_id": P_MG, "site_name": "Kobo", "checked": 5, "requested": 7}]
+    assert s["checked_days"] == [{"site_id": P_MG, "site_name": "Kobo", "checked": 5, "requested": 7,
+                                 "withheld": False}]
     assert s["combined_value"] is None  # money unchanged (D-W1-4)
+
+
+def test_walk1_withheld_flag_rides_checked_days_and_count_stays_int(monkeypatch) -> None:
+    global DAYS
+    saved = DAYS
+    DAYS = {**saved, "withheld": True}
+    try:
+        s = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL"})["summary"]
+    finally:
+        DAYS = saved
+    assert s["checked_days"][0]["withheld"] is True
+    assert isinstance(s["opportunity_count"], int)  # the number is unchanged; the client words the zero
 
 
 def test_walk1_unknown_estate_stays_null_and_complete_stays_complete(monkeypatch) -> None:

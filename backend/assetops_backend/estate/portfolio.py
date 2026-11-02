@@ -621,7 +621,8 @@ class EstatePortfolioService(EstateEvidenceService):
             "category_counts": category_counts(members, finding_known),
             "count_basis": count_basis,
             "checked_days": [{"site_id": str(site["site_id"]), "site_name": site["site_name"],
-                              "checked": cov["days"]["checked"], "requested": cov["days"]["requested"]}
+                              "checked": cov["days"]["checked"], "requested": cov["days"]["requested"],
+                              "withheld": bool(cov["days"].get("withheld"))}
                              for site, _, cov in f_sites if cov["state"] == PARTIAL and cov.get("days")]}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").

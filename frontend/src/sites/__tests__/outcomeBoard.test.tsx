@@ -182,6 +182,19 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(document.activeElement).toBe(info);
   });
 
+  it("walk1WithheldFindingsReadNoneShownYet", async () => {
+    expect(countsText(0, 0, "withheld")).toBe("No open issues shown yet");
+    expect(countsText(0, 1, "withheld")).toBe("No open issues shown yet · 1 in hand");
+    await renderBoard({
+      status: "loaded",
+      value: boardBody({ finding_gaps: { text: "No assessed readings on 3 Oct", days: ["2026-10-03"], withheld: true } }),
+    });
+    const protect = rowEl("PROTECT_ASSET");
+    expect(protect.querySelector("[data-outcome-col='issues'] .ob-none")?.textContent).toBe("None shown yet");
+    expect(protect.querySelector("[data-outcome-counts]")?.textContent).toBe("No open issues shown yet");
+    expect(describeViolations(scanProductVocabulary(board(), "site-overview", { set: "w1" }).violations)).toBe("");
+  });
+
   it("walk1QualifiesNoneOnTheDaysCheckedWhenTheBoardNamesDayGaps", async () => {
     // WALK1-1 (WN-2, R673): with `finding_gaps`, "none" is a claim on the checked days only.
     expect(countsText(0, 0, true)).toBe("No open issues on the days checked");

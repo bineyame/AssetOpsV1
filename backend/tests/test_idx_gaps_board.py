@@ -31,19 +31,22 @@ def test_gap_line_counts_requested_non_current_days_only() -> None:
     edge_only = body([(REQUESTED[4], "CURRENT", "EDGE_NEXT_TO_GAP"), ("2026-09-18", "PENDING", "NOT_CURRENT")])
     assert finding_gap_line(edge_only, 31) is None
     one = finding_gap_line(body([(REQUESTED[2], "UNASSESSED", "NOT_CURRENT")]), 31)
-    assert one == {"text": "1 of the last 31 days has no checked readings yet", "days": [REQUESTED[2]]}
+    assert one == {"text": "1 of the last 31 days has no checked readings yet", "days": [REQUESTED[2]],
+                   "withheld": False}
     many = finding_gap_line(body([(d, "UNASSESSED", "NOT_CURRENT") for d in REQUESTED[:23]]), 31)
     assert many["text"] == "23 of the last 31 days have no checked readings yet"
     assert many["days"] == REQUESTED[:23]
     mixed = body([(REQUESTED[9], "PENDING", "NOT_CURRENT"), (REQUESTED[1], "UNASSESSED", "NOT_CURRENT")])
     assert finding_gap_line(mixed, 31) == {"text": "Not available yet · 2 of 31 days are not assessed yet",
-                                           "days": [REQUESTED[1], REQUESTED[9]]}
+                                           "days": [REQUESTED[1], REQUESTED[9]],
+                                           "withheld": False}
     single = finding_gap_line(body([(REQUESTED[9], "FAILED", "NOT_CURRENT")]), 31)
     assert single["text"] == "Not available yet · 1 of 31 days is not assessed yet"
     held = body([(REQUESTED[5], "UNASSESSED", "NOT_CURRENT"), (REQUESTED[4], "CURRENT", "WITHHELD_FINDING")],
                 withheld=True)
     assert finding_gap_line(held, 31)["text"] == (
         "1 of the last 31 days has no checked readings yet; Findings next to those days are not shown yet")
+    assert finding_gap_line(held, 31)["withheld"] is True  # WALK1-1 M1: the client words "None shown yet" from it
 
 
 @pytest.mark.parametrize(("status", "gaps", "settled"), [

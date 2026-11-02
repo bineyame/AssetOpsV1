@@ -396,7 +396,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     await settledScreen();
     expect(document.querySelectorAll("tbody tr")).toHaveLength(1);
     expect(rowCells()[0]).toContain("S-11");
-    expect(rowCells()[5]).toBe("Open Finding · Not available yet");
+    expect(rowCells()[5]).toBe("Open finding · Not available yet");
     expect(document.querySelector("tbody a")).toBeNull();
     expect(screen.queryByRole("link", { name: "Open finding →" })).toBeNull();
     expect(strip()).toContain("Evidence pending");

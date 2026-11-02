@@ -471,6 +471,8 @@ export interface EstateCheckedDays {
   site_name: string;
   checked: number;
   requested: number;
+  /** WALK1-1 fix round (M1): Findings next to this Site's unchecked days were left out. */
+  withheld?: boolean;
 }
 
 /** OUT-B B6: `GET /api/estate/outcome-summary` (§B.1), one outcome row per category for each authorized Site. */
