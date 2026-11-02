@@ -250,6 +250,55 @@ describe("OUT-B B5 Site outcome board", () => {
   });
 });
 
+describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => {
+  it("rendersTheOpportunityAsASecondChipAfterTheStateChip", async () => {
+    const rows = boardRows().map((r) =>
+      r.category !== "GROW_REVENUE"
+        ? r
+        : {
+            ...r,
+            state: "ON_TRACK",
+            state_label: "On track",
+            tone: "green",
+            potential: { label: "Opportunity", text: "Productive-use headroom" },
+            contributors: [
+              {
+                key: "declared_objective:MG-1",
+                label: "Declared objective",
+                text:
+                  "Productive electricity sales: at least 300 kWh sold for productive use a month · " +
+                  "673.3 kWh so far this month, on 6 of 29 days checked",
+                confidence: { label: "Met", tone: "green" },
+                href: null,
+              },
+              ...r.contributors,
+            ],
+          },
+    );
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) });
+    const summary = rowEl("GROW_REVENUE").querySelector(".ob-sum") as HTMLElement;
+    const chips = Array.from(summary.querySelectorAll(".oc-chip")).map((c) => c.textContent);
+    expect(chips).toEqual(["On track", "Opportunity"]);
+    const potential = summary.querySelector("[data-outcome-potential]") as HTMLElement;
+    expect(potential.className).toContain("tone-green");
+    expect(potential.getAttribute("title")).toBe("Productive-use headroom");
+    expect(rowEl("GROW_REVENUE").textContent).toContain("so far this month, on 6 of 29 days checked");
+    for (const code of ["MG-1", "MET", "ON_TRACK", "OPPORTUNITY"]) expect(board().textContent).not.toContain(code);
+    const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
+    expect(describeViolations(scan.violations)).toBe("");
+  });
+
+  it("rendersOneChipWhenNoPotentialOrOnAnOlderBody", async () => {
+    const rows = boardRows().map((r) => (r.category === "GROW_REVENUE" ? { ...r, potential: null } : r));
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) });
+    for (const row of [rowEl("GROW_REVENUE"), rowEl("OPTIMIZE_COST")]) {
+      const summary = row.querySelector(".ob-sum") as HTMLElement;
+      expect(summary.querySelectorAll(".oc-chip")).toHaveLength(1);
+      expect(summary.querySelector("[data-outcome-potential]")).toBeNull();
+    }
+  });
+});
+
 describe("OUT-E Earlier entry detail", () => {
   const DETAIL =
     "Modelled change after the trial · not realised savings: 0.042–0.046 USD less per kWh of feeder demand · " +
