@@ -36,3 +36,6 @@
 - WALK1-2: E2 demo prepare unverified — confirm the EV fault-Tuesday window reads ESTIMATED with an amount at G1 (ev-board-fault capture).
 - MAIN TEST FAILURE (from WALK1-1, missed by its review): `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` expects no `withheld` key in `finding_gaps`; WALK1-1 added it. Update the test expectation (fold into WALK1-3b with the MERGED-title fix).
 - WALK1-3b L5: WK-4 in `tools/demo_combined_finish.py` hard-codes "(needs 3 checked days)"; use regex `\(needs \d+ checked days\)$` (fails safe today).
+- WALK1-5 re-review 2 Lows: L1 WK-6 derive noon from pinned[-1] in Site zone instead of hi-12h; L2 one-frame stale price on known_at change (reset price when read disabled / key by validAt|recordedAt); L3 last-resort validAt fallback is Date.now() (only with no pinned day, no URL to, no renewable link) — Architect to confirm or show "not read".
+- WALK1-5 merge: close R682 (superseded by R685/R687).
+- WALK1-6 Lows: L1 board rounds mini cost range half-even while Estate Financials rounds outward (Architect); L2 strip suffix "on its board" should be "on their boards" for k>1 (PortfolioOutcomes.tsx:176; not visible in demo, k=1); L3 money2 crashes on exponent-form numbers; L4 captures.json `code` records base revision. Vitest timing flakes: evEnergy/evDepth R347 and generatorLifecycle under full load.
