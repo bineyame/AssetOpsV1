@@ -20,6 +20,7 @@ Nothing is computed into a claim or persisted: the read never writes.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal
@@ -41,10 +42,11 @@ from assetops_backend.mini_depth.inputs import (
     zone,
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
-from assetops_backend.mini_depth.store import DOMAINS, JOB_DOMAIN, read_hour_rows
+from assetops_backend.mini_depth.store import _ACCEPTED, DOMAINS, JOB_DOMAIN, read_hour_rows
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 
 HOUR = timedelta(hours=1)
+SUPPLY_USE, PRODUCTIVE = "supply-use", "PRODUCTIVE"  # WALK1-3 §4.2 (sites/models.py STATE_PROPERTY_VALUES)
 MAX_DAYS = 5
 SCHEMA_VERSION = "mini-depth-1"
 MINIGRID = "MINIGRID"
@@ -334,6 +336,65 @@ class MiniDepthRead:
 
     def dispose(self) -> None:
         self._engine.dispose()
+
+    # --- WALK1-3 §4.3: productive users and their measured use (SELECT only, read at request time) ------------
+
+    def _readonly(self, work: Callable[[Connection, datetime], Any], known_at: datetime | None) -> Any:
+        try:
+            with self._engine.connect().execution_options(isolation_level="REPEATABLE READ") as c:
+                with c.begin():
+                    c.execute(text("SET TRANSACTION READ ONLY"))
+                    read_time = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+                    if self.test_read_clock_override is not None:
+                        read_time = self.test_read_clock_override()
+                    if known_at is not None and known_at > read_time:
+                        raise MiniReadRefused("INVALID_KNOWN_AT")
+                    return work(c, read_time if known_at is None else known_at)
+        except (MiniReadRefused, MiniReadUnavailable):
+            raise
+        except (OperationalError, ProgrammingError, DBAPIError) as error:
+            raise MiniReadUnavailable(f"The productive-use read failed: {error.__class__.__name__}") from error
+
+    def productive_users(self, *, tenant_id: UUID, site_id: UUID, at: datetime,
+                         known_at: datetime | None) -> list[dict[str, Any]]:
+        """The LOAD components the single Foundation revision in force at `at` (known at the cutoff) declares
+        `supply-use = PRODUCTIVE`, as `{"asset_code", "asset_id", "name"}`; an empty list when none is declared.
+        No covering revision, or more than one, is unavailable (never "none declared")."""
+        def work(c: Connection, known: datetime) -> list[dict[str, Any]]:
+            p = {"t": tenant_id, "s": site_id, "k": known, "at": at}
+            rows = c.execute(text(
+                "SELECT content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k) "
+                "AND valid_from <= :at AND (valid_to IS NULL OR valid_to > :at)"), p).all()
+            if len(rows) != 1:
+                raise MiniReadUnavailable("No single Foundation revision covers the productive-use instant")
+            content = rows[0][0] if isinstance(rows[0][0], dict) else json.loads(rows[0][0])
+            users = [x for x in content.get("components") or () if x.get("component_type") == "LOAD"
+                     and any(q.get("property_key") == SUPPLY_USE and q.get("unit") == "state"
+                             and q.get("value") == PRODUCTIVE for q in x.get("properties") or ())]
+            ids = dict(c.execute(text("SELECT asset_code, id FROM asset WHERE tenant_id = :t AND site_id = :s"),
+                                 p).all())
+            return [{"asset_code": x["component_id"], "asset_id": ids.get(x["component_id"]),
+                     "name": str(x.get("display_name") or x["component_id"])}
+                    for x in sorted(users, key=lambda x: str(x.get("component_id")))]
+        return self._readonly(work, known_at)
+
+    def productive_readings(self, *, tenant_id: UUID, site_id: UUID, asset_ids: Sequence[UUID], lo: datetime,
+                            hi: datetime, known_at: datetime | None) -> list[dict[str, Any]]:
+        """The accepted, cutoff-visible `feeder_demand` interval readings of `asset_ids` touching `[lo, hi)`, as
+        `{"evidence_id", "asset_id", "start", "end", "value_kw", "quality"}`; a reading in another unit has no
+        value (a gap for `productive_use.productive_energy`, never a zero)."""
+        wanted = {str(a) for a in asset_ids if a is not None}
+
+        def work(c: Connection, known: datetime) -> list[dict[str, Any]]:
+            if not wanted:
+                return []
+            rows = c.execute(text(_ACCEPTED), {"t": tenant_id, "s": site_id, "k": known, "lo": lo, "hi": hi,
+                                               "roles": [rules.FEEDER_DEMAND]}).all()
+            return [{"evidence_id": r[0], "asset_id": r[2], "start": r[4], "end": r[5],
+                     "value_kw": r[7] if r[8] == "kW" else None, "quality": r[6]}
+                    for r in rows if str(r[2]) in wanted and r[4] is not None and r[5] is not None]
+        return self._readonly(work, known_at)
 
     def read(self, *, tenant_id: UUID, site_id: UUID, site_code: str, domain: str, lo: datetime, hi: datetime,
              known_at: datetime | None) -> dict[str, Any]:

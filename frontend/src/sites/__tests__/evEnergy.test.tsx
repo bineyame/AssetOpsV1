@@ -131,7 +131,7 @@ describe("W5-03a E3: EV Energy", () => {
       ["Metered session energy", "30.000 kWh", "Complete metered sessions only"],
       ["Observed peak import", "60 kW", "Selected 1-hour window"],
       ["Declared site limit", "80 kW", "Time-valid configuration"],
-      ["Gross tariff estimate", "9.00 USD", "Charging tariff: 0.30 USD/kWh"],
+      ["Estimated charging income", "9.00 USD", "Charging tariff: 0.30 USD/kWh"],
     ]);
     expect(document.querySelectorAll("[data-ev-energy-disclosure]")).toHaveLength(0);
     // Chart: one mark per accepted sample (equal-time marks separate), no connecting path, dashed declared limit.
@@ -180,7 +180,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(document.querySelector('[data-key-value="interruption"] .badge')?.className).toContain("ev-tone--amber");
     expect(text("[data-ev-conclusion-note]")).toBe("Revenue is an estimate from metered kWh and the declared tariff, not payment evidence.");
     expect(bridge()).toEqual([
-      ["30.000 kWh complete-record delivery", "0.30 USD/kWh charging tariff (charging income estimate)", "9.00 USD gross estimate", "Charging income estimate; not cash collected."],
+      ["30.000 kWh complete-record delivery", "0.30 USD/kWh charging tariff (charging income estimate)", "9.00 USD estimated", "Charging income estimate; not cash collected."],
       ["Incomplete session", "No complete meter interval", "Unavailable", "No extrapolated energy silently added"],
       ["Interrupted service", "No demand/sales baseline", "Unpriced exposure", "No invented lost revenue"],
     ]);
@@ -227,7 +227,7 @@ describe("W5-03a E3: EV Energy", () => {
     expect(grossTariffText(null)).toBe("Unknown");
     renderEnergy(loaded(read({ consequence: { ...ESTIMATED, state: "UNPRICED", amount: null } })));
     await settledScreen();
-    expect(cards()[3]).toEqual(["Gross tariff estimate", "Unpriced", "Charging tariff not set"]);
+    expect(cards()[3]).toEqual(["Estimated charging income", "Unpriced", "Charging tariff not set"]);
     expect(main().textContent).not.toContain("0.00 USD");
   });
 
@@ -296,7 +296,7 @@ describe("W5-03a E3: EV Energy", () => {
       "Metered session energy",
       "Observed peak import",
       "Declared site limit",
-      "Gross tariff estimate",
+      "Estimated charging income",
     ]);
     expect(document.querySelector("[data-ev-depth-correction]")?.textContent).toBe("Read without a selected window");
     expect(screen.queryByRole("button", { name: /Retry|Reload/ })).toBeNull();

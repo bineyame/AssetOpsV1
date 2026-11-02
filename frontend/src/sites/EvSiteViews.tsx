@@ -106,7 +106,7 @@ const CLAIM_LABEL: Record<string, string> = {
   FAULT_ASSOCIATION: "Cause of interruption",
   SITE_POWER_CONTEXT: "Site power context",
   POWER_CONSTRAINT: "Site power constraint",
-  GROSS_TARIFF_SCENARIO: "Gross tariff estimate",
+  GROSS_TARIFF_SCENARIO: "Estimated charging income",
 };
 const CAP_ROWS: { key: string; label: string; claim: string }[] = [
   { key: "sessions", label: "Session outcomes", claim: "SESSION_OUTCOME" },
@@ -289,7 +289,7 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
 
 /** The Overview's five and the Financials' four tile labels, kept on a refused page with `Not assessed` values. */
 const OVERVIEW_TILES = ["Session service", "Availability", "Site power", "Charger condition", "Evidence"];
-const FINANCIAL_TILES = ["Delivered energy", "Gross tariff estimate", "Lost revenue", "Collections"];
+const FINANCIAL_TILES = ["Delivered energy", "Estimated charging income", "Lost revenue", "Collections"];
 
 /* ---------- shared strip pieces ---------- */
 
@@ -737,7 +737,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
             <>
               <div className="metric-value v69-metric__value ev-site-amount" data-ev-money={money!.state ?? "none"}>
                 {money!.state === "ESTIMATED" && money!.amount !== null && money!.currency !== null
-                  ? `${money!.currency} ${money2(money!.amount)} gross tariff estimate`
+                  ? `${money!.currency} ${money2(money!.amount)} estimated charging income`
                   : money!.state === "UNPRICED"
                     ? "Unpriced"
                     : money!.state === "WITHHELD"
@@ -746,7 +746,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
               </div>
               <p className="prose">
                 {money!.state === "ESTIMATED"
-                  ? `Gross tariff estimate for ${money!.quantity_kwh} kWh delivered with complete coverage. Not cash collected.`
+                  ? `Estimated charging income for ${money!.quantity_kwh} kWh delivered with complete coverage. Not cash collected.`
                   : (money!.limitation ?? `${NO_SCENARIO}.`)}
               </p>
               {f !== null && f.consequence !== null ? <ScenarioDetails c={f.consequence} /> : null}
@@ -1250,7 +1250,7 @@ const BillingChip = ({ state }: { state: string | undefined }) => (
 
 function consequenceWord(c: EvConsequence | null): string {
   if (c === null) return NO_SCENARIO;
-  if (c.state === "ESTIMATED" && c.amount !== null && c.currency !== null) return `${c.currency} ${money2(c.amount)} gross estimate`;
+  if (c.state === "ESTIMATED" && c.amount !== null && c.currency !== null) return `${c.currency} ${money2(c.amount)} estimated charging income`;
   return c.state === "WITHHELD" ? "Withheld" : "Unpriced";
 }
 
@@ -1298,7 +1298,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       {f === null ? null : (
         <MetricCards columns={4} label="EV money translation">
           <MetricCard label="Delivered energy" value={energyKwh === null ? "Unknown" : `${energyKwh} kWh`} note="Metered, complete sessions" data={{ "data-ev-fin-card": "energy" }} />
-          <MetricCard label="Gross tariff estimate" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Estimate · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
+          <MetricCard label="Estimated charging income" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Estimate · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
           <MetricCard label="Lost revenue" value="Unknown" note="Unmet demand not established" data={{ "data-ev-fin-card": "lost" }} />
           <MetricCard label="Collections" value="Not recorded" note="No accepted payment record" data={{ "data-ev-fin-card": "collections" }} />
         </MetricCards>
@@ -1437,7 +1437,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
           {refused !== null ? (
             <Gap id="ev-site-excluded">{NOT_ASSESSED}</Gap>
           ) : ["lost_sales", "collections", "margin", "repair", "warranty"].every((k) => f!.not_included.includes(k)) ? (
-            <p className="prose">Lost sales, collections, margin, repair and warranty are not included in this gross tariff estimate.</p>
+            <p className="prose">Lost sales, collections, margin, repair and warranty are not included in this estimated charging income.</p>
           ) : (
             <Gap id="ev-site-excluded">Exclusions not recorded</Gap>
           )}

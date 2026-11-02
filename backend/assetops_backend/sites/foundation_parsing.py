@@ -1238,7 +1238,7 @@ def _parse_component_property(
 
     states = STATE_PROPERTY_VALUES.get(property_key)
     if states is not None:
-        # W2-05a: the one state-valued property. Its own branch, so the numeric
+        # W2-05a: the state-valued properties (WALK1-3 adds supply-use). Their own branch, so the numeric
         # path below and every numeric property's bytes are untouched.
         return _parse_state_property(
             mapping, property_key, definition.unit, definition.kind, states,

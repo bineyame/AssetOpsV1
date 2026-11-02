@@ -26,7 +26,7 @@ if URL:
     from test_s1_bindings_postgres import _alembic, engine  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head
 
-HEAD = "0039_merge_objectives_cc"  # OUT-E: the merge revision above 0037 and 0038
+HEAD = "0040_walk1_productive_price"  # OUT-E: the merge revision above 0037 and 0038
 OBJECTIVES = "0038_out_objectives"
 PARENT = "0035_w5_ev_work"
 TABLE = "outcome_objective_revision"

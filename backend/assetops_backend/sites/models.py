@@ -233,6 +233,11 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "ev-connector-enabled": PropertyDefinition(
         unit="state", kind="CONTROL", display_name="Connector enabled"
     ),
+    # WALK1-3 §4.2: what a mini-grid LOAD supplies. Optional; absence means "not declared". PRODUCTIVE users'
+    # measured use, priced at the declared productive-use price, is the estimated productive-use sales.
+    "supply-use": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Supply use"
+    ),
     "ev-meter-resolution": PropertyDefinition(
         unit="kWh", kind="PHYSICAL", display_name="Connector meter resolution"
     ),
@@ -277,10 +282,12 @@ EV_PROPERTY_CARRIERS: dict[str, str] = {
 }
 
 #: W2-05a: the properties whose value is a member of a closed state set
-#: rather than a number, and that set. Only `ev-connector-enabled`; every other
-#: property keeps the numeric parser path and its rendered bytes unchanged.
+#: rather than a number, and that set. `ev-connector-enabled` and (WALK1-3)
+#: `supply-use`; every other property keeps the numeric parser path and its
+#: rendered bytes unchanged.
 STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     "ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
+    "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"}),
 }
 
 #: W2-01: the component type that must carry each cold property
@@ -306,6 +313,7 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "pv-available-uncertainty": "INVERTER",
     "renewable-retained-margin": "AC_BUS",
     "backup-recovery-target": "AC_BUS",
+    "supply-use": "LOAD",  # WALK1-3 §4.2
 }
 #: W4-02 closure 4 N2: the mini-grid depth properties that must be strictly positive (the other two are
 #: nonnegative, which the shared parser already enforces for every unsigned unit).

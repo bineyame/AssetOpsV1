@@ -17,7 +17,7 @@ import { formatRange } from "../ui/time";
 export const CATEGORY_LABEL: Readonly<Record<FinancialCategory, string>> = {
   CANDIDATE_OPERATING_COST_EXPOSURE: "Candidate operating-cost exposure",
   POTENTIAL_PRODUCT_EXPOSURE: "Stock may be at risk",
-  GROSS_TARIFF_SCENARIO: "Gross tariff estimate",
+  GROSS_TARIFF_SCENARIO: "Estimated charging income",
   RECORDED_REPAIR: "Recorded repair",
 };
 

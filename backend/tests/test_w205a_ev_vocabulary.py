@@ -128,7 +128,10 @@ class TestVocabulary:
             assert models.COMPONENT_PROPERTY_DEFINITIONS[key].unit == unit
             assert models.EV_PROPERTY_CARRIERS[key] == carrier
         assert models.COMPONENT_PROPERTY_DEFINITIONS["ev-connector-enabled"].kind == "CONTROL"
-        assert models.STATE_PROPERTY_VALUES == {"ev-connector-enabled": frozenset({"ENABLED", "DISABLED"})}
+        assert models.STATE_PROPERTY_VALUES == {"ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
+                                                # WALK1-3 §4.2: the mini-grid LOAD supply use
+                                                "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD",
+                                                                         "ESSENTIAL_SERVICE"})}
 
 
 class TestParserAndRender:

@@ -372,7 +372,7 @@ describe("W2-07 EV Site routes", () => {
     expect(claim.querySelector("[data-claim-prose]")?.textContent).toBe(
       "Each capability lists the readings it needs. Missing readings narrow the conclusion to covered periods; gaps are shown.Source reporting is not equipment condition.",
     );
-    expect(claim.querySelector('[data-claim-rule="GROSS_TARIFF_SCENARIO"]')?.textContent).toContain("Gross tariff estimate: Full · 1800/1800 session-seconds covered");
+    expect(claim.querySelector('[data-claim-rule="GROSS_TARIFF_SCENARIO"]')?.textContent).toContain("Estimated charging income: Full · 1800/1800 session-seconds covered");
   });
 
   it("claim_details_use_plain_capability_and_chip_words", async () => {
@@ -390,7 +390,7 @@ describe("W2-07 EV Site routes", () => {
     const rules = Array.from(claim.querySelectorAll("[data-claim-rule]")).map((r) => (r.firstChild?.textContent ?? "").split(" · ")[0]);
     expect(rules).toEqual([
       "Session outcomes: Full", "Connector availability: Limited", "Delivered energy: None", "Cause of interruption: Contradictory",
-      "Site power context: Full", "Site power constraint: Limited", "Gross tariff estimate: None",
+      "Site power context: Full", "Site power constraint: Limited", "Estimated charging income: None",
     ]);
     expect(claim.textContent).not.toMatch(/SESSION_OUTCOME|SERVICE_STATE|SUPPORTED|UNAVAILABLE|CONTRADICTORY/);
     // Review r1 L2: four rows and four counts; the three other claims never change the chip or the count.
@@ -514,7 +514,7 @@ describe("W2-07 EV Site routes", () => {
     expect(cards).toEqual(["30.000 kWh", "KES 8.33", "Unknown", "Not recorded"]);
     const bridge = panelTitled("What happened → what it means in money");
     const row = Array.from(bridge.querySelectorAll('[data-bridge-row="scenario"] > *')).map((c) => c.textContent);
-    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "What-if", "Metered with complete coverage", "Energy ↗"]);
+    expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 estimated charging income", "What-if", "Metered with complete coverage", "Energy ↗"]);
     expect(bridge.querySelector('[data-disclosure="ev-site-basis-details"]')?.textContent).toContain("KES 8.331000");
     // CC-R1 L5: the EV Financials frame passes no recommendation link, so no forward link renders.
     expect(document.querySelector("[data-financials-recommendation-link]")).toBeNull();
@@ -528,7 +528,7 @@ describe("W2-07 EV Site routes", () => {
     expect(finDetails.textContent).toContain("Authored estimate");
     expect(assumptionsPanel.textContent).toContain("No record");
     expect(within(assumptionsPanel).getByRole("link", { name: "Review assumptions" }).getAttribute("href")).toBe(`${PATHS["ev-assumptions"]}${Q}`);
-    expect(panelTitled("Not included").querySelector(".prose")?.textContent).toBe("Lost sales, collections, margin, repair and warranty are not included in this gross tariff estimate.");
+    expect(panelTitled("Not included").querySelector(".prose")?.textContent).toBe("Lost sales, collections, margin, repair and warranty are not included in this estimated charging income.");
 
     // q6 R3: no complete gross coverage -> no `Metered with complete coverage`.
     cleanup();
@@ -665,8 +665,8 @@ describe("W2-07 EV Site routes", () => {
     expect(main().textContent).not.toMatch(/Healthy/);
     expect(panelTitled("Needs attention").textContent).toContain("End record missing");
     const money = panelTitled("Possible cost");
-    expect(money.querySelector("[data-ev-money]")?.textContent).toBe("KES 8.33 gross tariff estimate");
-    expect(money.textContent).toContain("Gross tariff estimate for 30.000 kWh delivered with complete coverage. Not cash collected.");
+    expect(money.querySelector("[data-ev-money]")?.textContent).toBe("KES 8.33 estimated charging income");
+    expect(money.textContent).toContain("Estimated charging income for 30.000 kWh delivered with complete coverage. Not cash collected.");
     expect(within(money).getByRole("link", { name: "Open financial bridge →" }).getAttribute("href")).toBe(`${PATHS["ev-financials"]}${RAW_Q}`);
     const next = panelTitled("Next step");
     expect(next.textContent).toContain("Recover the missing session end report");

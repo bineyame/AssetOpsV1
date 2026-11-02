@@ -31,6 +31,9 @@ import demo_story_days as sd
 from demo_combined import at, iso
 
 FIXTURE_PRICES = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-diesel-price-publications.json"
+#: WALK1-3 §4.1 (D-W1-2): the declared price per kWh for productive users, published at the diesel price's instant.
+FIXTURE_PRODUCTIVE_PRICE = (Path(__file__).resolve().parents[1] / "backend" / "conversions"
+                            / "demo-productive-price-publications.json")
 
 
 def resolved_manifest(base: dict, story: dict) -> dict:
@@ -53,7 +56,12 @@ def resolved_manifest(base: dict, story: dict) -> dict:
 #: Q1 ruling (`.agent/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
 #: commissioning instead of their build dates; values byte-identical, only `effective_from` moves.
 CONFIG_OFFSETS = {"properties": timedelta(minutes=10), "roles2": timedelta(minutes=10),
-                  "roles3": timedelta(minutes=20), "known": timedelta(minutes=30)}
+                  "roles3": timedelta(minutes=20), "known": timedelta(minutes=30),
+                  # WALK1-3 §4.2: the additive supply-use change, after the +20 roles-3 revision so it carries forward (a change
+                  # only splits the revision in force at its instant); no pinned configuration file changes
+                  "uses": timedelta(minutes=25)}
+#: WALK1-3 §4.2: what each Kobo feeder supplies, declared in the Site configuration (never guessed from names).
+SUPPLY_USES = {"load-mill": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-clinic": "ESSENTIAL_SERVICE"}
 
 
 def configure_at(store, result, install_at: datetime) -> dict:
@@ -75,11 +83,24 @@ def configure_at(store, result, install_at: datetime) -> dict:
     apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, s3)
     applied = apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, ver)
     assert applied.periods[-1]["role_set"] == "minigrid-roles-3"
+    declare_supply_uses(foundation, result, install_at)
     return {"labels": [s3["label"], ver["label"]],
             "properties_effective_from": s3["component_properties"]["effective_from"],
             "roles2_effective_from": s3["bindings"]["effective_from"],
             "roles3_effective_from": ver["bindings"]["effective_from"],
+            "supply_uses_effective_from": iso(install_at + CONFIG_OFFSETS["uses"]),
             "recorded_at": iso(install_at + CONFIG_OFFSETS["known"])}
+
+
+def declare_supply_uses(foundation, result, install_at: datetime) -> None:
+    """WALK1-3 §4.2: one additive Foundation change per feeder at install + 25 min, recorded with the rest of the
+    commissioning configuration (install + 30 min). Only `supply-use` is added; every other property is kept."""
+    for code, use in SUPPLY_USES.items():
+        foundation.publish_component_properties(
+            result.tenant, result.site, asset_code=code, effective_from=install_at + CONFIG_OFFSETS["uses"],
+            note="Demonstration supply use declared at commissioning",
+            properties=[{"property_key": "supply-use", "value": use, "unit": "state", "source": "SITE",
+                         "source_version": 1}])
 
 
 def publish_price(url: str, recorded_at: datetime) -> None:
@@ -89,11 +110,12 @@ def publish_price(url: str, recorded_at: datetime) -> None:
 
     store = PostgresAssumptionStore(url, test_recorded_clock_override=lambda: recorded_at)
     try:
-        code = publish(["fixture", "--site", "KOBO-001", "--file", str(FIXTURE_PRICES), "--step", "v1"], store=store)
+        for name, fixture in (("diesel price", FIXTURE_PRICES), ("productive-use price", FIXTURE_PRODUCTIVE_PRICE)):
+            code = publish(["fixture", "--site", "KOBO-001", "--file", str(fixture), "--step", "v1"], store=store)
+            if code != 0:
+                raise SystemExit(f"{name} v1 publication failed ({code})")
     finally:
         pg_harness.dispose(store)
-    if code != 0:
-        raise SystemExit(f"diesel price v1 publication failed ({code})")
 
 
 def write_work(url: str, store, result, story: dict) -> dict:

@@ -665,7 +665,7 @@ export function deriveSiteConfigurationView(
           .filter((property) => property.kind === "PHYSICAL")
           .map((property) => ({
             label: `${component.display_name} ${property.display_name.toLowerCase()}`,
-            value: `${property.value} ${property.unit}`,
+            value: propertyValueText(property),
           })),
       ),
     ],
@@ -834,7 +834,7 @@ export function deriveComponentProperties(
         componentName:
           names[component.component_id] ?? component.component_id,
         propertyName: property.display_name,
-        value: `${property.value} ${property.unit}`,
+        value: propertyValueText(property),
         declaredBy: `${label(
           property.source,
           COMPONENT_PROPERTY_SOURCE_LABELS,
@@ -851,6 +851,23 @@ export function deriveComponentProperties(
   }
 
   return declared(rows);
+}
+
+/**
+ * WALK1-3 §4.2: plain words for a state-valued property, never the stored code. Only `supply-use` has words;
+ * any other state property keeps its existing "{value} {unit}" text.
+ */
+export const STATE_PROPERTY_WORDS: Record<string, Record<string, string>> = {
+  "supply-use": {
+    PRODUCTIVE: "Productive use",
+    HOUSEHOLD: "Household",
+    ESSENTIAL_SERVICE: "Essential service",
+  },
+};
+
+/** A declared property value as display: the plain word of a known state, else "{value} {unit}". */
+export function propertyValueText(property: { property_key: string; value: number | string; unit: string }): string {
+  return STATE_PROPERTY_WORDS[property.property_key]?.[String(property.value)] ?? `${property.value} ${property.unit}`;
 }
 
 /** Which document declared a property, as display. */

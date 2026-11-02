@@ -27,12 +27,16 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
 
-ASSUMPTION_KEYS = ("diesel_price_per_litre", "ev_gross_tariff_per_kwh")
+ASSUMPTION_KEYS = ("diesel_price_per_litre", "ev_gross_tariff_per_kwh", "productive_use_price_per_kwh")
 UNIT = "currency/L"
 # W2-07 (migration 0026): the EV gross tariff is the only new key. Its unit is literally `currency/kWh`, its value is
 # strictly positive and its currency must be an active ISO 4217 code; there is no default tariff or currency.
 EV_TARIFF_KEY = "ev_gross_tariff_per_kwh"
-UNITS = {"diesel_price_per_litre": UNIT, EV_TARIFF_KEY: "currency/kWh"}
+# WALK1-3 (migration 0040): the declared price per kWh for productive users follows the EV tariff rules exactly
+# (unit `currency/kWh`, strictly positive, active ISO 4217 currency). It is read at request time only.
+PRODUCTIVE_PRICE_KEY = "productive_use_price_per_kwh"
+PER_KWH_KEYS = (EV_TARIFF_KEY, PRODUCTIVE_PRICE_KEY)
+UNITS = {"diesel_price_per_litre": UNIT, EV_TARIFF_KEY: "currency/kWh", PRODUCTIVE_PRICE_KEY: "currency/kWh"}
 # Active ISO 4217 alphabetic codes (list one, current funds and fund codes excluded). EV tariffs only: the diesel
 # publication rule stays the shape check it always had.
 ISO_4217 = frozenset("""
@@ -119,9 +123,9 @@ def validate(p: Publication) -> None:
         refuse("CURRENCY_NOT_ISO", "Currency must be an ISO 4217 three-letter upper-case code.")
     if not isinstance(p.value, Decimal) or not p.value.is_finite():
         refuse("VALUE_NOT_FINITE", "The price must be a finite authored decimal.")
-    if p.assumption_key == EV_TARIFF_KEY:
+    if p.assumption_key in PER_KWH_KEYS:
         if p.value <= 0:
-            refuse("VALUE_NOT_POSITIVE", "An EV gross tariff per kWh must be greater than zero.")
+            refuse("VALUE_NOT_POSITIVE", "A price per kWh must be greater than zero.")
         if p.currency not in ISO_4217:
             refuse("CURRENCY_NOT_ISO", "Currency must be an active ISO 4217 code.")
     if p.value < 0:

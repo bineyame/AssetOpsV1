@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
 HEAD = "0026_w2_ev_money"
-UPGRADED_HEAD = "0039_merge_objectives_cc"  # W5-03b: 0034 above 0033 (W5-02a above 0032); head(engine) asserts it
+UPGRADED_HEAD = "0040_walk1_productive_price"  # W5-03b: 0034 above 0033 (W5-02a above 0032); head(engine) asserts it
 PREVIOUS = "0025_w2_ev_session"
 REFUSED = "Downgrade of 0026_w2_ev_money refused"
 EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",
@@ -101,7 +101,7 @@ def financial_constraints(engine) -> dict:  # noqa: F811
             "SELECT conrelid::regclass::text || '.' || conname, pg_get_constraintdef(oid) FROM pg_constraint "
             "WHERE conrelid::regclass::text LIKE 'financial\\_%' AND conname NOT IN ("
             "'financial_assumption_revision_assumption_key_check', 'financial_assumption_revision_unit_check', "
-            "'financial_assumption_revision_ev_positive')"))}
+            "'financial_assumption_revision_ev_positive', 'financial_assumption_revision_productive_positive')"))}
 
 
 def counted(engine, sql, **params) -> int:  # noqa: F811
@@ -173,11 +173,14 @@ class TestMigration0026:
         script = ScriptDirectory.from_config(_alembic())
         assert script.get_heads() == [UPGRADED_HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
         assert head(engine) == UPGRADED_HEAD
+        # WALK1-3: the head (0040) widened both CHECKs once more for the productive-use price per kWh.
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
-            "CHECK ((assumption_key = ANY (ARRAY['diesel_price_per_litre'::text, 'ev_gross_tariff_per_kwh'::text])))")
+            "CHECK ((assumption_key = ANY (ARRAY['diesel_price_per_litre'::text, 'ev_gross_tariff_per_kwh'::text, "
+            "'productive_use_price_per_kwh'::text])))")
         assert constraint(engine, "financial_assumption_revision_unit_check") == (
             "CHECK ((((assumption_key = 'diesel_price_per_litre'::text) AND (unit = 'currency/L'::text)) OR "
-            "((assumption_key = 'ev_gross_tariff_per_kwh'::text) AND (unit = 'currency/kWh'::text))))")
+            "((assumption_key = 'ev_gross_tariff_per_kwh'::text) AND (unit = 'currency/kWh'::text)) OR "
+            "((assumption_key = 'productive_use_price_per_kwh'::text) AND (unit = 'currency/kWh'::text))))")
         assert constraint(engine, "financial_assumption_revision_ev_positive") == (
             "CHECK (((assumption_key <> 'ev_gross_tariff_per_kwh'::text) OR (value > (0)::numeric)))")
         assert constraint(engine, "ev_consequence_revision_tariff_fk") == (

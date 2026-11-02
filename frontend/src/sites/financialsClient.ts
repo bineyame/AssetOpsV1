@@ -364,6 +364,8 @@ export interface SeriesQuery {
   recordedAt?: string | null;
   afterRevisionNo?: number;
   limit?: number;
+  /** The assumption series to read; the diesel price per litre when omitted. */
+  key?: "diesel_price_per_litre" | "productive_use_price_per_kwh";
 }
 
 export interface FinancialsClient {
@@ -475,7 +477,7 @@ export function createFinancialsClient(basePath: string = SITES_API_PATH): Finan
   const site = (siteId: string) => `${basePath}/${encodeURIComponent(siteId)}`;
   return {
     getAssumptions(siteId, query) {
-      const params = new URLSearchParams({ key: "diesel_price_per_litre" });
+      const params = new URLSearchParams({ key: query.key ?? "diesel_price_per_litre" });
       if (query.validAt) params.set("valid_at", query.validAt);
       if (query.recordedAt) params.set("recorded_at", query.recordedAt);
       if (query.afterRevisionNo) params.set("after_revision_no", String(query.afterRevisionNo));

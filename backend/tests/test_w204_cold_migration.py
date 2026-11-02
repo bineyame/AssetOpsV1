@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
-HEAD = "0039_merge_objectives_cc"  # W5-04a: 0035 sits above 0034; W5-03b: 0034 sits above 0033; W5-02a: 0033 sits above 0032 (W5-01b above 0030)
+HEAD = "0040_walk1_productive_price"  # W5-04a: 0035 sits above 0034; W5-03b: 0034 sits above 0033; W5-02a: 0033 sits above 0032 (W5-01b above 0030)
 PREVIOUS = "0022_w2_cold_assessment"
 REFUSED = "Downgrade of 0023_w2_cold_consequence refused"
 TABLES = ("cold_consequence_revision", "cold_consequence_evidence", "cold_consequence_work",
@@ -120,7 +120,8 @@ _DIESEL_ONLY = {
 
 def below_0026(snapshot: dict) -> dict:
     cons = sorted((t, n, _DIESEL_ONLY.get(n, d)) for t, n, d in snapshot["constraints"]
-                  if n != "financial_assumption_revision_ev_positive")
+                  if n not in ("financial_assumption_revision_ev_positive",
+                               "financial_assumption_revision_productive_positive"))  # WALK1-3: 0040
     return {**snapshot, "constraints": cons}
 
 

@@ -102,7 +102,7 @@ export interface SiteRatingReadModel {
 export interface ComponentPropertyReadModel {
   property_key: string;
   display_name: string;
-  /** A number, or (W2-05a, `ev-connector-enabled` only) the exact state `ENABLED` or `DISABLED` with unit `state`. */
+  /** A number, or a state with unit `state`: `ev-connector-enabled` ENABLED/DISABLED (W2-05a) or `supply-use` PRODUCTIVE/HOUSEHOLD/ESSENTIAL_SERVICE (WALK1-3). */
   value: number | string;
   unit: string;
   kind: string;
