@@ -41,6 +41,7 @@ POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION
 DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI, "COLDCHAIN": COLD, "EV_CHARGING": EV}
 FINDING_INDEX_DOMAIN = "mini-grid-dispatch"
 DIESEL_PRICE_KEY = "diesel_price_per_litre"
+PRODUCTIVE_PRICE_KEY = "productive_use_price_per_kwh"  # WALK1-3 §4.1 (financials/assumptions.py)
 ASSESSMENT_PAGE = 50  # the cold/EV Finding list default page (`cold_assessment_api.py` DEFAULT_LIMIT)
 UNAVAILABLE = "UNAVAILABLE"
 #: B-Q27: the Portfolio Grow card's short value (mock `outcomes.js:147`).
@@ -267,11 +268,26 @@ class SiteOutcomeBoardService:
                 if after is None:
                     return rows
 
+        # WALK1-3 §4.3: the productive users, their measured use and the declared productive-use price. The SQL
+        # lives in the read-only mini-depth reader (`mini_depth/read.py`); the price is the diesel series read.
+        def productive_users(at: datetime) -> list[dict[str, Any]]:
+            return _need(s.mini_depth, "mini_depth").productive_users(
+                tenant_id=t, site_id=sid, at=at, known_at=known_at)
+
+        def productive_readings(asset_ids: list[Any], lo: datetime, hi: datetime) -> list[dict[str, Any]]:
+            return _need(s.mini_depth, "mini_depth").productive_readings(
+                tenant_id=t, site_id=sid, asset_ids=asset_ids, lo=lo, hi=hi, known_at=known_at)
+
+        def productive_price(at: datetime) -> dict[str, Any]:
+            return jsonable_encoder(_need(s.assumptions, "assumptions").series(
+                t, sid, PRODUCTIVE_PRICE_KEY, valid_at=at, recorded_at=known_at))
+
         return mini.MiniPorts(overview=overview, depth=depth, dispatch=dispatch, assumption=assumption,
                               finding_index=finding_index, estate=estate, action_index=action_index,
                               verification=verification, action=action, work=shared["work"],
                               plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
-                              finding_history=finding_history)
+                              finding_history=finding_history, productive_users=productive_users,
+                              productive_readings=productive_readings, productive_price=productive_price)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code

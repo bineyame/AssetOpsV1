@@ -1,0 +1,213 @@
+"""WALK1-3 §4.3-§4.5: measured productive use (pure) and the Kobo Grow row's estimated productive-use sales.
+
+Every case of the §4.4 table, the priced subline, the MG-1 reading and the vocabulary of the new strings. The fake
+ports are OUT-B2's (`test_out_b2_mini.Fake`); the three productive-use ports are replaced per case.
+"""
+from __future__ import annotations
+
+from dataclasses import replace
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from typing import Any
+
+import pytest
+
+from assetops_backend.site_outcomes import mini
+from assetops_backend.site_outcomes.board import assemble
+from assetops_backend.site_outcomes.mini import compose
+from assetops_backend.site_outcomes.productive_use import productive_energy
+from test_out_b2_mini import C, DAY, DEPTH, ZONE, Fake, contributor
+
+GROW = mini.GROW
+LO = datetime(DAY.year, DAY.month, DAY.day, tzinfo=timezone.utc)
+HI = LO + timedelta(days=1)
+MILL = {"asset_code": "load-mill", "asset_id": "a-mill", "name": "Grain mill"}
+PRICE = {"selection": {"state": "PRICED", "price": {"value": "0.2500", "currency": "USD"}}}
+NO_PRICE = {"selection": {"state": "NO_PRICE", "price": None}}
+ASSUMPTIONS = f"/sites/{C}/financials/assumptions"
+
+
+def reading(start: datetime, minutes: int = 5, kw: Any = "12", quality: str = "GOOD") -> dict[str, Any]:
+    return {"start": start, "end": start + timedelta(minutes=minutes), "value_kw": kw, "quality": quality}
+
+
+def story_day(kw: Any = "12") -> list[dict[str, Any]]:
+    """The gateway's measured hours on story days: 03:00-11:00 UTC in five-minute intervals."""
+    return [reading(LO + timedelta(hours=3, minutes=5 * n), kw=kw) for n in range(96)]
+
+
+# --------------------------------------------------------------- pure measured energy
+
+def test_exact_sum_over_good_intervals() -> None:
+    got = productive_energy(story_day("12.6"), LO, HI)
+    assert got == {"kwh": Decimal("100.8"), "measured_seconds": 8 * 3600, "evidence_count": 96}
+
+
+def test_clipping_to_the_window() -> None:
+    got = productive_energy([reading(LO - timedelta(minutes=3), kw="6")], LO, HI)  # 2 of 5 minutes inside
+    assert got == {"kwh": Decimal("0.2"), "measured_seconds": 120, "evidence_count": 1}
+    assert productive_energy([reading(HI, kw="6")], LO, HI)["kwh"] is None  # touching the end is outside
+
+
+def test_non_good_readings_are_gaps_never_zero() -> None:
+    rows = [reading(LO, quality="UNAVAILABLE"), reading(LO + timedelta(minutes=5), kw=None),
+            reading(LO + timedelta(minutes=10), kw="NaN")]
+    assert productive_energy(rows, LO, HI) == {"kwh": None, "measured_seconds": 0, "evidence_count": 0}
+    assert productive_energy([], LO, HI)["kwh"] is None
+
+
+def test_gaps_and_overlaps_in_measured_seconds() -> None:
+    rows = [reading(LO, kw="1"), reading(LO + timedelta(minutes=20), kw="1"),
+            {**reading(LO, kw="2"), "asset": "second user"}]  # two users over the same five minutes
+    got = productive_energy(rows, LO, HI)
+    assert got["measured_seconds"] == 600 and got["evidence_count"] == 3
+    assert got["kwh"] == Decimal(4) * Decimal(300) / Decimal(3600)
+
+
+def test_zero_use_is_a_measured_zero() -> None:
+    assert productive_energy(story_day("0"), LO, HI) == {"kwh": Decimal(0), "measured_seconds": 28800,
+                                                         "evidence_count": 96}
+
+
+# --------------------------------------------------------------- composer (§4.4 table)
+
+def run(users: Any = (MILL,), readings: Any = None, price: Any = PRICE, refuse: tuple[str, ...] = (),
+        fake: Fake | None = None, objectives: Any = None):
+    fake = fake or Fake()
+
+    def port(name: str, value: Any):
+        def call(*args: Any) -> Any:
+            if name in refuse:
+                raise RuntimeError(f"{name} refused")
+            return value
+        return call
+
+    ports = replace(fake.ports(), productive_users=port("users", list(users)),
+                    productive_readings=port("readings", story_day() if readings is None else readings),
+                    productive_price=port("price", price))
+    if objectives is not None:
+        ports = replace(ports, objectives=lambda: objectives)
+    comp = compose(ports, site_code=C, day=DAY, site_timezone=ZONE)
+    return comp, {r["category"]: r for r in assemble(comp.facts)}[GROW]
+
+
+def keys(row: dict) -> list[str]:
+    return [c["key"] for c in row["contributors"]]
+
+
+def test_no_productive_user_declared() -> None:
+    comp, row = run(users=())
+    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
+    assert row["subline"] == mini.GROW_SUBLINE
+    assert keys(row) == ["productive_use", "productive_sales", "cash_collected", "site_earnings"]
+    assert contributor(row, "productive_sales")["text"] == (
+        "Not available yet · no productive users identified for this site")
+    assert comp.facts.readings["MG-1"].actual_text == "sales not recorded"
+    assert comp.read_state == "AVAILABLE"
+
+
+def test_users_without_readings() -> None:
+    _, row = run(readings=[reading(LO, quality="UNAVAILABLE")])
+    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
+    assert row["subline"] is None
+    assert contributor(row, "productive_sales")["text"] == "Not available yet · no measured use by Grain mill on this day"
+    assert contributor(row, "productive_price")["text"] == "Declared at 0.25 USD per kWh"
+
+
+def test_measured_use_without_a_price() -> None:
+    comp, row = run(price=NO_PRICE)
+    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
+    assert row["subline"] is None
+    sales = contributor(row, "productive_sales")
+    assert sales["text"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
+    assert sales["confidence"] is None
+    assert contributor(row, "productive_price") == {
+        "key": "productive_price", "label": "Price per kWh", "text": "Not available yet · no price per kWh declared",
+        "confidence": None, "href": ASSUMPTIONS}
+    assert comp.facts.readings["MG-1"].actual_text == (
+        "96 kWh used by productive users on this day; the monthly target is not compared from one day")
+
+
+def test_priced_zero_use() -> None:
+    comp, row = run(readings=story_day("0"))
+    assert row["headline"] == "No productive-use sales on this day: Grain mill not used"
+    assert row["headline_money"] is None
+    assert contributor(row, "productive_sales")["text"] == "0 kWh used by Grain mill in 8 measured hours"
+    assert contributor(row, "productive_sales")["confidence"] == {"label": "Declared", "tone": "neutral"}
+    assert comp.facts.readings["MG-1"].value == Decimal(0)
+
+
+def test_priced_estimate_leads_the_grow_row() -> None:
+    comp, row = run(readings=story_day("12.6225"))  # 100.98 kWh x 0.25 = 25.245 -> 25.25 (half up)
+    assert row["headline"] == "estimated productive-use sales"
+    assert row["headline_money"] == {"amount_low": "25.25", "amount_high": "25.25", "currency": "USD"}
+    assert row["subline"] == ("101 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD "
+                              "per kWh · not billed or collected")
+    assert keys(row) == ["productive_use", "productive_sales", "productive_price", "cash_collected",
+                         "site_earnings"]
+    assert contributor(row, "productive_sales") == {
+        "key": "productive_sales", "label": "Productive-use sales",
+        "text": "101 kWh used by Grain mill in 8 measured hours",
+        "confidence": {"label": "Declared", "tone": "neutral"}, "href": None}
+    assert contributor(row, "productive_price") == {
+        "key": "productive_price", "label": "Price per kWh", "text": "Declared at 0.25 USD per kWh",
+        "confidence": {"label": "Declared", "tone": "neutral"}, "href": ASSUMPTIONS}
+    # spare solar stays in its contributor and the Portfolio fallback value
+    assert contributor(row, "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
+    assert comp.short_values == {GROW: "18–24.3 kW unused"}
+    # MG-1 carries the kWh but is never complete: the monthly target is not compared from one day
+    mg1 = comp.facts.readings["MG-1"]
+    assert mg1.value == Decimal("100.98") and mg1.complete is False
+
+
+def test_one_measured_hour_is_singular() -> None:
+    _, row = run(readings=[reading(LO + timedelta(hours=3, minutes=5 * n)) for n in range(12)])
+    assert contributor(row, "productive_sales")["text"] == "12 kWh used by Grain mill in 1 measured hour"
+
+
+@pytest.mark.parametrize("port", ["users", "readings", "price"])
+def test_a_failed_port_is_not_loaded_and_partial(port: str) -> None:
+    comp, row = run(refuse=(port,))
+    assert comp.read_state == "PARTIAL"
+    assert row["headline"] == "18–24.3 kW of daytime solar unused" and row["headline_money"] is None
+    texts = {c["key"]: c["text"] for c in row["contributors"]}
+    if port == "price":
+        assert texts["productive_price"] == mini.NOT_LOADED
+        assert texts["productive_sales"] == "96 kWh used by Grain mill in 8 measured hours · no price per kWh declared"
+    else:
+        assert texts["productive_sales"] == mini.NOT_LOADED
+
+
+def test_row_state_with_the_estimate_is_unchanged() -> None:
+    """Pre-flight E6: the Grow row state rule is not changed by the estimate (reported in the packet)."""
+    _, priced = run(readings=story_day("12"))
+    _, undeclared = run(users=())
+    assert priced["state"] == undeclared["state"] == "OPPORTUNITY"  # the fixture's spare-solar signal
+    # Kobo on S: no spare-solar read and the declared monthly MG-1 target (demo-objectives.json). The target is not
+    # judged from one day, so the row stays Unknown beside the estimate (registered R678; rule not changed here).
+    kobo = dict(DEPTH, renewable={"headroom_kw": {"low": None, "high": None}, "eligible_days": None,
+                                  "assessed_days": None})
+    mg1 = [{"outcome_key": "MG-1", "measure_key": "productive_use_kwh", "target": "300", "currency": None,
+            "source": "DECLARED", "id": "o1", "source_note": "Declared for the demonstration"}]
+    _, estimate = run(readings=story_day("21.0375"), fake=Fake(cards=kobo), objectives=mg1)
+    _, none = run(users=(), fake=Fake(cards=kobo), objectives=mg1)
+    assert estimate["headline_money"] == {"amount_low": "42.08", "amount_high": "42.08", "currency": "USD"}
+    assert estimate["state"] == none["state"] == "UNKNOWN"
+
+
+def test_new_strings_are_in_copy_and_plain() -> None:
+    from test_out_b2_vocabulary import _patterns  # the OUT-B vocabulary scan (productVocabulary.json)
+
+    patterns = _patterns()
+    new = [mini.SALES_NO_USERS, mini.PRICE_NOT_DECLARED, mini.SALES_HEADLINE]
+    assert all(x in mini.COPY for x in new)
+    for row in (run()[1], run(users=())[1], run(price=NO_PRICE)[1], run(readings=story_day("0"))[1]):
+        texts = [row["headline"] or "", row["subline"] or "", *(c["text"] for c in row["contributors"])]
+        hits = [(t, name) for t in texts for name, pattern in patterns if pattern.search(t)]
+        assert hits == [], hits
+    ours = [mini.SALES_NO_USERS, mini.SALES_NO_READINGS, mini.SALES_USED, mini.SALES_NO_PRICE, mini.PRICE_DECLARED,
+            mini.PRICE_NOT_DECLARED, mini.SALES_HEADLINE, mini.SALES_ZERO_HEADLINE, mini.SALES_SUBLINE, mini.MG1_USED]
+    for word in ("income", "revenue", "gross", "collected", "billed"):  # an estimate, never billed or collected
+        assert [t for t in ours if word in t.lower()] == ([mini.SALES_SUBLINE] if word in ("collected", "billed")
+                                                          else []), word
+    assert mini.SALES_SUBLINE.endswith("· not billed or collected")

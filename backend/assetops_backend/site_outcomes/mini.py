@@ -29,6 +29,7 @@ from assetops_backend.site_outcomes.board import (
     refresh_chain, unresolved_links)
 from assetops_backend.outcomes.objectives import Reading
 from assetops_backend.site_outcomes import objective_facts
+from assetops_backend.site_outcomes.productive_use import productive_energy
 from assetops_backend.site_outcomes.visits import maintenance_cases, warning_facts
 
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
@@ -121,6 +122,18 @@ MG5_UNSERVED = "{kwh} kWh not served"
 #: OUT-D U4 (review M1): the Assure "Actual against plan" line when the objective store could not be read; it makes
 #: no claim about whether a target exists.
 PLAN_NOT_READ = "Not available yet · declared objectives could not be loaded"
+#: WALK1-3 §4.4: estimated productive-use sales = measured use by declared productive users x the declared price per
+#: kWh. Always an estimate at a declared price; never billed, collected or measured income.
+SALES_NO_USERS = "Not available yet · no productive users identified for this site"
+SALES_NO_READINGS = "Not available yet · no measured use by {names} on this day"
+SALES_USED = "{kwh} kWh used by {names} in {h} measured {hours}"
+SALES_NO_PRICE = SALES_USED + " · no price per kWh declared"
+PRICE_DECLARED = "Declared at {p} {cur} per kWh"
+PRICE_NOT_DECLARED = "Not available yet · no price per kWh declared"
+SALES_HEADLINE = "estimated productive-use sales"
+SALES_ZERO_HEADLINE = "No productive-use sales on this day: {names} not used"
+SALES_SUBLINE = SALES_USED + ", at the declared price of {p} {cur} per kWh · not billed or collected"
+MG1_USED = "{kwh} kWh used by productive users on this day; the monthly target is not compared from one day"
 
 #: Every fixed viewer string, for the vocabulary scan (tests/test_out_b2_vocabulary.py).
 COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.format(m="5"), MG5_UNSERVED.format(kwh="3"),
@@ -133,7 +146,15 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
         SOURCE_UNRESOLVED, *READINESS_WORD.values(),
         GAPS_NO_READINGS.format(g=1, n=31, verb="has"), GAPS_NO_READINGS.format(g=23, n=31, verb="have"),
         GAPS_NOT_ASSESSED.format(g=1, n=31, verb="is"), GAPS_NOT_ASSESSED.format(g=2, n=31, verb="are"),
-        GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK)
+        GAPS_WITHHELD, *FINDING_TITLE.values(), FINDING_TITLE_FALLBACK,
+        SALES_NO_USERS, SALES_NO_READINGS.format(names="Grain mill"),
+        SALES_USED.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
+        SALES_USED.format(kwh="0", names="Grain mill", h="1", hours="hour"),
+        SALES_NO_PRICE.format(kwh="168.3", names="Grain mill", h="8", hours="hours"),
+        PRICE_DECLARED.format(p="0.25", cur="USD"), PRICE_NOT_DECLARED, SALES_HEADLINE,
+        SALES_ZERO_HEADLINE.format(names="Grain mill"),
+        SALES_SUBLINE.format(kwh="168.3", names="Grain mill", h="8", hours="hours", p="0.25", cur="USD"),
+        MG1_USED.format(kwh="168.3"))
 
 
 @dataclass(frozen=True)
@@ -154,6 +175,12 @@ class MiniPorts:
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
     #: LINK-LINEAGE: (Finding ID, shown revision ID) -> every history row (analytics/finding_read.py:570), or None.
     finding_history: Callable[[str, str], list[dict[str, Any]] | None] = lambda f, r: None
+    #: WALK1-3 §4.3: the LOAD components declared `supply-use = PRODUCTIVE` in the Foundation in force at an instant
+    #: ({"asset_code", "asset_id", "name"}), their accepted `feeder_demand` readings in `[lo, hi)`, and the
+    #: `productive_use_price_per_kwh` series at an instant (the diesel `assumption` read with the productive key).
+    productive_users: Callable[[datetime], list[dict[str, Any]]] = lambda at: []
+    productive_readings: Callable[[list[Any], datetime, datetime], list[dict[str, Any]]] = lambda ids, lo, hi: []
+    productive_price: Callable[[datetime], dict[str, Any]] = lambda at: {}
 
 
 @dataclass(frozen=True)
@@ -340,6 +367,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     visits = maintenance_cases(reads, ports.work, c, end)  # C: 60 days by occurrence (R571)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     objective_rows = reads.call("objectives", ports.objectives)
+    sales = _productive_sales(reads, ports, c, start, end)
 
     findings = _findings(finding_rows or (), estate, c, start, end)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
@@ -371,7 +399,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     rc = readiness_confidence(readiness)
     reserve = reserve_counts(dispatch)
     contributors = {
-        GROW: _grow(c, depth, eligible, assessed, rc),
+        GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"]),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
@@ -399,7 +427,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                 if verified else NO_VERIFIED}
     headline_money = {COST: {k: money.get(k) for k in ("amount_low", "amount_high", "currency")}
                       if priced and not zero else None}
-    subline = {GROW: GROW_SUBLINE,
+    if sales.get("headline") is not None:  # WALK1-3 §4.4: a sales estimate leads; spare solar stays a contributor
+        headline[GROW] = sales["headline"]
+        headline_money[GROW] = sales.get("money")
+    subline = {GROW: sales.get("subline"),
                COST: f"Generator stayed on {num(avoidable)} {plural(num(avoidable), 'minute', 'minutes')} longer "
                      "than needed"
                if avoidable is not None and avoidable > 0 else None,
@@ -408,7 +439,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
-    readings = mini_readings(dispatch, depth)
+    readings = mini_readings(dispatch, depth, sales.get("kwh"))
     if objective_rows is None:
         plan_line = Contributor("actual_against_plan", "Actual against plan", PLAN_NOT_READ)
         contributors[ASSURE] = tuple(plan_line if x.key == "actual_against_plan" else x
@@ -457,16 +488,19 @@ def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None)
     return {d: reads.call("mini_depth", ports.depth, d, *windows[d]) for d in DEPTH_DOMAINS}
 
 
-def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None]) -> dict[str, Reading]:
-    """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 no sales record,
-    MG-5 the service depth's unserved critical kWh."""
+def mini_readings(dispatch: dict[str, Any] | None, depth: dict[str, dict | None],
+                  productive_kwh: Decimal | None = None) -> dict[str, Reading]:
+    """OUT-D U4 table: MG-2 avoidable generator minutes (complete when none is unclear), MG-1 the day's measured use
+    by declared productive users (WALK1-3; never complete: the monthly target is not compared from one day) or no
+    sales record, MG-5 the service depth's unserved critical kWh."""
     out: dict[str, Reading] = {}
     avoidable, unclear = _dispatch_minutes(dispatch)
     if avoidable is not None:
         text = (MG2_UNCLEAR.format(m=num(unclear)) if avoidable == 0 < unclear
                 else MG2_LONGER.format(m=num(avoidable)))
         out["MG-2"] = Reading(avoidable, unclear == 0, text)
-    out["MG-1"] = Reading(None, False, MG1_ACTUAL)
+    out["MG-1"] = (Reading(None, False, MG1_ACTUAL) if productive_kwh is None
+                   else Reading(productive_kwh, False, MG1_USED.format(kwh=num(productive_kwh))))
     unserved = (((depth.get("service") or {}).get("cards") or {}).get("unserved_kwh"))
     out["MG-5"] = (Reading(None, False, MG5_UNMEASURED) if unserved is None
                    else Reading(Decimal(str(unserved)), True, MG5_UNSERVED.format(kwh=num(unserved))))
@@ -584,7 +618,55 @@ def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
 
 # ---------------------------------------------------------------- contributors (§B.4 mini table)
 
-def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any) -> tuple[Contributor, ...]:
+def _sales_line(text: str, chip: Any = None) -> Contributor:
+    return Contributor("productive_sales", "Productive-use sales", text, chip)
+
+
+def _productive_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end: datetime) -> dict[str, Any]:
+    """WALK1-3 §4.4 table: the Grow headline, money, subline, MG-1 kWh and the two contributors for the board's UTC
+    day `[start, end)`. The measured hours are those the readings cover; nothing is scaled to the whole day. A failed
+    port reads "Not available yet · this record could not be loaded" and makes the board PARTIAL (B-Q17)."""
+    price_href = f"/sites/{c}/financials/assumptions"
+    users = reads.call("productive_users", ports.productive_users, start)
+    if users is None:
+        return {"subline": GROW_SUBLINE, "contributors": (_sales_line(NOT_LOADED),)}
+    if not users:
+        return {"subline": GROW_SUBLINE, "contributors": (_sales_line(SALES_NO_USERS),)}
+    names = ", ".join(str(u.get("name")) for u in users)
+    raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
+                     start, end)
+    series = reads.call("productive_price", ports.productive_price, start)
+    sel = (series or {}).get("selection") or {}
+    p = sel.get("price") or {}
+    shown = price_text(p.get("value")) if sel.get("state") == "PRICED" and p.get("value") is not None else None
+    value, cur = (Decimal(str(p["value"])), str(p.get("currency"))) if shown is not None else (None, None)
+    if series is None:
+        price = Contributor("productive_price", "Price per kWh", NOT_LOADED, None, price_href)
+    elif value is None:
+        price = Contributor("productive_price", "Price per kWh", PRICE_NOT_DECLARED, None, price_href)
+    else:
+        price = Contributor("productive_price", "Price per kWh", PRICE_DECLARED.format(p=shown, cur=cur), DECLARED,
+                            price_href)
+    if raw is None:
+        return {"subline": None, "contributors": (_sales_line(NOT_LOADED), price)}
+    energy = productive_energy(raw, start, end)
+    kwh = energy["kwh"]
+    if kwh is None:
+        return {"subline": None, "contributors": (_sales_line(SALES_NO_READINGS.format(names=names)), price)}
+    h = num(Decimal(energy["measured_seconds"]) / Decimal(3600))
+    words = {"kwh": num(kwh), "names": names, "h": h, "hours": plural(h, "hour", "hours")}
+    if value is None:
+        return {"kwh": kwh, "subline": None, "contributors": (_sales_line(SALES_NO_PRICE.format(**words)), price)}
+    out = {"kwh": kwh, "subline": SALES_SUBLINE.format(**words, p=shown, cur=cur),
+           "contributors": (_sales_line(SALES_USED.format(**words), DECLARED), price)}
+    if kwh == 0:
+        return {**out, "headline": SALES_ZERO_HEADLINE.format(names=names), "money": None}
+    amount = f"{(kwh * value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):f}"
+    return {**out, "headline": SALES_HEADLINE, "money": {"amount_low": amount, "amount_high": amount, "currency": cur}}
+
+
+def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
+          sales: tuple[Contributor, ...] = ()) -> tuple[Contributor, ...]:
     href = f"/sites/{c}/performance/renewable"
     if depth.get("renewable") is None:
         use = not_available("productive_use", "Productive use", href)
@@ -594,7 +676,8 @@ def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any) -> tuple[C
         use = Contributor("productive_use", "Productive use",
                           f"Spare solar on {eligible} of {assessed} well-observed "
                           f"{plural(assessed, 'day', 'days')}", rc, href)
-    return (use, Contributor("cash_collected", "Cash collected", FIXED["cash"]),
+    # WALK1-3 §4.4 order: Productive use, Productive-use sales, Price per kWh, Cash collected, Site earnings.
+    return (use, *sales, Contributor("cash_collected", "Cash collected", FIXED["cash"]),
             Contributor("site_earnings", "Site earnings", FIXED["earnings"]))
 
 
