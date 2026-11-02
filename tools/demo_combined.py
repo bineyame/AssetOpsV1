@@ -19,7 +19,7 @@ story instant. The data is registered Lab simulation placed on a story calendar 
 3. Objectives, the S2 Evidence comparison, two schedule ticks, the Performance comparison, the self-check.
 `serve` runs `host/lab_app.py` on --port (default 8990) with the cursor keys from `<work>/keys.json`, plus a
 walkthrough-only schedule loop (one tick every 120 s, then the Performance comparison) that stops with serve. After
-the first tick it pre-warms the story-week Portfolio outcome summary once and prints "ready:" when that returns.
+the first tick it pre-warms the story-week Portfolio outcome summary once and prints "ready:" when that returns 2xx.
 `drop` removes the database and work folder only when the work folder's marker records this tool made them.
 
 Guards: `--db` must match `^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$`; `--work` must be a `var/demo3*` or
