@@ -344,7 +344,7 @@ function NextStep({ s, pending, findingHref }: { s: EvSessionItem; pending: bool
   const hasFinding = s.links.finding !== null || s.finding_id !== null;
   if (pending) return hasFinding ? <UnavailableInline label="Open Finding" /> : <UnavailableInline />;
   if (s.links.finding !== null && s.finding_id !== null) {
-    return <Link to={findingHref(s.finding_id)}>Open Finding →</Link>;
+    return <Link to={findingHref(s.finding_id)}>Open finding →</Link>;
   }
   return <UnavailableInline />;
 }

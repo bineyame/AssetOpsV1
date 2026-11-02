@@ -2,6 +2,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
+import { boardMoneyText } from "../sites/OutcomeBoard";
 import { MissingClaim } from "../ui";
 import type { EstateOutcomeSummaryBody, EstatePortfolioBody, EstateQuery, EstateResult, EstateValueCard } from "./estateClient";
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
@@ -61,13 +62,13 @@ export const OUTCOME_CATEGORY_CARDS: readonly { key: OutcomeCategoryKey; name: s
   },
 ];
 
-export const PROTECT_DETAIL = "Service disruptions recorded in Findings · loss not priced";
+export const PROTECT_DETAIL = "Service disruptions recorded as findings · loss not priced";
 /** OUT-C U5: the Protect detail once the outcome summary is loaded; the early warnings are a separate clause. */
 export function protectDetailText(summary: EstateOutcomeSummaryBody | null): string {
   const category = summary?.categories.find((c) => c.category === "PROTECT_ASSET");
   if (summary === null || category === undefined) return PROTECT_DETAIL;
   const w = category.warning_count;
-  return `Service disruptions recorded in Findings · ${w} early ${w === 1 ? "warning" : "warnings"}, counted separately · loss not priced`;
+  return `Service disruptions recorded as findings · ${w} early ${w === 1 ? "warning" : "warnings"}, counted separately · loss not priced`;
 }
 export const PROTECT_BASIS = "Measured events, counted separately · loss not priced";
 export const ASSURE_BASIS = "Completed work does not establish savings";
@@ -79,10 +80,22 @@ export const OPTIMIZE_COST_MISSING = {
   tone: "neutral",
 } as const;
 
+/** WALK1-1 (WN-2, R670): how much of a partly checked estate was checked; null unless counts are on checked days. */
+export function checkedDaysClause(body: EstatePortfolioBody): string | null {
+  if ((body.summary.count_basis ?? null) !== "CHECKED_DAYS") return null;
+  const days = body.summary.checked_days ?? [];
+  if (days.length === 0) return null;
+  if (days.length === 1) return `${days[0].checked} of ${days[0].requested} days checked at ${days[0].site_name}`;
+  return `days not checked yet at ${days.length} sites`;
+}
+
+const withClause = (detail: string, clause: string | null) => (clause === null ? detail : `${detail} · ${clause}`);
+const onCheckedDays = (body: EstatePortfolioBody) => (body.summary.count_basis ?? null) === "CHECKED_DAYS";
+
 /** Rulings A-Q9 / A-Q10: the evidence-gap clause of the Assure detail, from the summary and the scope. */
-export function evidenceGapText(gaps: number | null, sites: number): string {
+export function evidenceGapText(gaps: number | null, sites: number, checkedDays = false): string {
   if (gaps === null) return "evidence gaps not assessed";
-  if (gaps === 0) return "no evidence gaps";
+  if (gaps === 0) return checkedDays ? "no evidence gaps on the days checked" : "no evidence gaps";
   if (gaps === 1) return "evidence gap at 1 site";
   if (gaps === sites) return `evidence gaps at all ${sites} sites`;
   if (gaps < sites) return `evidence gaps at ${gaps} of ${sites} sites`;
@@ -90,8 +103,15 @@ export function evidenceGapText(gaps: number | null, sites: number): string {
 }
 
 /** Ruling A-Q10: the Protect value for n Sites with a primary Protect Finding (null: not assessed). */
-function protectValue(n: number | null): ReactNode {
+function protectValue(n: number | null, checkedDays: boolean): ReactNode {
   if (n === null) return "Not assessed";
+  if (n === 0 && checkedDays) {
+    return (
+      <>
+        None found <small>on the days checked</small>
+      </>
+    );
+  }
   if (n === 0) return "No sites disrupted";
   return (
     <>
@@ -117,9 +137,43 @@ export function growShortValue(summary: EstateOutcomeSummaryBody | null): string
   return null;
 }
 
+/** WALK1-1 (WN-3, R672): each Site whose Grow row carries an amount (a declared price × measured kWh estimate). */
+export function growEstimates(summary: EstateOutcomeSummaryBody | null): { site: string; money: string }[] {
+  const out: { site: string; money: string }[] = [];
+  for (const site of summary?.sites ?? []) {
+    const row = site.rows.find((r) => r.category === "GROW_REVENUE");
+    const money = boardMoneyText(row?.headline_money ?? null);
+    if (money !== null) out.push({ site: site.site_name, money });
+  }
+  return out;
+}
+export const GROW_ESTIMATE_BASIS = "Declared price × measured kWh · not billed or collected";
+
 function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {
   const card = (k: EstateValueCard["key"]) => body.value_cards.find((c) => c.key === k);
+  const clause = checkedDaysClause(body);
   if (key === "GROW_REVENUE") {
+    // D-W1-4: amounts from different Sites (different windows) are never added; each Site is named with its own.
+    const estimates = growEstimates(summary);
+    if (estimates.length > 0) {
+      const k = estimates.length;
+      return {
+        value:
+          k === 1 ? (
+            <>
+              {estimates[0].money} <small>estimated</small>
+            </>
+          ) : (
+            <>
+              {k} <small>sites with an estimate</small>
+            </>
+          ),
+        detail: `${estimates.map((e) => `${e.site} ${e.money}`).join(" · ")} · latest day per site`,
+        basis: GROW_ESTIMATE_BASIS,
+        destination: "/findings/opportunities",
+        tone: "green",
+      };
+    }
     const short = growShortValue(summary);
     if (short !== null) {
       return {
@@ -148,27 +202,27 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
     // unknown wording (estate/portfolio.py DISPLAYED_VALUE["UNKNOWN"]).
     if (cost === undefined) return { ...OPTIMIZE_COST_MISSING };
     const { value, detail } = cardValue(cost, body);
-    return { value, detail, basis: cost.basis_text, destination: cost.destination, tone: cost.tone };
+    return { value, detail: withClause(detail, clause), basis: cost.basis_text, destination: cost.destination, tone: cost.tone };
   }
   if (key === "PROTECT_ASSET") {
     const n = body.summary.category_counts?.PROTECT_ASSET?.sites_with_primary_finding ?? null;
     return {
-      value: protectValue(n),
-      detail: protectDetailText(summary),
+      value: protectValue(n, onCheckedDays(body)),
+      detail: withClause(protectDetailText(summary), clause),
       basis: PROTECT_BASIS,
       destination: "/findings/risks",
       tone: n !== null && n >= 1 ? "red" : "neutral",
     };
   }
   const recovery = card("VERIFIED_RECOVERY");
-  const gap = evidenceGapText(body.summary.evidence_gap_site_count, body.scope.authorized_site_count);
+  const gap = evidenceGapText(body.summary.evidence_gap_site_count, body.scope.authorized_site_count, onCheckedDays(body));
   return {
     // POLISH §3.1 (Assure card): the server's "Not established" reads "Not known yet" on this card.
     value:
       recovery === undefined || recovery.state === "NOT_ESTABLISHED" || recovery.state === "UNSUPPORTED"
         ? "Not known yet"
         : cardValue(recovery, body).value,
-    detail: assureDetailText(summary, gap),
+    detail: withClause(assureDetailText(summary, gap), clause),
     basis: recovery?.basis_text || ASSURE_BASIS,
     destination: "/evidence",
     tone: "neutral",
@@ -182,12 +236,26 @@ const sites = (n: number) => `${n} ${n === 1 ? "site" : "sites"}`;
  * declared" only when every Site was read, and names the Sites not checked when some were not.
  */
 export function assureDetailText(summary: EstateOutcomeSummaryBody | null, gap: string): string {
+  const lead = verifiedText(summary);
   const n = summary?.objective_site_count ?? null;
   const unread = summary?.objective_sites_unread ?? 0;
-  if (n === null || (n === 0 && unread > 0)) return `No verified result yet · ${gap}`;
-  if (n === 0) return `No verified result yet · no targets declared · ${gap}`;
+  if (n === null || (n === 0 && unread > 0)) return `${lead} · ${gap}`;
+  if (n === 0) return `${lead} · no targets declared · ${gap}`;
   const unchecked = unread > 0 ? `, ${sites(unread)} not checked` : "";
-  return `No verified result yet · targets declared at ${sites(n)}${unchecked} · ${gap}`;
+  return `${lead} · targets declared at ${sites(n)}${unchecked} · ${gap}`;
+}
+
+/** WALK1-1 (WN-1, R671): the Assure lead clause from the boards' own verified count (same window as each Site row). */
+export function verifiedText(summary: EstateOutcomeSummaryBody | null): string {
+  const v = summary?.verified_result_count ?? null;
+  const unread = summary?.verified_sites_unread ?? 0;
+  const lead =
+    v === null
+      ? "Verified results not available yet"
+      : v === 0
+        ? "No verified result yet"
+        : `${v} ${v === 1 ? "verified result" : "verified results"}`;
+  return v !== null && unread > 0 ? `${lead}, ${sites(unread)} not checked` : lead;
 }
 
 /** OUT-B B6: one dot per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`). */

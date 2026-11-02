@@ -42,6 +42,8 @@ export const EMPTY = {
   /** Addendum 2: only when the field is absent on an older body. */
   prev: "None recorded",
 } as const;
+/** WALK1-1 (WN-2, R673): when the board names days without assessed readings, "none" is a claim on checked days only. */
+export const EMPTY_ISSUES_CHECKED = "None found on the days checked";
 
 /** §B.1 issue kinds: label and the mock `.oc-kind` class (ruling B-Q29: `finding` and `gap` are neutral). */
 export const ISSUE_KIND: Record<string, [string, string]> = {
@@ -73,8 +75,9 @@ export function boardMoneyText(money: OutcomeMoney | null): string | null {
   return money.currency ? `${amount} ${money.currency}` : amount;
 }
 
-export function countsText(issues: number, inHand: number): string {
-  const head = issues === 0 ? "No open issues" : `${issues} issue${issues === 1 ? "" : "s"}`;
+export function countsText(issues: number, inHand: number, checkedDaysOnly = false): string {
+  const none = checkedDaysOnly ? "No open issues on the days checked" : "No open issues";
+  const head = issues === 0 ? none : `${issues} issue${issues === 1 ? "" : "s"}`;
   return inHand > 0 ? `${head} · ${inHand} in hand` : head;
 }
 
@@ -124,7 +127,7 @@ function ItemList({
   );
 }
 
-function Row({ row }: { row: OutcomeBoardRow }) {
+function Row({ row, gaps = false }: { row: OutcomeBoardRow; gaps?: boolean }) {
   const data = { "data-outcome-row": row.category, "data-outcome-state": row.state };
   if (row.state === "NOT_MEASURED") {
     return (
@@ -147,7 +150,7 @@ function Row({ row }: { row: OutcomeBoardRow }) {
         <span className={`oc-chip tone-${row.tone}`}>{row.state_label}</span>
         <span className="ob-head">{headline}</span>
         <span className="ob-counts" data-outcome-counts>
-          {countsText(row.counts.issues, row.counts.in_hand)}
+          {countsText(row.counts.issues, row.counts.in_hand, gaps)}
         </span>
       </summary>
       <div className="ob-body">
@@ -180,7 +183,7 @@ function Row({ row }: { row: OutcomeBoardRow }) {
           <div className="ob-col" data-outcome-col="issues">
             <ColHead icon="issues">{COLUMN.issues}</ColHead>
             {row.issues.length === 0 ? (
-              <p className="ob-none">{EMPTY.issues}</p>
+              <p className="ob-none">{gaps ? EMPTY_ISSUES_CHECKED : EMPTY.issues}</p>
             ) : (
               <ul className="ob-list">
                 {row.issues.map((issue, i) => {
@@ -340,7 +343,7 @@ function OutcomeBoardView({ body }: { body: OutcomeBoardBody }) {
         </p>
       ) : null}
       {body.rows.map((row) => (
-        <Row key={row.category} row={row} />
+        <Row key={row.category} row={row} gaps={Boolean(body.finding_gaps)} />
       ))}
       {/* IDX-GAPS (R610): the backend's note naming the days without assessed readings; never counted as none. */}
       {body.finding_gaps ? (
