@@ -19,6 +19,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
 
@@ -465,17 +466,29 @@ def wk1(ctx: Ctx) -> dict:
     return {"headline": grow["headline"], "money": money}
 
 
-@row("WK-2")
-def wk2(ctx: Ctx) -> dict:
-    """WALK1-3: Kobo's day-S Grow row carries the estimated productive-use sales (measured use x declared price)."""
-    grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
+@row("WK-2a")
+def wk2a(ctx: Ctx) -> dict:
+    """WALK1-3 / D-W1-13: on day S-1 (a cloudy, mill-working day) Kobo's Grow row leads with the estimated
+    productive-use sales: 168.3 kWh measured x the declared 0.25 USD/kWh = 42.08 USD."""
+    grow = rows(ctx.board(KOBO, ctx.day(-1), ctx.S))["GROW_REVENUE"]
     money = grow.get("headline_money") or {}
-    assert grow["headline"] == "estimated productive-use sales" and money.get("amount_high"), (
-        grow["headline"], money)
+    assert grow["headline"] == "estimated productive-use sales", grow["headline"]
+    assert Decimal(str(money.get("amount_high"))) == Decimal("42.08") and money.get("currency") == "USD", money
     sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
     price = next(c for c in grow["contributors"] if c["key"] == "productive_price")
     return {"headline": grow["headline"], "money": money, "sales": sales["text"], "price": price["text"],
             "subline": grow["subline"], "state": grow["state"]}
+
+
+@row("WK-2b")
+def wk2b(ctx: Ctx) -> dict:
+    """D-W1-13: on day S (sunny; the mill idle) the Grow headline carries no money and the sales line states the
+    measured zero use."""
+    grow = rows(_kobo_board_s(ctx))["GROW_REVENUE"]
+    assert not grow.get("headline_money"), grow.get("headline_money")
+    sales = next(c for c in grow["contributors"] if c["key"] == "productive_sales")
+    assert sales["text"].startswith("0 kWh used by Grain mill"), sales["text"]
+    return {"headline": grow["headline"], "sales": sales["text"], "subline": grow["subline"], "state": grow["state"]}
 
 
 @row("WK-3", idx=True)

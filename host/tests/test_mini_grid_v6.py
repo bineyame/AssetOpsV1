@@ -1,6 +1,7 @@
 """WALK1-4 (D-W1-7, D-W1-8): `mini-grid` v6 measures the battery controller's raw charge request.
 
-v6 is v5 plus one interval measurement, `battery-charge-requested-power@battery-pcs`: the step's
+v6 is v5 plus one interval measurement, `battery-charge-requested-power@battery` (D-W1-11: at the battery the
+`storage_charge_requested_power` role is bound on, not its converter): the step's
 `max(-requested, 0)` of the battery request, stored as energy over the step like every interval
 measurement, so the published reading is its mean kW. These tests run the kernel in process (no gateway,
 no database) on the reserve-trial scenario and compare v6 with v5 step by step:
@@ -13,6 +14,7 @@ no database) on the reserve-trial scenario and compare v6 with v5 step by step:
 
 from __future__ import annotations
 
+from dataclasses import replace
 from fractions import Fraction
 from types import SimpleNamespace
 
@@ -31,7 +33,7 @@ from kobo import kobo_draft
 START = "2026-09-22T03:00:00Z"  # 06:00 in Africa/Addis_Ababa
 END = "2026-09-22T11:00:00Z"
 TRIAL = "kobo-mini-grid-reserve-trial"
-CHARGE = f"{mini_grid.BATTERY_CHARGE_REQUESTED_POWER}@battery-pcs"
+CHARGE = f"{mini_grid.BATTERY_CHARGE_REQUESTED_POWER}@battery"
 
 
 def _trajectory(version: int):
@@ -56,11 +58,23 @@ def test_v6_is_a_new_version_beside_v5() -> None:
 def test_publication_v5_is_v4_plus_the_charge_request() -> None:
     v4, v5 = REGISTERED_KOBO_PUBLICATION_PROFILE_V4, REGISTERED_KOBO_PUBLICATION_PROFILE_V5
     assert (v5.publication_profile_id, v5.publication_profile_version) == ("registered-kobo-publication", 5)
-    assert v5.device_signals[: len(v4.device_signals)] == v4.device_signals
+    # v4's signals in order; the PV output's cadence alone differs (D-W1-12, pinned below).
+    assert [replace(s, cadence_minutes=5) for s in v5.device_signals[: len(v4.device_signals)]] == [
+        replace(s, cadence_minutes=5) for s in v4.device_signals]
     (added,) = v5.device_signals[len(v4.device_signals):]
     assert (added.device_id, added.signal_id, added.state_key) == (
         "battery-pcs-controller", "charge-requested-power", mini_grid.BATTERY_CHARGE_REQUESTED_POWER)
     assert (added.reading_class, added.canonical_unit, added.cadence_minutes) == ("INTERVAL_SIGNAL", "kW", 5)
+
+
+def test_publication_v5_reports_pv_output_every_five_minutes_and_v4_does_not() -> None:
+    # D-W1-12: only the PV inverter's delivered power changes cadence in v5; v4 keeps its 15 minutes.
+    v4, v5 = REGISTERED_KOBO_PUBLICATION_PROFILE_V4, REGISTERED_KOBO_PUBLICATION_PROFILE_V5
+    assert v4.device_signal("pv-inverter-controller", "ac-power").cadence_minutes == 15
+    assert v5.device_signal("pv-inverter-controller", "ac-power").cadence_minutes == 5
+    changed = [(a.signal_key, a.cadence_minutes, b.cadence_minutes)
+               for a, b in zip(v4.device_signals, v5.device_signals) if a != b]
+    assert changed == [(("pv-inverter-controller", "ac-power"), 15, 5)]
 
 
 def test_v6_measures_every_v5_quantity_identically_and_adds_the_raw_charge_request() -> None:

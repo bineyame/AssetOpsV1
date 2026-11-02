@@ -2038,17 +2038,25 @@ REGISTERED_KOBO_PUBLICATION_PROFILE_V4 = replace(
 #: (`battery-pcs-controller/charge-requested-power`, needs `mini-grid` v6) as a
 #: five-minute interval mean in kW - the controller's raw request, 0 when it asks
 #: for none. Published only where a `minigrid-roles-4` binding maps it to
-#: `storage_charge_requested_power`. Versions one to four are unchanged.
+#: `storage_charge_requested_power`. D-W1-12: version five also publishes the PV
+#: inverter's delivered power (`pv-inverter-controller/ac-power`) every five
+#: minutes, so a midday hour is completely reported. Versions one to four are
+#: unchanged.
 CHARGE_REQUESTED_SIGNAL = ("battery-pcs-controller", "charge-requested-power")
+PV_OUTPUT_SIGNAL = ("pv-inverter-controller", "ac-power")
 REGISTERED_KOBO_PUBLICATION_PROFILE_V5 = replace(
     REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
     publication_profile_version=5,
     statement=(
         REGISTERED_KOBO_PUBLICATION_PROFILE_V4.statement
         + " Version five also publishes, every five minutes, the charge power "
-        "the battery controller requested over the five minutes that just ended."
+        "the battery controller requested over the five minutes that just ended, "
+        "and publishes the PV inverter's delivered power every five minutes."
     ),
-    device_signals=REGISTERED_KOBO_PUBLICATION_PROFILE_V4.device_signals
+    device_signals=tuple(
+        replace(declaration, cadence_minutes=5) if declaration.signal_key == PV_OUTPUT_SIGNAL else declaration
+        for declaration in REGISTERED_KOBO_PUBLICATION_PROFILE_V4.device_signals
+    )
     + (
         DeviceSignalDeclaration(
             device_id=CHARGE_REQUESTED_SIGNAL[0],

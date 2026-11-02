@@ -69,6 +69,8 @@ function screens(work) {
     story,
     list: [
       { key: "portfolio-week", label: "Portfolio, week to story day S", path: `/portfolio?${week}`, mock: "portfolio" },
+      // WALK1 Addendum 5 (D-W1-13): S-1 is a cloudy, mill-working day, so the walkthrough shows a priced sales day.
+      { key: "kobo-board-S-minus-1", label: "Kobo board, day S-1 (productive-use sales)", path: board("KOBO-001", S - DAY), mock: "mini" },
       { key: "kobo-board-S", label: "Kobo board, day S (trial-before)", path: board("KOBO-001", S), mock: "mini" },
       { key: "kobo-board-S-open", label: "Kobo board, day S, every disclosure open", path: board("KOBO-001", S), mock: "mini", open: true },
       { key: "kobo-board-S1", label: "Kobo board, day S+1 (trial-after)", path: board("KOBO-001", S + DAY), mock: "mini" },

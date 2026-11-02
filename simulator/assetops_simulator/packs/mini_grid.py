@@ -1233,7 +1233,7 @@ def resolve_v6(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
         interval_energies=tuple(
             sorted(
                 accepted.interval_energies
-                + ((f"{BATTERY_CHARGE_REQUESTED_POWER}@{plant.pcs}", charge * hours),)
+                + ((f"{BATTERY_CHARGE_REQUESTED_POWER}@{plant.battery}", charge * hours),)
             )
         ),
     )
