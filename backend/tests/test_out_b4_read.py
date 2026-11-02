@@ -132,3 +132,44 @@ def test_window_known_at_echoes_the_cutoff_used() -> None:  # addendum 4 #5
     # mini without a cutoff: null, even when the overview body carries one
     mini_body = SiteOutcomeBoardService(BoardServices()).board(KOBO, day=date(2026, 10, 6))
     assert mini_body["window"]["known_at"] is None
+
+
+def test_walk1_summary_verified_count_and_headline_money(monkeypatch) -> None:
+    """WALK1-1 (WN-1, WN-3): the verified count is the boards' own VERIFIED Actions (stripped private key, same
+    window as each Site row); `headline_money` passes through; a failed board adds to `verified_sites_unread`."""
+    from dataclasses import replace
+
+    from assetops_backend.site_outcomes.board import ActionFact
+
+    def act(n, state):
+        return ActionFact(f"a{n}", None, "t", None, None, True, False, state, None)
+
+    real_compose = SiteOutcomeBoardService.compose
+
+    def compose(self, site, **kw):
+        comp, window = real_compose(self, site, **kw)
+        if site is KOBO:
+            facts = replace(comp.facts, actions=(act(1, "VERIFIED"), act(2, "PENDING"), act(3, None)))
+            comp = replace(comp, facts=facts)
+        return comp, window
+
+    money = {"amount_low": "4.20", "amount_high": "4.20", "currency": "USD"}
+    real_board = SiteOutcomeBoardService.board
+
+    def board(self, site, **kw):
+        body = real_board(self, site, **kw)
+        if site is KOBO:
+            body["rows"][0]["headline_money"] = money
+        return body
+
+    monkeypatch.setattr(SiteOutcomeBoardService, "compose", compose)
+    monkeypatch.setattr(SiteOutcomeBoardService, "board", board)
+    lo, hi = datetime(2026, 10, 1, tzinfo=UTC), datetime(2026, 10, 8, tzinfo=UTC)
+    svc = SiteOutcomeBoardService(BoardServices())
+    assert svc.board(KOBO, day=date(2026, 10, 6))["_verified_results"] == 1
+    out = svc.summary([KOBO, COLD, ODD], lo, hi)
+    assert out["verified_result_count"] == 1 and out["verified_sites_unread"] == 1  # ODD's board fails
+    kobo, cold, odd = out["sites"]
+    assert kobo["rows"][0]["headline_money"] == money
+    assert all(r["headline_money"] is None for r in [*kobo["rows"][1:], *odd["rows"]])
+    assert SiteOutcomeBoardService(BoardServices()).summary([ODD], lo, hi)["verified_result_count"] is None
