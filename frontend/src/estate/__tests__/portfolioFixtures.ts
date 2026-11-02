@@ -398,6 +398,8 @@ export function outcomeSummaryBody(over: Partial<EstateOutcomeSummaryBody> = {})
     warnings: [],
     objective_site_count: 0,
     objective_sites_unread: 0,
+    verified_result_count: 0,
+    verified_sites_unread: 0,
     ...over,
   };
 }

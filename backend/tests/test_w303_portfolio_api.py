@@ -401,7 +401,9 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                               # OUT-A2: the fake rows carry no mechanism, so every member is NOT_MAPPED.
                               "category_counts": dict.fromkeys(
                                   ("GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"),
-                                  {"open_findings": 0, "sites_with_primary_finding": 0})}
+                                  {"open_findings": 0, "sites_with_primary_finding": 0}),
+                              # WALK1-1: a settled estate counts on complete coverage; no partly checked Site.
+                              "count_basis": "COMPLETE", "checked_days": []}
     assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
     assert one["footer"] is None and one["selected_lines"] == []
     site = one["scope_disclosure"]["sites"][0]

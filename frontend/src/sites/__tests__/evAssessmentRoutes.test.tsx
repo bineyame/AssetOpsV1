@@ -324,7 +324,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cardValues()).toEqual(["2", "1", "1", "0"]);
     expect(rowCells(1)[3]).toBe("Fault-aborted");
     expect(outcomeBadge(1).className).toContain("ev-tone--amber");
-    const link = screen.getByRole("link", { name: "Open Finding →" });
+    const link = screen.getByRole("link", { name: "Open finding →" });
     expect(link.getAttribute("href")).toBe(`/sites/${CODE}/findings/${FINDING}?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`);
     expect(rowCells(0)[5]).toBe("Not available yet");
     expect(panelTitled("Cause remains bounded").textContent).toContain("A fault record and abort establish an interruption, not its component cause.");
@@ -396,9 +396,9 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     await settledScreen();
     expect(document.querySelectorAll("tbody tr")).toHaveLength(1);
     expect(rowCells()[0]).toContain("S-11");
-    expect(rowCells()[5]).toBe("Open Finding · Not available yet");
+    expect(rowCells()[5]).toBe("Open finding · Not available yet");
     expect(document.querySelector("tbody a")).toBeNull();
-    expect(screen.queryByRole("link", { name: "Open Finding →" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Open finding →" })).toBeNull();
     expect(strip()).toContain("Evidence pending");
     expect(strip()).toContain("New evidence is being assessed. The previous result may change.");
     expect(cardValues()).toEqual(["Pending recompute", "Pending recompute", "Pending recompute", "Pending recompute"]);
@@ -420,7 +420,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     // A settled current response with the proved link renders it.
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok({ ...pendingLinked, ...envelope("CURRENT") }));
     await settledScreen();
-    expect(screen.getByRole("link", { name: "Open Finding →" })).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Open finding →" })).not.toBeNull();
     cleanup();
 
     // A historical response follows only its own selected links.finding.
@@ -431,7 +431,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     });
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(historicalRows(INTERRUPTED_ROW.links.finding)));
     await settledScreen();
-    expect(screen.getByRole("link", { name: "Open Finding →" })).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Open finding →" })).not.toBeNull();
     cleanup();
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(historicalRows(null)));
     await settledScreen();

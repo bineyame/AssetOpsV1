@@ -378,6 +378,8 @@ class SiteOutcomeBoardService:
             "warnings": jsonable_encoder([w.wire(site.site_code, site.site_name) for w in comp.facts.warnings]),
             "links": {"self": f"/api/sites/{site.site_code}/outcome-board?{urlencode(query)}"},
             "_short_values": dict(comp.short_values),  # stripped by the route; read by the estate summary
+            # WALK1-1 (WN-1): stripped by the route like `_short_values`; the estate Assure card's verified count.
+            "_verified_results": sum(1 for a in comp.facts.actions if a.verification_state == "VERIFIED"),
         }
 
     # ------------------------------------------------------------------ estate summary
@@ -407,6 +409,7 @@ class SiteOutcomeBoardService:
         # OUT-D U4 (review M2): Sites whose board loaded AND whose objectives were read, and of those the ones that
         # list a declared objective; every other Site (a failed board or a failed objectives read) is unread.
         read_sites = objective_sites = 0
+        verified, verified_read = 0, 0  # WALK1-1 (WN-1): VERIFIED Actions over the Sites whose board loaded
         for site in sites:
             # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
             # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
@@ -423,6 +426,8 @@ class SiteOutcomeBoardService:
                 warnings += body["warnings"]
                 window: dict[str, Any] | None = body["window"]
                 window_basis: str | None = basis
+                verified += body.get("_verified_results", 0)
+                verified_read += 1
                 if body.get("objectives_read"):
                     read_sites += 1
                     objective_sites += 1 if body.get("objectives") else 0
@@ -444,7 +449,9 @@ class SiteOutcomeBoardService:
         return {"schema_version": SUMMARY_SCHEMA_VERSION, "policy_versions": dict(POLICY_VERSIONS),
                 "window": {"from": wire(lo), "to": wire(hi)}, "sites": out, "categories": categories,
                 "warnings": warnings, "objective_site_count": objective_sites if read_sites else None,
-                "objective_sites_unread": len(sites) - read_sites}
+                "objective_sites_unread": len(sites) - read_sites,
+                "verified_result_count": verified if verified_read else None,
+                "verified_sites_unread": len(sites) - verified_read}
 
 
 def _overview_href(site: SiteRef, window: dict[str, Any] | None = None, known_at: datetime | None = None) -> str:
@@ -465,9 +472,9 @@ def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str,
              else None)
     return {"category": row["category"], "state": row["state"], "state_label": row["state_label"],
             "tone": row["tone"], "lead_outcome": row.get("lead_outcome"), "headline": row.get("headline"),
-            "short_value": short}
+            "short_value": short, "headline_money": row.get("headline_money")}
 
 
 def _unknown_row(category: str) -> dict[str, Any]:
     return {"category": category, "state": UNKNOWN, "state_label": STATE_LABEL[UNKNOWN], "tone": STATE_TONE[UNKNOWN],
-            "lead_outcome": None, "headline": None, "short_value": None}
+            "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None}

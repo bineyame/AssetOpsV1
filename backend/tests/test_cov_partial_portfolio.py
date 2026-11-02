@@ -20,7 +20,7 @@ from test_cov_partial import PRICED, Snap, day, head
 from test_w302_evidence_api import CUT, D0, MG, T, WINDOW, FakeStore
 from test_w302_money_api import MoneySnapshot
 from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV
-from test_w303_portfolio_api import KEY_HEX, SITES as P_SITES, World, cov as p_cov
+from test_w303_portfolio_api import KEY_HEX, MG as P_MG, SITES as P_SITES, World, cov as p_cov
 
 
 @pytest.fixture(autouse=True)
@@ -193,3 +193,65 @@ def test_x2_partial_row_is_placed_on_the_not_covered_path(partial_estate) -> Non
     for r in rows:  # R5.6: the not-covered text, never a move into another group by coverage
         assert "Site coverage incomplete; other findings may be missing" in r["confidence_reasons"]
         assert r["placement"]["group"] is not None
+
+
+# --- WALK1-1 (WN-2): Portfolio counts over the checked days of a PARTIAL estate ---------------------------------
+
+DAYS = {"policy": "x", "requested": 7, "checked": 5, "gaps": [], "withheld": False, "text": "5 of 7 days checked"}
+
+
+class DaysWorld(StateWorld):
+    """`StateWorld` whose PARTIAL Sites carry a mini-grid `days` block on their Finding coverage."""
+
+    def _state(self, s, c):
+        out = super()._state(s, c)
+        return {**out, "days": DAYS} if out["state"] == "PARTIAL" else out
+
+
+def portfolio_days(monkeypatch, states) -> dict:
+    app = FastAPI()
+    app.include_router(build_estate_portfolio_router(EstatePortfolioService(DaysWorld(monkeypatch, states)),
+                                                     lambda: T, authenticate=lambda request: None,
+                                                     access=lambda request, code: None))
+    response = TestClient(app).get("/api/estate/portfolio?" + urlencode(
+        {"from": "2026-10-13T00:00:00Z", "to": "2026-10-20T00:00:00Z"}))
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def test_walk1_partial_estate_counts_over_checked_days(monkeypatch) -> None:
+    body = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL"})
+    summary = body["status"], body["summary"]
+    assert summary[0] == "PARTIAL"
+    s = summary[1]
+    assert s["count_basis"] == "CHECKED_DAYS"
+    assert isinstance(s["finding_count"], int) and isinstance(s["opportunity_count"], int)
+    assert isinstance(s["category_counts"]["PROTECT_ASSET"]["sites_with_primary_finding"], int)
+    assert all(isinstance(v, int) for v in s["placement_counts"].values())
+    assert isinstance(s["evidence_gap_site_count"], int)  # pre-flight E1: PARTIAL Sites emit evidence rows
+    assert s["checked_days"] == [{"site_id": P_MG, "site_name": "Kobo", "checked": 5, "requested": 7,
+                                 "withheld": False}]
+    assert s["combined_value"] is None  # money unchanged (D-W1-4)
+
+
+def test_walk1_withheld_flag_rides_checked_days_and_count_stays_int(monkeypatch) -> None:
+    global DAYS
+    saved = DAYS
+    DAYS = {**saved, "withheld": True}
+    try:
+        s = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL"})["summary"]
+    finally:
+        DAYS = saved
+    assert s["checked_days"][0]["withheld"] is True
+    assert isinstance(s["opportunity_count"], int)  # the number is unchanged; the client words the zero
+
+
+def test_walk1_unknown_estate_stays_null_and_complete_stays_complete(monkeypatch) -> None:
+    unknown = portfolio_days(monkeypatch, {"KOBO 001": "PARTIAL", "KOBO 002": "UNKNOWN"})["summary"]
+    assert unknown["count_basis"] is None and unknown["finding_count"] is None
+    assert unknown["category_counts"]["PROTECT_ASSET"]["sites_with_primary_finding"] is None
+    assert unknown["evidence_gap_site_count"] is None
+    assert len(unknown["checked_days"]) == 1  # stated for the PARTIAL Site; the client reads it only on CHECKED_DAYS
+    complete = portfolio_days(monkeypatch, {})["summary"]
+    assert complete["count_basis"] == "COMPLETE" and complete["checked_days"] == []
+    assert isinstance(complete["finding_count"], int)

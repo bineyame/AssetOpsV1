@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { EstateClient, EstateOutcomeSummaryBody, EstatePortfolioStatus, EstateResult } from "../estateClient";
+import type { EstateCheckedDays, EstateClient, EstateOutcomeSummaryBody, EstatePortfolioStatus, EstateResult } from "../estateClient";
 
 type EstateOutcomeSummaryRead = EstateResult<EstateOutcomeSummaryBody>;
 import { EstatePortfolioPage } from "../EstatePortfolio";
@@ -157,7 +157,7 @@ describe("estate Portfolio page", () => {
     // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
     expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
     expect(cells[4]).toBe("Well supported Supported finding · Prepared example data source");
-    expect(cells[5]).toBe("No action yet Recommendation not accepted Review Finding");
+    expect(cells[5]).toBe("No action yet Recommendation not accepted Review finding");
     const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
     expect(text(cold)).toContain("Finding detail unavailable");
     expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
@@ -924,13 +924,13 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expect(text(card("GROW_REVENUE").querySelector("[data-portfolio-card-basis]"))).toBe("Opportunities · revenue not measured yet");
     expect(card("GROW_REVENUE").className).toContain("neutral");
     // Protect.
-    expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-detail]"))).toBe("Service disruptions recorded in Findings · loss not priced");
+    expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-detail]"))).toBe("Service disruptions recorded as findings · loss not priced");
     expect(text(card("PROTECT_ASSET").querySelector("[data-portfolio-card-basis]"))).toBe("Measured events, counted separately · loss not priced");
     expect(card("PROTECT_ASSET").className).toContain("red");
     // Assure: the fixture has 1 evidence gap among 4 Sites; no outcome summary is read, so no target claim (OUT-D).
     expect(value("ASSURE_PERFORMANCE")).toBe("Not known yet");
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
-      "No verified result yet · evidence gap at 1 site",
+      "Verified results not known yet · evidence gap at 1 site",
     );
     expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-basis]"))).toBe("Completed work does not establish savings");
     // Window kept on every link.
@@ -1014,7 +1014,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(withSummary({ evidence_gap_site_count: gaps }, sites))));
       await settledScreen();
       expect(text(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-detail]"))).toBe(
-        `No verified result yet · ${expected}`,
+        `Verified results not known yet · ${expected}`,
       );
       view.unmount();
     }
@@ -1059,7 +1059,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     await expectAssureDetail([
       [summaryWith(0, 1), `No verified result yet · ${targetsGap}`],
       [summaryWith(null, 3), `No verified result yet · ${targetsGap}`],
-      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `No verified result yet · ${targetsGap}`],
+      [{ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }, `Verified results not known yet · ${targetsGap}`],
     ]);
   });
 });
@@ -1096,7 +1096,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(text(items[0].querySelector("small"))).toMatch(/^GreenHarvest · Optimize cost and efficiency · /);
     expect(text(items[2].querySelector("small"))).toMatch(/^Kobo · /);
     expect(text(list)).not.toContain("Peak close to the import limit");
-    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 4 early warnings, counted separately · loss not priced");
+    expect(protectDetail()).toBe("Service disruptions recorded as findings · 4 early warnings, counted separately · loss not priced");
     expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(text(list))).toBe(false);
     expect(describeViolations(scanProductVocabulary(list, "portfolio", { set: "w1" }).violations)).toBe("");
   });
@@ -1105,7 +1105,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([planWarning()], 1) }));
     await settledScreen();
     expect(pulseWarnings()).toBe("1 warning not yet priced");
-    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 1 early warning, counted separately · loss not priced");
+    expect(protectDetail()).toBe("Service disruptions recorded as findings · 1 early warning, counted separately · loss not priced");
     cleanup();
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([], 0) }));
     await settledScreen();
@@ -1113,7 +1113,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(pulseWarnings()).toBe("0 warnings not yet priced");
-    expect(protectDetail()).toBe("Service disruptions recorded in Findings · 0 early warnings, counted separately · loss not priced");
+    expect(protectDetail()).toBe("Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced");
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
@@ -1124,7 +1124,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(pulseWarnings()).toBe("Unknown warnings not yet priced");
-    expect(protectDetail()).toBe("Service disruptions recorded in Findings · loss not priced");
+    expect(protectDetail()).toBe("Service disruptions recorded as findings · loss not priced");
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
@@ -1187,5 +1187,170 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       expect(document.querySelector("[data-portfolio-scope-gaps]")).toBeNull();
       view.unmount();
     }
+  });
+});
+
+describe("WALK1-1: checked days, verified count and Grow estimates", () => {
+  const card = (key: string) => document.querySelector(`[data-portfolio-card='${key}']`) as HTMLElement;
+  const value = (key: string) => text(card(key).querySelector("[data-portfolio-card-value]"));
+  const detail = (key: string) => text(card(key).querySelector("[data-portfolio-card-detail]"));
+  const basis = (key: string) => text(card(key).querySelector("[data-portfolio-card-basis]"));
+  const pulse = () => text(document.querySelector("[data-portfolio-pulse]"));
+  const protect = (n: number | null) => ({
+    GROW_REVENUE: { open_findings: null, sites_with_primary_finding: null },
+    OPTIMIZE_COST: { open_findings: null, sites_with_primary_finding: null },
+    PROTECT_ASSET: { open_findings: n, sites_with_primary_finding: n },
+    ASSURE_PERFORMANCE: { open_findings: null, sites_with_primary_finding: null },
+  });
+  type Summary = ReturnType<typeof portfolioBody>["summary"];
+  const kobo: EstateCheckedDays = { site_id: "s-kobo", site_name: "Kobo", checked: 5, requested: 7 };
+  const harbour: EstateCheckedDays = { site_id: "s-harbour", site_name: "Harbour", checked: 6, requested: 7 };
+  const body = (patch: Partial<Summary>) => {
+    const base = portfolioBody();
+    return portfolioBody({ summary: { ...base.summary, ...patch } });
+  };
+  const checked = (n: number, days = [kobo], extra: Partial<Summary> = {}) =>
+    body({ count_basis: "CHECKED_DAYS", checked_days: days, category_counts: protect(n), ...extra });
+  const scanCards = () => {
+    const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
+    // The Optimize detail carries the pre-existing ledger category label (see the A6 exact-copy test).
+    grid.querySelector("[data-portfolio-card='OPTIMIZE_COST'] [data-portfolio-card-detail]")?.remove();
+    return describeViolations(scanProductVocabulary(grid, "portfolio", { set: "w1" }).violations);
+  };
+
+  it("protectValueAndDetailsOnCheckedDaysOneSite", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], { evidence_gap_site_count: 0 })))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("None found on the days checked");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("on the days checked");
+    expect(card("PROTECT_ASSET").className).toContain("neutral");
+    const clause = "5 of 7 days checked at Kobo";
+    expect(detail("PROTECT_ASSET")).toBe(
+      `Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced · ${clause}`,
+    );
+    expect(detail("ASSURE_PERFORMANCE")).toBe(
+      `No verified result yet · no targets declared · no evidence gaps on the days checked · ${clause}`,
+    );
+    expect(detail("OPTIMIZE_COST")).toBe(`Kobo · Candidate operating-cost exposure · 6 Oct 2026, 14:20–15:20 · ${clause}`);
+    // The pulse strip: a zero count is qualified; a non-zero count is unchanged.
+    expect(pulse()).toContain("Opportunity: None found on the days checked");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(scanCards()).toBe("");
+    const strip = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
+    expect(describeViolations(scanProductVocabulary(strip, "portfolio", { set: "w1" }).violations)).toBe("");
+  });
+
+  it("checkedDaysClauseForTwoSitesAndNonZeroCountsUnchanged", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(2, [kobo, harbour])))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("2 sites disrupted");
+    expect(detail("PROTECT_ASSET")).toMatch(/ · days not checked yet at 2 sites$/);
+    expect(detail("ASSURE_PERFORMANCE")).toBe(
+      "No verified result yet · no targets declared · evidence gap at 1 site · days not checked yet at 2 sites",
+    );
+    expect(pulse()).toContain("Opportunity: None found on the days checked");
+    expect(pulse()).toContain("1 site evidence gaps");
+  });
+
+  it("withheldFindingsNeverReadNoneFound", async () => {
+    const one = { ...kobo, withheld: true };
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [one], { evidence_gap_site_count: 0 })))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("None shown yet");
+    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
+    expect(detail("PROTECT_ASSET")).toMatch(/ · 5 of 7 days checked at Kobo · findings next to unchecked days not shown yet$/);
+    expect(detail("ASSURE_PERFORMANCE")).toContain("no evidence gaps on the days checked");
+    expect(pulse()).toContain("Opportunity: None shown yet");
+    expect(pulse()).toContain("Site evidence gaps: None found on the days checked");
+    expect(pulse()).not.toContain("Opportunity: None found");
+    expect(scanCards()).toBe("");
+  });
+
+  it("withheldClauseForTwoSites", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo, { ...harbour, withheld: true }])))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("None shown yet");
+    expect(detail("PROTECT_ASSET")).toMatch(/ · days not checked yet at 2 sites · findings next to those days not shown yet$/);
+  });
+
+  it("completeBasisKeepsTodaysWordsAndNoClause", async () => {
+    const complete = body({ count_basis: "COMPLETE", checked_days: [kobo], category_counts: protect(0) });
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(complete))));
+    await settledScreen();
+    expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
+    expect(detail("PROTECT_ASSET")).not.toContain("days checked");
+    expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · evidence gap at 1 site");
+    expect(pulse()).toContain("0 opportunity");
+  });
+
+  it("assureLeadFromTheVerifiedCount", async () => {
+    const cases: [Partial<EstateOutcomeSummaryBody>, string][] = [
+      [{ verified_result_count: 0 }, "No verified result yet"],
+      [{ verified_result_count: 1 }, "1 verified result"],
+      [{ verified_result_count: 2 }, "2 verified results"],
+      [{ verified_result_count: 1, verified_sites_unread: 1 }, "1 verified result, 1 site not checked"],
+      [{ verified_result_count: null, verified_sites_unread: 4 }, "Verified results not known yet"],
+      [{ verified_result_count: undefined, verified_sites_unread: undefined }, "Verified results not known yet"],
+    ];
+    for (const [over, lead] of cases) {
+      const answer = { status: "loaded" as const, value: outcomeSummaryBody(over) };
+      const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), answer));
+      await settledScreen();
+      expect(detail("ASSURE_PERFORMANCE")).toBe(`${lead} · no targets declared · evidence gap at 1 site`);
+      expect(describeViolations(scanProductVocabulary(card("ASSURE_PERFORMANCE"), "portfolio", { set: "w1" }).violations)).toBe("");
+      view.unmount();
+    }
+  });
+
+  const withGrowMoney = (amounts: Record<string, string>): EstateOutcomeSummaryBody => {
+    const summary = outcomeSummaryBody();
+    return {
+      ...summary,
+      sites: summary.sites.map((site) => ({
+        ...site,
+        rows: site.rows.map((r) =>
+          r.category === "GROW_REVENUE" && amounts[site.site_code]
+            ? { ...r, headline_money: { amount_low: amounts[site.site_code], amount_high: amounts[site.site_code], currency: "USD" } }
+            : r,
+        ),
+      })),
+    };
+  };
+  const renderGrow = (amounts: Record<string, string>) =>
+    renderAt(
+      ENTRY,
+      withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withGrowMoney(amounts) }),
+    );
+
+  it("growOneSiteEstimate", async () => {
+    renderGrow({ "EV-LAB-001": "4.20" });
+    await settledScreen();
+    expect(value("GROW_REVENUE")).toBe("4.20 USD estimated");
+    expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("estimated");
+    expect(detail("GROW_REVENUE")).toBe("Depot 4.20 USD · each site's latest assessed period");
+    expect(basis("GROW_REVENUE")).toBe("Declared price × measured kWh · not billed or collected");
+    expect(card("GROW_REVENUE").className).toContain("green");
+    expect(card("GROW_REVENUE").getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
+    expect(scanCards()).toBe("");
+  });
+
+  it("growTwoSitesNamesEachAndNeverAdds", async () => {
+    renderGrow({ "KOBO-001": "1.50", "EV-LAB-001": "4.20" });
+    await settledScreen();
+    expect(value("GROW_REVENUE")).toBe("2 sites with an estimate");
+    expect(detail("GROW_REVENUE")).toBe("Kobo 1.50 USD · Depot 4.20 USD · each site's latest assessed period");
+    expect(text(card("GROW_REVENUE"))).not.toContain("5.70");
+    expect(scanCards()).toBe("");
+  });
+
+  it("growFallsBackToTheShortValueThenNotAvailable", async () => {
+    const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
+    await settledScreen();
+    expect(value("GROW_REVENUE")).toBe("18–20 kW unused");
+    expect(basis("GROW_REVENUE")).toBe("Opportunities · revenue not measured yet");
+    view.unmount();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    expect(value("GROW_REVENUE")).toBe("Not available yet");
   });
 });

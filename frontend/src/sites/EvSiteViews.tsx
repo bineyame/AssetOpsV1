@@ -234,7 +234,7 @@ function ToLink({ href, children, data }: { href: string | null; children: React
 
 function linkLabel(link: string | null): string {
   if (link === null) return NO_LINK;
-  if (link.includes("/findings/")) return "Open Finding →";
+  if (link.includes("/findings/")) return "Open finding →";
   if (link.includes("/evidence/analysis")) return "Evidence › Analysis →";
   if (link.includes("/financials")) return "Financials →";
   if (link.includes("/evidence")) return "Evidence →";
