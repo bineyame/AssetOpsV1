@@ -103,3 +103,30 @@ def test_refused_renewable_read_stays_not_available() -> None:
 def test_new_strings_are_in_the_vocabulary_copy() -> None:
     assert "Not available yet · spare solar not checked on the last 5 days" in mini.COPY
     assert "Spare solar on 0 of 2 well-observed days · 3 of the last 5 days not checked" in mini.COPY
+
+
+def test_productive_use_and_headroom_issue_link_to_the_same_five_local_days() -> None:
+    """M2/L1: Nairobi is UTC+3, so the bounds are local midnights (21:00Z), not UTC midnights."""
+    c = cards(hour("ELIGIBLE"), hour("EXCLUDED", head=("-3", "0")), None, hour("ELIGIBLE"), hour("LIMITED"))
+    _, row = grow(c)
+    want = (f"/sites/KOBO-001/performance/renewable?from={(DAY - timedelta(days=5)).isoformat()}T21:00:00Z"
+            f"&to={DAY.isoformat()}T21:00:00Z")
+    assert contributor(row, "productive_use")["href"] == want
+    assert next(i for i in row["issues"] if i["text"] == "Productive-use headroom")["href"] == want
+
+
+def test_board_link_bounds_are_accepted_by_the_opportunity_list_and_utc_midnights_are_not() -> None:
+    """M1: WK-6 sends the link's bounds to the opportunity list; UTC midnights (the old window) were INVALID_WINDOW."""
+    import pytest
+    from datetime import datetime, timezone
+    from urllib.parse import parse_qs, urlparse
+
+    from assetops_backend.mini_decisions.model import DecisionRefused
+    from assetops_backend.mini_decisions.opportunities import _local_day
+
+    _, row = grow(cards(hour("ELIGIBLE"), None, None, None, None))
+    q = parse_qs(urlparse(contributor(row, "productive_use")["href"]).query)
+    lo, hi = (datetime.fromisoformat(q[k][0].replace("Z", "+00:00")) for k in ("from", "to"))
+    assert (_local_day(lo, ZONE), _local_day(hi, ZONE)) == (DAY - timedelta(days=4), DAY + timedelta(days=1))
+    with pytest.raises(DecisionRefused):
+        _local_day(datetime(DAY.year, DAY.month, DAY.day, tzinfo=timezone.utc), ZONE)

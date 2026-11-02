@@ -19,6 +19,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Callable
 
@@ -509,22 +510,33 @@ def wk3(ctx: Ctx) -> dict:
 @row("WK-6")
 def wk6(ctx: Ctx) -> dict:
     """WALK1-5 (Addendum 7, G2): the Kobo productive-use opportunity page for the 5-day study ending S+1 (the
-    `kobo-opportunity` capture) shows the declared productive-use price on its Tariff line. The page rule
-    (`MiniOpportunity.tsx` `tariffText`): no linked what-if and a PRICED declared series give
-    "Declared price · {p} {cur} per kWh"."""
-    window = _kobo_board_s1(ctx)["window"]
-    lo, hi = at(window["from"]) - timedelta(days=4), at(window["to"])  # Kobo's zone has no DST
+    `kobo-opportunity` capture). The board's Productive use link carries the 5 Site-local days it describes
+    (`mini.renewable_href`); the opportunity list is read over exactly those bounds (Site-local midnights, never UTC
+    midnights, or the list refuses INVALID_WINDOW). The Tariff line is the page's own `tariffDeclared` text, built
+    from the served price fields, so the check asserts those served fields (a PRICED series with a positive value and
+    a currency); the wording itself is pinned by vitest and the capture."""
+    from urllib.parse import parse_qs, urlparse
+
+    board = _kobo_board_s1(ctx)
+    grow = next(r for r in board["rows"] if r["category"] == "GROW_REVENUE")
+    use = next(c for c in grow["contributors"] if c["key"] == "productive_use")
+    query = parse_qs(urlparse(use["href"]).query)
+    assert set(query) == {"from", "to"}, ("Productive use link carries no window", use["href"])
+    lo, hi = at(query["from"][0]), at(query["to"][0])
+    assert hi - lo == timedelta(days=5), ("not five Site-local days", use["href"])
     listing = ctx.get(f"/api/sites/{KOBO}/opportunities", **{"from": iso(lo), "to": iso(hi), "limit": 100})
     found = [r["opportunity"] for r in listing["rows"] if r.get("opportunity")]
     assert found, ("no Kobo opportunity for the study ending S+1", iso(lo), iso(hi))
     opp = max(found, key=lambda o: o["last_day"])
+    assert opp["last_day"] == ctx.day(1).date().isoformat(), (opp["last_day"], ctx.day(1).date().isoformat())
     assert opp["scenario_id"] is None, opp["scenario_id"]  # a linked what-if reads "Unavailable in this read"
     series = ctx.get(f"/api/sites/{KOBO}/financial-assumptions", key="productive_use_price_per_kwh", limit=1)
     selection = series.get("selection") or {}
     assert selection.get("state") == "PRICED", selection
-    tariff = f"Declared price · {selection['price']['value']} {selection['price']['currency']} per kWh"
-    assert tariff.startswith("Declared price"), tariff
-    return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]], "tariff": tariff,
+    price = selection.get("price") or {}
+    assert Decimal(str(price.get("value"))) > 0 and price.get("currency"), price
+    return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]],
+            "declared_price": f"{price['value']} {price['currency']} per kWh", "link": use["href"],
             "path": f"/sites/{KOBO}/opportunities/{opp['id']}"}
 
 

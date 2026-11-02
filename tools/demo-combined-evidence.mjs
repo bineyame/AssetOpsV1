@@ -73,7 +73,7 @@ function screens(work) {
       { key: "kobo-board-S-open", label: "Kobo board, day S, every disclosure open", path: board("KOBO-001", S), mock: "mini", open: true },
       { key: "kobo-board-S1", label: "Kobo board, day S+1 (trial-after)", path: board("KOBO-001", S + DAY), mock: "mini" },
       // WALK1-5 Addendum 7 (G2, replaces `kobo-whatif`): the productive-use opportunity page reached from the S+1
-      // board's Opportunity issue (Renewable evaluation, then its opportunity link); finish row WK-6 pins its Tariff.
+      // board's Opportunity issue (Renewable evaluation, then its opportunity link); finish row WK-6 pins its Tariff. Fix round 1 (M2): hop 1 now lands on the renewable page already opened on the 5 Site-local days (the link carries from/to).
       { key: "kobo-opportunity", label: "Kobo productive-use opportunity, from the S+1 board's Opportunity issue", find: board("KOBO-001", S + DAY),
         hops: ['main a[href*="/performance/renewable"]', 'main a[href*="/opportunities/"]'], mock: "opportunity-finding" },
       // WALK1-2 review L3 (G1): the lead Finding's version history, where each version's Basis disclosure nests the

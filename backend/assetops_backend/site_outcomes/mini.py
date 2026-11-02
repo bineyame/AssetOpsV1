@@ -409,7 +409,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
 
     signals = (SignalFact("SIGNAL:PRODUCTIVE_USE_HEADROOM", eligible is not None and eligible >= 1, HEADROOM_ISSUE,
-                          f"/sites/{c}/performance/renewable"),
+                          renewable_href(c, start, site_timezone)),
                SignalFact("SIGNAL:EVIDENCE_GAP", bool(limitations),
                           (f"{limitation_text(limitations[0])} limits this conclusion"
                            if limitations and limitation_text(limitations[0]) != GAP_GENERIC else GAP_GENERIC)))
@@ -417,7 +417,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     rc = readiness_confidence(readiness)
     reserve = reserve_counts(dispatch)
     contributors = {
-        GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"]),
+        GROW: _grow(c, depth, eligible, assessed, rc, sales["contributors"],
+                     renewable_href(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
         ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
@@ -492,6 +493,25 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                            {GROW: f"{lo_kw}–{hi_kw} kW unused"} if lo_kw and hi_kw else {})
 
 
+def renewable_bounds(start: datetime, tz_name: str | None) -> tuple[datetime, datetime]:
+    """The `RENEWABLE_DAYS` whole Site-local days ending on the board day, as UTC bounds (WALK1-5)."""
+    name = tz_name or ""
+    local_day = local_day_of(Window(start, start + timedelta(days=1)), name)
+    return (local_hour(local_day - timedelta(days=RENEWABLE_DAYS - 1), 0, name).start,
+            local_hour(local_day + timedelta(days=1), 0, name).start)
+
+
+def renewable_href(c: str, start: datetime, tz_name: str | None) -> str:
+    """The renewable page opened on the same 5 days the Productive use line describes (M2/L1); bare when refused."""
+    href = f"/sites/{c}/performance/renewable"
+    try:
+        lo, hi = renewable_bounds(start, tz_name)
+    except MiniInputsRefused:
+        return href
+    fmt = "%Y-%m-%dT%H:%M:%SZ"
+    return f"{href}?from={lo.astimezone(timezone.utc).strftime(fmt)}&to={hi.astimezone(timezone.utc).strftime(fmt)}"
+
+
 def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None) -> dict[str, dict | None]:
     """B-Q6: the Site-local day containing the overview `window.start`; the hourly domains read its local noon hour
     (reading recorded in the packet). WALK1-5: renewable reads the `RENEWABLE_DAYS` whole local days ending on it."""
@@ -499,8 +519,7 @@ def _depth(reads: Reads, ports: MiniPorts, start: datetime, tz_name: str | None)
         name = tz_name or ""
         local_day = local_day_of(Window(start, start + timedelta(days=1)), name)
         noon = local_noon(local_day, name)
-        day_lo = local_hour(local_day - timedelta(days=RENEWABLE_DAYS - 1), 0, name).start
-        day_hi = local_hour(local_day + timedelta(days=1), 0, name).start
+        day_lo, day_hi = renewable_bounds(start, tz_name)
     except MiniInputsRefused:
         reads.failed.append("mini_depth")
         return {d: None for d in DEPTH_DOMAINS}
@@ -746,8 +765,8 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
 
 
 def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
-          sales: tuple[Contributor, ...] = ()) -> tuple[Contributor, ...]:
-    href = f"/sites/{c}/performance/renewable"
+          sales: tuple[Contributor, ...] = (), href: str | None = None) -> tuple[Contributor, ...]:
+    href = href or f"/sites/{c}/performance/renewable"
     if depth.get("renewable") is None:
         use = not_available("productive_use", "Productive use", href)
     elif eligible is None or assessed is None:

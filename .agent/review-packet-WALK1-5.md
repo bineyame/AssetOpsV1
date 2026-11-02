@@ -113,3 +113,18 @@ tests `backend/tests/test_walk1_5_solar_window.py` (new), `test_out_b2_mini.py`,
 ## User-review focus
 
 No separate task file. Per the W1 rule, the owner sees this in the combined walkthrough after G2. No Architect items remain open.
+
+## Fix round 1 (review-WALK1-5: M1, M2, L1, L2)
+
+- **M2 + L1:** `site_outcomes/mini.py` new `renewable_bounds` (shared with `_depth`) and `renewable_href`; the Productive use
+  contributor and the `SIGNAL:PRODUCTIVE_USE_HEADROOM` issue link to `/sites/{c}/performance/renewable?from=&to=` with the
+  5 Site-local-midnight bounds `_depth` reads (bare link if the zone is refused). `renewableWindowFromParams` already takes
+  `from`/`to` as-is, so the page opens that window and the opportunity link shows. Tests: `test_walk1_5_solar_window.py`
+  (link equals 21:00Z bounds for both contributor and issue), `miniRenewableRoutes.test.tsx` (the link's window is 5 days).
+  `kobo-opportunity` hops are unchanged (hop 1 now lands on the windowed page); comment updated.
+- **M1:** WK-6 takes its list bounds from the board's served Productive use link (Site-local midnights, so no tz guess),
+  asserts the span is 5 days and `opp.last_day == S+1`. Test: `_local_day` accepts the link bounds and refuses UTC midnight
+  (the old window).
+- **L2:** WK-6 no longer builds a Tariff string; it asserts the served price fields (PRICED, value > 0, currency) and returns
+  them; wording stays with vitest and the capture.
+- Not run here: the G2 finish/capture on a real build.
