@@ -59,3 +59,26 @@ Branch `task/WALK1-1-portfolio-fixes` from main `2058a6567`. Spec: `.agent/build
 - The R655/R670-R673 register rows will touch the same file as WALK1-2's R674-R676 (an append-only merge).
 
 USER_REVIEW: owner walkthrough after G1. No separate user review is needed for merge beyond the Reviewer.
+
+## Fix round 1 (Addendum 1: M1, L1, L2, L3)
+
+Code commit `8052bc098` on `task/WALK1-1-portfolio-fixes`.
+
+- M1: `summary.checked_days[].withheld` (portfolio.py) and `finding_gap_line` `withheld` (mini.py). A Finding-based zero with
+  any withheld entry reads "None shown yet" (Protect value, strip Opportunity); the clause gains the withheld suffix (one
+  Site / two or more). `OutcomeBoard` with `finding_gaps.withheld`: Issues "None shown yet", counts "No open issues shown yet".
+  Evidence-gap wording unchanged. R670 and R673 updated.
+- L2: Grow detail ends "each site's latest assessed period".
+- L1: "Open finding" in `EvAssessmentViews.tsx`, `SitePerformance.tsx`; tests `evAssessmentRoutes`, `t028Screens` updated.
+- L3: `test_out_b4_route.py` fake body carries `_short_values` and `_verified_results`; asserts no `_` keys in the response.
+- Tests added: `test_walk1_withheld_flag_rides_checked_days_and_count_stays_int`, `finding_gap_line` withheld asserts, vitest
+  `withheldFindingsNeverReadNoneFound`, `withheldClauseForTwoSites`, `walk1WithheldFindingsReadNoneShownYet`.
+
+Checks (foreground, worktree):
+- Backend: test_cov_partial_portfolio, test_idx_gaps_board, test_out_b4_route, test_out_b4_read, test_w303_portfolio_api: 44 passed,
+  1 skipped, 1 failed. The failure, `test_idx_gaps_board::test_board_finding_titles_are_the_frontend_plain_titles` (MERGED title),
+  is pre-existing: it fails identically with this round stashed.
+- Real Postgres `test_cov_partial_postgres` on `assetops_walk1a_test`: 1 passed, 0 skipped.
+- Vitest estatePortfolio, outcomeBoard, evAssessmentRoutes, t028Screens, coldSiteViews: all pass (t028Screens 25/25, estatePortfolio 52/52). tsc clean.
+- missing-claim-scan passed; mock-deviation-labels OK (153 files); test_mock_deviation_labels ran; check-architecture passed (run from the worktree).
+- Not run: full suites, layout evidence (text only).
