@@ -72,6 +72,10 @@ function screens(work) {
       { key: "kobo-board-S", label: "Kobo board, day S (trial-before)", path: board("KOBO-001", S), mock: "mini" },
       { key: "kobo-board-S-open", label: "Kobo board, day S, every disclosure open", path: board("KOBO-001", S), mock: "mini", open: true },
       { key: "kobo-board-S1", label: "Kobo board, day S+1 (trial-after)", path: board("KOBO-001", S + DAY), mock: "mini" },
+      // WALK1-5 Addendum 7 (G2, replaces `kobo-whatif`): the productive-use opportunity page reached from the S+1
+      // board's Opportunity issue (Renewable evaluation, then its opportunity link); finish row WK-6 pins its Tariff.
+      { key: "kobo-opportunity", label: "Kobo productive-use opportunity, from the S+1 board's Opportunity issue", find: board("KOBO-001", S + DAY),
+        hops: ['main a[href*="/performance/renewable"]', 'main a[href*="/opportunities/"]'], mock: "opportunity-finding" },
       // WALK1-2 review L3 (G1): the lead Finding's version history, where each version's Basis disclosure nests the
       // related-findings detail; nothing else captures that cell at desktop width.
       { key: "finding-history", label: "Kobo lead finding, version history", path: `/sites/KOBO-001/findings/${kobo.finding}/history?revision_id=${kobo.finding_revision}`, mock: "finding-history" },
@@ -186,8 +190,19 @@ async function capture([work, out, base = "http://localhost:5490"]) {
       await send("Page.navigate", { url: base + s.find });
       await settle();
       await requireWidth(1440, 1000, `${s.key} find loaded`, { record: false });
-      path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter.control|control-circuit/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
-      if (!path) { records.push({ ...s, error: `no work request link on ${s.find}` }); console.log(`FAIL  ${s.key}: no work request link`); continue; }
+      if (s.hops) {
+        // Follow each link in turn from the found page (WALK1-5: board issue, then the opportunity link).
+        path = null;
+        for (const [i, sel] of s.hops.entries()) {
+          path = await js(`(()=>{const a=document.querySelector(${JSON.stringify(sel)});return a?new URL(a.href).pathname+new URL(a.href).search:null})()`);
+          if (!path) break;
+          if (i < s.hops.length - 1) { await send("Page.navigate", { url: base + path }); await settle(); }
+        }
+        if (!path) { records.push({ ...s, error: `no link along ${s.hops.join(" > ")} from ${s.find}` }); console.log(`FAIL  ${s.key}: no link along its hops`); continue; }
+      } else {
+        path = await js(`(()=>{const a=[...document.querySelectorAll('main a[href*="/maintenance/requests/"]')];const p=a.find(x=>/starter.control|control-circuit/i.test(x.closest('tr')?.innerText??x.innerText))??a[0];return p?new URL(p.href).pathname+new URL(p.href).search:null})()`);
+        if (!path) { records.push({ ...s, error: `no work request link on ${s.find}` }); console.log(`FAIL  ${s.key}: no work request link`); continue; }
+      }
     }
     for (const [w, h] of WIDTHS) {
       await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: w < 600 });
@@ -263,7 +278,7 @@ function compare([out, mockFile]) {
 if (CMD === "capture") process.exitCode = await capture(REST);
 else if (CMD === "compare") compare(REST);
 else if (CMD === "mock-ids") {
-  const ids = ["portfolio", "mini", "finding-history", "verification", "cold", "ev", "findings", "findings-cost", "findings-risks", "findings-opportunities", "maintenance-preventive", "wr-overview"];
+  const ids = ["portfolio", "mini", "finding-history", "verification", "cold", "ev", "findings", "findings-cost", "findings-risks", "findings-opportunities", "maintenance-preventive", "wr-overview", "opportunity-finding"];
   console.log(ids.join(" "));
 } else {
   console.error("usage: see the header of tools/demo-combined-evidence.mjs");

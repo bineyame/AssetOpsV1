@@ -36,6 +36,51 @@ export const FEASIBILITY_LIMIT =
   "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.";
 export const NO_OPPORTUNITY_EVIDENCE = "No selected opportunity evidence";
 
+/**
+ * WALK1-5 (build sheet WALK1 Addendum 7, D-W1-17): the declared productive-use price per kWh, read by the route
+ * container from the Assumptions series `productive_use_price_per_kwh`; `null` when none is declared and
+ * `"unavailable"` when the read failed (or gave no single price).
+ */
+export type DeclaredPrice = { value: string; currency: string } | null | "unavailable";
+export const TARIFF_NOT_DECLARED = "No price per kWh declared";
+export const TARIFF_UNAVAILABLE = "Not available yet · the declared price could not be loaded";
+export const tariffDeclared = (p: { value: string; currency: string }) => `Declared price · ${p.value} ${p.currency} per kWh`;
+
+/** Exact decimal product of two decimal strings, rounded half up (away from zero) to two decimals. */
+export function decimalTimes2dp(a: string, b: string): string | null {
+  const parse = (t: string) => {
+    const m = /^(-?)(\d+)(?:\.(\d+))?$/.exec(t.trim());
+    if (m === null) return null;
+    const frac = m[3] ?? "";
+    return { neg: m[1] === "-", digits: BigInt(m[2] + frac), scale: frac.length };
+  };
+  const x = parse(a);
+  const y = parse(b);
+  if (x === null || y === null) return null;
+  const scale = x.scale + y.scale;
+  const product = x.digits * y.digits;
+  const neg = x.neg !== y.neg && product !== 0n;
+  let cents: bigint;
+  if (scale <= 2) {
+    cents = product * 10n ** BigInt(2 - scale);
+  } else {
+    const div = 10n ** BigInt(scale - 2);
+    cents = product / div;
+    if ((product % div) * 2n >= div) cents += 1n;
+  }
+  const text = `${cents / 100n}.${String(cents % 100n).padStart(2, "0")}`;
+  return neg && cents !== 0n ? `-${text}` : text;
+}
+
+/** Addendum 7: the headroom bound times the declared price, per hour of use; never stored, projected or summed. */
+export function declaredValueText(bound: OpportunityBound, price: { value: string; currency: string }): string | null {
+  const lo = decimalTimes2dp(bound.low, price.value);
+  const hi = decimalTimes2dp(bound.high, price.value);
+  if (lo === null || hi === null) return null;
+  const amount = lo === hi ? lo : `${lo}–${hi}`;
+  return `Up to ${amount} ${price.currency} for each hour the spare solar is used · estimate, not sales`;
+}
+
 const STUDY_DAYS = 5;
 const UNKNOWN = "Unknown";
 const NOT_ESTABLISHED = "Not established";
@@ -257,19 +302,32 @@ function NextDecision({ body, renewable }: { body: OpportunityDetailBody; renewa
   );
 }
 
-function ConsequenceBasis({ body }: { body: OpportunityDetailBody }) {
+function tariffText(linked: boolean, price: DeclaredPrice): string {
+  if (linked) return "Unavailable in this read";
+  if (price === "unavailable") return TARIFF_UNAVAILABLE;
+  return price === null ? TARIFF_NOT_DECLARED : tariffDeclared(price);
+}
+
+function ConsequenceBasis({ body, declaredPrice }: { body: OpportunityDetailBody; declaredPrice: DeclaredPrice }) {
   const o = body.opportunity!;
   const technical = body.status === "SUPPORTED" ? kwText(o.headroom_kw) : null;
   const linked = o.scenario_id !== null;
   const gross = grossText(body);
+  const value =
+    body.status === "SUPPORTED" && o.headroom_kw !== null && declaredPrice !== null && declaredPrice !== "unavailable"
+      ? declaredValueText(o.headroom_kw, declaredPrice)
+      : null;
   return (
     <Panel heading="Consequence basis" headingId="mini-opportunity-basis-heading" className="mini-opportunity-panel">
       <KeyValues
         label="Consequence basis"
         rows={[
           ["Technical quantity", technical === null ? UNKNOWN : `${technical} usable headroom`, "technical"],
-          ["Scenario energy", linked ? "Unavailable in this read" : "No load scenario", "energy"],
-          ["Tariff", linked ? "Unavailable in this read" : "No tariff declared", "tariff"],
+          // MOCK DEVIATION (R686): "What-if energy" (mock "Scenario energy"), the Tariff line names the declared price
+          // and "Value at declared price" is added (not in mock); what-if authoring stays a mock placeholder.
+          ["What-if energy", linked ? "Unavailable in this read" : "No load scenario", "energy"],
+          ["Tariff", tariffText(linked, declaredPrice), "tariff"],
+          ...(value === null ? [] : [["Value at declared price", value, "declared_value"] as [string, string, string]]),
           ["Gross sales", gross === null ? grossGap(body) : `${gross} · scenario`, "gross"],
           ["Managed Action", "Not yet accepted", "action"],
         ]}
@@ -283,10 +341,13 @@ export function MiniOpportunityPage({
   body,
   renewable,
   recordHref,
+  declaredPrice = "unavailable",
 }: {
   body: OpportunityDetailBody;
   renewable: string | null;
   recordHref: (id: string) => string;
+  /** WALK1-5: the declared productive-use price (route container read). */
+  declaredPrice?: DeclaredPrice;
 }) {
   return (
     <div className="mini-opportunity" data-opportunity-page>
@@ -295,7 +356,7 @@ export function MiniOpportunityPage({
       <BoundedOpportunity body={body} recordHref={recordHref} />
       <div className="panel-pair">
         <NextDecision body={body} renewable={renewable} />
-        <ConsequenceBasis body={body} />
+        <ConsequenceBasis body={body} declaredPrice={declaredPrice} />
       </div>
     </div>
   );

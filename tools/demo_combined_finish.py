@@ -129,6 +129,10 @@ def _kobo_board_s(ctx: Ctx) -> dict:
     return ctx.board(KOBO, ctx.S, ctx.day(1))
 
 
+def _kobo_board_s1(ctx: Ctx) -> dict:
+    return ctx.board(KOBO, ctx.day(1), ctx.day(2))
+
+
 #: POLISH Addendum 10: verification outcomes that are final; a finished trial is listed under Earlier.
 FINAL_VERIFICATION = frozenset({"VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"})
 
@@ -500,6 +504,28 @@ def wk3(ctx: Ctx) -> dict:
     basis = (body.get("summary") or {}).get("count_basis")
     assert basis is not None, body.get("summary")
     return {"count_basis": basis, "checked_days": (body.get("summary") or {}).get("checked_days")}
+
+
+@row("WK-6")
+def wk6(ctx: Ctx) -> dict:
+    """WALK1-5 (Addendum 7, G2): the Kobo productive-use opportunity page for the 5-day study ending S+1 (the
+    `kobo-opportunity` capture) shows the declared productive-use price on its Tariff line. The page rule
+    (`MiniOpportunity.tsx` `tariffText`): no linked what-if and a PRICED declared series give
+    "Declared price · {p} {cur} per kWh"."""
+    window = _kobo_board_s1(ctx)["window"]
+    lo, hi = at(window["from"]) - timedelta(days=4), at(window["to"])  # Kobo's zone has no DST
+    listing = ctx.get(f"/api/sites/{KOBO}/opportunities", **{"from": iso(lo), "to": iso(hi), "limit": 100})
+    found = [r["opportunity"] for r in listing["rows"] if r.get("opportunity")]
+    assert found, ("no Kobo opportunity for the study ending S+1", iso(lo), iso(hi))
+    opp = max(found, key=lambda o: o["last_day"])
+    assert opp["scenario_id"] is None, opp["scenario_id"]  # a linked what-if reads "Unavailable in this read"
+    series = ctx.get(f"/api/sites/{KOBO}/financial-assumptions", key="productive_use_price_per_kwh", limit=1)
+    selection = series.get("selection") or {}
+    assert selection.get("state") == "PRICED", selection
+    tariff = f"Declared price · {selection['price']['value']} {selection['price']['currency']} per kWh"
+    assert tariff.startswith("Declared price"), tariff
+    return {"opportunity": opp["code"], "days": [opp["first_day"], opp["last_day"]], "tariff": tariff,
+            "path": f"/sites/{KOBO}/opportunities/{opp['id']}"}
 
 
 # ---- runner ----------------------------------------------------------------------------------------------------

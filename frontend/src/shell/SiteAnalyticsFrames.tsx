@@ -60,6 +60,7 @@ import { ColdScenarios } from "../sites/ColdScenarios";
 import { HttpColdScenariosClient, type ColdScenariosClient } from "../sites/coldScenariosClient";
 import {
   MiniOpportunityPage,
+  type DeclaredPrice,
   OPPORTUNITY_LOADING,
   OPPORTUNITY_ROOT_GAP,
   decisionRefusalCopy,
@@ -1181,11 +1182,14 @@ export const SITE_OPPORTUNITY_HEADING_ID = "site-opportunity-heading";
 export function SiteOpportunityFrame({
   detail,
   miniDecisions = DEFAULT_MINI_DECISIONS,
+  financials = DEFAULT_FINANCIALS,
 }: {
   detail: SiteDetailClient;
   /** Kept for the shared frame signature; u7 PR-9 removed the `Sites` breadcrumb slot. */
   sitesPath: string;
   miniDecisions?: MiniDecisionsClient;
+  /** WALK1-5: the Assumptions read for the declared productive-use price per kWh. */
+  financials?: FinancialsClient;
 }) {
   const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
   // PR-12.6: `?known_at=` is parsed and preserved as given; no query means current time.
@@ -1194,25 +1198,70 @@ export function SiteOpportunityFrame({
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Opportunity" headingId={SITE_OPPORTUNITY_HEADING_ID}>
       {(site) => (
-        <OpportunityScreen site={site} opportunityId={opportunityId ?? ""} client={miniDecisions} knownAt={knownAt} />
+        <OpportunityScreen
+          site={site}
+          opportunityId={opportunityId ?? ""}
+          client={miniDecisions}
+          financials={financials}
+          knownAt={knownAt}
+        />
       )}
     </SiteScoped>
   );
+}
+
+/**
+ * WALK1-5 (Addendum 7): the declared productive-use price per kWh from the Assumptions series (no new endpoint), at
+ * the page's own `known_at` when one is given; `null` while loading.
+ */
+function useDeclaredPrice(
+  financials: FinancialsClient,
+  siteId: string,
+  enabled: boolean,
+  knownAt: readonly string[],
+): DeclaredPrice | undefined {
+  const [price, setPrice] = useState<DeclaredPrice | undefined>(undefined);
+  const recordedAt = knownAt.length === 1 ? knownAt[0] : null;
+  useEffect(() => {
+    if (!enabled) return;
+    let active = true;
+    setPrice(undefined);
+    void financials
+      .getAssumptions(siteId, { recordedAt, limit: 1, key: "productive_use_price_per_kwh" })
+      .then((read) => {
+        if (!active) return;
+        const selection = read.status === "loaded" ? read.value.selection : undefined;
+        if (selection === undefined) setPrice("unavailable");
+        else if (selection === null || selection.state === "NO_PRICE") setPrice(null);
+        else if (selection.state === "PRICED") setPrice({ value: selection.price.value, currency: selection.price.currency });
+        else setPrice("unavailable"); // CONFLICT: no single declared price
+      })
+      .catch(() => {
+        if (active) setPrice("unavailable");
+      });
+    return () => {
+      active = false;
+    };
+  }, [financials, siteId, enabled, recordedAt]);
+  return price;
 }
 
 function OpportunityScreen({
   site,
   opportunityId,
   client,
+  financials,
   knownAt,
 }: {
   site: LoadedSite;
   opportunityId: string;
   client: MiniDecisionsClient;
+  financials: FinancialsClient;
   knownAt: readonly string[];
 }) {
   const mini = site.site_type === "MINIGRID";
   const read = useOpportunity(client, site.site_id, opportunityId, mini, knownAt);
+  const declaredPrice = useDeclaredPrice(financials, site.site_id, mini, knownAt);
   const loaded = mini && read !== null && read.status === "loaded" && read.value.opportunity !== null ? read.value : null;
   const renewable =
     loaded === null ? null : renewableHref(loaded, site.site_id, sitePerformanceHref(site.site_id, "renewable"));
@@ -1262,6 +1311,8 @@ function OpportunityScreen({
         </Panel>
       ) : read === null ? (
         <p role="status">{OPPORTUNITY_LOADING}</p>
+      ) : read.status === "loaded" && loaded !== null && declaredPrice === undefined ? (
+        <p role="status">{OPPORTUNITY_LOADING}</p>
       ) : read.status !== "loaded" ? (
         <div
           className="page-refusal"
@@ -1279,6 +1330,7 @@ function OpportunityScreen({
           body={loaded}
           renewable={renewable}
           recordHref={(evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId)}
+          declaredPrice={declaredPrice === undefined ? "unavailable" : declaredPrice}
         />
       )}
     </main>

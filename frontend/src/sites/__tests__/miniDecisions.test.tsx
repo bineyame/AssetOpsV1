@@ -27,7 +27,15 @@ import type {
 } from "../miniDecisionsClient";
 import { createMiniDecisionsClient, decisionRefusal, decisionRefusalCopy, microsecondBefore } from "../miniDecisionsClient";
 import { scenarioMoney } from "../MiniScenarios";
-import { OpportunityDecisionEntry } from "../MiniOpportunity";
+import {
+  OpportunityDecisionEntry,
+  TARIFF_NOT_DECLARED,
+  TARIFF_UNAVAILABLE,
+  decimalTimes2dp,
+  declaredValueText,
+  tariffDeclared,
+} from "../MiniOpportunity";
+import { forbiddenPhrases, rawCodes } from "../../test/productVocabulary";
 import { SiteFindingIndex } from "../SiteFindingIndex";
 import type { FindingIndexClient } from "../findingIndexClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
@@ -1269,7 +1277,29 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     };
   }
 
-  function openAt(answer: DecisionRead<OpportunityDetailBody>, siteType = "MINIGRID", query = "") {
+  // WALK1-5 (Addendum 7): the route container's declared productive-use price read, answered by a stubbed fetch.
+  const series = (selection: unknown) => ({
+    site_code: CODE, access_basis: "SITE_SCOPED", assumption_key: "productive_use_price_per_kwh", unit: "USD/kWh",
+    state: selection === null ? "NO_PRICE" : "PUBLISHED",
+    cutoff: { recorded_at: null, selected_by: "CURRENT", basis: "CURRENT" },
+    selection, timeline: [], revisions: [],
+    revision_page: { after_revision_no: 0, limit: 1, total: 0, next_after_revision_no: null },
+  });
+  const priced = (value: string, currency = "USD") =>
+    series({ state: "PRICED", valid_at: "2026-10-10T21:00:00Z", revision_id: id(730), price: { value, currency } });
+  const NO_PRICE = series({ state: "NO_PRICE", valid_at: "2026-10-10T21:00:00Z", revision_id: null, assignment_id: null, note: "" });
+  let priceUrls: string[] = [];
+  afterEach(() => vi.unstubAllGlobals());
+
+  function openAt(answer: DecisionRead<OpportunityDetailBody>, siteType = "MINIGRID", query = "", price: unknown = NO_PRICE) {
+    priceUrls = [];
+    vi.stubGlobal("fetch", (url: string) => {
+      if (!String(url).includes("/financial-assumptions")) return Promise.reject(new Error("not stubbed"));
+      priceUrls.push(String(url));
+      return Promise.resolve(
+        price === "fail" ? new Response("{}", { status: 503 }) : new Response(JSON.stringify(price), { status: 200 }),
+      );
+    });
     const decisions: MiniDecisionsClient = {
       getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
@@ -1308,9 +1338,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     for (const literal of MOCK_LITERALS) expect(main().textContent).not.toContain(literal);
   };
 
-  async function show(b: OpportunityDetailBody) {
+  async function show(b: OpportunityDetailBody, price: unknown = NO_PRICE) {
     cleanup();
-    openAt(loaded(b));
+    openAt(loaded(b), "MINIGRID", "", price);
     await settledScreen();
     await waitFor(() => expect(document.querySelector("[data-opportunity-page]")).not.toBeNull());
   }
@@ -1341,7 +1371,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     );
     expect(basis()).toEqual([
       ["Technical quantity", "12–15 kW usable headroom"],
-      ["Scenario energy", "Unavailable in this read"],
+      ["What-if energy", "Unavailable in this read"],
       ["Tariff", "Unavailable in this read"],
       ["Gross sales", "$2.50 · scenario"],
       ["Managed Action", "Not yet accepted"],
@@ -1404,12 +1434,81 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(words()).toEqual([true, true, true, true]);
     expect(basis()).toEqual([
       ["Technical quantity", "Unknown"],
-      ["Scenario energy", "No load scenario"],
-      ["Tariff", "No tariff declared"],
+      ["What-if energy", "No load scenario"],
+      ["Tariff", "No price per kWh declared"],
       ["Gross sales", "Not calculated"],
       ["Managed Action", "Not yet accepted"],
     ]);
     noMock();
+  });
+
+  it("walk1_5_declared_price_tariff_states_and_value_row", async () => {
+    const unlinked = { scenario_id: null, proposed_load_kw: null, gross_sales_scenario: null };
+    const row = (key: string) => basis().find(([k]) => k === key)?.[1];
+    // Declared: the Tariff line names the declared price; the value row multiplies the two shown figures.
+    await show(body({}, unlinked), priced("0.25"));
+    expect(priceUrls).toHaveLength(1);
+    expect(priceUrls[0]).toContain("key=productive_use_price_per_kwh");
+    expect(basis()).toEqual([
+      ["Technical quantity", "12–15 kW usable headroom"],
+      ["What-if energy", "No load scenario"],
+      ["Tariff", "Declared price · 0.25 USD per kWh"],
+      ["Value at declared price", "Up to 3.00–3.75 USD for each hour the spare solar is used · estimate, not sales"],
+      ["Gross sales", "Not calculated"],
+      ["Managed Action", "Not yet accepted"],
+    ]);
+    // Not declared: no value row.
+    await show(body({}, unlinked), NO_PRICE);
+    expect(row("Tariff")).toBe("No price per kWh declared");
+    expect(row("Value at declared price")).toBeUndefined();
+    // Read failed: stated, no value row, nothing assumed.
+    await show(body({}, unlinked), "fail");
+    expect(row("Tariff")).toBe("Not available yet · the declared price could not be loaded");
+    expect(row("Value at declared price")).toBeUndefined();
+    // LIMITED or unknown headroom: the price is shown, the value row is omitted.
+    await show(body({ status: "LIMITED" }, { ...unlinked, headroom_kw: null }), priced("0.25"));
+    expect(row("Tariff")).toBe("Declared price · 0.25 USD per kWh");
+    expect(row("Value at declared price")).toBeUndefined();
+    await show(body({ status: "LIMITED" }, unlinked), priced("0.25"));
+    expect(row("Value at declared price")).toBeUndefined();
+    // A linked what-if keeps "Unavailable in this read" on the Tariff line.
+    await show(body(), priced("0.25"));
+    expect(row("Tariff")).toBe("Unavailable in this read");
+    expect(main().textContent).not.toContain("billed");
+  });
+
+  it("walk1_5_value_row_rounding_is_exact_half_up", async () => {
+    expect(decimalTimes2dp("1", "0.125")).toBe("0.13"); // half up, never half-even
+    expect(decimalTimes2dp("2.5", "0.125")).toBe("0.31");
+    expect(decimalTimes2dp("18.25", "0.333")).toBe("6.08");
+    expect(decimalTimes2dp("0.1", "0.3")).toBe("0.03"); // exact decimal, no float error
+    expect(decimalTimes2dp("12", "0.25")).toBe("3.00");
+    expect(decimalTimes2dp("x", "0.25")).toBeNull();
+    // One amount when low and high give the same value.
+    await show(body({}, { scenario_id: null, headroom_kw: { low: "18.25", high: "18.25" } }), priced("0.333"));
+    expect(basis().find(([k]) => k === "Value at declared price")?.[1]).toBe(
+      "Up to 6.08 USD for each hour the spare solar is used · estimate, not sales",
+    );
+    await show(body({}, { scenario_id: null, headroom_kw: { low: "1", high: "2.5" } }), priced("0.125"));
+    expect(basis().find(([k]) => k === "Value at declared price")?.[1]).toBe(
+      "Up to 0.13–0.31 USD for each hour the spare solar is used · estimate, not sales",
+    );
+  });
+
+  it("walk1_5_new_strings_pass_the_vocabulary_scan", () => {
+    const strings = [
+      TARIFF_NOT_DECLARED,
+      TARIFF_UNAVAILABLE,
+      tariffDeclared({ value: "0.25", currency: "USD" }),
+      declaredValueText({ low: "12", high: "15" }, { value: "0.25", currency: "USD" })!,
+      "Value at declared price",
+      "What-if energy",
+    ];
+    for (const text of strings) {
+      expect(forbiddenPhrases(text, "t028")).toEqual([]);
+      expect(forbiddenPhrases(text, "w1")).toEqual([]);
+      expect(rawCodes(text)).toEqual([]);
+    }
   });
 
   it("u9b_detail_known_at_address_and_wire", async () => {

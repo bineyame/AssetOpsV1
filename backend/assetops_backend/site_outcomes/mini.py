@@ -754,6 +754,7 @@ def _grow(c: str, depth: dict, eligible: Any, assessed: Any, rc: Any,
         use = Contributor("productive_use", "Productive use", SOLAR_NOT_READ, None, href)
     else:
         text = SOLAR_WELL_OBSERVED.format(e=eligible, a=assessed, days=plural(assessed, "day", "days"))
+        # MOCK DEVIATION (R685): the mock's "of 5" is the days checked, and unchecked days are stated (R687: none).
         if assessed < RENEWABLE_DAYS:  # WALK1-5: assess the days read, state the rest
             text += SOLAR_NOT_CHECKED.format(n=RENEWABLE_DAYS - assessed)
         use = Contributor("productive_use", "Productive use", text, rc, href)
