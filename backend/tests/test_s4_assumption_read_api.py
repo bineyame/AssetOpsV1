@@ -82,6 +82,13 @@ class TestAssumptionReadMatrix:
         assert body["state"] == "NO_PRICE" and body["timeline"] == [] and body["access_basis"] == ACCESS_BASIS
         assert body["selection"]["state"] == "NO_PRICE" and body["selection"]["revision_id"] is None
 
+    def test_no_valid_at_selects_nothing_and_there_is_no_default_instant(self) -> None:
+        """WALK1-5 (Addendum 8): a read without `valid_at` returns `selection: null`, never "today"; a caller that
+        needs a price asks at a stated instant (the opportunity page asks at the study's last noon)."""
+        body = reader().get(SERIES).json()
+        assert body["selection"] is None and body["state"] == "NO_PRICE"
+        assert reader().get(SERIES, params={"valid_at": "2026-10-01T00:00:00Z"}).json()["selection"] is not None
+
     def test_naive_instants_and_unknown_keys_are_refused(self) -> None:
         client = reader()
         assert client.get(SERIES, params={"valid_at": "2026-10-01T00:00:00"}).json()["detail"]["code"] == \

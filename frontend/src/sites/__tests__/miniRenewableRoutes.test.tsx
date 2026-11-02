@@ -6,6 +6,7 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { MiniDepthClient, MiniHourState, MiniRead, RenewableRead, RenewableRow } from "../miniDepthClient";
 import { localDaysWindow, renewableWindowFromParams } from "../miniDepthClient";
+import { selectedLocalDays } from "../MiniOpportunity";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -340,6 +341,10 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
       to: "2026-10-06T21:00:00Z",
       known_at: "2026-10-07T00:00:00Z",
     });
+    // WALK1-5 M2: the board's Productive use link (backend `renewable_href`) opens exactly five local days.
+    const board = new URLSearchParams("from=2026-10-27T21:00:00Z&to=2026-11-01T21:00:00Z");
+    const w = renewableWindowFromParams(board, TZ);
+    expect(selectedLocalDays(TZ, w.from, w.to)).toEqual({ first: "2026-10-28", last: "2026-11-01", days: 5 });
     // A zone behind UTC: the UTC day start is the previous local date.
     expect(renewableWindowFromParams(new URLSearchParams("date=2026-10-06"), "America/New_York")).toEqual({
       from: "2026-10-05T04:00:00.000Z",

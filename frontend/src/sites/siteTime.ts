@@ -118,12 +118,12 @@ export function siteLocalDate(value: string | null | undefined, timeZone: string
   return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.day).padStart(2, "0")}`;
 }
 
-/** The UTC ISO instant (`...Z`, no milliseconds) of local midnight starting `isoDate` at the Site; "" for a bad date. */
-export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | undefined): string {
+/** The UTC ISO instant (`...Z`, no milliseconds) of local `hour`:00 on `isoDate` at the Site; "" for a bad date. */
+function siteLocalHourUtc(isoDate: string, hour: number, timeZone: string | null | undefined): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
   if (m === null) return "";
   const zone = siteZoneOrUtc(timeZone);
-  const wall = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const wall = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), hour);
   const offsetAt = (utc: number) => {
     const p = parts(new Date(utc), zone);
     return Date.UTC(p.y, p.m - 1, p.day, Number(p.hh), Number(p.mm), Number(p.ss)) - utc;
@@ -131,6 +131,16 @@ export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | 
   let utc = wall - offsetAt(wall);
   utc = wall - offsetAt(utc);
   return new Date(utc).toISOString().replace(".000Z", "Z");
+}
+
+/** The UTC ISO instant (`...Z`, no milliseconds) of local midnight starting `isoDate` at the Site; "" for a bad date. */
+export function siteLocalMidnightUtc(isoDate: string, timeZone: string | null | undefined): string {
+  return siteLocalHourUtc(isoDate, 0, timeZone);
+}
+
+/** WALK1-5 (Addendum 8): the start of the Site-local noon hour of `isoDate` (the renewable study window); "" for a bad date. */
+export function siteLocalNoonUtc(isoDate: string, timeZone: string | null | undefined): string {
+  return siteLocalHourUtc(isoDate, 12, timeZone);
 }
 
 /** Site-local calendar and clock parts of an instant, with the zone label; UTC (and `UTC`) when the zone is unusable. */

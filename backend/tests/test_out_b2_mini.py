@@ -139,7 +139,8 @@ def test_kobo_board_from_ports() -> None:
         "OPPORTUNITY", "NEEDS_ATTENTION", "WATCH", "WATCH"]
     assert [w.kind for w in comp.facts.warnings] == ["PLAN_DUE_SOON"]
     assert rows[GROW]["headline"] == "18–24.3 kW of daytime solar unused"
-    assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 1 of 1 well-observed day"
+    assert contributor(rows[GROW], "productive_use")["text"] == ("Spare solar on 1 of 1 well-observed day"
+                                                                " · 4 of the last 5 days not checked")
     assert rows[COST]["headline"] == "possible extra fuel cost on this day"
     assert rows[COST]["headline_money"] == {"amount_low": "3.31", "amount_high": "3.97", "currency": "USD"}
     assert rows[COST]["subline"] == "Generator stayed on 45 minutes longer than needed"
@@ -173,7 +174,7 @@ def test_depth_windows_follow_the_site_local_day() -> None:
     fake = Fake()
     run(fake)
     windows = {args[0]: args[1:] for name, args in fake.calls if name == "depth"}
-    assert windows["renewable"] == (T(19, 21), T(20, 21))  # local midnight 20 Oct .. 21 Oct (UTC+3)
+    assert windows["renewable"] == (T(15, 21), T(20, 21))  # WALK1-5: local midnight 16 Oct .. 21 Oct (UTC+3)
     assert windows["service"] == windows["fuel"] == windows["backup"] == (T(20, 9), T(20, 10))  # local noon hour
 
 
@@ -397,7 +398,8 @@ def test_singular_for_one_in_count_templates() -> None:
     plans = [dict(PLANS[0], next_due_hours="1")]
     _, rows = run(Fake(cards=cards, dispatch=one_minute, plans=plans))
     assert contributor(rows[PROTECT], "backup_readiness")["text"] == "1 backup start recorded"
-    assert contributor(rows[GROW], "productive_use")["text"] == "Spare solar on 2 of 3 well-observed days"
+    assert contributor(rows[GROW], "productive_use")["text"] == ("Spare solar on 2 of 3 well-observed days"
+                                                                " · 2 of the last 5 days not checked")
     assert rows[COST]["subline"] == "Generator stayed on 1 minute longer than needed"
     assert contributor(rows[PROTECT], "generator")["text"].startswith("Service due at 1 operating hour ·")
     assert any(i["state_label"] == "Due at 1 operating hour" for i in rows[PROTECT]["in_hand"])
