@@ -41,7 +41,7 @@ from demo_combined import at, iso
 REPO = Path(__file__).resolve().parents[1]
 SCENARIOS = REPO / "config" / "scenarios"
 BASE_DAY = datetime(2026, 10, 6, tzinfo=timezone.utc)
-#: WALK1-2 (WN-7, D-W1-1): the Depot's declared charging tariff, published once by the SYSTEM publisher.
+#: WALK1-2 (WN-7, D-W1-1, R675): the Depot's declared charging tariff, published once by the SYSTEM publisher.
 FIXTURE_TARIFF = REPO / "backend" / "conversions" / "demo-ev-tariff-publications.json"
 #: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
 TARIFF_AFTER_INSTALL = timedelta(minutes=30)
