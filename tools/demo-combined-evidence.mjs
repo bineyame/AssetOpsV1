@@ -263,7 +263,7 @@ function compare([out, mockFile]) {
 if (CMD === "capture") process.exitCode = await capture(REST);
 else if (CMD === "compare") compare(REST);
 else if (CMD === "mock-ids") {
-  const ids = ["portfolio", "mini", "verification", "cold", "ev", "findings", "findings-cost", "findings-risks", "findings-opportunities", "maintenance-preventive", "wr-overview"];
+  const ids = ["portfolio", "mini", "finding-history", "verification", "cold", "ev", "findings", "findings-cost", "findings-risks", "findings-opportunities", "maintenance-preventive", "wr-overview"];
   console.log(ids.join(" "));
 } else {
   console.error("usage: see the header of tools/demo-combined-evidence.mjs");
