@@ -211,3 +211,39 @@ def test_new_strings_are_in_copy_and_plain() -> None:
         assert [t for t in ours if word in t.lower()] == ([mini.SALES_SUBLINE] if word in ("collected", "billed")
                                                           else []), word
     assert mini.SALES_SUBLINE.endswith("· not billed or collected")
+
+
+# --------------------------------------------------------------- B4 binding (site_outcomes/read.py)
+
+def test_b4_binds_the_productive_ports_to_the_reader_and_the_price_series() -> None:
+    from uuid import uuid4
+
+    from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
+
+    calls: list[tuple] = []
+
+    class Depth:
+        def productive_users(self, **kw):
+            calls.append(("users", kw))
+            return [MILL]
+
+        def productive_readings(self, **kw):
+            calls.append(("readings", kw))
+            return []
+
+    class Assumptions:
+        def series(self, t, s, key, *, valid_at, recorded_at):
+            calls.append(("price", (t, s, key, valid_at, recorded_at)))
+            return {"selection": None}
+
+    t, s = uuid4(), uuid4()
+    known = datetime(2026, 10, 7, tzinfo=timezone.utc)
+    ports = SiteOutcomeBoardService(BoardServices(mini_depth=Depth(), assumptions=Assumptions())).mini_ports(
+        SiteRef(t, s, C, "Kobo", "MINIGRID", ZONE), known)
+    assert ports.productive_users(LO) == [MILL]
+    assert ports.productive_readings(["a-mill"], LO, HI) == []
+    assert ports.productive_price(LO) == {"selection": None}
+    assert calls == [("users", {"tenant_id": t, "site_id": s, "at": LO, "known_at": known}),
+                     ("readings", {"tenant_id": t, "site_id": s, "asset_ids": ["a-mill"], "lo": LO, "hi": HI,
+                                   "known_at": known}),
+                     ("price", (t, s, "productive_use_price_per_kwh", LO, known))]
