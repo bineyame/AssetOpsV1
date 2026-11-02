@@ -3,8 +3,8 @@
 
     python tools/demo_combined_kobo.py build <database-url> <work>
 
-It is the public replay of `backend/conversions/d-verification-window-v2.json` (the s602b REPLAY body,
-`tools/s602b_verification_walkthrough.py`): two registered Lab runs of mini-grid v5 published by a real gateway
+It is the public replay of `backend/conversions/d-verification-window-v3.json` (WALK1-4: the s602b REPLAY body of
+v2, `tools/s602b_verification_walkthrough.py`, on mini-grid v6 + publication v5): two registered Lab runs published by a real gateway
 process, accepted by ordinary S2 batch ingestion, assessed (S3) and matched (S4); then recommendation -> accept ->
 apply -> freeze plan -> later selection -> evaluation through the real Action API. The only change is the calendar:
 a deep copy of the v2 manifest with every instant replaced from `<work>/story.json` (baseline received, assessed,
@@ -30,6 +30,12 @@ from pathlib import Path
 import demo_story_days as sd
 from demo_combined import at, iso
 
+CONVERSIONS = Path(__file__).resolve().parents[1] / "backend" / "conversions"
+#: WALK1-4 (D-W1-7, D-W1-9): every Kobo day, the trial pair included, replays the v3 manifest - v2's scenario, seeds,
+#: windows and policy on mini-grid v6 + registered-kobo-publication v5. v2 stays byte-unchanged for the host tests.
+MANIFEST_V3 = json.loads((CONVERSIONS / "d-verification-window-v3.json").read_text(encoding="utf-8"))
+#: WALK1-4: the minigrid-roles-4 demo configuration (charge-request binding, D-W1-3 declared margins).
+ROLES4 = json.loads((CONVERSIONS / "kobo-001-minigrid-roles-4-demo-config.json").read_text(encoding="utf-8"))
 FIXTURE_PRICES = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-diesel-price-publications.json"
 #: WALK1-3 §4.1 (D-W1-2): the declared price per kWh for productive users, published at the diesel price's instant.
 FIXTURE_PRODUCTIVE_PRICE = (Path(__file__).resolve().parents[1] / "backend" / "conversions"
@@ -59,7 +65,10 @@ CONFIG_OFFSETS = {"properties": timedelta(minutes=10), "roles2": timedelta(minut
                   "roles3": timedelta(minutes=20), "known": timedelta(minutes=30),
                   # WALK1-3 §4.2: the additive supply-use change, after the +20 roles-3 revision so it carries forward (a change
                   # only splits the revision in force at its instant); no pinned configuration file changes
-                  "uses": timedelta(minutes=25)}
+                  "uses": timedelta(minutes=25),
+                  # WALK1-4: roles-4 (charge request) and the two declared margins, after the supply uses so every
+                  # earlier property carries forward, before the commissioning record instant (+30)
+                  "roles4": timedelta(minutes=27)}
 #: WALK1-3 §4.2: what each Kobo feeder supplies, declared in the Site configuration (never guessed from names).
 SUPPLY_USES = {"load-mill": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-clinic": "ESSENTIAL_SERVICE"}
 
@@ -84,12 +93,34 @@ def configure_at(store, result, install_at: datetime) -> dict:
     applied = apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, ver)
     assert applied.periods[-1]["role_set"] == "minigrid-roles-3"
     declare_supply_uses(foundation, result, install_at)
+    roles4 = configure_roles4(store, foundation, bindings, result, install_at)
     return {"labels": [s3["label"], ver["label"]],
             "properties_effective_from": s3["component_properties"]["effective_from"],
             "roles2_effective_from": s3["bindings"]["effective_from"],
             "roles3_effective_from": ver["bindings"]["effective_from"],
             "supply_uses_effective_from": iso(install_at + CONFIG_OFFSETS["uses"]),
+            "roles4_effective_from": roles4, "roles4_label": ROLES4["label"],
             "recorded_at": iso(install_at + CONFIG_OFFSETS["known"])}
+
+
+def configure_roles4(store, foundation, bindings, result, install_at: datetime) -> str:
+    """WALK1-4: at install + 27 min, the declared solar uncertainty (pv-inverter) through the labelled roles-4 demo
+    configuration, the declared retained margin (ac-bus) as one additive Foundation change at the same instant, and
+    the roles-4 binding set (every roles-3 binding plus the battery charge request). D-W1-3 declared values."""
+    from assetops_backend.sites.demo_configuration import apply_demo_configuration
+
+    at_ = iso(install_at + CONFIG_OFFSETS["roles4"])
+    doc = copy.deepcopy(ROLES4)
+    bus = doc.pop("ac_bus_properties")
+    doc["component_properties"]["effective_from"] = at_
+    doc["bindings"]["effective_from"] = at_
+    assert doc["status"].startswith("SIMULATED DEMO CONFIGURATION")
+    foundation.publish_component_properties(
+        result.tenant, result.site, asset_code=bus["asset_code"], effective_from=install_at + CONFIG_OFFSETS["roles4"],
+        note=bus["note"], properties=bus["properties"])
+    applied = apply_demo_configuration(store, foundation, bindings, result.tenant, result.site, doc)
+    assert applied.periods[-1]["role_set"] == "minigrid-roles-4", applied.periods
+    return at_
 
 
 def declare_supply_uses(foundation, result, install_at: datetime) -> None:
@@ -303,7 +334,7 @@ def build(url: str, work: Path, story: dict) -> dict:
             if d.site == "kobo"]
     k = story["kobo"]
     install_at = at(k["install_at"])
-    M = resolved_manifest(rp.MANIFESTS["v2"], story)
+    M = resolved_manifest(MANIFEST_V3, story)
     tmp = Path(tempfile.mkdtemp(prefix="kobo-replay-", dir=str(work)))
     engine = create_engine(url)
     store = PostgresFoundationStore(url)
@@ -335,7 +366,7 @@ def build(url: str, work: Path, story: dict) -> dict:
                 print("kobo trial", day.day, ids["action_code"], flush=True)
                 continue
             if day.has_run:
-                entry.update(run_day(store, runner, tmp, day, rp.MANIFESTS["v2"]))
+                entry.update(run_day(store, runner, tmp, day, MANIFEST_V3))
             records.append(entry)
             print("kobo day", day.day, day.kind, entry.get("run_id"), flush=True)
         for r in records:
@@ -421,7 +452,7 @@ def _trial_chain(store, runner, harness: list, verifying, tmp: Path, M: dict, pu
     events = h.client.get(f"/api/sites/KOBO-001/actions/{action_id}/events").json()["events"]
     sources = outcome["basis"]["source_resolutions"]
     ids = {
-        "manifest": {"base": "backend/conversions/d-verification-window-v2.json",
+        "manifest": {"base": "backend/conversions/d-verification-window-v3.json",
                      "story": "backend/conversions/demo-combined-story-v1.json",
                      "days": "backend/conversions/demo-story-days-v1.json", "scenario": M["scenario"],
                      "model_profile": M["model_profile"], "resolved": {k: M[k] for k in ("runs", "action", "plan",
@@ -459,7 +490,7 @@ def add_day(url: str, work: Path, planned: dict) -> dict:
     runner = rp.LabRunner(store, engine, result, day.received_at)
     tmp = Path(tempfile.mkdtemp(prefix="kobo-add-day-", dir=str(work)))
     try:
-        out = run_day(store, runner, tmp, day, rp.MANIFESTS["v2"])
+        out = run_day(store, runner, tmp, day, MANIFEST_V3)
         out["findings"] = findings_on(engine, result.site.id, day.day) if day.assess == "build" else []
     finally:
         pg_harness.dispose(runner.findings)

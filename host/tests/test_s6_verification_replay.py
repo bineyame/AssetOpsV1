@@ -148,6 +148,7 @@ def _model(MANIFEST: dict):
 
 def _draft(store, run_spec: dict, MANIFEST: dict):
     import test_s6_verification_publication as pub
+    from assetops_backend.runs.profiles import REGISTERED_KOBO_PUBLICATION_PROFILE_V5
 
     registered = pub.registered
     scenario = _scenario(MANIFEST)
@@ -156,7 +157,8 @@ def _draft(store, run_spec: dict, MANIFEST: dict):
     service = registered.RunSetupService(
         registered.FakeRuns(), registered.FakeSites(()), registered.FakeScenarios((scenario,)),
         model_profiles=(_model(MANIFEST),),
-        publication_profiles=(pub.REGISTERED_KOBO_PUBLICATION_PROFILE_V3, pub.V4),
+        # WALK1-4: v5 is allowed so the demo producer's d-verification-window-v3 days can select it.
+        publication_profiles=(pub.REGISTERED_KOBO_PUBLICATION_PROFILE_V3, pub.V4, REGISTERED_KOBO_PUBLICATION_PROFILE_V5),
         now=lambda: run_spec["foundation_known_at"],
         registered_bases=registered.RegisteredLabBasis(registry),
     )

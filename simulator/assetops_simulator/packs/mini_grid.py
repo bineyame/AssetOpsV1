@@ -1205,3 +1205,52 @@ MINI_GRID_V5_MODEL = replace(
     ),
     coupling=MINI_GRID_V5_COUPLING,
 )
+
+
+# --- `mini-grid` v6 (WALK1-4, D-W1-7/D-W1-8) -------------------------------
+
+#: What the battery converter's controller reports it ASKED the battery to
+#: charge over the completed step: the controller's raw charge request
+#: (`max(-requested, 0)` of the step's battery request), never the converter-
+#: limited charge it was able to take. Stored as energy over the step like
+#: every interval measurement, so the published value is its mean kW.
+BATTERY_CHARGE_REQUESTED_POWER = "battery-charge-requested-power"
+
+
+def resolve_v6(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v4's resolution, plus the battery's charge request as a measurement.
+
+    Measurements only: no flow, stock, control or decision changes, so a v6 run
+    and a v5 run of one document accept the same flows, decide the same
+    requests and measure every v5 state identically. v1-v5 are untouched.
+    """
+    accepted = resolve_v4(context, intent)
+    plant, _ = _both(context)
+    hours = Fraction(context.to_offset - context.from_offset, 60)
+    charge = max(-intent.requests[0].requested, Fraction(0))
+    return replace(
+        accepted,
+        interval_energies=tuple(
+            sorted(
+                accepted.interval_energies
+                + ((f"{BATTERY_CHARGE_REQUESTED_POWER}@{plant.pcs}", charge * hours),)
+            )
+        ),
+    )
+
+
+MINI_GRID_V6_COUPLING = replace(MINI_GRID_V5_COUPLING, resolve=resolve_v6)
+
+MINI_GRID_V6_MODEL = replace(
+    MINI_GRID_V5_MODEL,
+    model_profile_version=6,
+    statement=(
+        MINI_GRID_V5_MODEL.statement
+        + " It also measures, over each completed step, the charge power the "
+        "battery controller requested, so the converter can report its charge "
+        "request beside what it delivered."
+    ),
+    coupling=MINI_GRID_V6_COUPLING,
+    measured_interval_states=MINI_GRID_V5_MODEL.measured_interval_states
+    | {BATTERY_CHARGE_REQUESTED_POWER},
+)

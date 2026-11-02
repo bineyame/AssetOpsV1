@@ -1,0 +1,32 @@
+{
+  "schema": {"id": "assetops.demo-configuration", "version": 1},
+  "status": "SIMULATED DEMO CONFIGURATION - WALK1-4 (D-W1-3, D-W1-7). Not operator-entered Site truth.",
+  "label": "kobo-minigrid-roles-4-demo-config-v1",
+  "site_code": "KOBO-001",
+  "component_properties": {
+    "effective_from": "2026-10-12T00:00:00Z",
+    "asset_code": "pv-inverter",
+    "note": "WALK1-4 declared demonstration value (D-W1-3): the solar available power uncertainty the midday spare-solar check reads.",
+    "properties": [
+      {"property_key": "pv-available-uncertainty", "value": 3, "unit": "kW", "source": "SITE", "source_version": 1}
+    ]
+  },
+  "ac_bus_properties": {
+    "asset_code": "ac-bus",
+    "note": "WALK1-4 declared demonstration value (D-W1-3): the renewable retained margin the midday spare-solar check reads.",
+    "properties": [
+      {"property_key": "renewable-retained-margin", "value": 5, "unit": "kW", "source": "SITE", "source_version": 1}
+    ]
+  },
+  "bindings": {
+    "effective_from": "2026-10-12T00:00:00Z",
+    "role_set": "minigrid-roles-4",
+    "note": "WALK1-4 simulated demo configuration (kobo-minigrid-roles-4-demo-config-v1): every minigrid-roles-3 binding carried unchanged, plus the battery converter's charge request (registered-kobo-publication v5, mini-grid v6) bound to storage_charge_requested_power on the battery.",
+    "declare_signals": [
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "display_name": "Battery charge requested power (simulated)", "unit": "kW"}
+    ],
+    "add": [
+      {"device_id": "battery-pcs-controller", "signal_id": "charge-requested-power", "asset_code": "battery", "role": "storage_charge_requested_power", "source_unit": "kW", "canonical_unit": "kW", "conversion": {"kind": "IDENTITY", "parameters": {}}}
+    ]
+  }
+}
