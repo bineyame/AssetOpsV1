@@ -93,10 +93,12 @@ class TestTypedProperties:
                for k in MINIGRID_PROPERTY_CARRIERS}
         assert got == {"pv-available-uncertainty": ("kW", "PHYSICAL"),
                        "renewable-retained-margin": ("kW", "CONTROL"),
-                       "backup-recovery-target": ("min", "CONTROL")}
+                       "backup-recovery-target": ("min", "CONTROL"),
+                       "supply-use": ("state", "PHYSICAL")}  # WALK1-3 §4.2
         assert MINIGRID_PROPERTY_CARRIERS == {"pv-available-uncertainty": "INVERTER",
                                               "renewable-retained-margin": "AC_BUS",
-                                              "backup-recovery-target": "AC_BUS"}
+                                              "backup-recovery-target": "AC_BUS",
+                                              "supply-use": "LOAD"}
 
     @pytest.mark.parametrize(("component", "key", "value"), [
         ("pv-inverter", "pv-available-uncertainty", 0.0),
@@ -135,3 +137,28 @@ class TestTypedProperties:
                     prop["unit"] = "s"
         with pytest.raises(SiteConfigurationInvalid):
             _parse(doc)
+
+
+class TestSupplyUse:
+    """WALK1-3 §4.2: the optional `supply-use` state property, carried by LOAD components only."""
+
+    @pytest.mark.parametrize("value", ["PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"])
+    def test_each_declared_use_is_accepted_on_a_load(self, value) -> None:
+        site = _parse(_with("load-mill", "supply-use", value))
+        props = {(c.component_id, p.property_key): p.value for c in site.foundation.components
+                 for p in (c.properties or ())}
+        assert props[("load-mill", "supply-use")] == value
+
+    def test_absent_is_not_declared(self) -> None:
+        site = _parse(copy.deepcopy(KOBO))
+        assert not [p for c in site.foundation.components for p in (c.properties or ())
+                    if p.property_key == "supply-use"]
+
+    def test_wrong_carrier_is_refused(self) -> None:
+        with pytest.raises(SiteConfigurationInvalid, match="supply-use belongs on a LOAD"):
+            _parse(_with("ac-bus", "supply-use", "PRODUCTIVE"))
+
+    @pytest.mark.parametrize("value", ["productive", "COMMERCIAL", "", 1.0])
+    def test_value_outside_the_state_set_is_refused(self, value) -> None:
+        with pytest.raises(SiteConfigurationInvalid):
+            _parse(_with("load-mill", "supply-use", value))
