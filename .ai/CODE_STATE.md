@@ -6448,3 +6448,8 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   WALK1-3 migration `0040_walk1_productive_price` is the head (`productive_use_price_per_kwh`, Kobo 0.25/kWh), `supply-use`
   Foundation property, estimated productive-use sales (overlap per asset = no estimate), Assumptions price row.
   Known failing on main: `test_board_finding_titles_are_the_frontend_plain_titles`, `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` (WALK1-3b fixes).
+- WALK1-4: Kobo `mini-grid` v6 (charge request at `@{plant.battery}`, mean kW) and publication v5 (v4 + charge request, PV
+  output every 5 min), roles-4 at install +27 min, manifest `d-verification-window-v3.json` for every Kobo day (v2 unchanged).
+  The mini-depth hour read judges each row under its own as-accepted binding revision, provided the pinned roles-4 set binds
+  the same role and asset at that time (D-W1-10). Revision lineage lists every set used. Finish WK-2a (S-1, 42.08 USD) and WK-2b (S).
+  Open: board Grow state reads UNKNOWN (PRODUCER_NOT_SETTLED) in a read about an hour after prepare; the finish check read OPPORTUNITY.
