@@ -137,7 +137,7 @@ def build(url: str, work: Path, case: str) -> None:
             assert outcome["outcome"] == "INCONCLUSIVE", outcome
             out["expect"] = {"current_state": "INCONCLUSIVE", "outcome": "INCONCLUSIVE", "label": "Could not conclude"}
         elif case == "verified":  # OUT-E E3: the `withdrawn` steps up to its first VERIFIED evaluation, no further
-            publish_price_v1(url)
+            publish_price_v1(url, runner.now)
             fake |= VERIFIED_WINDOWS
             ev.complete_windows(Patch(), h, **VERIFIED_WINDOWS)
             action_id, plan, _ = ev.bound_plan(runner, h)
@@ -210,16 +210,19 @@ def estate_findings(runner, url: str, S4: dict) -> None:
                 break
     else:
         raise SystemExit("S4 F05 has no UNCONFIRMED match step")
-    publish_price_v1(url)
+    publish_price_v1(url, runner.now)
 
 
-def publish_price_v1(url: str) -> None:
-    """Diesel price v1 (build spec CC-D2 "Price": one revision, 1.25 USD/L, covers both verification windows)."""
+def publish_price_v1(url: str, recorded_at: datetime) -> None:
+    """Diesel price v1 (build spec CC-D2 "Price": one revision, 1.25 USD/L, covers both verification windows),
+    recorded at `recorded_at`, the case's own clock (the runner's `now` after the Finding steps), never the wall
+    clock: the evaluations read the price as known at their pinned clock (`ev.CLOSED` + 1 h = 2026-11-02 12:00Z),
+    so a wall-clock publication after that instant was invisible to them (WALK1-fix-suite)."""
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.publish_assumption import main as publish
 
     prices = Path(__file__).resolve().parents[1] / "backend" / "conversions" / "demo-diesel-price-publications.json"
-    store = PostgresAssumptionStore(url)
+    store = PostgresAssumptionStore(url, test_recorded_clock_override=lambda: recorded_at)
     try:
         code = publish(["fixture", "--site", "KOBO-001", "--file", str(prices), "--step", "v1"], store=store)
     finally:

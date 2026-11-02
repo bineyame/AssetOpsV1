@@ -68,8 +68,17 @@ def test_kobo_declares_supply_uses_and_the_reader_finds_the_productive_user(stor
     assert not any("supply-use" in props for props in before.values())
     assert {code: props.get("supply-use") for code, props in after.items() if "supply-use" in props} == {
         "load-mill": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-clinic": "ESSENTIAL_SERVICE"}
-    # the declaration carries forward to the story days (it must follow the +20 roles-3 revision to do so)
-    assert _properties(engine, result.site.id, INSTALL_AT + timedelta(days=20)) == after
+    # the declaration carries forward to the story days (it must follow the +20 roles-3 revision to do so). WALK1-4's
+    # +27 min roles-4 change adds the declared margins (`renewable-retained-margin`, `pv-available-uncertainty`), so
+    # the story day keeps every property declared at +26 min, with its value, and adds only those margins.
+    story = _properties(engine, result.site.id, INSTALL_AT + timedelta(days=20))
+    assert story.keys() == after.keys()
+    assert {code: props.get("supply-use") for code, props in story.items() if "supply-use" in props} == {
+        "load-mill": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-clinic": "ESSENTIAL_SERVICE"}
+    for code, props in after.items():
+        assert {k: story[code].get(k) for k in props} == props, code
+    assert {k for code in story for k in story[code].keys() - after[code].keys()} <= {
+        "renewable-retained-margin", "pv-available-uncertainty"}
     # additive: every property declared before the change is still declared, with its value
     for code, props in before.items():
         assert {k: v for k, v in after[code].items() if k != "supply-use"} == props
