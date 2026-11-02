@@ -19,7 +19,7 @@ from __future__ import annotations
 import json
 import re
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Callable, Iterator, Mapping, Sequence, TypeVar
 from uuid import UUID, uuid4
@@ -287,6 +287,9 @@ class HourRows:
     accepted: Sequence[Any]
     prior_supply: Sequence[Any]
     row_foundations: Mapping[UUID, Any]  # every as-accepted Foundation revision of the selected rows
+    #: D-W1-10: every as-accepted binding revision of the candidate rows, read by id whatever its set's
+    #: `superseded_at`: (id, role, asset_id, valid_from, valid_to, binding_set_revision_id).
+    row_bindings: Mapping[UUID, Any] = field(default_factory=dict)
 
 
 def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: datetime, window_end: datetime,
@@ -310,7 +313,11 @@ def read_hour_rows(c: Connection, tenant_id: UUID, site_id: UUID, window_start: 
     row_foundations = {r[0]: r for r in c.execute(text(
         "SELECT id, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
         "AND id = ANY(:ids)"), {**p, "ids": ids}).all()}
-    return HourRows(tz, foundations, sets, bindings, assets, accepted, prior, row_foundations)
+    binding_ids = sorted({r[13] for r in (*accepted, *prior) if r[13] is not None}, key=str)
+    row_bindings = {r[0]: r for r in c.execute(text(
+        "SELECT id, role, asset_id, valid_from, valid_to, binding_set_revision_id FROM signal_binding_revision "
+        "WHERE tenant_id = :t AND site_id = :s AND id = ANY(:ids)"), {**p, "ids": binding_ids}).all()}
+    return HourRows(tz, foundations, sets, bindings, assets, accepted, prior, row_foundations, row_bindings)
 
 
 __all__ = [
