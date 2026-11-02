@@ -8,7 +8,7 @@ q "select outcome, reasons, (details->'windows'->'baseline') - 'window_start' - 
 echo "== verification metrics"
 q "select metric_key, window_name, state, value_text, threshold_text, unit from verification_metric where outcome_id=(select id from verification_outcome where site_id=$SITE order by recorded_at desc limit 1) order by 1,2"
 echo "== trial cost check"
-q "select state, reason, ((result - 'plan_id' - 'outcome_id') #- '{price,revision_id}' - 'origin_finding_revision_id' - 'recorded_at')::text, intervention_cost::text from trial_cost_comparison_revision where site_id=$SITE order by recorded_at desc, revision_no desc limit 1"
+q "select state, reason, ((((result - 'plan_id' - 'outcome_id') #- '{price,revision_id}') - 'origin_finding_revision_id') - 'recorded_at' - 'evidence_ids' - 'basis_sha256')::text, intervention_cost::text from trial_cost_comparison_revision where site_id=$SITE order by recorded_at desc, revision_no desc limit 1"
 echo "== dispatch assessments (day offset from S, analytic, claim, minute fields)"
 q "select (window_start at time zone 'Africa/Addis_Ababa')::date - date '$S', analytic_id, claim_level, (select string_agg(k||'='||(result->>k), ',' order by k) from jsonb_object_keys(result) k where k ilike '%minute%' or k ilike '%avoidable%' or k ilike '%unclear%') from assessment_revision a where site_id=$SITE and revision_no=(select max(revision_no) from assessment_revision b where b.site_id=a.site_id and b.assessment_key=a.assessment_key) order by 1,2"
 echo "== financial consequences (day offset, type, state, quantity, amount)"
