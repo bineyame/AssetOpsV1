@@ -108,7 +108,7 @@ GAPS_WITHHELD = "; Findings next to those days are not shown yet"
 FINDING_TITLE = {"SUPPORTED": "Generator may have been on longer than needed",
                  "UNCONFIRMED": "Extra generator time not confirmed by the latest check",
                  "NO_LONGER_SUPPORTED": "Extra generator time no longer supported by the latest check",
-                 "MERGED": "Generator support review: joined into an earlier Finding"}
+                 "MERGED": "Generator support review: joined into an earlier finding"}
 FINDING_TITLE_FALLBACK = "Generator support review"
 #: Addendum 3 L3: the diagnostics marker for an Action the Action index returned but the estate read did not.
 ESTATE_ROW_MISSING = "ESTATE_ROW_MISSING"
