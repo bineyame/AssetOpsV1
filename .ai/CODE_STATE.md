@@ -6447,4 +6447,9 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   "None shown yet"), Assure `verified_result_count`; WALK1-2 Depot declared tariff 0.30/kWh, EV board prices on ESTIMATED;
   WALK1-3 migration `0040_walk1_productive_price` is the head (`productive_use_price_per_kwh`, Kobo 0.25/kWh), `supply-use`
   Foundation property, estimated productive-use sales (overlap per asset = no estimate), Assumptions price row.
-  Known failing on main: `test_board_finding_titles_are_the_frontend_plain_titles`, `test_out_b2_mini::test_pending_finding_index_unsettles_finding_outcomes` (WALK1-3b fixes).
+  WALK1-3b migration `0041_walk1_objective_min_days` is the head (nullable `outcome_objective_revision.min_checked_days`,
+  1-28, `productive_use_kwh` only, NULL = `DEFAULT_MIN_CHECKED_DAYS` 3). Grow row: KPI state from `judge_month` (MG-1 month
+  to date over the Site-local month, `site_outcomes/mini.py` `_productive_month`/`mg1_reading`); a declared objective's
+  verdict outranks an open opportunity (`outcomes/status.py`), carried as row `potential` and a second chip; contributor
+  slot `SiteFacts.objective_after`. Fixed the two main failures (merged Finding title, gap-line `withheld`). Open: the mini Assure "not checked yet" count
+  treats ON_PACE/BEHIND_PACE/TOO_EARLY as not checked; `outcome-status/2` was not bumped.
