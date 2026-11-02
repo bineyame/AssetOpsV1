@@ -597,8 +597,15 @@ class EstatePortfolioService(EstateEvidenceService):
         gaps = evidence_gap_groups(e_rows_all)
         prog, actions_complete = progress(a_sites, a_rows, scope["k"],
                                           {(r["finding_id"], r["finding_revision_id"]) for r in f_rows})
-        finding_known, evidence_known = states["F"] in (COMPLETE, EMPTY), states["E"] in (COMPLETE, EMPTY)
-        # r1a M1 / wire: estate counts are claims only on complete (or complete-empty) coverage of their root.
+        # WALK1-1 (WN-2): counts are claims on complete (or complete-empty) coverage of their root, or, on a PARTIAL
+        # estate, over the checked days (a PARTIAL Site's rows already drop every head touching an unchecked day,
+        # `coverage.py` §2.5). Nothing is extrapolated; money is unchanged (D-W1-4).
+        count_basis = ("COMPLETE" if states["F"] in (COMPLETE, EMPTY)
+                       else "CHECKED_DAYS" if status == PARTIAL_STATUS else None)
+        finding_known = count_basis is not None
+        # Pre-flight E1: `select_evidence_scope` emits rows for a PARTIAL mini-grid Site (one per dispatch day,
+        # unchecked days UNASSESSED with no typed gap), so the evidence gap count follows the same rule.
+        evidence_known = states["E"] in (COMPLETE, EMPTY) or count_basis == "CHECKED_DAYS"
         summary: dict[str, Any] = {
             "finding_count": len(members) if finding_known else None, "priority_site_count": None,
             "opportunity_count": (sum(1 for r in members if LENS_FLAG["opportunities"] in r["lens_flags"])
@@ -611,7 +618,12 @@ class EstatePortfolioService(EstateEvidenceService):
             "placement_counts": {g: (sum(1 for r in members if r["placement"]["group"] == g) if finding_known else None)
                                  for g in GROUPS},
             # OUT-A2 (ruling A-Q11): over `members`; all four keys; both counts null unless F is known.
-            "category_counts": category_counts(members, finding_known)}
+            "category_counts": category_counts(members, finding_known),
+            "count_basis": count_basis,
+            "checked_days": [{"site_id": str(site["site_id"]), "site_name": site["site_name"],
+                              "checked": cov["days"]["checked"], "requested": cov["days"]["requested"],
+                              "withheld": bool(cov["days"].get("withheld"))}
+                             for site, _, cov in f_sites if cov["state"] == PARTIAL and cov.get("days")]}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
         site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])

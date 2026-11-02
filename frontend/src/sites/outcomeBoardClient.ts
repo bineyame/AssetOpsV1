@@ -149,7 +149,7 @@ export interface OutcomeBoardBody {
   rows: OutcomeBoardRow[];
   warnings: OutcomeWarning[];
   /** IDX-GAPS (mini only): the Finding index gap line under the rows; null or absent when no day is a gap. */
-  finding_gaps?: { text: string; days: string[] } | null;
+  finding_gaps?: { text: string; days: string[]; withheld?: boolean } | null;
   links: { self: string };
 }
 

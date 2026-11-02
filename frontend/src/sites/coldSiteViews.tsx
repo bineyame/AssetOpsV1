@@ -659,7 +659,7 @@ function OverviewScreen(p: ScreenProps) {
   const tempRefused = refusalOf(temperature);
   const money = o?.consequence_summary;
   const attentionLabel = (link: string | null): string =>
-    link === null ? "No linked page for this item" : link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
+    link === null ? "No linked page for this item" : link.includes("/cold/findings/") ? "Open finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
   return (
     <>
       {o === null ? (
@@ -700,7 +700,7 @@ function OverviewScreen(p: ScreenProps) {
                 </Link>
               )}
               {incident !== null && incident.href !== null && firstFinding !== null ? " " : null}
-              {firstFinding === null ? null : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
+              {firstFinding === null ? null : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open finding →</ToLink>}
             </>
           )
         }

@@ -6,7 +6,7 @@
  */
 
 import type { OutcomeCategories, OutcomeCategoryKey } from "../sites/outcomeCategories";
-import type { OutcomeRef, OutcomeState, OutcomeTone, OutcomeWarning } from "../sites/outcomeBoardClient";
+import type { OutcomeMoney, OutcomeRef, OutcomeState, OutcomeTone, OutcomeWarning } from "../sites/outcomeBoardClient";
 
 export const ESTATE_API_PATH = "/api/estate";
 
@@ -348,6 +348,11 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     placement_counts: Record<EstatePlacementGroup, number | null>;
     /** OUT-A A2: per outcome category, counts null unless Finding coverage is known; absent on an older body. */
     category_counts?: Record<OutcomeCategoryKey, { open_findings: number | null; sites_with_primary_finding: number | null }>;
+    /** WALK1-1 (WN-2): COMPLETE counts on complete coverage, CHECKED_DAYS over the checked days of a partly checked
+     * estate, null when counts are not claimed. Absent on an older body (read as null). */
+    count_basis?: EstateCountBasis | null;
+    /** WALK1-1: each partly checked Site's checked and requested day counts; absent on an older body (read as []). */
+    checked_days?: EstateCheckedDays[];
   };
   value_cards: EstateValueCard[];
   objectives: EstateObjective[];
@@ -458,6 +463,18 @@ export interface EstateFindingsQuery extends EstateQuery {
   state: EstateStateFilter;
 }
 
+/** WALK1-1 (WN-2): what the Portfolio counts are claimed over. */
+export type EstateCountBasis = "COMPLETE" | "CHECKED_DAYS";
+
+export interface EstateCheckedDays {
+  site_id: string;
+  site_name: string;
+  checked: number;
+  requested: number;
+  /** WALK1-1 fix round (M1): Findings next to this Site's unchecked days were left out. */
+  withheld?: boolean;
+}
+
 /** OUT-B B6: `GET /api/estate/outcome-summary` (§B.1), one outcome row per category for each authorized Site. */
 export const OUTCOME_SUMMARY_SCHEMA = "estate-outcome-summary-1";
 
@@ -471,6 +488,8 @@ export interface EstateOutcomeSummaryRow {
   headline: string | null;
   /** B-Q27: set only on a Grow row whose lead is in Opportunity with a headroom bound, e.g. "18–20 kW unused". */
   short_value: string | null;
+  /** WALK1-1 (WN-3): the board row's money passthrough (e.g. a declared-price estimate); absent on an older body. */
+  headline_money?: OutcomeMoney | null;
 }
 
 export interface EstateOutcomeSummarySite {
@@ -506,6 +525,11 @@ export interface EstateOutcomeSummaryBody {
   objective_site_count: number | null;
   /** OUT-D (review M2): Sites whose board or objectives could not be read. */
   objective_sites_unread: number;
+  /** WALK1-1 (WN-1): VERIFIED Actions over the Sites whose board loaded (same window as each Site row); null when
+   * none loaded. Absent on an older body (read as null). */
+  verified_result_count?: number | null;
+  /** WALK1-1: Sites whose board could not be read; absent on an older body (read as 0). */
+  verified_sites_unread?: number;
 }
 
 export interface EstateClient {

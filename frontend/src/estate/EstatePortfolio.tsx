@@ -65,7 +65,7 @@ import "./estatePortfolio.css";
 import { CategoryTags } from "../sites/outcomeCategories";
 import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
-import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
+import { amountOf, anyWithheld, CategoryCards, NONE_SHOWN_YET, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -94,6 +94,30 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 }
 
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
+/** WALK1-1 (WN-2, R670): on a partly checked estate a zero count is a claim on the checked days only. */
+export const NONE_ON_CHECKED_DAYS = "None found on the days checked";
+function PulseCount({ value, missing, label, checkedDays, withheld = false }: { value: number | null; missing: string; label: string; checkedDays: boolean; withheld?: boolean }) {
+  if (value === 0 && withheld) {
+    return (
+      <span>
+        {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_SHOWN_YET}</strong>
+      </span>
+    );
+  }
+  if (value === 0 && checkedDays) {
+    // MOCK DEVIATION (R670): the label leads so the qualified "none" reads as a sentence; v70 shows "{n} {label}".
+    return (
+      <span>
+        {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_ON_CHECKED_DAYS}</strong>
+      </span>
+    );
+  }
+  return (
+    <span>
+      <strong>{countText(value, missing)}</strong> {label}
+    </span>
+  );
+}
 
 /** COV-PARTIAL: a partly checked Site's row never shows an amount (the backend sends none). */
 export function partialConsequence(c: { state: string; source_revision_id: string | null }): string {
@@ -179,7 +203,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
         {row.action_id === null ? (
           row.links.finding !== null ? (
             <small>
-              <Link to={row.links.finding}>Review Finding</Link>
+              <Link to={row.links.finding}>Review finding</Link>
             </small>
           ) : (
             <small>Finding detail unavailable</small>
@@ -644,6 +668,7 @@ function Loaded({
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const s = body.summary;
+  const checkedDays = (s.count_basis ?? null) === "CHECKED_DAYS";
   // OUT-C U5: the estate summary's early warnings; Unknown until the summary loads.
   const warnings = summary?.status === "loaded" ? summary.value.warnings : null;
   const warningCount = warnings === null ? null : warnings.length;
@@ -676,12 +701,8 @@ function Loaded({
         <span>
           <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites
         </span>
-        <span>
-          <strong>{countText(s.opportunity_count, "Unknown")}</strong> opportunity
-        </span>
-        <span>
-          <strong>{countText(s.evidence_gap_site_count, "Unknown")}</strong> site evidence gaps
-        </span>
+        <PulseCount value={s.opportunity_count} missing="Unknown" label="opportunity" checkedDays={checkedDays} withheld={anyWithheld(body)} />
+        <PulseCount value={s.evidence_gap_site_count} missing="Unknown" label="site evidence gaps" checkedDays={checkedDays} />
         <span>
           <strong>{countText(s.accepted_action_count, "Unknown")}</strong> accepted actions
         </span>

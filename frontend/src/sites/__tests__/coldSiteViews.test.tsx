@@ -553,8 +553,8 @@ describe("W2-04: cold Overview", () => {
     expect(text(panelTitled("Next step"))).toContain("Automatic generator start failed in the accepted record");
     // Run-7 link and card copy.
     expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Automatic generator start failed in the accepted record");
-    expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Open Finding →");
-    expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.textContent).toBe("Open Finding →");
+    expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Open finding →");
+    expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.textContent).toBe("Open finding →");
     expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.textContent).toBe("Performance › Backup →");
     expect(Array.from(happened.querySelectorAll("[data-timeline-event]")).map((e) => text(e))[0]).toContain("16:11");
     expect(panelTitled("Chamber temperature").querySelectorAll("[data-cold-point]").length).toBe(4);

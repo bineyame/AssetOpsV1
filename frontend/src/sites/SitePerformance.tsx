@@ -405,7 +405,7 @@ function DispatchView({
                               to={findingHref(row.finding_id)}
                               data-dispatch-finding-link={row.finding_id}
                             >
-                              Open Finding
+                              Open finding
                             </Link>
                           )}
                         </td>

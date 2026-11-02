@@ -42,7 +42,7 @@ class Service:
 
     def board(self, ref, **kw):
         self.boards.append(ref.site_code)
-        return {"site_code": ref.site_code, "read_state": "OK", "_short_values": {}}
+        return {"site_code": ref.site_code, "read_state": "OK", "_short_values": {}, "_verified_results": 1}
 
     def summary(self, sites, lo, hi, known_at):
         return {"sites": [s.site_code for s in sites]}
@@ -64,6 +64,8 @@ def refuse(code: str):
 
 def test_defaults_admit_every_site() -> None:
     c, service = client()
+    body = c.get("/api/sites/KOBO-001/outcome-board?date=2026-10-06").json()
+    assert not any(k.startswith("_") for k in body)  # WALK1-1 L3: private keys never reach the route body
     assert c.get("/api/sites/KOBO-001/outcome-board?date=2026-10-06").status_code == 200
     assert c.get(f"/api/sites/COLD-LAB-001/outcome-board?{WINDOW}").status_code == 200
     assert c.get(f"/api/sites/EV-LAB-001/outcome-board?{WINDOW}").status_code == 200

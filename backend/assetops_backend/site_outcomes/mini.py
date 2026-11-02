@@ -257,7 +257,7 @@ def finding_gap_line(body: dict[str, Any] | None, requested: int) -> dict[str, A
         text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
     if body.get("withheld"):
         text += GAPS_WITHHELD
-    return {"text": text, "days": sorted(states)}
+    return {"text": text, "days": sorted(states), "withheld": bool(body.get("withheld"))}
 
 
 # ---------------------------------------------------------------- formatting

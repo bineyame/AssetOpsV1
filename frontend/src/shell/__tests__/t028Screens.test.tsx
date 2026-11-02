@@ -126,9 +126,9 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
     expect(candidate).toHaveTextContent("Possibly avoidable");
     expect(necessary).toHaveTextContent("Needed");
     expect(
-      within(candidate as HTMLElement).getByRole("link", { name: "Open Finding" }),
+      within(candidate as HTMLElement).getByRole("link", { name: "Open finding" }),
     ).toHaveAttribute("href", `/findings/${SITE_ID}/${CANDIDATE_ID}`);
-    expect(within(necessary as HTMLElement).queryByRole("link", { name: "Open Finding" })).toBeNull();
+    expect(within(necessary as HTMLElement).queryByRole("link", { name: "Open finding" })).toBeNull();
     expect(necessary).toHaveTextContent("Battery charge was at or below its minimum reserve.");
     expect(necessary).toHaveTextContent("No Finding (needed)");
     expect(candidate).toHaveTextContent("3 h 45 min to 4 h 15 min");
