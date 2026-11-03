@@ -378,14 +378,28 @@ def coh0_missing_data(bundle: Bundle) -> list[dict]:
     return out
 
 
+def _board_query(path: str, query: dict[str, list[str]]) -> dict[str, list[str]]:
+    """CH0-R addendum: on the outcome-board route only, `date=D` is the same read as `from=DT00:00:00Z` and
+    `to=(D+1)T00:00:00Z` (the screen calls Kobo's board with `date`; the body names the range)."""
+    if path.endswith("/outcome-board") and set(query) == {"date"} and len(query["date"]) == 1:
+        try:
+            day = datetime.strptime(query["date"][0], "%Y-%m-%d")
+        except ValueError:
+            return query
+        return {"from": [day.strftime("%Y-%m-%dT00:00:00Z")],
+                "to": [(day + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")]}
+    return query
+
+
 def is_own_self_link(b: Body, where: str, href: str) -> bool:
     """CH0-R: the one exempt `/api` link is a body's root `links.self`, equal to that body's own request path and
-    query. A nested or non-equal self stays a COH-1 contradiction."""
+    query (with the outcome-board `date` equivalence above). A nested or non-equal self stays a COH-1 contradiction."""
     if where != "$.links.self":
         return False
     url = urllib.parse.urlsplit(href)
-    return (url.path == b.path and urllib.parse.parse_qs(url.query, keep_blank_values=True)
-            == urllib.parse.parse_qs(urllib.parse.urlencode(b.params), keep_blank_values=True))
+    own = urllib.parse.parse_qs(urllib.parse.urlencode(b.params), keep_blank_values=True)
+    theirs = urllib.parse.parse_qs(url.query, keep_blank_values=True)
+    return url.path == b.path and _board_query(b.path, own) == _board_query(url.path, theirs)
 
 
 def coh1_links(bundle: Bundle, routes: list[str] | None = None) -> list[dict]:

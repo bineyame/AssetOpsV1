@@ -221,6 +221,22 @@ def test_a_root_self_link_that_is_not_its_own_request_is_a_contradiction(tmp_pat
     assert [f["subject"] for f in _board_self(tmp_path / "e", elsewhere)] == [elsewhere]
 
 
+def test_a_board_date_request_equals_its_one_day_range_self_link(tmp_path: Path) -> None:
+    own = f"{COLD_BOARD}?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
+    assert _board_self(tmp_path, own, params={"date": "2026-10-31"}) == []
+
+
+def test_the_date_equivalence_does_not_widen(tmp_path: Path) -> None:
+    two_days = f"{COLD_BOARD}?from=2026-10-31T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z"
+    assert len(_board_self(tmp_path / "a", two_days, params={"date": "2026-10-31"})) == 1
+    other_day = f"{COLD_BOARD}?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z"
+    assert len(_board_self(tmp_path / "b", other_day, params={"date": "2026-10-31"})) == 1
+    # a different route: the same equivalence is not applied
+    b = cc.Body("x", "/api/sites/X/other", "w", 200, {}, [], {"date": "2026-10-31"})
+    assert not cc.is_own_self_link(
+        b, "$.links.self", "/api/sites/X/other?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z")
+
+
 def test_a_nested_self_link_is_a_contradiction_even_when_equal(tmp_path: Path) -> None:
     found = _board_self(tmp_path, COLD_BOARD, nested=COLD_BOARD)
     assert [(f["subject"], "rows[0]" in f["detail"]) for f in found] == [(COLD_BOARD, True)]
