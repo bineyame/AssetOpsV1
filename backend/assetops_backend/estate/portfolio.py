@@ -134,13 +134,21 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
     if port is not None and (f_rows or a_rows):
-        # CH-3 §5, CH3-R (AG-27): the thread state on each Site's local day holding the window's last instant (as
-        # the board reads it), as of the window's cutoff, when the request names one.
-        # CH3-R (COH-13): `known_at` is the envelope's resolved `window.known_at`, the same cutoff the board
-        # resolves (D-b: coalesce(cause_known_at, recorded_at) <= k); the request's own, when given, equals it.
-        kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1),
-                                     "known_at": req.known_at if known_at is None else known_at}
-        found = port(tenant_id, [r["finding_id"] for r in f_rows], [a["action_id"] for a in a_rows], **kw)
+        # CH-3 §5, CH3-R (AG-27, COH-13): the thread state on each Site's local day holding the window's last
+        # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV row's Site
+        # evidence cutoff (`_cutoff`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
+        # coalesce(cause_known_at, recorded_at) <= k); a request's own cutoff, when given, is that envelope value.
+        default = known_at if known_at is not None else (None if req is None else req.known_at)
+        by_cutoff: dict[Any, list[Any]] = {default: []}  # the Actions are read at the default cutoff
+        for r in f_rows:
+            by_cutoff.setdefault(r.get("_cutoff") or default, []).append(r["finding_id"])
+        for cutoff, fids in by_cutoff.items():
+            if not fids and not (cutoff == default and a_rows):
+                continue
+            kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff}
+            part = port(tenant_id, fids, [a["action_id"] for a in a_rows] if cutoff == default else [], **kw)
+            for key in ("findings", "actions", "action_segments"):
+                found.setdefault(key, {}).update(part.get(key) or {})
     segments = found.get("action_segments") or {}
     for r in f_rows:
         r["_thread"] = found["findings"].get(str(r["finding_id"]).lower())

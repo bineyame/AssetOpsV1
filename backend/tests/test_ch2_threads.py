@@ -244,6 +244,17 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
     assert seen["known_at"] == k
     attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req())  # no resolved cutoff given: the request's (None)
     assert seen["known_at"] is None
+    row_k = datetime(2026, 10, 31, 9, tzinfo=timezone.utc)  # a cold/EV row reads at its Site's evidence cutoff
+    calls = []
+
+    class Snap2:
+        def threads(self, t, fids, aids, **kw):
+            calls.append((sorted(fids), sorted(aids), kw["known_at"]))
+            return {"findings": {}, "actions": {}}
+
+    attach_threads(Snap2(), T, [{"finding_id": "f1", "_cutoff": row_k}, {"finding_id": "f2"}], [{"action_id": "a1"}],
+                   Req(), k)
+    assert sorted(calls, key=lambda c: c[0]) == [(["f1"], [], row_k), (["f2"], ["a1"], k)]
 
 
 def test_board_lists_a_domain_action_in_hand_by_thread():
