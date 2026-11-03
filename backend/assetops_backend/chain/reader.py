@@ -59,10 +59,12 @@ def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures:
     day = from_day
     while day <= to_day:
         per_measure = by_day.get(day, {})
+        not_expected_day = any(NOT_EXPECTED in g for g in per_measure.values())
         grades: list[str] = []
         for m in measures:
-            # A requested measure with no stored row for the day has no data.
-            grades.extend(per_measure.get(m) or [NO_DATA])
+            # A requested measure with no stored row for the day has no data, unless the day is not expected
+            # (CH-1a L2: the operating calendar is per Site, so a NOT_EXPECTED row covers the whole day).
+            grades.extend(per_measure.get(m) or [NOT_EXPECTED if not_expected_day else NO_DATA])
         g = _day_grade(grades)
         tally[g] += 1
         if all(x == COMPLETE for x in grades):

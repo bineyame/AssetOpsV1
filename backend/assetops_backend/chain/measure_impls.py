@@ -89,6 +89,15 @@ def _gaps(items: Iterable[dict[str, Any]], a_key: str, b_key: str) -> list[Span]
     return out
 
 
+def attributed(asset_id: Any, subject_ref: str, subjects: list[str]) -> bool:
+    """Ruling CH1b-R Q1 (CH-1a L3): a reading or chain on asset X counts for subject X; one on another asset, or on
+    none, counts Site-wide only when the Site has exactly one subject of that kind (else it counts for no subject,
+    so each subject is graded on its own inputs and no value is duplicated). Probe-to-room mapping: CH-8."""
+    if asset_id is not None and str(asset_id).lower() == subject_ref:
+        return True
+    return len(subjects) == 1 and (asset_id is None or str(asset_id).lower() not in subjects)
+
+
 class _Cached:
     """Values `money()` needs from `inputs()` (a price selection, a stored consequence), per subject-day."""
 
@@ -238,8 +247,10 @@ class ChamberTemperature:
             # §5c Q6: the assessed window minus the assessment's gaps
             covered += minus(clip([(ws, we)], lo, hi), _gaps(t.get("gaps"), "start", "end"))
             ids |= {str(p["evidence_id"]).lower() for p in t.get("points") or ()}
+        subjects = self.subjects(ctx)
         raw = [x for x in self.r.readings(ctx, [CHAMBER_ROLE], lo, hi)
-               if x["source_time"] is not None and lo <= x["source_time"] < hi]
+               if x["source_time"] is not None and lo <= x["source_time"] < hi
+               and attributed(x.get("asset_id"), subject_ref, subjects)]
         ids |= {x["evidence_id"] for x in raw}
         return InputSet(tuple(sorted(ids)), covered, self.r.pending_jobs(ctx, ["cold_chain"]), raw)
 
@@ -264,7 +275,9 @@ class BackupStartChain:
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
         lo, hi = ctx.period_start_utc, ctx.period_end_utc
-        readings = self.r.readings(ctx, BACKUP_ROLES, lo, hi)
+        subjects = self.subjects(ctx)
+        readings = [x for x in self.r.readings(ctx, BACKUP_ROLES, lo, hi)
+                    if attributed(x.get("asset_id"), subject_ref, subjects)]
         covered: list[Span] = []
         chains: list[dict[str, Any]] = []
         ids = {x["evidence_id"] for x in readings}
@@ -273,6 +286,9 @@ class BackupStartChain:
             inside = [x for x in readings if x["source_time"] is not None and ws <= x["source_time"] < we]
             b = self.r.cold_backup_chain(ctx, ws, we)
             if b.get("state") is None or not inside:
+                continue
+            # chains are attributed by the window's generator asset (ruling CH1b-R Q1)
+            if not attributed((b.get("policy") or {}).get("generator_asset_id"), subject_ref, subjects):
                 continue
             # §5c Q5 (see packet deviation): the assessed window in which backup-role readings were accepted
             covered += clip([(ws, we)], lo, hi)

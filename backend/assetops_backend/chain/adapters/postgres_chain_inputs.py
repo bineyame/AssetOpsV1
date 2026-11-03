@@ -57,12 +57,17 @@ _RUN_EVIDENCE = (
 _WINDOWS = (
     "SELECT sel.window_start, sel.window_end, max(sel.seq), (array_agg(sel.run_id ORDER BY sel.seq DESC))[1] FROM analytic_run_selection sel JOIN analytic_run r "
     "ON r.id = sel.run_id WHERE sel.tenant_id = :t AND sel.site_id = :s AND sel.analytic_id = ANY(:a) "
-    "AND sel.window_start < :hi AND sel.window_end > :lo AND r.knowledge_cutoff <= :k "
+    "AND sel.window_start < :hi AND sel.window_end > :lo AND r.knowledge_cutoff <= :k AND sel.selected_at <= :k "
     "GROUP BY sel.window_start, sel.window_end ORDER BY sel.window_start, sel.window_end")
 
+#: CH-1b residual 2: a live job visible at the cutoff that no later selection of its window (visible at the cutoff)
+#: has cleared, as `_RENEWABLE_JOBS` does for the mini-depth hour.
 _JOBS = (
-    "SELECT EXISTS (SELECT 1 FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = ANY(:d) "
-    "AND status = ANY(:st) AND window_start < :hi AND window_end > :lo)")
+    "SELECT EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = ANY(:d) "
+    "AND j.status = ANY(:st) AND j.window_start < :hi AND j.window_end > :lo AND j.available_at <= :k "
+    "AND NOT EXISTS (SELECT 1 FROM analytic_run_selection x WHERE x.tenant_id = j.tenant_id "
+    "AND x.site_id = j.site_id AND x.window_start = j.window_start AND x.window_end = j.window_end "
+    "AND x.selected_at > j.available_at AND x.selected_at <= :k))")
 
 
 #: `mini_depth/read.py` `_JOBS`: a live job no later selection of its hour (visible at the cutoff) has cleared.
@@ -121,6 +126,17 @@ class PostgresChainInputs:
         with self._engine.connect() as c:
             return list(c.execute(text(sql), params).all())
 
+    @staticmethod
+    def _subject_instant(ctx: DayCtx) -> datetime:
+        """CH-1a L2: the instant subjects are resolved at; the period start, else the Site-local day start (a
+        NOT_EXPECTED day still writes one row per subject)."""
+        if ctx.period_start_utc is not None:
+            return ctx.period_start_utc
+        from zoneinfo import ZoneInfo
+
+        local = datetime(ctx.local_day.year, ctx.local_day.month, ctx.local_day.day, tzinfo=ZoneInfo(ctx.tz))
+        return local.astimezone(timezone.utc)
+
     def _known(self, ctx: DayCtx) -> datetime:
         if ctx.known_at is not None:
             return ctx.known_at
@@ -144,10 +160,8 @@ class PostgresChainInputs:
 
     def foundation_assets(self, ctx: DayCtx, component_type: str) -> list[str]:
         """Asset ids (lowercase text) of the Foundation components of `component_type` in the revision(s) in
-        force at the period start and recorded by the cutoff; sorted; empty with no period or no revision."""
-        if ctx.period_start_utc is None:
-            return []
-        p = {"t": ctx.tenant_id, "s": ctx.site_id, "k": self._known(ctx), "at": ctx.period_start_utc}
+        force at the period start (else the local day start, CH-1a L2) and recorded by the cutoff; sorted."""
+        p = {"t": ctx.tenant_id, "s": ctx.site_id, "k": self._known(ctx), "at": self._subject_instant(ctx)}
         rows = self._all(
             "SELECT content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
             "AND recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k) "
@@ -173,11 +187,9 @@ class PostgresChainInputs:
                  "value": r[7], "unit": r[8]} for r in rows]
 
     def productive_assets(self, ctx: DayCtx) -> list[dict[str, Any]]:
-        if ctx.period_start_utc is None:
-            return []
         try:
             return self.mini.productive_users(tenant_id=ctx.tenant_id, site_id=ctx.site_id,
-                                               at=ctx.period_start_utc, known_at=ctx.known_at)
+                                               at=self._subject_instant(ctx), known_at=ctx.known_at)
         except RuntimeError:  # MiniReadUnavailable: no single Foundation revision covers the instant
             return []
 
@@ -269,7 +281,7 @@ class PostgresChainInputs:
 
     def pending_jobs(self, ctx: DayCtx, domains: Sequence[str]) -> bool:
         r = self._one(_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "d": list(domains), "st": list(_LIVE),
-                              "lo": ctx.period_start_utc, "hi": ctx.period_end_utc})
+                              "lo": ctx.period_start_utc, "hi": ctx.period_end_utc, "k": self._known(ctx)})
         return bool(r and r[0])
 
 

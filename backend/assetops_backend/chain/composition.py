@@ -10,8 +10,10 @@ from typing import Any, Callable
 
 from assetops_backend.chain.adapters.file_chain_config import (
     load_coverage_policy,
+    load_event_register,
     load_operating_calendar,
 )
+from assetops_backend.chain.adapters.postgres_event_store import EventStoreUnavailable, PostgresEventStore
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
 from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
 from assetops_backend.chain.adapters.postgres_thread_sources import PostgresThreadSources
@@ -23,7 +25,8 @@ from assetops_backend.chain.reader import SnapshotReader
 __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "build_chain_services",
            "build_chain_inputs", "build_snapshot_store", "build_snapshot_reader", "build_snapshot_builder",
            "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
-           "build_thread_store"]
+           "build_thread_store", "load_event_register", "PostgresEventStore", "EventStoreUnavailable",
+           "build_event_store"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -93,3 +96,8 @@ def build_thread_store(database_url: str | None) -> PostgresThreadStore | None:
 def build_thread_sources(database_url: str | None) -> PostgresThreadSources | None:
     """The read-only source reader, or None when no database is configured (the board then reads no threads)."""
     return PostgresThreadSources(database_url) if database_url else None
+
+
+def build_event_store(database_url: str | None) -> PostgresEventStore | None:
+    """CH-1b: the outbox consumer, dirty queue and backfill-event store; None without a database URL."""
+    return PostgresEventStore(database_url) if database_url else None

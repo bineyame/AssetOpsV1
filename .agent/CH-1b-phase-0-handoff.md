@@ -119,3 +119,65 @@ Sheet: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-CH-1b.md`. P
    - then the scoped existing files;
    - then L3: `tools/chain_clone.py create ch1b --migrate`, backfill, drain, publish the price, consume and drain,
      `drop`.
+
+## Phase 1 update (after ruling CH1b-R): PARTIAL, resume here
+
+Ruling CH1b-R:
+- Q1, Q2 and D1 are accepted.
+- Add `TickLimits.chain_consume_events = 500`. A cap hit defers and never backs off.
+- **CH-3 merges first.** Do NOT touch `stages.py` or `tick.py` until the coordinator says CH-3 has merged. Then
+  rebase on main and make CH-3's `PostgresThreadStore.append_events` and its step-d `chain_threads` call
+  event-driven. Wire `consume('lifecycle')` to `run_lifecycle` (CH-3 sheet §4).
+
+Landed in the phase-1 commit:
+- `B/chain/adapters/postgres_event_store.py`:
+  - implements `EventPort` and `DirtyQueue`;
+  - `record_backfill` is the sole Python INSERT into `event_outbox`, with type `'backfill.site'`, source
+    `'chain_backfill'` and `ON CONFLICT DO NOTHING`.
+- `file_chain_config.load_event_register` (YAML).
+- `composition.build_event_store`, and re-exports.
+- L6: `builder.py` skip path returns `replace(row, revision=latest[0])`.
+- Residual 1: `_WINDOWS` adds `sel.selected_at <= :k`.
+- Residual 2: `_JOBS` adds `available_at <= :k`, and NOT EXISTS a later `analytic_run_selection` of the same exact
+  window visible at `:k`.
+  - It is matched by window, not by `analytic_id`. A selection of another analytic over the identical window would
+    also clear the job; this is noted as a residual.
+- L2:
+  - `PostgresChainInputs._subject_instant`: when there is no period, subjects resolve at the Site-local day start.
+    Used by `foundation_assets` and `productive_assets`.
+  - `reader._counts`: on a day with any NOT_EXPECTED row, a missing measure counts NOT_EXPECTED.
+- L3: `measure_impls.attributed(asset_id, subject, subjects)` per Q1.
+  - Chamber raw readings and backup readings are filtered by it.
+  - Backup chains are attributed by the window's `policy.generator_asset_id` (`b.get("policy")`). **Verify** that
+    `cold_backup_chain` returns `policy`; if it doesn't, the single-subject rule applies.
+- `test_ch1a_snapshot_postgres.py::test_downgrade...` now expects the 0044 refusal ("event history exists") first, then
+  TRUNCATEs the three 0044 tables. It passes, and the other 3 tests in that file pass.
+  - Other downgrade tests below 0044 (0042, 0030, 0029, ...) will need the same pattern. Find them with
+    `grep -l "command.downgrade" backend/tests`.
+
+Checks so far:
+- `test_ch1a_grading`, `test_ch1a_reassessment` and `test_ch2_threads`: 62 passed.
+- `test_ch1a_snapshot_postgres`: 4 passed, after the downgrade-test patch.
+
+Still to do:
+1. Guard:
+   - `$eventWriter` in `configuration-persistence.ps1`, as in P3 above;
+   - `snapshot_dirty` upsert and compare-and-delete;
+   - `event_consumption` insert-only;
+   - `event_outbox`: only the literal `backfill.site` INSERT from this module, and trigger-only otherwise (anti-vacuity
+     by migration text).
+   - Then the estate guard self-test, and `tools/checks/test_event_register.py` with its line in `tools/check-all.ps1`.
+     Prove each new guard non-vacuous.
+2. Tests:
+   - `test_ch1b_register.py` and `test_ch1b_drain.py` (pure);
+   - `test_ch1b_outbox_postgres.py`, per sheet §6 step 2 (catalogue, rollback leaves no event, one event per
+     statement, idempotent consume, re-mark survives, PENDING then settled gives revision 2, drain twice gives 0
+     writes, L2, L3, residuals).
+3. Backfill step (a): `record_backfill` per Site after `build_range` (`B/chain/backfill.py:113-117`).
+4. Scoped existing tests for every source table that gains a trigger (sheet §6 step 3).
+5. After CH-3 merges: the tick and stage wiring:
+   - `chain_snapshot_seconds`, `chain_snapshot_items` and `chain_consume_events`;
+   - the `chain_snapshots` stage;
+   - event-driven threads and lifecycle;
+   - the CH-0 `SITE_STAGES` update.
+   Then the L3 clone proof, the packet `.agent/review-packet-CH-1b.md`, and the commit.
