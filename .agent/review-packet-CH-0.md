@@ -127,3 +127,6 @@ The 8 unexpected findings are all Kobo day boards (`day:kobo:*`), the Kobo membe
 2. Widen the exemption so `date=D` equals `from=D&to=D+1`. This widens the ruling.
 Cold and EV boards already use `from`/`to` and are exempt.
 - Tick Postgres `test_s4_schedule_tick_postgres.py -m "not slow"` (`run-host-tests.ps1`, `assetops_test`): 6 passed, 1 deselected, 134 s. Architecture, agent-workflow and navigation-truthfulness guards (with `ASSETOPS_GUARD_PYTHON` set, no policy override): all exit 0.
+
+### Fix round 1 addendum (Architect chose option 2)
+`is_own_self_link` now treats `date=D` as equal to `from=DT00:00:00Z&to=(D+1)T00:00:00Z` on the `/outcome-board` route only, for the self-link comparison only; the collector still reads Kobo boards with `?date=D`. Tests: the equivalence holds (date request vs one-day range self); it does not hold for a two-day range, a different day, or a different route. Mutations (equivalence on every route, a two-day offset, no equivalence) each fail their tests. L1: 51 passed. Fresh clone `fix2` (created, collected 56/56 at 200, checked, dropped): COH-1 12 expected, 0 new; **39 pass, 0 unexpected, 0 resolved**, exit 0.
