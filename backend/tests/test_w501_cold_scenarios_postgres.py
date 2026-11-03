@@ -5,6 +5,7 @@ P-C4-1..23. Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import hashlib
 import json
@@ -25,7 +26,7 @@ if URL:
     from test_w402_migration_postgres import downgrade_config
 
 
-LATEST_HEAD = "0041_walk1_objective_min_days"  # W5-03b: 0034 and 0033 sit above the 0032 migration under test
+LATEST_HEAD = alembic_head()
 COLD_HEAD = "0032_w5_cold_scenarios"
 COLD_PREVIOUS = "0030_w4_mini_decisions"
 COLD_REFUSED = "Downgrade of 0032_w5_cold_scenarios refused: cold scenario history exists"

@@ -6,6 +6,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import hashlib
 import importlib.util
@@ -31,7 +32,7 @@ if URL:
     from assetops_backend.mini_decisions.store import MiniDecisionWriteRefused, PostgresMiniDecisionStore
 
 HEAD = "0030_w4_mini_decisions"  # the W4 migration under test
-LATEST_HEAD = "0041_walk1_objective_min_days"  # W5-03b: the sole head; 0034, 0033 and 0032 are crossed empty before 0030
+LATEST_HEAD = alembic_head()
 PREVIOUS = "0029_w4_mini_depth"
 REFUSED_HISTORY = "Downgrade of 0030_w4_mini_decisions refused: decision history exists"
 REFUSED_JOBS = "Downgrade of 0030_w4_mini_decisions refused: opportunity jobs exist"

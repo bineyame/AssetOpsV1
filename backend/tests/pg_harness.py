@@ -149,6 +149,14 @@ def _heads() -> set[str]:
     return _state["heads"]
 
 
+def alembic_head() -> str:
+    """The sole Alembic head, read from the migration scripts, so no test file pins a revision id that the next
+    migration would change (CH1a-R D6)."""
+    heads = _heads()
+    assert len(heads) == 1, f"expected one migration head, found {sorted(heads)}"
+    return next(iter(heads))
+
+
 def assert_at_head(engine) -> None:
     from sqlalchemy import text
 

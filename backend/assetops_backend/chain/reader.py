@@ -1,0 +1,129 @@
+"""SnapshotReader (CH-1a §4.4): the one answer to "how many days, of which grade".
+
+``GradeCounts`` is the single graded-day count CH-5a and CH-6 render. Every
+count comes from stored grades (``grading.classify_day`` at build time); this
+module adds no second day-count rule.
+"""
+
+from __future__ import annotations
+
+from collections import defaultdict
+from dataclasses import asdict, dataclass
+from datetime import date, datetime, timedelta
+from typing import Mapping, Sequence
+from uuid import UUID
+
+from .grading import COMPLETE, LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
+from .ports import SnapshotRow, SnapshotStore
+
+
+@dataclass(frozen=True)
+class GradeCounts:
+    requested: int
+    expected: int
+    complete: int
+    partial: int
+    low: int
+    no_data: int
+    not_expected: int
+    pending: int
+    enough_data_days: int
+
+    def to_json(self) -> dict[str, int]:
+        return asdict(self)
+
+
+# Day-level grade from its rows: the weakest row decides (every listed measure,
+# every subject). Order from weakest to strongest; NOT_EXPECTED only when no row
+# of the day is expected.
+_WEAKEST_FIRST = (PENDING, NO_DATA, LOW, PARTIAL, COMPLETE)
+
+
+def _day_grade(grades: Sequence[str]) -> str:
+    expected = [g for g in grades if g != NOT_EXPECTED]
+    if not expected:
+        return NOT_EXPECTED
+    for g in _WEAKEST_FIRST:
+        if g in expected:
+            return g
+    return NO_DATA
+
+
+def _counts(rows: Sequence[SnapshotRow], from_day: date, to_day: date, measures: Sequence[str]) -> GradeCounts:
+    by_day: dict[date, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
+    for r in rows:
+        by_day[r.local_day][r.measure].append(r.grade)
+    tally = {COMPLETE: 0, PARTIAL: 0, LOW: 0, NO_DATA: 0, NOT_EXPECTED: 0, PENDING: 0}
+    enough = 0
+    requested = (to_day - from_day).days + 1
+    day = from_day
+    while day <= to_day:
+        per_measure = by_day.get(day, {})
+        grades: list[str] = []
+        for m in measures:
+            # A requested measure with no stored row for the day has no data.
+            grades.extend(per_measure.get(m) or [NO_DATA])
+        g = _day_grade(grades)
+        tally[g] += 1
+        if all(x == COMPLETE for x in grades):
+            enough += 1
+        day += timedelta(days=1)
+    return GradeCounts(
+        requested=requested,
+        expected=requested - tally[NOT_EXPECTED],
+        complete=tally[COMPLETE],
+        partial=tally[PARTIAL],
+        low=tally[LOW],
+        no_data=tally[NO_DATA],
+        not_expected=tally[NOT_EXPECTED],
+        pending=tally[PENDING],
+        enough_data_days=enough,
+    )
+
+
+class SnapshotReader:
+    def __init__(self, store: SnapshotStore) -> None:
+        self._store = store
+
+    def latest(
+        self,
+        tenant_id: UUID,
+        site_id: UUID,
+        from_day: date,
+        to_day: date,
+        measures: Sequence[str] | None = None,
+        known_at: datetime | None = None,
+    ) -> list[SnapshotRow]:
+        return self._store.read_latest(tenant_id, [site_id], from_day, to_day, measures, known_at)
+
+    def grade_counts(
+        self,
+        tenant_id: UUID,
+        site_id: UUID,
+        from_day: date,
+        to_day: date,
+        measures: Sequence[str],
+        known_at: datetime | None = None,
+    ) -> GradeCounts:
+        rows = self.latest(tenant_id, site_id, from_day, to_day, measures, known_at)
+        return _counts(rows, from_day, to_day, measures)
+
+    def grade_counts_many(
+        self,
+        tenant_id: UUID,
+        site_ids: Sequence[UUID],
+        from_day: date,
+        to_day: date,
+        measures_by_site: Mapping[UUID, Sequence[str]],
+        known_at: datetime | None = None,
+    ) -> dict[UUID, GradeCounts]:
+        wanted = sorted({m for s in site_ids for m in measures_by_site.get(s, ())})
+        rows = self._store.read_latest(tenant_id, list(site_ids), from_day, to_day, wanted, known_at)
+        per_site: dict[UUID, list[SnapshotRow]] = defaultdict(list)
+        for r in rows:
+            per_site[r.site_id].append(r)
+        out: dict[UUID, GradeCounts] = {}
+        for s in site_ids:
+            ms = list(measures_by_site.get(s, ()))
+            out[s] = _counts([r for r in per_site.get(s, []) if r.measure in ms], from_day, to_day, ms)
+        return out

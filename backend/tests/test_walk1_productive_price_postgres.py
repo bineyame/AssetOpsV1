@@ -5,6 +5,7 @@ CHECK is added for it, the store publishes it, and the downgrade refuses while a
 restores the 0026 CHECK texts byte for byte.
 """
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import os
 from datetime import datetime, timezone
@@ -26,7 +27,7 @@ if URL:
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
-HEAD = "0041_walk1_objective_min_days"  # WALK1-3b: the sole head sits above the 0040 migration under test
+HEAD = alembic_head()
 THIS = "0040_walk1_productive_price"
 PREVIOUS = "0039_merge_objectives_cc"
 KEY = "productive_use_price_per_kwh"

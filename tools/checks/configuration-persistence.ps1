@@ -184,6 +184,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # CH-1a: day snapshots. Database-only (plus the declared config file reader); rule 8 confines its
+            # PostgreSQL writer and reader. Only its composition imports the adapters.
+            Name        = "chain"
+            Package     = "$backendRoot/chain"
+            Composition = "$backendRoot/chain/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -867,6 +877,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $trialComparisonTables = @('trial_cost_comparison_revision')
     $trialComparisonInsertsSeen = @{}
     foreach ($table in $trialComparisonTables) { $trialComparisonInsertsSeen[$table] = 0 }
+    # CH-1a (build sheet CH-1a section 7; migration 0043): the snapshot store is the sole runtime writer of the day-snapshot
+    # table, INSERT-only (the 0043 trigger refuses UPDATE/DELETE; no upsert, TRUNCATE, MERGE, COPY or DDL), and it
+    # writes no other table. The table keeps one owner INSERT (anti-vacuity below).
+    $snapshotWriter = "$backendRoot/chain/adapters/postgres_snapshot_store.py"
+    $snapshotTables = @('site_day_snapshot')
+    $snapshotInsertsSeen = @{}
+    foreach ($table in $snapshotTables) { $snapshotInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -875,7 +892,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $trialComparisonWriter)
+        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $snapshotWriter, $trialComparisonWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -884,7 +901,10 @@ function Invoke-ConfigurationPersistenceCheck {
         # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
         "$backendRoot/mini_depth/read.py",
         # W5-02a ruling A5: the read-only Site Action index (K1b); the SQL-write refusal still applies to it.
-        "$backendRoot/work/adapters/postgres_domain_action_index.py")
+        "$backendRoot/work/adapters/postgres_domain_action_index.py",
+        # CH-1a section 3: the read-only chain input reader (every measure adapter reads through it); the SQL-write refusal
+        # still applies to it.
+        "$backendRoot/chain/adapters/postgres_chain_inputs.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -930,12 +950,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
-        $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0 }
+        $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
+        $snapshotWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
-        $trialComparisonWriter = $false }
+        $trialComparisonWriter = $false; $snapshotWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1011,6 +1032,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $trialComparisonWriter -and $line -match $actionForbidden) {
                 $failures.Add("The trial cost-check store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $snapshotWriter -and $line -match $actionForbidden) {
+                $failures.Add("The day-snapshot store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1245,6 +1270,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $trialComparisonInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $snapshotWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $snapshotTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The day-snapshot store only inserts into $($snapshotTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $snapshotTables -contains $target) {
+                    if ($module.Path -ne $snapshotWriter) {
+                        $failures.Add(("Only $snapshotWriter writes day-snapshot table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Day-snapshot table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $snapshotInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1493,6 +1534,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $objectiveTables) {
         if ($extractorRan -and $objectiveInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $objectiveWriter, so the declared objective insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($table in $snapshotTables) {
+        if ($extractorRan -and $snapshotInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $snapshotWriter, so the day-snapshot insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }

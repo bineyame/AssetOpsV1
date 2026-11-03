@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta, timezone
+from decimal import Decimal
 from types import ModuleType
 from typing import Any, Callable, Protocol
 from uuid import UUID
@@ -43,6 +44,18 @@ UNAVAILABLE = {
     "fuel_and_money": "UNAVAILABLE: no fuel quantity, saving or monetary claim in S3 (S4 Finding work)",
     "finding": "UNAVAILABLE: interval assessments are not Findings (S4)",
 }
+
+
+def dispatch_minutes(dispatch: dict[str, Any] | None) -> tuple[Decimal | None, Decimal | None]:
+    """B-Q10 (moved unchanged from site_outcomes/mini.py, CH-1a section 5c Q3c): Σ candidate and Σ indeterminate minutes over the window's interval results."""
+    if dispatch is None:
+        return None, None
+    a = u = Decimal(0)
+    for interval in dispatch.get("intervals") or ():
+        portions = (interval.get("result") or {}).get("portions_minutes") or {}
+        a += Decimal(str(portions.get("candidate") or 0))
+        u += Decimal(str(portions.get("indeterminate") or 0))
+    return a, u
 
 
 class DispatchReadStore(Protocol):
