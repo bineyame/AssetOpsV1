@@ -1,0 +1,337 @@
+{
+ "schema": "chain-coherence-expected/1",
+ "basis": "CH-0 today report: clone of assetops_polish_full_test at main head (not ticked), story S 2026-10-31T00:00:00Z",
+ "rule": "Each entry names its register issue (I-nn) and the slice that resolves it; an entry with new: true maps to no register issue and is listed in the CH-0 packet. Later slices delete the entries they resolve; the check prints them as resolved.",
+ "expectations": [
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "day:ev:fault:2026-10-27",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:degraded:2026-10-28",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/f9ed0fec-474d-429f-89b7-a13e6f1907cb?from=2026-10-28T16:00:00.000000Z&to=2026-10-28T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "register": "I-08",
+   "owner": "CH-5a"
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "ced674cb-8aa2-4ac3-bd56-d4350333fef1",
+   "register": "I-09",
+   "owner": "DD-1"
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "b9f71cdd-519a-43d6-a55e-1bbb1614a522",
+   "register": "I-09",
+   "owner": "DD-1"
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "EV-LAB-001",
+   "window": "day:ev:fault:2026-10-27",
+   "subject": "274196f4-3b8d-443b-93b6-7cbeb06e6a0a:OPPORTUNITY",
+   "register": "I-21",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:degraded:2026-10-28",
+   "subject": "f9ed0fec-474d-429f-89b7-a13e6f1907cb:COST",
+   "register": "I-21",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "2505d188-971f-4010-ba8e-0b6e519e7d7c:COST",
+   "register": "I-21",
+   "owner": "CH-2"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "findings:opportunities",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "portfolio:opportunity",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "findings:opportunities",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "portfolio:opportunity",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "findings:opportunities",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "portfolio:opportunity",
+   "register": "I-06",
+   "owner": "CH-4"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "week",
+   "subject": "window_basis",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "EV-LAB-001",
+   "window": "week",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "S",
+   "subject": "window_basis",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "month",
+   "subject": "window_basis",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "window",
+   "register": "I-04",
+   "owner": "CH-6"
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "also": [
+    "I-01 (part)"
+   ],
+   "owner": "CH-2",
+   "also_owner": [
+    "CH-3"
+   ]
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "also": [
+    "I-01 (part)"
+   ],
+   "owner": "CH-2",
+   "also_owner": [
+    "CH-3"
+   ]
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "register": "I-03",
+   "also": [
+    "I-01 (part)"
+   ],
+   "owner": "CH-2",
+   "also_owner": [
+    "CH-3"
+   ]
+  }
+ ]
+}
