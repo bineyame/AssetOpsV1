@@ -467,7 +467,7 @@ class SiteOutcomeBoardService:
         start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
         end = start + timedelta(days=1)
         minis = [x.site_code for x in sites if x.domain == MINI]
-        others = [x.site_code for x in sites if x.domain != MINI]
+        others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
 
         def work(snap: Any) -> dict[tuple, Any]:
             pre: dict[tuple, Any] = {}
