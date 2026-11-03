@@ -17,7 +17,8 @@ A tick:
 4. visits at most `max_sites` of them in (tenant_id, site_id) order after the durable fair cursor, skipping a
    Site inside its schedule-level back-off (`RETRY_DUE`) and deferring the rest to later ticks;
 5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`,
-   `cold_assess`, `ev_assess`, `mini`, `opportunity`, `s4`, `consequence`, `cold_consequence` and `ev_consequence`
+   `cold_assess`, `ev_assess`, `mini`, `opportunity`, `s4`, `chain_threads` (CH-2, under the `S4` head stage),
+   `consequence`, `cold_consequence` and `ev_consequence`
    stage children in that order (the claim is re-checked before each child), each killable at its wall-time
    bound with server-side statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
    and its back-off, then advances the cursor;
@@ -67,6 +68,7 @@ class TickLimits:
     opportunity_jobs_per_site: int = 10
     opportunity_seconds: float = 120
     s4_seconds: float = 120
+    chain_seconds: float = 60  # CH-2: the `chain_threads` stage (thread placement and Action links)
     consequence_seconds: float = 60
     domain_jobs_per_site: int = 10  # FIX-COLD-DRAIN: cold and EV assessment jobs per Site, each domain
     domain_assess_seconds: float = 120
@@ -91,15 +93,17 @@ class TickLimits:
         if not 0 < self.domain_assess_seconds < DOMAIN_JOB_LEASE_SECONDS:
             raise ValueError("The cold/EV assessment stage bound must be positive and shorter than the five-minute "
                              "cold/EV job lease.")
+        if not 0 < self.chain_seconds:
+            raise ValueError("The chain_threads stage bound must be positive.")
         if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.mini_seconds,
-                                                   self.opportunity_seconds, self.s4_seconds,
+                                                   self.opportunity_seconds, self.s4_seconds, self.chain_seconds,
                                                    self.consequence_seconds, self.domain_assess_seconds,
                                                    self.domain_consequence_seconds):
             raise ValueError("The server statement timeout must be shorter than every stage bound.")
 
     @property
     def site_lease_seconds(self) -> float:
-        return (self.s3_seconds + self.mini_seconds + self.opportunity_seconds + self.s4_seconds
+        return (self.s3_seconds + self.mini_seconds + self.opportunity_seconds + self.s4_seconds + self.chain_seconds
                 + self.consequence_seconds + 2 * self.domain_assess_seconds
                 + 2 * self.domain_consequence_seconds + 60)
 
@@ -250,7 +254,7 @@ def fair_order(sites: list[SiteResult], cursor: tuple[UUID, UUID] | None) -> lis
 #: The values are read from the tick's own limits; a stage not named here logs `limit_ms`/`share` as null.
 STAGE_LIMIT_FIELDS: dict[str, str] = {
     "s3": "s3_seconds", "cold_assess": "domain_assess_seconds", "ev_assess": "domain_assess_seconds",
-    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds",
+    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds", "chain_threads": "chain_seconds",
     "consequence": "consequence_seconds", "cold_consequence": "domain_consequence_seconds",
     "ev_consequence": "domain_consequence_seconds"}
 
@@ -445,6 +449,15 @@ class ScheduleTick:
             self.store.record_s4(t, s, token, r4["code"])
         if r4["code"] not in S4_OK:
             failure = failure or ("S4", r4["code"], str(r4.get("error")))
+
+        # CH-2 (build sheet §4): place this Site's new Finding and opportunity revisions on their threads and link its
+        # Actions, after S4 matched; under the S4 head stage (no stage CHECK change, pre-flight P4).
+        if not stage("S4"):
+            return
+        rt = self.runner.run("chain_threads", ids, self.limits.chain_seconds)
+        site.stages["chain_threads"] = rt
+        if rt["code"] != "OK":
+            failure = failure or ("CHAIN_THREADS", rt["code"], str(rt.get("error")))
 
         if not stage("CONSEQUENCE"):
             return

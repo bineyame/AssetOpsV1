@@ -1,4 +1,4 @@
-"""CH-1a: the composition root of the day-snapshot chain; the only importer of its adapters.
+"""CH-1a and CH-2: the composition root of the chain (day snapshots, threads); the only importer of its adapters.
 
 The chain input reader receives the existing read services built by their own domains' composition functions
 (guard rule 1: no other domain's adapters are imported here).
@@ -14,12 +14,16 @@ from assetops_backend.chain.adapters.file_chain_config import (
 )
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
 from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
+from assetops_backend.chain.adapters.postgres_thread_sources import PostgresThreadSources
+from assetops_backend.chain.adapters.postgres_thread_store import PostgresThreadStore, ThreadStoreUnavailable
 from assetops_backend.chain.builder import SnapshotBuilder
 from assetops_backend.chain.measure_impls import build_measure_set
 from assetops_backend.chain.reader import SnapshotReader
 
 __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "build_chain_services",
-           "build_chain_inputs", "build_snapshot_store", "build_snapshot_reader", "build_snapshot_builder"]
+           "build_chain_inputs", "build_snapshot_store", "build_snapshot_reader", "build_snapshot_builder",
+           "PostgresThreadSources", "PostgresThreadStore", "ThreadStoreUnavailable", "build_thread_sources",
+           "build_thread_store"]
 
 
 def build_snapshot_store(database_url: str | None) -> PostgresSnapshotStore | None:
@@ -80,3 +84,12 @@ def build_chain_services(database_url: str | None) -> ChainServices | None:
         store.dispose()
 
     return ChainServices(builder, SnapshotReader(store), inputs, dispose)
+
+
+def build_thread_store(database_url: str | None) -> PostgresThreadStore | None:
+    return PostgresThreadStore(database_url) if database_url else None
+
+
+def build_thread_sources(database_url: str | None) -> PostgresThreadSources | None:
+    """The read-only source reader, or None when no database is configured (the board then reads no threads)."""
+    return PostgresThreadSources(database_url) if database_url else None

@@ -31,7 +31,7 @@ from assetops_backend.outcomes.outcome_map import POLICY_VERSION
 from assetops_backend.outcomes.status import NEEDS_ATTENTION, STATE_LABEL, STATE_TONE, STATUS_POLICY, UNKNOWN
 from assetops_backend.outcomes.warnings import POLICY as WARNINGS_POLICY
 from assetops_backend.site_outcomes import cold, ev, mini
-from assetops_backend.site_outcomes.board import assemble, objectives_wire
+from assetops_backend.site_outcomes.board import assemble, objectives_wire, with_threads
 
 SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
@@ -109,6 +109,7 @@ class BoardServices:
     domain_actions: Any = None        # DomainActionReadService (work/domain_action_index.py:375)
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
     finding_reads: Any = None         # FindingReadService (analytics/finding_read.py:570), LINK-LINEAGE history
+    threads: Any = None               # CH-2: PostgresThreadSources.lookup (chain/adapters/postgres_thread_sources.py)
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -395,6 +396,10 @@ class SiteOutcomeBoardService:
               hi: datetime | None = None, known_at: datetime | None = None,
               pin: tuple[UUID, UUID | None] | None = None) -> dict[str, Any]:
         comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
+        if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
+            facts = comp.facts
+            comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
+                site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions])))
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:
             query["known_at"] = wire(known_at)

@@ -26,6 +26,20 @@ export interface OutcomeRef {
   label: string;
 }
 
+/** CH-2: the thread a Finding sits on (additive; nothing renders it until CH-5a). */
+export interface FindingThreadRef {
+  id: string;
+  occurrence_no: number;
+  occurrences: number;
+}
+
+/** A FINDING issue's ref; `thread` is null when the Finding has no thread. */
+export interface OutcomeFindingRef {
+  finding_id: string;
+  finding_revision_id: string;
+  thread?: FindingThreadRef | null;
+}
+
 export interface OutcomeConfidence {
   label: string;
   tone: string;
@@ -45,7 +59,7 @@ export interface OutcomeIssue {
   text: string;
   href: string | null;
   /** OUT-C: an EARLY_WARNING/RISK issue carries its warning key here. */
-  ref: OutcomeRef | string | null;
+  ref: OutcomeRef | OutcomeFindingRef | string | null;
 }
 
 /** OUT-C §4: the `categories` object of one warning (the outcome map's MOVES/CHECKED items). */

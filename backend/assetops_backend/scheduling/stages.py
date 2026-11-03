@@ -2,7 +2,7 @@
 
     python -m assetops_backend.scheduling.stages <stage> '<json arguments>'
 
-<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|consequence|cold_consequence|ev_consequence
+<stage>: discover|s3|cold_assess|ev_assess|mini|opportunity|s4|chain_threads|consequence|cold_consequence|ev_consequence
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -191,6 +191,21 @@ def s4(url: str, args: dict[str, Any]) -> dict[str, Any]:
             "deferred_windows": [d.isoformat() for d in out.deferred_windows]}
 
 
+def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """CH-2 (build sheet §4, live path until CH-1b's outbox): this Site's backfill steps (b) and (c), placing its new
+    Finding and opportunity revisions on their threads and linking its unlinked Actions. Idempotent."""
+    from assetops_backend.chain.backfill import run_threads
+    from assetops_backend.chain.composition import build_thread_sources, build_thread_store
+
+    reader, store = build_thread_sources(url), build_thread_store(url)
+    try:
+        steps = run_threads(reader, store, _uuid(args["tenant_id"]), _uuid(args["site_id"]), ("b", "c"),
+                            created_by="tick")
+    finally:
+        _dispose(reader, store)
+    return {"code": "OK", "processed": sum(int(s["written"]) for s in steps), "steps": steps}
+
+
 def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
     """This Site's bounded consequence drain, by IDs (never the one-off CLI), at the DB time the tick passes."""
     from assetops_backend.financials.composition import build_recompute_worker
@@ -325,8 +340,8 @@ def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
     "discover": discover, "s3": s3, "cold_assess": cold_assess, "ev_assess": ev_assess, "mini": mini,
-    "opportunity": opportunity, "s4": s4, "consequence": consequence, "cold_consequence": cold_consequence,
-    "ev_consequence": ev_consequence}
+    "opportunity": opportunity, "s4": s4, "chain_threads": chain_threads, "consequence": consequence,
+    "cold_consequence": cold_consequence, "ev_consequence": ev_consequence}
 
 
 def _peak_rss_kb() -> int | None:

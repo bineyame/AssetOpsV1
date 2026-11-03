@@ -125,11 +125,29 @@ class ActionSelectionError(RuntimeError):
     """An Action row reached the Portfolio join without its selected event time: an internal selection error."""
 
 
+def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_rows: list[dict[str, Any]]) -> None:
+    """CH-2 (build sheet §5.1): each Finding row's thread (`_thread`: id, occurrence number, occurrence count) and
+    each Action row's thread (`_thread_id`), from one snapshot query. A snapshot without the thread port, or a row
+    with no thread, carries None, and `_action_for` then keeps the exact join alone."""
+    port = getattr(snap, "threads", None)
+    found: dict[str, Any] = {"findings": {}, "actions": {}}
+    if port is not None and (f_rows or a_rows):
+        found = port(tenant_id, [r["finding_id"] for r in f_rows], [a["action_id"] for a in a_rows])
+    for r in f_rows:
+        r["_thread"] = found["findings"].get(str(r["finding_id"]).lower())
+    for a in a_rows:
+        a["_thread_id"] = found["actions"].get(str(a["action_id"]).lower())
+
+
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """Closure 4 S9 / r1a Q-1a-1: the exact `(origin_finding_id, origin_finding_revision_id)` join; several matches
-    choose the latest selected Action event `recorded_at`, then `action_id` ascending. No fallback."""
+    """Closure 4 S9 / r1a Q-1a-1, CH-2 §5.1 (I-03): an Action matches a Finding row when the row's Finding
+    occurrence is on the Action's thread, or (the fallback for data with no threads) on the exact
+    `(origin_finding_id, origin_finding_revision_id)` pair. Several matches choose the latest selected Action event
+    `recorded_at`, then `action_id` ascending."""
+    thread = (row.get("_thread") or {}).get("id")
     matches = [a for a in actions if (a["source_finding_id"], a["source_finding_revision_id"])
-               == (row["finding_id"], row["finding_revision_id"])]
+               == (row["finding_id"], row["finding_revision_id"])
+               or (thread is not None and a.get("_thread_id") == thread)]
     if not matches:
         return None
     if any(a["_raw"].get("_selected_recorded_at") is None for a in matches):
@@ -137,7 +155,7 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     return min(matches, key=lambda a: (-a["_raw"]["_selected_recorded_at"].timestamp(), a["action_id"]))
 
 
-#: The public name of the exact Finding-to-Action join, for the Site outcome board (OUT-B2 review L1).
+#: The public name of the Finding-to-Action join, for the Site outcome board (OUT-B2 review L1).
 action_for = _action_for
 
 
@@ -189,6 +207,10 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "placement": placed.wire(), "confidence": placed.confidence,
         "confidence_reasons": list(placed.confidence_reasons),
         "consequence": r["consequence"],
+        # CH-2 §5.3: additive; null when the Finding has no thread (CH-5a renders recurrence).
+        "thread": None if r.get("_thread") is None else dict(r["_thread"]),
+        # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
+        "action_thread_id": None if action is None else action.get("_thread_id"),
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
         "action_state": None if action is None else action["application_state"],
@@ -525,6 +547,7 @@ class EstatePortfolioService(EstateEvidenceService):
             if not f_sites:
                 return None
             _, a_rows = select_action_scope(snap, tenant_id, work_req, self._scope(snap, tenant_id, work_req, admit))
+            attach_threads(snap, tenant_id, f_rows, a_rows)
             return {"site_cov": f_sites[0][2], "findings": f_rows, "actions": a_rows}
 
         return self._read(work)
@@ -548,6 +571,7 @@ class EstatePortfolioService(EstateEvidenceService):
                 present = [site["site_code"] for site, _, _ in f_sites]
                 _, a_rows = select_action_scope(snap, tenant_id, work_req,
                                                 self._scope(snap, tenant_id, work_req, _admit_any(present)))
+                attach_threads(snap, tenant_id, f_rows, a_rows)
                 for site, _, cov in f_sites:
                     sid = str(site["site_id"])
                     out[site["site_code"]] = {"site_cov": cov, "findings": [r for r in f_rows if r["site_id"] == sid],
@@ -567,6 +591,7 @@ class EstatePortfolioService(EstateEvidenceService):
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
         lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
+        attach_threads(snap, tenant_id, f_rows, a_rows)
         lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
         lap("evidence")

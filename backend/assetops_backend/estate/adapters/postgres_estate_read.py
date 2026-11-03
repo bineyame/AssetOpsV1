@@ -21,6 +21,7 @@ from sqlalchemy.exc import DBAPIError, OperationalError
 from assetops_backend.analytics import dispatch as dispatch_contract
 from assetops_backend.analytics.cold_reads import probe_fresh
 from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
+from assetops_backend.chain.lookup import LOOKUP as THREAD_LOOKUP, thread_lookup
 from assetops_backend.estate.coverage import COLD, EV
 from assetops_backend.estate.scope import EstateSelectionInconsistent, EstateStoreUnavailable
 from assetops_backend.evidence.public_provenance import (
@@ -324,6 +325,15 @@ class EstateSnapshot:
 
     def actions(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> dict[str, Any]:
         return self._o.actions.site_window_on(self._c, t, s, from_, to, k)
+
+    def threads(self, t: UUID, finding_ids: list[Any], action_ids: list[Any]) -> dict[str, Any]:
+        """CH-2 (build sheet §5.1, P3): one tenant-wide query per request for every listed Finding's thread and
+        every listed Action's thread. A database below 0042 has no thread tables and reads as no threads."""
+        if not finding_ids and not action_ids or self._c.execute(text(
+                "SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
+            return thread_lookup([])
+        return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
+            "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all())
 
     def action_basis(self, t: UUID, s: UUID, action_ids: list[Any]) -> dict[str, dict[str, Any]]:
         """D3: each Action's stored primary assessment, Foundation revision, basis assessments, basis evidence and

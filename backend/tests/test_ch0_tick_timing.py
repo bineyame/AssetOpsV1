@@ -34,8 +34,8 @@ from assetops_backend.scheduling.tick import (
 UTC = timezone.utc
 T, S = UUID(int=1), UUID(int=2)
 NOW = datetime(2026, 11, 3, tzinfo=UTC)
-SITE_STAGES = ("s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "consequence", "cold_consequence",
-               "ev_consequence")
+SITE_STAGES = ("s3", "cold_assess", "ev_assess", "mini", "opportunity", "s4", "chain_threads", "consequence",
+               "cold_consequence", "ev_consequence")  # CH-2: chain_threads after s4
 
 
 class FakeStore:
