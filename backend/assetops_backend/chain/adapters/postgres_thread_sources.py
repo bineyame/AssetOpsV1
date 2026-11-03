@@ -42,6 +42,41 @@ _UNLINKED = (
     "WHERE thread_id IS NULL AND tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) "
     "ORDER BY kind, id")
 
+# CH-3 §4: the lifecycle causes of one Site (SELECT only).
+_CHANGE_OF = ("(SELECT c.effective_from FROM action_policy_change c WHERE c.tenant_id = {a}.tenant_id "
+              "AND c.action_id = {a}.action_id ORDER BY c.recorded_at DESC, c.id DESC LIMIT 1)")
+_ACTION_EVENTS = (
+    "SELECT e.id, e.action_id, e.kind, e.recorded_at, " + _CHANGE_OF.format(a="e") + " AS effective_from "
+    "FROM action_event e WHERE e.tenant_id = :t AND e.site_id = :s "
+    "AND e.kind IN ('ACCEPTED','APPLIED','RESOLUTION_WITHDRAWN') ORDER BY e.recorded_at, e.id")
+_OUTCOMES = (
+    "SELECT o.id, o.action_id, o.outcome, o.recorded_at, p.later_end, " + _CHANGE_OF.format(a="o") +
+    " AS effective_from, EXISTS (SELECT 1 FROM verification_outcome x WHERE x.supersedes_outcome_id = o.id) "
+    "AS superseded FROM verification_outcome o JOIN verification_plan p ON p.id = o.plan_id "
+    "WHERE o.tenant_id = :t AND o.site_id = :s ORDER BY o.recorded_at, o.id")
+_DOMAIN_ACTIONS = "SELECT id, recorded_at FROM domain_action WHERE tenant_id = :t AND site_id = :s"
+_CASE_COMPLETIONS = (
+    "SELECT DISTINCT w.id, l.action_id, w.occurred_at, w.recorded_at FROM domain_action_case_link l "
+    "JOIN work_event w ON w.tenant_id = l.tenant_id AND w.site_id = l.site_id AND w.case_id = l.case_id "
+    "AND w.kind = 'COMPLETE' WHERE l.tenant_id = :t AND l.site_id = :s")
+_FINDING_LIFECYCLE = (
+    "SELECT DISTINCT ON (r.finding_id) CAST(r.finding_id AS text) AS finding_id, r.lifecycle, r.id AS revision_id, "
+    "r.created_at FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+    "ORDER BY r.finding_id, r.created_at DESC, r.id DESC")
+_SNAPSHOTS = (
+    "SELECT DISTINCT ON (measure, local_day, subject_kind, subject_ref) local_day, subject_kind, subject_ref, "
+    "measure, grade FROM site_day_snapshot WHERE tenant_id = :t AND site_id = ANY(CAST(:sites AS uuid[])) "
+    "AND measure = ANY(CAST(:m AS text[])) ORDER BY measure, local_day, subject_kind, subject_ref, revision DESC")
+
+
+class _Snap:
+    __slots__ = ("site_id", "local_day", "subject_kind", "subject_ref", "measure", "grade")
+
+    def __init__(self, r: Any) -> None:
+        for k in self.__slots__:
+            setattr(self, k, r.get(k))
+
+
 class PostgresThreadSources:
     def __init__(self, database_url: str | None) -> None:
         self._database_url = database_url
@@ -95,6 +130,29 @@ class PostgresThreadSources:
             "SELECT id, tenant_id, site_id, action_code, 'DOMAIN_INTENT', origin_finding_id FROM domain_action "
             "WHERE tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR site_id = CAST(:s AS uuid)) ORDER BY 5, 1",
             {"t": tenant_id, "s": None if site_id is None else str(site_id)})
+
+    def lifecycle_inputs(self, tenant_id: UUID, site_id: UUID) -> dict[str, Any]:
+        """CH-3 §4: everything `run_lifecycle` reads for one Site, in one READ ONLY transaction."""
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+        measures = sorted({m for ms in load_thread_lifecycle().clean_day_measures.values() for m in ms})
+        p = {"t": tenant_id, "s": site_id}
+        with self._connect().connect() as c:
+            with c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                tz, now = c.execute(text("SELECT s.timezone, now() FROM site s WHERE s.tenant_id = :t AND s.id = :s"),
+                                    p).one()
+
+                def rows(sql: str) -> list[dict[str, Any]]:
+                    return [dict(r) for r in c.execute(text(sql), p).mappings()]
+
+                out = {"tz": tz, "now": now, "action_events": rows(_ACTION_EVENTS), "outcomes": rows(_OUTCOMES),
+                       "domain_actions": rows(_DOMAIN_ACTIONS), "case_completions": rows(_CASE_COMPLETIONS),
+                       "finding_lifecycle": {r["finding_id"].lower(): r for r in rows(_FINDING_LIFECYCLE)},
+                       "snapshots": []}
+                if not c.execute(text("SELECT to_regclass('site_day_snapshot') IS NULL")).scalar_one():
+                    out["snapshots"] = [_Snap(dict(r)) for r in c.execute(
+                        text(_SNAPSHOTS), {"t": tenant_id, "sites": [str(site_id)], "m": measures}).mappings()]
+        return out
 
     def opportunity_labels(self, tenant_id: UUID) -> dict[str, str]:
         rows = self._rows("SELECT id, public_no FROM mini_opportunity WHERE tenant_id = :t", {"t": tenant_id})

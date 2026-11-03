@@ -5,12 +5,13 @@ every Action to its thread.
 
 - (a) snapshots: runs only when CH-1a's `assetops_backend.chain.builder` is importable, else reports skipped.
 - (b) `plan_place` over `sources()` in `(created_at, id)` order. (c) `link_action` over the unlinked Actions.
-- (d) belongs to CH-3 and reports skipped; (e) is the coherence rule COH-11 (ruling R1).
+- (d) CH-3 `run_lifecycle` for every selected Site (build sheet CH-3 §4): the lifecycle events from the Actions,
+  verification outcomes, domain cases, occurrences and clean days; (e) is the coherence rule COH-11 (ruling R1).
 
-`--dry-run` runs (b) and (c) in memory from the stored sources (SELECT only; it also reads a database below 0042)
+`--dry-run` runs (b), (c) and (d) in memory from the stored sources (SELECT only; it also reads a database below 0042)
 and prints the planned threads, occurrences and links. A non-dry run is refused on the protected demonstration
 databases. One JSON line per step. Exit 1 without DATABASE_URL, 2 for a refused tenant, Site or database.
-The tick's `chain_threads` stage runs `run_threads` (steps b and c) for one Site.
+The tick's `chain_threads` stage runs `run_threads` (steps b, c and d) for one Site.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ import sys
 from typing import Any, Sequence
 from uuid import UUID
 
+from assetops_backend.chain.lifecycle_run import run_lifecycle
 from assetops_backend.chain.threads import MemoryThreads, ThreadRegistry
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
 
@@ -30,7 +32,7 @@ STEPS = ("a", "b", "c", "d", "e")
 
 def run_threads(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[str] = ("b", "c"),
                 created_by: str = "backfill") -> list[dict[str, Any]]:
-    """Steps (b) and (c) against the store (written). Returns one result per step run."""
+    """Steps (b), (c) and (d) against the store (written). Returns one result per step run."""
     registry = ThreadRegistry(store, created_by)
     out: list[dict[str, Any]] = []
     if "b" in steps:
@@ -41,7 +43,17 @@ def run_threads(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None, 
         report = registry.link_all(reader.unlinked_actions(tenant_id, site_id))
         out.append({"step": "c", "counts": dict(sorted(report.counts.items())),
                     "written": report.counts.get("LINKED", 0)})
+    if "d" in steps:
+        out.append(_lifecycle_report(reader, run_lifecycle(reader, store, tenant_id, site_id), tenant_id))
     return out
+
+
+def _lifecycle_report(reader: Any, report: dict[str, Any], tenant_id: UUID) -> dict[str, Any]:
+    codes = dict((str(sid), code) for sid, code in reader.site_ids(tenant_id))
+    for t in report["threads"]:
+        t["site_code"] = codes.get(t["site_id"])
+    report["threads"].sort(key=lambda t: (t["site_code"] or "", t["mechanism"], t["thread_id"]))
+    return report
 
 
 def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[str]) -> list[dict[str, Any]]:
@@ -78,6 +90,9 @@ def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[
                                "thread_id": str(link["thread_id"]), "origin_finding_id": str(link["origin_finding_id"])}
                               for (kind, _), link in sorted(memory.links.items(),
                                                             key=lambda kv: code_of.get(str(kv[0][1]), ""))]})
+    if "d" in steps:
+        result = _lifecycle_report(reader, run_lifecycle(reader, memory, tenant_id, site_id), tenant_id)
+        out.append({**result, "dry_run": True})
     return out
 
 
@@ -159,7 +174,7 @@ def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = 
     results: list[dict[str, Any]] = []
     if "a" in steps:
         results.append(_step_a(reader, tenant_id, site_id, url, args.dry_run, chain_services))
-    work = [s for s in steps if s in ("b", "c")]
+    work = [s for s in steps if s in ("b", "c", "d")]
     if work and args.dry_run:
         results += dry_run(reader, tenant_id, site_id, work)
     elif work:
@@ -167,8 +182,6 @@ def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = 
             from assetops_backend.chain.composition import build_thread_store
             store = build_thread_store(url)
         results += run_threads(reader, store, tenant_id, site_id, work)
-    if "d" in steps:
-        results.append({"step": "d", "skipped": "CH-3 registers the lifecycle step"})
     if "e" in steps:
         results.append({"step": "e", "skipped": "replaced by coherence rule COH-11 (ruling R1)"})
     for result in results:

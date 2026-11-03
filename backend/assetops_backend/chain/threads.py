@@ -204,6 +204,43 @@ class MemoryThreads:
                                          "origin_finding_id": origin_finding_id, "linked_by": linked_by}
         return LINKED
 
+    # CH-3 §4: the lifecycle twin of PostgresThreadStore.site_threads / append_events / thread_head.
+    def site_threads(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
+        from assetops_backend.chain.lifecycle import Event
+        out = []
+        for tid, t in sorted(self.threads.items(), key=lambda kv: str(kv[0])):
+            if str(t["site_id"]) != str(site_id):
+                continue
+            events = [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"])
+                      for (x, _), e in sorted(self.events.items(), key=lambda kv: kv[0][1]) if x == tid]
+            occs = [(str(o["finding_id"] or o["opportunity_id"]).lower(), o["episode_start"])
+                    for (x, _), o in sorted(self.occurrences.items(), key=lambda kv: kv[0][1]) if x == tid]
+            links = {str(link["action_id"]).lower(): str(link["origin_finding_id"]).lower()
+                     for link in self.links.values() if link["thread_id"] == tid}
+            out.append({"id": tid, "mechanism": t["mechanism"], "subject_kind": t["subject_kind"],
+                        "subject_ref": t["subject_ref"], "events": events, "occurrences": occs, "links": links})
+        return out
+
+    def append_events(self, tenant_id: UUID, site_id: UUID, thread: dict[str, Any], planner: Any,
+                      policy_version: str) -> Any:
+        existing = self.site_threads_events(thread["id"])
+        plan = planner(existing)
+        for e in plan.events:
+            self.events[(thread["id"], e.seq)] = {"tenant_id": tenant_id, "site_id": site_id, "thread_id": thread["id"],
+                                                  "seq": e.seq, "state": e.state, "cause_kind": e.cause_kind,
+                                                  "cause_id": e.cause_id, "effective_day": e.effective_day,
+                                                  "policy_version": policy_version}
+        return plan
+
+    def site_threads_events(self, tid: UUID) -> list[Any]:
+        from assetops_backend.chain.lifecycle import Event
+        return [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"])
+                for (x, _), e in sorted(self.events.items(), key=lambda kv: kv[0][1]) if x == tid]
+
+    def thread_head(self, tid: UUID) -> tuple[str | None, Any]:
+        evs = self.site_threads_events(tid)
+        return (None, None) if not evs else (evs[-1].state, evs[-1].effective_day)
+
 
 @dataclass
 class StepReport:
