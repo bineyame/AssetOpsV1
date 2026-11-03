@@ -218,6 +218,8 @@ export interface EstatePortfolioRow {
     segment_no?: number;
     state?: string | null;
     state_effective_day?: string | null;
+    /** CH-3: the Site-local day the state was read on (additive). */
+    state_day?: string | null;
   } | null;
   /** CH-2: the matched Action's own thread id (additive). */
   action_thread_id?: string | null;

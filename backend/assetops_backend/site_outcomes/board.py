@@ -71,7 +71,7 @@ THREAD_RECURRED = "Came back on {day} after the fix ({code})"
 #: Thread states (chain/lifecycle.py; this module imports only outcomes/, test_ch3_rows pins the equality).
 THREAD_APPLIED_STATES = ("CHANGE_APPLIED", "RESOLVED_MONITORING", "CLOSED")
 THREAD_VERIFIED_STATES = ("RESOLVED_MONITORING", "CLOSED")
-THREAD_WIRE_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day")
+THREAD_WIRE_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
 TRIAL_ATTRIBUTED = "Goal before the trial: {before}; after: {after}."
 TRIAL_NOT_ATTRIBUTED = "Status changed; not attributed"
 TRIAL_UNCHANGED = "{label}: {verdict} before and after the trial"

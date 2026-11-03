@@ -36,7 +36,9 @@ LOOKUP = (
     "s.timezone, CAST(al.origin_finding_id AS text), NULL, NULL FROM al "
     "JOIN site s ON s.tenant_id = al.tenant_id AND s.id = al.site_id")
 
-PUBLIC_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day")
+#: `state_day` (CH-3 packet deviation, additive): the Site-local day the state was read on, so COH-13 can compare a
+#: board and a Portfolio read of one thread taken on different days.
+PUBLIC_KEYS = ("id", "occurrence_no", "occurrences", "segment_no", "state", "state_effective_day", "state_day")
 
 
 def _day(at: datetime | None, tz: str | None) -> date | None:
@@ -75,7 +77,8 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
         eff = view["state_effective_day"]
         findings[fid] = {"id": thread_id, "occurrence_no": int(num), "occurrences": int(cnt),
                          "segment_no": view["segment_no"], "state": view["state"],
-                         "state_effective_day": None if eff is None else eff.isoformat()}
+                         "state_effective_day": None if eff is None else eff.isoformat(),
+                         "state_day": None if on is None else on.isoformat()}
     actions: dict[str, Any] = {}
     segments: dict[str, int] = {}
     for aid, thread_id, accepted, origin_start, tz, origin in act_rows:

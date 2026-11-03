@@ -35,6 +35,8 @@ export interface FindingThreadRef {
   segment_no?: number;
   state?: string | null;
   state_effective_day?: string | null;
+  /** CH-3: the Site-local day the state was read on (additive). */
+  state_day?: string | null;
 }
 
 /** A FINDING issue's ref; `thread` is null when the Finding has no thread. */
