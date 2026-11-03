@@ -3,11 +3,12 @@
    "KOBO-001":     {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL",
                     "hours": [{"from": "00:00", "to": "24:00"}],
                     "reason": "mini-grid: supplies power all day"},
-   "COLD-LAB-001": {"kind": "LAB_SESSION", "label": "Lab session hours", "days": "ALL",
-                    "hours": [{"from": "19:00", "to": "20:05"}],
-                    "reason": "lab site: scheduled test sessions", "source": "P7-PENDING"},
-   "EV-LAB-001":   {"kind": "LAB_SESSION", "label": "Lab session hours", "days": ["TUE"],
-                    "hours": [{"from": "08:00", "to": "09:00"}],
-                    "reason": "lab site: scheduled test sessions", "source": "P7-PENDING"}
+   "COLD-LAB-001": {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL",
+                    "hours": [{"from": "00:00", "to": "24:00"}],
+                    "reason": "cold room: holds temperature all day"},
+   "EV-LAB-001":   {"kind": "OPERATING", "label": "Declared charging hours", "days": ["TUE"],
+                    "hours": [{"from": "08:00", "to": "16:00"}],
+                    "reason": "declared connector enable schedule",
+                    "source": "backend/tests/fixtures/w2/ev-lab-001.yaml:154-168 (enforced host/ev_publication.py:331-336)"}
  },
  "default": {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL", "hours": [{"from": "00:00", "to": "24:00"}]}}

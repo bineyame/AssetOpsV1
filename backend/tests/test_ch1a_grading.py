@@ -98,9 +98,9 @@ def test_period_bounds_addis_utc_tue_only_and_24h(tmp_path) -> None:
         {
             "ADDIS": {"kind": "OPERATING", "label": "x", "days": "ALL",
                       "hours": [{"from": "00:00", "to": "24:00"}], "reason": "r"},
-            "EV": {"kind": "LAB_SESSION", "label": "x", "days": ["TUE"],
+            "EV": {"kind": "OPERATING", "label": "x", "days": ["TUE"],
                    "hours": [{"from": "08:00", "to": "09:00"}], "reason": "r", "source": "s"},
-            "COLD": {"kind": "LAB_SESSION", "label": "x", "days": "ALL",
+            "COLD": {"kind": "OPERATING", "label": "x", "days": "ALL",
                      "hours": [{"from": "19:00", "to": "20:05"}], "reason": "r", "source": "s"},
         },
     )
@@ -151,11 +151,12 @@ def test_shipped_policy_and_calendar_load() -> None:
     assert policy.objective_min_complete_days == 3
     cal = load_operating_calendar()
     assert cal.calendar_version == "operating-calendar/1"
-    kobo = cal.entry_for("KOBO-001")
-    assert kobo.kind == "OPERATING" and kobo.hours == ((0, 1440),)
-    for code in ("COLD-LAB-001", "EV-LAB-001"):
+    for code in ("KOBO-001", "COLD-LAB-001"):
         entry = cal.entry_for(code)
-        assert entry.kind == "LAB_SESSION" and entry.source and entry.reason
+        assert entry.kind == "OPERATING" and entry.hours == ((0, 1440),) and entry.reason
+    ev = cal.entry_for("EV-LAB-001")
+    assert ev.days == frozenset({"TUE"}) and ev.hours == ((480, 960),)
+    assert ev.source and "ev-lab-001.yaml:154-168" in ev.source
 
 
 def _policy_file(tmp_path, **overrides):
@@ -185,10 +186,10 @@ def test_policy_loader_rejects_invalid(tmp_path) -> None:
         {"kind": "OPERATING", "label": "x", "days": "ALL", "hours": [{"from": "10:00", "to": "25:00"}], "reason": "r"},
         {"kind": "OPERATING", "label": "x", "days": ["MON", "FUNDAY"], "hours": [{"from": "00:00", "to": "24:00"}], "reason": "r"},
         {"kind": "OPERATING", "label": "x", "days": "ALL", "hours": [{"from": "00:00", "to": "24:00"}]},
-        {"kind": "LAB_SESSION", "label": "x", "days": "ALL", "hours": [{"from": "08:00", "to": "09:00"}], "reason": "r"},
+        {"kind": "LAB_SESSION", "label": "x", "days": "ALL", "hours": [{"from": "08:00", "to": "09:00"}], "reason": "r", "source": "s"},
         {"kind": "SOMETIMES", "label": "x", "days": "ALL", "hours": [{"from": "08:00", "to": "09:00"}], "reason": "r"},
     ],
-    ids=["from-after-to", "bad-hour", "unknown-day", "no-reason", "lab-without-source", "bad-kind"],
+    ids=["from-after-to", "bad-hour", "unknown-day", "no-reason", "lab-session-kind-withdrawn", "bad-kind"],
 )
 def test_calendar_loader_rejects_invalid(tmp_path, entry) -> None:
     with pytest.raises(ChainConfigError):

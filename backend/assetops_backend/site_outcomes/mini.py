@@ -18,6 +18,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from assetops_backend import perf
+from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.estate.placement import place
@@ -612,16 +613,8 @@ def _productive_month(reads: Reads, ports: MiniPorts, users: list[dict[str, Any]
             "month_days": calendar.monthrange(local_day.year, local_day.month)[1]}
 
 
-def _dispatch_minutes(dispatch: dict[str, Any] | None) -> tuple[Decimal | None, Decimal | None]:
-    """B-Q10: Σ candidate and Σ indeterminate minutes over the window's interval results."""
-    if dispatch is None:
-        return None, None
-    a = u = Decimal(0)
-    for interval in dispatch.get("intervals") or ():
-        portions = (interval.get("result") or {}).get("portions_minutes") or {}
-        a += Decimal(str(portions.get("candidate") or 0))
-        u += Decimal(str(portions.get("indeterminate") or 0))
-    return a, u
+# CH-1a section 5c Q3c: the rule moved unchanged to analytics.dispatch_read (one rule, two callers).
+_dispatch_minutes = dispatch_minutes
 
 
 def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,

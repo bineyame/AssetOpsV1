@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 DAY_NAMES = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
-CALENDAR_KINDS = ("OPERATING", "LAB_SESSION")
+CALENDAR_KINDS = ("OPERATING",)  # CH-1a section 5c: no LAB_SESSION kind
 
 # Period names a MeasureSpec may use. The midday window is declared here, in one
 # place, so CH-9 replaces it with the declared daylight window without touching
@@ -124,8 +124,8 @@ def _parse_entry(raw: Any, path: str, where: str, *, require_reason: bool) -> Ca
     if require_reason:
         _require(isinstance(reason, str) and bool(reason), path, f"{where}: reason required")
     source = raw.get("source")
-    if kind == "LAB_SESSION":
-        _require(isinstance(source, str) and bool(source), path, f"{where}: LAB_SESSION requires source")
+    # source is optional; when an entry cites one it must be a non-empty string.
+    _require(source is None or (isinstance(source, str) and bool(source)), path, f"{where}: source must be text")
     days_raw = raw.get("days")
     if days_raw == "ALL":
         days = frozenset(DAY_NAMES)
