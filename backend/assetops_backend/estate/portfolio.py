@@ -13,14 +13,15 @@ never from the page (`.agent/W3-03-build-spec.md` closure 1 projections, closure
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote
 
+from assetops_backend import perf
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
-    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope,
-    site_home_href)
+    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, _admit_any, _by_window,
+    select_evidence_scope, site_home_href)
 from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
 from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
@@ -528,13 +529,50 @@ class EstatePortfolioService(EstateEvidenceService):
 
         return self._read(work)
 
+    def site_work_rows_many(self, tenant_id: Any, windows: Mapping[str, tuple[datetime, datetime, datetime, datetime]],
+                            known_at: datetime | None = None, *, snap: Any = None
+                            ) -> dict[str, dict[str, Any] | None]:
+        """QW-2: `site_work_rows` for several Sites, each on its own `(day_from, day_to, work_from, work_to)`, on ONE
+        snapshot (the caller's `snap` when given) with one scope per distinct window. Each value equals the
+        single-Site method's for that Site (the same rows in the same order); None outside the authorized set."""
+
+        def work(snap: Any) -> dict[str, dict[str, Any] | None]:
+            out: dict[str, dict[str, Any] | None] = {code: None for code in windows}
+            for (day_from, day_to, work_from, work_to), codes in _by_window(windows).items():
+                day = estate_request("findings", day_from, day_to, known_at)
+                work_req = estate_request("findings", work_from, work_to, known_at)
+                f_sites, f_rows = select_finding_scope(snap, tenant_id, day,
+                                                       self._scope(snap, tenant_id, day, _admit_any(codes)))
+                if not f_sites:
+                    continue
+                present = [site["site_code"] for site, _, _ in f_sites]
+                _, a_rows = select_action_scope(snap, tenant_id, work_req,
+                                                self._scope(snap, tenant_id, work_req, _admit_any(present)))
+                for site, _, cov in f_sites:
+                    sid = str(site["site_id"])
+                    out[site["site_code"]] = {"site_cov": cov, "findings": [r for r in f_rows if r["site_id"] == sid],
+                                              "actions": [r for r in a_rows if r["site_id"] == sid]}
+            return out
+
+        return work(snap) if snap is not None else self._read(work)
+
+    def read_snapshot(self, work: Callable[[Any], Any]) -> Any:
+        """QW-2: one estate snapshot for a caller's batched `*_many` reads (`snap=`), with the S12/S15 retry."""
+        return self._read(work)
+
     def _portfolio(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        lap = perf.Laps("portfolio")  # QW-1: section timers (no value changes)
         scope = self._scope(snap, tenant_id, req, admit)
+        lap("scope")
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
+        lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
+        lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
+        lap("evidence")
         m_sites, m_lines_all, applicable, groups, exclusions, diagnostics = select_financial_scope(
             snap, tenant_id, req, scope)
+        lap("money")
         by = lambda per: {str(x[0]["site_id"]): x for x in per}  # noqa: E731 - per-Site lookup
         actions_by, evidence_by, money_by = by(a_sites), by(e_sites), by(m_sites)
 
@@ -560,6 +598,7 @@ class EstatePortfolioService(EstateEvidenceService):
                 c["state"] == PENDING or c["job_state"] == "PENDING" for c in (cov, e_cov, m_cov))
             token_sites.append(token_site(site, domain, cov, [
                 actions_by[sid][1], {**e_cov, **_evidence_arrays(e_rows)}, {**m_cov, **_money_arrays(m_cov, m_lines)}]))
+        lap("coverage")
         count = len(scope["sites"])
         states = {key: reduce_units(count, units[key]) for key in ("F", "E", "M")}
         if count == 0:
@@ -587,6 +626,7 @@ class EstatePortfolioService(EstateEvidenceService):
         start = 0 if after is None else resume_after([r["_marker"] for r in shown], after)
         page = shown[start:start + req.limit]
         last = page[-1] if start + req.limit < len(shown) else None
+        lap("rows")
 
         coverage_state = reduce_units(count, [*units["F"], *units["E"], *units["M"]])
         body = self._envelope(PORTFOLIO_SCHEMA, tenant_id, req, scope, covered, status,
@@ -626,6 +666,7 @@ class EstatePortfolioService(EstateEvidenceService):
                              for site, _, cov in f_sites if cov["state"] == PARTIAL and cov.get("days")]}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
+        lap("summary")
         site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])
                     for (_, _, cov), item in zip(f_sites, token_sites)]
         wanted = [(site["site_id"], item["cited_accepted_evidence_ids"], ids)
@@ -638,6 +679,7 @@ class EstatePortfolioService(EstateEvidenceService):
                                      "window": {"from": wire_time(req.from_), "to": wire_time(req.to)},
                                      "coverage": _coverage_site(site, cov), "selected_revision_ids": ids,
                                      "source_provenance": next(resolved) if ids else None})
+        lap("disclosure")
         body.update({"lens": req.lens, "summary": summary,
                      "value_cards": value_cards(m_lines_all, applicable, groups),
                      "objectives": [objective(site, evidence_by[str(site["site_id"])], money_by[str(site["site_id"])],
@@ -655,4 +697,5 @@ class EstatePortfolioService(EstateEvidenceService):
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,
                                                                           *last["_marker"]),
                      "selection_token": token})
+        lap("cards")
         return body
