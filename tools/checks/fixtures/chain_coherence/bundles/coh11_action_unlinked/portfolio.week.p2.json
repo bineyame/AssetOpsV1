@@ -11,7 +11,8 @@
    "site_code": "COLD-LAB-001",
    "site_id": "00000000-0000-0000-0000-00000000c01d",
    "verification_outcome": "VERIFIED",
-   "thread": null
+   "thread": null,
+   "action_thread_id": null
   }
  ]
 }

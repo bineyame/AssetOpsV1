@@ -79,6 +79,24 @@ def test_effective_day_is_site_local():
     assert th.effective_day(no_start) == date(2026, 10, 17)
 
 
+def test_opportunity_episode_is_the_study_window_in_site_time_not_build_time():
+    """M1 / DS-R1: OPEN event day and opened_at come from first_day..last_day, never from created_at."""
+    built = datetime(2026, 11, 2, 9, 0, tzinfo=timezone.utc)
+    row = {"tenant_id": T, "site_id": S, "site_tz": "Africa/Addis_Ababa", "opportunity_id": uuid4(),
+           "first_day": date(2026, 10, 29), "last_day": date(2026, 10, 31), "created_at": built,
+           "revision_id": uuid4()}
+    o = th.opportunity_source(row)
+    assert o.episode_start == datetime(2026, 10, 28, 21, 0, tzinfo=timezone.utc)  # 00:00 on the 29th at UTC+3
+    assert o.episode_end == datetime(2026, 10, 31, 21, 0, tzinfo=timezone.utc)    # end of the 31st
+    p = th.plan_place(o, False, None)
+    assert p.event["effective_day"] == date(2026, 10, 29) and p.create_thread["opened_at"] == o.episode_start
+    assert p.occurrence["episode_start"] == o.episode_start and p.occurrence["episode_end"] == o.episode_end
+    assert p.occurrence["time_basis"] == "story_time"
+    fallback = th.plan_place(th.opportunity_source({**row, "first_day": None}), False, None)
+    assert fallback.occurrence["time_basis"] == "recorded_at"  # created_at only where no story time is stored
+    assert p.event["effective_day"] != th.effective_day(th.opportunity_source({**row, "first_day": None}))
+
+
 # --- plan_place truth table -----------------------------------------------------------------------------------
 
 def head(state, occ=1, events=1):

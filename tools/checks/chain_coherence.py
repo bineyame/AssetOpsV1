@@ -190,7 +190,7 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
     manifest = {"schema": BUNDLE_SCHEMA, "S": story["S"], "code": story.get("code"),
                 "collected_at": iso(datetime.now(timezone.utc)), "source": source,
                 "freshness": "not ticked" if source == "in-process" else "as served",
-                "known_at": known_at,
+                "known_at": known_at, "threads": True,  # CH-2: this tool revision expects the `thread` fields
                 "windows": {**{k: {"from": lo, "to": hi} for k, (lo, hi) in windows.items()},
                             **{d["id"]: {"from": d["from"], "to": d["to"], "site_code": d["site_code"],
                                          "estate": {"from": d["estate"][0], "to": d["estate"][1]}}
@@ -676,9 +676,22 @@ def info_coh12(bundle: Bundle) -> list[dict]:
 
 
 def _threaded(bundle: Bundle) -> bool:
-    """CH-2: COH-10/COH-11 read the additive `thread` field; a bundle collected before CH-2 carries no such key
-    on any Portfolio row and is not judged by them."""
-    return any("thread" in r for w in bundle.estate_windows() for r in _rows(bundle.get(f"portfolio.{w}")))
+    """CH-2: a bundle stamped `threads` (every bundle this tool collects) is judged by COH-10/COH-11 and must carry the
+    thread fields; an unstamped bundle collected before CH-2 is not judged by them. The stamp, not the presence of the
+    key, decides, so a regression that drops the key fails instead of reading as a pre-CH-2 bundle (review L3)."""
+    return bool(bundle.manifest.get("threads"))
+
+
+def _missing_thread_keys(bundle: Bundle, rule: str, key: str) -> list[dict]:
+    """COH-0 style: a stamped bundle whose Portfolio rows lack `key` fails rather than passing vacuously."""
+    out = []
+    for w in bundle.estate_windows():
+        rows = _rows(bundle.get(f"portfolio.{w}"))
+        gone = [r for r in rows if key not in r]
+        if gone:
+            out.append(finding(rule, None, w, key, f"{len(gone)} of {len(rows)} Portfolio rows carry no `{key}` key",
+                               bundle.files(f"portfolio.{w}")))
+    return out
 
 
 def load_threads(path: Path = THREADS_FILE) -> list[dict]:
@@ -699,6 +712,9 @@ def coh10_thread_identity(bundle: Bundle, threads: list[dict] | None = None) -> 
     for the same Finding in an estate window containing the board day."""
     if not _threaded(bundle):
         return []
+    missing = _missing_thread_keys(bundle, "COH-10", "thread")
+    if missing:
+        return missing
     if threads is None:  # a fixture bundle names its own expectations; a collected bundle uses THREADS_FILE
         threads = bundle.manifest["expected_threads"] if "expected_threads" in bundle.manifest else load_threads()
     out: list[dict] = []
@@ -753,18 +769,32 @@ def coh10_thread_identity(bundle: Bundle, threads: list[dict] | None = None) -> 
 
 def coh11_actions_linked(bundle: Bundle) -> list[dict]:
     """CH-2 COH-11 (ruling R1, replaces the design's NOT NULL step e): every Action whose origin Finding has a
-    Portfolio row (where COH-2 applies) finds that row on a thread."""
+    Portfolio row (where COH-2 applies) finds that row on a thread, and the Action the row shows carries its own
+    `chain_action_thread` link (`action_thread_id`) to that same thread (review L2). An Action no row selects is not
+    observable here (a later Action wins the row) and is covered by the backfill's SQL proof."""
     if not _threaded(bundle):
         return []
+    missing = _missing_thread_keys(bundle, "COH-11", "thread") + _missing_thread_keys(bundle, "COH-11",
+                                                                                     "action_thread_id")
+    if missing:
+        return missing
     out = []
     for w in bundle.estate_windows():
         portfolio = {str(r["finding_id"]): r for r in _rows(bundle.get(f"portfolio.{w}")) if r.get("finding_id")}
         for a in _actions(bundle, w):
             row = portfolio.get(str(a["origin"])) if a["origin"] else None
-            if row is not None and row.get("thread") is None:
+            if row is None:
+                continue
+            files = [*bundle.files(f"portfolio.{w}"), *bundle.files(a["file"])]
+            if row.get("thread") is None:
                 out.append(finding("COH-11", row.get("site_code"), w, a["action_id"],
                                    f"Action {a['action_id']} answers Finding {a['origin']}, whose Portfolio row has "
-                                   "no thread", [*bundle.files(f"portfolio.{w}"), *bundle.files(a["file"])]))
+                                   "no thread", files))
+            elif str(row.get("action_id")) == a["action_id"] and (
+                    row.get("action_thread_id") is None or row["action_thread_id"] != row["thread"].get("id")):
+                out.append(finding("COH-11", row.get("site_code"), w, a["action_id"],
+                                   f"Action {a['action_id']} has no thread link to its origin Finding's thread "
+                                   f"(action_thread_id={row.get('action_thread_id')})", files))
     return out
 
 

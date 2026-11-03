@@ -136,6 +136,10 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
         with pytest.raises(DBAPIError):
             with engine.begin() as c:
                 c.execute(text(f"DELETE FROM {table}"))
+    for table in TABLES:
+        with pytest.raises(DBAPIError):
+            with engine.begin() as c:
+                c.execute(text(f"UPDATE {table} SET tenant_id = tenant_id"))
     # The target trigger refuses a link to a missing Action.
     with pytest.raises(DBAPIError, match="not in this tenant and Site"):
         with engine.begin() as c:

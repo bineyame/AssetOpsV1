@@ -35,8 +35,8 @@ _INSERT_THREAD = text(
 
 _INSERT_OCCURRENCE = text(
     "INSERT INTO finding_thread_occurrence (tenant_id, site_id, thread_id, occurrence_no, finding_id, "
-    "opportunity_id, episode_start, episode_end, evidence_class) VALUES (:tenant_id, :site_id, :thread_id, "
-    ":occurrence_no, :finding_id, :opportunity_id, :episode_start, :episode_end, :evidence_class)")
+    "opportunity_id, episode_start, episode_end, evidence_class, time_basis) VALUES (:tenant_id, :site_id, :thread_id, "
+    ":occurrence_no, :finding_id, :opportunity_id, :episode_start, :episode_end, :evidence_class, :time_basis)")
 
 _INSERT_EVENT = text(
     "INSERT INTO finding_thread_event (tenant_id, site_id, thread_id, seq, state, cause_kind, cause_id, "

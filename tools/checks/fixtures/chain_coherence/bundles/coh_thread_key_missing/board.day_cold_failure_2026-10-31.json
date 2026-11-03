@@ -1,0 +1,46 @@
+{
+ "rows": [
+  {
+   "category": "PROTECT_ASSET",
+   "contributors": [],
+   "earlier": [],
+   "in_hand": [
+    {
+     "href": "/sites/COLD-LAB-001/actions/a1000000-0000-0000-0000-000000000001",
+     "kind": "ACTION"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f1000000-0000-0000-0000-000000000001",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1000000-0000-0000-0000-000000000001",
+      "thread": null
+     },
+     "text": "x"
+    }
+   ],
+   "not_measured_text": null,
+   "subline": "3 of 7 days checked"
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "earlier": [],
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f1000000-0000-0000-0000-000000000001",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1000000-0000-0000-0000-000000000001",
+      "thread": null
+     },
+     "text": "x"
+    }
+   ]
+  }
+ ],
+ "site_code": "COLD-LAB-001",
+ "warnings": []
+}

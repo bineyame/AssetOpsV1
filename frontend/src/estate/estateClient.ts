@@ -211,6 +211,8 @@ export interface EstatePortfolioRow {
   mechanism: string | null;
   /** CH-2: the Finding's thread; null without one (additive; CH-5a renders recurrence). */
   thread?: { id: string; occurrence_no: number; occurrences: number } | null;
+  /** CH-2: the matched Action's own thread id (additive). */
+  action_thread_id?: string | null;
   episode_start: string | null;
   episode_end: string | null;
   lifecycle: EstateLifecycle;

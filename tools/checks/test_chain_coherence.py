@@ -39,6 +39,7 @@ FAILING = {
     "coh9_counts": ("COH-9a", KOBO, "week", "00000000-0000-0000-0000-00000000c0b0"),
     "coh10_thread_occurrence": ("COH-10", KOBO, "week", "f3000000-0000-0000-0000-000000000003"),
     "coh11_action_unlinked": ("COH-11", COLD, "week", A1),
+    "coh11_action_link_missing": ("COH-11", COLD, "week", A1),
 }
 
 
@@ -321,7 +322,7 @@ def test_coh10_unobserved_and_split_threads_and_pre_ch2_bundles(tmp_path: Path) 
     split = [{"name": "both", "site_code": KOBO, "findings": [F1, "f3000000-0000-0000-0000-000000000003"]}]
     details = [f["detail"] for f in cc.coh10_thread_identity(bundle, split)]
     assert any("split across 2 thread ids" in d for d in details)
-    assert cc.coh10_thread_identity(cc.Bundle(BUNDLES / "clean"), gone) == []
+    assert cc.coh10_thread_identity(cc.Bundle(BUNDLES / "clean"), gone) == []  # unstamped: pre-CH-2
     assert cc.coh11_actions_linked(cc.Bundle(BUNDLES / "clean")) == []
 
 
@@ -329,3 +330,16 @@ def test_expected_threads_file_names_the_l4_threads() -> None:
     names = {t["name"]: t for t in cc.load_threads()}
     assert len(names["kobo-generator"]["findings"]) == 3 and len(names["cold-start-failure"]["findings"]) == 2
     assert names["kobo-headroom"]["opportunities"][-2:] == ["OPP-000003", "OPP-000004"]
+
+
+def test_stamped_bundle_without_the_thread_keys_fails_coh10_and_coh11() -> None:
+    """Review L3: the manifest stamp, not the key, decides; a dropped key fails (COH-0 style) instead of skipping."""
+    bundle = cc.Bundle(BUNDLES / "coh_thread_key_missing")
+    assert [f["subject"] for f in cc.coh10_thread_identity(bundle)] == ["thread"]
+    assert {f["subject"] for f in cc.coh11_actions_linked(bundle)} == {"thread", "action_thread_id"}
+
+
+def test_coh11_names_an_action_with_no_link_of_its_own() -> None:
+    """Review L2: the origin row is threaded and shows the Action, but the Action's own link is absent."""
+    found = cc.coh11_actions_linked(cc.Bundle(BUNDLES / "coh11_action_link_missing"))
+    assert [f["subject"] for f in found] == [A1] and "no thread link" in found[0]["detail"]

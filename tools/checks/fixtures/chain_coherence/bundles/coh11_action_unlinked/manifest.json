@@ -149,5 +149,6 @@
    "page": 1
   }
  ],
- "expected_threads": []
+ "expected_threads": [],
+ "threads": true
 }

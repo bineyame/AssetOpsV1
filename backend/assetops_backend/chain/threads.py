@@ -12,7 +12,7 @@ SQL of its own. Thread ids are uuid5 of the key, so two runs produce identical r
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 from typing import Any, Iterable, Protocol
 from uuid import UUID, uuid5
 from zoneinfo import ZoneInfo
@@ -94,10 +94,20 @@ def finding_source(row: dict[str, Any]) -> Source:
 
 
 def opportunity_source(row: dict[str, Any]) -> Source:
-    """An opportunity revision row -> its Source on the Site's headroom thread (ruling R3)."""
+    """An opportunity revision row -> its Source on the Site's headroom thread (ruling R3).
+
+    DS-R1 item 4: the episode is the stored study window, the Site-local start of `first_day` through the end of
+    `last_day` (the start of the next local day, exclusive), so `opened_at` and `effective_day` are story time, not
+    build time. A row without the window (no stored story time) falls back to `created_at` as before."""
+    start = end = None
+    first, last = row.get("first_day"), row.get("last_day")
+    if first is not None and last is not None:
+        tz = ZoneInfo(row["site_tz"])
+        start = datetime.combine(first, time.min, tzinfo=tz)
+        end = datetime.combine(last + timedelta(days=1), time.min, tzinfo=tz)
     return Source(UUID(str(row["tenant_id"])), UUID(str(row["site_id"])), row["site_tz"], None,
                   UUID(str(row["opportunity_id"])), OPP_MECHANISM, "SITE", "SITE", OPP_FINDING_TYPE, None, None,
-                  None, None, row["created_at"], UUID(str(row["revision_id"])))
+                  start, end, row["created_at"], UUID(str(row["revision_id"])))
 
 
 def key_of(src: Source) -> tuple[UUID, UUID, str, str, str]:
@@ -130,7 +140,8 @@ def plan_place(src: Source, existing_occurrence: bool, thread: ThreadHead | None
                   "occurrence_no": 1 if thread is None else thread.occurrences + 1,
                   "finding_id": src.finding_id, "opportunity_id": src.opportunity_id,
                   "episode_start": src.episode_start, "episode_end": src.episode_end,
-                  "evidence_class": EVIDENCE_CLASS}
+                  "evidence_class": EVIDENCE_CLASS,
+                  "time_basis": "story_time" if src.episode_start is not None else "recorded_at"}
 
     def event(state: str) -> dict[str, Any]:
         return {"tenant_id": src.tenant_id, "site_id": src.site_id, "thread_id": tid,

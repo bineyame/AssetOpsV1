@@ -30,8 +30,8 @@ _FINDING_SOURCES = (
     "ORDER BY r.created_at, r.id")
 
 _OPPORTUNITY_SOURCES = (
-    "SELECT r.tenant_id, r.site_id, s.timezone AS site_tz, o.id AS opportunity_id, r.created_at, "
-    "r.id AS revision_id FROM mini_opportunity_revision r JOIN mini_opportunity o ON o.tenant_id = r.tenant_id "
+    "SELECT r.tenant_id, r.site_id, s.timezone AS site_tz, o.id AS opportunity_id, o.first_day, o.last_day, "
+    "r.created_at, r.id AS revision_id FROM mini_opportunity_revision r JOIN mini_opportunity o ON o.tenant_id = r.tenant_id "
     "AND o.site_id = r.site_id AND o.id = r.opportunity_id JOIN site s ON s.tenant_id = r.tenant_id "
     "AND s.id = r.site_id WHERE r.tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR r.site_id = CAST(:s AS uuid)) "
     "AND (CAST(:after AS timestamptz) IS NULL OR r.created_at > CAST(:after AS timestamptz)) "

@@ -209,6 +209,8 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "consequence": r["consequence"],
         # CH-2 §5.3: additive; null when the Finding has no thread (CH-5a renders recurrence).
         "thread": None if r.get("_thread") is None else dict(r["_thread"]),
+        # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
+        "action_thread_id": None if action is None else action.get("_thread_id"),
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
         "action_state": None if action is None else action["application_state"],

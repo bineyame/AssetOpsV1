@@ -48,6 +48,7 @@ CREATE TABLE finding_thread_occurrence (
   episode_start timestamptz NULL, episode_end timestamptz NULL,
   joined_at timestamptz NOT NULL DEFAULT clock_timestamp(),
   evidence_class text NOT NULL CHECK (evidence_class IN ('MEASURED','RECORDED','DECLARED','MODELLED','EXTERNAL')),
+  time_basis text NOT NULL DEFAULT 'story_time' CHECK (time_basis IN ('story_time','recorded_at')),
   CONSTRAINT finding_thread_occurrence_pkey PRIMARY KEY (thread_id, occurrence_no),
   CONSTRAINT occurrence_one_source CHECK ((finding_id IS NULL) <> (opportunity_id IS NULL)),
   CONSTRAINT occurrence_finding_once UNIQUE (finding_id),
