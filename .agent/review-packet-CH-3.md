@@ -182,3 +182,39 @@ All `recorded_at` values are 3 Nov 21:47 (the backfill).
 - Kobo outcomes stay UNKNOWN on the clone after one tick (sparse days), so COH-14 and the 1 Nov line are unproven on real data.
 - CH-1b must re-point its 0044 onto 0045.
 - `frontend/node_modules` in the worktree is a junction to plan2's.
+
+## Fix round 1 (Architect rulings CH3-R phase 3)
+
+### A/B check: Kobo boards UNKNOWN after settle (not a regression)
+
+Both trees read the same, so this is environmental. A is main `73a558a1b` (the branch base, 0041, read-only worktree, never migrated, one tick with its own code). B is a fresh clone migrated to 0045 and settled with this branch. Both clones and the A worktree are dropped.
+
+| | A: pre-chain (main `73a558a1b`) | B: this branch |
+|---|---|---|
+| Overview freshness / assessment | no overview: `AwaitingComparison` (assessment null) | identical |
+| `base` (CURRENT and assessment not CLOSED) | False | False |
+| Dispatch present | yes | yes |
+| Finding index, 31 Oct | PARTIAL, 24 gaps, none on 31 Oct | identical |
+| Finding index, 1 Nov | PARTIAL, 23 gaps, none on 1 Nov | identical |
+| `findings_ok` | true | true |
+| Readiness 31 Oct / 1 Nov | FULL / UNKNOWN | identical |
+| Failing `settled` input | the overview | the overview |
+
+- The overview port raises: "Site KOBO-001 is imported; its Evidence moves to the central ledger only after a passing legacy comparison record. No legacy comparison record exists; run `python -m assetops_backend.evidence_migration ...`". `assetops_polish_full_test` carries no such record, and neither a tick nor `performance_migration run` ("permitted") adds one.
+- So `base` is False and every Kobo outcome reads `PRODUCER_NOT_SETTLED`, before and after the chain. CH-1a, CH-2 and CH-3 are not involved.
+- Consequence: COH-14 and the 1 Nov verified line stay unproven on real data until the clone also gets the legacy comparison record (a coordinator/Architect call; not done here).
+
+### Fixes
+
+- **COH-13 = 0 on the clone** (fresh clone: migrate, backfill a-d, settle, collect, check; no COH-13 entry added).
+  - `estate/portfolio.py` `attach_threads` reads thread state at the envelope's resolved `window.known_at` (D-b rule).
+  - **Sub-deviation (needs Architect sight).** That literal reading was not enough: the envelope value is the read instant (4 Nov), so build-time events still showed OPEN on the Cold and EV rows while the board (cutoff 31 Oct 17:05) hid them; COH-13 stayed 7.
+    - The board's resolved cutoff for a cold/EV Site is that Site's evidence cutoff, which the Portfolio already holds per Site (`_WindowRecorder.cutoff`, the same value in the row's Finding link).
+    - Each cold/EV row now carries `_cutoff = min(site evidence cutoff, envelope k)`, and `attach_threads` reads each distinct cutoff in its own lookup. Mini-grid rows and Actions use the envelope value. After this COH-13 is 0.
+  - New unit `test_portfolio_thread_state_uses_the_resolved_cutoff` (`test_ch2_threads.py`).
+- **COH-5:** the 3 Kobo PROTECT_ASSET lens findings (17 Oct, 24 Oct, 31 Oct; `<finding>:RISK`) are in `expected-today.json` as I-21, owner CH-5a.
+- **D-f (L2, both directions).** `test_ch3_lifecycle_postgres.py`:
+  - with an Action on the thread (ACTION_IN_HAND), every occurrence NO_LONGER_SUPPORTED: SUPPORT_LOST is skipped and no WITHDRAWN row exists;
+  - a new test on an Action-free thread (`bare` fixture): the same cause writes exactly one WITHDRAWN (`SUPPORT_LOST`), and none is written before the cause is supplied.
+- **D-b sub-calls accepted** (CH3-R): INCONCLUSIVE expiry `cause_known_at = max(outcome recorded_at, expiry instant)`; CLEAN_DAYS close has a null `cause_known_at` and falls back to `recorded_at`.
+- D-e is closed by the COH-13 fix above.
