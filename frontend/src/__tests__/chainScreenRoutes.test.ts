@@ -1,8 +1,6 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import { describe, expect, it } from "vitest";
 
+import APP from "../App.tsx?raw";
 import routesFixture from "../../../tools/checks/fixtures/chain_coherence/screen_routes.json";
 import { featureFlagsWith } from "../config/featureFlags";
 import * as labRouteModule from "../shell/simulatorLabRoutes";
@@ -13,13 +11,12 @@ import * as siteRouteModule from "../shell/operatorSiteRoutes";
  * registers with `<Route path=...>`, minus `"*"` and the `"/"` redirect. The chain coherence check (COH-1) matches
  * every link a body carries against that list, so a route added to App without the JSON fails here.
  *
- * App's inline route arrays are not exported, so this reads App.tsx as text: literal `path="..."`, constant
+ * App's inline route arrays are not exported, so this reads App.tsx as text (Vite `?raw`): literal `path="..."`, constant
  * `path={NAME}`, the inline `[NAME, ...].map((path)` and `[[NAME, "view"], ...]` arrays behind `path={path}`, and
  * `simulatorLabRoutes(...)` (called with the Lab enabled) behind `path={route.path}`. Every `path=` attribute in
  * App must be one of those forms, so a new form fails too.
  */
 
-const APP = readFileSync(resolve(__dirname, "../App.tsx"), "utf8");
 const CONSTANTS: Record<string, unknown> = { ...siteRouteModule, ...labRouteModule };
 
 function constant(name: string): string {
@@ -41,7 +38,7 @@ function appRoutePatterns(): string[] {
     }
   }
   for (const m of APP.matchAll(/\{\s*\[([A-Z0-9_,\s]+)\]\s*\.map\(\s*\(\s*path\s*\)/g)) {
-    for (const name of m[1].split(",").map((x) => x.trim()).filter(Boolean)) found.add(constant(name));
+    for (const name of m[1].split(",").map((x: string) => x.trim()).filter(Boolean)) found.add(constant(name));
   }
   for (const m of APP.matchAll(/\[\s*([A-Z][A-Z0-9_]*_PATH)\s*,\s*"[a-z-]+"\s*\]/g)) found.add(constant(m[1]));
   for (const route of labRouteModule.simulatorLabRoutes(featureFlagsWith(true))) found.add(route.path);
