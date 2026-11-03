@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Demo Plan</title>
+<style>
+:root{
+  --bg:#f7f7f4; --paper:#ffffff; --ink:#1d2329; --muted:#5b6670; --line:#d5d9dd; --box:#eef1f4;
+  --accent:#1f5fa8; --ok:#1e7a46; --ok-bg:#e5f3ea; --warn:#9a5b00; --warn-bg:#fdf1dc;
+  --bad:#b3261e; --bad-bg:#fbe7e5; --info:#1f5fa8; --info-bg:#e6eef9; --code-bg:#f0f2f4;
+  --l1:#1f5fa8; --l2:#1e7a46; --eg:#9a5b00;
+  --toc-w:250px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181b; --paper:#1d2125; --ink:#e4e7ea; --muted:#9aa5af; --line:#39414a; --box:#262c32;
+    --accent:#7fb2ee; --ok:#6fcf97; --ok-bg:#1d3527; --warn:#f0b35a; --warn-bg:#3a2d17;
+    --bad:#f28b82; --bad-bg:#3d2220; --info:#7fb2ee; --info-bg:#1e2c3d; --code-bg:#262c32;
+    --l1:#7fb2ee; --l2:#6fcf97; --eg:#f0b35a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181b; --paper:#1d2125; --ink:#e4e7ea; --muted:#9aa5af; --line:#39414a; --box:#262c32;
+  --accent:#7fb2ee; --ok:#6fcf97; --ok-bg:#1d3527; --warn:#f0b35a; --warn-bg:#3a2d17;
+  --bad:#f28b82; --bad-bg:#3d2220; --info:#7fb2ee; --info-bg:#1e2c3d; --code-bg:#262c32;
+  --l1:#7fb2ee; --l2:#6fcf97; --eg:#f0b35a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.layout{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);max-width:1400px;margin:0 auto}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:20px 14px 40px 18px;border-right:1px solid var(--line);font-size:13.5px}
+nav.toc h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+nav.toc ol{margin:0;padding-left:18px}
+nav.toc li{margin:3px 0}
+nav.toc a{text-decoration:none;color:var(--ink)}
+nav.toc a:hover{color:var(--accent)}
+main{padding:28px 40px 80px;min-width:0}
+header.doc h1{font-size:28px;margin:0 0 6px}
+header.doc p{color:var(--muted);margin:4px 0}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:22px 26px;margin:22px 0}
+section h2{margin-top:0;font-size:22px}
+h3{font-size:17px;margin:22px 0 8px}
+.plain{background:var(--info-bg);border-left:4px solid var(--info);padding:10px 14px;border-radius:6px;margin:0 0 14px}
+.plain b{color:var(--info)}
+.gap{background:var(--bad-bg);border-left:4px solid var(--bad);padding:10px 14px;border-radius:6px;margin:12px 0}
+.gap::before{content:"Finding";display:block;font-weight:700;color:var(--bad);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.note{background:var(--warn-bg);border-left:4px solid var(--warn);padding:10px 14px;border-radius:6px;margin:12px 0}
+.note::before{content:"Note";display:block;font-weight:700;color:var(--warn);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.rule{background:var(--ok-bg);border:1px solid var(--ok);padding:10px 14px;border-radius:8px;margin:14px 0;font-size:14px}
+.rule::before{content:"Rule";display:block;font-weight:700;color:var(--ok);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+code,.c{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.8px;background:var(--code-bg);padding:1px 5px;border-radius:4px;word-break:break-word}
+pre{background:var(--code-bg);padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:12.5px;line-height:1.45}
+pre code{background:none;padding:0}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
+th{background:var(--box)}
+td.n{text-align:right;white-space:nowrap}
+tr.out td{color:var(--muted)}
+.tw{overflow-x:auto}
+.chip{display:inline-block;padding:0 7px;border-radius:10px;font-size:12px;border:1px solid var(--line);background:var(--box);white-space:nowrap}
+.chip.g{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.chip.a{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.chip.r{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.chip.b{background:var(--info-bg);border-color:var(--info);color:var(--info)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:10px 0}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--box)}
+.kpi b{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kpi span{font-size:15px}
+figure{margin:14px 0}
+figure svg{width:100%;height:auto;display:block;background:var(--paper)}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:6px}
+svg text{fill:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:11px}
+svg .grid{stroke:var(--line);stroke-width:1}
+svg .b1{fill:var(--info-bg);stroke:var(--l1);stroke-width:1.2}
+svg .b2{fill:var(--ok-bg);stroke:var(--l2);stroke-width:1.2}
+svg .be{fill:var(--warn-bg);stroke:var(--eg);stroke-width:1.2}
+svg .bx{fill:var(--box);stroke:var(--line);stroke-width:1.2}
+svg .mut{fill:var(--muted)}
+svg .bold{font-weight:700}
+.est{font-size:11.5px;color:var(--muted);font-style:italic}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:16px}
+  section{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#agreed">Agreed</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#goal">Goal and "demo-ready"</a></li>
+    <li><a href="#scope">Scope</a></li>
+    <li><a href="#sequence">Sequence and lanes</a></li>
+    <li><a href="#tests">Speed-first test strategy</a></li>
+    <li><a href="#endgame">The end-game</a></li>
+    <li><a href="#risks">Risks</a></li>
+    <li><a href="#decisions">Owner decisions</a></li>
+    <li><a href="#timeline">Timeline</a></li>
+    <li><a href="#sources">Sources</a></li>
+  </ol>
+</nav>
+<main>
+<header class="doc">
+  <h1>Client demo plan</h1>
+  <p><b>Status: current plan, agreed by the owner on 2026-11-03 ("Let the build begin now"); see <a href="#agreed">Agreed</a>.</b> Architect: Claude (<code>.ai/ROLE_CONFIG.md</code> "Architect Is Claude By Default"), 2026-11-03.</p>
+  <p>It builds on the agreed chain design in <a href="implementation-logic-design-proposal.html">implementation-logic-design-proposal.html</a> (AG-1 to AG-32, §15 slices). It also uses the issues register I-01 to I-25 in <a href="implementation-logic-portfolio-sites-findings-actions.html">implementation-logic-portfolio-sites-findings-actions.html</a> and the client promises in <a href="commercial-capability-readiness.html">commercial-capability-readiness.html</a> (rev 6).</p>
+  <p>Owner request (verbatim, <code>.agent/owner-walkthrough-notes-2026-11-01.md</code>): "I want speed, so complete build and any time taking process happens in the end, as much as possible, leverage localized tests until a full complete test happens. we can't have long running tests and DB builds."</p>
+  <p class="est">Every duration marked "est." is an estimate. Measured figures name their source.</p>
+</header>
+
+<section id="agreed">
+<h2>Agreed with the owner (2026-11-03)</h2>
+<div class="plain"><b>In plain words.</b> You reviewed the plan and said to start building. Your recommendations on OD-P1 to OD-P8 and OD-P10 are accepted. The client date (OD-P9) is deferred: it will follow actual progress, not a calendar estimate.</div>
+<p>Owner's words (verbatim): "regarding the client session date, will update based on actual progress, the date estiamte seems to be based on human effort so it is not a good indicator of actual date. Let the build begin now"</p>
+<p class="est">The coordinator read this as acceptance of OD-P1 to OD-P8 and OD-P10 as recommended, and told the owner that reading so they can correct it.</p>
+<div class="tw"><table>
+<tr><th>#</th><th>Agreed</th><th>Status</th></tr>
+<tr><td>OD-P1</td><td>Demo scope is the full "no High open" set in §2.1</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P2</td><td>CH-9 is rebased onto CH-1b and CH-4; CH-8 moves after the demo</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P3</td><td>Slice F is dropped as a slice: F3 goes into CH-2; F1, F2 and F4 come after the demo</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P4</td><td>This sprint has no per-merge full suite for migration slices and no every-2–3-merges safety net. Scoped tests, the mid-point check and E2 cover them instead.</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P5</td><td>A v70 mock addendum (MA-1) is drawn before the CH-5b and CH-6 UI units</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P6</td><td>The demo is built into a new DB, <code>assetops_polish_client_test</code>; polish and demo3 stay as fallbacks</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P7</td><td>ST-7 runs live, as the last step of the demo, rehearsed on a clone</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P8</td><td>BeagleBone is skipped for this demo</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>OD-P9</td><td>Client session date</td><td><span class="chip a">Deferred</span> It follows actual progress. E3 is placed once you set the date, still under the date rule.</td></tr>
+<tr><td>OD-P10</td><td>Of CH-7, only the rebuild and captures go into the end-game, with the CH-7d contingency</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>SWEEP-DS</td><td>A sweep for logic that only works because of how the demo data looks, run after the current scope (§2.2). Until then, the standing rule DS-R1 applies (§2.3). Owner's words (verbatim): "let put this as a task for later. After current scope finshes, but if current plans implementation touches upon it, make sure it is fixed."</td><td><span class="chip g">Agreed</span></td></tr>
+<tr><td>Rulings</td><td>
+  <ul>
+    <li>Migrations are split into 0042 (CH-2), 0043 (CH-1a) and 0044 (CH-1b).</li>
+    <li>DD-1 is a separate slice.</li>
+    <li>The estate guard self-tests are deferred.</li>
+    <li>MA-1 mock rulings:
+      <ul>
+        <li>The mock keeps v70's own example data.</li>
+        <li>The Kobo Grow "Target" slot reads "No target set yet", because v70 declares none. The filled-in wording comes from the packet.</li>
+        <li>The Portfolio Grow card names each Site's figure without a total, because the units differ. CH-6 decides whether same-currency figures may be added.</li>
+        <li>"No action agreed yet" is added next to the existing "Review recommendation", not instead of it.</li>
+      </ul></li>
+    <li>Operating calendar, ruling under DS-R1:
+      <ul>
+        <li>Kobo declares 24 h, because a mini-grid supplies power all day.</li>
+        <li>DD-1 extends Kobo's story days to cover the full local day, using the simulator's existing scenarios and no tuned values. If that is not possible within the budget in the CH-1a sheet §2, Kobo days stay at 8 of 24 h and are shown as partly checked.</li>
+        <li>The two lab Sites keep their declared "Lab session hours", labelled as such. This is a genuine lab schedule, not a fit to the data.</li>
+      </ul></li>
+  </ul></td><td><span class="chip g">Stand</span> (not overridden)</td></tr>
+</table></div>
+</section>
+
+<section id="summary">
+<h2>Summary</h2>
+<div class="plain"><b>In plain words.</b> We build what the client story needs from the agreed chain design, and nothing else, on two lanes. Until the end, every check is small and local: pure unit tests, contract fixtures, a tiny test database built in seconds, and a few-second copy of the existing demo database. There is no full suite and no demo database rebuild while we build. All the slow work runs once, in one ordered end-game of about 1.5–2 h of machine time (est.), followed by your walkthrough.</div>
+<div class="kpis">
+  <div class="kpi"><b>Build scope</b><span>11 slices, about 51 units (est.), plus QW-1/2 in flight</span></div>
+  <div class="kpi"><b>Lanes</b><span>2 (machine memory is tight)</span></div>
+  <div class="kpi"><b>Full suite / demo builds before the end</b><span>0 / 0 (one optional 20-min mid-point check)</span></div>
+  <div class="kpi"><b>End-game machine time</b><span>about 1.5–2 h (est.), run once</span></div>
+  <div class="kpi"><b>Progress measure</b><span>units merged out of about 51, and slices along the lane sequence (§8); dates are not binding</span></div>
+  <div class="kpi"><b>Earliest allowed prepare</b><span>2026-11-06 (date rule; next blocked days 2026-12-03 to 05)</span></div>
+</div>
+<h3>Three changes to the agreed "demo-critical subset" (why the scope is wider)</h3>
+<div class="gap">
+  <ol>
+    <li><b>The subset cannot be built as listed.</b> CH-5a depends on CH-1a (design §15, the "After" column of the CH-5a row). So CH-1a has to be in the subset.</li>
+    <li><b>The subset leaves four High issues open, not three.</b> §15 says it leaves I-04, I-05 and I-07 open. By the §14 map, I-06 (the opportunity denied on Portfolio and Findings) is resolved only by D4, the opportunity threads in CH-4. Your exit bar is "no High issues open". It therefore needs CH-4 and CH-6, and CH-6 needs CH-1b (§15).</li>
+    <li><b>The Grow story needs CH-9.</b> It also needs CH-5b, because the performance budgets are an exit criterion and the guard lives there. CH-9 does not need all of CH-8: its daylight-window measure goes into the catalogue's measures section, which CH-1b already creates. This plan rebases CH-9 onto CH-1b and CH-4 and moves CH-8 after the demo (decision OD-P2).</li>
+  </ol>
+</div>
+</section>
+
+<section id="goal">
+<h2>1. Goal and the "client-demo ready" definition</h2>
+<div class="plain"><b>In plain words.</b> The goal is one demo build in which every screen tells the same story from the same data, loads quickly, and shows each problem → action → proof loop that we promise in the commercial document. "Ready" means each check below passes on the build the client will see.</div>
+<h3>1.1 What the client sees, story by story</h3>
+<div class="tw"><table>
+<tr><th>#</th><th>Story (screens)</th><th>What the client sees on the demo build</th><th>Built by</th><th>Register</th></tr>
+<tr><td>ST-1</td><td>Portfolio opening (Portfolio week)</td><td>Four outcome cards for three Sites, all judged over the same graded days, with coverage stated (for example "5 of 7 days checked") rather than blanked (WN-2). The Grow card totals each Site's estimated earnings for the week, not one hour of one Site. The Assure card agrees with the Site rows (WN-1). The opportunity strip lists Kobo headroom. "Why?" answers "how is this chip calculated" (your first walkthrough question). The page loads within the budget.</td><td>CH-1a, CH-5a, CH-5b, CH-6, CH-4</td><td>I-04, I-05, I-06, I-16, I-19, I-24</td></tr>
+<tr><td>ST-2</td><td>Kobo cost loop (board S, Finding, ACT-001 verification, Portfolio)</td><td>The recurring generator problem is one thread with three occurrences. ACT-001 shows on every screen. After verification the thread reads "Resolved, monitoring". Before and after are judged on the same objective and days. Money is labelled "modelled, not saved" (AG-24).</td><td>CH-2, CH-3, CH-5a</td><td>I-01, I-02, I-03, I-10, I-11, I-12</td></tr>
+<tr><td>ST-3</td><td>Kobo Grow (board, opportunity page, Findings › Opportunities)</td><td>The Grow row shows three separate slots: KPI, potential and earnings (your "why are we conflating KPI with potential?"). Earnings come from the declared price (WN-6/7). The headroom opportunity is a thread whose value line comes from a supported study. One <b>labelled</b> demo-data day shows "run the mill at midday" after an Action, verified before/after.</td><td>CH-6, CH-4, CH-9</td><td>I-07, I-17, I-18, I-14, I-22</td></tr>
+<tr><td>ST-4</td><td>GreenHarvest Protect (cold board failure night, Findings, Maintenance WR-006)</td><td>The backup-start failure is one recurring thread (2 occurrences). ACT-002 is visible as "in hand". Finding links open screens, not API URLs. WR-006 shows the third-visit notice.</td><td>CH-2, CH-3, CH-5a, DD-1</td><td>I-08, I-09, I-10</td></tr>
+<tr><td>ST-5</td><td>EV depot (EV fault window)</td><td>The connector interruption is a thread, and ACT-003 is visible as "in hand". Estimated charging income uses the declared tariff and reads "not billed or collected".</td><td>CH-2, CH-5a, DD-1</td><td>I-08, I-09</td></tr>
+<tr><td>ST-6</td><td>Findings index (all lenses)</td><td>Each Finding is filed under the right lens (cost, risk, opportunity), and its Lens column is filled.</td><td>CH-2, CH-5a</td><td>I-21, I-13, I-23</td></tr>
+<tr><td>ST-7</td><td>A new day arrives (closing moment)</td><td><code>add-day</code> brings in one day, and the board and Portfolio re-assess on the next tick with no manual step (WN-5).</td><td>CH-1b, DD-1</td><td>I-25, I-15, I-20</td></tr>
+</table></div>
+<h3>1.2 Exit criteria (all must pass on the end-game build)</h3>
+<div class="tw"><table>
+<tr><th>#</th><th>Criterion</th><th>Checked by</th></tr>
+<tr><td>EX-1</td><td>ST-1 to ST-7 each walk through on the build, matching the demo script's expected screen text</td><td>The demo script checklist, then the owner walkthrough (end-game step 6)</td></tr>
+<tr><td>EX-2</td><td>The chain coherence check passes with 0 failures for every Site × story day and for the week, S and month windows. Board, Portfolio, Findings and Actions agree. Every ref resolves to a screen route, and no link contains <code>/api</code>.</td><td><code>tools/checks/chain_coherence.py</code> (design §13; built in CH-0)</td></tr>
+<tr><td>EX-3</td><td>Performance budgets (§11b): Portfolio and Site board ≤ 1 s cold and ≤ 300 ms p95 warm; "Why?" ≤ 50 ms; payloads ≤ about 100 KB (Portfolio) and ≤ about 60 KB (board); tick chain stage ≤ 50% of its limit</td><td><code>tools/checks/perf_budget.py</code> (CH-5b)</td></tr>
+<tr><td>EX-4</td><td>No High issue open. The ten Highs are I-01 to I-08, I-10 and I-12, and each needs a named proof. All Medium and Low issues are closed, or listed and accepted by you.</td><td>Register reconcile in the end-game</td></tr>
+<tr><td>EX-5</td><td>Finish self-check: every row passes (today 23, plus new chain rows). Strict captures: settled, 0 counted vocabulary hits, no overflow at 1440 and 390 px</td><td><code>demo_combined_finish.py check</code>; <code>tools/demo-combined-evidence.mjs capture</code> with <code>DEMOB_STRICT=1</code></td></tr>
+<tr><td>EX-6</td><td>One full backend suite, full vitest and every guard green on the frozen main</td><td>End-game step 2</td></tr>
+<tr><td>EX-7</td><td>Plain-language client copy and no tuned numbers. The demo-data extension is labelled as example data. MOCK DEVIATION labels show only in review mode.</td><td>Review checklist; vocabulary guard; walkthrough</td></tr>
+<tr><td>EX-8</td><td>Fallbacks intact: <code>assetops_polish_full_test</code> (S = 2026-10-31) and <code>assetops_demo3_full_test</code> are both untouched</td><td>End-game step 3 (the new build goes to its own DB)</td></tr>
+</table></div>
+</section>
+
+<section id="scope">
+<h2>2. Scope</h2>
+<div class="plain"><b>In plain words.</b> A slice is in only if a client story above needs it, or if it is a dependency of one that does. Everything that is structural clean-up, or that a client cannot see in this demo, comes after it.</div>
+<h3>2.1 In for the demo</h3>
+<div class="tw"><table>
+<tr><th>Slice</th><th>Units</th><th>Why the client story needs it</th><th>Resolves</th></tr>
+<tr><td>QW-1/QW-2 (in flight, <code>task/QW-1-2-load-timing</code>; QW-1 committed <code>514261984</code>)</td><td class="n">3</td><td>It measures where load time goes, so CH-5a/5b fix the real causes. It also gives a faster Portfolio straight away (AG-22).</td><td>Load time (P-1, P-5, partly)</td></tr>
+<tr><td>CH-0 coherence check and timings</td><td class="n">3</td><td>EX-2 is the core "every screen agrees" gate. It is built first, so every later slice can prove itself locally.</td><td>Detects all; resolves none</td></tr>
+<tr><td>CH-1a day snapshots, grades</td><td class="n">5</td><td>Needed by CH-5a (dependency). It provides one graded day count and "assess what is there" (WN-2).</td><td>I-14, I-15, I-20 (I-04, I-16, I-22 completed in CH-6)</td></tr>
+<tr><td>CH-1b event register, outbox</td><td class="n">3</td><td>Needed by CH-6 (dependency). It gives re-assessment when a new day arrives (WN-5, ST-7), and it is the catalogue measures section that CH-9 uses.</td><td>I-25 (with DD-1)</td></tr>
+<tr><td>CH-2 threads, chain_action, backfill</td><td class="n">6</td><td>Recurrence as one problem; Actions visible everywhere (ST-2, ST-4, ST-5)</td><td>I-03, I-10, I-21, I-09 (with DD-1)</td></tr>
+<tr><td>CH-3 lifecycle</td><td class="n">6</td><td>Proof changes status: "Resolved, monitoring" (ST-2)</td><td>I-01, I-02, I-11, I-12, I-24 (part)</td></tr>
+<tr><td>CH-4 opportunity threads</td><td class="n">5</td><td>The opportunity shows on Portfolio and Findings (ST-1, ST-3). Without it, High I-06 stays open.</td><td>I-06, I-18</td></tr>
+<tr><td>CH-5a ChainReader, chain endpoints, routeFor</td><td class="n">6</td><td>One request per page and screen-route links (all stories; the main load fix)</td><td>I-03, I-08, I-23, I-21</td></tr>
+<tr><td>CH-5b "Why?" trace, ETag, performance guard, shared blocks</td><td class="n">5</td><td>EX-3 needs the guard. "Why?" answers the chip question (ST-1). AG-32 puts the main screens on shared blocks here.</td><td>I-13; budgets</td></tr>
+<tr><td>CH-6 nodes, strategies, proven-verdict rule, Portfolio from EstateChain</td><td class="n">6</td><td>The Grow card and the Grow row (ST-1, ST-3); the same graded week for every Site</td><td>I-04, I-05, I-07, I-16, I-19, I-22, I-24</td></tr>
+<tr><td>CH-9 daylight solar read + labelled demo-data day (rebased: after CH-1b and CH-4)</td><td class="n">4</td><td>The only Grow-revenue proof loop: "run the mill at midday", verified (AG-17)</td><td>I-17; WN-4</td></tr>
+<tr><td>DD-1 demo-data and producer batch (new; est.)</td><td class="n">2</td><td>ACT-002 and ACT-003 recorded at story time (§12). The backfill runs in <code>prepare</code>. Coherence and performance rows are added to the finish check. The <code>add-day</code> script step. All producer edits land here, so the end-game builds once.</td><td>I-09, I-25</td></tr>
+<tr><td>MA-1 mock addendum (Architect, off-lane; est.)</td><td class="n">1</td><td>v70 has no "Why?" panel, no Grow three-slot row and no thread timeline (checked: <code>frontend/mockups/v70/index.html</code>). The mock is the layout spec, so it is drawn before the CH-5b and CH-6 UI units (OD-P5).</td><td>Avoids High mock mismatches</td></tr>
+<tr><td>DS-1 demo script (Architect/coordinator, off-lane)</td><td class="n">1</td><td>Story order, links and expected text per screen, with a fallback per step. It is drafted from the contract goldens and finalised after the captures.</td><td>EX-1</td></tr>
+<tr><th>Total</th><th class="n">≈ 56</th><th colspan="2">≈ 51 build units on the lanes + QW-1/2 (3) + 2 off-lane. All est. The 1 unit ≈ 0.25 builder-day rule is from §15.</th></tr>
+</table></div>
+<h3>2.2 Explicitly after the demo</h3>
+<div class="tw"><table>
+<tr><th>Item</th><th>Why it can wait</th></tr>
+<tr class="out"><td>CH-7 adapter extraction and legacy view retirement</td><td>Structural, and not visible to the client. Its "demo rebuild and captures" part becomes the end-game. There is a 2-unit contingency, <b>CH-7d</b>, used only if the coherence check finds a demo screen still on a legacy path (OD-P10).</td></tr>
+<tr class="out"><td>CH-8 full chain catalogue (4 finding types, 7 warnings, 2 signals)</td><td>Today's detectors keep their parameters in code. Only CH-9's measure needs the catalogue, and CH-1b provides that section (OD-P2).</td></tr>
+<tr class="out"><td>CH-10a/b generic detail pages, view registry, full vocabulary, backend outcome-id guard, fourth-type test</td><td>AG-32 already schedules them after the demo.</td></tr>
+<tr class="out"><td>Slice F (cooling-continuity check, commercial rev 6 §11)</td><td>Re-checked. F3 (cold recurrence) is now part of CH-2 threads. F1, F2 and F4 are a cold verification plan, which design §16 keeps out of scope. The Cold story ends honestly at "recurring, action in hand". Recommendation: drop F as a slice and fold F1, F2 and F4 into the verification plans after CH-8 (OD-P3).</td></tr>
+<tr class="out"><td>General consumption tariff</td><td>AG-18 and AG-21. Declared prices for productive use (Kobo 0.25 USD/kWh) and EV (0.30 USD/kWh) already exist.</td></tr>
+<tr class="out"><td>Integrations (customer meters, CRM/billing, scanner/AI)</td><td>Design §16a: structure only.</td></tr>
+<tr class="out"><td>Idle-generator fuel money model; multi-currency; authenticated principals</td><td>Design §16</td></tr>
+<tr class="out"><td>BeagleBone hardware</td><td>Optional, with no purchases. It is not on the critical path (OD-P8).</td></tr>
+<tr class="out"><td><b>SWEEP-DS: sweep for logic shaped by the demo data</b> (owner, 2026-11-03). It runs after the current scope, before CH-7 or together with it.</td><td>
+  <p>A codebase-wide inventory of logic that only works because of how the demo data looks:</p>
+  <ul>
+    <li>fixed hours and windows;</li>
+    <li>assumptions about story days;</li>
+    <li>paths that only fixtures use;</li>
+    <li>hard-coded wording about where data came from (for example "Verified on example data" at <code>B/site_outcomes/board.py:50</code>, <code>mini.py:85,89</code>, <code>B/estate/placement.py:42</code>);</li>
+    <li>fixed claims (Portfolio productive use "Not established", opportunity <code>UNSUPPORTED</code>);</li>
+    <li>rules shaped by Kobo (dispatch thresholds held as constants, the <code>reserve-trial-1</code> CHECK, subjects that assume a generator);</li>
+    <li>config fitted to the data.</li>
+  </ul>
+  <p>Each item gets a fix or a labelled keep with its reason. Items that a demo slice already touched are fixed there under DS-R1 and only verified in the sweep. Size: estimated after the inventory.</p></td></tr>
+</table></div>
+<h3>2.3 Standing rule DS-R1: demo-shaped logic is fixed when touched</h3>
+<div class="rule">If a slice touches demo-shaped logic, it fixes it in that same slice. "Touches" means it edits that function, rule, config or copy. Sharing a file is not enough.
+  <ul>
+    <li><b>Exception:</b> when another planned slice already owns the fix, the item stays as a labelled keep, and the label names the owning slice.</li>
+    <li><b>Build sheets:</b> every build sheet lists the items it touches and how each is resolved.</li>
+    <li><b>Reviews:</b> reviewers check this. A touched item that is neither fixed nor labelled is a Medium finding, and High if a client would see it.</li>
+    <li><b>Never tune:</b> no value is tuned so that it fits the data.</li>
+  </ul>
+</div>
+</section>
+
+<section id="sequence">
+<h2>3. Sequence and lanes</h2>
+<div class="plain"><b>In plain words.</b> One short serial start (QW-2, then CH-0), then two lanes. Lane 1 carries the read path, which ends with the Portfolio. Lane 2 carries threads, lifecycle and the Grow story, which ends with the demo data. Nothing runs a full suite or a demo build until both lanes are merged.</div>
+<div class="tw"><table>
+<tr><th>Slice</th><th>Lane</th><th>Units</th><th>Depends on</th><th>Elapsed (est.)</th><th>Migration</th></tr>
+<tr><td>SP-0 spec batch: Planner (Codex) unit cards for all demo slices, then readiness dry-read (Sonnet), and the Architect closes open items</td><td>off-lane</td><td class="n">-</td><td>this plan approved</td><td>0.5–1 day, overlapping QW-2 and CH-0</td><td>-</td></tr>
+<tr><td>QW-2 (finish), with QW-1 in review</td><td>1</td><td class="n">2</td><td>QW-1</td><td>0.7 day</td><td>no</td></tr>
+<tr><td>CH-0</td><td>2 (starts with QW-2)</td><td class="n">3</td><td>QW-1 timings</td><td>1 day</td><td>no</td></tr>
+<tr><td>CH-1a</td><td>1</td><td class="n">5</td><td>CH-0</td><td>1.7 days</td><td><b>0043</b> snapshots</td></tr>
+<tr><td>CH-1b</td><td>1</td><td class="n">3</td><td>CH-1a</td><td>1 day</td><td><b>0044</b> outbox, dirty queue</td></tr>
+<tr><td>CH-5a</td><td>1</td><td class="n">6</td><td>CH-1a, CH-2</td><td>2 days</td><td>no</td></tr>
+<tr><td>CH-5b</td><td>1</td><td class="n">5</td><td>CH-5a, MA-1</td><td>1.7 days</td><td>no</td></tr>
+<tr><td>CH-6</td><td>1</td><td class="n">6</td><td>CH-1b, CH-5a, MA-1</td><td>2 days</td><td>no (est.)</td></tr>
+<tr><td>CH-2</td><td>2</td><td class="n">6</td><td>CH-0</td><td>2 days</td><td><b>0042</b> threads, chain_action</td></tr>
+<tr><td>CH-3</td><td>2</td><td class="n">6</td><td>CH-2</td><td>2 days</td><td>no (est.)</td></tr>
+<tr><td>CH-4</td><td>2</td><td class="n">5</td><td>CH-2</td><td>1.7 days</td><td>no (est.)</td></tr>
+<tr><td>CH-9</td><td>2</td><td class="n">4</td><td>CH-1a, CH-1b, CH-4</td><td>1.3 days</td><td>no</td></tr>
+<tr><td>DD-1</td><td>2</td><td class="n">2</td><td>CH-2, CH-3, CH-9</td><td>0.7 day</td><td>no</td></tr>
+<tr><td>MA-1 mock addendum; DS-1 demo script</td><td>off-lane</td><td class="n">1 + 1</td><td>MA-1 before the CH-5b UI; DS-1 after DD-1</td><td>overlapping</td><td>-</td></tr>
+<tr><td>End-game E1–E6</td><td>alone</td><td class="n">-</td><td>everything merged</td><td>1 day (§5)</td><td>-</td></tr>
+</table></div>
+<p class="est">The "Elapsed" column is a non-binding estimate only, at §15's rate of about 3 units per lane-day. Progress is tracked by units merged and by the gates in §8 (owner, 2026-11-03).</p>
+<div class="note">Migrations on two lanes. §12 names one migration, <code>0042_chain_core</code>. Two lanes cannot both add 0042 without creating two Alembic heads. Architect ruling: the work is split into three linear revisions, reserved by planned merge order: 0042 for CH-2, 0043 for CH-1a and 0044 for CH-1b. If CH-1a merges before CH-2, it rebases its <code>down_revision</code> at merge (a one-line change, proven by the slice's scoped migration test). No merge migration is used. The DDL stays as §4.3 specifies it.</div>
+<figure>
+<svg viewBox="0 0 900 190" role="img" aria-label="Two-lane schedule from 4 to 18 November">
+  <g class="grid">
+    <line x1="120" y1="20" x2="120" y2="170"/><line x1="200" y1="20" x2="200" y2="170"/><line x1="280" y1="20" x2="280" y2="170"/>
+    <line x1="360" y1="20" x2="360" y2="170"/><line x1="440" y1="20" x2="440" y2="170"/><line x1="520" y1="20" x2="520" y2="170"/>
+    <line x1="600" y1="20" x2="600" y2="170"/><line x1="680" y1="20" x2="680" y2="170"/><line x1="760" y1="20" x2="760" y2="170"/>
+    <line x1="840" y1="20" x2="840" y2="170"/>
+  </g>
+  <text x="122" y="14" class="mut">wd1 4 Nov</text><text x="282" y="14" class="mut">wd3 6 Nov</text><text x="442" y="14" class="mut">wd5 10 Nov</text>
+  <text x="602" y="14" class="mut">wd7 12 Nov</text><text x="762" y="14" class="mut">wd9 16 Nov</text>
+  <text x="8" y="48" class="bold">Lane 1</text>
+  <rect class="b1" x="120" y="32" width="56" height="26" rx="4"/><text x="124" y="49">QW-2</text>
+  <rect class="b1" x="200" y="32" width="136" height="26" rx="4"/><text x="204" y="49">CH-1a</text>
+  <rect class="b1" x="336" y="32" width="80" height="26" rx="4"/><text x="340" y="49">CH-1b</text>
+  <rect class="b1" x="416" y="32" width="160" height="26" rx="4"/><text x="420" y="49">CH-5a</text>
+  <rect class="b1" x="576" y="32" width="136" height="26" rx="4"/><text x="580" y="49">CH-5b</text>
+  <rect class="b1" x="712" y="32" width="128" height="26" rx="4"/><text x="716" y="49">CH-6</text>
+  <text x="8" y="92" class="bold">Lane 2</text>
+  <rect class="b2" x="120" y="76" width="80" height="26" rx="4"/><text x="124" y="93">CH-0</text>
+  <rect class="b2" x="200" y="76" width="160" height="26" rx="4"/><text x="204" y="93">CH-2</text>
+  <rect class="b2" x="360" y="76" width="160" height="26" rx="4"/><text x="364" y="93">CH-3</text>
+  <rect class="b2" x="520" y="76" width="136" height="26" rx="4"/><text x="524" y="93">CH-4</text>
+  <rect class="b2" x="656" y="76" width="104" height="26" rx="4"/><text x="660" y="93">CH-9</text>
+  <rect class="b2" x="760" y="76" width="56" height="26" rx="4"/><text x="763" y="93">DD-1</text>
+  <text x="8" y="136" class="bold">Off-lane</text>
+  <rect class="bx" x="120" y="120" width="120" height="26" rx="4"/><text x="124" y="137">SP-0 specs</text>
+  <rect class="bx" x="360" y="120" width="80" height="26" rx="4"/><text x="364" y="137">MA-1 mock</text>
+  <rect class="bx" x="560" y="120" width="96" height="26" rx="4"/><text x="564" y="137">mid-point</text>
+  <rect class="bx" x="760" y="120" width="80" height="26" rx="4"/><text x="764" y="137">DS-1 script</text>
+  <rect class="be" x="840" y="32" width="56" height="114" rx="4"/><text x="845" y="94" class="bold">End</text>
+  <text x="120" y="184" class="mut">wd = working day; a non-binding estimate. CH-5a waits for CH-2 (lane 2), which is done before CH-1b finishes. The mid-point check runs after CH-5a merges.</text>
+</svg>
+<figcaption>Planned lanes (est.). Each box is one slice: Implementer, then a fresh Reviewer, fix rounds on Sonnet, and merge on ACCEPT.</figcaption>
+</figure>
+<h3>3.1 Demo-data changes, all in one batch (built once, at the end)</h3>
+<ul>
+  <li><b>CH-9:</b> one labelled Kobo story day in <code>backend/conversions/demo-story-days-v1.json</code>, where the mill runs at midday after an Action, from a single source class so the study can be SUPPORTED. It is labelled as example data on screen.</li>
+  <li><b>DD-1:</b>
+    <ul>
+      <li>Cold ACT-002 and EV ACT-003 recorded at story time (<code>tools/demo_combined_cold.py</code>, <code>tools/demo_combined_ev.py</code>; §12).</li>
+      <li>The chain backfill called from <code>prepare</code> after finish (§12).</li>
+      <li>New finish-check rows: the coherence check, the performance guard and the expected backfill threads from §12.</li>
+      <li>The ST-7 <code>add-day</code> step written into the script.</li>
+      <li>Kobo story days extended to the full local day (24 h, DS-R1 calendar ruling), using existing simulator scenarios only. A pre-flight probe measures the cost of one 24 h day first; the fallback is in the CH-1a sheet §2.</li>
+    </ul>
+    No values are tuned.</li>
+  <li><b>Rule:</b> nobody runs <code>prepare</code> on the demo DB before the end-game. Producer changes are proven by the partial prepares in §4.4.</li>
+</ul>
+</section>
+
+<section id="tests">
+<h2>4. Speed-first test strategy</h2>
+<div class="plain"><b>In plain words.</b> Each slice proves itself with the smallest test that can fail for its change. Most proofs need no database. A few need a tiny one built in seconds. A handful need real demo data, and they get it from a seconds-long copy of the existing demo database, never from a rebuild. The full suite, full vitest, slow guards and the demo build all wait for the end.</div>
+<h3>4.1 The fast-feedback ladder</h3>
+<div class="tw"><table>
+<tr><th>Level</th><th>What</th><th>Cost (est.)</th><th>Used for</th></tr>
+<tr><td>L0 pure</td><td>In-process truth tables, with no DB and no app: A1 <code>classify_day</code>, A2 <code>place</code>, A3 <code>outcome_state</code>/<code>roll_up</code> (with the I-19 case), A4 earnings, A5 feedback (§13)</td><td>seconds</td><td>Every rule</td></tr>
+<tr><td>L1 contract fixtures</td><td>SiteChain/EstateChain goldens for the story days (§7 JSON). The backend compares its output to them, and the frontend renders from them in vitest with no server.</td><td>seconds</td><td>Every API or UI change; it lets UI units start before the backend merges</td></tr>
+<tr><td>L2 tiny synthetic DB</td><td>A small seeded set-up per slice. CH-1a and CH-2 each define theirs; this was earlier given to CH-0, and the build sheets move it, because the tables it seeds arrive in those slices. Each is the pg_harness template clone at head, seeded with 3 Sites × 7 days, and kept between runs by the PERF-02 setup cache (<code>backend/tests/setup_cache.py</code>)</td><td>seconds per test after the first build</td><td>Stores, migrations, triggers, backfill and drain, run in scoped Postgres files on the host (<code>tools\run-host-tests.ps1 &lt;files&gt;</code>)</td></tr>
+<tr><td>L3 demo-data clone</td><td><code>CREATE DATABASE chainclone_&lt;slice&gt;_test TEMPLATE assetops_polish_full_test</code> (about 80 MB, §11b), then migrate to the slice's head, backfill and read in process. The clone is dropped afterwards. This only reads the source, and it needs no other session on it, so serve must be stopped.</td><td>under a minute to clone (est.)</td><td>Backfill on real data (§12 expected threads), coherence, payload sizes, QW byte-identity. Clone values are fixed at S = 2026-10-31 and the clone is never ticked for freshness, so it checks structure and agreement, not final story values.</td></tr>
+<tr><td>L4 read-only on the polish DB</td><td>SELECT-only scripts against <code>assetops_polish_full_test</code>: the CH-0 coherence report of today's contradictions, and the backfill <code>--dry-run</code>. Never the app, never a tick, never serve.</td><td>seconds</td><td>Baselines</td></tr>
+</table></div>
+<div class="rule"><code>assetops_demo3_full_test</code> is never read by builders and never written: it is the fallback. Anything that runs app code or a tick on demo data uses an L3 clone, never the polish DB itself. Test databases follow the owner's rule: <code>*_test</code> names only, dropped after use.</div>
+
+<h3>4.2 Per slice: exactly these checks, and nothing slower</h3>
+<div class="tw"><table>
+<tr><th>Slice</th><th>Backend (scoped)</th><th>Data</th><th>Frontend</th><th>Guards (run directly, see 4.3)</th></tr>
+<tr><td>QW-1/2</td><td>The unit tests in §14b (Reads timing, memo, <code>*_many</code> equals single-Site) and the existing <code>test_out_b1_board.py</code>, <code>test_w303_portfolio_api.py</code>, <code>test_out_b4_board_postgres.py</code></td><td>L3: byte-identical JSON before/after for the capture URLs, plus the 5-run timing report. This replaces "restart the owner's serve".</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-0</td><td>The coherence-check fixture tests (planned <code>tools/checks/test_chain_coherence.py</code>, L1)</td><td>L3 (in process, on a clone): today's report, whose expected failures match the register. CH-0 also delivers <code>tools/chain_clone.py</code>, the L3 helper.</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-1a</td><td>L0 A1 truth tables; L2 snapshot builder and the 0043 catalogue test; existing <code>test_w301_estate_coverage.py</code>, <code>test_cov_partial_portfolio.py</code>, <code>test_walk1_objective_min_days_postgres.py</code></td><td>L3: snapshots for every Site-day; 21 Oct has no spare solar; rebuild ≤ 50 ms per measure-day</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-1b</td><td>L2: outbox and dirty queue; a drain is idempotent; a new day sets dirty, and the drain rebuilds it; the register guard</td><td>none</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-2</td><td>L0 A2; L2: 0042 triggers and downgrade refusal; backfill run twice gives identical rows (property); existing <code>test_s4_finding_episode.py</code>, <code>test_s4_finding_index_postgres.py</code>, <code>test_s6_action_store_postgres.py</code></td><td>L3: the expected threads in §12 (Kobo 3 occurrences, Cold 2, EV 1)</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-3</td><td>L0 A5 for each outcome, plus withdrawal; existing <code>test_s6_verification_*.py</code></td><td>L3: Kobo thread RESOLVED_MONITORING since 1 Nov</td><td>none</td><td>A, W</td></tr>
+<tr><td>CH-4</td><td>L0: opportunity placement; L2 opportunity threads</td><td>L3: the headroom thread from OPP-000003 and OPP-000004</td><td><code>vitest related</code> on the touched files, with the L1 goldens</td><td>A, W, N, V, M</td></tr>
+<tr><td>CH-5a</td><td>L1 contract golden for ChainReader on L2; old-join deletion tests; the structural AST guard (§13)</td><td>L3: coherence 0 failures on the clone; payload sizes</td><td><code>vitest related</code>; routeFor tests; <code>outcomeBoard.test.tsx</code>, <code>estatePortfolio.test.tsx</code>, <code>s404SiteFindingIndex.test.tsx</code></td><td>A, W, N, V, M, L, D</td></tr>
+<tr><td>CH-5b</td><td>"Why?" trace ≤ 50 ms on L2; ETag 304; <code>perf_budget.py</code> self-test</td><td>L3: perf probe in process (indicative only)</td><td><code>vitest related</code>; shared-block tests; the new frontend hard-wiring guard</td><td>A, W, N, V, M, L, D</td></tr>
+<tr><td>CH-6</td><td>L0 A3/A4 including I-19 and partial-day earnings; existing <code>test_out_d2_objectives.py</code>, <code>test_out_d4_board.py</code>, <code>test_w303_portfolio_reduction.py</code></td><td>L3: the Portfolio week is over the same graded days for every Site</td><td><code>vitest related</code> on PortfolioOutcomes and OutcomeBoard</td><td>A, W, N, V, M, L, D</td></tr>
+<tr><td>CH-9</td><td>L0: the daylight-window headroom; the existing projection tests</td><td>A trimmed-days Kobo partial prepare into a scratch DB (§4.4)</td><td><code>vitest related</code> on MiniOpportunity</td><td>A, W, V</td></tr>
+<tr><td>DD-1</td><td>The pure story-clock tests (<code>resolve_story</code> at fixed <code>db_now</code>); existing <code>test_demo_combined_links.py</code>, <code>test_demo_combined_finish_co1.py</code></td><td>Cold-only and EV-only partial prepares (§4.4)</td><td>none</td><td>A, W</td></tr>
+</table></div>
+<p>A scoped run also includes the files that import a changed shared module (tiered policy). The builder lists them in the packet.</p>
+<div class="note">This waives two rules for the sprint, and needs your approval (OD-P4):
+  <ul>
+    <li>The tiered policy's "full backend suite before merge for a migration slice" (CH-1a, CH-1b, CH-2; also design §13 "Full suite at CH-2").</li>
+    <li>The "safety net every 2–3 merges".</li>
+  </ul>
+  Instead, every scoped Postgres test already migrates from scratch to the slice head, so a broken migration still fails locally. The mid-point check and the end-game suite cover the rest. Full vitest moves to the mid-point and the end-game; per slice, <code>vitest related</code> runs.</div>
+
+<h3>4.3 Guards: which of the 12 to run per slice</h3>
+<p><code>tools\check-all.ps1</code> always runs all 12 (lines 56–67), measured at about 5–7 min, most of it the estate guard self-tests (about 6 min; 12.5 min under load). Per slice, run only the letters listed in 4.2, each with its own command line from <code>check-all.ps1</code>, with no execution-policy override.</p>
+<div class="tw"><table>
+<tr><th>Key</th><th>Guard (check-all line)</th><th>Per slice</th><th>Why</th></tr>
+<tr><td>A</td><td>Architecture seams (:56)</td><td>every backend slice</td><td>It catches new readers and writers directly.</td></tr>
+<tr><td>W</td><td>Agent workflow (:59)</td><td>every slice</td><td>Process; fast</td></tr>
+<tr><td>N</td><td>Navigation truthfulness (:58)</td><td>UI slices</td><td>Routes and links</td></tr>
+<tr><td>V</td><td>Mock deviation labels and client vocabulary (:66)</td><td>UI slices and server-copy changes</td><td>Plain-language copy; the "load" defect class (WALK1-G2 D2)</td></tr>
+<tr><td>M</td><td>Missing-claim orphan scan (:63)</td><td>UI slices</td><td>Honest "not available yet" states</td></tr>
+<tr><td>L</td><td>Screen ledger (:67)</td><td>UI slices that add or move screens</td><td>v69/v70 ledger</td></tr>
+<tr><td>D</td><td>Dependency registry (:60)</td><td>UI slices that add or move screens</td><td>v69 registry</td></tr>
+<tr><td>-</td><td>Estate guard self-tests (:57), about 6 min</td><td><b>deferred</b> to the mid-point and the end-game, unless a slice edits the guard itself (<code>tools/checks/configuration-persistence.ps1</code> or <code>test_estate_guard.py</code>)</td><td>They test the guard, not the product. Guard A still checks every new adapter.</td></tr>
+<tr><td>-</td><td>Delivery checker fixtures (:61), Mock-gap fixtures (:62), Missing-claim scan fixtures (:64), Evidence width check (:65)</td><td><b>deferred</b> to the end-game, unless the slice edits those tools</td><td>These are tool self-tests. Real width is checked by the strict captures.</td></tr>
+</table></div>
+<p>New guards from the design: the coherence check (CH-0) and <code>perf_budget.py</code> (CH-5b) run in the finish checks against the DB, and in check-all against fixtures only, so check-all never needs a demo DB. The structural AST guard (CH-5a) and the frontend hard-wiring guard (CH-5b) join check-all.</p>
+
+<h3>4.4 Proving producer changes without a demo build</h3>
+<ul>
+  <li><b>Cold and EV:</b> <code>tools/demo_combined.py --db assetops_polish_ddcheck_test --work var/polish_ddcheck prepare --sites cold --no-finish</code>. The <code>--sites</code> and <code>--no-finish</code> options are development-only (<code>tools/demo_combined.py:645-646</code>). Measured producer times are cold 45.7 s and EV 50.2 s (WALK1-G2), plus the tree copy and migration, so about 2 min each (est.).</li>
+  <li><b>Kobo (CH-9 day):</b> the same, with <code>--sites kobo --days &lt;trimmed day list&gt;</code> holding only the CH-9 day and the days it needs (<code>:647</code>). The full Kobo build is 611.8 s; the trimmed one is a few minutes (est.).</li>
+  <li>The scratch DB and work folder are dropped afterwards. This never touches the polish or demo3 DBs.</li>
+</ul>
+
+<h3>4.5 Optional mid-point check (cheap; about 20 min, est.)</h3>
+<p>Run it once, after CH-5a merges (schema, threads and the reader are all in), on a quiet machine:</p>
+<ol>
+  <li>L3 clone of the polish DB, migrated to main's head and backfilled.</li>
+  <li><code>chain_coherence.py</code> on the clone.</li>
+  <li>The estate guard self-tests.</li>
+  <li>Full vitest (measured 455 s).</li>
+</ol>
+<p>This is not a full backend suite. Its job is to surface cross-lane integration problems while there is still time for a normal fix round.</p>
+</section>
+
+<section id="endgame">
+<h2>5. The end-game (run once, in order)</h2>
+<div class="plain"><b>In plain words.</b> Freeze merges, run every slow check once, build the demo database once, check it, capture it, and then you walk through it. If a step fails, we fix it with local tests and re-run only that step, wherever that is safe.</div>
+<div class="tw"><table>
+<tr><th>Step</th><th>What</th><th>Duration</th><th>On failure</th></tr>
+<tr><td>E1 merge freeze</td><td>All demo slices merged on ACCEPT; main tagged; keep-awake started; no other heavy agent running</td><td>-</td><td>-</td></tr>
+<tr><td>E2 full tests</td><td>
+  <ol>
+    <li><code>tools\run-backend-suite-in-container.ps1 -Tier all -Workers 2</code>, measured about 37.6 min with a cap of 2× that. It includes <code>test_demo_combined_postgres.py</code>, a full three-Site prepare on its own DB (<code>backend/TESTING.md:327</code>), so the prepare path is rehearsed here, before E3.</li>
+    <li>Then full vitest, measured 455 s.</li>
+    <li>Then <code>tools\check-all.ps1</code> with all guards, about 5–7 min.</li>
+  </ol>
+  These run in sequence, not in parallel (memory).</td><td>About 52 min (est. total)</td><td>A Sonnet fix round, proven by the failing files plus their importers.
+  <ul>
+    <li>If the fix touches no schema and no shared plumbing, re-run only the failed files and proceed.</li>
+    <li>Otherwise re-run E2's backend suite.</li>
+    <li>Vitest or guard failures: re-run only that part.</li>
+  </ul></td></tr>
+<tr><td>E3 one demo DB prepare</td><td>Check the date first: not on the 3rd–5th of a month, because S = prepare day − 2 (<code>tools/demo_combined.py:124</code>; story offset −2). Then <code>prepare</code> into a <b>new</b> DB <code>assetops_polish_client_test</code> with work folder <code>var/polish_client</code> from a main checkout (OD-P6). The polish and demo3 builds stay as fallbacks.</td><td>Measured 951 s at G2. Add the backfill and the CH-9 day: about 17–22 min (est.); cap 3120 s</td><td>Fix with the §4.4 partial prepares, then re-run E3 (a whole prepare; it drops its own DB only)</td></tr>
+<tr><td>E4 checks on the build</td><td>
+  <ol>
+    <li><code>serve</code> and wait for <code>ready:</code>.</li>
+    <li><code>demo_combined_finish.py check</code> (all rows, including the new chain rows).</li>
+    <li><code>chain_coherence.py</code> and <code>perf_budget.py</code> against the build.</li>
+    <li>Register reconcile (EX-4).</li>
+  </ol></td><td>About 10 min (est.)</td><td>
+  <ul>
+    <li><b>Frontend-only fix:</b> no rebuild, because Vite serves from the checkout; re-run E4.</li>
+    <li><b>Any backend fix:</b> needs E3 again, because serve runs the backend copied into <code>var/&lt;work&gt;/tree</code> at prepare time. So prove the fix on an L3 clone first, then run one re-prepare.</li>
+  </ul></td></tr>
+<tr><td>E5 captures</td><td>Strict captures at 1440 and 390 px (about 28 keys, plus new ones for "Why?" and Opportunities), the mock measurement and the compare</td><td>Measured 308–361 s plus 55 s; about 8–10 min (est.)</td><td>Fix, then re-run only the failed keys (<code>DEMOB_ONLY=...</code>, runbook step 7)</td></tr>
+<tr><td>E6 owner walkthrough re-run</td><td>The demo script DS-1, story by story, on the build, with captures as backup</td><td>Your time: about 60–90 min (est.)</td><td>Notes are batched into one fix round; at most one more E3 to E5 pass</td></tr>
+</table></div>
+<p><b>Machine time, E2 to E5:</b> about 1.5–2 h (est.), plus one fix round of about 0.5 day held in reserve. If the client session is more than about 3 days after E3, repeat E3 to E5 (about 40 min, est.) the day before the session, still respecting the date rule.</p>
+</section>
+
+<section id="risks">
+<h2>6. Risks and mitigations</h2>
+<div class="tw"><table>
+<tr><th>#</th><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>R1</td><td>A late integration surprise, because the full suite is deferred to E2</td><td>
+  <ul>
+    <li>Scoped runs include the importers of changed modules.</li>
+    <li>Every scoped Postgres test migrates the whole chain.</li>
+    <li>The optional mid-point check (4.5).</li>
+    <li>E2 carries a reserved fix round.</li>
+  </ul></td></tr>
+<tr><td>R2</td><td>The two lanes collide on migrations (two 0042 heads)</td><td>Reserved linear ids 0042/0043/0044, and the second merge rebases <code>down_revision</code> (§3)</td></tr>
+<tr><td>R3</td><td>The backfill merges or splits threads wrongly on real data</td><td>L3 clone: the §12 expected threads are asserted, and two runs must give identical rows (CH-2)</td></tr>
+<tr><td>R4</td><td>The prepare first breaks at E3</td><td>The DD-1/CH-9 partial prepares (4.4), and E2 already runs a full prepare inside the suite</td></tr>
+<tr><td>R5</td><td>Memory pressure stalls a lane or the suite</td><td>
+  <ul>
+    <li>2 lanes at most.</li>
+    <li>No Postgres tests during the mid-point or the end-game.</li>
+    <li>The end-game runs alone, with keep-awake on and runs capped at 2×.</li>
+  </ul></td></tr>
+<tr><td>R6</td><td>The date rule blocks a slipped prepare</td><td>The window from 2026-11-06 to 2026-12-02 is open; 2026-12-03 to 05 is blocked</td></tr>
+<tr><td>R7</td><td>New UI has no mock, so reviewers raise High mismatches</td><td>MA-1 before the CH-5b and CH-6 UI units (OD-P5)</td></tr>
+<tr><td>R8</td><td>Performance budgets missed on a cold read</td><td>QW-1 numbers guide CH-5a; CH-5b's guard runs at E4; the serve <code>ready:</code> pre-warm stays as the fallback</td></tr>
+<tr><td>R9</td><td>Scope creep into matchers or money models</td><td>The design's rule: any such change is High in review (§11)</td></tr>
+<tr><td>R10</td><td>Story values shift after the rebuild (Site-local day, graded weeks)</td><td>This is expected. The L1 goldens are updated in each slice, and the final values are confirmed at E4 and written into DS-1.</td></tr>
+<tr><td>R11</td><td>Codex is unavailable for the SP-0 specs</td><td>Never block on Codex: a Claude Planner fallback, with a Codex review afterwards</td></tr>
+</table></div>
+</section>
+
+<section id="decisions">
+<h2>7. Owner decisions</h2>
+<div class="tw"><table>
+<tr><th>#</th><th>Decision</th><th>Recommendation</th></tr>
+<tr><td>OD-P1</td><td>Demo scope: the "no High open" set in §2.1 (about 51 units), or only the stated subset plus CH-1a (about 26 units, which leaves High issues I-04 to I-07 open, including the Grow card)</td><td><span class="chip g">Full §2.1 set</span> The four open Highs would sit on the opening Portfolio and on the Grow story.</td></tr>
+<tr><td>OD-P2</td><td>Rebase CH-9 onto CH-1b and CH-4, and move CH-8 after the demo</td><td><span class="chip g">Yes</span> It saves about 6 units, and only CH-9's measure needs the catalogue.</td></tr>
+<tr><td>OD-P3</td><td>Slice F: drop it as a slice. F3 goes into CH-2; F1, F2 and F4 come after the demo with the verification plans.</td><td><span class="chip g">Yes</span> The Cold story ends honestly at "recurring, action in hand".</td></tr>
+<tr><td>OD-P4</td><td>Waive the per-merge full suite for migration slices and the every-2–3-merges safety net for this sprint, in favour of scoped tests, the mid-point check and E2</td><td><span class="chip g">Yes</span> It is your speed ask, and the cover is described in 4.2 and 4.5.</td></tr>
+<tr><td>OD-P5</td><td>Draw a small v70 mock addendum ("Why?" panel, Grow three slots, thread timeline, Opportunities tab) before the UI units, rather than labelled deviations</td><td><span class="chip g">Addendum</span> It costs about 1 unit off-lane and needs a quick approval from you.</td></tr>
+<tr><td>OD-P6</td><td>Build the demo into a new DB, <code>assetops_polish_client_test</code>, keeping the polish build (S = 31 Oct) and demo3 as fallbacks</td><td><span class="chip g">Yes</span> It costs about 80 MB.</td></tr>
+<tr><td>OD-P7</td><td>ST-7 "new day arrives": live at the end of the demo, or shown from captures</td><td><span class="chip g">Live, last</span> Rehearsed once on an L3 clone, with the captures as fallback.</td></tr>
+<tr><td>OD-P8</td><td>BeagleBone for this client demo</td><td><span class="chip a">Skip</span> It is off the critical path, so revisit it afterwards. If you want it, it runs off-lane with no purchases.</td></tr>
+<tr><td>OD-P9</td><td>The client session date</td><td><span class="chip a">Deferred by the owner</span> It will be set from actual progress. E3 then goes on the session day minus 1, or the nearest allowed day.</td></tr>
+<tr><td>OD-P10</td><td>CH-7: only its rebuild and captures move into the end-game, with a 2-unit CH-7d contingency; the rest comes after the demo</td><td><span class="chip g">Yes</span></td></tr>
+</table></div>
+<p class="est">Architect rulings made in this plan, which you may override:</p>
+<ul class="est">
+  <li>Migration split into 0042/0043/0044 (§3).</li>
+  <li>DD-1 as a separate slice for demo data.</li>
+  <li>Estate guard self-tests deferred (§4.3).</li>
+</ul>
+</section>
+
+<section id="timeline">
+<h2>8. Timeline: sequence and units, not dates</h2>
+<div class="plain"><b>In plain words.</b> As you noted, a calendar estimate built on human effort says little about when agents actually finish. Progress is therefore tracked as units merged and as the position in the sequence below. The client date is set once progress is visible (OD-P9, deferred).</div>
+<div class="tw"><table>
+<tr><th>Gate</th><th>Reached when</th><th>Units merged at the gate (cumulative, est.)</th></tr>
+<tr><td>G0 start</td><td>QW-1/QW-2 merged; SP-0 cards for the lane starters ready</td><td class="n">3 (QW)</td></tr>
+<tr><td>G1 lanes open</td><td>CH-0 merged (the coherence check and its fixtures exist)</td><td class="n">6</td></tr>
+<tr><td>G2 schema in</td><td>CH-1a and CH-2 merged (migrations 0042 and 0043)</td><td class="n">17</td></tr>
+<tr><td>G3 reader in, mid-point</td><td>CH-1b, CH-3 and CH-5a merged; optional mid-point check (§4.5)</td><td class="n">32</td></tr>
+<tr><td>G4 screens and Grow</td><td>CH-4, CH-5b, CH-6 and CH-9 merged; MA-1 approved before the CH-5b and CH-6 UI units</td><td class="n">52</td></tr>
+<tr><td>G5 freeze</td><td>DD-1 merged and DS-1 drafted: the end-game E1</td><td class="n">54</td></tr>
+<tr><td>G6 demo-ready</td><td>E2 to E6 pass: about 1.5–2 h of machine time (est.), plus your walkthrough</td><td class="n">54</td></tr>
+</table></div>
+<p class="est">This is a non-binding calendar estimate, for orientation only. On §15's rate (about 3 units per lane-day, including review), G6 falls about 11 working days after G0. Real agent throughput will move it.</p>
+<p><b>Date rule</b> (this one does bind E3):
+  <ul>
+    <li>Never prepare on the 3rd to 5th of a month, because S = prepare day − 2.</li>
+    <li>The earliest allowed prepare is <b>2026-11-06</b>.</li>
+    <li>The next blocked days are 2026-12-03 to 05 (<code>.agent/decisions-while-owner-away-2026-11-02.md:27</code>).</li>
+  </ul></p>
+</section>
+
+<section id="sources">
+<h2>Sources</h2>
+<ul>
+  <li>Design: <code>Docs/demo-sprint/implementation-logic-design-proposal.html</code>: AG-1 to AG-32, §8b, §11b, §12, §13, §14, §14b, §15, §16, §16a; handoff <code>.agent/architect-handoff-chain-design-2026-11-03.md</code>.</li>
+  <li>Register: <code>Docs/demo-sprint/implementation-logic-portfolio-sites-findings-actions.html</code> Part A (I-01 to I-25; the High issues are I-01 to I-08, I-10 and I-12).</li>
+  <li>Commercial rev 6: slice F, §11 (<code>Docs/demo-sprint/commercial-capability-readiness.html</code>).</li>
+  <li>Build mechanics: <code>AssetOpsV1-polC\.agent\POLISH-runbook.md</code> (steps 1–8), <code>.agent\WALK1-G2-report.md</code> (951 s, 23/0/0, capture defects D1/D2); <code>tools/demo_combined.py:63,124,644-647</code>; <code>tools/check-all.ps1:56-67</code>; <code>tools/run-backend-suite-in-container.ps1:29-38</code>; <code>backend/TESTING.md:318-329</code>.</li>
+  <li>Process: <code>.ai/ROLE_CONFIG.md</code> (roles, tiered testing, readiness gate, mock fidelity).</li>
+</ul>
+</section>
+</main>
+</div>
+</body>
+</html>

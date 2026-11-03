@@ -1,0 +1,1684 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation Logic Explained</title>
+<style>
+:root{
+  --bg:#f7f7f4; --paper:#ffffff; --ink:#1d2329; --muted:#5b6670; --line:#d5d9dd; --box:#eef1f4;
+  --accent:#1f5fa8; --ok:#1e7a46; --ok-bg:#e5f3ea; --warn:#9a5b00; --warn-bg:#fdf1dc;
+  --bad:#b3261e; --bad-bg:#fbe7e5; --info:#1f5fa8; --info-bg:#e6eef9; --code-bg:#f0f2f4;
+  --toc-w:270px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181b; --paper:#1d2125; --ink:#e4e7ea; --muted:#9aa5af; --line:#39414a; --box:#262c32;
+    --accent:#7fb2ee; --ok:#6fcf97; --ok-bg:#1d3527; --warn:#f0b35a; --warn-bg:#3a2d17;
+    --bad:#f28b82; --bad-bg:#3d2220; --info:#7fb2ee; --info-bg:#1e2c3d; --code-bg:#262c32;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181b; --paper:#1d2125; --ink:#e4e7ea; --muted:#9aa5af; --line:#39414a; --box:#262c32;
+  --accent:#7fb2ee; --ok:#6fcf97; --ok-bg:#1d3527; --warn:#f0b35a; --warn-bg:#3a2d17;
+  --bad:#f28b82; --bad-bg:#3d2220; --info:#7fb2ee; --info-bg:#1e2c3d; --code-bg:#262c32;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.layout{display:grid;grid-template-columns:var(--toc-w) minmax(0,1fr);max-width:1400px;margin:0 auto}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:20px 14px 40px 18px;border-right:1px solid var(--line);font-size:13.5px}
+nav.toc h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+nav.toc ol{margin:0;padding-left:18px}
+nav.toc li{margin:3px 0}
+nav.toc a{text-decoration:none;color:var(--ink)}
+nav.toc a:hover{color:var(--accent)}
+main{padding:28px 40px 80px;min-width:0}
+header.doc h1{font-size:28px;margin:0 0 6px}
+header.doc p{color:var(--muted);margin:4px 0}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:22px 26px;margin:22px 0}
+section h2{margin-top:0;font-size:22px}
+h3{font-size:17px;margin:22px 0 8px}
+h4{font-size:15px;margin:16px 0 6px}
+.plain{background:var(--info-bg);border-left:4px solid var(--info);padding:10px 14px;border-radius:6px;margin:0 0 14px}
+.plain b{color:var(--info)}
+.gap{background:var(--bad-bg);border-left:4px solid var(--bad);padding:10px 14px;border-radius:6px;margin:12px 0}
+.gap::before{content:"Gap / inconsistency";display:block;font-weight:700;color:var(--bad);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.note{background:var(--warn-bg);border-left:4px solid var(--warn);padding:10px 14px;border-radius:6px;margin:12px 0}
+.note::before{content:"Note";display:block;font-weight:700;color:var(--warn);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.try{background:var(--ok-bg);border:1px solid var(--ok);padding:10px 14px;border-radius:8px;margin:14px 0;font-size:14px}
+.try::before{content:"Try it in the running build";display:block;font-weight:700;color:var(--ok);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.try ul{margin:4px 0;padding-left:18px}
+.ex{border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--paper);padding:10px 14px;border-radius:6px;margin:12px 0;font-size:14px}
+.ex::before{content:"Worked example from the current data";display:block;font-weight:700;color:var(--accent);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px}
+.ex ol{margin:4px 0;padding-left:20px}
+.ex .from{font-size:12px;color:var(--muted)}
+.try a{word-break:break-all}
+code,.c{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12.8px;background:var(--code-bg);padding:1px 5px;border-radius:4px;word-break:break-word}
+.src{font-size:11.5px;color:var(--muted);font-style:normal;white-space:nowrap}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}
+th{background:var(--box)}
+.tw{overflow-x:auto}
+.chip{display:inline-block;padding:0 7px;border-radius:10px;font-size:12px;border:1px solid var(--line);background:var(--box);white-space:nowrap}
+.chip.g{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.chip.a{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.chip.r{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.chip.b{background:var(--info-bg);border-color:var(--info);color:var(--info)}
+figure{margin:14px 0}
+figure svg{width:100%;height:auto;display:block;background:var(--paper)}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:6px}
+svg text{fill:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+svg .bx{fill:var(--box);stroke:var(--line);stroke-width:1.2}
+svg .bxo{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.2}
+svg .bxw{fill:var(--warn-bg);stroke:var(--warn);stroke-width:1.2}
+svg .bxr{fill:var(--bad-bg);stroke:var(--bad);stroke-width:1.2}
+svg .bxi{fill:var(--info-bg);stroke:var(--info);stroke-width:1.2}
+svg .ln{stroke:var(--ink);stroke-width:1.5;fill:none}
+svg .lo{stroke:var(--ok);stroke-width:2;fill:none}
+svg .lh{stroke:var(--warn);stroke-width:2;fill:none;stroke-dasharray:6 4}
+svg .lx{stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:3 4}
+svg .ls{stroke:var(--info);stroke-width:2;fill:none}
+svg .t-s{font-size:11px;fill:var(--muted)}
+svg .t-b{font-weight:700}
+svg .t-x{fill:var(--bad);font-weight:700}
+svg .t-h{fill:var(--warn)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:6px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:28px;height:0;border-top:2px solid}
+ol.rank>li{margin:8px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin:10px 0}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--box)}
+.kpi b{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.kpi span{font-size:15px}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr}
+  nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}
+  main{padding:16px}
+  section{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contents">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#read">How to read this</a></li>
+    <li><a href="#top">The ten most important gaps</a></li>
+    <li><a href="#flow">End-to-end data flow</a></li>
+    <li><a href="#mech">Outcome mechanism (master)</a></li>
+    <li><a href="#cat-grow">Grow revenue</a></li>
+    <li><a href="#cat-cost">Optimize cost and efficiency</a></li>
+    <li><a href="#cat-protect">Protect asset and capital</a></li>
+    <li><a href="#cat-assure">Assure performance and returns</a></li>
+    <li><a href="#portfolio">Portfolio page</a></li>
+    <li><a href="#sites">Site pages</a></li>
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#actions">Actions and verification</a></li>
+    <li><a href="#data">Current demo data per Site</a></li>
+    <li><a href="#links">All links into the build</a></li>
+    <li><a href="#gaps">Gaps, ranked</a></li>
+    <li><a href="#register">A. Issues register</a></li>
+    <li><a href="#causes">B. Root causes</a></li>
+    <li><a href="#proposal">C. Fundamental resolution (summary)</a></li>
+    <li><a href="implementation-logic-design-proposal.html">Design review (companion) →</a></li>
+    <li><a href="#sources">Sources and method</a></li>
+  </ol>
+</nav>
+<main>
+<header class="doc">
+  <h1>Portfolio, Sites, Findings and Actions: what the build actually does</h1>
+  <p>Prepared by the Architect (Claude, per <code>.ai/ROLE_CONFIG.md</code> "Architect Is Claude By Default") for the owner's walkthrough, 2026-11-03.</p>
+  <p>Describes the running build: <code>AssetOpsV1-polC</code> at main <code>73a558a1b</code>, demo data in <code>assetops_polish_full_test</code> (story day S = 2026-10-31). Read-only: no code, data or service was changed.</p>
+  <p>Design review and proposal: <a href="implementation-logic-design-proposal.html">Outcome chain: design review and proposal</a> (companion file).</p>
+</header>
+
+<section id="read">
+<h2>How to read this</h2>
+<div class="plain"><b>In plain words.</b> Each section starts with a short plain summary in a blue box. Detail follows, with code references you can open. Red boxes mark places where the build does something different from the design, the v70 mock or what a client would expect. Green boxes are links into the running build.</div>
+<ul>
+  <li><b>Code references</b> are repo-relative <code>path:line</code> in <code>C:\Users\assef\Bineyame\AssetOpsV1-polC</code>. <code>backend/assetops_backend/</code> is shortened to <code>B/</code> and <code>frontend/src/</code> to <code>F/</code>.</li>
+  <li><b>Every number is sourced.</b> The tags are:
+    <ul>
+      <li><span class="chip b">live</span> a read-only GET against the running API on port 8990, fetched about 2026-11-02 21:30 UTC (server clock);</li>
+      <li><span class="chip">code</span> a constant in code;</li>
+      <li><span class="chip">work-dir</span> JSON in <code>var/polish_full</code>;</li>
+      <li><span class="chip">doc</span> a build sheet or report.</li>
+    </ul>
+  </li>
+  <li><b>Words used.</b> A <i>Site board</i> is the four outcome rows on a Site's overview. A <i>row state</i> is the coloured chip on a row (On track, Watch, Needs attention, Unknown, and so on). A <i>Finding</i> is a stored, revisioned claim. An <i>Action</i> is a stored decision with events and, for Kobo, a verification.</li>
+</ul>
+</section>
+
+<section id="top">
+<h2>The ten most important gaps</h2>
+<div class="plain"><b>In plain words.</b> The Findings-to-outcome link is real: an open Finding changes a row's colour. The Action and verification side barely feeds back. A verified Action never changes an outcome's state, never closes its Finding, and is not even recognised as "the action for this Finding" on Portfolio. Most other confusions come from two sources. Each Site and page uses its own time window. The productive-use opportunity is built as a separate object, not a Finding, so Portfolio cannot see it.</div>
+<ol>
+  <li><span class="chip r">I-01, I-02, I-03</span> <b>Verification does not feed back.</b> ACT-001 is Verified, but:
+    <ul>
+      <li>its Finding stays open (SUPPORTED);</li>
+      <li>the Kobo cost row still reads Needs attention on 31 Oct, the trial's own baseline day;</li>
+      <li>the Portfolio row for that Finding says "No action agreed yet", because Portfolio joins Actions on the exact Finding revision and the Finding has been refreshed since.</li>
+    </ul>
+    See <a href="#actions">Actions</a>.</li>
+  <li><span class="chip r">I-04, I-05</span> <b>Portfolio "week" is not a week per Site.</b> Each Site is judged on a different slice:
+    <ul>
+      <li>Kobo: the last UTC day of the window;</li>
+      <li>Cold lab: its latest event hour (31 Oct 16:00–17:05);</li>
+      <li>EV depot: its latest event hour (27 Oct 08:00–09:00).</li>
+    </ul>
+    So the Grow card's "4.50 USD estimated" is one EV hour on 27 Oct, and Kobo's 42.08 USD on 30 Oct never appears on Portfolio.</li>
+  <li><span class="chip r">I-06</span> <b>The productive-use opportunity is not a Finding.</b>
+    <ul>
+      <li>The Kobo board shows an "Opportunity" chip and "25–31 kW of daytime solar unused".</li>
+      <li>Portfolio's productive-use value is hard-coded "Not established" (server) and its opportunity panel is fixed copy (frontend).</li>
+      <li>The Findings "Opportunities" tab can never list anything.</li>
+    </ul>
+    The v70 mock has it as Finding F-109.</li>
+  <li><span class="chip r">I-07</span> <b>The Kobo Grow row mixes three things.</b>
+    <ul>
+      <li>The <i>state</i> comes from the monthly target (MG-1, 673.3 kWh month-to-date, Met).</li>
+      <li>The <i>headline</i> is the day's estimated sales when there are any, otherwise the 5-day spare-solar figure.</li>
+      <li>The <i>subline</i> is the day's measured use.</li>
+    </ul>
+    On 31 Oct the state reads On track, the headline is spare solar, and the mill used 0 kWh.</li>
+  <li><span class="chip r">I-08</span> <b>Cold and EV boards link Findings to API URLs</b> (<code>/api/sites/…/cold/findings/…</code>), not to screens. From code, a click lands on the "route not available" page.</li>
+  <li><span class="chip r">I-09</span> <b>Cold ACT-002 and EV ACT-003 exist but no board or Portfolio row shows them.</b> Probable cause: they were created at build time (2 Nov), outside the event windows the boards read. Domain Actions are also never "applied", so they cannot change a state.</li>
+  <li><span class="chip r">I-10</span> <b>Recurrence is not established.</b> Kobo has three separate, identical generator Findings (17, 24 and 31 Oct, each 04:35–07:55 UTC). Cold has two separate start-failure Findings (28 and 31 Oct). Each stands alone, and only the 31 Oct one has an Action.</li>
+  <li><span class="chip r">I-13</span> <b>The Kobo Assure line hides "missed".</b> It reads "1 of 3 declared objectives met · 1 not checked yet". The third objective (MG-2, missed that day) is not mentioned, because the text template has no "missed" part.</li>
+  <li><span class="chip r">I-14, I-15</span> <b>"Checked day" means three different things.</b>
+    <ul>
+      <li>Portfolio: a day with an assessed dispatch result.</li>
+      <li>MG-1 month: a local day with any good reading.</li>
+      <li>Spare solar: a fully observed local noon hour.</li>
+    </ul>
+    A day with no data (21 Oct) still shows "25–31 kW of daytime solar unused" from the 5-day look-back.</li>
+  <li><span class="chip r">I-11, I-24</span> <b>A verified result is not a saving.</b> ACT-001 was judged on one hour (06:00–07:00 UTC, 31 Oct against 1 Nov) and its cost check says "no lower supply cost per kWh". The Assure card always reads "Not known yet" for recovered value.</li>
+</ol>
+</section>
+
+<section id="flow">
+<h2>1. End-to-end data flow</h2>
+<div class="plain"><b>In plain words.</b> A simulator produces one run per story day. A real gateway process delivers it to the ingestion API, which stores accepted readings and queues recompute work in the same transaction. A scheduler tick, every 120 seconds in the demo, assesses the queued work, matches Findings, prices consequences and builds the spare-solar study. Every screen is computed on request from the stored results; nothing is cached. A new day therefore shows after the next tick plus a page reload.</div>
+
+<figure>
+<svg viewBox="0 0 980 360" role="img" aria-labelledby="flowT">
+<title id="flowT">Data flow from simulator to screens</title>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="currentColor"/></marker></defs>
+<g style="color:var(--ink)">
+<rect class="bx" x="10" y="30" width="150" height="86" rx="8"/><text x="85" y="54" text-anchor="middle" class="t-b">Simulator run</text><text x="85" y="72" text-anchor="middle" class="t-s">one Lab run per story day</text><text x="85" y="88" text-anchor="middle" class="t-s">simulator/assetops_simulator</text><text x="85" y="104" text-anchor="middle" class="t-s">host/lab_execution.py:2041</text>
+<rect class="bx" x="200" y="30" width="150" height="86" rx="8"/><text x="275" y="54" text-anchor="middle" class="t-b">Gateway</text><text x="275" y="72" text-anchor="middle" class="t-s">GatewayProcess, epoch day-N</text><text x="275" y="88" text-anchor="middle" class="t-s">host/gateway_publication.py:108</text>
+<rect class="bx" x="390" y="30" width="170" height="86" rx="8"/><text x="475" y="54" text-anchor="middle" class="t-b">Ingestion</text><text x="475" y="72" text-anchor="middle" class="t-s">POST /api/ingestion/batches</text><text x="475" y="88" text-anchor="middle" class="t-s">B/evidence/ledger_service.py:79</text>
+<rect class="bxi" x="600" y="30" width="180" height="86" rx="8"/><text x="690" y="54" text-anchor="middle" class="t-b">Stored readings</text><text x="690" y="72" text-anchor="middle" class="t-s">accepted_evidence + dispositions</text><text x="690" y="88" text-anchor="middle" class="t-s">+ recompute_job (same transaction)</text><text x="690" y="104" text-anchor="middle" class="t-s">postgres_evidence_ledger.py:645-687</text>
+<line class="ln" x1="160" y1="73" x2="198" y2="73" marker-end="url(#ar)"/><line class="ln" x1="350" y1="73" x2="388" y2="73" marker-end="url(#ar)"/><line class="ln" x1="560" y1="73" x2="598" y2="73" marker-end="url(#ar)"/>
+<rect class="bxw" x="600" y="160" width="370" height="96" rx="8"/><text x="785" y="182" text-anchor="middle" class="t-b">Scheduler tick (every 120 s in the demo)</text><text x="785" y="200" text-anchor="middle" class="t-s">B/scheduling/tick.py:246 · stages.py</text><text x="785" y="218" text-anchor="middle" class="t-s">per Site: s3 assess → cold/ev assess → mini depth → opportunity</text><text x="785" y="234" text-anchor="middle" class="t-s">→ s4 Finding matcher → consequence (money)</text><text x="785" y="250" text-anchor="middle" class="t-s">heartbeat; stale after 300 s → states Unknown</text>
+<line class="ln" x1="690" y1="116" x2="690" y2="158" marker-end="url(#ar)"/>
+<rect class="bx" x="300" y="170" width="250" height="76" rx="8"/><text x="425" y="192" text-anchor="middle" class="t-b">Stored results</text><text x="425" y="210" text-anchor="middle" class="t-s">assessments, Findings + revisions, OPP studies,</text><text x="425" y="226" text-anchor="middle" class="t-s">consequences, Actions, objectives, prices</text>
+<line class="ln" x1="600" y1="208" x2="552" y2="208" marker-end="url(#ar)"/>
+<rect class="bx" x="10" y="170" width="250" height="76" rx="8"/><text x="135" y="192" text-anchor="middle" class="t-b">Read models (on request)</text><text x="135" y="210" text-anchor="middle" class="t-s">outcome-board, outcome-summary,</text><text x="135" y="226" text-anchor="middle" class="t-s">estate/portfolio, finding/action reads</text>
+<line class="ln" x1="300" y1="208" x2="262" y2="208" marker-end="url(#ar)"/>
+<rect class="bxo" x="10" y="290" width="540" height="56" rx="8"/><text x="280" y="312" text-anchor="middle" class="t-b">Screens (Vite :5490, /api proxied to :8990)</text><text x="280" y="330" text-anchor="middle" class="t-s">Portfolio · Findings · Site boards · Finding detail · Action/verification · Opportunity</text>
+<line class="ln" x1="135" y1="246" x2="135" y2="288" marker-end="url(#ar)"/>
+<rect class="bx" x="600" y="290" width="370" height="56" rx="8"/><text x="785" y="312" text-anchor="middle" class="t-b">add-day (demo CLI)</text><text x="785" y="330" text-anchor="middle" class="t-s">real gateway delivery at DB now; the next tick assesses it</text>
+<line class="lh" x1="785" y1="290" x2="785" y2="258" marker-end="url(#ar)"/>
+</g>
+</svg>
+<figcaption>Solid arrows: data moves on. The dashed arrow is the demo's add-day path, which re-enters the normal ingestion and tick flow.</figcaption>
+</figure>
+
+<h3>1.1 Hop by hop</h3>
+<div class="tw"><table>
+<tr><th>Hop</th><th>What happens</th><th>Code</th></tr>
+<tr><td>Producer</td><td>
+  <ul>
+    <li>Each story day is one registered Lab run, pinned to:
+      <ul>
+        <li>a scenario YAML;</li>
+        <li>model profile mini-grid v6 and publication profile registered-kobo-publication v5;</li>
+        <li>5-minute timestep and seed 20260929.</li>
+      </ul>
+    </li>
+    <li>Kobo runs cover 03:00–11:00 UTC and are received at 12:00 UTC.</li>
+  </ul>
+</td><td><code>host/tests/test_s6_verification_replay.py:149-177</code>; <code>backend/conversions/d-verification-window-v3.json</code></td></tr>
+<tr><td>Gateway</td><td>
+  <ul>
+    <li>A real <code>GatewayProcess</code> starts with sequence epoch <code>day-N</code>.</li>
+    <li>The run is registered as REGISTERED_SIMULATION and the batches are delivered.</li>
+    <li>The build asserts that every envelope was accepted, with 0 duplicates or rejections.</li>
+    <li>A "degraded" Kobo day delivers only the first half of its batches.</li>
+  </ul>
+</td><td><code>test_s6_verification_replay.py:180-256</code>; <code>tools/demo_combined_kobo.py:221-282</code></td></tr>
+<tr><td>Ingestion</td><td>
+  <ul>
+    <li><code>BatchIngestionService.submit</code> writes:
+      <ul>
+        <li><code>ingestion_batch</code>, <code>evidence_publication</code> and <code>ingestion_disposition</code>;</li>
+        <li><code>accepted_evidence</code> or <code>evidence_rejection</code>.</li>
+      </ul>
+    </li>
+    <li>In the same transaction it inserts or widens a <code>recompute_job</code>.</li>
+  </ul>
+</td><td><code>B/evidence/ledger_service.py:79,99</code>; <code>B/evidence/adapters/postgres_evidence_ledger.py:330-687</code></td></tr>
+<tr><td>Assessment</td><td>
+  <ul>
+    <li>Kobo: the S3 dispatch model (<code>dispatch-3.2</code>) classifies generator time.</li>
+    <li>Cold: temperature excursions and backup-start chains.</li>
+    <li>EV: charging sessions.</li>
+    <li>Mini-depth: the service, backup, fuel and renewable hour reads.</li>
+  </ul>
+</td><td><code>B/analytics/dispatch_v3.py:41</code>, <code>B/analytics/cold.py</code>, <code>B/analytics/ev.py</code>, <code>B/mini_depth/</code></td></tr>
+<tr><td>Detection</td><td>The Finding matcher (S4) turns assessments into Findings and revisions.</td><td><code>B/analytics/finding_service.py:62-79</code>; <code>B/analytics/finding_episode.py</code></td></tr>
+<tr><td>Read models</td><td>
+  <ul>
+    <li>Board: <code>GET /api/sites/{code}/outcome-board</code>.</li>
+    <li>Portfolio: <code>GET /api/estate/portfolio</code> plus <code>GET /api/estate/outcome-summary</code>.</li>
+    <li>Both are computed on every request.</li>
+  </ul>
+</td><td><code>B/outcome_api.py:40,101,140</code>; <code>B/estate_portfolio_api.py:39</code>; <code>B/site_outcomes/board.py:523-726</code></td></tr>
+</table></div>
+
+<h3>1.2 What a "checked day" is, and what makes a day missing or partial</h3>
+<p>There is no percentage threshold anywhere. A day is either assessed or not. "Checked" is defined in three places, and they disagree.</p>
+<div class="tw"><table>
+<tr><th>Where</th><th>A day counts as checked when…</th><th>Missing / partial</th><th>Code</th></tr>
+<tr><td>Portfolio and estate coverage (<code>estate-coverage/2</code>)</td><td>The UTC day has an assessed S3 dispatch selection known at the cutoff.</td><td>
+  <ul>
+    <li>A day without one is a gap ("UNASSESSED / NO_ASSESSED_SELECTION").</li>
+    <li>Status is PARTIAL only if every other day is settled.</li>
+    <li>Any pending, stale or unknown day makes the whole read UNKNOWN.</li>
+  </ul>
+</td><td><code>B/estate/coverage.py:35,126-136,230</code>; <code>B/analytics/adapters/postgres_assessment_store.py:913-978</code></td></tr>
+<tr><td>Kobo MG-1 month to date</td><td>A Site-local day has any GOOD productive-use reading. A day with conflicting readings is not checked.</td><td>Days with no reading are simply not counted.</td><td><code>B/site_outcomes/mini.py:572-596</code></td></tr>
+<tr><td>Kobo spare-solar study</td><td>The local noon hour (12:00–13:00 Addis, i.e. 09:00–10:00 UTC) is fully observed ("well-observed" = ELIGIBLE or EXCLUDED).</td><td>No readings in the hour gives LIMITED ("not checked").</td><td><code>B/mini_depth/rules.py:222-247,393-411</code></td></tr>
+</table></div>
+<div class="gap">
+  <ul>
+    <li>A Kobo day with no story run (21 Oct "missing", 27 Oct no run) still shows Grow "25–31 kW of daytime solar unused" <span class="chip b">live</span>. The headline comes from the 5-day look-back, which includes 17 Oct.</li>
+    <li>On a missing day all four rows read Unknown, yet the month line still says "336.7 kWh so far this month, on 3 of 21 days checked".</li>
+    <li>Different "checked" rules on the same screen give different day counts: the 31 Oct board shows "on 7 of 31 days checked", "2 of the last 5 days not checked" and "24 of the last 31 days have no checked readings yet" (G1 check SP-3) side by side.</li>
+  </ul>
+</div>
+
+<h3>1.3 How a new day triggers re-assessment</h3>
+<ol>
+  <li>Accepting a reading enqueues or widens a <code>recompute_job</code> in the same transaction (<code>postgres_evidence_ledger.py:645-687</code>; mini-depth enqueue in migration 0029).</li>
+  <li>The demo serve loop runs <code>python -m assetops_backend.scheduling.run tick … --max-sites 5 --s3-jobs 10 --consequence-items 100</code>, then sleeps 120 s:
+    <ul>
+      <li><code>TICK_EVERY_SECONDS = 120</code> <span class="chip">code</span> (<code>tools/demo_combined.py:58,65-66,589-600</code>);</li>
+      <li>the performance migration is run for KOBO-001 after each tick (<code>:460-463</code>).</li>
+    </ul>
+  </li>
+  <li>Each tick, per Site:
+    <ul>
+      <li>stages run in the order discover → s3 → cold_assess → ev_assess → mini → opportunity → s4 → consequence → cold/ev consequence (<code>B/scheduling/tick.py:1-27</code>, <code>stages.py:86-301</code>);</li>
+      <li>each stage is bounded to 120 s, consequence stages to 60 s, and the whole tick to 240 s (<code>tick.py:57-76</code>).</li>
+    </ul>
+  </li>
+  <li>Freshness:
+    <ul>
+      <li><code>HealthThresholds.stop_after_seconds = 300</code> <span class="chip">code</span> (<code>B/scheduling/health.py:48-55</code>). A heartbeat older than 300 s marks the schedule STOPPED (<code>:76-107</code>).</li>
+      <li>The Site Overview's freshness is then not CURRENT, and the Kobo board marks every outcome unsettled, so they read Unknown (<code>B/scheduling/upstream.py:176-226</code>, <code>B/site_outcomes/mini.py:396-404</code>).</li>
+      <li>In practice: if the serve stops ticking, Kobo turns Unknown about 5 minutes after the last completed tick.</li>
+    </ul>
+  </li>
+</ol>
+
+<h3>1.4 How <code>add-day</code> works</h3>
+<ul>
+  <li>Command: <code>python tools/demo_combined.py --db &lt;db&gt; --work &lt;work&gt; add-day --site &lt;CODE&gt; --kind &lt;k&gt; [--day S±Nd] [--as-kind] [--assess-now]</code> (<code>tools/demo_combined.py:483-527,654,676</code>).</li>
+  <li>Kinds allowed (<code>tools/demo_story_days.py:31-32</code>):
+    <ul>
+      <li>Kobo: normal, overuse, overcast, late, missing, degraded;</li>
+      <li>Cold: normal, degraded, late;</li>
+      <li>EV: normal, late. The EV model is Tuesday-only, so the default day is +7.</li>
+    </ul>
+  </li>
+  <li>Refusals:
+    <ul>
+      <li><code>DAY_HAS_EVIDENCE</code>: data is append-only;</li>
+      <li><code>DUPLICATE_DAY</code>;</li>
+      <li><code>OUTSIDE_BOARD_WINDOW</code>: earlier than S−30;</li>
+      <li><code>DAY_NOT_IN_PAST</code>: the run must end at least 5 minutes before DB now (<code>demo_story_days.py:200-237</code>).</li>
+    </ul>
+  </li>
+  <li>What it does:
+    <ul>
+      <li>a real gateway delivery is made at DB now, and the entry is appended to <code>days.json</code>;</li>
+      <li>without <code>--assess-now</code>, the CLI prints "(not checked yet: the next serve tick assesses it)";</li>
+      <li>a <code>missing</code> day writes nothing.</li>
+    </ul>
+  </li>
+</ul>
+<div class="note">The WALK1-G2 report records that the add-day re-assessment demo step (WN-5) was <b>not run</b> on this build. The mechanism is built but not exercised on this dataset <span class="chip">doc</span>.</div>
+<div class="try"><ul>
+  <li>API health: <a href="http://localhost:8990/api/health">http://localhost:8990/api/health</a></li>
+  <li>Coverage of the week (see <code>coverage.sites[].days</code>): <a href="http://localhost:8990/api/estate/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/api/estate/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</a></li>
+</ul></div>
+</section>
+
+<section id="mech">
+<h2>2. The outcome mechanism: outcome → drivers → evidence → lever → finding → action → verification</h2>
+<div class="plain"><b>In plain words.</b> A row's colour (its <i>state</i>) is set by three things, in a fixed order of precedence: open Findings and warnings, then the declared target's verdict, then an open opportunity. The figures you read on the row (headline, contributors) are computed beside the state, not from it. An Action changes the state in one narrow case: a Kobo Action that has been <i>applied</i> softens its Finding from Needs attention to Watch. Whether the Action was <i>verified</i> changes only text: the "Earlier interventions" list, the Assure line and the Portfolio verified count.</div>
+
+<div class="legend">
+  <span><i class="sw" style="border-color:var(--ok)"></i>computes the value or state</span>
+  <span><i class="sw" style="border-color:var(--info)"></i>changes state only in a narrow case</span>
+  <span><i class="sw" style="border-color:var(--warn);border-top-style:dashed"></i>link is only text or an href</span>
+  <span><i class="sw" style="border-color:var(--bad);border-top-style:dotted"></i>no link (absent)</span>
+</div>
+<figure>
+<svg viewBox="0 0 980 520" role="img" aria-labelledby="mT">
+<title id="mT">Master diagram of the outcome mechanism as built</title>
+<defs>
+<marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--ok)"/></marker>
+<marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--info)"/></marker>
+<marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--warn)"/></marker>
+<marker id="ax" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" style="fill:var(--bad)"/></marker>
+</defs>
+<rect class="bx" x="10" y="20" width="150" height="60" rx="8"/><text x="85" y="45" text-anchor="middle" class="t-b">Evidence</text><text x="85" y="63" text-anchor="middle" class="t-s">accepted readings</text>
+<rect class="bx" x="200" y="20" width="170" height="60" rx="8"/><text x="285" y="45" text-anchor="middle" class="t-b">Assessments</text><text x="285" y="63" text-anchor="middle" class="t-s">dispatch · cold · EV · depth</text>
+<rect class="bx" x="410" y="20" width="200" height="60" rx="8"/><text x="510" y="42" text-anchor="middle" class="t-b">Drivers (contributor lines)</text><text x="510" y="60" text-anchor="middle" class="t-s">text + chip + href; no Finding id</text>
+<rect class="bxo" x="680" y="150" width="160" height="80" rx="8"/><text x="760" y="178" text-anchor="middle" class="t-b">OUTCOME ROW</text><text x="760" y="196" text-anchor="middle" class="t-s">state = precedence of</text><text x="760" y="212" text-anchor="middle" class="t-s">B/outcomes/status.py:55-113</text>
+<rect class="bxi" x="410" y="110" width="200" height="56" rx="8"/><text x="510" y="133" text-anchor="middle" class="t-b">Lever: declared target</text><text x="510" y="151" text-anchor="middle" class="t-s">verdict MET/MISSED/ON_PACE…</text>
+<rect class="bxi" x="410" y="180" width="200" height="56" rx="8"/><text x="510" y="203" text-anchor="middle" class="t-b">Lever: declared price</text><text x="510" y="221" text-anchor="middle" class="t-s">× measured kWh = estimate</text>
+<rect class="bx" x="200" y="260" width="170" height="60" rx="8"/><text x="285" y="285" text-anchor="middle" class="t-b">Finding</text><text x="285" y="303" text-anchor="middle" class="t-s">matcher; revisions</text>
+<rect class="bx" x="200" y="350" width="170" height="60" rx="8"/><text x="285" y="375" text-anchor="middle" class="t-b">Action</text><text x="285" y="393" text-anchor="middle" class="t-s">Kobo: accept → apply</text>
+<rect class="bx" x="200" y="440" width="170" height="60" rx="8"/><text x="285" y="465" text-anchor="middle" class="t-b">Verification</text><text x="285" y="483" text-anchor="middle" class="t-s">Verified / Ineffective / Inconcl.</text>
+<rect class="bx" x="10" y="260" width="150" height="60" rx="8"/><text x="85" y="283" text-anchor="middle" class="t-b">Spare-solar study</text><text x="85" y="301" text-anchor="middle" class="t-s">OPP-00000n (not a Finding)</text>
+<rect class="bxw" x="680" y="300" width="160" height="56" rx="8"/><text x="760" y="323" text-anchor="middle" class="t-b">Row text</text><text x="760" y="341" text-anchor="middle" class="t-s">Earlier interventions, Assure</text>
+<rect class="bx" x="870" y="150" width="100" height="80" rx="8"/><text x="920" y="182" text-anchor="middle" class="t-b">Portfolio</text><text x="920" y="200" text-anchor="middle" class="t-s">cards, rows</text>
+<path class="lo" d="M160,50 H198" marker-end="url(#ag)"/>
+<path class="lo" d="M370,50 H408" marker-end="url(#ag)"/>
+<path class="lh" d="M610,50 C660,50 700,90 740,148" marker-end="url(#aw)"/><text x="640" y="78" class="t-s t-h">shown beside, not a state input</text>
+<path class="lo" d="M610,138 H650 L678,172" marker-end="url(#ag)"/>
+<path class="lo" d="M610,208 H678" marker-end="url(#ag)"/><text x="618" y="244" class="t-s">headline money only</text>
+<path class="lo" d="M285,80 V258" marker-end="url(#ag)"/>
+<path class="lo" d="M370,285 C520,285 600,250 690,232" marker-end="url(#ag)"/><text x="420" y="278" class="t-s">open Finding → Needs attention / Watch</text>
+<path class="lo" d="M285,320 V348" marker-end="url(#ag)"/><text x="292" y="338" class="t-s">recommendation accept</text>
+<path class="ls" d="M370,370 C560,370 640,280 705,234" marker-end="url(#ab)"/><text x="400" y="362" class="t-s" style="fill:var(--info)">applied → Needs attention softens to Watch (Kobo only)</text>
+<path class="lo" d="M285,410 V438" marker-end="url(#ag)"/>
+<path class="lh" d="M370,470 C560,470 640,360 680,334" marker-end="url(#aw)"/><text x="400" y="494" class="t-s t-h">verdict → labels and counts only</text>
+<path class="lx" d="M370,455 C600,440 760,300 760,234" marker-end="url(#ax)"/><text x="590" y="420" class="t-x" style="font-size:11px">✕ verdict never sets a state</text>
+<path class="lx" d="M200,470 C140,470 140,300 198,295" marker-end="url(#ax)"/><text x="40" y="420" class="t-x" style="font-size:11px">✕ never closes or</text><text x="40" y="434" class="t-x" style="font-size:11px">reopens the Finding</text>
+<path class="lo" d="M85,258 V140 C85,120 640,110 690,150" marker-end="url(#ag)"/><text x="40" y="236" class="t-s">opportunity signal → chip</text>
+<path class="lo" d="M840,190 H868" marker-end="url(#ag)"/>
+<path class="lx" d="M160,300 C500,520 900,420 920,232" marker-end="url(#ax)"/><text x="700" y="470" class="t-x" style="font-size:11px">✕ study never reaches Portfolio or Findings</text>
+<path class="lh" d="M370,385 C700,400 900,330 915,232" marker-end="url(#aw)"/><text x="720" y="384" class="t-s t-h">Action↔row: exact revision only</text>
+</svg>
+<figcaption>As built. Code: <code>B/site_outcomes/board.py:523-726</code> (assembly), <code>B/outcomes/status.py:55-113</code> (state rule), <code>B/outcomes/outcome_map.py:16-38</code> (what each Finding mechanism moves or checks), <code>B/estate/portfolio.py:125-136</code> (Portfolio's Action join).</figcaption>
+</figure>
+
+<h3>2.1 The state rule, exactly</h3>
+<p>For each outcome on a row (<code>B/outcomes/status.py:55-102</code>), the first match wins:</p>
+<ol>
+  <li>Outcome not measured in the catalogue: <span class="chip">Not measured yet</span>.</li>
+  <li>Inputs not settled (stale schedule, Site not visited, required read failed): <span class="chip">Unknown</span>.</li>
+  <li>An open <i>primary</i> Finding with no applied Action, or a warning whose effect is Needs attention: <span class="chip a">Needs attention</span>.</li>
+  <li>Declared target MISSED: <span class="chip a">Needs attention</span>.</li>
+  <li>Any other open Finding (secondary, or primary with an applied Action), or a Watch warning: <span class="chip b">Watch</span>.</li>
+  <li>Evidence outcome only: readiness Limited or None gives <span class="chip b">Watch</span>.</li>
+  <li>Target verdict:
+    <ul>
+      <li>MET or ON_PACE: <span class="chip g">On track</span>;</li>
+      <li>BEHIND_PACE: <span class="chip b">Watch</span>;</li>
+      <li>TOO_EARLY or NOT_JUDGED: <span class="chip">Unknown</span>.</li>
+    </ul>
+  </li>
+  <li>An open opportunity signal: <span class="chip g">Opportunity</span>. Since Addendum 2 this step sits below a declared target, so it only shows where no target exists.</li>
+  <li>Objectives read failed: Unknown. Otherwise: <span class="chip">No target for this outcome</span> (wire NO_OBJECTIVE).</li>
+</ol>
+<p>The row state is the "worst" of its outcomes, in this precedence: Needs attention &gt; Watch &gt; Unknown &gt; Opportunity &gt; No objective &gt; On track &gt; Not measured &gt; N/A (<code>status.py:34,105-113</code>). Rows are never combined into a score.</p>
+
+<h3>2.2 Where each link is real, one-way, textual or absent</h3>
+<div class="tw"><table>
+<tr><th>Link</th><th>As built</th><th>Kind</th><th>Code</th></tr>
+<tr><td>Finding → outcome state</td><td>Each in-window open Finding emits a signal on every outcome its mechanism <i>moves</i>. The first moved outcome is "primary".</td><td><span class="chip g">real</span></td><td><code>board.py:536-542</code>; <code>outcome_map.py:16-22</code></td></tr>
+<tr><td>Finding → contributor line</td><td>Contributors carry <code>{key,label,text,confidence,href}</code> and no Finding id. Issues do carry <code>ref{finding_id,finding_revision_id}</code>.</td><td><span class="chip a">text / href</span></td><td><code>board.py:742-749</code></td></tr>
+<tr><td>Finding → outcome value</td><td>
+  <ul>
+    <li>Kobo cost money is the selected Finding's stored fuel consequence.</li>
+    <li>The Cold CC-1 reading is 1 if an open excursion Finding exists.</li>
+    <li>The Cold Protect headline is built from the excursion Finding.</li>
+  </ul>
+</td><td><span class="chip g">real (some outcomes)</span></td><td><code>mini.py:436-448</code>; <code>cold.py:228-258</code></td></tr>
+<tr><td>Action → outcome state</td><td>Only the <code>applied</code> flag counts, and only for Kobo. It turns the primary Finding's Needs attention into Watch. The Action must link by exact revision or a basis-refresh chain. Cold and EV domain Actions are always <code>applied=False</code>.</td><td><span class="chip b">narrow</span></td><td><code>board.py:526-542</code>; <code>cold.py:198-206</code></td></tr>
+<tr><td>Verification → outcome state</td><td>None.</td><td><span class="chip r">absent</span></td><td><code>status.py</code> has no verification input</td></tr>
+<tr><td>Verification → row text</td><td>
+  <ul>
+    <li>"Earlier interventions" labels ("Verified on example data", "Did not fix it").</li>
+    <li>"Must not harm".</li>
+    <li>The cost and trial detail line.</li>
+    <li>Assure "Verified results" and headline count.</li>
+    <li>The estate <code>verified_result_count</code>.</li>
+  </ul>
+</td><td><span class="chip a">text</span></td><td><code>board.py:50,352-429,676-684</code>; <code>mini.py:897-914</code>; <code>read.py:398,445</code></td></tr>
+<tr><td>Verification → Finding lifecycle</td><td>None. The Finding store has no Action or verification logic. The design says "later recurrence able to reopen the Finding"; the build does not close it to begin with.</td><td><span class="chip r">absent</span></td><td><code>B/analytics/adapters/postgres_finding_store.py</code>; design: <code>frontend/docs/architecture/production-shaped-mvp.md:57</code></td></tr>
+<tr><td>Action → Portfolio row</td><td>Exact <code>(finding_id, finding_revision_id)</code> join, no fallback. The board uses exact revision <i>or</i> the refresh chain, so the two disagree once a Finding is refreshed.</td><td><span class="chip a">one-way, stricter</span></td><td><code>B/estate/portfolio.py:125-136</code> against <code>board.py:530-533</code></td></tr>
+<tr><td>Spare-solar study → board</td><td>An open <code>SIGNAL:PRODUCTIVE_USE_HEADROOM</code> when eligible days ≥ 1 over the last 5 local days. It is mapped to MG-1 and shown as the Opportunity chip.</td><td><span class="chip g">real</span></td><td><code>mini.py:411-412</code>; <code>board.py:704-709</code></td></tr>
+<tr><td>Spare-solar study → Portfolio / Findings</td><td>Portfolio sends <code>opportunity.state=UNSUPPORTED</code> and PRODUCTIVE_USE "Not established" as constants. Estate Finding rows never get the OPPORTUNITY lens flag.</td><td><span class="chip r">absent</span></td><td><code>B/estate/portfolio.py:344,646-647</code>; <code>B/estate/index.py:127-128</code></td></tr>
+</table></div>
+</section>
+
+<section id="cat-grow">
+<h2>2a. Grow revenue: how it is computed</h2>
+<div class="plain"><b>In plain words.</b> Kobo: declared price (0.25 USD/kWh) × the grain mill's measured kWh for the board's day gives "estimated productive-use sales". The row's colour comes from the monthly target (300 kWh a month). The spare-solar study adds the Opportunity chip. EV: declared tariff (0.30 USD/kWh) × metered kWh of completed or observed-aborted sessions gives "estimated charging income". Cold lab: not measured. No Finding is ever Kobo's Grow driver, and no Action targets Grow.</div>
+<figure>
+<svg viewBox="0 0 980 300" role="img" aria-labelledby="gT"><title id="gT">Grow revenue code paths per Site</title>
+<text x="10" y="30" class="t-b">KOBO</text>
+<rect class="bx" x="70" y="12" width="180" height="40" rx="6"/><text x="160" y="36" text-anchor="middle" class="t-s">mill feeder_demand kW (UTC day)</text>
+<rect class="bxi" x="70" y="62" width="180" height="40" rx="6"/><text x="160" y="86" text-anchor="middle" class="t-s">declared 0.25 USD/kWh</text>
+<rect class="bx" x="290" y="36" width="190" height="40" rx="6"/><text x="385" y="60" text-anchor="middle" class="t-s">kWh × price → headline money</text>
+<rect class="bx" x="290" y="96" width="190" height="40" rx="6"/><text x="385" y="120" text-anchor="middle" class="t-s">month-to-date kWh (local days)</text>
+<rect class="bxi" x="520" y="96" width="170" height="40" rx="6"/><text x="605" y="120" text-anchor="middle" class="t-s">judge_month vs 300 kWh</text>
+<rect class="bx" x="290" y="150" width="190" height="40" rx="6"/><text x="385" y="174" text-anchor="middle" class="t-s">5-day noon spare-solar study</text>
+<rect class="bxo" x="760" y="60" width="200" height="90" rx="8"/><text x="860" y="88" text-anchor="middle" class="t-b">Grow row</text><text x="860" y="106" text-anchor="middle" class="t-s">state ← target verdict</text><text x="860" y="122" text-anchor="middle" class="t-s">headline ← money or spare solar</text><text x="860" y="138" text-anchor="middle" class="t-s">chip ← opportunity signal</text>
+<path class="lo" d="M250,32 L288,52" marker-end="url(#ag)"/><path class="lo" d="M250,82 L288,62" marker-end="url(#ag)"/>
+<path class="lo" d="M480,56 L758,80" marker-end="url(#ag)"/>
+<path class="lo" d="M480,116 H518" marker-end="url(#ag)"/><path class="lo" d="M690,116 H758" marker-end="url(#ag)"/>
+<path class="lo" d="M480,170 C640,170 700,150 758,140" marker-end="url(#ag)"/>
+<text x="520" y="205" class="t-x" style="font-size:11px">✕ no Finding moves MG-1 · ✕ no Action on Grow · ✕ study not visible on Portfolio</text>
+<text x="10" y="245" class="t-b">EV</text>
+<rect class="bx" x="70" y="228" width="200" height="40" rx="6"/><text x="170" y="252" text-anchor="middle" class="t-s">metered kWh, complete sessions</text>
+<rect class="bxi" x="290" y="228" width="180" height="40" rx="6"/><text x="380" y="252" text-anchor="middle" class="t-s">× declared 0.30 USD/kWh</text>
+<rect class="bxo" x="520" y="228" width="200" height="40" rx="6"/><text x="620" y="252" text-anchor="middle" class="t-s">Grow money; state Watch (Finding)</text>
+<path class="lo" d="M270,248 H288" marker-end="url(#ag)"/><path class="lo" d="M470,248 H518" marker-end="url(#ag)"/>
+<text x="740" y="246" class="t-s">EV_INTERRUPTION moves EV-3</text><text x="740" y="262" class="t-s">→ Watch (secondary)</text>
+<text x="10" y="292" class="t-b">COLD</text><text x="70" y="292" class="t-s">CC-2, CC-4 not measured → "Needs occupancy, storage contract, income and sales records"</text>
+</svg>
+</figure>
+<h4>Kobo detail</h4>
+<ul>
+  <li><b>Sales estimate</b> (<code>B/site_outcomes/mini.py:726-764</code>, <code>B/site_outcomes/productive_use.py:37-81</code>):
+    <ul>
+      <li>Σ kW × seconds / 3600 over GOOD <code>feeder_demand</code> readings of LOAD components declared <code>supply-use=PRODUCTIVE</code> (only <code>load-mill</code>, "Grain mill"), over the board's <b>UTC</b> day.</li>
+      <li>Amount = kWh × price, rounded half-up to 0.01.</li>
+      <li>The price is read at the UTC day start (<code>B/site_outcomes/read.py:281-283</code>).</li>
+    </ul>
+  </li>
+  <li><b>Monthly target MG-1</b> (<code>B/outcomes/objectives.py:127-143</code>, <code>judge_month</code>), first match wins:
+    <ol>
+      <li>no reading: NOT_JUDGED;</li>
+      <li>value ≥ target: MET;</li>
+      <li>month complete and every day checked: MISSED;</li>
+      <li>checked &lt; <code>min_checked_days</code> (default 3, range 1–28, stored per objective revision, migration 0041): TOO_EARLY;</li>
+      <li>value × month_days ≥ target × checked: ON_PACE; otherwise BEHIND_PACE.</li>
+    </ol>
+    <ul><li>The month is the <b>Site-local</b> calendar month (<code>mini.py:549-596</code>).</li></ul>
+  </li>
+  <li><b>Spare solar</b>:
+    <ul>
+      <li>Per noon hour: headroom = max(0, capability − used − margin) (<code>B/mini_depth/rules.py:359-372</code>).</li>
+      <li>The board shows min low – max high over ELIGIBLE days in the last 5 local days (<code>rules.py:395-411</code>, <code>mini.py:496-528</code>).</li>
+    </ul>
+  </li>
+  <li><b>Headline choice</b>:
+    <ul>
+      <li>money if any, else the spare-solar headline;</li>
+      <li>a zero-use day reads "No productive-use sales on this day…" unless a spare-solar headline exists (<code>mini.py:451-453,761-762</code>).</li>
+    </ul>
+  </li>
+</ul>
+<div class="ex"><b>Kobo S−1 (30 Oct): "42.08 USD estimated productive-use sales".</b>
+<ol>
+  <li><b>Measured use.</b> GOOD <code>feeder_demand</code> readings of Grain mill on the UTC day 2026-10-30 add up to 168.3 kWh: "168.3 kWh used by Grain mill in 8 measured hours". Computed by <code>B/site_outcomes/productive_use.py:37 productive_energy</code>.</li>
+  <li><b>Price.</b> The declared productive-use price is 0.25 USD per kWh, from revision valid 2026-01-01.</li>
+  <li><b>Amount.</b> 168.3 × 0.25 = 42.075, rounded half-up to 0.01 = <b>42.08 USD</b> (<code>B/site_outcomes/mini.py:726 _measured_sales</code>, quantize at <code>:763</code>).</li>
+</ol>
+<p class="from">Sources: <code>GET /api/sites/KOBO-001/outcome-board?date=2026-10-30</code> → <code>rows[0].headline_money = {"amount_low":"42.08"}</code> and the contributor "Productive-use sales"; <code>GET /api/sites/KOBO-001/financial-assumptions?key=productive_use_price_per_kwh</code> → <code>value "0.25"</code>. Also G1 check WK-2a in <code>var/polish_full/check.json</code>.</p>
+<p>Correction to the coordinator's example: 673.3 kWh is the <i>month-to-date</i> total that judges the target. It is not multiplied by the price. The money is that day's 168.3 kWh only.</p>
+</div>
+<div class="ex"><b>MG-1 monthly target, day by day</b> (<code>B/outcomes/objectives.py:127 judge_month</code>; target 300 kWh, <code>min_checked_days</code> 3). Each value is the live board line "{mtd} kWh so far this month, on {c} of {e} days checked".
+<div class="tw"><table>
+<tr><th>Board day</th><th>mtd kWh</th><th>Checked days</th><th>Rule that fires</th><th>Verdict → Grow state</th></tr>
+<tr><td>3 Oct</td><td>168.3</td><td>1</td><td>168.3 &lt; 300; month not complete; 1 &lt; 3</td><td>TOO_EARLY → <span class="chip">Unknown</span> (even though 42.08 USD shows)</td></tr>
+<tr><td>10 Oct</td><td>336.7</td><td>2</td><td>336.7 ≥ 300. MET is checked before the minimum, so 2 days is enough.</td><td>MET → <span class="chip g">On track</span></td></tr>
+<tr><td>28 Oct</td><td>505</td><td>5</td><td>≥ 300</td><td>MET → On track</td></tr>
+<tr><td>30 Oct</td><td>673.3</td><td>6 of 30</td><td>≥ 300</td><td>MET → On track</td></tr>
+<tr><td>31 Oct (S)</td><td>673.3</td><td>7 of 31</td><td>≥ 300 (S adds 0 kWh)</td><td>MET → On track</td></tr>
+<tr><td>1 Nov</td><td>0</td><td>1</td><td>new month; 0 &lt; 300; 1 &lt; 3</td><td>TOO_EARLY → <span class="chip">Unknown</span></td></tr>
+<tr><td>21 Oct (missing)</td><td>336.7</td><td>3 of 21</td><td>Not reached: the day is unsettled, so step 2 of the state rule gives Unknown first</td><td><span class="chip">Unknown</span></td></tr>
+</table></div>
+<p class="from">Sources: <code>GET /api/sites/KOBO-001/outcome-board?date=…</code> for each date, contributor <code>declared_objective:MG-1</code>, fetched about 2026-11-02 21:30 UTC. The mill used 0 kWh on the overuse and trial days (17, 24 and 31 Oct; 1 Nov) and about 168 kWh on 3, 10, 28 and 30 Oct. This is the build's scenario design (ruling D-W1-13: mill idle on sunny days).</p>
+</div>
+<div class="ex"><b>Spare solar on S: "25–31 kW of daytime solar unused".</b>
+<ol>
+  <li><b>Noon hour read.</b> On 31 Oct 09:00–10:00 UTC (12:00–13:00 Addis), the renewable read gives capability 45–51 kW and used 15 kW.</li>
+  <li><b>Headroom.</b> The result is 25–31 kW. Headroom = max(0, capability − used − margin) (<code>B/mini_depth/rules.py:359-372</code>), so the declared margin works out to 5 kW (derived: 45 − 15 − 25).</li>
+  <li><b>Look-back.</b> The 5-day look-back (27–31 Oct, local) gives:
+    <ul>
+      <li>27 and 29 Oct: no readings (LIMITED);</li>
+      <li>28 and 30 Oct: EXCLUDED ("headroom non-positive, battery charging");</li>
+      <li>31 Oct: ELIGIBLE.</li>
+    </ul>
+    Hence "Spare solar on 1 of 3 well-observed days · 2 of the last 5 days not checked".</li>
+  <li><b>Signal.</b> Eligible days ≥ 1 opens the opportunity signal, which gives the "Opportunity" chip (<code>mini.py:411-412</code>, <code>board.py:704-709</code>).</li>
+</ol>
+<p class="from">Source: <code>GET /api/sites/KOBO-001/performance/mini/renewable?from=2026-10-26T21:00:00Z&amp;to=2026-10-31T21:00:00Z</code> → <code>cards {capability_kw 45–51, used_kw 15, headroom_kw 25–31, eligible_days 1, assessed_days 3}</code> and <code>rows[].decision</code>.</p>
+</div>
+<div class="ex"><b>EV Grow: "4.50 USD estimated charging income".</b>
+<ol>
+  <li><b>Measured energy.</b> "15 kWh with a complete meter record · 0 of 1 session completed". The interrupted session is OBSERVED_ABORT with complete energy, so it counts (<code>B/financials/ev_money.py:200-241</code>).</li>
+  <li><b>Amount.</b> 15 × 0.30 = 4.5. The wire carries <code>"4.50000"</code> unrounded, and the screen formats it to "4.50" (<code>F/ui/money.ts:7-19</code>, ruling D-W1-21).</li>
+</ol>
+<p class="from">Sources: <code>GET /api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</code> → <code>rows[0].headline_money.amount_low "4.50000"</code>; tariff from <code>GET /api/sites/EV-LAB-001/financial-assumptions?key=ev_gross_tariff_per_kwh</code> → <code>"0.30"</code>.</p>
+</div>
+<div class="gap">
+  <ul>
+    <li><b>Mixed day bases on one row.</b> Sales use the UTC day; the month and the spare-solar study use Addis local days. This is harmless in the demo (runs 03:00–11:00 UTC) but would split days at a real Site.</li>
+    <li><b>KPI and money disagree on the same row.</b> On 3 Oct the row is <span class="chip">Unknown</span> ("too early to judge") while showing "42.08 USD estimated productive-use sales". On 31 Oct it is <span class="chip g">On track</span> while the mill used 0 kWh <span class="chip b">live</span>.</li>
+  </ul>
+</div>
+<h4>EV detail</h4>
+<ul>
+  <li>Inputs and formula: <code>B/financials/ev_money.py:184-241</code>.
+    <ul>
+      <li>kWh = Σ SUPPORT meter intervals of COMPLETED or OBSERVED_ABORT sessions with complete energy; amount = kWh × tariff, unrounded.</li>
+      <li>Exactly one tariff assignment must cover every interval, otherwise UNPRICED (TARIFF_MISSING / PRICE_GAP_OR_CHANGE).</li>
+    </ul>
+  </li>
+  <li>Storage and display: the amount is stored in <code>ev_consequence_revision</code> and shown when the overview's consequence state is ESTIMATED (<code>B/site_outcomes/ev.py:180-229</code>).</li>
+</ul>
+<div class="try"><ul>
+  <li>Kobo, priced day: <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-30">/sites/KOBO-001?date=2026-10-30</a> (42.08 USD, On track)</li>
+  <li>Kobo, S: <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">/sites/KOBO-001?date=2026-10-31</a> (25–31 kW unused, On track, Opportunity chip)</li>
+  <li>Kobo, S+1: <a href="http://localhost:5490/sites/KOBO-001?date=2026-11-01">/sites/KOBO-001?date=2026-11-01</a> (Unknown: too early in November)</li>
+  <li>Kobo, first story day: <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-03">/sites/KOBO-001?date=2026-10-03</a> (money shown, state Unknown)</li>
+  <li>Declared prices: <a href="http://localhost:5490/sites/KOBO-001/financials/assumptions">/sites/KOBO-001/financials/assumptions</a> · API <a href="http://localhost:8990/api/sites/KOBO-001/financial-assumptions?key=productive_use_price_per_kwh">productive_use_price_per_kwh</a> · <a href="http://localhost:8990/api/sites/EV-LAB-001/financial-assumptions?key=ev_gross_tariff_per_kwh">ev_gross_tariff_per_kwh</a></li>
+</ul></div>
+</section>
+
+<section id="cat-cost">
+<h2>2b. Optimize cost and efficiency: how it is computed</h2>
+<div class="plain"><b>In plain words.</b> Kobo is the only Site where a Finding, an Action and a verification all sit on this row. The generator Finding moves MG-2 ("Supply cost per kWh"). The daily target "no generator time longer than needed" is judged from the day's avoidable minutes. ACT-001 shows under "Earlier interventions". Money would be the Finding's fuel consequence, but none is priced: the generator ran but delivered no measured power. The Cold lab row is driven by a repeated-maintenance warning, not a Finding. The EV row is not measured.</div>
+<figure>
+<svg viewBox="0 0 980 250" role="img" aria-labelledby="cT"><title id="cT">Optimize cost code paths per Site</title>
+<text x="10" y="30" class="t-b">KOBO</text>
+<rect class="bx" x="70" y="12" width="170" height="40" rx="6"/><text x="155" y="36" text-anchor="middle" class="t-s">dispatch-3.2 intervals</text>
+<rect class="bx" x="270" y="12" width="190" height="40" rx="6"/><text x="365" y="36" text-anchor="middle" class="t-s">Finding: generator on too long</text>
+<rect class="bx" x="270" y="66" width="190" height="40" rx="6"/><text x="365" y="90" text-anchor="middle" class="t-s">Σ avoidable min vs target 0</text>
+<rect class="bx" x="270" y="120" width="190" height="40" rx="6"/><text x="365" y="144" text-anchor="middle" class="t-s">fuel-cost-1 (delivered kWh only)</text>
+<rect class="bx" x="500" y="120" width="160" height="40" rx="6"/><text x="580" y="144" text-anchor="middle" class="t-s">ACT-001 → verification</text>
+<rect class="bxo" x="740" y="40" width="220" height="90" rx="8"/><text x="850" y="66" text-anchor="middle" class="t-b">Cost row</text><text x="850" y="84" text-anchor="middle" class="t-s">state ← Finding + MISSED target</text><text x="850" y="100" text-anchor="middle" class="t-s">money ← Finding consequence</text><text x="850" y="116" text-anchor="middle" class="t-s">Earlier ← ACT-001 label</text>
+<path class="lo" d="M240,32 H268" marker-end="url(#ag)"/><path class="lo" d="M240,40 L268,82" marker-end="url(#ag)"/>
+<path class="lo" d="M460,32 L738,62" marker-end="url(#ag)"/><path class="lo" d="M460,86 L738,84" marker-end="url(#ag)"/>
+<path class="lo" d="M365,52 V118" marker-end="url(#ag)"/><path class="lo" d="M460,140 C600,180 700,140 738,108" marker-end="url(#ag)"/><text x="470" y="186" class="t-s">null today: no delivered power</text>
+<path class="lo" d="M365,52 C430,90 520,100 560,118" marker-end="url(#ag)"/>
+<path class="lh" d="M660,140 C700,140 720,130 738,124" marker-end="url(#aw)"/>
+<path class="lx" d="M580,160 C580,215 380,215 365,162" marker-end="url(#ax)"/><text x="410" y="230" class="t-x" style="font-size:11px">✕ Verified does not close the Finding or change the state</text>
+<text x="10" y="248" class="t-b">COLD</text><text x="70" y="248" class="t-s">REPEATED_MAINTENANCE_NO_RESULT warning (3 visits / 60 days) → Needs attention · no money · EV: EV-2 not measured</text>
+</svg>
+</figure>
+<ul>
+  <li><b>MG-2 reading</b>: Σ candidate minutes and Σ indeterminate minutes over the day's dispatch intervals; complete when indeterminate = 0 (<code>mini.py:537-541,599-608</code>). Target "0", rule AT_MOST: a value above target is MISSED even on an incomplete window (<code>objectives.py:112-124</code>).</li>
+  <li><b>Money</b>:
+    <ul>
+      <li>the selected Finding's <code>fuel-cost-1</code> consequence, PRICED + ELIGIBLE only (<code>mini.py:436-448</code>, <code>B/site_overview/read.py:274-343</code>);</li>
+      <li>low = 0, high = 1.10 × Σ(P kW × h × SFC) × diesel price (<code>B/financials/fuel_cost.py:503-522</code>);</li>
+      <li>diesel is declared at 1.25 USD/L <span class="chip b">live</span>.</li>
+    </ul>
+  </li>
+  <li><b>Cold CC-3</b>: headline "{n} repair visits in 60 days without a result", taken from the warning (<code>B/site_outcomes/cold.py:296-317</code>).</li>
+</ul>
+<div class="ex"><b>Kobo cost row on S (31 Oct).</b>
+<ol>
+  <li><b>Finding.</b> dispatch-3.2 classifies the generator run 04:35–07:55 UTC as Candidate-avoidable: 3 h 20 min = 200 min. The minutes that cannot be classified total 30 ("200 min avoidable, 30 min unclear", <code>mini.py:599 _dispatch_minutes</code>).</li>
+  <li><b>Objective.</b> MG-2 is declared "0" with comparison AT_MOST. 200 &gt; 0 gives MISSED at <code>B/outcomes/objectives.py:112 judge</code> ("200 min longer than needed on this day", chip Missed).</li>
+  <li><b>State.</b> At <code>B/outcomes/status.py:55 outcome_state</code>:
+    <ul>
+      <li>the open primary Finding has an applied Action linked through the refresh chain (<code>board.py:530 linked_actions</code>), so step 3 does not fire;</li>
+      <li>step 4, objective MISSED, fires: <span class="chip a">Needs attention</span>, reason <code>OBJECTIVE_MISSED</code>.</li>
+    </ul>
+  </li>
+  <li><b>Money.</b> <code>fuel-cost-1</code> prices delivered kWh only, and the generator delivered no measured power: "No fuel cost estimated: the generator was on but delivered no measured power". <code>headline_money</code> is null.</li>
+  <li><b>Earlier interventions.</b> ACT-001 "Verified on example data" (<code>board.py:352 earlier_result_for_action</code>), with detail from <code>board.py:387 cost_line</code> and <code>:402 trial_line</code>.</li>
+</ol>
+<p>Contrast 30 Oct and 1 Nov: "0 min avoidable", MG-2 Met, row <span class="chip g">On track</span>. On 17 and 24 Oct: 200 min avoidable, Needs attention, and no Action exists for those Findings.</p>
+<p class="from">Source: <code>GET /api/sites/KOBO-001/outcome-board?date=2026-10-31</code> → <code>rows[1]</code> (<code>state</code>, <code>outcomes[0].reason</code>, contributors <code>generator_use</code> and <code>declared_objective:MG-2</code>, <code>earlier[0]</code>); other dates likewise.</p>
+</div>
+<div class="ex"><b>Cold lab cost row on S.</b>
+<ol>
+  <li><b>Warning.</b> REPEATED_MAINTENANCE_NO_RESULT: the backup generator was visited 3 times in 60 days (7, 20 and 31 Oct; WR-007, WR-008, WR-006), and "the automatic start failure is still open". Its status_effect is NEEDS_ATTENTION.</li>
+  <li><b>State.</b> The warning maps to CC-3 MOVES: "3 repair visits in 60 days without a result", <span class="chip a">Needs attention</span>.</li>
+  <li><b>Money.</b> "A cost per visit is not set for this site", so there is none.</li>
+</ol>
+<p class="from">Source: <code>GET /api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z</code> → <code>warnings[0]</code>, <code>rows[1]</code>.</p>
+</div>
+<div class="gap">
+  <ul>
+    <li>On S (31 Oct) the row reads <span class="chip a">Needs attention</span>, reason OBJECTIVE_MISSED ("200 min longer than needed on this day"). Below it, ACT-001 reads "Verified on example data … Goal before the trial: missed; after: met".</li>
+    <li>Both are true, because 31 Oct <i>is</i> the trial's baseline day. A client reads it as "fixed, but still broken". The board has no "this is the before-day" framing.</li>
+    <li>On 1 Nov the row reads On track, with no Finding.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li>Kobo S, cost row: <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">/sites/KOBO-001?date=2026-10-31</a></li>
+  <li>Earlier overuse days, no Action: <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-17">/sites/KOBO-001?date=2026-10-17</a> · <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-24">/sites/KOBO-001?date=2026-10-24</a></li>
+  <li>Dispatch evidence: <a href="http://localhost:5490/sites/KOBO-001/performance/dispatch">/sites/KOBO-001/performance/dispatch</a></li>
+  <li>Cold cost row: <a href="http://localhost:5490/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z">/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z</a></li>
+</ul></div>
+</section>
+
+<section id="cat-protect">
+<h2>2c. Protect asset and capital: how it is computed</h2>
+<div class="plain"><b>In plain words.</b> Cold and EV are driven by Findings: the backup start failure and the temperature excursion at the Cold lab, the charging interruption at the depot. Each also has a declared target that is missed. Kobo's row is driven by early warnings, a preventive plan coming due and the battery at its reserve, not by a Finding. The Kobo generator Finding is only "checked" here as a safeguard. The Portfolio Protect card counts Sites with a primary Protect Finding in the estate Finding index, not the board states.</div>
+<figure>
+<svg viewBox="0 0 980 210" role="img" aria-labelledby="pT"><title id="pT">Protect code paths per Site</title>
+<text x="10" y="30" class="t-b">COLD</text>
+<rect class="bx" x="70" y="12" width="230" height="40" rx="6"/><text x="185" y="36" text-anchor="middle" class="t-s">COLD_START_FAILURE · COLD_EXCURSION</text>
+<rect class="bxi" x="330" y="12" width="230" height="40" rx="6"/><text x="445" y="36" text-anchor="middle" class="t-s">CC-6 = 0 failures · CC-1 band 2–4 °C</text>
+<rect class="bxo" x="620" y="12" width="200" height="40" rx="6"/><text x="720" y="36" text-anchor="middle" class="t-s">Needs attention</text>
+<path class="lo" d="M300,32 H328" marker-end="url(#ag)"/><path class="lo" d="M560,32 H618" marker-end="url(#ag)"/>
+<text x="840" y="30" class="t-s">ACT-002 open,</text><text x="840" y="44" class="t-x" style="font-size:11px">✕ not shown</text>
+<text x="10" y="90" class="t-b">EV</text>
+<rect class="bx" x="70" y="72" width="230" height="40" rx="6"/><text x="185" y="96" text-anchor="middle" class="t-s">EV_INTERRUPTION (fault-abort)</text>
+<rect class="bxi" x="330" y="72" width="230" height="40" rx="6"/><text x="445" y="96" text-anchor="middle" class="t-s">EV-1 = 0 interrupted sessions</text>
+<rect class="bxo" x="620" y="72" width="200" height="40" rx="6"/><text x="720" y="96" text-anchor="middle" class="t-s">Needs attention</text>
+<path class="lo" d="M300,92 H328" marker-end="url(#ag)"/><path class="lo" d="M560,92 H618" marker-end="url(#ag)"/>
+<text x="840" y="90" class="t-s">ACT-003 open,</text><text x="840" y="104" class="t-x" style="font-size:11px">✕ not shown</text>
+<text x="10" y="150" class="t-b">KOBO</text>
+<rect class="bx" x="70" y="132" width="230" height="40" rx="6"/><text x="185" y="156" text-anchor="middle" class="t-s">warnings: plan due, battery at reserve</text>
+<rect class="bxi" x="330" y="132" width="230" height="40" rx="6"/><text x="445" y="156" text-anchor="middle" class="t-s">MG-5 unserved = 0 (noon hour only)</text>
+<rect class="bxo" x="620" y="132" width="200" height="40" rx="6"/><text x="720" y="156" text-anchor="middle" class="t-s">Watch</text>
+<path class="lo" d="M300,152 H328" marker-end="url(#ag)"/><path class="lo" d="M560,152 H618" marker-end="url(#ag)"/>
+<text x="70" y="196" class="t-s">Generator Finding: CHECKED here only ("checked here as a safeguard"); a verified ACT-001 adds "checked as safeguards in ACT-001" to Earlier.</text>
+</svg>
+</figure>
+<ul>
+  <li><b>Cold CC-1</b>: the target is the overview's chamber policy band, which is never stored as an objective revision (<code>B/site_outcomes/objective_facts.py:61-68</code>). That is why its objective has <code>revision_id: null</code> <span class="chip b">live</span>. The reading is 1 if an open in-window excursion Finding exists (<code>cold.py:251-258</code>).</li>
+  <li><b>Cold CC-6</b>: 1 if the overview's needs-attention list holds COLD_START_FAILURE, 0 if there was an observed successful start, otherwise not judged (<code>cold.py:259-266</code>).</li>
+  <li><b>EV-1</b>: the overview's <code>fault_aborted</code> count; complete when no session is incomplete or contradictory (<code>ev.py:95-100,162-166</code>).</li>
+  <li><b>Kobo MG-5</b>: <code>unserved_kwh</code> from the service read of the local noon hour only (<code>mini.py:526-527,543-545</code>). Critical demand is not measured, so it is "Not checked yet".</li>
+</ul>
+<div class="ex"><b>Cold lab Protect on S (31 Oct 16:00–17:05 UTC).</b>
+<ol>
+  <li><b>Start failure.</b> COLD_START_FAILURE <code>2505d188</code> opened from 16:00: "Automatic start failed; started by hand". CC-6 target 0 failures, reading 1 → MISSED (<code>cold.py:259-266</code>).</li>
+  <li><b>Excursion.</b> COLD_EXCURSION <code>43831160</code> from 16:15 with no recorded end: "Peak 4.9°C against a 4°C limit". CC-1 band 2–4 °C, reading 1 → MISSED (<code>cold.py:251-258</code>).</li>
+  <li><b>State.</b> Both are open primary Findings with no applied Action, so step 3 gives <span class="chip a">Needs attention</span>, reason <code>PRIMARY_FINDING_OPEN</code>.</li>
+  <li><b>Exposure.</b> The money line is UNPRICED: quantity ≥ 19.5 °C·min, with the limit "The excursion has no recorded end, so its total exposure has no upper bound."</li>
+</ol>
+<p class="from">Sources: <code>GET /api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z</code> → <code>rows[2]</code>, <code>objectives[]</code>; <code>GET /api/estate/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</code> → <code>selected_lines[0]</code>.</p>
+</div>
+<div class="ex"><b>EV Protect on 27 Oct.</b>
+<ol>
+  <li><b>Finding.</b> One session is fault-aborted, with one connector fault on c1 inside the tolerance: EV_INTERRUPTION <code>274196f4</code>, episode 08:01–08:16.</li>
+  <li><b>Objective.</b> EV-1 target 0, reading 1 → MISSED ("Buses ready for service: no interrupted charging sessions · 1 interrupted").</li>
+  <li><b>State.</b> <span class="chip a">Needs attention</span>.</li>
+  <li><b>Warning.</b> Separately, CONNECTOR_OUT_OF_SERVICE: "44 min out and 16 min unknown on 27 Oct".</li>
+</ol>
+<p class="from">Source: <code>GET /api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</code> → <code>rows[2]</code>, <code>warnings[0]</code>.</p>
+</div>
+<div class="gap">
+  <ul>
+    <li>MG-5's target text says "all critical demand served", but the reading covers one noon hour.</li>
+    <li>Cold ACT-002 (backup start failure) and EV ACT-003 (connector interruption) exist in the domain-work index as OPEN <span class="chip b">live</span>, yet the boards' "In hand" lists and the Portfolio rows do not show them ("No action agreed yet"). Probable cause: both were created at build time, 2026-11-02 18:44 UTC <span class="chip">work-dir</span>, outside the 2026-10-31 and 2026-10-27 event windows the boards read.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li>Cold S: <a href="http://localhost:5490/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z">/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z</a></li>
+  <li>Cold 28 Oct (degraded probe day): <a href="http://localhost:5490/sites/COLD-LAB-001?from=2026-10-28T16:00:00Z&amp;to=2026-10-28T17:05:00Z">/sites/COLD-LAB-001?from=2026-10-28T16:00:00Z&amp;to=2026-10-28T17:05:00Z</a></li>
+  <li>EV fault hour: <a href="http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z">/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</a></li>
+  <li>Domain Actions (API): <a href="http://localhost:8990/api/sites/COLD-LAB-001/domain-work/action-index?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z">Cold</a> · <a href="http://localhost:8990/api/sites/EV-LAB-001/domain-work/action-index?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z">EV</a></li>
+  <li>Preventive plans: <a href="http://localhost:5490/maintenance/preventive?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z">/maintenance/preventive?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z</a></li>
+</ul></div>
+</section>
+
+<section id="cat-assure">
+<h2>2d. Assure performance and returns: how it is computed</h2>
+<div class="plain"><b>In plain words.</b> Assure is the evidence outcome (MG-7, CC-7, EV-7). Its state comes only from evidence readiness, and no Site declares a target for it. Its text lists verified results and how many declared targets (on <i>other</i> rows) are met. This is where verification shows up, as text and counts only. On Portfolio, the "recovered value" figure is always "Not known yet".</div>
+<figure>
+<svg viewBox="0 0 980 150" role="img" aria-labelledby="aT"><title id="aT">Assure code path</title>
+<rect class="bx" x="10" y="20" width="200" height="40" rx="6"/><text x="110" y="44" text-anchor="middle" class="t-s">evidence readiness (site)</text>
+<rect class="bx" x="10" y="80" width="200" height="40" rx="6"/><text x="110" y="104" text-anchor="middle" class="t-s">verification outcomes (Kobo)</text>
+<rect class="bx" x="250" y="80" width="230" height="40" rx="6"/><text x="365" y="104" text-anchor="middle" class="t-s">verdicts of other rows' targets</text>
+<rect class="bxo" x="560" y="20" width="200" height="40" rx="6"/><text x="660" y="44" text-anchor="middle" class="t-s">state: Watch / No target</text>
+<rect class="bxw" x="560" y="80" width="200" height="40" rx="6"/><text x="660" y="104" text-anchor="middle" class="t-s">text: "1 verified result", "1 of 3 met"</text>
+<rect class="bx" x="800" y="50" width="170" height="40" rx="6"/><text x="885" y="74" text-anchor="middle" class="t-s">Portfolio Assure card</text>
+<path class="lo" d="M210,40 H558" marker-end="url(#ag)"/>
+<path class="lh" d="M210,100 C230,130 520,130 558,108" marker-end="url(#aw)"/><path class="lh" d="M480,100 H558" marker-end="url(#aw)"/>
+<path class="lh" d="M760,100 L798,78" marker-end="url(#aw)"/>
+<text x="250" y="145" class="t-x" style="font-size:11px">✕ VERIFIED_RECOVERY is always NOT_ESTABLISHED on the server → "Not known yet"</text>
+</svg>
+</figure>
+<ul>
+  <li>Readiness: <code>EstateEvidenceService.site_readiness</code> (<code>read.py:191-194</code>).</li>
+  <li>"Actual against plan": <code>assure_text</code> (<code>B/site_outcomes/objective_facts.py:71-78</code>).</li>
+  <li>Verified results: one contributor per verified Action (<code>mini.py:897-914</code>).</li>
+  <li>Portfolio: VERIFIED_RECOVERY is constant NOT_ESTABLISHED (<code>B/estate/portfolio.py:345</code>) and the card shows "Not known yet" (<code>F/estate/PortfolioOutcomes.tsx:248-253</code>). Its detail text comes from <code>verified_result_count</code> (<code>:266-288</code>).</li>
+</ul>
+<div class="ex"><b>Kobo Assure line, 31 Oct against 30 Oct</b> (<code>B/site_outcomes/objective_facts.py:71 assure_text</code>).
+<ul>
+  <li><b>31 Oct.</b> The verdicts are MG-1 MET, MG-2 MISSED and MG-5 not judged. <code>met</code> = 1 and <code>unchecked</code> = 1, and MISSED belongs to no counted part. Output: "1 of 3 declared objectives met · 1 not checked yet".</li>
+  <li><b>30 Oct.</b> MG-1 MET, MG-2 MET, MG-5 not judged: "2 of 3 declared objectives met · 1 not checked yet".</li>
+  <li><b>Verified results.</b> ACT-001's RESOLVED event was recorded 2026-11-01 13:00Z. The board for 31 Oct and later lists it ("ACT-001 verified on example data", headline "1 verified result"); the boards up to 30 Oct read "No verified result yet". The Action was created 31 Oct 13:00Z.</li>
+</ul>
+<p class="from">Sources: <code>GET /api/sites/KOBO-001/outcome-board?date=2026-10-31</code> and <code>?date=2026-10-30</code> → <code>rows[3].contributors</code>, top-level <code>objectives[].verdict</code>.</p>
+</div>
+<div class="gap">
+  <ul>
+    <li><code>assure_text</code> counts met, on pace, behind, too early and not checked, but <b>not missed</b>.</li>
+    <li>On every Kobo overuse day it reads "1 of 3 declared objectives met · 1 not checked yet" <span class="chip b">live</span>. The third (MG-2, missed) disappears from the sentence.</li>
+    <li>The Kobo Assure state flips between <span class="chip b">Watch</span> (readiness Limited, e.g. 30 Oct, "Source not resolved") and <span class="chip">No target for this outcome</span> (31 Oct) from one day to the next.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li>Kobo 30 Oct (Watch, "No verified result yet"): <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-30">/sites/KOBO-001?date=2026-10-30</a></li>
+  <li>Kobo 31 Oct (No target, "1 verified result"): <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">/sites/KOBO-001?date=2026-10-31</a></li>
+  <li>Kobo evidence: <a href="http://localhost:5490/sites/KOBO-001/evidence">/sites/KOBO-001/evidence</a></li>
+</ul></div>
+</section>
+
+<section id="portfolio">
+<h2>3. Portfolio page</h2>
+<div class="plain"><b>In plain words.</b> Portfolio makes two requests and puts them side by side. <code>/api/estate/portfolio</code> gives the counts, money groups and ranked Finding rows over the requested window. <code>/api/estate/outcome-summary</code> gives each Site's four board rows, computed on that Site's own slice of the window. The cards mix the two. Money is never added across Sites, and a Site whose days are only partly checked contributes no money at all.</div>
+
+<h3>3.1 The four outcome cards</h3>
+<div class="tw"><table>
+<tr><th>Card</th><th>Calculation</th><th>States and exact copy</th><th>Live value (week 25 Oct–1 Nov)</th></tr>
+<tr><td>Grow revenue</td><td>
+  <ol>
+    <li>Sites whose Grow row carries <code>headline_money</code>: one Site shows "{money} estimated", two or more show "{k} sites with an estimate". Amounts are never added.</li>
+    <li>Otherwise the first <code>short_value</code> (Kobo's "… kW unused").</li>
+    <li>Otherwise "Not available yet".</li>
+  </ol>
+  <code>F/estate/PortfolioOutcomes.tsx:180-222</code>
+</td><td>
+  <ul>
+    <li>"Not available yet" = no Site has an estimate and none has spare solar.</li>
+    <li>Basis: "Declared price × measured kWh · not billed or collected".</li>
+    <li>The card links to <code>/findings/opportunities</code>.</li>
+  </ul>
+</td><td>EV is the only Site with money: <b>4.50 USD estimated</b>. Outcome-summary EV <code>headline_money</code> 4.50000 USD, from 27 Oct 08:00–09:00 <span class="chip b">live</span>.</td></tr>
+<tr><td>Optimize cost</td><td>The server's OPERATING_COST value card (<code>B/estate/portfolio.py:297-336</code>): COMPARABLE_GROUP / SITE_OWNED / UNPRICED / WITHHELD / NO_LINE.</td><td>WITHHELD reads "Can't be compared across these sites yet". In CHECKED_DAYS mode the "on the days checked" clause is appended.</td><td>WITHHELD, "Can't be compared across these sites yet" <span class="chip b">live</span></td></tr>
+<tr><td>Protect asset</td><td>n = <code>category_counts.PROTECT_ASSET.sites_with_primary_finding</code>, from the estate Finding rows, not the boards (<code>portfolio.py:209-224</code>).</td><td>
+  <ul>
+    <li>null: "Not assessed".</li>
+    <li>0 with Findings withheld next to unchecked days: <b>"None shown yet"</b>.</li>
+    <li>0 and CHECKED_DAYS: <b>"None found on the days checked"</b>.</li>
+    <li>0 and complete: "No sites disrupted".</li>
+    <li>Otherwise "n sites disrupted".</li>
+  </ul>
+  <code>PortfolioOutcomes.tsx:98-133</code>
+</td><td>2 (Cold lab, EV). Kobo has 0 primary Protect Findings <span class="chip b">live</span>.</td></tr>
+<tr><td>Assure</td><td>The value is VERIFIED_RECOVERY, always NOT_ESTABLISHED. The detail is <code>verified_result_count</code> plus the declared-target Sites.</td><td>Value always "Not known yet". Detail: "No verified result yet" / "{v} verified result(s)" / "Verified results not available yet".</td><td>Value "Not known yet"; verified_result_count = 1 (ACT-001) <span class="chip b">live</span></td></tr>
+</table></div>
+
+<div class="ex"><b>Portfolio week, 25 Oct–1 Nov.</b>
+<ol>
+  <li><b>Coverage.</b>
+    <ul>
+      <li>Kobo: 7 requested UTC days. Days with an assessed dispatch selection are 28, 30 and 31 Oct; the gaps are 25, 26, 27 and 29 Oct, giving "3 of 7 days checked · 4 days not available yet" (<code>B/estate/coverage.py:216 _days_block</code>).</li>
+      <li>Cold lab and EV depot: CURRENT, with no day block.</li>
+      <li>Estate status: <code>PARTIAL</code>.</li>
+    </ul>
+  </li>
+  <li><b>Count basis.</b> Status PARTIAL gives <code>count_basis = "CHECKED_DAYS"</code> (<code>B/estate/portfolio.py:531 _portfolio</code>, near <code>:603-604</code>).</li>
+  <li><b>Category counts</b> from the 5 Finding rows (<code>portfolio.py:209 category_counts</code>):
+    <ul>
+      <li>Protect: 5 open, 2 Sites with a primary Protect Finding (Cold lab, EV depot);</li>
+      <li>Optimize: 3 open, 1 Site (Kobo);</li>
+      <li>Grow: 1 open (EV moves EV-3), 0 Sites with it as primary.</li>
+    </ul>
+  </li>
+  <li><b>Cards.</b>
+    <ul>
+      <li>Protect: n = 2, "2 sites disrupted" (<code>F/estate/PortfolioOutcomes.tsx:117 protectValue</code>).</li>
+      <li>Grow: <code>growEstimates</code> (<code>:153</code>) finds one Site with <code>headline_money</code> (EV, 4.50000). The value reads "4.50 USD estimated" and the detail "Depot Charging Hub 4.50 USD · each site's latest assessed period".</li>
+      <li>Kobo's "25–31 kW unused" <code>short_value</code> is not used: estimates take priority.</li>
+    </ul>
+  </li>
+  <li><b>Strip.</b> <code>opportunity_count</code> is 0 in CHECKED_DAYS mode, so it reads "None found on the days checked". <code>openOpportunitySuffix</code> (<code>:174</code>) counts Kobo's Grow row with a <code>short_value</code>: " · 1 site with an open opportunity on its board".</li>
+</ol>
+<p class="from">Sources: <code>GET /api/estate/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</code> → <code>status</code>, <code>coverage.sites[2].days</code>, <code>summary</code>, <code>value_cards</code>, <code>rows</code>; <code>GET /api/estate/outcome-summary?…same window</code> → <code>sites[].rows[].headline_money</code>, <code>short_value</code>. The displayed strings are derived from these by the cited frontend functions; they were not screenshotted.</p>
+</div>
+<h3>3.2 The opportunity strip ("pulse") and the opportunity panel</h3>
+<ul>
+  <li><b>Priority sites</b>: <code>priority_site_count</code> is always null, so the strip reads "Not assessed" (<code>portfolio.py:610</code>).</li>
+  <li><b>Opportunity count</b>:
+    <ul>
+      <li>the count is <code>summary.opportunity_count</code>, rows carrying the opportunities lens flag;</li>
+      <li>the suffix is " · k site(s) with an open opportunity on its board" (<code>F/estate/EstatePortfolio.tsx:704-727</code>, <code>PortfolioOutcomes.tsx:166-177</code>);</li>
+      <li>live: <code>opportunity_count</code> 0 with <code>count_basis</code> CHECKED_DAYS, which displays as "None found on the days checked · 1 site with an open opportunity on its board".</li>
+    </ul>
+  </li>
+  <li><b>Other strip counts</b> <span class="chip b">live</span>: finding_count 5, evidence_gap_site_count 1, accepted_action_count 1, verified_resolution_count 1.</li>
+  <li><b>Opportunity panel</b> ("An opportunity beyond reducing cost"): fixed copy, not driven by data (<code>EstatePortfolio.tsx:385-417</code>). It reads "No reviewed what-if yet", "No eligible headroom or demand basis", "Review opportunity Finding · Not available yet". The server separately sends <code>opportunity.state = "UNSUPPORTED"</code> as a constant.</li>
+</ul>
+<div class="gap">
+  <ul>
+    <li>The Kobo board shows an Opportunity chip and a "Productive-use what-if" option. On the same build, Portfolio says, in three places, that there is no opportunity basis.</li>
+    <li>The Grow card links to <code>/findings/opportunities</code>, which can never list a Finding: no estate row is ever given the OPPORTUNITY lens flag (<code>B/estate/index.py:127-128</code>).</li>
+  </ul>
+</div>
+
+<h3>3.3 Money over partly checked weeks</h3>
+<ul>
+  <li>A Site with coverage PARTIAL is not "covered" (<code>B/estate/coverage.py:31-34</code>): its Finding money is forced UNKNOWN (<code>:255</code>) and its rows say "Partly checked · value shown once every day is checked" (<code>EstatePortfolio.tsx:127-133</code>).</li>
+  <li>Groups are summed only when COMPARABLE: same category, currency, window and assumption basis (<code>B/estate/financials.py:353-358</code>). <code>estate_total</code> is always null (<code>financials.py:459</code>).</li>
+  <li>Live money groups:
+    <ul>
+      <li>two EV tariff lines with different windows (diagnostic DIFFERENT_WINDOW);</li>
+      <li>Cold product exposure INELIGIBLE / UNPRICED;</li>
+      <li>operating cost UNKNOWN_COVERAGE;</li>
+      <li><code>estate_total</code> null.</li>
+    </ul>
+  </li>
+  <li>No week-specific rule exists; the rule is per requested day. Nothing is extrapolated. <code>F/ui/money.ts:7-19</code> only formats (2 decimals, half-even, on the exact string).</li>
+</ul>
+
+<h3>3.4 Site rollup: which slice of time each Site is judged on</h3>
+<div class="tw"><table>
+<tr><th>Site</th><th>Board slice used by outcome-summary for window [from, to)</th><th>Live, week window</th><th>Code</th></tr>
+<tr><td>Kobo (mini-grid)</td><td>The UTC day ending at <code>to</code> (<code>window_basis</code> DAY)</td><td>2026-10-31 only</td><td><code>B/site_outcomes/read.py:140-144</code></td></tr>
+<tr><td>Cold lab</td><td>The latest assessed event window, else the whole period (LATEST_EVENT)</td><td>2026-10-31 16:00–17:05</td><td><code>read.py:403-437</code></td></tr>
+<tr><td>EV depot</td><td>Same as the Cold lab</td><td>2026-10-27 08:00–09:00</td><td><code>read.py:403-437</code></td></tr>
+</table></div>
+<ul>
+  <li>There is no single Portfolio outcome status. Per category the server counts <code>sites_needing_attention</code> and <code>warning_count</code> (<code>read.py:458-464</code>).
+    <ul><li>Live: Grow 0/0, Optimize 2/1, Protect 2/7, Assure 0/0.</li></ul>
+  </li>
+  <li>The page badge is an evidence and coverage status (PARTIAL here), not an outcome status.</li>
+  <li>If a Site's board fails, it shows four Unknown rows.</li>
+</ul>
+<div class="gap">
+  <ul>
+    <li>One Portfolio screen labelled with one week shows Kobo's last day, the Cold lab's last event hour and the EV depot's 27 Oct hour. The Finding rows and counts below them cover the whole week.</li>
+    <li>For a one-day window (31 Oct) the EV rows turn Unknown ("Charging income estimate not available yet") because the depot has no event that day <span class="chip b">live</span>.</li>
+    <li>Scope: <code>covered_site_count</code> is 2 of 3. Kobo, being PARTIAL, is not counted as covered.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li>Portfolio, the week: <a href="http://localhost:5490/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</a></li>
+  <li>Portfolio, S only: <a href="http://localhost:5490/portfolio?from=2026-10-31T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/portfolio?from=2026-10-31T00:00:00Z&amp;to=2026-11-01T00:00:00Z</a></li>
+  <li>Raw: <a href="http://localhost:8990/api/estate/outcome-summary?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">outcome-summary</a> · <a href="http://localhost:8990/api/estate/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">portfolio</a> · <a href="http://localhost:5490/financials">/financials</a> · <a href="http://localhost:5490/actions">/actions</a> · <a href="http://localhost:5490/evidence">/evidence</a></li>
+</ul></div>
+</section>
+
+<section id="sites">
+<h2>4. Site pages</h2>
+<div class="plain"><b>In plain words.</b> Each Site overview shows the same four-row board, built by a different composer per Site type. Kobo is chosen by <code>?date=</code> (one UTC day, with previous and next links). The Cold lab and EV depot are chosen by <code>from</code>/<code>to</code> (their event hour). Each row has:</div>
+<ul>
+  <li>a state chip;</li>
+  <li>for Kobo, a second "Opportunity" chip where spare solar exists;</li>
+  <li>a headline and subline;</li>
+  <li>contributor lines;</li>
+  <li>issues, options, "In hand" and "Earlier interventions".</li>
+</ul>
+
+<h3>4.1 Board row anatomy: earnings, KPI and potential</h3>
+<div class="tw"><table>
+<tr><th>Slot</th><th>Question it answers</th><th>Source</th><th>Sets the state?</th></tr>
+<tr><td>Headline + money (performance)</td><td>What did it earn in this slice?</td><td>Kobo: kWh × 0.25. EV: kWh × 0.30.</td><td>No</td></tr>
+<tr><td>State chip + "Declared objective" line (KPI)</td><td>On course for the declared target?</td><td><code>judge_month</code> (MG-1) or <code>judge</code> (others)</td><td>Yes, below Findings and warnings</td></tr>
+<tr><td>"Opportunity" chip + "Productive use" line (potential)</td><td>What more could it earn?</td><td>Spare-solar study, last 5 local days</td><td>Only where no target exists (Addendum 2)</td></tr>
+</table></div>
+<p><b>Declared prices</b>, all AUTHORED_ESTIMATE <span class="chip b">live</span>:</p>
+<ul>
+  <li>Kobo <code>productive_use_price_per_kwh</code> = 0.25 USD, valid from 2026-01-01, recorded 2026-10-02 12:00Z: "Demonstration price per kWh for productive users, set by the system (illustrative, not a contract rate)".</li>
+  <li>Depot <code>ev_gross_tariff_per_kwh</code> = 0.30 USD, recorded 2026-10-05 07:00Z.</li>
+  <li>Kobo diesel = 1.25 USD/L.</li>
+</ul>
+<p>The productive user is declared in the Foundation as <code>load-mill</code> with <code>supply-use=PRODUCTIVE</code> (<code>tools/demo_combined_kobo.py:73,133</code>; read by <code>B/mini_depth/read.py:358-380</code>).</p>
+<p><b>Targets</b> <span class="chip">work-dir</span> <code>objectives.json</code>, all "Declared for the demonstration; not a customer target":</p>
+<ul>
+  <li>Kobo: MG-1 ≥ 300 kWh/month, MG-2 = 0 avoidable generator minutes, MG-5 = 0 unserved critical kWh;</li>
+  <li>Cold lab: CC-6 = 0 backup start failures (CC-1 band from the Site policy);</li>
+  <li>EV depot: EV-1 = 0 interrupted sessions, EV-2 = 0.20 USD/km.</li>
+</ul>
+<div class="gap">The declared EV-2 target (0.20 USD/km) is never shown or judged, because EV-2 is not measured (<code>board.py:578</code>). The Optimize row says only "Energy cost per km needs odometer readings; a tariff estimate exists in Financials".</div>
+
+<h3>4.2 Date selector behaviour</h3>
+<ul>
+  <li><b>Kobo overview and board</b>:
+    <ul>
+      <li><code>?date=YYYY-MM-DD</code> means the UTC day; previous and next links step one day (<code>F/sites/SiteWindowOverview.tsx:282-285,1113-1120</code>);</li>
+      <li>the backend accepts <code>date</code> or exactly one UTC day as <code>from</code>/<code>to</code> (<code>B/site_overview/route.py:50-73</code>).</li>
+    </ul>
+  </li>
+  <li><b>Kobo depth pages</b> (service, backup, fuel): <code>from</code>+<code>to</code> if both are given, otherwise the date maps to the Site-local noon hour (12:00–13:00 Addis) (<code>F/…/miniDepthClient.ts:358-367</code>). Renewable takes <code>from</code>/<code>to</code> or one local day.</li>
+  <li><b>Cold and EV</b>: <code>from</code>/<code>to</code>/<code>known_at</code> are passed through, at most 31 days (<code>B/outcome_api.py:120-125</code>). With no parameters, the server resolves the latest event.</li>
+  <li><b>Site Finding index</b>: defaults to today's UTC day (<code>F/shell/SiteAnalyticsFrames.tsx:438-466</code>).</li>
+</ul>
+
+<h3>4.3 Analytics frames</h3>
+<p><code>F/shell/SiteAnalyticsFrames.tsx</code>:</p>
+<ul>
+  <li>SitePerformanceFrame (:220) dispatches by Site type:
+    <ul>
+      <li>EV: sessions, availability, energy;</li>
+      <li>Cold lab: ColdPerformanceFrame;</li>
+      <li>Kobo: MiniService, Backup, Fuel and Renewable over <code>/api/sites/{code}/performance/mini/{domain}</code>.</li>
+    </ul>
+  </li>
+  <li>SiteFindingsFrame (:468), FindingDetailFrame (:599), SiteFindingFrame (:701).</li>
+  <li>FinancialsSections (:1134), SiteOpportunityFrame (:1182), SiteFinancialsFrame (:1366).</li>
+  <li>SiteActionFrame (:1876), Foundation change frames (:2073, :2112).</li>
+  <li>SiteWorkFrame (:2176), SiteWorkCasesFrame (:2457).</li>
+</ul>
+
+<h3>4.4 The opportunity page and its <code>validAt</code></h3>
+<ul>
+  <li>Route and data:
+    <ul>
+      <li>route <code>/sites/:siteId/opportunities/:opportunityId</code>, served by SiteOpportunityFrame (<code>SiteAnalyticsFrames.tsx:1182-1359</code>);</li>
+      <li>API <code>GET /api/sites/{code}/opportunities/{id}</code> (<code>B/mini_decisions_api.py:247</code>).</li>
+    </ul>
+  </li>
+  <li>The frozen five-day study's status (<code>B/mini_decisions/projection.py:163-194</code>):
+    <ul>
+      <li>any missing day: UNKNOWN;</li>
+      <li>any LIMITED or CONFLICT day, or a MIXED/UNKNOWN source class: LIMITED;</li>
+      <li>otherwise SUPPORTED.</li>
+    </ul>
+  </li>
+  <li>Headroom = {min of lows, min of highs} over ELIGIBLE days.</li>
+  <li>Price lookup:
+    <ul>
+      <li><code>getAssumptions(key=productive_use_price_per_kwh, validAt, recordedAt=known_at)</code>;</li>
+      <li><code>validAt</code> = Site-local noon of the latest pinned day, else <code>to</code> − 1 s (<code>SiteAnalyticsFrames.tsx:1217-1265</code>; ruling D-W1-18).</li>
+    </ul>
+  </li>
+  <li>"Value at declared price" = headroom × price, rounded half-up: "Up to X–Y USD for each hour the spare solar is used · estimate, not sales". It is shown only when the study is SUPPORTED and CURRENT with a resolved source class (<code>F/sites/MiniOpportunity.tsx:50-82,115-130,316-330</code>).</li>
+</ul>
+<p>Live, OPP-000004 <span class="chip b">live</span>:</p>
+<ul>
+  <li>status LIMITED, study days 28 Oct–1 Nov, eligible 2, assessed 4, <code>headroom_kw</code> null, demand UNVERIFIED;</li>
+  <li>day decisions: 28 Oct EXCLUDED (headroom non-positive, battery charging); 29 Oct LIMITED (no readings); 30 Oct EXCLUDED; 31 Oct and 1 Nov ELIGIBLE, 25–31.</li>
+</ul>
+<div class="gap">
+  <ul>
+    <li>On the demo study the value line does not appear: the source class is MIXED, so the study is LIMITED and its <code>headroom_kw</code> is null.</li>
+    <li>Headroom is computed two ways. The board uses min low / max high (<code>rules.py:407</code>); the study uses min low / min high (<code>projection.py:183</code>). They match here only because both eligible days are 25–31.</li>
+    <li>The per-day field is named <code>opportunity_kwh</code> but holds kW.</li>
+    <li>The board's "Productive-use headroom" issue links to <code>/performance/renewable</code>, not to the opportunity page.</li>
+  </ul>
+</div>
+
+<h3>4.5 Kobo mini-grid, Cold lab, EV depot: what each board shows on its story day</h3>
+<p><b>Kobo, S = 31 Oct</b> <span class="chip b">live</span></p>
+<ul>
+  <li><b>Grow</b> <span class="chip g">On track</span> + <span class="chip g">Opportunity</span>:
+    <ul>
+      <li>headline "25–31 kW of daytime solar unused";</li>
+      <li>"0 kWh used by Grain mill in 8 measured hours, at the declared price of 0.25 USD per kWh";</li>
+      <li>MG-1 "673.3 kWh so far this month, on 7 of 31 days checked" Met;</li>
+      <li>"Spare solar on 1 of 3 well-observed days · 2 of the last 5 days not checked".</li>
+    </ul>
+  </li>
+  <li><b>Optimize</b> <span class="chip a">Needs attention</span>:
+    <ul>
+      <li>"No fuel cost estimated: the generator was on but delivered no measured power";</li>
+      <li>"200 min avoidable, 30 min unclear";</li>
+      <li>Earlier: ACT-001 "Verified on example data".</li>
+    </ul>
+  </li>
+  <li><b>Protect</b> <span class="chip b">Watch</span>: "1 early warning on battery and generator" (battery capacity test due 4 Nov).</li>
+  <li><b>Assure</b> <span class="chip">No target for this outcome</span>: "1 verified result".</li>
+</ul>
+<p><b>Cold lab, 31 Oct 16:00–17:05</b> <span class="chip b">live</span></p>
+<ul>
+  <li><b>Grow</b>: Not measured.</li>
+  <li><b>Optimize</b> <span class="chip a">Needs attention</span>: "3 repair visits in 60 days without a result" (7, 20, 31 Oct).</li>
+  <li><b>Protect</b> <span class="chip a">Needs attention</span>: "Cold room temperature outside its policy band", "Peak 4.9°C against a 4°C limit", "Automatic start failed; started by hand".</li>
+  <li><b>Assure</b> <span class="chip b">Watch</span>: "Event partly reconstructed · no verified result yet".</li>
+</ul>
+<p><b>EV depot, 27 Oct 08:00–09:00</b> <span class="chip b">live</span></p>
+<ul>
+  <li><b>Grow</b> <span class="chip b">Watch</span>: "estimated charging income" 4.50 USD, "15 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh".</li>
+  <li><b>Optimize</b>: Not measured.</li>
+  <li><b>Protect</b> <span class="chip a">Needs attention</span>: "1 interrupted · 0 unknown of 1 session"; Connector c1 44 min out, 16 min unknown.</li>
+  <li><b>Assure</b> <span class="chip b">Watch</span>: "Evidence limited · no verified result yet".</li>
+</ul>
+<div class="gap">
+  <ul>
+    <li>On the Cold lab and EV boards, Finding issue links and the EV option "Investigate Connector c1" are API URLs, e.g. <code>/api/sites/COLD-LAB-001/cold/findings/2505d188-…?from=…</code> <span class="chip b">live</span>.</li>
+    <li>The cause: the composers copy the API read's <code>links.finding</code> / <code>links.self</code> (<code>B/site_outcomes/cold.py:217</code>, <code>ev.py:264-266</code>).</li>
+    <li>The board renders them as router links (<code>F/sites/OutcomeBoard.tsx:93-94</code>), and <code>F/App.tsx</code> has no <code>/api</code> route, so an in-app click falls through to <code>RouteNotAvailableFrame</code>. This comes from reading the code; it was not clicked, to avoid touching the owner's session.</li>
+    <li>Kobo links are correct screen paths.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li><a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">Kobo S</a> · <a href="http://localhost:5490/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z">Cold S</a> · <a href="http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z">EV fault hour</a></li>
+  <li>Opportunity page: <a href="http://localhost:5490/sites/KOBO-001/opportunities/f3e8d13f-3b7c-4348-824c-e912fd0869aa">/sites/KOBO-001/opportunities/f3e8d13f-3b7c-4348-824c-e912fd0869aa</a> (OPP-000004)</li>
+  <li>Spare-solar reads: <a href="http://localhost:5490/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&amp;to=2026-10-31T21:00:00Z">/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&amp;to=2026-10-31T21:00:00Z</a></li>
+  <li>What-ifs: <a href="http://localhost:5490/sites/KOBO-001/financials/scenarios">Kobo</a> · <a href="http://localhost:5490/sites/EV-LAB-001/ev/financials/scenarios">EV</a> · <a href="http://localhost:5490/sites/COLD-LAB-001/financials/scenarios">Cold</a></li>
+  <li>EV financials: <a href="http://localhost:5490/sites/EV-LAB-001/ev/financials?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z">/sites/EV-LAB-001/ev/financials?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</a></li>
+</ul></div>
+</section>
+
+<section id="findings">
+<h2>5. Findings</h2>
+<div class="plain"><b>In plain words.</b> There are four kinds of Finding, each produced by a fixed rule:</div>
+<ul>
+  <li>Kobo: generator on longer than needed;</li>
+  <li>Cold lab: temperature excursion, and backup failed to start;</li>
+  <li>EV depot: charging session interrupted by a fault.</li>
+</ul>
+<p>A Finding keeps one identity and gains revisions when its evidence changes. The outcome category it belongs to is fixed by its kind, not judged case by case. A Finding is linked to an Action only through the Action's record of which revision it came from. The Finding itself never learns about the Action.</p>
+
+<h3>5.1 Detection rules and matchers</h3>
+<div class="tw"><table>
+<tr><th>Site</th><th>Mechanism</th><th>Rule (thresholds)</th><th>Runs in</th><th>Code</th></tr>
+<tr><td>Kobo</td><td>GENERATOR_SUPPORT_CANDIDATE</td><td>
+  <ul>
+    <li>Thresholds (<code>dispatch-3.2</code>): continuity 20 min, instant 10 min, capability headroom 10%, SOC headroom 10 points.</li>
+    <li>Each generator-ON point is classified:
+      <ul>
+        <li>NECESSARY if SOC ≤ reserve+10 and load &gt; PV, or load &gt; PV + discharge;</li>
+        <li>CANDIDATE_AVOIDABLE if PV ≥ 1.1 × load, or (SOC &gt; reserve+10 and PV + discharge ≥ 1.1 × load);</li>
+        <li>else INDETERMINATE.</li>
+      </ul>
+    </li>
+    <li>Inside the minimum runtime a Candidate is withheld. Episodes are grouped by matcher <code>finding-episode-3</code>.</li>
+  </ul>
+</td><td>tick stage s4</td><td><code>B/analytics/dispatch_v3.py:41-56,289-330</code>; <code>B/analytics/finding_episode.py:10-104</code></td></tr>
+<tr><td>Cold lab</td><td>COLD_EXCURSION</td><td>
+  <ul>
+    <li>Band 2.0–4.0 °C; an out-of-band reading must be confirmed by the next one; minimum 15 min; hysteresis 0.2 °C.</li>
+    <li>Coverage below 80% gives UNKNOWN.</li>
+    <li>A Finding is raised only when the claim is bounded.</li>
+  </ul>
+</td><td>cold_assess</td><td><code>B/analytics/cold.py:355-524</code>; <code>backend/tests/fixtures/w2/cold-lab-001.yaml:48-66</code></td></tr>
+<tr><td>Cold lab</td><td>COLD_START_FAILURE</td><td>
+  <ul>
+    <li>The chain is GRID → START_REQUEST → START_RESULT → GENERATOR → TRANSFER → BUS → COMPRESSOR → PROBE.</li>
+    <li>Observed failure: a FAILED result, or no RUNNING state within the 5-minute start timeout.</li>
+  </ul>
+</td><td>cold_assess</td><td><code>B/analytics/cold.py:554-680</code></td></tr>
+<tr><td>EV depot</td><td>EV_INTERRUPTION</td><td>An OBSERVED_ABORT session with exactly one same-session connector fault within the clock tolerance of the abort.</td><td>ev_assess</td><td><code>B/analytics/ev.py:179-180,540-712</code></td></tr>
+</table></div>
+
+<h3>5.2 Revisions, merge, split, recurrence and withheld</h3>
+<ul>
+  <li><b>Kobo</b> (<code>finding_episode.py:691-805</code>):
+    <ul>
+      <li>OPENED: a new cluster.</li>
+      <li>MERGED / MERGED_INTO: one cluster spans several episodes.</li>
+      <li>SPLIT: one episode spans several clusters (the new Findings carry <code>split_from</code>).</li>
+      <li>REOPENED, MODEL_REEVALUATED, SUPPORT_CHANGED.</li>
+      <li>BASIS_REFRESHED: support unchanged, basis new.</li>
+      <li>UNCONFIRMED / NO_LONGER_SUPPORTED.</li>
+      <li>Recurrence is linked only when the separation is assessed and the stops are proven.</li>
+    </ul>
+  </li>
+  <li><b>Cold lab</b> (<code>B/analytics/adapters/postgres_finding_store.py:595-711</code>):
+    <ul>
+      <li>OPENED, SUPPORT_CHANGED / BASIS_REFRESHED, NO_LONGER_SUPPORTED, plus <code>split_from</code>.</li>
+      <li>No merge or recurrence (<code>recurs_after</code> is always NULL).</li>
+      <li>Each revision carries "No spoilage, product-loss or failed-part determination is made".</li>
+    </ul>
+  </li>
+  <li><b>EV depot</b> (<code>:719-797</code>): OPENED, SUPPORT_CHANGED / BASIS_REFRESHED, NO_LONGER_SUPPORTED.</li>
+  <li><b>Evidence shown</b>:
+    <ul>
+      <li>cited accepted evidence ids and the assessment revisions per Finding revision;</li>
+      <li>the detail page lists each cited record's lineage (batch, disposition, envelope, Foundation, binding);</li>
+      <li>a broken link is named and its claim withheld (<code>B/analytics/finding_read.py:60-67,145-174</code>).</li>
+    </ul>
+  </li>
+  <li><b>"Withheld"</b> means four things:
+    <ul>
+      <li>(a) Findings touching unchecked days are hidden in a partly checked window: "A Finding that reaches into one of the unchecked days is not shown until that day is checked." (<code>B/analytics/finding_index.py:323-334</code>, <code>F/sites/SiteFindingIndex.tsx:195,816</code>);</li>
+      <li>(b) the source gate is closed (audit-only pinned revision);</li>
+      <li>(c) money is withheld;</li>
+      <li>(d) a Candidate inside the minimum runtime.</li>
+    </ul>
+  </li>
+</ul>
+<p>Live, the Kobo Finding <code>706d2f14</code> <span class="chip b">live</span>:</p>
+<ul>
+  <li>Revision 1 <code>6076efcd</code>: OPENED 2026-10-31 12:07Z, episode 04:35–07:55, 200 candidate minutes, 246 cited records.</li>
+  <li>Revision 2 <code>5206df8c</code>: BASIS_REFRESHED 14:02Z, "assessment basis updated; supported candidate amount unchanged".</li>
+  <li>Recurrence: <code>NOT_ESTABLISHED</code> (SEPARATION_NOT_ASSESSED), nearest earlier Finding <code>cbbc4916</code> (24 Oct).</li>
+</ul>
+<div class="gap">
+  <ul>
+    <li><b>Recurring problem shown as unrelated Findings.</b> The Kobo index lists three identical Findings (17, 24, 31 Oct, each 04:35–07:55), with recurrence not established. The Cold lab lists two start failures (28 and 31 Oct).</li>
+    <li><b>Stale text on the Finding detail.</b> It still says "recommendation: UNAVAILABLE: no recommendation or Action (S6)" and "the Site Findings list is S4-04" (<code>finding_read.py:49-54</code>), although both exist.</li>
+  </ul>
+</div>
+
+<h3>5.3 How a Finding links to outcome categories (lens) and to Actions</h3>
+<ul>
+  <li><b>Categories</b>: a static map by mechanism (<code>B/outcomes/outcome_map.py:16-22</code>):
+    <ul>
+      <li>GENERATOR_SUPPORT_CANDIDATE moves MG-2 (Optimize) and is checked against MG-5 and MG-4 (Protect);</li>
+      <li>COLD_START_FAILURE moves CC-6 and CC-1 and is checked against CC-5 and CC-3;</li>
+      <li>COLD_EXCURSION moves CC-1;</li>
+      <li>EV_INTERRUPTION moves EV-1 and EV-3 (Protect, Grow) and is checked against EV-4.</li>
+    </ul>
+  </li>
+  <li><b>Estate lens flags are a separate system</b> (<code>B/estate/index.py:26-28,127-128</code>):
+    <ul>
+      <li>COST only when the consequence is PRICED;</li>
+      <li>RISK for any Cold lab or EV Finding;</li>
+      <li>OPPORTUNITY never.</li>
+    </ul>
+    So the Kobo generator Finding (unpriced) has no lens flag and does not appear under the Findings "Cost" tab, although it is an Optimize-cost Finding.</li>
+  <li><b>Site Findings page</b>: only the "All" chip is live. The Kobo index's Lens column is hard-coded "Not assessed"; the categories are shown under the title instead (<code>F/sites/SiteFindingIndex.tsx:80-138,549,597-600</code>).</li>
+  <li><b>Actions</b>: the link is held on the Action (<code>origin_finding_id</code>, <code>origin_finding_revision_id</code>). See <a href="#actions">Actions</a> for how the board and Portfolio join it differently.</li>
+</ul>
+<div class="try"><ul>
+  <li>All Findings, week: <a href="http://localhost:5490/findings?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/findings?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</a> · <a href="http://localhost:5490/findings/cost?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">cost</a> · <a href="http://localhost:5490/findings/risks?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">risks</a> · <a href="http://localhost:5490/findings/opportunities?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">opportunities (always empty)</a></li>
+  <li>Kobo Findings index: <a href="http://localhost:5490/sites/KOBO-001/findings?from=2026-10-03T00:00:00Z&amp;to=2026-11-02T00:00:00Z">/sites/KOBO-001/findings?from=2026-10-03T00:00:00Z&amp;to=2026-11-02T00:00:00Z</a> · <a href="http://localhost:5490/sites/COLD-LAB-001/findings">Cold</a> · <a href="http://localhost:5490/sites/EV-LAB-001/findings">EV</a></li>
+  <li>Finding, revision 1 (ACT-001's origin): <a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f?revision_id=6076efcd-c19f-4e1e-87ac-0b8e3fd32634">/sites/KOBO-001/findings/706d2f14-…?revision_id=6076efcd-…</a></li>
+  <li>Finding, latest revision 2: <a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f?revision_id=5206df8c-1754-40bf-ab60-9285e78a7ef4">…?revision_id=5206df8c-…</a> · history: <a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f/history">/history</a> · recommendation: <a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f/recommendation">/recommendation</a></li>
+  <li>Cold Findings: <a href="http://localhost:5490/sites/COLD-LAB-001/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z&amp;known_at=2026-10-31T17:05:00Z">start failure 31 Oct</a> · <a href="http://localhost:5490/sites/COLD-LAB-001/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z&amp;known_at=2026-10-31T17:05:00Z">excursion 31 Oct</a> · <a href="http://localhost:5490/sites/COLD-LAB-001/findings/f9ed0fec-474d-429f-89b7-a13e6f1907cb?from=2026-10-28T16:00:00Z&amp;to=2026-10-28T17:05:00Z&amp;known_at=2026-10-31T17:05:00Z">start failure 28 Oct</a></li>
+  <li>EV Finding: <a href="http://localhost:5490/sites/EV-LAB-001/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z&amp;known_at=2026-10-27T09:00:00Z">interruption 27 Oct</a></li>
+</ul></div>
+</section>
+
+<section id="actions">
+<h2>6. Actions and verification</h2>
+<div class="plain"><b>In plain words.</b> Only Kobo has a complete Action loop. A recommendation (lower the battery reserve by 5 points) is accepted and applied as a Foundation setting change. A verification plan then freezes two one-hour windows, one before and one after the change, and judges them by a fixed rule. The Cold lab and EV depot have "domain Actions" that only declare an intent. They are never applied or verified. A verified result changes labels and counts. It does not close the Finding, does not change any outcome state and does not produce money.</div>
+
+<h3>6.1 Creation and states</h3>
+<ul>
+  <li><b>Eligibility</b> (<code>reserve-trial-1</code>, <code>B/actions/reserve_trial.py:31-74</code>):
+    <ul>
+      <li>the latest Finding revision is SUPPORTED and current;</li>
+      <li>SOC is above reserve + 10;</li>
+      <li>the reserve is within 15–90;</li>
+      <li>the proposal is reserve − 5.</li>
+    </ul>
+  </li>
+  <li><b>Accept</b>: <code>POST …/findings/{id}/recommendation/accept</code> (<code>B/action_api.py:152</code>). It is a SYSTEM demonstration command; no human approval is recorded (<code>B/actions/lifecycle.py:43-55</code>).</li>
+  <li><b>Events</b>: ACCEPTED, APPLIED, FAILED, OBSERVED, RESOLVED, RESOLUTION_WITHDRAWN.
+    <ul>
+      <li>Application: NONE → PENDING → APPLIED.</li>
+      <li>Outcome: PENDING, then the RESOLVED outcome, or REASSESSMENT_PENDING after a withdrawal (<code>lifecycle.py:22-104</code>).</li>
+    </ul>
+  </li>
+  <li><b>Codes</b>:
+    <ul>
+      <li>stored <code>ACT-000001</code> from <code>action_code_seq</code> (shared with Cold and EV domain Actions), shown as <code>ACT-001</code> (<code>B/actions/adapters/postgres_action_store.py:283-298</code>, <code>B/outcomes/display_code.py:11-21</code>);</li>
+      <li>the estate action index still shows the title "Action ACT-001" and the code "ACT-000001" <span class="chip b">live</span>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>6.2 The verification window and how it is judged</h3>
+<figure>
+<svg viewBox="0 0 980 170" role="img" aria-labelledby="vT"><title id="vT">ACT-001 timeline</title>
+<line class="ln" x1="30" y1="90" x2="950" y2="90"/>
+<text x="30" y="120" class="t-s">31 Oct 00:00</text><text x="490" y="120" class="t-s">1 Nov 00:00 (effective_from)</text><text x="900" y="120" class="t-s">1 Nov 14:00</text>
+<rect class="bxw" x="110" y="40" width="160" height="34" rx="4"/><text x="190" y="56" text-anchor="middle" class="t-s">Finding 04:35–07:55</text><text x="190" y="69" text-anchor="middle" class="t-s">(200 min)</text>
+<rect class="bxi" x="170" y="80" width="40" height="20"/><text x="190" y="150" text-anchor="middle" class="t-s">baseline 06:00–07:00</text><line class="ln" x1="190" y1="100" x2="190" y2="138"/>
+<text x="330" y="40" class="t-s">13:00 accepted · 14:00 applied (reserve 30 → 25) · 15:00 plan frozen</text>
+<line class="lh" x1="330" y1="46" x2="330" y2="88"/><line class="lh" x1="350" y1="46" x2="350" y2="88"/><line class="lh" x1="370" y1="46" x2="370" y2="88"/>
+<line class="ls" x1="500" y1="60" x2="500" y2="100"/>
+<rect class="bxi" x="660" y="80" width="40" height="20"/><text x="680" y="150" text-anchor="middle" class="t-s">later 06:00–07:00</text><line class="ln" x1="680" y1="100" x2="680" y2="138"/>
+<rect class="bxo" x="830" y="40" width="120" height="34" rx="4"/><text x="890" y="56" text-anchor="middle" class="t-s">13:00 evaluated</text><text x="890" y="69" text-anchor="middle" class="t-s">VERIFIED</text>
+</svg>
+<figcaption>ACT-001 as stored <span class="chip b">live</span> (<code>/verification/plan</code>, <code>/action-index</code>). Times are UTC.</figcaption>
+</figure>
+<ul>
+  <li><b>Plan</b> <code>reserve-trial-verification-1</code> (<code>B/actions/verification.py:137-270</code>, <code>verification_rules.py:28-40</code>):
+    <ul>
+      <li>two 60-minute windows at the same UTC clock hour, each 12 five-minute slots;</li>
+      <li>the baseline ends at or before <code>effective_from</code>; the later window starts after it;</li>
+      <li>the baseline must have positive Candidate seconds (here 3600);</li>
+      <li>the later window must have no readings yet when the plan is frozen.</li>
+    </ul>
+  </li>
+  <li><b>Target</b>: 4 × later ≤ 3 × baseline Candidate-avoidable seconds. Here 0 ≤ 3 × 3600.</li>
+  <li><b>Guardrails</b>:
+    <ul>
+      <li>unserved critical kWh later ≤ baseline;</li>
+      <li>below-reserve seconds later = 0 (five-minute sampled);</li>
+      <li>terminal SOC later ≥ baseline.</li>
+    </ul>
+  </li>
+  <li><b>Comparability</b>: demand and PV energy within ±10%, initial SOC within 2 points, coherent source class.</li>
+  <li><b>Results</b>: VERIFIED / INEFFECTIVE / INCONCLUSIVE. Only the first two append RESOLVED. Evaluation is API-driven only; no scheduled job runs it (<code>verification.py:750-866</code>, <code>verification_rules.py:715-790</code>).</li>
+  <li><b>Live outcome</b>: VERIFIED, reasons TARGET_AND_GUARDRAILS_PASS, recorded 2026-11-01 13:00Z. The cost check is MODELLED_NO_IMPROVEMENT, 0 USD <span class="chip">work-dir</span>.</li>
+</ul>
+
+<div class="ex"><b>ACT-001 verdict, step by step</b> (<code>B/actions/verification_rules.py:715 decide</code>).
+<ol>
+  <li><b>Baseline window</b> 2026-10-31 06:00–07:00 UTC: Candidate-avoidable seconds = 3600 (<code>plan.baseline_candidate_seconds</code>). Reserve 30%.</li>
+  <li><b>Later window</b> 2026-11-01 06:00–07:00 UTC under the new reserve of 25%: Candidate seconds = 0 (<code>selection_bindings[0].selection.target.candidate_seconds</code>).</li>
+  <li><b>Target.</b> 4 × 0 = 0 ≤ 3 × 3600 = 10800, so the target is met (<code>result.target_met: true</code>).</li>
+  <li><b>Guardrails.</b> None failed (<code>guardrail_failed: []</code>). The outcome is <b>VERIFIED</b>, reason <code>TARGET_AND_GUARDRAILS_PASS</code>, recorded 2026-11-01 13:00Z.</li>
+  <li><b>Cost check.</b> Separately, the cost check is MODELLED_NO_IMPROVEMENT with nominal 0 and upper 0 USD, shown as "no lower supply cost per kWh".</li>
+</ol>
+<p class="from">Sources: <code>GET /api/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification/plan</code> and <code>/verification/outcome</code>; <code>var/polish_full/kobo.json</code> (cost_check).</p>
+</div>
+<h3>6.3 What the verification result changes</h3>
+<div class="tw"><table>
+<tr><th>Place</th><th>Effect of VERIFIED</th><th>Code</th></tr>
+<tr><td>Finding lifecycle</td><td><b>None.</b> It stays SUPPORTED.</td><td><code>postgres_finding_store.py</code> (no Action logic)</td></tr>
+<tr><td>Board state</td><td><b>None.</b> Only the separate <code>applied</code> flag softens a primary Finding to Watch.</td><td><code>board.py:540</code>; <code>status.py:76-81</code></td></tr>
+<tr><td>Board text</td><td>
+  <ul>
+    <li>"Earlier interventions": "Verified on example data".</li>
+    <li>Trial line: "Estimated effect of the trial (not money saved): no lower supply cost per kWh. Goal before the trial: missed; after: met."</li>
+    <li>"Must not harm".</li>
+    <li>Protect: "checked as safeguards in ACT-001".</li>
+    <li>Assure: "1 verified result".</li>
+  </ul>
+</td><td><code>board.py:50,352-429,676-684</code></td></tr>
+<tr><td>Portfolio</td><td><code>verified_resolution_count</code> 1; Assure detail "1 verified result"; progress row VERIFIED; placement "MONITOR" <i>only if</i> the row joins the Action.</td><td><code>portfolio.py:143-157</code>; <code>B/estate/placement.py:52,114-115</code></td></tr>
+<tr><td>Next trial</td><td>RESOLVED without a guardrail failure releases the hold on a new trial.</td><td><code>verification.py:841</code></td></tr>
+</table></div>
+<div class="gap">
+  <ul>
+    <li><b>Portfolio cannot see ACT-001 on its own Finding.</b> ACT-001 came from revision 1 (<code>6076efcd</code>). Portfolio lists the Finding at revision 2 (<code>5206df8c</code>) and joins on the exact pair, so the row shows "No action agreed yet", placement UNPRICED_RISK. The progress row shows <code>origin_revision_selected: false</code> <span class="chip b">live</span>.</li>
+    <li>The Kobo board follows the refresh chain and does link them. The same Finding has an Action on one screen and none on the other.</li>
+    <li><b>The verified claim is narrower than it reads.</b> One hour is compared (06:00–07:00 UTC) out of a 200-minute episode, and the cost check finds no lower supply cost. INCONCLUSIVE never resolves, so it would sit as "Outcome pending" indefinitely.</li>
+    <li><b>Hard-coded versus data-driven targets.</b> The verification target ratio (3:4) is a code constant. The outcome target ("no generator time longer than needed") is a declared objective. The "Goal before: missed; after: met" line compares the declared objective on the two days, not the verification rule.</li>
+  </ul>
+</div>
+<div class="try"><ul>
+  <li>ACT-001 verification: <a href="http://localhost:5490/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification">/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification</a></li>
+  <li>ACT-001 plan / evidence / history: <a href="http://localhost:5490/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/plan">/plan</a> · <a href="http://localhost:5490/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/evidence">/evidence</a> · <a href="http://localhost:5490/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/history">/history</a></li>
+  <li>Raw: <a href="http://localhost:8990/api/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification/plan">verification/plan</a> · <a href="http://localhost:8990/api/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification/outcome">verification/outcome</a></li>
+  <li>All Actions: <a href="http://localhost:5490/actions">/actions</a></li>
+</ul></div>
+</section>
+
+<section id="data">
+<h2>7. Current demo data per Site</h2>
+<div class="plain"><b>In plain words.</b> The demo is a sparse calendar anchored on story day S = 2026-10-31. S is the DB date of the build (2026-11-02) minus 2 days. Only a few "interesting" days have data. Every other day is genuinely empty, so it reads "not checked". The tables below give, for each story day: what was fed in, what the screens show today (live GET), and why.</div>
+<ul>
+  <li>Story clock and build:
+    <ul>
+      <li><code>S = floor_day(DB now) + story_day_offset_days</code>, with offset −2 (<code>tools/demo_combined.py:124</code>; <code>backend/conversions/demo-combined-story-v1.json</code>);</li>
+      <li><code>story.json</code>: <code>db_now 2026-11-02T18:32:15Z</code>, <code>S 2026-10-31T00:00:00Z</code>;</li>
+      <li>build wall time 951 s (<code>manifest.json</code>).</li>
+    </ul>
+  </li>
+  <li>Calendar file: <code>backend/conversions/demo-story-days-v1.json</code>, resolved into <code>var/polish_full/days.json</code>.</li>
+</ul>
+
+<h3>7.1 Kobo mini-grid (KOBO-001, Africa/Addis_Ababa)</h3>
+<p>Runs cover 03:00–11:00 UTC and are received at 12:00 UTC. Productive price 0.25 USD/kWh, diesel 1.25 USD/L. Targets: MG-1 ≥ 300 kWh/month, MG-2 = 0 min, MG-5 = 0 kWh.</p>
+<div class="tw"><table>
+<tr><th>Date</th><th>Offset · kind <span class="chip">work-dir</span></th><th>What the data contains</th><th>What the board shows <span class="chip b">live</span></th><th>Why</th></tr>
+<tr><td>3 Oct</td><td>S−28 · normal</td><td>Necessary generator run; the mill runs (168.3 kWh)</td><td>Grow Unknown with 42.08 USD; Cost On track; Assure Watch</td><td>MG-1 has 1 checked day, fewer than 3, so TOO_EARLY</td></tr>
+<tr><td>10 Oct</td><td>S−21 · overcast</td><td>Same pattern</td><td>Grow On track, 42.08 USD, "336.7 kWh … on 2 of 10 days checked"</td><td>mtd ≥ 300, so MET (checked before the minimum)</td></tr>
+<tr><td>17 Oct</td><td>S−14 · overuse</td><td>Reserve-trial scenario; generator on longer than needed; sunny, mill idle</td><td>Grow On track, "25–31 kW unused"; Cost Needs attention, "200 min avoidable"; Finding <code>4d121cdb</code></td><td>Finding open plus MG-2 MISSED; no Action</td></tr>
+<tr><td>21 Oct</td><td>S−10 · <b>missing</b></td><td>"gateway offline: no run, no delivery"</td><td>All four rows Unknown; Grow headline still "25–31 kW unused"</td><td>Day unsettled; the headline comes from the 5-day look-back</td></tr>
+<tr><td>24 Oct</td><td>S−7 · overuse</td><td>Same as 17 Oct</td><td>Same as 17 Oct; Finding <code>cbbc4916</code></td><td>Separate Finding; recurrence not established</td></tr>
+<tr><td>27 Oct</td><td>no story day</td><td>None</td><td>All rows Unknown</td><td>Not checked</td></tr>
+<tr><td>28 Oct</td><td>S−3 · late (as normal)</td><td>Normal day, received 2026-10-30 12:30Z</td><td>Grow On track 42.08 USD, "505 kWh … on 5 of 28 days checked"; Cost On track</td><td>Late data is assessed when it arrives</td></tr>
+<tr><td>29 Oct</td><td>no story day</td><td>None</td><td>Counted as a gap on Portfolio</td><td>Not checked</td></tr>
+<tr><td>30 Oct (S−1)</td><td>normal, "priced sales day"</td><td>Mill 168.3 kWh; noon battery charging</td><td>Grow On track 42.08 USD; "Spare solar on 0 of 2"; Cost On track; Assure Watch ("Source not resolved · readiness Limited")</td><td>Noon hour EXCLUDED (charging, no headroom)</td></tr>
+<tr><td>31 Oct (S)</td><td>trial-before</td><td>Baseline run, reserve 30%; generator 04:35–07:55 Candidate; sunny noon, mill idle</td><td>Grow On track + Opportunity "25–31 kW unused", 0 kWh; Cost Needs attention; Assure "1 verified result"</td><td>MG-1 MET from mtd; MG-2 MISSED; Finding <code>706d2f14</code>; ACT-001 accepted and applied this day</td></tr>
+<tr><td>1 Nov (S+1)</td><td>trial-after</td><td>Later run, reserve 25%; no Candidate time</td><td>Grow Unknown (too early in November); Cost On track; "Spare solar on 2 of 4"</td><td>New month has 1 checked day; ACT-001 later window, verified 13:00Z</td></tr>
+</table></div>
+<p class="from">Sources: <code>var/polish_full/days.json</code>, <code>kobo.json</code>, <code>story.json</code>; <code>GET /api/sites/KOBO-001/outcome-board?date=…</code> for every date listed.</p>
+<p>Portfolio's checked days for the week (28, 30, 31 Oct) come from <code>GET /api/estate/portfolio</code> → <code>coverage.sites[2].days</code>.</p>
+<p>The scheduled-due preventive plan "Battery capacity test", due 4 Nov, raises the Protect early warning. The 500-hour generator plan is RUN_HOURS, so its due state is not assessed.</p>
+
+<h3>7.2 Cold lab (COLD-LAB-001)</h3>
+<p>Runs cover 16:00–17:05 UTC. There is no price. Target: CC-6 = 0 failures; CC-1 uses the 2–4 °C policy band.</p>
+<div class="tw"><table>
+<tr><th>Date</th><th>Kind · scenario <span class="chip">work-dir</span></th><th>Data</th><th>Board <span class="chip b">live</span></th><th>Why</th></tr>
+<tr><td>24 Oct</td><td>S−7 · normal · <code>cold-normal</code></td><td>Normal operation</td><td>Optimize "No target"; Protect "No target" (CC-1 and CC-6 Met); Assure Watch, "Event fully reconstructed"</td><td>No Finding; targets met</td></tr>
+<tr><td>28 Oct</td><td>S−3 · degraded · <code>cold-missing-probe</code></td><td>Probe readings missing; grid outage with failed start</td><td>Protect Needs attention, "Backup generator did not start when the grid failed"; "peak temperature not read"; CC-1 Met</td><td>COLD_START_FAILURE <code>f9ed0fec</code>; no excursion is claimable without the probe</td></tr>
+<tr><td>31 Oct</td><td>S · failure · <code>cold-backup-failed</code></td><td>Grid outage, automatic start failed, started by hand; chamber peak 4.9 °C</td><td>Optimize Needs attention (3 visits); Protect Needs attention; Assure Watch</td><td>Findings <code>2505d188</code> (start failure) and <code>43831160</code> (excursion); work WR-006, WR-007, WR-008, INC-005; ACT-002 open (not shown)</td></tr>
+</table></div>
+<p class="note"><code>cold.json</code> carries <code>"blocked": " positive:incidents: cases 0/0 != 1 …"</code>, a build-time check note on incident counts that was not resolved in the work dir.</p>
+
+<h3>7.3 EV depot (EV-LAB-001)</h3>
+<p>The model is Tuesday-only, so days are shifted to Tuesdays. Event hour 08:00–09:00 UTC. Tariff 0.30 USD/kWh. Targets: EV-1 = 0 interrupted, EV-2 = 0.20 USD/km (not judged).</p>
+<div class="tw"><table>
+<tr><th>Date</th><th>Kind · scenario</th><th>Data</th><th>Board <span class="chip b">live</span></th><th>Why</th></tr>
+<tr><td>20 Oct</td><td>S−11 · normal · <code>ev-complete</code></td><td>Complete sessions; 223 readings accepted</td><td>Grow "No target", <b>9.00 USD</b> estimated (30 kWh × 0.30); Protect Watch (inspection due 21 Oct); EV-1 Met</td><td>No Finding</td></tr>
+<tr><td>27 Oct</td><td>S−4 · fault · <code>ev-interrupted</code></td><td>One session ended by a connector fault; 221 accepted</td><td>Grow Watch, <b>4.50 USD</b> (15 kWh × 0.30); Protect Needs attention; Assure Watch</td><td>EV_INTERRUPTION <code>274196f4</code>; ACT-003 open (not shown)</td></tr>
+</table></div>
+<p class="from">Sources: <code>var/polish_full/ev.json</code>, <code>days.json</code>; <code>GET /api/sites/EV-LAB-001/outcome-board?from=2026-10-20T08:00:00Z&amp;to=2026-10-20T09:00:00Z</code> and the 27 Oct equivalent.</p>
+<p>Portfolio shows only the 27 Oct 4.50 USD, because it uses the latest event window. The 9.00 USD of 20 Oct is never on Portfolio.</p>
+
+<h3>7.4 What-if and scenario days</h3>
+<ul>
+  <li><b>Kobo productive-use what-if</b> (<code>/sites/KOBO-001/financials/scenarios</code>): the API returns <code>status UNKNOWN</code>, <code>job_state NONE</code> <span class="chip b">live</span>. No authoring screen exists (ruling D-W1-17).</li>
+  <li><b>Opportunity studies</b> <span class="chip b">live</span>:
+    <ul>
+      <li>OPP-000003: 27–31 Oct, 1 eligible of 3 assessed;</li>
+      <li>OPP-000004: 28 Oct–1 Nov, 2 of 4;</li>
+      <li>both LIMITED (mixed source class).</li>
+    </ul>
+  </li>
+  <li><b>Verification trial days</b>: 31 Oct (baseline) and 1 Nov (later), from <code>backend/conversions/d-verification-window-v3.json</code>, re-timed by <code>tools/demo_combined_kobo.py:400-469 _trial_chain</code>.</li>
+</ul>
+</section>
+
+<section id="links">
+<h2>8. All links into the current build</h2>
+<div class="plain"><b>In plain words.</b> Every screen link below returned HTTP 200 from Vite (5490). Its route exists in <code>F/App.tsx</code> (lines 331–563). The API reads behind them returned 200 from port 8990. A 200 from Vite only proves the single-page app loads; the route check is what proves the screen exists.</div>
+<div class="tw"><table>
+<tr><th>Screen</th><th>Link</th><th>Route (App.tsx)</th></tr>
+<tr><td>Portfolio, week</td><td><a href="http://localhost:5490/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z</a></td><td>/portfolio (:510)</td></tr>
+<tr><td>Findings, week</td><td><a href="http://localhost:5490/findings?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/findings?from=…&amp;to=…</a> · <a href="http://localhost:5490/findings/opportunities?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">/findings/opportunities</a></td><td>/findings[/cost|risks|opportunities] (:497-502)</td></tr>
+<tr><td>Kobo board</td><td><a href="http://localhost:5490/sites/KOBO-001?date=2026-10-30">30 Oct</a> · <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">31 Oct</a> · <a href="http://localhost:5490/sites/KOBO-001?date=2026-11-01">1 Nov</a> · <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-21">21 Oct (missing)</a></td><td>/sites/:siteId (:343)</td></tr>
+<tr><td>ACT-001 verification</td><td><a href="http://localhost:5490/sites/KOBO-001/actions/55bbd52c-9ef2-4005-a11d-e24012031131/verification">/sites/KOBO-001/actions/55bbd52c-…/verification</a></td><td>/sites/:siteId/actions/:actionId/:actionView (:488)</td></tr>
+<tr><td>Kobo Finding (rev 1)</td><td><a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f?revision_id=6076efcd-c19f-4e1e-87ac-0b8e3fd32634">/sites/KOBO-001/findings/706d2f14-…?revision_id=6076efcd-…</a></td><td>/sites/:siteId/findings/:findingId (:469)</td></tr>
+<tr><td>Cold lab board</td><td><a href="http://localhost:5490/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z">/sites/COLD-LAB-001?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z</a></td><td>:343</td></tr>
+<tr><td>EV depot</td><td><a href="http://localhost:5490/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z">/sites/EV-LAB-001/ev?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z</a></td><td>/sites/:siteId/ev (:397)</td></tr>
+<tr><td>EV financials</td><td><a href="http://localhost:5490/sites/EV-LAB-001/ev/financials?from=2026-10-27T08:00:00Z&amp;to=2026-10-27T09:00:00Z">/sites/EV-LAB-001/ev/financials?…</a></td><td>:397-405</td></tr>
+<tr><td>Maintenance plans</td><td><a href="http://localhost:5490/maintenance/preventive?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z">/maintenance/preventive?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z</a></td><td>:516</td></tr>
+<tr><td>Kobo opportunity page</td><td><a href="http://localhost:5490/sites/KOBO-001/opportunities/f3e8d13f-3b7c-4348-824c-e912fd0869aa">/sites/KOBO-001/opportunities/f3e8d13f-…</a> (OPP-000004)</td><td>/sites/:siteId/opportunities/:opportunityId (:466)</td></tr>
+<tr><td>Kobo spare solar</td><td><a href="http://localhost:5490/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&amp;to=2026-10-31T21:00:00Z">/sites/KOBO-001/performance/renewable?…</a></td><td>/sites/:siteId/performance/:capabilityId (:420)</td></tr>
+<tr><td>Site Findings indexes</td><td><a href="http://localhost:5490/sites/KOBO-001/findings">Kobo</a> · <a href="http://localhost:5490/sites/COLD-LAB-001/findings">Cold</a> · <a href="http://localhost:5490/sites/EV-LAB-001/findings">EV</a></td><td>/sites/:siteId/findings (:440)</td></tr>
+<tr><td>Declared prices</td><td><a href="http://localhost:5490/sites/KOBO-001/financials/assumptions">Kobo assumptions</a> · <a href="http://localhost:5490/sites/EV-LAB-001/ev/financial-assumptions">EV assumptions</a></td><td>:454-463, :397-405</td></tr>
+<tr><td>Estate views</td><td><a href="http://localhost:5490/actions">/actions</a> · <a href="http://localhost:5490/financials">/financials</a> · <a href="http://localhost:5490/evidence">/evidence</a> · <a href="http://localhost:5490/maintenance">/maintenance</a></td><td>:504-514</td></tr>
+</table></div>
+<p><b>API reads used in this document</b> (all GET, all 200 except where noted):</p>
+<ul>
+  <li><code>/api/estate/portfolio</code>, <code>/api/estate/outcome-summary</code>, <code>/api/estate/findings</code>, <code>/api/estate/actions</code></li>
+  <li><code>/api/sites/{KOBO-001|COLD-LAB-001|EV-LAB-001}/outcome-board</code></li>
+  <li><code>/api/sites/KOBO-001/opportunities[/{id}]</code>, <code>/performance/mini/renewable</code>, <code>/finding-index?domain=mini-grid-dispatch</code></li>
+  <li><code>/financial-assumptions?key=…</code></li>
+  <li><code>/actions/{id}/verification/plan|outcome</code></li>
+  <li><code>/domain-work/action-index</code>, <code>/api/work/preventive</code></li>
+</ul>
+<p>Requests that need parameters return 422 without them, which is expected:</p>
+<ul>
+  <li><code>/api/sites/KOBO-001/finding-index</code> without <code>domain</code>;</li>
+  <li><code>/api/sites/KOBO-001/opportunities</code> without a window;</li>
+  <li><code>/api/estate/scope</code> without a window.</li>
+</ul>
+<div class="gap">The links that do <b>not</b> work are the ones the Cold lab and EV boards generate themselves: <code>/api/sites/…/cold/findings/…</code> and <code>/api/sites/…/ev/findings/…</code> (see 4.5). Use the screen links above instead.</div>
+</section>
+
+<section id="gaps">
+<h2>9. Known gaps and open questions, ranked by how much they would confuse a client</h2>
+<div class="plain"><b>In plain words.</b> This is a list only, with no proposed builds. The top items are where two screens contradict each other, or where the chain from problem to action to result visibly breaks.</div>
+<ol class="rank">
+  <li><b>A verified Action leaves its Finding open and its row unchanged.</b>
+    <ul>
+      <li>ACT-001 is Verified, yet Finding <code>706d2f14</code> stays SUPPORTED and the Kobo cost row on 31 Oct reads Needs attention.</li>
+      <li>There is no "resolved" or "closed" state for a Finding. The design's "recurrence can reopen" assumes a close that does not exist.</li>
+      <li>Code: <code>status.py:55</code>; <code>postgres_finding_store.py</code>.</li>
+    </ul>
+  </li>
+  <li><b>Portfolio says "No action agreed yet" for the Finding that has the verified Action.</b> The exact-revision join (<code>B/estate/portfolio.py:127 _action_for</code>) breaks after the BASIS_REFRESHED revision. The board's refresh-chain join (<code>board.py:530</code>) does link them.</li>
+  <li><b>One Portfolio window, three different time slices.</b>
+    <ul>
+      <li>Kobo is judged on its last UTC day, the Cold lab and EV depot on their latest event hours (<code>read.py:140,403-437</code>).</li>
+      <li>The Grow card shows EV's 27 Oct 4.50 USD. Kobo's 42.08 USD (30 Oct) and EV's 9.00 USD (20 Oct) are invisible.</li>
+    </ul>
+  </li>
+  <li><b>The productive-use opportunity is visible on the Site and denied on Portfolio.</b>
+    <ul>
+      <li>Board: Opportunity chip and "25–31 kW unused".</li>
+      <li>Portfolio: PRODUCTIVE_USE "Not established" (constant), a fixed opportunity panel, and a Findings "Opportunities" tab that is always empty.</li>
+      <li>It is an OPP study, not a Finding, unlike mock F-109.</li>
+    </ul>
+  </li>
+  <li><b>The Kobo Grow row reads "On track" while the day earned nothing.</b> The state is the monthly target, the headline is the potential, and the subline is today's 0 kWh. The mirror case is 3 Oct and 1 Nov: Unknown beside real money or real use.</li>
+  <li><b>Cold lab and EV board Finding links go to API URLs</b> and, from code, land on "route not available".</li>
+  <li><b>The Cold lab's ACT-002 and the EV depot's ACT-003 are invisible</b> on boards and Portfolio. They are probably outside the event windows because they were created at build time. Even if shown, domain Actions can never be applied or verified.</li>
+  <li><b>Recurring problems are shown as unrelated Findings.</b> Kobo 17, 24 and 31 Oct; Cold lab 28 and 31 Oct. Recurrence is NOT_ESTABLISHED, and the Cold lab has no recurrence logic.</li>
+  <li><b>The verified claim is narrow.</b>
+    <ul>
+      <li>One hour of a 200-minute episode is compared, and there is no money saving.</li>
+      <li>The Assure "recovered value" is always "Not known yet".</li>
+      <li>On 31 Oct "Verified" sits next to "Needs attention" without saying that 31 Oct is the before-day.</li>
+    </ul>
+  </li>
+  <li><b>The Assure line omits missed targets.</b> "1 of 3 met · 1 not checked yet" (<code>objective_facts.py:71</code>).</li>
+  <li><b>A missing day still shows spare solar</b> (21 Oct: "25–31 kW unused") from the 5-day look-back.</li>
+  <li><b>"Checked day" has three meanings</b> (Portfolio dispatch day, MG-1 any good reading, noon-hour study). Three different day counts appear on one Kobo board.</li>
+  <li><b>No money in partly checked periods.</b> A Kobo week with any unchecked day contributes no Kobo money to Portfolio at all. The rule is "nothing is extrapolated", but the client sees a blank.</li>
+  <li><b>The opportunity page's "Value at declared price" never appears</b> on this data. Both studies are LIMITED (mixed source class), and <code>headroom_kw</code> is null.</li>
+  <li><b>Small inconsistencies.</b>
+    <ul>
+      <li>Headroom is computed two ways (min/max against min/min).</li>
+      <li>The per-day field <code>opportunity_kwh</code> holds kW.</li>
+      <li>The board's opportunity issue links to the renewable page, not the opportunity page.</li>
+    </ul>
+  </li>
+  <li><b>A row with met targets can read "No target for this outcome".</b>
+    <ul>
+      <li>In the roll-up precedence, No objective outranks On track (<code>status.py:105 roll_up</code>).</li>
+      <li>Cold lab, 24 Oct: CC-1 and CC-6 are both Met, but CC-5 has no target, so the Protect row reads "No target".</li>
+      <li>EV depot, 20 Oct: the Grow row reads "No target" beside 9.00 USD.</li>
+    </ul>
+  </li>
+  <li><b>The Kobo Assure state flips</b> between Watch and "No target for this outcome" day to day, depending on evidence readiness.</li>
+  <li><b>Findings lenses.</b>
+    <ul>
+      <li>The Kobo generator Finding, an Optimize-cost Finding, is not under the "Cost" tab, because it is unpriced.</li>
+      <li>The Site Findings Lens column always reads "Not assessed", and only the "All" chip works.</li>
+    </ul>
+  </li>
+  <li><b>Declared but unused targets.</b> EV-2 (0.20 USD/km) is never judged. MG-5 ("all critical demand served") is read from one noon hour.</li>
+  <li><b>Stale developer text on the Finding detail</b>: "no recommendation or Action (S6)".</li>
+  <li><b>Freshness dependency.</b> If the serve stops ticking, Kobo turns Unknown after about 5 minutes (<code>health.py:48-55</code>). The add-day re-assessment step has not been demonstrated on this build.</li>
+  <li><b>Open question for the owner.</b> Should a verification verdict (or an applied change) change a Finding's lifecycle or a row's state? Today neither the design documents nor the build define what "resolved" looks like on the board or on Portfolio.</li>
+</ol>
+</section>
+
+<section id="register">
+<h2>A. Issues register</h2>
+<div class="plain"><b>In plain words.</b> Every issue found above appears here once, with the current-data example that shows it, the code that causes it, and how badly it would confuse a client:</div>
+<ul>
+  <li><b>H</b>: two screens contradict each other, or the problem → action → result story visibly breaks;</li>
+  <li><b>M</b>: a reader is likely to misread a figure or state;</li>
+  <li><b>L</b>: wording, a dead end, or a rarely seen screen.</li>
+</ul>
+<p>The "Cause" column refers to the root causes in Part B. The "Fix" column refers to the parts of the design in Part C.</p>
+<div class="tw"><table>
+<tr><th>#</th><th>Issue</th><th>Current-data example (live)</th><th>Code</th><th>Sev.</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>I-01</td><td>A verified Action does not resolve its Finding</td><td>ACT-001 VERIFIED, while Finding <code>706d2f14</code> stays SUPPORTED and open. <a href="http://localhost:5490/sites/KOBO-001/findings/706d2f14-4187-4747-b3ff-e06da50d462f?revision_id=5206df8c-1754-40bf-ab60-9285e78a7ef4">Finding rev 2</a></td><td><code>B/analytics/adapters/postgres_finding_store.py</code> (no Action input); <code>B/actions/verification.py:834-843</code> (appends RESOLVED to the Action only)</td><td>H</td><td>RC3</td><td>C3</td></tr>
+<tr><td>I-02</td><td>Verification never changes an outcome state</td><td>Kobo 31 Oct: cost row Needs attention next to "ACT-001 Verified on example data". <a href="http://localhost:5490/sites/KOBO-001?date=2026-10-31">Kobo S</a></td><td><code>B/outcomes/status.py:55 outcome_state</code> (no verification parameter)</td><td>H</td><td>RC3</td><td>C3</td></tr>
+<tr><td>I-03</td><td>Portfolio says "No action agreed yet" for ACT-001's Finding</td><td>Portfolio row <code>706d2f14</code> has <code>action_id: null</code>; progress row <code>origin_revision_selected: false</code>. <a href="http://localhost:5490/portfolio?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">Portfolio week</a></td><td><code>B/estate/portfolio.py:127 _action_for</code> against <code>B/site_outcomes/board.py:530 linked_actions</code>, <code>:497 refresh_chain</code></td><td>H</td><td>RC1, RC2</td><td>C2, C5</td></tr>
+<tr><td>I-04</td><td>One Portfolio window, three time slices</td><td>Week 25 Oct–1 Nov. Kobo is judged on 31 Oct, the Cold lab on 31 Oct 16:00–17:05, the EV depot on 27 Oct 08:00–09:00. <a href="http://localhost:8990/api/estate/outcome-summary?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">outcome-summary</a></td><td><code>B/site_outcomes/read.py:140 mini_summary_day</code>, <code>:150 latest_window</code>, <code>:403-437</code></td><td>H</td><td>RC4, RC1</td><td>C1, C6</td></tr>
+<tr><td>I-05</td><td>The Grow card shows one hour of one Site</td><td>"4.50 USD estimated" is EV on 27 Oct. Kobo 42.08 USD (30 Oct) and EV 9.00 USD (20 Oct) never appear.</td><td><code>F/estate/PortfolioOutcomes.tsx:153 growEstimates</code>, <code>:180 content</code></td><td>H</td><td>RC4</td><td>C6</td></tr>
+<tr><td>I-06</td><td>The opportunity shows on the board but is denied on Portfolio and Findings</td><td>Kobo board Opportunity chip, while Portfolio PRODUCTIVE_USE reads "Not established" and <code>opportunity.state</code> is "UNSUPPORTED". <a href="http://localhost:5490/findings/opportunities?from=2026-10-25T00:00:00Z&amp;to=2026-11-01T00:00:00Z">Opportunities tab</a> is empty.</td><td><code>B/estate/portfolio.py:344,646-647</code>; <code>B/estate/index.py:127-128</code>; <code>F/estate/EstatePortfolio.tsx:385 OpportunityPanel</code></td><td>H</td><td>RC2</td><td>C4</td></tr>
+<tr><td>I-07</td><td>The Kobo Grow row mixes KPI, potential and earnings</td><td>31 Oct: On track + "25–31 kW unused" + 0 kWh. 3 Oct: Unknown + 42.08 USD.</td><td><code>B/site_outcomes/mini.py:451-453,761-762</code>; <code>B/outcomes/objectives.py:127 judge_month</code></td><td>H</td><td>RC1</td><td>C6</td></tr>
+<tr><td>I-08</td><td>Cold lab and EV board Finding links are API URLs</td><td><code>/api/sites/COLD-LAB-001/cold/findings/2505d188-…</code>. <a href="http://localhost:8990/api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16:00:00Z&amp;to=2026-10-31T17:05:00Z">Cold board JSON</a></td><td><code>B/site_outcomes/cold.py:217</code>; <code>B/site_outcomes/ev.py:264 _finding</code>; <code>F/sites/OutcomeBoard.tsx:93 To</code></td><td>H</td><td>RC1, RC5</td><td>C5</td></tr>
+<tr><td>I-09</td><td>Cold ACT-002 and EV ACT-003 are invisible</td><td>Both OPEN in the domain-work index; the boards' In hand lists are empty of them. <a href="http://localhost:8990/api/sites/EV-LAB-001/domain-work/action-index?from=2026-10-03T00:00:00Z&amp;to=2026-11-03T00:00:00Z">EV index</a></td><td><code>B/site_outcomes/cold.py:198 domain_action</code>; <code>board.py:636-649</code>; window from <code>read.py:203 domain_actions</code></td><td>M</td><td>RC1, RC3</td><td>C2, C3</td></tr>
+<tr><td>I-10</td><td>Recurrences show as unrelated Findings</td><td>Kobo 17, 24, 31 Oct (<code>4d121cdb</code>, <code>cbbc4916</code>, <code>706d2f14</code>), recurrence NOT_ESTABLISHED. Cold lab 28 and 31 Oct.</td><td><code>B/analytics/finding_episode.py:622-681</code>; cold <code>postgres_finding_store.py:636-644</code> (<code>recurs_after</code> NULL)</td><td>H</td><td>RC2</td><td>C2</td></tr>
+<tr><td>I-11</td><td>The verified claim reads broader than it is</td><td>One hour (06:00–07:00) of a 200-minute episode; cost check MODELLED_NO_IMPROVEMENT, 0 USD.</td><td><code>B/actions/verification_rules.py:28-31,715 decide</code>; <code>board.py:387 cost_line</code></td><td>M</td><td>RC3</td><td>C3</td></tr>
+<tr><td>I-12</td><td>"Verified" sits next to "Needs attention" on the before-day</td><td>Kobo 31 Oct is the trial's baseline day.</td><td><code>status.py:55</code> step 4; <code>board.py:402 trial_line</code></td><td>H</td><td>RC3</td><td>C3</td></tr>
+<tr><td>I-13</td><td>The Assure line omits missed targets</td><td>31 Oct: "1 of 3 declared objectives met · 1 not checked yet"</td><td><code>B/site_outcomes/objective_facts.py:71 assure_text</code></td><td>M</td><td>RC5</td><td>C5 (guard)</td></tr>
+<tr><td>I-14</td><td>A missing day still shows spare solar</td><td><a href="http://localhost:5490/sites/KOBO-001?date=2026-10-21">Kobo 21 Oct</a>: all rows Unknown, yet "25–31 kW unused"</td><td><code>mini.py:441,496-528</code> (5-day look-back)</td><td>M</td><td>RC4</td><td>C1</td></tr>
+<tr><td>I-15</td><td>"Checked day" has three meanings</td><td>31 Oct board: "7 of 31 days checked", "2 of the last 5 days not checked", "24 of the last 31 days … no checked readings"</td><td><code>B/estate/coverage.py:216 _days_block</code>; <code>mini.py:570 _productive_month</code>; <code>B/mini_depth/rules.py:393-411</code></td><td>M</td><td>RC4</td><td>C1</td></tr>
+<tr><td>I-16</td><td>No money at all in a partly checked period</td><td>Kobo week PARTIAL; money units U; <code>estate_total</code> null</td><td><code>coverage.py:31-34,255</code>; <code>B/estate/financials.py:459</code></td><td>M</td><td>RC4</td><td>C1, C6</td></tr>
+<tr><td>I-17</td><td>The opportunity value line never appears</td><td>OPP-000004 LIMITED (MIXED source); <code>headroom_kw</code> null. <a href="http://localhost:5490/sites/KOBO-001/opportunities/f3e8d13f-3b7c-4348-824c-e912fd0869aa">OPP page</a></td><td><code>B/mini_decisions/projection.py:163-194</code>; <code>F/sites/MiniOpportunity.tsx:115-130</code></td><td>M</td><td>RC2</td><td>C4</td></tr>
+<tr><td>I-18</td><td>Headroom computed two ways; <code>opportunity_kwh</code> holds kW; the board links to renewable, not to the OPP</td><td>Board 25–31 (min/max) against study min/min</td><td><code>rules.py:407</code>; <code>projection.py:183</code></td><td>L</td><td>RC2</td><td>C4</td></tr>
+<tr><td>I-19</td><td>A row with met targets reads "No target for this outcome"</td><td>Cold 24 Oct Protect (CC-1, CC-6 Met; CC-5 undeclared); EV 20 Oct Grow beside 9.00 USD</td><td><code>status.py:34 PRECEDENCE</code>, <code>:105 roll_up</code></td><td>M</td><td>RC1</td><td>C6</td></tr>
+<tr><td>I-20</td><td>The Kobo Assure state flips day to day</td><td>30 Oct Watch ("Source not resolved"); 31 Oct "No target"</td><td><code>status.py:55</code> step 6; <code>mini.py:897 _assure</code></td><td>L</td><td>RC4</td><td>C1</td></tr>
+<tr><td>I-21</td><td>Findings lenses misfile Findings</td><td>The Kobo generator (cost) Finding is not under "Cost" because it is unpriced; the Site Lens column reads "Not assessed"</td><td><code>B/estate/index.py:26,127-128</code>; <code>F/sites/SiteFindingIndex.tsx:549,597-600</code></td><td>M</td><td>RC1, RC2</td><td>C2, C5</td></tr>
+<tr><td>I-22</td><td>Declared targets are never or narrowly judged</td><td>EV-2 0.20 USD/km never judged; MG-5 read from one noon hour</td><td><code>board.py:578</code>; <code>mini.py:526-527,543-545</code></td><td>L</td><td>RC4</td><td>C1</td></tr>
+<tr><td>I-23</td><td>Stale developer text on the Finding detail</td><td>"recommendation: UNAVAILABLE: no recommendation or Action (S6)" on <code>/api/sites/KOBO-001/findings/706d2f14…</code></td><td><code>B/analytics/finding_read.py:49-54</code></td><td>L</td><td>RC5</td><td>C5</td></tr>
+<tr><td>I-24</td><td>The "Priority sites" count is always "Not assessed"; recovered value is always "Not known yet"</td><td><code>priority_site_count</code> null; VERIFIED_RECOVERY NOT_ESTABLISHED</td><td><code>B/estate/portfolio.py:345,610</code></td><td>L</td><td>RC3</td><td>C3, C6</td></tr>
+<tr><td>I-25</td><td>Freshness dependency: Kobo turns Unknown about 5 minutes after the serve stops; add-day not demonstrated</td><td>The WALK1-G2 report: WN-5 step not run</td><td><code>B/scheduling/health.py:48-55</code>; <code>tools/demo_combined.py:483 add_day</code></td><td>L</td><td>RC5</td><td>C7</td></tr>
+</table></div>
+</section>
+
+<section id="causes">
+<h2>B. Root causes</h2>
+<div class="plain"><b>In plain words.</b> The 25 issues trace to five root causes. The deepest is that the outcome chain was never built as one thing. It was assembled late, in about two weeks of slices, as a presentation layer over reads that each part of the product had built for itself. Each screen therefore re-derives the chain its own way: which Finding, which Action, which days, which window. Each slice was accepted on its own screen, so nothing checked that the screens agree.</div>
+
+<h3>B.1 The five root causes, with evidence</h3>
+<div class="tw"><table>
+<tr><th>Cause</th><th>What it is</th><th>Evidence (history and code)</th></tr>
+<tr><td><b>RC1</b> No canonical chain read model</td><td>
+  <ul>
+    <li>The outcome layer composes per-domain read APIs, whose shapes differ (Kobo dispatch reads, cold and EV assessment reads, estate reads).</li>
+    <li>Portfolio, built 9 days earlier, has its own joins.</li>
+    <li>No single object holds "this outcome is driven by this Finding, worked on by this Action, proven by this verification, over these days".</li>
+  </ul>
+</td><td>
+  <ul>
+    <li>Commercial Capability Architecture rev 6, 29 Oct (<code>Docs/demo-sprint/commercial-capability-readiness.html</code>): "Most of the mockup is wiring and labelling over existing reads … built first from what exists".</li>
+    <li>Dates: Portfolio <code>estate/portfolio.py</code> created in W3-03 (450f5f9fe, 2026-10-21); <code>site_outcomes/board.py</code> in OUT-B1 (6e5ff8306, 2026-10-30).</li>
+    <li>Composers take ports onto existing services (<code>B/site_outcomes/read.py:210 mini_ports</code>, <code>:292 cold_ports</code>, <code>:307 ev_ports</code>), so the Cold lab copies an API path as its link (<code>cold.py:217</code>).</li>
+    <li>LINK-LINEAGE (31 Oct) fixed the Action join on the board only: "Do not touch <code>estate/**</code> (the estate Finding→Action join … stays exact; out of scope)" (<code>.agent/build-sheet-LINK-LINEAGE.md:17,63</code>; <code>D-2026-10-31-board-action-refresh-lineage</code>, <code>.ai/DECISIONS.md:4355</code>).</li>
+  </ul>
+</td></tr>
+<tr><td><b>RC2</b> Finding identity is shaped by its first mechanism</td><td>
+  <ul>
+    <li>The Finding schema was built for Kobo dispatch.</li>
+    <li>An opportunity could not be stored as a Finding, so it got its own tables.</li>
+    <li>Cold and EV Findings got their own read routes.</li>
+    <li>Recurrence exists only in the Kobo matcher, and only with proven separation.</li>
+    <li>There is no identity for "the same problem again".</li>
+  </ul>
+</td><td>
+  <ul>
+    <li>W4-03 build spec: <code>finding</code> requires <code>anchor_assessment_revision_id</code>, and <code>finding_revision</code> requires dispatch minutes. "A renewable opportunity cannot be inserted with fabricated dispatch IDs/minutes. New typed opportunity tables and union adapters below own this gap" (<code>.agent/W4-03-build-spec.md:9-10</code>, migration 0009).</li>
+    <li>The planned "typed <code>mini_opportunity</code> arm to the Site/estate Opportunity lens" was never built (<code>B/estate/index.py:127-128</code> sets no OPPORTUNITY flag).</li>
+    <li>OUT-C knew this: "Opportunities (none exist now, so that list renders nothing)" (<code>.agent/build-sheet-OUT-C.md:230-231</code>).</li>
+    <li>Cold and EV recurrence is roadmap step 8, horizon H1–H2, not built (rev 6 §11.2).</li>
+  </ul>
+</td></tr>
+<tr><td><b>RC3</b> The lifecycle stops at the verdict</td><td>
+  <ul>
+    <li>Verification was specified as a <i>read-back</i>: labels, an Assure line and a cost line.</li>
+    <li>It was never specified as a <i>transition</i>.</li>
+    <li>The Finding has no resolved or monitoring state, the outcome rule has no verification input, and domain Actions have no applied or verified path.</li>
+  </ul>
+</td><td>
+  <ul>
+    <li>OUT-E's stated outcome: "the Optimize cost row's Earlier interventions entry and the Assure row's Verified results line show …" (<code>.agent/build-sheet-OUT-E.md:11-15</code>).</li>
+    <li>Rev 6 §4.4: "Today this runs to VERIFIED. The reassessment and the before-and-after status are missing (11.2, step 5)." Step 5 was then built as text.</li>
+    <li>The design document assumes closure ("later recurrence able to reopen the Finding", <code>production-shaped-mvp.md:57</code>), but no closing transition exists (<code>finding_episode.py:39-42</code> lists only UNCONFIRMED and NO_LONGER_SUPPORTED).</li>
+    <li>Domain Actions are "never a verification outcome" (<code>B/work/domain_action.py:8</code>).</li>
+  </ul>
+</td></tr>
+<tr><td><b>RC4</b> No shared time and coverage model</td><td>
+  <ul>
+    <li>"Which days count" and "which window a Site is judged on" are defined per feature.</li>
+    <li>That gives three "checked day" rules, UTC days against local days, and "latest event" against "last day".</li>
+  </ul>
+</td><td>
+  <ul>
+    <li>OUT-W added <code>LATEST_EVENT</code> for the Cold lab and EV depot and left Kobo on "the UTC day of <code>to</code>" (<code>.agent/build-sheet-OUT-W.md:17,87-104</code>).</li>
+    <li>COV-PARTIAL defined estate checked days (<code>coverage.py:216</code>).</li>
+    <li>WALK1-3b defined MG-1 checked days as "any GOOD coverage" (<code>build-sheet-WALK1.md</code> A2.2; <code>mini.py:570</code>).</li>
+    <li>W4-03 and WALK1-5 defined the noon-hour study days (<code>rules.py:393-411</code>).</li>
+  </ul>
+</td></tr>
+<tr><td><b>RC5</b> Acceptance by slice, not by chain</td><td>
+  <ul>
+    <li>Each slice was reviewed against its own sheet, on chosen days, with copy and capture gates.</li>
+    <li>No check asserts that Portfolio, board, Findings and Actions agree, or that every link resolves to a screen.</li>
+  </ul>
+</td><td>
+  <ul>
+    <li>Finish checks are value pins on chosen keys: CO-1, CO-6, WK-1…WK-6, SP-3 (<code>var/polish_full/check.json</code>, "23/0/0" in the WALK1-G2 report).</li>
+    <li>The capture gates scan visible text for vocabulary and ids (POLISH-PB-0, merge ab248b4c3) but do not follow links.</li>
+    <li>LINK-LINEAGE deliberately accepted a board-versus-Portfolio difference (C5 of its sheet).</li>
+  </ul>
+</td></tr>
+</table></div>
+
+<h3>B.2 Where I agree and disagree with the coordinator's hypothesis</h3>
+<ul>
+  <li><b>H1 "no shared domain model; composers and the aggregator each redo the joins": agree, with one correction.</b>
+    <ul>
+      <li>The composers do not re-join raw tables. They consume per-domain read APIs whose shapes and link conventions differ.</li>
+      <li>The defect is a missing canonical read model, not duplicated SQL.</li>
+      <li>It was a deliberate rev 6 choice ("built first from what exists"), made by the Architect (Claude). It traded coherence for speed and was not revisited when the chain became the product's spine.</li>
+    </ul>
+  </li>
+  <li><b>H2 "never a rule for what verification changes": partly wrong.</b>
+    <ul>
+      <li>There was a rule (OUT-E, rev 6 §4.4): verification is <i>read back</i> as text, and money is credited only on VERIFIED.</li>
+      <li>What was missing was the <i>state</i> side: the Finding lifecycle and the outcome state. Rev 6 named that gap and the roadmap scheduled only its text half.</li>
+      <li>So the cause is "specified as read-back, transition deferred", not "never specified".</li>
+    </ul>
+  </li>
+  <li><b>H3 "opportunity, declared prices and the KPI split bolted on under demo speed": half right.</b>
+    <ul>
+      <li>Declared prices and the KPI/potential split (WALK1-3/3b/5) were added to the board composer under demo speed (<code>mini.py:451-453,726-764</code>). That is where I-07 comes from.</li>
+      <li>The opportunity was <i>not</i> a demo-speed bolt-on. W4-03 deliberately kept it out of the Finding store because the Finding schema could not hold it. The planned union read was never built. That is RC2, a schema-shape cause.</li>
+      <li>"No owner for recurrence identity" is right, and belongs to RC2.</li>
+    </ul>
+  </li>
+  <li><b>H4 "acceptance per slice; 23/23 checks values, not coherence": agree.</b> It is RC5. I add RC4 (time model) as a separate cause: it explains I-04, I-05 and I-14 to I-16, which the other four causes do not.</li>
+</ul>
+
+<h3>B.3 Issues mapped to causes</h3>
+<figure>
+<svg viewBox="0 0 980 300" role="img" aria-labelledby="rcT"><title id="rcT">Issues mapped to root causes</title>
+<rect class="bxr" x="10" y="20" width="180" height="70" rx="8"/><text x="100" y="45" text-anchor="middle" class="t-b">RC1</text><text x="100" y="63" text-anchor="middle" class="t-s">no canonical chain</text><text x="100" y="78" text-anchor="middle" class="t-s">read model</text>
+<rect class="bxr" x="205" y="20" width="180" height="70" rx="8"/><text x="295" y="45" text-anchor="middle" class="t-b">RC2</text><text x="295" y="63" text-anchor="middle" class="t-s">mechanism-shaped</text><text x="295" y="78" text-anchor="middle" class="t-s">Finding identity</text>
+<rect class="bxr" x="400" y="20" width="180" height="70" rx="8"/><text x="490" y="45" text-anchor="middle" class="t-b">RC3</text><text x="490" y="63" text-anchor="middle" class="t-s">lifecycle stops</text><text x="490" y="78" text-anchor="middle" class="t-s">at the verdict</text>
+<rect class="bxr" x="595" y="20" width="180" height="70" rx="8"/><text x="685" y="45" text-anchor="middle" class="t-b">RC4</text><text x="685" y="63" text-anchor="middle" class="t-s">no shared time /</text><text x="685" y="78" text-anchor="middle" class="t-s">coverage model</text>
+<rect class="bxr" x="790" y="20" width="180" height="70" rx="8"/><text x="880" y="45" text-anchor="middle" class="t-b">RC5</text><text x="880" y="63" text-anchor="middle" class="t-s">acceptance by slice,</text><text x="880" y="78" text-anchor="middle" class="t-s">not by chain</text>
+<g class="t-s">
+<text x="100" y="120" text-anchor="middle">I-03 · I-04 · I-07</text><text x="100" y="138" text-anchor="middle">I-08 · I-09 · I-19</text><text x="100" y="156" text-anchor="middle">I-21</text>
+<text x="295" y="120" text-anchor="middle">I-03 · I-06 · I-10</text><text x="295" y="138" text-anchor="middle">I-17 · I-18 · I-21</text>
+<text x="490" y="120" text-anchor="middle">I-01 · I-02 · I-09</text><text x="490" y="138" text-anchor="middle">I-11 · I-12 · I-24</text>
+<text x="685" y="120" text-anchor="middle">I-04 · I-05 · I-14</text><text x="685" y="138" text-anchor="middle">I-15 · I-16 · I-20 · I-22</text>
+<text x="880" y="120" text-anchor="middle">I-08 · I-13 · I-23 · I-25</text><text x="880" y="138" text-anchor="middle">(and lets all others ship)</text>
+</g>
+<path class="lx" d="M880,150 C880,230 100,230 100,165"/><text x="430" y="250" class="t-x" style="font-size:11px">RC5 is why RC1–RC4 reached the walkthrough undetected</text>
+<path class="lh" d="M100,90 C150,100 250,100 295,92"/><text x="150" y="280" class="t-s">RC1 and RC2 compound: without one identity, each reader picks its own join (I-03, I-21)</text>
+</svg>
+</figure>
+</section>
+
+<section id="proposal">
+<h2>C. Fundamental resolution: summary (full design review in the companion file)</h2>
+<div class="plain"><b>In plain words.</b> The full design review is in <a href="implementation-logic-design-proposal.html"><b>Outcome chain: design review and proposal</b></a>. It covers ERDs, state machines, algorithms, sequence diagrams, the API contract, UI mapping, alternatives, risks, migration, tests, slices and owner decisions. This is the summary.</div>
+<p><b>The underlying disconnect.</b></p>
+<ul>
+  <li>Rev 6 promises "one outcome-management system in which evidence, diagnosis, commercial models, levers, actions and verification share identities and feed each other".</li>
+  <li>The build stores those facts well, but holds the chain itself only as read-time composition. Each composer and estate service does it separately, with no stored problem identity, no lifecycle after the verdict and no shared calendar of checked days.</li>
+  <li>Every new Site type, lever or objective therefore re-implements joins, windows, day counts and links. That is the source of today's 25 issues and of future ones (<a href="implementation-logic-design-proposal.html#future">companion §2</a>).</li>
+</ul>
+<div class="tw"><table>
+<tr><th>Layer</th><th>Proposal</th><th>Companion</th></tr>
+<tr><td>Data</td><td>
+  <ul>
+    <li>Chain tables: <code>finding_thread</code>, <code>finding_thread_occurrence</code> (a Finding or an OPP) and <code>finding_thread_event</code> (lifecycle).</li>
+    <li>Agreed with the owner on 2026-11-03: per-Site-day snapshots with quality grades (<code>site_day_snapshot</code>), rebuilt per event through an event register, an <code>event_outbox</code> and a <code>snapshot_dirty</code> queue.</li>
+    <li><code>thread_id</code> on <code>action</code> and <code>domain_action</code>, and a <code>chain_action</code> view.</li>
+    <li>Window status stays computed.</li>
+  </ul>
+</td><td><a href="implementation-logic-design-proposal.html#data">§4</a> (ERDs, states)</td></tr>
+<tr><td>Service</td><td>
+  <ul>
+    <li><code>B/chain/</code>: CoverageCalendar, ThreadRegistry, Lifecycle, OutcomeEvaluator and ChainReader, the only joins.</li>
+    <li>The composers shrink to MeasureAdapters.</li>
+    <li>A new tick stage runs after s4.</li>
+  </ul>
+</td><td><a href="implementation-logic-design-proposal.html#service">§5</a> (algorithms A1–A6)</td></tr>
+<tr><td>API</td><td><code>GET /api/sites/{code}/chain</code> and <code>GET /api/estate/chain</code> (<code>outcome-chain-1</code>). Legacy endpoints become views, with refs added beside hrefs.</td><td><a href="implementation-logic-design-proposal.html#api">§7</a></td></tr>
+<tr><td>UI</td><td>Every screen maps the same contract. There are no card rules in the browser, and one <code>routeFor(ref)</code> builds every link.</td><td><a href="implementation-logic-design-proposal.html#ui">§8</a></td></tr>
+</table></div>
+<p>Reading the register's "Fix" column: C1–C6 are the companion's design elements D1–D6 (coverage, threads, lifecycle, opportunities, ChainReader and refs, outcome nodes and Portfolio composition), and C7 is the demo producer and freshness item. The full mapping is in <a href="implementation-logic-design-proposal.html#issues">companion §14</a>.</p>
+<p>The end-to-end example (Kobo generator → ACT-001 → verified → effect; spare-solar opportunity → Grow) is in <a href="implementation-logic-design-proposal.html#together">companion §9</a>. Cost, sequencing, the owner decisions and the <a href="implementation-logic-design-proposal.html#agreed">decisions already agreed</a> are in <a href="implementation-logic-design-proposal.html#plan">§15</a> and <a href="implementation-logic-design-proposal.html#decisions">§17</a>: about 72 units (about 10 working days on two lanes, plus CH-10a/b after the demo for generic screens), with a demo-critical subset of about 21 units.</p>
+<p>Also in the companion, agreed with the owner on 2026-11-03:</p>
+<ul>
+  <li>a demonstrated six-section <a href="implementation-logic-design-proposal.html#catalogue">chain catalogue</a> (§5b), with contribution strategies and a "Why?" trace;</li>
+  <li>evidence classes and generalised subjects;</li>
+  <li>future integrations as design context (§16a);</li>
+  <li><a href="implementation-logic-design-proposal.html#performance">performance budgets and a scale path</a> (§11b), with day snapshots as the primary read source.</li>
+  <li><a href="implementation-logic-design-proposal.html#hardwiring">screens as generic renderers</a> of one backend logic (§8b), with hard-wiring guards.</li>
+</ul>
+</section>
+
+<section id="sources">
+<h2>10. Sources and method</h2>
+<ul>
+  <li><b>Code</b>: <code>C:\Users\assef\Bineyame\AssetOpsV1-polC</code> at <code>73a558a1b</code> (same commit as main), read only. Function line numbers were checked with <code>grep -n</code> on that tree. Some references come from three code-reading passes and are cited as found.</li>
+  <li><b>Live data</b>: read-only GETs against <code>http://localhost:8990</code>, at server clock about 2026-11-02 21:29–21:35 UTC (<code>known_at</code> in the responses). No service was restarted or written to, and no database was queried directly.</li>
+  <li><b>Work dir</b>: <code>var/polish_full/{story,days,kobo,cold,ev,objectives,check,manifest}.json</code>.</li>
+  <li><b>Specs and history</b>:
+    <ul>
+      <li><code>AssetOpsV1-plan2/.agent/build-sheet-WALK1.md</code> (verdicts, Addendum 2 on separating KPI and potential);</li>
+      <li><code>.agent/decisions-while-owner-away-2026-11-02.md</code> (D-W1-7…23);</li>
+      <li><code>.agent/owner-walkthrough-notes-2026-11-01.md</code>;</li>
+      <li>polC <code>.agent/POLISH-runbook.md</code>, <code>.agent/WALK1-G2-report.md</code>;</li>
+      <li><code>frontend/docs/architecture/production-shaped-mvp.md:57</code>;</li>
+      <li>v70 mock <code>frontend/mockups/v70/portfolio.js</code> (Finding F-109 "Productive-use headroom").</li>
+    </ul>
+  </li>
+  <li><b>Not done</b>: links were not clicked in a browser (to leave the owner's session untouched). The API-URL link defect is from code reading.</li>
+</ul>
+</section>
+</main>
+</div>
+</body>
+</html>
