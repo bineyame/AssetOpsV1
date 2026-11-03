@@ -13,6 +13,7 @@ and the downgrade guard. Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` d
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import json
 from uuid import uuid4
@@ -34,7 +35,7 @@ if URL:
     from test_s6_verification_plan_postgres import applied_action, freeze, release_engines, verifying  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, head
 
-HEAD = "0043_chain_snapshots"  # OUT-E: the merge revision above 0037 and 0038
+HEAD = alembic_head()
 TRIAL = "0037_cc_trial_cost_comparison"
 CONTRIBUTION = "0036_cc_mini_contribution"
 PREVIOUS = "0035_w5_ev_work"

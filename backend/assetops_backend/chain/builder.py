@@ -71,7 +71,7 @@ class SnapshotBuilder:
         grade = grading.classify_day(expected, required, covered, pending, self._policy.bands, spec.threshold)
         value = adapter.measure(ctx, subject_ref, inputs) if (expected and covered > 0) else None
         money = adapter.money(ctx, subject_ref, value) if value is not None else None
-        fp = grading.input_fp(ids, self._policy.policy_version, self._calendar.calendar_version,
+        fp = grading.input_fp(ids, pending, self._policy.policy_version, self._calendar.calendar_version,
                               self._catalogue_version, adapter.key)
         key = SnapshotKey(ctx.tenant_id, ctx.site_id, ctx.local_day, spec.subject_kind, subject_ref, spec.key)
         latest = self._store.latest(key)

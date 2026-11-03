@@ -8,6 +8,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import os
 from datetime import timedelta
@@ -26,7 +27,7 @@ if URL:
     from test_w203_cold_migration_postgres import (
         T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists)
 
-HEAD = "0043_chain_snapshots"  # W5-04a: 0035 sits above 0034; W5-03b: 0034 sits above 0033; W5-02a: 0033 sits above 0032 (W5-01b above 0030)
+HEAD = alembic_head()
 PREVIOUS = "0024_w2_ev_config"
 REFUSED = "Downgrade of 0025_w2_ev_session refused"
 EV = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")

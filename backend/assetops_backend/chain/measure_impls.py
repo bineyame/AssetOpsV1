@@ -28,6 +28,8 @@ EXCURSION_ANALYTIC = "cold-excursion"
 START_RESPONSE_ANALYTIC = "cold-start-response"
 EV_SESSION_ANALYTIC = "ev-session/1"
 CHAMBER_ROLE = "chamber_temperature"
+#: CH1a-R D2/D3: Cold coverage counts the selected assessment window (the assessment's gap rule exists only there).
+ASSESSED_WINDOW = "assessed_window"
 #: §5c Q5: the backup-chain status roles whose accepted readings cover the period (grid, generator, transfer, bus).
 BACKUP_ROLES = ("grid_power_event", "generator_state", "transfer_result", "backup_bus_state")
 
@@ -199,7 +201,8 @@ class DispatchMinutes:
                         and lo <= first_on < hi):
                     mine.append(iv)
         evidence = self.r.run_evidence_intervals(ctx, runs)
-        ids = sorted({e[0] for e in evidence} | {f"revision:{str(iv['id']).lower()}" for iv in mine})
+        ids = sorted({e[0] for e in evidence} | {f"revision:{str(iv['id']).lower()}" for iv in mine}
+                     | {f"selection:{str(r).lower()}" for r in runs})
         return InputSet(tuple(ids), [(a, b) for _, a, b in evidence], bool(pending), mine)
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
@@ -223,8 +226,9 @@ class ChamberTemperature:
         lo, hi = ctx.period_start_utc, ctx.period_end_utc
         covered: list[Span] = []
         ids: set[str] = set()
-        for ws, we in self.r.selected_windows(ctx, [EXCURSION_ANALYTIC]):
+        for ws, we, run_id in self.r.selected_windows(ctx, [EXCURSION_ANALYTIC]):
             t = self.r.cold_temperature(ctx, ws, we)
+            ids.add(f"run:{run_id}")  # a re-assessment over the same evidence is a changed input
             policy = t.get("policy")
             if policy is None:
                 continue
@@ -241,7 +245,9 @@ class ChamberTemperature:
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
         values = [v for v in (_dec(x.get("value")) for x in inputs.payload or ()) if v is not None]
-        return {"peak_c": _text(max(values)) if values else None}
+        # D3 (CH1a-R): the gap rule is the assessment's own, defined only inside an assessed window, so coverage
+        # keeps the assessed-window basis; the value says so.
+        return {"peak_c": _text(max(values)) if values else None, "basis": ASSESSED_WINDOW}
 
     def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
         return None
@@ -262,7 +268,8 @@ class BackupStartChain:
         covered: list[Span] = []
         chains: list[dict[str, Any]] = []
         ids = {x["evidence_id"] for x in readings}
-        for ws, we in self.r.selected_windows(ctx, [START_RESPONSE_ANALYTIC]):
+        for ws, we, run_id in self.r.selected_windows(ctx, [START_RESPONSE_ANALYTIC]):
+            ids.add(f"run:{run_id}")
             inside = [x for x in readings if x["source_time"] is not None and ws <= x["source_time"] < we]
             b = self.r.cold_backup_chain(ctx, ws, we)
             if b.get("state") is None or not inside:
@@ -276,7 +283,8 @@ class BackupStartChain:
 
     def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
         chains = inputs.payload or []
-        return {"starts": len(chains), "failed": sum(1 for ch in chains if ch.get("result") == "OBSERVED_FAILURE")}
+        return {"starts": len(chains), "failed": sum(1 for ch in chains if ch.get("result") == "OBSERVED_FAILURE"),
+                "basis": ASSESSED_WINDOW}
 
     def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
         return None
@@ -296,7 +304,8 @@ class ChargingEnergy(_Cached):
         covered: list[Span] = []
         ids: set[str] = set()
         reads = []
-        for ws, we in self.r.selected_windows(ctx, [EV_SESSION_ANALYTIC]):
+        for ws, we, run_id in self.r.selected_windows(ctx, [EV_SESSION_ANALYTIC]):
+            ids.add(f"run:{run_id}")
             w = self.r.ev_window(ctx, ws, we)
             if not w["selected"]:
                 continue

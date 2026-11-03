@@ -6,6 +6,7 @@ the stored value, and the downgrade refusing while any row carries a minimum, ot
 CHECK probes are direct SQL in the replica role (the CHECKs still apply; the FK and append-only triggers do not).
 """
 from __future__ import annotations
+from pg_harness import alembic_head
 
 from decimal import Decimal
 
@@ -27,7 +28,7 @@ if URL:
     from assetops_backend.objectives.model import SYSTEM_DECLARER, Declaration, ObjectiveRefused
     from assetops_backend.site_outcomes import mini, objective_facts
 
-HEAD = "0043_chain_snapshots"  # CH-1a: the sole head sits above the 0041 migration under test
+HEAD = alembic_head()
 THIS = "0041_walk1_objective_min_days"
 PREVIOUS = "0040_walk1_productive_price"
 REFUSED = "Downgrade of 0041_walk1_objective_min_days refused"

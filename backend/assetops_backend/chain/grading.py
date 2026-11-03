@@ -111,6 +111,7 @@ def coverage_pct(required: int, covered: int) -> str:
 
 def input_fp(
     ids: Sequence[str],
+    pending: bool,
     policy_version: str,
     calendar_version: str,
     catalogue_version: int,
@@ -119,6 +120,7 @@ def input_fp(
     payload = json.dumps(
         {
             "ids": sorted(str(i) for i in ids),
+            "pending": bool(pending),
             "policy_version": policy_version,
             "calendar_version": calendar_version,
             "catalogue_version": catalogue_version,

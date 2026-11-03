@@ -55,7 +55,7 @@ _RUN_EVIDENCE = (
     "AND e.interval_start IS NOT NULL AND e.interval_end IS NOT NULL ORDER BY e.interval_start, e.id")
 
 _WINDOWS = (
-    "SELECT sel.window_start, sel.window_end, max(sel.seq) FROM analytic_run_selection sel JOIN analytic_run r "
+    "SELECT sel.window_start, sel.window_end, max(sel.seq), (array_agg(sel.run_id ORDER BY sel.seq DESC))[1] FROM analytic_run_selection sel JOIN analytic_run r "
     "ON r.id = sel.run_id WHERE sel.tenant_id = :t AND sel.site_id = :s AND sel.analytic_id = ANY(:a) "
     "AND sel.window_start < :hi AND sel.window_end > :lo AND r.knowledge_cutoff <= :k "
     "GROUP BY sel.window_start, sel.window_end ORDER BY sel.window_start, sel.window_end")
@@ -82,7 +82,7 @@ def instant(value: Any) -> datetime | None:
     return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 
 
-def latest_disjoint(windows: Sequence[tuple[datetime, datetime, int]]) -> list[tuple[datetime, datetime]]:
+def latest_disjoint(windows: Sequence[tuple]) -> list[tuple]:
     """Overlapping stored windows (re-selections of one run with a different end) count once: within each
     cluster of overlapping windows the one with the latest selection seq is kept, so no energy or money is
     summed twice."""
@@ -92,7 +92,7 @@ def latest_disjoint(windows: Sequence[tuple[datetime, datetime, int]]) -> list[t
             clusters[-1].append(w)
         else:
             clusters.append([w])
-    return [max(cl, key=lambda x: x[2])[:2] for cl in clusters]
+    return [(lambda w: (w[0], w[1], *w[3:]))(max(cl, key=lambda x: x[2])) for cl in clusters]
 
 
 class PostgresChainInputs:
@@ -222,10 +222,10 @@ class PostgresChainInputs:
 
     # --- cold / EV (per stored selected window) ----------------------------------------------------------
 
-    def selected_windows(self, ctx: DayCtx, analytic_ids: Sequence[str]) -> list[tuple[datetime, datetime]]:
+    def selected_windows(self, ctx: DayCtx, analytic_ids: Sequence[str]) -> list[tuple[datetime, datetime, str]]:
         rows = self._all(_WINDOWS, {"t": ctx.tenant_id, "s": ctx.site_id, "a": list(analytic_ids),
                                     "lo": ctx.period_start_utc, "hi": ctx.period_end_utc, "k": self._known(ctx)})
-        return latest_disjoint([(r[0], r[1], int(r[2])) for r in rows])
+        return latest_disjoint([(r[0], r[1], int(r[2]), str(r[3]).lower()) for r in rows])
 
     def cold_temperature(self, ctx: DayCtx, lo: datetime, hi: datetime) -> dict[str, Any]:
         return self.cold.temperature(ctx.tenant_id, ctx.site_id, ctx.site_code, lo, hi, ctx.known_at)
@@ -254,8 +254,7 @@ class PostgresChainInputs:
             money = site.consequence_on(ev_ctx)
             ids = sorted({str(r["evidence_id"]).lower() for r in accepted})
             return {"selected": snap["selected"] is not None, "meter": meter, "status": status, "energy": energy,
-                    "denominator": denominator, "money": money, "evidence_ids": ids,
-                    "unknown_meter_seconds": energy.get("unknown_seconds")}
+                    "denominator": denominator, "money": money, "evidence_ids": ids}
 
         return reads.within(work)
 

@@ -8,6 +8,7 @@ a restart. An ordinary state-only Finding stays `QUANTITY_UNAVAILABLE`. Requires
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import os
 import threading
@@ -466,7 +467,7 @@ class TestMigration0015Downgrade:
             count = c.execute(text("SELECT count(*) FROM finding_revision WHERE finding_id = :f"),
                               {"f": rev["finding_id"]}).scalar_one()
             version = c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        assert count == 2 and version == "0043_chain_snapshots"
+        assert count == 2 and version == alembic_head()
         assert not self._basis_constraint(engine)
 
     def test_downgrade_without_a_returning_basis_restores_the_constraint(self, site_before_0029, engine) -> None:  # noqa: F811

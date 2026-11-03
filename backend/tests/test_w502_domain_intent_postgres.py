@@ -8,6 +8,7 @@ Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
@@ -35,7 +36,7 @@ if URL:
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
     from assetops_backend.work.model import WorkRefused
 
-HEAD = "0043_chain_snapshots"  # OUT-D: the sole head
+HEAD = alembic_head()
 PREVIOUS = "0032_w5_cold_scenarios"
 REFUSED = "Downgrade of 0033_w5_cold_work refused: domain Action rows exist."
 TABLES = ("domain_action", "domain_action_intent", "domain_action_case_link")

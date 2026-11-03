@@ -131,15 +131,15 @@ def test_period_bounds_dst_free_zone_is_stable_all_year(tmp_path) -> None:
 
 
 def test_input_fp_stable_under_order_and_sensitive_to_versions() -> None:
-    base = input_fp(["b", "a"], "p/1", "c/1", 1, "k@1")
-    assert base == input_fp(["a", "b"], "p/1", "c/1", 1, "k@1")
+    base = input_fp(["b", "a"], False, "p/1", "c/1", 1, "k@1")
+    assert base == input_fp(["a", "b"], False, "p/1", "c/1", 1, "k@1")
     assert len(base) == 64 and all(ch in "0123456789abcdef" for ch in base)
     variants = {
-        input_fp(["a", "b", "c"], "p/1", "c/1", 1, "k@1"),
-        input_fp(["a", "b"], "p/2", "c/1", 1, "k@1"),
-        input_fp(["a", "b"], "p/1", "c/2", 1, "k@1"),
-        input_fp(["a", "b"], "p/1", "c/1", 2, "k@1"),
-        input_fp(["a", "b"], "p/1", "c/1", 1, "k@2"),
+        input_fp(["a", "b", "c"], False, "p/1", "c/1", 1, "k@1"),
+        input_fp(["a", "b"], False, "p/2", "c/1", 1, "k@1"),
+        input_fp(["a", "b"], False, "p/1", "c/2", 1, "k@1"),
+        input_fp(["a", "b"], False, "p/1", "c/1", 2, "k@1"),
+        input_fp(["a", "b"], False, "p/1", "c/1", 1, "k@2"),
     }
     assert base not in variants and len(variants) == 5
 
