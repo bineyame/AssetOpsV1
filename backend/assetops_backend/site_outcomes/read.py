@@ -21,6 +21,7 @@ from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend import perf
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
@@ -432,11 +433,13 @@ class SiteOutcomeBoardService:
             if site.domain == MINI:
                 basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, mini_summary_day(hi), None, None
             else:
-                ev_win = self._event_window(site, lo, hi, known_at)
+                with perf.timed("summary.event_window"):
+                    ev_win = self._event_window(site, lo, hi, known_at)
                 basis = WINDOW_BASIS_PERIOD if ev_win is None else WINDOW_BASIS_EVENT
                 b_day, (b_lo, b_hi) = None, ((lo, hi) if ev_win is None else ev_win)
             try:
-                body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at)
+                with perf.timed(f"board.{site.site_code}"):  # QW-1: each Site's board inside the summary
+                    body = self.board(site, day=b_day, lo=b_lo, hi=b_hi, known_at=known_at)
                 rows = [_summary_row(r, body["_short_values"]) for r in body["rows"]]
                 read_state = body["read_state"]
                 warnings += body["warnings"]

@@ -13,9 +13,10 @@ from __future__ import annotations
 from typing import Any, Callable
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend import perf
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateStoreUnavailable, MESSAGES, parse_request, portfolio_cursor_key)
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -37,7 +38,11 @@ def build_estate_portfolio_router(service: Any | None, tenant: Callable[[], UUID
     down = (EstateStoreUnavailable, *unavailable)
 
     @router.get("/api/estate/portfolio")
-    def estate_portfolio(request: Request) -> dict[str, Any]:
+    def estate_portfolio(request: Request, response: Response) -> dict[str, Any]:
+        with perf.route("/api/estate/portfolio", response):  # QW-1: one `assetops.perf` line per request
+            return _estate_portfolio(request)
+
+    def _estate_portfolio(request: Request) -> dict[str, Any]:
         if authenticate(request) == 401:
             raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
                                 detail=refusal("UNAUTHENTICATED"))

@@ -9,6 +9,7 @@ outcome UNKNOWN (addendum 2 item 5, addendum 3 M1)."""
 from __future__ import annotations
 
 import calendar
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta, timezone
@@ -16,6 +17,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from assetops_backend import perf
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
 from assetops_backend.estate.placement import place
@@ -214,18 +216,54 @@ class MiniComposition:
 
 
 class Reads:
-    def __init__(self) -> None:
+    """The shared producer-read seam of the mini, cold and EV composers.
+
+    QW-1: every call adds `timings[name] = [calls, ms]` (and the same to the request recorder, `perf.py`), on
+    success and on failure; the return value and the failure handling are unchanged. QW-2: with `memo=True`, a call
+    with the same name, the same function object and hashable arguments that equal an earlier successful call's
+    returns that call's result instead of reading again (a failed call is never memoized; unhashable arguments are
+    always read). One `Reads` belongs to one board, so the memo never outlives it."""
+
+    def __init__(self, memo: bool = False) -> None:
         self.failed: list[str] = []
         self.statuses: dict[str, set[str]] = {}
         self.first: dict[str, dict[str, Any]] = {}  # IDX-GAPS U2: the first page body per paged read
+        self.timings: dict[str, list[float]] = {}
+        self.memo_hits: dict[str, int] = {}
+        self._memo: dict[tuple[Any, ...], Any] | None = {} if memo else None
+
+    def _key(self, name: str, fn: Callable[..., Any], args: tuple[Any, ...]) -> tuple[Any, ...] | None:
+        if self._memo is None:
+            return None
+        key = (name, fn, args)  # the key holds `fn` itself, so a collected function's id is never reused
+        try:
+            hash(key)
+        except TypeError:
+            return None
+        return key
 
     def call(self, name: str, fn: Callable[..., Any], *args: Any) -> Any:
+        key = self._key(name, fn, args)
+        if key is not None and key in self._memo:  # type: ignore[operator]
+            self.memo_hits[name] = self.memo_hits.get(name, 0) + 1
+            perf.record(f"memo.{name}", 0.0)
+            return self._memo[key]  # type: ignore[index]
+        started = time.perf_counter()
         try:
-            return fn(*args)
+            out = fn(*args)
         except Exception:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
             if name not in self.failed:
                 self.failed.append(name)
             return None
+        finally:
+            ms = (time.perf_counter() - started) * 1000
+            entry = self.timings.setdefault(name, [0, 0.0])
+            entry[0] += 1
+            entry[1] += ms
+            perf.record(f"read.{name}", ms)
+        if key is not None:
+            self._memo[key] = out  # type: ignore[index]
+        return out
 
     def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any,
               key: str = "rows") -> list[dict[str, Any]] | None:

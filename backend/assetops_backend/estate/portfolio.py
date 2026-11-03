@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Any, Iterable
 from urllib.parse import quote
 
+from assetops_backend import perf
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
@@ -529,12 +530,18 @@ class EstatePortfolioService(EstateEvidenceService):
         return self._read(work)
 
     def _portfolio(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        lap = perf.Laps("portfolio")  # QW-1: section timers (no value changes)
         scope = self._scope(snap, tenant_id, req, admit)
+        lap("scope")
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
+        lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
+        lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
+        lap("evidence")
         m_sites, m_lines_all, applicable, groups, exclusions, diagnostics = select_financial_scope(
             snap, tenant_id, req, scope)
+        lap("money")
         by = lambda per: {str(x[0]["site_id"]): x for x in per}  # noqa: E731 - per-Site lookup
         actions_by, evidence_by, money_by = by(a_sites), by(e_sites), by(m_sites)
 
@@ -560,6 +567,7 @@ class EstatePortfolioService(EstateEvidenceService):
                 c["state"] == PENDING or c["job_state"] == "PENDING" for c in (cov, e_cov, m_cov))
             token_sites.append(token_site(site, domain, cov, [
                 actions_by[sid][1], {**e_cov, **_evidence_arrays(e_rows)}, {**m_cov, **_money_arrays(m_cov, m_lines)}]))
+        lap("coverage")
         count = len(scope["sites"])
         states = {key: reduce_units(count, units[key]) for key in ("F", "E", "M")}
         if count == 0:
@@ -587,6 +595,7 @@ class EstatePortfolioService(EstateEvidenceService):
         start = 0 if after is None else resume_after([r["_marker"] for r in shown], after)
         page = shown[start:start + req.limit]
         last = page[-1] if start + req.limit < len(shown) else None
+        lap("rows")
 
         coverage_state = reduce_units(count, [*units["F"], *units["E"], *units["M"]])
         body = self._envelope(PORTFOLIO_SCHEMA, tenant_id, req, scope, covered, status,
@@ -626,6 +635,7 @@ class EstatePortfolioService(EstateEvidenceService):
                              for site, _, cov in f_sites if cov["state"] == PARTIAL and cov.get("days")]}
         # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
         # loop); a Site without a selected ID has null provenance ("No selected source basis").
+        lap("summary")
         site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])
                     for (_, _, cov), item in zip(f_sites, token_sites)]
         wanted = [(site["site_id"], item["cited_accepted_evidence_ids"], ids)
@@ -638,6 +648,7 @@ class EstatePortfolioService(EstateEvidenceService):
                                      "window": {"from": wire_time(req.from_), "to": wire_time(req.to)},
                                      "coverage": _coverage_site(site, cov), "selected_revision_ids": ids,
                                      "source_provenance": next(resolved) if ids else None})
+        lap("disclosure")
         body.update({"lens": req.lens, "summary": summary,
                      "value_cards": value_cards(m_lines_all, applicable, groups),
                      "objectives": [objective(site, evidence_by[str(site["site_id"])], money_by[str(site["site_id"])],
@@ -655,4 +666,5 @@ class EstatePortfolioService(EstateEvidenceService):
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,
                                                                           *last["_marker"]),
                      "selection_token": token})
+        lap("cards")
         return body

@@ -22,9 +22,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend import perf
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -99,7 +100,11 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
         return check is None or bool(check(ref.site_code, ref.tenant_id, ref.site_id))
 
     @router.get(BOARD_ROUTE)
-    def outcome_board(site_code: str, request: Request) -> dict[str, Any]:
+    def outcome_board(site_code: str, request: Request, response: Response) -> dict[str, Any]:
+        with perf.route(BOARD_ROUTE, response):  # QW-1: one `assetops.perf` line per request
+            return _outcome_board(site_code, request)
+
+    def _outcome_board(site_code: str, request: Request) -> dict[str, Any]:
         refusal = admitted(request, site_code)
         if refusal == 401:
             raise _refuse(401, "UNAUTHENTICATED", "Sign in to read the Site outcome board.",
@@ -138,7 +143,11 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
         return _public(body)
 
     @router.get(SUMMARY_ROUTE)
-    def outcome_summary(request: Request) -> dict[str, Any]:
+    def outcome_summary(request: Request, response: Response) -> dict[str, Any]:
+        with perf.route(SUMMARY_ROUTE, response):  # QW-1: one `assetops.perf` line per request
+            return _outcome_summary(request)
+
+    def _outcome_summary(request: Request) -> dict[str, Any]:
         if authenticate(request) == 401:
             raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
                                 detail=estate_refusal("UNAUTHENTICATED"))
@@ -146,7 +155,8 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             parsed = parse_estate("scope", request.query_params.multi_items())
             if service is None or estate is None:
                 raise EstateStoreUnavailable("No product database is configured.")
-            scope = estate.scope(tenant(), parsed, lambda code: admitted(request, code) is None)
+            with perf.timed("summary.scope"):
+                scope = estate.scope(tenant(), parsed, lambda code: admitted(request, code) is None)
             sites = []
             for item in scope["sites"]:
                 site = registry.imported(item["site_code"])
