@@ -1,0 +1,2381 @@
+[
+ {
+  "screen": "portfolio",
+  "width": 1440,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 2209,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 755,
+    "h": 1122,
+    "w": 836,
+    "tableClient": 802,
+    "tableScroll": 802,
+    "rows": [
+     123,
+     123,
+     121,
+     111,
+     123,
+     148
+    ],
+    "thead": 30,
+    "cols": [
+     "Site:96",
+     "Finding / operating mechanism:184",
+     "Value / consequence:192",
+     "Priority:72",
+     "Confidence:104",
+     "Action / next move:152"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 755,
+    "h": 547,
+    "w": 309
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 1894,
+    "h": 223,
+    "w": 573
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 1894,
+    "h": 223,
+    "w": 573
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Portfolio",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio Value & Operations",
+    "top": 165,
+    "h": 61,
+    "w": 435
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio: Needs attention3 simulated sites · 1 mini-grid / ",
+    "top": 244,
+    "h": 22,
+    "w": 440
+   },
+   {
+    "kind": "block",
+    "title": "claim-link: Assessment scope & periods ↗",
+    "top": 247,
+    "h": 15,
+    "w": 150
+   },
+   {
+    "kind": "block",
+    "title": "value-card green oc-pfcard: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 283,
+    "h": 413,
+    "w": 281
+   },
+   {
+    "kind": "block",
+    "title": "value-card amber oc-pfcard: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 283,
+    "h": 413,
+    "w": 281
+   },
+   {
+    "kind": "block",
+    "title": "value-card red oc-pfcard: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 283,
+    "h": 413,
+    "w": 281
+   },
+   {
+    "kind": "block",
+    "title": "value-card neutral oc-pfcard: Assure performance and returnsAssure performance and returns",
+    "top": 283,
+    "h": 413,
+    "w": 281
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 721,
+    "h": 16,
+    "w": 87
+   },
+   {
+    "kind": "block",
+    "title": "span: 1",
+    "top": 721,
+    "h": 16,
+    "w": 175
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 721,
+    "h": 16,
+    "w": 114
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 721,
+    "h": 16,
+    "w": 107
+   },
+   {
+    "kind": "block",
+    "title": "span: 8",
+    "top": 721,
+    "h": 16,
+    "w": 137
+   },
+   {
+    "kind": "block",
+    "title": "pulse-note: Distinct consequence categories · no combined savings total",
+    "top": 723,
+    "h": 12,
+    "w": 239
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-side: Outcomes across the estate",
+    "top": 755,
+    "h": 1122,
+    "w": 309
+   },
+   {
+    "kind": "block",
+    "title": "span: 120 kWh",
+    "top": 2133,
+    "h": 14,
+    "w": 378
+   },
+   {
+    "kind": "block",
+    "title": "a: Inspect energy basis →",
+    "top": 2133,
+    "h": 14,
+    "w": 91
+   },
+   {
+    "kind": "block",
+    "title": "span: Other sites lack comparable full-window energy coverage.",
+    "top": 2133,
+    "h": 14,
+    "w": 230
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2161,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "portfolio",
+  "width": 390,
+  "h1": "Portfolio Value & Operations",
+  "pageH": 4280,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Where management should act first",
+    "top": 1577,
+    "h": 1308,
+    "w": 360,
+    "tableClient": 338,
+    "tableScroll": 720,
+    "rows": [
+     123,
+     123,
+     121,
+     111,
+     153,
+     148
+    ],
+    "thead": 41,
+    "cols": [
+     "Site:86",
+     "Finding / operating mechanism:166",
+     "Value / consequence:173",
+     "Priority:65",
+     "Confidence:94",
+     "Action / next move:137"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Outcomes across the estate",
+    "top": 2900,
+    "h": 500,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "An opportunity beyond reducing cost",
+    "top": 3554,
+    "h": 247,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "What changed in this review",
+    "top": 3829,
+    "h": 298,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Portfolio",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio Value & Operations",
+    "top": 298,
+    "h": 75,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio: Needs attention3 simulated sites · 1 mini-grid / ",
+    "top": 414,
+    "h": 49,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "claim-link: Assessment scope & periods ↗",
+    "top": 478,
+    "h": 15,
+    "w": 150
+   },
+   {
+    "kind": "block",
+    "title": "value-card green oc-pfcard: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 510,
+    "h": 535,
+    "w": 176
+   },
+   {
+    "kind": "block",
+    "title": "value-card amber oc-pfcard: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 510,
+    "h": 535,
+    "w": 176
+   },
+   {
+    "kind": "block",
+    "title": "value-card red oc-pfcard: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 1054,
+    "h": 383,
+    "w": 176
+   },
+   {
+    "kind": "block",
+    "title": "value-card neutral oc-pfcard: Assure performance and returnsAssure performance and returns",
+    "top": 1054,
+    "h": 383,
+    "w": 176
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 1463,
+    "h": 16,
+    "w": 87
+   },
+   {
+    "kind": "block",
+    "title": "span: 1",
+    "top": 1463,
+    "h": 16,
+    "w": 175
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 1491,
+    "h": 16,
+    "w": 114
+   },
+   {
+    "kind": "block",
+    "title": "span: 3",
+    "top": 1491,
+    "h": 16,
+    "w": 107
+   },
+   {
+    "kind": "block",
+    "title": "span: 8",
+    "top": 1519,
+    "h": 16,
+    "w": 137
+   },
+   {
+    "kind": "block",
+    "title": "pulse-note: Distinct consequence categories · no combined savings total",
+    "top": 1547,
+    "h": 12,
+    "w": 239
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-side: Outcomes across the estate",
+    "top": 2900,
+    "h": 637,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "span: 120 kWh",
+    "top": 4141,
+    "h": 29,
+    "w": 358
+   },
+   {
+    "kind": "block",
+    "title": "a: Inspect energy basis →",
+    "top": 4176,
+    "h": 14,
+    "w": 91
+   },
+   {
+    "kind": "block",
+    "title": "span: Other sites lack comparable full-window energy coverage.",
+    "top": 4176,
+    "h": 14,
+    "w": 230
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 4204,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "mini",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2325,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: LowⓘAssessed this hour: dispatch only · other object",
+    "top": 304,
+    "h": 45,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 1419,
+    "h": 238,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1674,
+    "h": 373,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1674,
+    "h": 373,
+    "w": 408
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2066,
+    "h": 193,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2066,
+    "h": 193,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Overview",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 398
+   },
+   {
+    "kind": "block",
+    "title": "p: 60 kWp PV · 200 kWh battery · 40 kW genset · residential, cl",
+    "top": 206,
+    "h": 20,
+    "w": 398
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: serve residential, clinic and productive loads wh",
+    "top": 367,
+    "h": 46,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 413,
+    "h": 22,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 446,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: TargetNo target set yetNo target, so no days are judged yetP",
+    "top": 519,
+    "h": 362,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 891,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Generator ran 30 minutes longer than the load needed · seen ",
+    "top": 965,
+    "h": 267,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 1242,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Battery and generator condition is not assessed; these are e",
+    "top": 1316,
+    "h": 296,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 1326,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: One battery report is missing, so 30 minutes stay unclassifi",
+    "top": 1400,
+    "h": 280,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2277,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "mini",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 4742,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: LowⓘAssessed this hour: dispatch only · other object",
+    "top": 515,
+    "h": 114,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 3013,
+    "h": 523,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 3554,
+    "h": 286,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3859,
+    "h": 370,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 4247,
+    "h": 190,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 4455,
+    "h": 193,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Overview",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "p: 60 kWp PV · 200 kWh battery · 40 kW genset · residential, cl",
+    "top": 375,
+    "h": 40,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 455,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: serve residential, clinic and productive loads wh",
+    "top": 647,
+    "h": 64,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 712,
+    "h": 22,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 745,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: TargetNo target set yetNo target, so no days are judged yetP",
+    "top": 944,
+    "h": 813,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 1767,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Generator ran 30 minutes longer than the load needed · seen ",
+    "top": 1966,
+    "h": 641,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 2616,
+    "h": 184,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Battery and generator condition is not assessed; these are e",
+    "top": 2800,
+    "h": 665,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 2810,
+    "h": 184,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: One battery report is missing, so 30 minutes stay unclassifi",
+    "top": 2994,
+    "h": 519,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 4666,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "cold",
+  "width": 1440,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 2351,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Degraded Confidence: High Potential product exposurePower → backup → cooling cha",
+    "top": 304,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 1408,
+    "h": 274,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 1701,
+    "h": 373,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1701,
+    "h": 373,
+    "w": 408
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2092,
+    "h": 193,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2092,
+    "h": 193,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›GreenHarvest Cold Room›Overview",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: GreenHarvest Cold Room",
+    "top": 165,
+    "h": 34,
+    "w": 496
+   },
+   {
+    "kind": "block",
+    "title": "p: Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 ",
+    "top": 206,
+    "h": 20,
+    "w": 496
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: keep the chamber at 2–4°C through power, cooling ",
+    "top": 366,
+    "h": 46,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 412,
+    "h": 22,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob ob-later: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 444,
+    "h": 76,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 528,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: None of the visits fixed the backup generator’s automatic st",
+    "top": 602,
+    "h": 283,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 895,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Backup did not start by itself; cooling stopped until it was",
+    "top": 969,
+    "h": 337,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 1316,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Loading and door records are not connected, so stock impact ",
+    "top": 1389,
+    "h": 264,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2303,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "cold",
+  "width": 390,
+  "h1": "GreenHarvest Cold Room",
+  "pageH": 4868,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Degraded Confidence: High Potential product exposurePower → backup → cooling cha",
+    "top": 549,
+    "h": 113,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "What happened · power → cooling → product conditions",
+    "top": 3015,
+    "h": 660,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Chamber temperature",
+    "top": 3693,
+    "h": 286,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3997,
+    "h": 336,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 4351,
+    "h": 190,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 4559,
+    "h": 215,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 19:00–20:00 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›GreenHarvest Cold Room›Overview",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: GreenHarvest Cold Room",
+    "top": 339,
+    "h": 63,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "p: Produce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 ",
+    "top": 409,
+    "h": 40,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 489,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: keep the chamber at 2–4°C through power, cooling ",
+    "top": 680,
+    "h": 64,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 745,
+    "h": 22,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob ob-later: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 777,
+    "h": 151,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 936,
+    "h": 184,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: None of the visits fixed the backup generator’s automatic st",
+    "top": 1120,
+    "h": 681,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 1811,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Backup did not start by itself; cooling stopped until it was",
+    "top": 2011,
+    "h": 776,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 2797,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Loading and door records are not connected, so stock impact ",
+    "top": 2996,
+    "h": 525,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 4792,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "ev",
+  "width": 1440,
+  "h1": "Depot Charging Hub",
+  "pageH": 2345,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: MediumⓘAssessed: session service, availability and s",
+    "top": 304,
+    "h": 45,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 1456,
+    "h": 238,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 1712,
+    "h": 356,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 1712,
+    "h": 356,
+    "w": 408
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2086,
+    "h": 193,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2086,
+    "h": 193,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Depot Charging Hub›Overview",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Depot Charging Hub",
+    "top": 165,
+    "h": 34,
+    "w": 425
+   },
+   {
+    "kind": "block",
+    "title": "p: 2 × 60 kW connectors · 80 kW site limit · no stationary batt",
+    "top": 206,
+    "h": 20,
+    "w": 425
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: let depot vehicles charge when scheduled, within ",
+    "top": 367,
+    "h": 46,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 413,
+    "h": 22,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 446,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: TargetNo target set yetNo target, so no days are judged yetP",
+    "top": 519,
+    "h": 330,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob ob-later: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 858,
+    "h": 76,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 943,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Connector 2 was out of service for 1 hour; which departures ",
+    "top": 1017,
+    "h": 337,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 1363,
+    "h": 74,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: One session end and 1 hour of connector status are missing\n ",
+    "top": 1437,
+    "h": 280,
+    "w": 1156
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2297,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "ev",
+  "width": 390,
+  "h1": "Depot Charging Hub",
+  "pageH": 4836,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: MediumⓘAssessed: session service, availability and s",
+    "top": 530,
+    "h": 114,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "What happened on the service day",
+    "top": 3047,
+    "h": 587,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Charging activity and site power",
+    "top": 3652,
+    "h": 273,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 3943,
+    "h": 336,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 4297,
+    "h": 233,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 4548,
+    "h": 193,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 08:00–16:00 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Depot Charging Hub›Overview",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Depot Charging Hub",
+    "top": 339,
+    "h": 63,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "p: 2 × 60 kW connectors · 80 kW site limit · no stationary batt",
+    "top": 409,
+    "h": 20,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 470,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: let depot vehicles charge when scheduled, within ",
+    "top": 662,
+    "h": 64,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-board-head: How this site is doing",
+    "top": 726,
+    "h": 22,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Grow revenueGrow revenueCapture more value from existing inf",
+    "top": 759,
+    "h": 167,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: TargetNo target set yetNo target, so no days are judged yetP",
+    "top": 926,
+    "h": 799,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob ob-later: Optimize cost and efficiencyOptimize cost and efficiencyElim",
+    "top": 1734,
+    "h": 151,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Protect asset and capitalProtect asset and capitalPreserve a",
+    "top": 1894,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: Connector 2 was out of service for 1 hour; which departures ",
+    "top": 2093,
+    "h": 726,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-sum: Assure performance and returnsAssure performance and returns",
+    "top": 2829,
+    "h": 199,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "ob-body: One session end and 1 hour of connector status are missing\n ",
+    "top": 3028,
+    "h": 525,
+    "w": 355
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 4760,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "findings-opportunities",
+  "width": 1440,
+  "h1": "Findings",
+  "pageH": 1111,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 304,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities to grow",
+    "top": 482,
+    "h": 169,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 669,
+    "h": 316,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     90
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:403",
+     "Site:103",
+     "Priority:77",
+     "Confidence:98",
+     "State:122",
+     "Main consequence:225",
+     "Lens:94"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 1003,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Opportunities",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 165,
+    "h": 61,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 435,
+    "h": 31,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1063,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "findings-opportunities",
+  "width": 390,
+  "h1": "Findings",
+  "pageH": 1716,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 432,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities to grow",
+    "top": 745,
+    "h": 200,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 963,
+    "h": 563,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 629,
+    "rows": [
+     321
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:83",
+     "Site:49",
+     "Priority:74",
+     "Confidence:93",
+     "State:116",
+     "Main consequence:125",
+     "Lens:89"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 1544,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Opportunities",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 298,
+    "h": 56,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 372,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 698,
+    "h": 31,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1640,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "finding-history",
+  "width": 1440,
+  "h1": "Generator support review",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Problem history",
+    "top": 358,
+    "h": 164,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Revision history",
+    "top": 540,
+    "h": 243,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     45,
+     45,
+     44
+    ],
+    "thead": 33,
+    "cols": [
+     "Time:218",
+     "Event:391",
+     "Basis:511"
+    ]
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EA",
+    "top": 59,
+    "h": 34,
+    "w": 507
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›F-104›History· site: Kobo Mini-grid",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Generator support review",
+    "top": 165,
+    "h": 61,
+    "w": 310
+   },
+   {
+    "kind": "block",
+    "title": "heading-actions: Open site",
+    "top": 165,
+    "h": 36,
+    "w": 76
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewAnalysisEvidenceAlternativesRecommendationHistory",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "oc-affectsline: AffectsOptimize cost and efficiencysupply cost per kwhAlso c",
+    "top": 304,
+    "h": 38,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 801,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "finding-history",
+  "width": 390,
+  "h1": "Generator support review",
+  "pageH": 1299,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "panel",
+    "title": "Problem history",
+    "top": 549,
+    "h": 325,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Revision history",
+    "top": 892,
+    "h": 313,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 320,
+    "rows": [
+     80,
+     62,
+     62
+    ],
+    "thead": 33,
+    "cols": [
+     "Time:72",
+     "Event:124",
+     "Basis:124"
+    ]
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EA",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›F-104›History· site: Kobo Mini-grid",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Generator support review",
+    "top": 298,
+    "h": 56,
+    "w": 261
+   },
+   {
+    "kind": "block",
+    "title": "heading-actions: Open site",
+    "top": 298,
+    "h": 36,
+    "w": 76
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewAnalysisEvidenceAlternativesRecommendationHistory",
+    "top": 372,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "oc-affectsline: AffectsOptimize cost and efficiencysupply cost per kwhAlso c",
+    "top": 432,
+    "h": 101,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1223,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "verification",
+  "width": 1440,
+  "h1": "Reduce extended generator support",
+  "pageH": 1414,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "ACT-048 · Verification window Provisional target passFinal outcome pending adequ",
+    "top": 358,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 611,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 611,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 611,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 611,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 611,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 742,
+    "h": 336,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51,
+     51,
+     51,
+     51
+    ],
+    "thead": 33,
+    "cols": [
+     "Metric:218",
+     "Role:103",
+     "Before:156",
+     "After:156",
+     "Evidence:321",
+     "Result:167"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1096,
+    "h": 252,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 1096,
+    "h": 252,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EA",
+    "top": 59,
+    "h": 34,
+    "w": 507
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Actions›ACT-048›Verification· site: Kobo Mini-grid",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Reduce extended generator support",
+    "top": 165,
+    "h": 61,
+    "w": 436
+   },
+   {
+    "kind": "block",
+    "title": "heading-actions: Open site",
+    "top": 165,
+    "h": 36,
+    "w": 76
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewPlanExecutionEvidenceVerificationHistory",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "oc-affectsline: AffectsOptimize cost and efficiencysupply cost per kwhSafegu",
+    "top": 304,
+    "h": 38,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "fix-line: F-104 Seen on 24 of the last 30 days · same generator",
+    "top": 432,
+    "h": 18,
+    "w": 1131
+   },
+   {
+    "kind": "block",
+    "title": "done: Seen6 Oct",
+    "top": 458,
+    "h": 38,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "done: Action agreed6 Oct",
+    "top": 458,
+    "h": 38,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "current: Change madeDate not set in this example",
+    "top": 458,
+    "h": 38,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "todo: Checked and working, monitoringDate not set in this example",
+    "top": 458,
+    "h": 38,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "todo: Closed after 7 clean daysDate not set in this example",
+    "top": 458,
+    "h": 38,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "div: OwnerSite controls lead",
+    "top": 523,
+    "h": 69,
+    "w": 232
+   },
+   {
+    "kind": "block",
+    "title": "div: Due / SLAWindow close · not set",
+    "top": 523,
+    "h": 69,
+    "w": 232
+   },
+   {
+    "kind": "block",
+    "title": "div: StateVerification window",
+    "top": 523,
+    "h": 69,
+    "w": 232
+   },
+   {
+    "kind": "block",
+    "title": "div: SourceF-104",
+    "top": 523,
+    "h": 69,
+    "w": 232
+   },
+   {
+    "kind": "block",
+    "title": "div: Success criterion≥25% less avoidable generator time; no rese",
+    "top": 523,
+    "h": 69,
+    "w": 232
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1366,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "verification",
+  "width": 390,
+  "h1": "Reduce extended generator support",
+  "pageH": 2592,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "ACT-048 · Verification window Provisional target passFinal outcome pending adequ",
+    "top": 612,
+    "h": 71,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Target change | Reserve breaches | Critical service | Final outcome",
+    "top": 1160,
+    "h": 264,
+    "w": 360,
+    "children": [
+     {
+      "top": 1160,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 1160,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 1299,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 1299,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Target and guardrails evaluated together",
+    "top": 1442,
+    "h": 522,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 481,
+    "rows": [
+     97,
+     97,
+     97,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Metric:71",
+     "Role:66",
+     "Before:79",
+     "After:79",
+     "Evidence:77",
+     "Result:108"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Activity evidence",
+    "top": 1982,
+    "h": 252,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Outcome evidence",
+    "top": 2252,
+    "h": 246,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · 14:20–15:20 EA",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Actions›ACT-048›Verification· site: Kobo Mini-grid",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Reduce extended generator support",
+    "top": 298,
+    "h": 84,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "heading-actions: Open site",
+    "top": 402,
+    "h": 36,
+    "w": 76
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewPlanExecutionEvidenceVerificationHistory",
+    "top": 456,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "oc-affectsline: AffectsOptimize cost and efficiencysupply cost per kwhSafegu",
+    "top": 516,
+    "h": 80,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "fix-line: F-104 Seen on 24 of the last 30 days · same generator",
+    "top": 713,
+    "h": 18,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "done: Seen6 Oct",
+    "top": 739,
+    "h": 33,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "done: Action agreed6 Oct",
+    "top": 776,
+    "h": 33,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "current: Change madeDate not set in this example",
+    "top": 813,
+    "h": 33,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "todo: Checked and working, monitoringDate not set in this example",
+    "top": 850,
+    "h": 33,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "todo: Closed after 7 clean daysDate not set in this example",
+    "top": 887,
+    "h": 33,
+    "w": 330
+   },
+   {
+    "kind": "block",
+    "title": "div: OwnerSite controls lead",
+    "top": 947,
+    "h": 54,
+    "w": 179
+   },
+   {
+    "kind": "block",
+    "title": "div: Due / SLAWindow close · not set",
+    "top": 947,
+    "h": 54,
+    "w": 179
+   },
+   {
+    "kind": "block",
+    "title": "div: StateVerification window",
+    "top": 1001,
+    "h": 54,
+    "w": 179
+   },
+   {
+    "kind": "block",
+    "title": "div: SourceF-104",
+    "top": 1001,
+    "h": 54,
+    "w": 179
+   },
+   {
+    "kind": "block",
+    "title": "div: Success criterion≥25% less avoidable generator time; no rese",
+    "top": 1054,
+    "h": 87,
+    "w": 179
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2516,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

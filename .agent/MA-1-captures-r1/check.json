@@ -1,0 +1,163 @@
+{
+ "res": [
+  {
+   "s": "portfolio",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 4,
+   "modes": {},
+   "openRows": [],
+   "growParts": 0
+  },
+  {
+   "s": "portfolio",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 4,
+   "modes": {},
+   "openRows": [],
+   "growParts": 0
+  },
+  {
+   "s": "mini",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 4,
+   "modes": {},
+   "openRows": [
+    "false:Grow revenueCa",
+    "true:Optimize cost ",
+    "false:Protect asset ",
+    "false:Assure perform"
+   ],
+   "growParts": 3
+  },
+  {
+   "s": "mini",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 4,
+   "modes": {},
+   "openRows": [
+    "false:Grow revenueCa",
+    "true:Optimize cost ",
+    "false:Protect asset ",
+    "false:Assure perform"
+   ],
+   "growParts": 3
+  },
+  {
+   "s": "cold",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 3,
+   "modes": {},
+   "openRows": [
+    "true:Optimize cost ",
+    "true:Protect asset ",
+    "false:Assure perform"
+   ]
+  },
+  {
+   "s": "cold",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 3,
+   "modes": {},
+   "openRows": [
+    "true:Optimize cost ",
+    "true:Protect asset ",
+    "false:Assure perform"
+   ]
+  },
+  {
+   "s": "ev",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 3,
+   "modes": {},
+   "openRows": [
+    "false:Grow revenueCa",
+    "true:Protect asset ",
+    "false:Assure perform"
+   ],
+   "growParts": 3
+  },
+  {
+   "s": "ev",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 3,
+   "modes": {},
+   "openRows": [
+    "false:Grow revenueCa",
+    "true:Protect asset ",
+    "false:Assure perform"
+   ],
+   "growParts": 3
+  },
+  {
+   "s": "findings-opportunities",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  },
+  {
+   "s": "findings-opportunities",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  },
+  {
+   "s": "finding-history",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  },
+  {
+   "s": "finding-history",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  },
+  {
+   "s": "verification",
+   "w": 1440,
+   "scrollW": 1425,
+   "clientW": 1425,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  },
+  {
+   "s": "verification",
+   "w": 390,
+   "scrollW": 390,
+   "clientW": 390,
+   "whys": 0,
+   "modes": {},
+   "openRows": []
+  }
+ ],
+ "bad": []
+}
