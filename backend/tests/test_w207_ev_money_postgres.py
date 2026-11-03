@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
 HEAD = "0026_w2_ev_money"
-UPGRADED_HEAD = "0041_walk1_objective_min_days"  # W5-03b: 0034 above 0033 (W5-02a above 0032); head(engine) asserts it
+UPGRADED_HEAD = "0043_chain_snapshots"  # W5-03b: 0034 above 0033 (W5-02a above 0032); head(engine) asserts it
 PREVIOUS = "0025_w2_ev_session"
 REFUSED = "Downgrade of 0026_w2_ev_money refused"
 EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",

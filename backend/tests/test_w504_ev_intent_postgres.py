@@ -42,7 +42,7 @@ if URL:
     from assetops_backend.work.domain_action_index import DomainActionReadService, parse_index_request
     from assetops_backend.work.domain_intent import DomainIntentService
 
-HEAD = "0041_walk1_objective_min_days"  # OUT-D: the sole head; 0038 sits above the 0035 migration under test
+HEAD = "0043_chain_snapshots"  # OUT-D: the sole head; 0038 sits above the 0035 migration under test
 MIGRATION = "0035_w5_ev_work"
 PARENT = "0034_w5_ev_scenarios"
 GRANDPARENT = "0033_w5_cold_work"

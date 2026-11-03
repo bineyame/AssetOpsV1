@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 from sqlalchemy import text
 
-MINI_HEAD = "0041_walk1_objective_min_days"  # OUT-E: merge revision above 0037 and 0038; W5-03b: current head above 0033 (W5-02a above 0032, W5-01b above 0030)
+MINI_HEAD = "0043_chain_snapshots"  # CH-1a: 0043 above 0041; OUT-E: merge revision above 0037 and 0038; W5-03b: current head above 0033 (W5-02a above 0032, W5-01b above 0030)
 COLD_WORK_PREDECESSOR = "0032_w5_cold_scenarios"  # 0033 is crossed empty first
 COLD_WORK_TABLES = ("domain_action_case_link", "domain_action_intent", "domain_action")
 COLD_SCENARIO_PREDECESSOR = "0030_w4_mini_decisions"  # 0032 is crossed empty before 0029

@@ -47,7 +47,7 @@ if URL:
     from assetops_backend.sites.ports import SiteStoreUnavailable
 
 MIGRATION = "0034_w5_ev_scenarios"
-HEAD = "0041_walk1_objective_min_days"  # W5-04a: the sole head sits above the 0034 migration under test
+HEAD = "0043_chain_snapshots"  # W5-04a: the sole head sits above the 0034 migration under test
 PREVIOUS = "0033_w5_cold_work"
 REFUSED = "Downgrade of 0034_w5_ev_scenarios refused: EV scenario history exists"
 TABLES = ("ev_scenario_revision", "ev_scenario")
