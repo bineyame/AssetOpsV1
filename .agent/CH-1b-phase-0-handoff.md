@@ -212,3 +212,18 @@ literal repair, the L2 outbox tests, then the downgrade-test harness change (see
 - Coordinator note for step 5: CH-3 adds `0045_thread_known_at` (down 0042); after rebase re-point 0044's
   `down_revision` to `0045_thread_known_at`. No 0044 producer is on a thread table, so the outbox logic is
   unaffected. Use `tools/chain_clone.py settle <name>` in the L3 proof.
+
+### Step 4 status (downgrade/regression), resume here
+
+- Passed with fixes: `test_ch2_thread_store_postgres` + `test_ch1a_snapshot_postgres` (7 passed, 102 s);
+  `test_walk1_objective_min_days_postgres`, `test_walk1_productive_price_postgres` (`clear_event_history` before
+  each downgrade), `test_out_d1_schema_postgres` (trigger pin now includes the 0044 statement trigger, tgtype 4),
+  `test_cc_schema_postgres`: 31 passed (42 s).
+- NOT yet run (a 6-file chunk passed 590 s and was killed by PID; run 1-2 files per call):
+  w504, w503, w502, w501, w403, w402 migration, w401 migration, w207, w206, w205a, w204, w203, w201, w200,
+  s4_evidence_consequence_work, s4_consequence_store, s405_publication, s2_evidence_ledger, s1_bindings,
+  `mini_depth_probe.py` (helper). Fix pattern: `clear_event_history(engine)` before the downgrade; catalogue pins
+  that list triggers on a producer table need the `<table>_chain_event` entry.
+- Then the scoped producer-table tests (sheet §6 step 3): evidence ledger, analytic runs, mini depth, financial
+  assumptions, foundation, finding store, mini decisions, action store, objectives.
+- Note: a CH-3 agent runs Postgres tests concurrently on this machine; contention may slow runs.

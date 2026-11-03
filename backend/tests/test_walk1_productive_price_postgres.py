@@ -5,7 +5,7 @@ CHECK is added for it, the store publishes it, and the downgrade refuses while a
 restores the 0026 CHECK texts byte for byte.
 """
 from __future__ import annotations
-from pg_harness import alembic_head
+from pg_harness import alembic_head, clear_event_history
 
 import os
 from datetime import datetime, timezone
@@ -120,6 +120,7 @@ def test_0040_downgrade_refuses_with_a_price_then_restores_0026_checks(site, eng
     # An empty downgrade restores the 0026 CHECK texts exactly and drops the productive CHECK.
     release(site, engine)
     try:
+        clear_event_history(engine)  # CH-1b: 0044 refuses while event history exists
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == KEY_CHECK_0026
@@ -132,6 +133,7 @@ def test_0040_downgrade_refuses_with_a_price_then_restores_0026_checks(site, eng
     publish(ctx.t, ctx.s)
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
+        clear_event_history(engine)  # CH-1b: 0044 refuses while event history exists
         command.downgrade(config, PREVIOUS)
     assert head(engine) == HEAD
     assert constraint(engine, "financial_assumption_revision_productive_positive") == POSITIVE_0040
