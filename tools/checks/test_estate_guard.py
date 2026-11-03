@@ -220,9 +220,7 @@ def test_snapshot_writer_insert_only_and_not_vacuous() -> None:
     def delete(copy: Path) -> None:
         file = copy / SNAPSHOT_WRITER
         file.write_text(file.read_text(encoding="utf-8") +
-                        '
-_PROBE = text("DELETE FROM site_day_snapshot WHERE tenant_id = :t")
-', encoding="utf-8")
+                        '\n_PROBE = text("DELETE FROM site_day_snapshot WHERE tenant_id = :t")\n', encoding="utf-8")
     found = failures(isolated_copy(delete))
     assert any("day-snapshot store never updates" in line or "insert-only" in line for line in found), found
 
@@ -252,13 +250,10 @@ def test_event_store_statements_declared_and_not_vacuous() -> None:
     assert any("found no snapshot_dirty compare-and-delete statement" in line for line in found), found
     # event_consumption is insert-only; a non-backfill outbox INSERT from Python is refused.
     found = failures(isolated_copy(lambda copy: _append(copy, EVENT_WRITER,
-        '
-_PROBE = text("UPDATE event_consumption SET processed_at = now() WHERE event_id = :e")
-'
+        '\n_PROBE = text("UPDATE event_consumption SET processed_at = now() WHERE event_id = :e")\n'
         '_PROBE_2 = text("INSERT INTO event_outbox (type, schema_version, occurred_at, source, tenant_id, site_id, '
         "subject, idempotency_key) VALUES ('reading.accepted', 1, :o, 'x', :t, :s, '{}', :k) "
-        'ON CONFLICT (source, idempotency_key) DO NOTHING")
-')))
+        'ON CONFLICT (source, idempotency_key) DO NOTHING")\n')))
     refused = [line for line in found if "event store runs only its four declared statements" in line]
     assert any("UPDATE event_consumption" in line for line in refused), found
     assert any("reading.accepted" in line for line in refused), found
@@ -267,11 +262,8 @@ _PROBE = text("UPDATE event_consumption SET processed_at = now() WHERE event_id 
 def test_event_tables_foreign_write_rejected() -> None:
     """CH-1b §7: another registered writer may not write an event table; the outbox is trigger-written."""
     found = failures(isolated_copy(lambda copy: _append(copy, SNAPSHOT_WRITER,
-        '
-_PROBE = text("INSERT INTO event_outbox (type) VALUES (:t)")
-'
-        '_PROBE_2 = text("DELETE FROM snapshot_dirty WHERE tenant_id = :t")
-')))
+        '\n_PROBE = text("INSERT INTO event_outbox (type) VALUES (:t)")\n'
+        '_PROBE_2 = text("DELETE FROM snapshot_dirty WHERE tenant_id = :t")\n')))
     assert any("event outbox is written only by the migration 0044 triggers" in line for line in found), found
     assert any("writes event table 'snapshot_dirty'" in line for line in found), found
 
