@@ -149,11 +149,12 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
                       {"t": t, "s": s, "a": uuid4(), "th": tid, "f": f01})
 
     # Downgrade refused while thread rows exist; the head is unchanged. Above 0042, 0045 (CH3-R D-b) refuses first
-    # because the placed rows carry their recorded cause times.
+    # because the placed rows carry their recorded cause times; 0042's own refusal is pinned in
+    # `test_0042_refuses_its_downgrade_while_a_thread_exists` (review L5).
     from alembic import command
 
     engine.dispose()
-    with pytest.raises(DBAPIError, match="Downgrade of (0042_chain_threads|0045_thread_known_at) refused"):
+    with pytest.raises(DBAPIError, match="Downgrade of 0045_thread_known_at refused"):
         command.downgrade(_alembic(), PREVIOUS)
     assert head(engine) == pg_harness.alembic_head()
 
@@ -188,3 +189,20 @@ def test_concurrent_placements_of_one_key_make_one_thread(seeded, engine) -> Non
         occurrences = c.execute(text("SELECT count(*) FROM finding_thread_occurrence")).scalar_one()
         events = c.execute(text("SELECT count(*) FROM finding_thread_event")).scalar_one()
     assert threads == 1 and events == 1 and occurrences == 2
+
+
+def test_0042_refuses_its_downgrade_while_a_thread_exists(seeded, engine) -> None:  # noqa: F811
+    """Review L5: with a thread row and no recorded cause time, 0045 steps down and 0042 refuses with its own
+    message; the run is one transaction, so the head is unchanged."""
+    runner = seeded[0]
+    with engine.begin() as c:
+        assert c.execute(text("SELECT count(*) FROM finding_thread_occurrence")).scalar_one() == 0
+        c.execute(text("INSERT INTO finding_thread (id, tenant_id, site_id, mechanism, subject_kind, subject_ref, "
+                       "finding_type, opened_at, created_by) VALUES (:id, :t, :s, 'L5_PROBE', 'SITE', 'site', "
+                       "'probe', now(), 'tick')"), {"id": uuid4(), "t": runner.tenant, "s": runner.site})
+    from alembic import command
+
+    engine.dispose()
+    with pytest.raises(DBAPIError, match="Downgrade of 0042_chain_threads refused"):
+        command.downgrade(_alembic(), PREVIOUS)
+    assert head(engine) == pg_harness.alembic_head()

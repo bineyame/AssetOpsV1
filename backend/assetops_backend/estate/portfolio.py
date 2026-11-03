@@ -133,28 +133,41 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
     with no thread, carries None, and `_action_for` then keeps the exact join alone."""
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
+    segments_at: dict[Any, dict[str, int]] = {}  # cutoff -> {action_id: segment at that cutoff}
     if port is not None and (f_rows or a_rows):
         # CH-3 §5, CH3-R (AG-27, COH-13): the thread state on each Site's local day holding the window's last
         # instant (as the board reads it), as of the cutoff the board resolves for that Site: a cold/EV row's Site
         # evidence cutoff (`_cutoff`), else the envelope's resolved `window.known_at` (`known_at`, D-b rule
         # coalesce(cause_known_at, recorded_at) <= k); a request's own cutoff, when given, is that envelope value.
+        # Review side-question 1: the Action segments are read per cutoff group too, so a row's Finding segment and
+        # the Action segment it is compared with (`same_segment`) come from the same cutoff.
         default = known_at if known_at is not None else (None if req is None else req.known_at)
-        by_cutoff: dict[Any, list[Any]] = {default: []}  # the Actions are read at the default cutoff
+        by_cutoff: dict[Any, list[Any]] = {default: []}
         for r in f_rows:
-            by_cutoff.setdefault(r.get("_cutoff") or default, []).append(r["finding_id"])
+            r["_thread_cutoff"] = r.get("_cutoff") or default
+            by_cutoff.setdefault(r["_thread_cutoff"], []).append(r["finding_id"])
         for cutoff, fids in by_cutoff.items():
             if not fids and not (cutoff == default and a_rows):
                 continue
             kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": cutoff}
-            part = port(tenant_id, fids, [a["action_id"] for a in a_rows] if cutoff == default else [], **kw)
-            for key in ("findings", "actions", "action_segments"):
+            part = port(tenant_id, fids, [a["action_id"] for a in a_rows], **kw)
+            for key in ("findings", "actions"):
                 found.setdefault(key, {}).update(part.get(key) or {})
-    segments = found.get("action_segments") or {}
+            segments_at[cutoff] = part.get("action_segments") or {}
     for r in f_rows:
         r["_thread"] = found["findings"].get(str(r["finding_id"]).lower())
     for a in a_rows:
-        a["_thread_id"] = found["actions"].get(str(a["action_id"]).lower())
-        a["_segment_no"] = segments.get(str(a["action_id"]).lower())
+        aid = str(a["action_id"]).lower()
+        a["_thread_id"] = found["actions"].get(aid)
+        a["_segment_no"] = (segments_at.get(default) or {}).get(aid)
+        a["_segment_at"] = {c: seg[aid] for c, seg in segments_at.items() if aid in seg}
+
+
+def action_segment_for(a: dict[str, Any], row: dict[str, Any]) -> int | None:
+    """The Action's thread segment read at the Finding row's cutoff (else at the default cutoff)."""
+    at = a.get("_segment_at") or {}
+    cutoff = row.get("_thread_cutoff")
+    return at[cutoff] if cutoff in at else a.get("_segment_no")
 
 
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -166,8 +179,10 @@ def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
     segment = (row.get("_thread") or {}).get("segment_no")
 
     def same_segment(a: dict[str, Any]) -> bool:
-        """CH-3 §3 (CH-2 L1): on a thread, an Action is current for a Finding only in the Finding's segment."""
-        return segment is None or a.get("_segment_no") is None or a["_segment_no"] == segment
+        """CH-3 §3 (CH-2 L1): on a thread, an Action is current for a Finding only in the Finding's segment, both
+        read at the row's cutoff."""
+        seg = action_segment_for(a, row)
+        return segment is None or seg is None or seg == segment
 
     matches = [a for a in actions if (a["source_finding_id"], a["source_finding_revision_id"])
                == (row["finding_id"], row["finding_revision_id"])
@@ -236,7 +251,7 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
         "action_thread_id": None if action is None else action.get("_thread_id"),
         # CH-3 (packet deviation, additive): the matched Action's thread segment, so COH-15 observes the rule.
-        "action_segment_no": None if action is None else action.get("_segment_no"),
+        "action_segment_no": None if action is None else action_segment_for(action, r),
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
         "action_state": None if action is None else action["application_state"],
@@ -535,8 +550,18 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
     """CH-3 §5 (I-24): over the window's Finding rows' threads (state on the window's last day as of its cutoff):
     `verified_resolution_count` = threads in RESOLVED_MONITORING or CLOSED; `priority_site_count` = Sites with a
     thread in OPEN, RECURRED or REOPENED. None when no row carries a thread (no thread port, or below 0042)."""
-    threads = {str(r["_thread"]["id"]): (str(r["site_id"]), r["_thread"].get("state"))
-               for r in f_rows if r.get("_thread")}
+    # Review L3: one state per thread, independent of row order: the row of the thread's highest segment (its
+    # current state), then the highest occurrence number.
+    best: dict[str, tuple[tuple[int, int], str, Any]] = {}
+    for r in f_rows:
+        t = r.get("_thread")
+        if not t:
+            continue
+        rank = (int(t.get("segment_no") or 0), int(t.get("occurrence_no") or 0))
+        prior = best.get(str(t["id"]))
+        if prior is None or rank > prior[0]:
+            best[str(t["id"])] = (rank, str(r["site_id"]), t.get("state"))
+    threads = {tid: (sid, st) for tid, (_, sid, st) in best.items()}
     if not threads:
         return None
     return {"verified_resolution_count": sum(1 for _, st in threads.values() if st in VERIFIED_THREAD_STATES),

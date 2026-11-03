@@ -333,10 +333,11 @@ class EstateSnapshot:
         if not finding_ids and not action_ids or self._c.execute(text(
                 "SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
             return thread_lookup([])
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
         # CH-3 §5: each thread's state on its Site's local day holding `day_at` (else on `day`) as of the cutoff.
         return thread_lookup(self._c.execute(text(THREAD_LOOKUP), {
             "t": t, "f": [str(x).lower() for x in finding_ids], "a": [str(x).lower() for x in action_ids]}).all(),
-            day=day, known_at=known_at, day_at=day_at)
+            day=day, known_at=known_at, day_at=day_at, close_after=load_thread_lifecycle().close_after)
 
     def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:
         """CH-3 §5 (I-24, OD-3): the latest stored trial cost check of each listed verification outcome (read only;

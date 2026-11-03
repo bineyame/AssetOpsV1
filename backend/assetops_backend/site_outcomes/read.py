@@ -367,7 +367,9 @@ class SiteOutcomeBoardService:
                 day = _need(self.s.overview, "mini_overview").db_today()
             comp = mini.compose(self.mini_ports(site, known_at, pin), site_code=site.site_code, day=day,
                                 site_timezone=site.timezone)
-            return comp, comp.window
+            # Review L1: the mini read resolves no cutoff of its own (its producers read "as known now"), so its
+            # cutoff is the request's, else None = as known now; passed explicitly, by the same helper as cold/EV.
+            return comp, {**comp.window, "known_at": board_cutoff(known_at, None)}
         if domain not in (COLD, EV):
             raise ValueError(f"no outcome board for Site type {site.site_type!r}")
         ports = self.cold_ports(site, known_at) if domain == COLD else self.ev_ports(site, known_at)
@@ -389,8 +391,7 @@ class SiteOutcomeBoardService:
         comp = composer(replace(ports, overview=overview), site_code=site.site_code, lo=lo, hi=hi,
                         site_timezone=site.timezone)
         # addendum 4 #5: the cutoff used is the request's; without one, the overview body's resolved cutoff
-        cutoff = known_at if known_at is not None else mini.utc(resolved.get("known_at"))
-        return comp, {"from": lo, "to": hi, "known_at": cutoff}
+        return comp, {"from": lo, "to": hi, "known_at": board_cutoff(known_at, resolved.get("known_at"))}
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
@@ -400,7 +401,7 @@ class SiteOutcomeBoardService:
         # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
         # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
         # was recorded by the story cutoff shows, and one whose cause was recorded at build time stays hidden.
-        cutoff = known_at if known_at is not None else mini.utc(window.get("known_at"))
+        cutoff = window.get("known_at")  # `board_cutoff`, resolved by `compose` for every domain (review L1)
         if site.domain == MINI:
             start = mini.utc(window.get("from"))
             board_day = day if day is not None else (None if start is None else start.date())
@@ -592,6 +593,12 @@ def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str,
 def _unknown_row(category: str) -> dict[str, Any]:
     return {"category": category, "state": UNKNOWN, "state_label": STATE_LABEL[UNKNOWN], "tone": STATE_TONE[UNKNOWN],
             "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None}
+
+
+def board_cutoff(known_at: datetime | None, resolved: Any) -> datetime | None:
+    """addendum 4 #5, CH3-R: the one cutoff rule of a board read: the request's cutoff, else the read's resolved one
+    (the cold/EV overview body's `window.known_at`; a mini read resolves none, so None = as known now)."""
+    return known_at if known_at is not None else mini.utc(resolved)
 
 
 def _last_local_day(to: Any, tz: str | None) -> date | None:

@@ -142,6 +142,8 @@ class FindingFact:
     #: Addendum 2 item 4: False for a Finding read only to resolve a link (outside the overview day). Such a
     #: Finding places linked work but drives no signal, issue or headline.
     in_window: bool = True
+    #: CH3-R M3: the episode intersects the board's 31-day work window (mini; the thread-level line reads it).
+    in_work_window: bool = False
     #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
     refreshed_from: tuple[str, ...] = ()
     #: CH-2 §5.3: the Finding's thread `{id, occurrence_no, occurrences}`; None when it has no thread.
@@ -270,6 +272,8 @@ class SiteFacts:
     #: CH-3 §5: the board's Site-local day and cutoff (the thread state is read on `day` as of `known_at`).
     day: Any = None        # datetime.date | None (this module imports only outcomes/ and these stdlib modules)
     known_at: Any = None   # datetime | None
+    #: CH3-R M3: the board's 31-day work window `(work_lo, end)` (mini); None = no thread-level line.
+    work_window: Any = None
 
 
 # ---------------------------------------------------------------- helpers
@@ -647,6 +651,35 @@ def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) ->
     return None
 
 
+#: CH3-R M3: the thread states whose line is thread-level (shown after the thread's Finding left the overview day).
+THREAD_LATER_STATES = ("RESOLVED_MONITORING", "CLOSED", "RECURRED")
+
+
+def thread_line_findings(facts: SiteFacts) -> list[FindingFact]:
+    """The Findings whose thread line a board shows, in (title, id) order. Every in-window Finding (CH-3 §5), and,
+    CH3-R M3 (thread-level, mini boards): for a thread with no in-window Finding, its latest occurrence on the
+    board when the thread's latest occurrence or an Action of it lies in the board's 31-day work window
+    (`work_lo`..`end`) and its state on the board day is RESOLVED_MONITORING, CLOSED or RECURRED."""
+    shown = [f for f in facts.findings if f.in_window]
+    if facts.work_window is not None:
+        have = {str(f.thread.get("id")) for f in shown if f.thread is not None}
+        latest: dict[str, FindingFact] = {}
+        for f in facts.findings:
+            if f.in_window or f.thread is None or str(f.thread.get("id")) in have:
+                continue
+            tid = str(f.thread.get("id"))
+            prior = latest.get(tid)
+            if prior is None or (int(f.thread.get("occurrence_no") or 0), f.finding_id) > (
+                    int(prior.thread.get("occurrence_no") or 0), prior.finding_id):  # type: ignore[union-attr]
+                latest[tid] = f
+        acted = {a.thread_id for a in facts.actions if a.thread_id is not None}
+        for tid, f in latest.items():
+            recent = f.in_work_window or tid in acted
+            if recent and f.thread.get("state") in THREAD_LATER_STATES:  # type: ignore[union-attr]
+                shown.append(f)
+    return sorted(shown, key=lambda f: (f.title, f.finding_id))
+
+
 def _state_on(view: Mapping[str, Any], day: Any) -> str | None:
     last = None
     for _, state, eff in view.get("events") or ():
@@ -826,9 +859,9 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         return STATE_LABEL[roll_up(alt_states)[0]].lower() if alt_states else None
 
     thread_lines: list[str] = []
-    for f in sorted(facts.findings, key=lambda f: (f.title, f.finding_id)):
+    for f in thread_line_findings(facts):
         moves = roles[f.finding_id].moves
-        if f.in_window and moves and OUTCOME_BY_KEY[moves[0]].category == cat:
+        if moves and OUTCOME_BY_KEY[moves[0]].category == cat:
             line = thread_line(f, facts, lambda day, f=f: state_label_on(f, day))
             if line and line not in thread_lines:
                 thread_lines.append(line)

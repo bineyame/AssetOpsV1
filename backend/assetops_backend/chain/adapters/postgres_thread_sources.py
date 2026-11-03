@@ -139,13 +139,13 @@ class PostgresThreadSources:
         with self._connect().connect() as c:
             with c.begin():
                 c.execute(text("SET TRANSACTION READ ONLY"))
-                tz, now = c.execute(text("SELECT s.timezone, now() FROM site s WHERE s.tenant_id = :t AND s.id = :s"),
-                                    p).one()
+                tz, now, site_type = c.execute(text(
+                    "SELECT s.timezone, now(), s.site_type FROM site s WHERE s.tenant_id = :t AND s.id = :s"), p).one()
 
                 def rows(sql: str) -> list[dict[str, Any]]:
                     return [dict(r) for r in c.execute(text(sql), p).mappings()]
 
-                out = {"tz": tz, "now": now, "action_events": rows(_ACTION_EVENTS), "outcomes": rows(_OUTCOMES),
+                out = {"tz": tz, "now": now, "site_type": site_type, "action_events": rows(_ACTION_EVENTS), "outcomes": rows(_OUTCOMES),
                        "domain_actions": rows(_DOMAIN_ACTIONS), "case_completions": rows(_CASE_COMPLETIONS),
                        "finding_lifecycle": {r["finding_id"].lower(): r for r in rows(_FINDING_LIFECYCLE)},
                        "snapshots": []}
@@ -201,4 +201,4 @@ class PostgresThreadSources:
                     complete = {fid: fully_checked_days(snap, subject, policy.measures_for(mech),
                                                         starts.get(threads[fid], ()))
                                 for fid, (mech, subject) in subjects.items()}
-        return thread_lookup(rows, day=day, known_at=known_at, complete=complete, close_after=policy.close_after())
+        return thread_lookup(rows, day=day, known_at=known_at, complete=complete, close_after=policy.close_after)

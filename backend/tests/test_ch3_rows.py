@@ -141,7 +141,12 @@ def test_per_kwh_nominal_never_produces_an_amount(cc, outcome):
 def test_priced_total_credited_per_currency_only_when_verified_with_basis():
     def total(amount, cur, basis="7 days after the change"):
         return {**PRICED, "priced_total": {"amount": amount, "currency": cur, "basis": basis}}
-    assert credit.credited(total("120", "ETB"), "VERIFIED") == (120, "ETB")
+    assert credit.credited(total("120", "ETB"), "VERIFIED") == ((120, 1), "ETB")
+    assert credit.credited(total("1/24", "ETB"), "VERIFIED") == ((1, 24), "ETB")
+    assert credit.credited(total("abc", "ETB"), "VERIFIED") is None
+    assert credit.credited(total("1/0", "ETB"), "VERIFIED") is None
+    assert credit.recovered_value([(total("1/2000", "ETB"), "VERIFIED")])["amounts"][0]["amount"] == "0.000"  # half-even
+    assert credit.recovered_value([(total("3/2000", "ETB"), "VERIFIED")])["amounts"][0]["amount"] == "0.002"
     assert credit.credited(total("120", "ETB"), "INEFFECTIVE") is None
     assert credit.credited(total("120", "ETB", basis=None), "VERIFIED") is None
     assert credit.credited(total("-5", "ETB"), "VERIFIED") is None
@@ -171,3 +176,93 @@ def test_portfolio_action_join_respects_segment():
     later = {"finding_id": "F4", "finding_revision_id": "R4", "_thread": {"id": "t1", "segment_no": 2}}
     assert portfolio._action_for(later, [_a_row("A1", 1)]) is None
     assert portfolio._action_for(later, [_a_row("A2", 2, "F9", "R9")])["action_id"] == "A2"
+
+
+# ---- fix round 2 ------------------------------------------------------------------------------------------------
+
+def test_thread_wire_keys_copy_matches_the_lookup():
+    """Review L4a: the board's THREAD_WIRE_KEYS is a copy of chain.lookup.PUBLIC_KEYS (CH3-R item 4)."""
+    from assetops_backend.chain.lookup import PUBLIC_KEYS
+    assert board.THREAD_WIRE_KEYS == PUBLIC_KEYS
+
+
+def _work_facts(f, actions=(), day=date(2026, 11, 1)):
+    lo = datetime(2026, 10, 2, tzinfo=timezone.utc)
+    from assetops_backend.outcomes.catalogue import MINI
+    return SiteFacts(MINI, "KOBO", findings=(f,), actions=tuple(actions), day=day,
+                     work_window=(lo, datetime(2026, 11, 2, tzinfo=timezone.utc)))
+
+
+def _out_of_day(state, view, *, in_work=True):
+    return FindingFact("F1", "R1", "Generator support", "GENERATOR_SUPPORT_CANDIDATE", "SUPPORTED", None,
+                       thread={"id": "t1", "occurrence_no": 1, "occurrences": 1, "segment_no": 1, "state": state,
+                               "state_effective_day": None, "state_day": None},
+                       lifecycle_view=view, in_window=False, in_work_window=in_work)
+
+
+@pytest.mark.parametrize("state", ["RESOLVED_MONITORING", "CLOSED", "RECURRED"])
+def test_thread_line_is_thread_level_after_the_finding_left_the_day(state):
+    """CH3-R M3: the thread's Finding is out of the overview day but in the 31-day work window: its line shows."""
+    f = _out_of_day(state, _view())
+    assert board.thread_line_findings(_work_facts(f, [_action()])) == [f]
+
+
+def test_thread_line_not_shown_out_of_the_work_window_or_in_other_states():
+    out = _out_of_day("RESOLVED_MONITORING", _view(), in_work=False)
+    assert board.thread_line_findings(_work_facts(out)) == []                      # no occurrence, no Action
+    assert board.thread_line_findings(_work_facts(out, [_action()])) == [out]      # an Action of it is in window
+    applied = _out_of_day("CHANGE_APPLIED", _view())
+    assert board.thread_line_findings(_work_facts(applied, [_action()])) == []
+    f = _out_of_day("RESOLVED_MONITORING", _view())
+    assert board.thread_line_findings(SiteFacts("cold", "C", findings=(f,), actions=(_action(),))) == []
+
+
+def test_mini_board_day_after_the_episode_carries_fix_verified_monitoring():
+    """CH3-R M3: a board day after the Finding's episode: the row it moves (primary outcome) carries the line in
+    its subline, and the Earlier entry still lists the Action."""
+    f = _out_of_day("RESOLVED_MONITORING", _view(checked_days=0))
+    a = _action(verification="VERIFIED")
+    rows = board.assemble(_work_facts(f, [a]))
+    sub = [r["subline"] for r in rows if r.get("subline")]
+    assert any("Fix verified, monitoring (ACT-001) · 7 more fully checked days to close" in x for x in sub), sub
+    assert any(e["text"].startswith("ACT-001") for r in rows for e in r.get("earlier") or ()), rows
+
+
+def test_portfolio_counts_are_per_thread_state_independent_of_row_order():
+    """Review L3: after a RECURRED, segment 1 reads RESOLVED_MONITORING and segment 2 RECURRED; the thread counts
+    once, by its current (highest-segment) state, in either row order."""
+    rows = [{"site_id": "S1", "_thread": {"id": "t1", "segment_no": 1, "occurrence_no": 1,
+                                          "state": "RESOLVED_MONITORING"}},
+            {"site_id": "S1", "_thread": {"id": "t1", "segment_no": 2, "occurrence_no": 4, "state": "RECURRED"}}]
+    want = {"verified_resolution_count": 0, "priority_site_count": 1}
+    assert portfolio.thread_progress(rows) == want
+    assert portfolio.thread_progress(list(reversed(rows))) == want
+
+
+def test_portfolio_action_segment_is_read_at_the_rows_cutoff():
+    """Review side-question 1: the Action segment compared with a row's segment is the one read at its cutoff."""
+    k1, k2 = datetime(2026, 10, 31, tzinfo=timezone.utc), datetime(2026, 11, 4, tzinfo=timezone.utc)
+    a = {**_a_row("A1", 2), "_segment_at": {k1: 1, k2: 2}}
+    row = {"finding_id": "F4", "finding_revision_id": "R4", "_thread": {"id": "t1", "segment_no": 1},
+           "_thread_cutoff": k1}
+    assert portfolio._action_for(row, [a])["action_id"] == "A1"
+    assert portfolio._action_for({**row, "_thread_cutoff": k2}, [a]) is None
+
+
+def test_attach_threads_reads_actions_in_every_cutoff_group():
+    k, cold_k = datetime(2026, 11, 4, tzinfo=timezone.utc), datetime(2026, 10, 31, tzinfo=timezone.utc)
+    calls = []
+
+    def port(t, fids, aids, **kw):
+        calls.append((tuple(fids), tuple(aids), kw.get("known_at")))
+        seg = 1 if kw.get("known_at") == cold_k else 2
+        return {"findings": {f.lower(): {"id": "t1", "segment_no": seg} for f in fids},
+                "actions": {a.lower(): "t1" for a in aids}, "action_segments": {a.lower(): seg for a in aids}}
+
+    snap = type("S", (), {"threads": staticmethod(port)})()
+    f_rows = [{"finding_id": "FM"}, {"finding_id": "FC", "_cutoff": cold_k}]
+    a_rows = [{"action_id": "A1"}]
+    req = type("R", (), {"to": k, "known_at": None})()
+    portfolio.attach_threads(snap, "t", f_rows, a_rows, req, k)
+    assert all(aids == ("A1",) for _, aids, _ in calls) and len(calls) == 2
+    assert a_rows[0]["_segment_no"] == 2 and a_rows[0]["_segment_at"] == {k: 2, cold_k: 1}

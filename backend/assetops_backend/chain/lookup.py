@@ -10,7 +10,7 @@ Occurrences are still read as stored now (CH-2 residual risk R-2). Pure: no data
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from assetops_backend.chain import lifecycle as lc
 
@@ -25,17 +25,17 @@ LOOKUP = (
     "SELECT 'F' AS kind, CAST(fo.finding_id AS text) AS ref, CAST(fo.thread_id AS text) AS thread_id, "
     "fo.occurrence_no AS num, (SELECT count(*) FROM finding_thread_occurrence x WHERE x.thread_id = fo.thread_id) "
     "AS cnt, fo.episode_start AS at1, CAST(NULL AS timestamptz) AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
-    "t.subject_ref AS txt3, CAST(NULL AS date) AS day1 FROM fo JOIN finding_thread t ON t.id = fo.thread_id "
+    "t.subject_ref AS txt3, CAST(NULL AS date) AS day1, s.site_type AS txt4 FROM fo JOIN finding_thread t ON t.id = fo.thread_id "
     "JOIN site s ON s.tenant_id = fo.tenant_id AND s.id = fo.site_id "
     "UNION ALL SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.recorded_at, e.cause_known_at, "
     "e.state, "
-    "e.cause_kind, NULL, e.effective_day FROM finding_thread_event e WHERE e.thread_id IN (SELECT thread_id FROM th) "
+    "e.cause_kind, NULL, e.effective_day, NULL FROM finding_thread_event e WHERE e.thread_id IN (SELECT thread_id FROM th) "
     "UNION ALL SELECT 'A', CAST(al.action_id AS text), CAST(al.thread_id AS text), NULL, NULL, "
     "CASE WHEN al.action_kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x "
     "WHERE x.tenant_id = al.tenant_id AND x.action_id = al.action_id AND x.kind = 'ACCEPTED') "
     "ELSE (SELECT d.recorded_at FROM domain_action d WHERE d.tenant_id = al.tenant_id AND d.id = al.action_id) END, "
     "(SELECT o.episode_start FROM finding_thread_occurrence o WHERE o.finding_id = al.origin_finding_id), "
-    "s.timezone, CAST(al.origin_finding_id AS text), NULL, NULL FROM al "
+    "s.timezone, CAST(al.origin_finding_id AS text), NULL, NULL, NULL FROM al "
     "JOIN site s ON s.tenant_id = al.tenant_id AND s.id = al.site_id")
 
 #: `state_day` (CH-3 packet deviation, additive): the Site-local day the state was read on, so COH-13 can compare a
@@ -49,19 +49,23 @@ def _day(at: datetime | None, tz: str | None) -> date | None:
 
 def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: datetime | None = None,
                   complete: Mapping[str, Iterable[date]] | None = None,
-                  close_after: int = 7, day_at: datetime | None = None) -> dict[str, Any]:
+                  close_after: int | Callable[[str | None], int] = 7,
+                  day_at: datetime | None = None) -> dict[str, Any]:
     """`LOOKUP` rows -> {"findings": {finding_id: {id, occurrence_no, occurrences, segment_no, state,
     state_effective_day}}, "actions": {action_id: thread_id}, "action_segments": {action_id: n},
     "lifecycle": {finding_id: the board view (`lifecycle.thread_view`)}, "subjects": {finding_id: (mechanism,
     subject_ref)}}. `day` None reads the latest state; `complete` maps a Finding id to its fully checked days.
     `day_at` (an instant; CH3-R, AG-27) reads each Finding on its own Site's local day holding that instant, and
-    overrides `day` for a Finding whose Site zone is known (the Portfolio's window across Sites)."""
+    overrides `day` for a Finding whose Site zone is known (the Portfolio's window across Sites). `close_after` is a
+    count, or the policy's `close_after(site_type)` (review L2: the per-Site-type override, from each Finding's Site)."""
     occ_rows: list[tuple[Any, ...]] = []
     act_rows: list[tuple[Any, ...]] = []
     events: dict[str, list[lc.Event]] = {}
-    for kind, ref, thread_id, num, cnt, at1, at2, txt1, txt2, txt3, day1 in rows:
+    for row in rows:
+        kind, ref, thread_id, num, cnt, at1, at2, txt1, txt2, txt3, day1 = tuple(row)[:11]
         if kind == "F":
-            occ_rows.append((ref.lower(), thread_id, num, cnt, at1, txt1, txt2, txt3))
+            site_type = tuple(row)[11] if len(tuple(row)) > 11 else None
+            occ_rows.append((ref.lower(), thread_id, num, cnt, at1, txt1, txt2, txt3, site_type))
         elif kind == "E":
             events.setdefault(thread_id, []).append(lc.Event(int(num), txt1, txt2, ref, day1, at1, at2))
         else:
@@ -69,11 +73,12 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
     findings: dict[str, Any] = {}
     views: dict[str, Any] = {}
     subjects: dict[str, Any] = {}
-    for fid, thread_id, num, cnt, start, tz, mechanism, subject in occ_rows:
+    for fid, thread_id, num, cnt, start, tz, mechanism, subject, site_type in occ_rows:
         evs = events.get(thread_id, [])
         on = _day(day_at, tz) if day_at is not None and tz is not None else day
         view = lc.thread_view(evs, lc.Occurrence(fid, _day(start, tz)), on, known_at,
-                              (complete or {}).get(fid, ()), close_after)
+                              (complete or {}).get(fid, ()),
+                              close_after(site_type) if callable(close_after) else close_after)
         views[fid] = view
         subjects[fid] = (mechanism, subject)
         eff = view["state_effective_day"]
@@ -86,7 +91,7 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
     for aid, thread_id, accepted, origin_start, tz, origin in act_rows:
         actions[aid] = thread_id
         evs = lc.visible(events.get(thread_id, []), known_at)
-        segments[aid] = lc.action_segment(evs, lc.Occurrence(origin, _day(origin_start, tz)), _day(accepted, tz))
+        segments[aid] = lc.action_segment(evs, lc.Occurrence(origin, _day(origin_start, tz)), lc.accepted_day([_day(accepted, tz)]))
     return {"findings": findings, "actions": actions, "action_segments": segments, "lifecycle": views,
             "subjects": subjects}
 

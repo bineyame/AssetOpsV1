@@ -414,3 +414,53 @@ def test_settle_env_points_only_at_the_clone() -> None:
     assert env["ASSETOPS_TEST_DATABASE_URL"] == env["DATABASE_URL"]
     assert chain_clone.TICK[:3] == ("-m", "assetops_backend.scheduling.run", "tick")
     assert not any(k in env for k in chain_clone.KEY_NAMES)
+
+
+def test_settle_runs_the_comparison_first_and_records_only_the_files_it_created(tmp_path: Path) -> None:
+    """CH3-R M2: settle runs the S2 comparison, then the tick and performance step; it records exactly the files the
+    steps created under var/, and drop's cleanup deletes exactly those, never a file that existed before."""
+    var = tmp_path / "var"
+    old = var / "evidence" / "migration" / "kobo-001" / "old.json"
+    old.parent.mkdir(parents=True)
+    old.write_text("{}", encoding="utf-8")
+    labels = []
+
+    def run(label, argv, env, name):
+        labels.append(label)
+        assert env["DATABASE_URL"].endswith("/assetops_chainclone_t1_test")
+        if label == "s2-comparison":
+            assert argv[:2] == ("-m", "assetops_backend.evidence_migration") and "KOBO-001" in argv
+            (old.parent / "new.json").write_text("{}", encoding="utf-8")
+            (var / "perf" / "deep").mkdir(parents=True)
+            (var / "perf" / "deep" / "x.json").write_text("{}", encoding="utf-8")
+        return 0
+
+    assert chain_clone.settle("t1", var, run) == 0
+    assert labels == ["s2-comparison", "tick", "performance"]
+    record = json.loads(chain_clone.created_record("t1", var).read_text(encoding="utf-8"))
+    assert record["files"] == ["evidence/migration/kobo-001/new.json", "perf/deep/x.json"]
+    assert record["dirs"] == ["perf", "perf/deep"]
+    assert sorted(chain_clone.cleanup("t1", var)) == record["files"]
+    assert old.is_file() and not (old.parent / "new.json").exists() and not (var / "perf").exists()
+    assert not (var / "chainclone_t1").exists()
+    assert chain_clone.cleanup("t1", var) == []
+
+
+def test_cleanup_refuses_a_recorded_path_outside_var(tmp_path: Path) -> None:
+    var = tmp_path / "var"
+    outside = tmp_path / "keep.txt"
+    outside.write_text("x", encoding="utf-8")
+    rec = chain_clone.created_record("t2", var)
+    rec.parent.mkdir(parents=True)
+    rec.write_text(json.dumps({"files": ["../keep.txt"], "dirs": []}), encoding="utf-8")
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.cleanup("t2", var)
+    assert outside.is_file()
+
+
+@pytest.mark.parametrize("name", ["../x", "polish_full", "demo3_full"])
+def test_settle_refuses_a_non_clone_name_before_any_step(name: str, tmp_path: Path) -> None:
+    ran = []
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.settle(name, tmp_path, lambda *a: ran.append(a) or 0)
+    assert ran == [] and not any(tmp_path.iterdir())

@@ -1,17 +1,20 @@
 """CH-0 U2 (build sheet §3.4): the L3 clone helper for the chain coherence check.
 
     python tools/chain_clone.py create <name> [--migrate]   # assetops_chainclone_<name>_test FROM TEMPLATE the polish DB
-    python tools/chain_clone.py settle <name>                # one bounded scheduler tick on the clone (CH3-R)
-    python tools/chain_clone.py drop   <name>
+    python tools/chain_clone.py settle <name>                # S2 comparison + one bounded tick on the clone (CH3-R)
+    python tools/chain_clone.py drop   <name>                   # the clone and exactly the files settle created
 
 The source is the fixed constant `SOURCE_DB`; there is no option to change it. The target must match
 `TARGET_RE`. `create` refuses while the source has any other session (it never terminates one); `--migrate` upgrades
 the clone to this worktree's Alembic head the way `tools/demo_combined.py` `prepare` does. `drop` removes only a
-name matching the pattern. `settle` (ruling CH3-R, the L3 settle step) runs ONE scheduler tick on the clone with
-the serve's tick arguments (`demo_combined.TICK`), then the serve's Kobo performance step, so the producers are
-settled before a collect; it runs this worktree's code, needs no work dir and writes no file (the output is captured
-here, not logged into a work dir). It refuses any name that is not an `assetops_chainclone_*_test` clone, so it can
-never tick the polish DB or any other database. The tool never serves or writes anything else.
+name matching the pattern. `settle` (ruling CH3-R, the L3 settle step) first runs prepare's Kobo S2 comparison
+(`evidence_migration run`, as `tools/demo_combined.py` does) on the clone, then ONE scheduler tick with the serve's
+tick arguments (`demo_combined.TICK`), then the serve's Kobo performance step, so the producers are settled before a
+collect. It runs this worktree's code and needs no work dir. CH3-R M2: the comparison record is a file under this
+worktree's gitignored `var/` (bound to this tree), so `settle` records every file it created under `var/` in
+`var/chainclone_<name>/created.json`, and `drop` deletes exactly those files (and the directories it created), never
+a file that existed before. It refuses any name that is not an `assetops_chainclone_*_test` clone, so it can never
+tick the polish DB or any other database. The tool never serves or writes anything else.
 """
 
 from __future__ import annotations
@@ -88,6 +91,8 @@ def masked(url: str) -> str:
     return re.sub(r"(://[^:/@]*:)[^@]*@", r"\1***@", url)
 
 
+#: CH3-R M2: prepare's S2 comparison (`demo_combined.Demo.finish`), which writes the Kobo comparison record.
+COMPARISON = ("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001")
 #: The serve's performance step after each tick (`demo_combined.Demo.tick`).
 PERFORMANCE = ("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", "KOBO-001")
 #: Per-child wall cap: twice the scheduler's own `TickLimits.tick_seconds` (240 s).
@@ -110,27 +115,95 @@ def settle_env(name: str) -> dict[str, str]:
     return out
 
 
-def settle(name: str) -> int:
-    """One bounded tick plus the performance step on the clone; prints each child's PID and last output line."""
+SETTLE_STEPS = (("s2-comparison", COMPARISON), ("tick", TICK), ("performance", PERFORMANCE))
+VAR = REPO / "var"
+
+
+def _run_child(label: str, argv: tuple[str, ...], env: dict[str, str], name: str) -> int:
     import subprocess
     import time
 
+    started = time.monotonic()
+    proc = subprocess.Popen([sys.executable, *argv], cwd=str(REPO), env=env, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
+    print(f"{label}: PID {proc.pid} on {target_db(name)}", flush=True)
+    try:
+        out, _ = proc.communicate(timeout=SETTLE_CAP_SECONDS)
+    except subprocess.TimeoutExpired:
+        subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
+        raise SystemExit(f"WALL CAP {SETTLE_CAP_SECONDS}s reached during {label}; stopped PID {proc.pid}")
+    last = (out.strip().splitlines() or ["(no output)"])[-1]
+    print(f"{label}: exit {proc.returncode} in {time.monotonic() - started:.0f}s: {masked(last)[:400]}")
+    return proc.returncode
+
+
+def created_record(name: str, var: Path = VAR) -> Path:
+    """`var/chainclone_<name>/created.json` (the name is checked first)."""
+    target_db(name)
+    return var / f"chainclone_{name}" / "created.json"
+
+
+def _tree(var: Path) -> tuple[set[str], set[str]]:
+    """(files, directories) under `var`, as POSIX paths relative to it."""
+    files: set[str] = set()
+    dirs: set[str] = set()
+    if var.is_dir():
+        for p in var.rglob("*"):
+            (files if p.is_file() else dirs).add(p.relative_to(var).as_posix())
+    return files, dirs
+
+
+def settle(name: str, var: Path = VAR, run=_run_child) -> int:
+    """The S2 comparison, one bounded tick and the performance step on the clone; prints each child's PID and last
+    output line, and records the files the steps created under `var/` (CH3-R M2), also when a step fails."""
+    import json
+
     env = settle_env(name)  # refuses first, before any process starts
+    record = created_record(name, var)
+    before_files, before_dirs = _tree(var)
     worst = 0
-    for label, argv in (("tick", TICK), ("performance", PERFORMANCE)):
-        started = time.monotonic()
-        proc = subprocess.Popen([sys.executable, *argv], cwd=str(REPO), env=env, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
-        print(f"{label}: PID {proc.pid} on {target_db(name)}", flush=True)
-        try:
-            out, _ = proc.communicate(timeout=SETTLE_CAP_SECONDS)
-        except subprocess.TimeoutExpired:
-            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
-            raise SystemExit(f"WALL CAP {SETTLE_CAP_SECONDS}s reached during {label}; stopped PID {proc.pid}")
-        last = (out.strip().splitlines() or ["(no output)"])[-1]
-        print(f"{label}: exit {proc.returncode} in {time.monotonic() - started:.0f}s: {masked(last)[:400]}")
-        worst = max(worst, proc.returncode)
+    try:
+        for label, argv in SETTLE_STEPS:
+            worst = max(worst, run(label, argv, env, name))
+    finally:
+        after_files, after_dirs = _tree(var)
+        prior = json.loads(record.read_text(encoding="utf-8")) if record.is_file() else {"files": [], "dirs": []}
+        own = {record.relative_to(var).as_posix(), record.parent.relative_to(var).as_posix()}
+        made = {"files": sorted(set(prior["files"]) | (after_files - before_files - own)),
+                "dirs": sorted(set(prior["dirs"]) | (after_dirs - before_dirs - own))}
+        record.parent.mkdir(parents=True, exist_ok=True)
+        record.write_text(json.dumps(made, indent=2), encoding="utf-8")
+        print(f"settle: {len(made['files'])} file(s) created under var/, recorded in {record}")
     return worst
+
+
+def cleanup(name: str, var: Path = VAR) -> list[str]:
+    """Deletes exactly the files (then the emptied directories) `settle` recorded as created, and the record. A
+    recorded path outside `var` is refused. Returns the deleted file paths."""
+    import json
+
+    record = created_record(name, var)
+    if not record.is_file():
+        return []
+    made = json.loads(record.read_text(encoding="utf-8"))
+    root = var.resolve()
+    paths = [(rel, (var / rel).resolve()) for rel in made.get("files", [])]
+    for rel, p in paths:  # refuse before deleting anything
+        if p == root or not p.is_relative_to(root):
+            raise CloneRefused(f"refused: recorded path {rel!r} is outside {var}")
+    deleted = []
+    for rel, p in paths:
+        if p.is_file():
+            p.unlink()
+            deleted.append(rel)
+    for rel in sorted(made.get("dirs", []), key=lambda r: r.count("/"), reverse=True):
+        p = (var / rel).resolve()
+        if p != root and p.is_relative_to(root) and p.is_dir() and not any(p.iterdir()):
+            p.rmdir()
+    record.unlink()
+    if not any(record.parent.iterdir()):
+        record.parent.rmdir()
+    return deleted
 
 
 def drop(name: str) -> None:
@@ -138,6 +211,8 @@ def drop(name: str) -> None:
     with _admin() as c:
         c.execute(sql)
     print(f"dropped {target_db(name)}")
+    gone = cleanup(name)
+    print(f"deleted {len(gone)} file(s) settle created under var/")
 
 
 def main(argv: list[str] | None = None) -> int:

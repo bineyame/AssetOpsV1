@@ -23,7 +23,10 @@ def _ev(seq, state, kind, cid, day, at=None):
 
 
 def _cause(cause, kind, cid, day, aid="A1", at=None):
-    return lc.Cause(cause, kind, cid, day, at or T0, aid)
+    """A cause known (and recorded) at noon UTC of its effective day unless `at` says otherwise (CH3-R M1: causes
+    apply in known-time order)."""
+    at = at or datetime(day.year, day.month, day.day, 12, tzinfo=UTC)
+    return lc.Cause(cause, kind, cid, day, at, aid, at)
 
 
 OPEN1 = _ev(1, "OPEN", "OCCURRENCE", "F1", date(2026, 10, 28))
@@ -263,3 +266,124 @@ def test_planned_events_carry_their_cause_time():
                              "occurrence_known": {"f9": T0 + timedelta(days=2)}}, [],
                             {"tz": "UTC", "finding_lifecycle": {}})
     assert occ[0].cause == lc.OCCURRENCE and occ[0].known_at == T0 + timedelta(days=2)
+
+
+# ---- fix round 2 (review M1, L2, L4b; CH3-R consolidated ruling) -------------------------------------------------
+
+def _at(d, hour=12):
+    return datetime(d.year, d.month, d.day, hour, tzinfo=UTC)
+
+
+CHANGE = date(2026, 10, 30)
+REVERIFY = [_cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", "e1", date(2026, 10, 29)),
+            _cause(lc.ACTION_APPLIED, "ACTION_EVENT", "e2", CHANGE),
+            # VERIFIED is dated on the change's effective day (A5) but known when recorded
+            _cause(lc.VERIFIED, "VERIFICATION_OUTCOME", "o1", CHANGE, at=_at(date(2026, 10, 31))),
+            _cause(lc.RESOLUTION_WITHDRAWN, "ACTION_EVENT", "e3", date(2026, 11, 2)),
+            _cause(lc.VERIFIED, "VERIFICATION_OUTCOME", "o2", CHANGE, at=_at(date(2026, 11, 3)))]
+
+
+def _stored(events):
+    """Planned events as stored: the database stamps recorded_at; cause_known_at is the cause's known time."""
+    return [lc.Event(e.seq, e.state, e.cause_kind, e.cause_id, e.effective_day, e.known_at or T0, e.known_at)
+            for e in events]
+
+
+def test_withdraw_then_reverify_returns_to_resolved_monitoring_in_one_run():
+    """CH3-R M1: causes apply in known-time order, so the re-verification (dated on the change day, known after the
+    withdrawal) applies after it, and the thread reads RESOLVED_MONITORING again on later days."""
+    plan = _plan([OPEN1], REVERIFY)
+    assert _states(plan) == ["ACTION_IN_HAND", "CHANGE_APPLIED", "RESOLVED_MONITORING", "CHANGE_APPLIED",
+                             "RESOLVED_MONITORING"]
+    assert plan.skipped == []
+    evs = _stored([OPEN1, *plan.events])
+    for d in (date(2026, 11, 3), date(2026, 11, 10)):
+        assert lc.state_on(lc.visible(evs, None), d)[0] == "RESOLVED_MONITORING"
+    # as known before the re-verification was recorded, the withdrawal holds from its day
+    before = lc.visible(evs, _at(date(2026, 11, 2), 18))
+    assert lc.state_on(before, date(2026, 11, 2))[0] == "CHANGE_APPLIED"
+    assert _plan(evs, REVERIFY).events == []   # a rerun writes nothing
+
+
+def test_withdraw_then_reverify_across_two_runs():
+    first = _plan([OPEN1], REVERIFY[:4])
+    assert _states(first)[-1] == "CHANGE_APPLIED"
+    evs = _stored([OPEN1, *first.events])
+    second = _plan(evs, REVERIFY)
+    assert _states(second) == ["RESOLVED_MONITORING"] and second.skipped == []
+    assert _plan(_stored([*evs, *second.events]), REVERIFY).events == []
+
+
+def test_cause_known_before_the_head_is_before_head_by_known_time():
+    """D-a by known times: a cause known before the head's cause is BEFORE_HEAD even when its effective day is
+    later; one known after the head is judged (here legal) even when its effective day is earlier."""
+    head = _stored([OPEN1, *_plan([OPEN1], REVERIFY[:3]).events])   # RESOLVED_MONITORING, known 31 Oct
+    late_day_early_known = _cause(lc.RESOLUTION_WITHDRAWN, "ACTION_EVENT", "e8", date(2026, 11, 5),
+                                  at=_at(date(2026, 10, 30)))
+    plan = _plan(head, [late_day_early_known])
+    assert plan.events == [] and plan.skipped[0]["reason"] == "BEFORE_HEAD"
+    early_day_late_known = _cause(lc.RESOLUTION_WITHDRAWN, "ACTION_EVENT", "e9", date(2026, 10, 20),
+                                  at=_at(date(2026, 11, 5)))
+    assert _states(_plan(head, [early_day_late_known])) == ["CHANGE_APPLIED"]
+
+
+def _outcome(oid, outcome, superseded, at):
+    return {"id": oid, "action_id": "A1", "outcome": outcome, "superseded": superseded, "recorded_at": at,
+            "effective_from": _at(CHANGE), "later_end": None}
+
+
+def test_superseded_outcome_gives_no_cause():
+    inputs = {"tz": "UTC", "now": _at(date(2026, 11, 4)), "action_events": [], "domain_actions": [],
+              "case_completions": [],
+              "outcomes": [_outcome("o1", "VERIFIED", True, _at(date(2026, 10, 31))),
+                           _outcome("o0", "INEFFECTIVE", True, _at(date(2026, 10, 31))),
+                           _outcome("o2", "VERIFIED", False, _at(date(2026, 11, 3)))]}
+    causes = run.causes_for_site(inputs, load_thread_lifecycle())
+    assert [c.cause_id for c in causes] == ["o2"]
+
+
+def test_earlier_segment_skip_is_pinned_and_accepted_day_is_the_first_acceptance():
+    """Review L4b: a cause legal from the current state but of an Action of an earlier segment is skipped as
+    EARLIER_SEGMENT. The Action's ACCEPTED day is its first acceptance (one rule with the lookup), so a
+    re-acceptance after the thread reopened does not move it into segment 2."""
+    evs = [OPEN1, _ev(2, "ACTION_IN_HAND", "ACTION_EVENT", "e1", date(2026, 10, 29)),
+           _ev(3, "CHANGE_APPLIED", "ACTION_EVENT", "e2", date(2026, 10, 30)),
+           _ev(4, "REOPENED", "VERIFICATION_OUTCOME", "o1", date(2026, 11, 2))]
+    causes = [_cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", "e1", date(2026, 10, 29)),
+              _cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", "e9", date(2026, 11, 4))]
+    plan = _plan(evs, causes)
+    assert plan.events == [] and [s["reason"] for s in plan.skipped] == ["EARLIER_SEGMENT"]
+    assert lc.accepted_day([date(2026, 11, 4), None, date(2026, 10, 29)]) == date(2026, 10, 29)
+    assert lc.accepted_day([]) is None
+
+
+def test_lookup_reads_the_per_site_type_close_override():
+    """Review L2: the lookup reads each Finding's Site type for the close count; the lifecycle reads it from
+    `lifecycle_inputs` (`site_type`)."""
+    policy = lc.LifecyclePolicy("p", 7, {"MINIGRID": 3}, 7, {"GENERATOR_SUPPORT_CANDIDATE": ("m",)})
+    assert policy.close_after("MINIGRID") == 3 and policy.close_after("COLDCHAIN") == 7
+    rows = [("F", "F1", "t1", 1, 1, _at(date(2026, 10, 28)), None, "UTC", "GENERATOR_SUPPORT_CANDIDATE", "G1", None,
+             "MINIGRID"),
+            ("E", "o1", "t1", 1, None, T0, None, "RESOLVED_MONITORING", "VERIFICATION_OUTCOME", None, CHANGE, None)]
+    assert thread_lookup(rows, close_after=policy.close_after)["lifecycle"]["f1"]["close_after"] == 3
+    assert thread_lookup([r[:11] for r in rows], close_after=policy.close_after)["lifecycle"]["f1"][
+        "close_after"] == 7
+
+
+def test_run_lifecycle_passes_the_site_type_to_the_close_rule():
+    seen = []
+
+    class Policy(lc.LifecyclePolicy):
+        def close_after(self, site_type=None):
+            seen.append(site_type)
+            return 7
+
+    policy = Policy("p", 7, {}, 7, {})
+    reader = SimpleNamespace(lifecycle_inputs=lambda t, s: {
+        "tz": "UTC", "now": T0, "site_type": "MINIGRID", "action_events": [], "outcomes": [], "domain_actions": [],
+        "case_completions": [], "finding_lifecycle": {}, "snapshots": []})
+    thread = {"id": "t1", "links": {}, "events": [], "occurrences": [], "mechanism": "X", "subject_ref": "G1"}
+    store = SimpleNamespace(site_threads=lambda t, s: [thread], thread_head=lambda tid: (None, None),
+                            append_events=lambda t, s, th, planner, pv: planner([]))
+    run.run_lifecycle(reader, store, "T", "S", policy)
+    assert seen == ["MINIGRID"]

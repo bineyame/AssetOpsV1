@@ -46,7 +46,8 @@ def causes_for_site(inputs: dict[str, Any], policy: lc.LifecyclePolicy) -> list[
             prior = latest.get(str(o["action_id"]))
             if prior is None or (o["recorded_at"], str(o["id"])) > (prior["recorded_at"], str(prior["id"])):
                 latest[str(o["action_id"])] = o
-        if o["outcome"] in ("VERIFIED", "INEFFECTIVE"):
+        if o["outcome"] in ("VERIFIED", "INEFFECTIVE") and not o["superseded"]:
+            # CH3-R M1: a superseded outcome (another outcome's `supersedes_outcome_id`) gives no cause.
             at = o["effective_from"] if o["outcome"] == "VERIFIED" and o.get("effective_from") else o["recorded_at"]
             out.append(lc.Cause(lc.VERIFIED if o["outcome"] == "VERIFIED" else lc.INEFFECTIVE, "VERIFICATION_OUTCOME",
                                 str(o["id"]), lc.local_day(at, tz), o["recorded_at"], str(o["action_id"]),
@@ -110,7 +111,7 @@ def run_lifecycle(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None
             continue
         inputs = reader.lifecycle_inputs(tenant_id, sid)
         site_causes = causes_for_site(inputs, policy)
-        close_after = policy.close_after(inputs.get("site_type"))
+        close_after = policy.close_after(inputs.get("site_type"))  # L2: the per-Site-type override
         for t in threads:
             causes = thread_causes(t, site_causes, inputs)
             clean = thread_clean_days(t, inputs, policy)

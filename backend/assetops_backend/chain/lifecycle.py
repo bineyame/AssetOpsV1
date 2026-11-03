@@ -169,6 +169,23 @@ def action_segment(events: Sequence[Event], origin: Occurrence | None, accepted_
     return max(origin_seg, segment_on(events, accepted_day))
 
 
+def accepted_day(days: Iterable[date | None]) -> date | None:
+    """CH-3 (review L4): an Action's ACCEPTED day, one rule for the lifecycle and the lookup: the earliest ACCEPTED
+    day (a re-accepted Action keeps its first acceptance)."""
+    known = [d for d in days if d is not None]
+    return min(known) if known else None
+
+
+def known_time(e: Event | Cause) -> datetime | None:
+    """When a cause, or the event it wrote, became known: its `known_at`, else its `recorded_at` (CH3-R M1)."""
+    return e.known_at if e.known_at is not None else e.recorded_at
+
+
+def cause_order(c: Cause) -> tuple[Any, ...]:
+    """CH3-R M1: causes apply in known-time order (`cause_known_at`, `recorded_at`, id), not by effective day."""
+    return (known_time(c), c.recorded_at, c.cause_id)
+
+
 def state_on(events: Sequence[Event], day: date, segment: int | None = None) -> tuple[str | None, date | None]:
     """(state, effective_day) of the last event effective on or before `day`, within `segment` when given."""
     last: Event | None = None
@@ -198,15 +215,23 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
     evs = sorted(events, key=lambda e: e.seq)
     done = {(e.cause_kind, e.cause_id) for e in evs}
     occ_by_source = {o.source_id: o for o in occurrences}
-    accepted_day = {c.action_id: c.effective_day for c in causes if c.cause == ACTION_ACCEPTED and c.action_id}
+    accepted: dict[str, list[date]] = {}
+    for c in causes:
+        if c.cause == ACTION_ACCEPTED and c.action_id:
+            accepted.setdefault(c.action_id, []).append(c.effective_day)
+    accepted_on = {aid: accepted_day(days) for aid, days in accepted.items()}
     clean = sorted(set(clean_days))
     plan = LifecyclePlan()
 
     def head() -> Event | None:
         return evs[-1] if evs else None
 
-    def add(state: str, cause_kind: str, cause_id: str, day: date, known: datetime | None = None) -> None:
+    planned_known: dict[int, datetime | None] = {}  # a planned event's cause known time (its own is unstamped)
+
+    def add(state: str, cause_kind: str, cause_id: str, day: date, known: datetime | None = None,
+            order_known: datetime | None = None) -> None:
         e = Event(len(evs) + 1, state, cause_kind, cause_id, day, None, known)
+        planned_known[e.seq] = order_known
         evs.append(e)
         plan.events.append(e)
         done.add((cause_kind, cause_id))
@@ -222,7 +247,7 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
             if ("CLEAN_DAYS", cause_id) not in done:
                 add("CLOSED", "CLEAN_DAYS", cause_id, nth)
 
-    for c in sorted(causes, key=lambda c: (c.effective_day, c.recorded_at, c.cause_id)):
+    for c in sorted(causes, key=cause_order):
         if (c.cause_kind, c.cause_id) in done:
             continue
         maybe_close(c.effective_day)
@@ -230,9 +255,11 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
         state = None if h is None else h.state
         target = TRANSITIONS.get((state, c.cause))
         reason = None
-        if h is not None and c.cause != OCCURRENCE and c.effective_day < h.effective_day:
-            # A cause dated before the head was already judged against an earlier head (applied or skipped) in a
-            # previous run, or in this one; judging it again against a later head would make a rerun write.
+        head_known = None if h is None else planned_known[h.seq] if h.seq in planned_known else known_time(h)
+        if head_known is not None and c.cause != OCCURRENCE and known_time(c) < head_known:
+            # D-a, CH3-R M1: a cause known before the head became known was already judged against an earlier head
+            # (applied or skipped) in a previous run, or in this one; judging it again against a later head would
+            # make a rerun write. A planned CLEAN_DAYS close has no known time and never makes a cause BEFORE_HEAD.
             reason = "BEFORE_HEAD"
         elif target is None:
             if c.cause == OCCURRENCE:
@@ -244,7 +271,7 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
             if c.action_id not in actions:
                 reason = "ACTION_NOT_ON_THREAD"
             else:
-                seg = action_segment(evs, occ_by_source.get(actions[c.action_id]), accepted_day.get(c.action_id))
+                seg = action_segment(evs, occ_by_source.get(actions[c.action_id]), accepted_on.get(c.action_id))
                 if seg != segment_on(evs, None):
                     reason = "EARLIER_SEGMENT"
         elif c.cause == SUPPORT_LOST and actions:
@@ -253,7 +280,7 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
             plan.skipped.append({"thread_id": thread_id, "cause": c.cause, "cause_id": c.cause_id,
                                  "from_state": state, "reason": reason})
             continue
-        add(target, c.cause_kind, c.cause_id, c.effective_day, c.known_at)  # type: ignore[arg-type]
+        add(target, c.cause_kind, c.cause_id, c.effective_day, c.known_at, known_time(c))  # type: ignore[arg-type]
     maybe_close(None)
     return plan
 

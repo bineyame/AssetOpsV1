@@ -254,7 +254,8 @@ def test_portfolio_thread_state_uses_the_resolved_cutoff():
 
     attach_threads(Snap2(), T, [{"finding_id": "f1", "_cutoff": row_k}, {"finding_id": "f2"}], [{"action_id": "a1"}],
                    Req(), k)
-    assert sorted(calls, key=lambda c: c[0]) == [(["f1"], [], row_k), (["f2"], ["a1"], k)]
+    # fix round 2: the Actions are read in every cutoff group, so their segments match the row's cutoff
+    assert sorted(calls, key=lambda c: c[0]) == [(["f1"], ["a1"], row_k), (["f2"], ["a1"], k)]
 
 
 def test_board_lists_a_domain_action_in_hand_by_thread():
