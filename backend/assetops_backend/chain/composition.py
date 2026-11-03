@@ -72,6 +72,7 @@ class ChainServices:
     reader: SnapshotReader
     inputs: Any
     dispose: Callable[[], None]
+    events: Any = None  # CH-1b: the event store (the backfill records its `backfill.site` provenance event)
 
 
 def build_chain_services(database_url: str | None) -> ChainServices | None:
@@ -81,12 +82,14 @@ def build_chain_services(database_url: str | None) -> ChainServices | None:
     store = PostgresSnapshotStore(database_url)
     inputs = build_chain_inputs(database_url)
     builder = build_snapshot_builder(database_url, inputs, store)
+    events = PostgresEventStore(database_url)
 
     def dispose() -> None:
         inputs.dispose()
         store.dispose()
+        events.dispose()
 
-    return ChainServices(builder, SnapshotReader(store), inputs, dispose)
+    return ChainServices(builder, SnapshotReader(store), inputs, dispose, events)
 
 
 def build_thread_store(database_url: str | None) -> PostgresThreadStore | None:

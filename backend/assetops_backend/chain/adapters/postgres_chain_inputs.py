@@ -60,14 +60,22 @@ _WINDOWS = (
     "AND sel.window_start < :hi AND sel.window_end > :lo AND r.knowledge_cutoff <= :k AND sel.selected_at <= :k "
     "GROUP BY sel.window_start, sel.window_end ORDER BY sel.window_start, sel.window_end")
 
-#: CH-1b residual 2: a live job visible at the cutoff that no later selection of its window (visible at the cutoff)
-#: has cleared, as `_RENEWABLE_JOBS` does for the mini-depth hour.
+#: CH-1b residual 2: a live job visible at the cutoff that no later selection of its window by one of its domain's
+#: analytics (visible at the cutoff) has cleared, as `_RENEWABLE_JOBS` does for the mini-depth hour.
 _JOBS = (
     "SELECT EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = ANY(:d) "
     "AND j.status = ANY(:st) AND j.window_start < :hi AND j.window_end > :lo AND j.available_at <= :k "
     "AND NOT EXISTS (SELECT 1 FROM analytic_run_selection x WHERE x.tenant_id = j.tenant_id "
-    "AND x.site_id = j.site_id AND x.window_start = j.window_start AND x.window_end = j.window_end "
-    "AND x.selected_at > j.available_at AND x.selected_at <= :k))")
+    "AND x.site_id = j.site_id AND x.analytic_id = ANY(:an) AND x.window_start = j.window_start "
+    "AND x.window_end = j.window_end AND x.selected_at > j.available_at AND x.selected_at <= :k))")
+
+#: The analytics each recompute-job domain selects (pre-flight P1; ruling CH1b-R D1), so only a selection by the job's
+#: own analytics clears it.
+JOB_ANALYTICS: dict[str, tuple[str, ...]] = {
+    "dispatch": ("dispatch",),
+    "cold_chain": ("cold-excursion", "cold-start-response"),
+    "ev_charging": ("ev-session/1",),
+}
 
 
 #: `mini_depth/read.py` `_JOBS`: a live job no later selection of its hour (visible at the cutoff) has cleared.
@@ -280,7 +288,9 @@ class PostgresChainInputs:
         return bool(r and r[0])
 
     def pending_jobs(self, ctx: DayCtx, domains: Sequence[str]) -> bool:
+        analytics = sorted({a for d in domains for a in JOB_ANALYTICS.get(d, ())})
         r = self._one(_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "d": list(domains), "st": list(_LIVE),
+                              "an": analytics,
                               "lo": ctx.period_start_utc, "hi": ctx.period_end_utc, "k": self._known(ctx)})
         return bool(r and r[0])
 

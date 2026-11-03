@@ -112,8 +112,16 @@ def _step_a(reader: Any, tenant_id: UUID, site_id: UUID | None, url: str | None,
             tz = ZoneInfo(site.timezone)
             from_day, to_day = first.astimezone(tz).date(), datetime.now(tz).date()
             out = services.builder.build_range(tenant_id, site, from_day, to_day)
-            results.append({"site_code": code, "from": from_day.isoformat(), "to": to_day.isoformat(),
-                            "considered": len(out), "written": sum(1 for w in out if w.written)})
+            row = {"site_code": code, "from": from_day.isoformat(), "to": to_day.isoformat(),
+                   "considered": len(out), "written": sum(1 for w in out if w.written)}
+            results.append(row)
+            events = getattr(services, "events", None)
+            if events is not None:
+                # CH-1b §3 (ruling CH1b-R Q2): one `backfill.site@1` provenance event per Site and built range; the
+                # snapshots were built directly, so no consumer reads it (`days: none`). A rerun of the same range
+                # is the same event (ON CONFLICT DO NOTHING).
+                events.record_backfill(tenant_id, site.site_id, first, row,
+                                       f"{site.site_id}|{row['from']}|{row['to']}")
     finally:
         if owns:
             services.dispose()
