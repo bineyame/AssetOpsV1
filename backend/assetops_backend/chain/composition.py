@@ -15,7 +15,7 @@ from assetops_backend.chain.adapters.file_chain_config import (
 from assetops_backend.chain.adapters.postgres_chain_inputs import PostgresChainInputs
 from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
 from assetops_backend.chain.builder import SnapshotBuilder
-from assetops_backend.chain.measure_adapters import build_adapters
+from assetops_backend.chain.measure_impls import build_measure_set
 from assetops_backend.chain.reader import SnapshotReader
 
 __all__ = ["load_coverage_policy", "load_operating_calendar", "ChainServices", "build_chain_services",
@@ -55,7 +55,7 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
                            store: PostgresSnapshotStore | None = None) -> SnapshotBuilder:
     """The builder over the given (or a new) store and the given (or the real) chain input reader."""
     return SnapshotBuilder(store or PostgresSnapshotStore(database_url),
-                           build_adapters(build_chain_inputs(database_url) if inputs is None else inputs),
+                           build_measure_set(build_chain_inputs(database_url) if inputs is None else inputs),
                            load_coverage_policy(), load_operating_calendar())
 
 

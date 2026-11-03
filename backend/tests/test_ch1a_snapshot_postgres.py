@@ -30,7 +30,7 @@ if URL:
         load_coverage_policy,
         load_operating_calendar,
     )
-    from assetops_backend.chain.measure_adapters import build_adapters
+    from assetops_backend.chain.measure_impls import build_measure_set
     from assetops_backend.chain.ports import SiteRef
     from assetops_backend.chain.reader import SnapshotReader
 
@@ -69,7 +69,7 @@ class StubInputs:
 
 
 def _builder(adapters_from, snapshot_store):
-    return SnapshotBuilder(snapshot_store, build_adapters(adapters_from), load_coverage_policy(),
+    return SnapshotBuilder(snapshot_store, build_measure_set(adapters_from), load_coverage_policy(),
                            load_operating_calendar())
 
 

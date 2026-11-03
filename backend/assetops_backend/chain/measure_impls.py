@@ -330,7 +330,7 @@ class ChargingEnergy(_Cached):
                                               if m.get("tariff_revision_id"))}
 
 
-def build_adapters(reader: ChainInputReader) -> dict[str, Any]:
+def build_measure_set(reader: ChainInputReader) -> dict[str, Any]:
     adapters = (ProductiveEnergy(reader), RenewableHeadroom(reader), DispatchMinutes(reader),
                 ChamberTemperature(reader), BackupStartChain(reader), ChargingEnergy(reader))
     return {a.key: a for a in adapters}
