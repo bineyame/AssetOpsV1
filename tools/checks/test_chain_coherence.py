@@ -386,3 +386,31 @@ def test_stamped_bundle_without_the_lifecycle_keys_fails(tmp_path: Path) -> None
     bundle = cc.Bundle(root)
     assert [f["subject"] for f in cc.coh13_lifecycle_agreement(bundle)] == ["state_day"]
     assert [f["subject"] for f in cc.coh15_action_segment(bundle)] == ["action_segment_no"]
+
+
+@pytest.mark.parametrize("name", ["", "CH0", "ch-0", "a" * 21, "x_test", "x; DROP DATABASE assetops", "../x"])
+def test_settle_refuses_non_clone_names_before_any_process(name: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    """CH3-R: `settle` ticks only an `assetops_chainclone_*_test` clone; a bad name is refused before a process
+    starts."""
+    import subprocess
+
+    import chain_clone
+
+    def no_process(*_a, **_k):
+        raise AssertionError("settle started a process for a refused name")
+
+    monkeypatch.setattr(subprocess, "Popen", no_process)
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.settle(name)
+    with pytest.raises(chain_clone.CloneRefused):
+        chain_clone.main(["settle", name])
+
+
+def test_settle_env_points_only_at_the_clone() -> None:
+    import chain_clone
+
+    env = chain_clone.settle_env("ch3")
+    assert env["DATABASE_URL"].endswith("/assetops_chainclone_ch3_test")
+    assert env["ASSETOPS_TEST_DATABASE_URL"] == env["DATABASE_URL"]
+    assert chain_clone.TICK[:3] == ("-m", "assetops_backend.scheduling.run", "tick")
+    assert not any(k in env for k in chain_clone.KEY_NAMES)

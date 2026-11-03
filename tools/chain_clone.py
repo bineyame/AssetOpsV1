@@ -1,12 +1,17 @@
 """CH-0 U2 (build sheet §3.4): the L3 clone helper for the chain coherence check.
 
     python tools/chain_clone.py create <name> [--migrate]   # assetops_chainclone_<name>_test FROM TEMPLATE the polish DB
+    python tools/chain_clone.py settle <name>                # one bounded scheduler tick on the clone (CH3-R)
     python tools/chain_clone.py drop   <name>
 
 The source is the fixed constant `SOURCE_DB`; there is no option to change it. The target must match
 `TARGET_RE`. `create` refuses while the source has any other session (it never terminates one); `--migrate` upgrades
 the clone to this worktree's Alembic head the way `tools/demo_combined.py` `prepare` does. `drop` removes only a
-name matching the pattern. The tool never ticks, serves or writes anything else.
+name matching the pattern. `settle` (ruling CH3-R, the L3 settle step) runs ONE scheduler tick on the clone with
+the serve's tick arguments (`demo_combined.TICK`), then the serve's Kobo performance step, so the producers are
+settled before a collect; it runs this worktree's code, needs no work dir and writes no file (the output is captured
+here, not logged into a work dir). It refuses any name that is not an `assetops_chainclone_*_test` clone, so it can
+never tick the polish DB or any other database. The tool never serves or writes anything else.
 """
 
 from __future__ import annotations
@@ -19,7 +24,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from demo_combined import PG_ADMIN, PG_PORT, PW  # noqa: E402 - the admin connection, as demo_combined makes it
+from demo_combined import KEY_NAMES, PG_ADMIN, PG_PORT, PW, TICK  # noqa: E402 - as demo_combined makes them
 
 SOURCE_DB = "assetops_polish_full_test"
 TARGET_RE = re.compile(r"^assetops_chainclone_[a-z0-9]{1,20}_test$")
@@ -83,6 +88,51 @@ def masked(url: str) -> str:
     return re.sub(r"(://[^:/@]*:)[^@]*@", r"\1***@", url)
 
 
+#: The serve's performance step after each tick (`demo_combined.Demo.tick`).
+PERFORMANCE = ("-m", "assetops_backend.performance_migration", "run", "--tenant", "demo", "--site", "KOBO-001")
+#: Per-child wall cap: twice the scheduler's own `TickLimits.tick_seconds` (240 s).
+SETTLE_CAP_SECONDS = 480
+_PATHS = ("backend", "backend/tests", "contracts", "gateway", "simulator", "host", "host/tests", "gateway/tests",
+          "tools")
+
+
+def settle_env(name: str) -> dict[str, str]:
+    """The serve's tick environment, pointed at the clone only (`clone_url` refuses a non-clone name)."""
+    import os
+
+    url = clone_url(name)
+    out = dict(os.environ)
+    out["PYTHONPATH"] = os.pathsep.join(str(REPO / p) for p in _PATHS)
+    out["DATABASE_URL"] = out["ASSETOPS_TEST_DATABASE_URL"] = url
+    out["PYTHONUNBUFFERED"] = "1"
+    for k in ("ASSETOPS_TEST_RUN_ID", "ASSETOPS_TEST_DATABASE_BASE_URL", *KEY_NAMES):
+        out.pop(k, None)
+    return out
+
+
+def settle(name: str) -> int:
+    """One bounded tick plus the performance step on the clone; prints each child's PID and last output line."""
+    import subprocess
+    import time
+
+    env = settle_env(name)  # refuses first, before any process starts
+    worst = 0
+    for label, argv in (("tick", TICK), ("performance", PERFORMANCE)):
+        started = time.monotonic()
+        proc = subprocess.Popen([sys.executable, *argv], cwd=str(REPO), env=env, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
+        print(f"{label}: PID {proc.pid} on {target_db(name)}", flush=True)
+        try:
+            out, _ = proc.communicate(timeout=SETTLE_CAP_SECONDS)
+        except subprocess.TimeoutExpired:
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], capture_output=True)
+            raise SystemExit(f"WALL CAP {SETTLE_CAP_SECONDS}s reached during {label}; stopped PID {proc.pid}")
+        last = (out.strip().splitlines() or ["(no output)"])[-1]
+        print(f"{label}: exit {proc.returncode} in {time.monotonic() - started:.0f}s: {masked(last)[:400]}")
+        worst = max(worst, proc.returncode)
+    return worst
+
+
 def drop(name: str) -> None:
     sql = drop_sql(name)
     with _admin() as c:
@@ -96,11 +146,15 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("create")
     c.add_argument("name")
     c.add_argument("--migrate", action="store_true")
+    st = sub.add_parser("settle")
+    st.add_argument("name")
     d = sub.add_parser("drop")
     d.add_argument("name")
     args = parser.parse_args(argv)
     if args.command == "create":
         create(args.name, args.migrate)
+    elif args.command == "settle":
+        return settle(args.name)
     else:
         drop(args.name)
     return 0
