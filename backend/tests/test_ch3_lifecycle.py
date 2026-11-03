@@ -216,3 +216,16 @@ def test_lookup_day_at_reads_each_site_local_day():
     by_site = thread_lookup(rows, day_at=last)
     assert by_utc["findings"]["f1"]["state"] == "OPEN"
     assert by_site["findings"]["f1"]["state"] == "RESOLVED_MONITORING"
+
+
+def test_rerun_after_an_out_of_order_skip_writes_nothing():
+    """L3 finding (clone ch3): a domain case COMPLETE dated (story time) before its raise (build time) is skipped as
+    ILLEGAL from OPEN; on the next run the head is ACTION_IN_HAND, and the cause, dated before the head, must not
+    apply then (a rerun writes 0)."""
+    open_ = _ev(1, "OPEN", "OCCURRENCE", "F1", date(2026, 10, 31))
+    causes = [_cause(lc.ACTION_APPLIED, "DOMAIN_CASE", "w1", date(2026, 10, 31)),
+              _cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", "d1", date(2026, 11, 2))]
+    first = _plan([open_], causes)
+    assert _states(first) == ["ACTION_IN_HAND"] and first.skipped[0]["reason"] == "ILLEGAL_TRANSITION"
+    again = _plan([open_, *first.events], causes)
+    assert again.events == [] and again.skipped[0]["reason"] == "BEFORE_HEAD"

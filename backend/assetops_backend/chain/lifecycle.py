@@ -224,7 +224,11 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
         state = None if h is None else h.state
         target = TRANSITIONS.get((state, c.cause))
         reason = None
-        if target is None:
+        if h is not None and c.cause != OCCURRENCE and c.effective_day < h.effective_day:
+            # A cause dated before the head was already judged against an earlier head (applied or skipped) in a
+            # previous run, or in this one; judging it again against a later head would make a rerun write.
+            reason = "BEFORE_HEAD"
+        elif target is None:
             if c.cause == OCCURRENCE:
                 continue  # an occurrence on a thread that is not resolved adds no event (CH-2 "ADDED")
             reason = "ILLEGAL_TRANSITION"
