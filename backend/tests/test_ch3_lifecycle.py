@@ -229,3 +229,37 @@ def test_rerun_after_an_out_of_order_skip_writes_nothing():
     assert _states(first) == ["ACTION_IN_HAND"] and first.skipped[0]["reason"] == "ILLEGAL_TRANSITION"
     again = _plan([open_, *first.events], causes)
     assert again.events == [] and again.skipped[0]["reason"] == "BEFORE_HEAD"
+
+
+def test_visibility_is_bitemporal_on_the_cause_time():
+    """CH3-R D-b (0045): an event is visible at k when coalesce(cause_known_at, recorded_at) <= k, so a backfilled
+    event (recorded at build time) whose cause was recorded by the story cutoff shows, and one whose cause was
+    recorded at build time stays hidden."""
+    build, story = T0 + timedelta(days=30), T0 + timedelta(days=5)
+    early = lc.Event(1, "OPEN", "OCCURRENCE", "F1", date(2026, 10, 28), build, T0)
+    late = lc.Event(2, "ACTION_IN_HAND", "ACTION_EVENT", "e1", date(2026, 10, 29), build, build)
+    legacy = lc.Event(3, "CHANGE_APPLIED", "ACTION_EVENT", "e2", date(2026, 10, 30), T0)   # no cause time stored
+    assert [e.seq for e in lc.visible([early, late, legacy], story)] == [1, 3]
+    assert [e.seq for e in lc.visible([early, late, legacy], None)] == [1, 2, 3]
+    assert lc.thread_view([early, late], OCC1, date(2026, 10, 31), story)["state"] == "OPEN"
+    # The lookup reads the stored cause time from the E row's at2.
+    rows = [("F", "F1", "t1", 1, 1, None, None, ADDIS, "GENERATOR_SUPPORT_CANDIDATE", "G1", None),
+            ("E", "F1", "t1", 1, None, build, T0, "OPEN", "OCCURRENCE", None, date(2026, 10, 28)),
+            ("E", "e1", "t1", 2, None, build, build, "ACTION_IN_HAND", "ACTION_EVENT", None, date(2026, 10, 29))]
+    assert thread_lookup(rows, day=date(2026, 10, 31), known_at=story)["findings"]["f1"]["state"] == "OPEN"
+    assert thread_lookup(rows, day=date(2026, 10, 31), known_at=build)["findings"]["f1"]["state"] == "ACTION_IN_HAND"
+
+
+def test_planned_events_carry_their_cause_time():
+    """CH3-R D-b: each planned event carries its cause fact's recorded time (written as cause_known_at); the
+    INCONCLUSIVE expiry is known only once its expiry has passed."""
+    accepted = lc.Cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", "e1", date(2026, 10, 29), T0, "A1", T0)
+    (e,) = _plan([OPEN1], [accepted]).events
+    assert e.state == "ACTION_IN_HAND" and e.known_at == T0
+    end = datetime(2026, 10, 20, 12, tzinfo=UTC)
+    (c,) = run.causes_for_site(_inconclusive_inputs(end, end + timedelta(days=8)), load_thread_lifecycle())
+    assert c.known_at == end + timedelta(days=7)
+    occ = run.thread_causes({"links": {}, "events": [], "occurrences": [("f9", T0)],
+                             "occurrence_known": {"f9": T0 + timedelta(days=2)}}, [],
+                            {"tz": "UTC", "finding_lifecycle": {}})
+    assert occ[0].cause == lc.OCCURRENCE and occ[0].known_at == T0 + timedelta(days=2)

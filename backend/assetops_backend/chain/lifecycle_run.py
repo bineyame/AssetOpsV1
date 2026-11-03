@@ -11,6 +11,9 @@ Causes (build sheet §4), each keyed for idempotency on `(cause_kind, cause_id)`
 - OCCURRENCE: an occurrence placed with no event (backfill order), so a story-time recurrence still reads RECURRED;
 - SUPPORT_LOST: every occurrence's latest Finding revision is NO_LONGER_SUPPORTED;
 - CLEAN_DAYS: planned by `plan_lifecycle` from the COMPLETE snapshot days.
+
+Each cause carries its fact's own recorded time as `known_at`, written as the event's `cause_known_at` (CH3-R D-b,
+0045); a CLEAN_DAYS close has no single fact and keeps the event's own `recorded_at`.
 """
 
 from __future__ import annotations
@@ -36,7 +39,7 @@ def causes_for_site(inputs: dict[str, Any], policy: lc.LifecyclePolicy) -> list[
                  "RESOLUTION_WITHDRAWN": lc.RESOLUTION_WITHDRAWN}[kind]
         at = e["effective_from"] if kind == "APPLIED" and e.get("effective_from") is not None else e["recorded_at"]
         out.append(lc.Cause(cause, "ACTION_EVENT", str(e["id"]), lc.local_day(at, tz), e["recorded_at"],
-                            str(e["action_id"])))
+                            str(e["action_id"]), e["recorded_at"]))
     latest: dict[str, dict[str, Any]] = {}
     for o in inputs["outcomes"]:
         if not o["superseded"]:
@@ -46,19 +49,21 @@ def causes_for_site(inputs: dict[str, Any], policy: lc.LifecyclePolicy) -> list[
         if o["outcome"] in ("VERIFIED", "INEFFECTIVE"):
             at = o["effective_from"] if o["outcome"] == "VERIFIED" and o.get("effective_from") else o["recorded_at"]
             out.append(lc.Cause(lc.VERIFIED if o["outcome"] == "VERIFIED" else lc.INEFFECTIVE, "VERIFICATION_OUTCOME",
-                                str(o["id"]), lc.local_day(at, tz), o["recorded_at"], str(o["action_id"])))
+                                str(o["id"]), lc.local_day(at, tz), o["recorded_at"], str(o["action_id"]),
+                                o["recorded_at"]))
     for aid, o in latest.items():
         if o["outcome"] == "INCONCLUSIVE" and o.get("later_end") is not None:
             expiry = o["later_end"] + timedelta(days=policy.inconclusive_expiry_days)
             if expiry < now:
+                # Known once both the outcome is recorded and its expiry has passed (CH3-R D-b).
                 out.append(lc.Cause(lc.INCONCLUSIVE_EXPIRED, "VERIFICATION_OUTCOME", str(o["id"]),
-                                    lc.local_day(expiry, tz), o["recorded_at"], aid))
+                                    lc.local_day(expiry, tz), o["recorded_at"], aid, max(o["recorded_at"], expiry)))
     for d in inputs["domain_actions"]:
         out.append(lc.Cause(lc.ACTION_ACCEPTED, "ACTION_EVENT", str(d["id"]), lc.local_day(d["recorded_at"], tz),
-                            d["recorded_at"], str(d["id"])))
+                            d["recorded_at"], str(d["id"]), d["recorded_at"]))
     for w in inputs["case_completions"]:
         out.append(lc.Cause(lc.ACTION_APPLIED, "DOMAIN_CASE", str(w["id"]), lc.local_day(w["occurred_at"], tz),
-                            w["recorded_at"], str(w["action_id"])))
+                            w["recorded_at"], str(w["action_id"]), w["recorded_at"]))
     return out
 
 
@@ -68,14 +73,17 @@ def thread_causes(thread: dict[str, Any], site_causes: Sequence[lc.Cause], input
     linked = thread["links"]
     out = [c for c in site_causes if c.action_id in linked]
     with_event = {e.cause_id for e in thread["events"] if e.cause_kind == "OCCURRENCE"}
+    known = thread.get("occurrence_known", {})  # source id -> the revision's created_at (0045 `source_known_at`)
     for source_id, start in thread["occurrences"]:
         if source_id not in with_event and start is not None:
-            out.append(lc.Cause(lc.OCCURRENCE, "OCCURRENCE", source_id, lc.local_day(start, tz), start))
+            out.append(lc.Cause(lc.OCCURRENCE, "OCCURRENCE", source_id, lc.local_day(start, tz), start,
+                                known_at=known.get(source_id)))
     revs = [inputs["finding_lifecycle"].get(source_id) for source_id, _ in thread["occurrences"]]
     if revs and all(r is not None and r["lifecycle"] == "NO_LONGER_SUPPORTED" for r in revs):
         last = max(revs, key=lambda r: (r["created_at"], str(r["revision_id"])))  # type: ignore[union-attr]
         out.append(lc.Cause(lc.SUPPORT_LOST, "SUPPORT_LOST", str(last["revision_id"]),  # type: ignore[index]
-                            lc.local_day(last["created_at"], tz), last["created_at"]))  # type: ignore[index]
+                            lc.local_day(last["created_at"], tz), last["created_at"],  # type: ignore[index]
+                            known_at=last["created_at"]))  # type: ignore[index]
     return out
 
 

@@ -3,7 +3,8 @@
 One statement gives each listed Finding's occurrence (thread, number, count, story start), every event of the
 threads involved, and each listed Action's link (thread, ACCEPTED time, origin occurrence start). `thread_lookup`
 then computes, in pure code, each Finding's segment and its state on a day as of a `known_at` (CH-3 §3: events with
-`recorded_at <= known_at`; segments by story time, ruling CH3-R) and each Action's segment. Nothing is stored.
+visible by `known_at` on `coalesce(cause_known_at, recorded_at)`, CH3-R D-b; segments by story time, ruling
+CH3-R) and each Action's segment. Nothing is stored.
 Occurrences are still read as stored now (CH-2 residual risk R-2). Pure: no database driver here."""
 
 from __future__ import annotations
@@ -26,7 +27,8 @@ LOOKUP = (
     "AS cnt, fo.episode_start AS at1, CAST(NULL AS timestamptz) AS at2, s.timezone AS txt1, t.mechanism AS txt2, "
     "t.subject_ref AS txt3, CAST(NULL AS date) AS day1 FROM fo JOIN finding_thread t ON t.id = fo.thread_id "
     "JOIN site s ON s.tenant_id = fo.tenant_id AND s.id = fo.site_id "
-    "UNION ALL SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.recorded_at, NULL, e.state, "
+    "UNION ALL SELECT 'E', e.cause_id, CAST(e.thread_id AS text), e.seq, NULL, e.recorded_at, e.cause_known_at, "
+    "e.state, "
     "e.cause_kind, NULL, e.effective_day FROM finding_thread_event e WHERE e.thread_id IN (SELECT thread_id FROM th) "
     "UNION ALL SELECT 'A', CAST(al.action_id AS text), CAST(al.thread_id AS text), NULL, NULL, "
     "CASE WHEN al.action_kind = 'MINI_TRIAL' THEN (SELECT min(x.recorded_at) FROM action_event x "
@@ -61,7 +63,7 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
         if kind == "F":
             occ_rows.append((ref.lower(), thread_id, num, cnt, at1, txt1, txt2, txt3))
         elif kind == "E":
-            events.setdefault(thread_id, []).append(lc.Event(int(num), txt1, txt2, ref, day1, at1))
+            events.setdefault(thread_id, []).append(lc.Event(int(num), txt1, txt2, ref, day1, at1, at2))
         else:
             act_rows.append((ref.lower(), thread_id, at1, at2, txt1, (txt2 or "").lower()))
     findings: dict[str, Any] = {}

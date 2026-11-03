@@ -396,11 +396,11 @@ class SiteOutcomeBoardService:
               hi: datetime | None = None, known_at: datetime | None = None,
               pin: tuple[UUID, UUID | None] | None = None) -> dict[str, Any]:
         comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
-        # CH-3 §5: the thread state is read on the board's Site-local day; mini boards take their overview day, cold
-        # and EV the window's last day. Thread events are cut off at the request's `known_at` only, as the
-        # Portfolio does (CH-3 packet deviation: the read's resolved story cutoff precedes every backfilled
-        # event's build-time `recorded_at`, so ruling Q3's fallback would hide every thread state; CH-2 D-1).
-        cutoff = known_at
+        # CH-3 §5: the thread state is read on the board's Site-local day as of the request's cutoff, else the
+        # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
+        # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
+        # was recorded by the story cutoff shows, and one whose cause was recorded at build time stays hidden.
+        cutoff = known_at if known_at is not None else mini.utc(window.get("known_at"))
         if site.domain == MINI:
             start = mini.utc(window.get("from"))
             board_day = day if day is not None else (None if start is None else start.date())

@@ -194,7 +194,7 @@ class PostgresThreadSources:
                             "SELECT CAST(o.thread_id AS text), o.episode_start, s.timezone FROM "
                             "finding_thread_occurrence o JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
                             "WHERE o.tenant_id = :t AND CAST(o.thread_id AS text) = ANY(CAST(:th AS text[]))"
-                            + ("" if known_at is None else " AND o.joined_at <= :k")),
+                            + ("" if known_at is None else " AND coalesce(o.source_known_at, o.joined_at) <= :k")),
                             {"t": tenant_id, "th": sorted(set(threads.values())), "k": known_at}).all():
                         if start is not None and tz:
                             starts.setdefault(tid, []).append(local_day(start, tz))

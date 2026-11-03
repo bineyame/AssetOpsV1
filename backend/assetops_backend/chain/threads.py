@@ -141,12 +141,14 @@ def plan_place(src: Source, existing_occurrence: bool, thread: ThreadHead | None
                   "finding_id": src.finding_id, "opportunity_id": src.opportunity_id,
                   "episode_start": src.episode_start, "episode_end": src.episode_end,
                   "evidence_class": EVIDENCE_CLASS,
-                  "time_basis": "story_time" if src.episode_start is not None else "recorded_at"}
+                  "time_basis": "story_time" if src.episode_start is not None else "recorded_at",
+                  "source_known_at": src.created_at}  # CH3-R D-b (0045): the revision's own recorded time
 
     def event(state: str) -> dict[str, Any]:
         return {"tenant_id": src.tenant_id, "site_id": src.site_id, "thread_id": tid,
                 "seq": 1 if thread is None else thread.events + 1, "state": state, "cause_kind": "OCCURRENCE",
-                "cause_id": str(src.source_id), "effective_day": effective_day(src), "policy_version": POLICY_VERSION}
+                "cause_id": str(src.source_id), "effective_day": effective_day(src), "policy_version": POLICY_VERSION,
+                "cause_known_at": src.created_at}
 
     if thread is None:
         create = {"id": tid, "tenant_id": src.tenant_id, "site_id": src.site_id, "mechanism": src.mechanism,
@@ -211,14 +213,16 @@ class MemoryThreads:
         for tid, t in sorted(self.threads.items(), key=lambda kv: str(kv[0])):
             if str(t["site_id"]) != str(site_id):
                 continue
-            events = [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"])
-                      for (x, _), e in sorted(self.events.items(), key=lambda kv: kv[0][1]) if x == tid]
+            events = self.site_threads_events(tid)
             occs = [(str(o["finding_id"] or o["opportunity_id"]).lower(), o["episode_start"])
                     for (x, _), o in sorted(self.occurrences.items(), key=lambda kv: kv[0][1]) if x == tid]
             links = {str(link["action_id"]).lower(): str(link["origin_finding_id"]).lower()
                      for link in self.links.values() if link["thread_id"] == tid}
+            known = {str(o["finding_id"] or o["opportunity_id"]).lower(): o.get("source_known_at")
+                     for (x, _), o in self.occurrences.items() if x == tid}
             out.append({"id": tid, "mechanism": t["mechanism"], "subject_kind": t["subject_kind"],
-                        "subject_ref": t["subject_ref"], "events": events, "occurrences": occs, "links": links})
+                        "subject_ref": t["subject_ref"], "events": events, "occurrences": occs, "links": links,
+                        "occurrence_known": known})
         return out
 
     def append_events(self, tenant_id: UUID, site_id: UUID, thread: dict[str, Any], planner: Any,
@@ -229,12 +233,13 @@ class MemoryThreads:
             self.events[(thread["id"], e.seq)] = {"tenant_id": tenant_id, "site_id": site_id, "thread_id": thread["id"],
                                                   "seq": e.seq, "state": e.state, "cause_kind": e.cause_kind,
                                                   "cause_id": e.cause_id, "effective_day": e.effective_day,
-                                                  "policy_version": policy_version}
+                                                  "policy_version": policy_version, "cause_known_at": e.known_at}
         return plan
 
     def site_threads_events(self, tid: UUID) -> list[Any]:
         from assetops_backend.chain.lifecycle import Event
-        return [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"])
+        return [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"], None,
+                      e.get("cause_known_at"))
                 for (x, _), e in sorted(self.events.items(), key=lambda kv: kv[0][1]) if x == tid]
 
     def thread_head(self, tid: UUID) -> tuple[str | None, Any]:

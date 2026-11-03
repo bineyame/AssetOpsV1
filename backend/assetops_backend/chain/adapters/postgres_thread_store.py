@@ -36,13 +36,14 @@ _INSERT_THREAD = text(
 
 _INSERT_OCCURRENCE = text(
     "INSERT INTO finding_thread_occurrence (tenant_id, site_id, thread_id, occurrence_no, finding_id, "
-    "opportunity_id, episode_start, episode_end, evidence_class, time_basis) VALUES (:tenant_id, :site_id, :thread_id, "
-    ":occurrence_no, :finding_id, :opportunity_id, :episode_start, :episode_end, :evidence_class, :time_basis)")
+    "opportunity_id, episode_start, episode_end, evidence_class, time_basis, source_known_at) VALUES (:tenant_id, "
+    ":site_id, :thread_id, :occurrence_no, :finding_id, :opportunity_id, :episode_start, :episode_end, "
+    ":evidence_class, :time_basis, :source_known_at)")
 
 _INSERT_EVENT = text(
     "INSERT INTO finding_thread_event (tenant_id, site_id, thread_id, seq, state, cause_kind, cause_id, "
-    "effective_day, policy_version) VALUES (:tenant_id, :site_id, :thread_id, :seq, :state, :cause_kind, "
-    ":cause_id, :effective_day, :policy_version)")
+    "effective_day, policy_version, cause_known_at) VALUES (:tenant_id, :site_id, :thread_id, :seq, :state, "
+    ":cause_kind, :cause_id, :effective_day, :policy_version, :cause_known_at)")
 
 _LINKED = text("SELECT 1 FROM chain_action_thread WHERE action_kind = :kind AND action_id = :id")
 
@@ -59,19 +60,20 @@ _SITE_THREADS = text(
     "ORDER BY id")
 
 _SITE_EVENTS = text(
-    "SELECT thread_id, seq, state, cause_kind, cause_id, effective_day, recorded_at FROM finding_thread_event "
-    "WHERE tenant_id = :t AND site_id = :s ORDER BY thread_id, seq")
+    "SELECT thread_id, seq, state, cause_kind, cause_id, effective_day, recorded_at, cause_known_at "
+    "FROM finding_thread_event WHERE tenant_id = :t AND site_id = :s ORDER BY thread_id, seq")
 
 _SITE_OCCURRENCES = text(
-    "SELECT thread_id, CAST(COALESCE(finding_id, opportunity_id) AS text) AS source_id, episode_start "
-    "FROM finding_thread_occurrence WHERE tenant_id = :t AND site_id = :s ORDER BY thread_id, occurrence_no")
+    "SELECT thread_id, CAST(COALESCE(finding_id, opportunity_id) AS text) AS source_id, episode_start, "
+    "source_known_at FROM finding_thread_occurrence WHERE tenant_id = :t AND site_id = :s "
+    "ORDER BY thread_id, occurrence_no")
 
 _SITE_LINKS = text(
     "SELECT thread_id, CAST(action_id AS text) AS action_id, CAST(origin_finding_id AS text) AS origin "
     "FROM chain_action_thread WHERE tenant_id = :t AND site_id = :s")
 
 _THREAD_EVENTS = text(
-    "SELECT seq, state, cause_kind, cause_id, effective_day, recorded_at FROM finding_thread_event "
+    "SELECT seq, state, cause_kind, cause_id, effective_day, recorded_at, cause_known_at FROM finding_thread_event "
     "WHERE thread_id = :id ORDER BY seq")
 
 
@@ -150,8 +152,10 @@ class PostgresThreadStore:
                 links = c.execute(_SITE_LINKS, p).mappings().all()
         for t in threads:
             t["events"] = [Event(e["seq"], e["state"], e["cause_kind"], e["cause_id"], e["effective_day"],
-                                 e["recorded_at"]) for e in events if e["thread_id"] == t["id"]]
+                                 e["recorded_at"], e["cause_known_at"]) for e in events if e["thread_id"] == t["id"]]
             t["occurrences"] = [(o["source_id"].lower(), o["episode_start"]) for o in occs if o["thread_id"] == t["id"]]
+            t["occurrence_known"] = {o["source_id"].lower(): o["source_known_at"] for o in occs
+                                     if o["thread_id"] == t["id"]}
             t["links"] = {x["action_id"].lower(): x["origin"].lower() for x in links if x["thread_id"] == t["id"]}
         return threads
 
@@ -162,13 +166,14 @@ class PostgresThreadStore:
         def work(c: Connection) -> Any:
             c.execute(_LOCK, {"k": "chain_thread|" + "|".join(str(p) for p in key)})
             existing = [Event(r["seq"], r["state"], r["cause_kind"], r["cause_id"], r["effective_day"],
-                              r["recorded_at"]) for r in c.execute(_THREAD_EVENTS, {"id": thread["id"]}).mappings()]
+                              r["recorded_at"], r["cause_known_at"])
+                        for r in c.execute(_THREAD_EVENTS, {"id": thread["id"]}).mappings()]
             plan = planner(existing)
             for e in plan.events:
                 c.execute(_INSERT_EVENT, {"tenant_id": tenant_id, "site_id": site_id, "thread_id": thread["id"],
                                           "seq": e.seq, "state": e.state, "cause_kind": e.cause_kind,
                                           "cause_id": e.cause_id, "effective_day": e.effective_day,
-                                          "policy_version": policy_version})
+                                          "policy_version": policy_version, "cause_known_at": e.known_at})
             return plan
 
         return self._tx(work)

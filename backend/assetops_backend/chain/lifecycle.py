@@ -9,7 +9,8 @@ read-time thread view. No database driver here.
   its origin occurrence's segment and the segment current on its ACCEPTED day. `joined_at` and `linked_at` are never
   read (they are backfill times; DS-R1 item 4).
 - `state_on` is the thread state on a Site-local day as of a `known_at` (events with `effective_day <= day` and
-  `recorded_at <= known_at`).
+  visible by `known_at`). Visibility is bitemporal (ruling CH3-R D-b, 0045): an event is visible at k when
+  `coalesce(known_at, recorded_at) <= k`, where `known_at` is its cause fact's own recorded time.
 
 OL-1: the policy names measures per mechanism, never outcomes; which outcomes a Finding moves stays in
 `outcomes/outcome_map.py`.
@@ -110,6 +111,7 @@ class Event:
     cause_id: str
     effective_day: date
     recorded_at: datetime | None = None   # None for a planned event (the database stamps it)
+    known_at: datetime | None = None      # the cause fact's recorded time (0045 `cause_known_at`); None = recorded_at
 
 
 @dataclass(frozen=True)
@@ -120,6 +122,7 @@ class Cause:
     effective_day: date
     recorded_at: datetime
     action_id: str | None = None
+    known_at: datetime | None = None   # the cause fact's recorded time, written as the event's `cause_known_at`
 
 
 @dataclass(frozen=True)
@@ -133,9 +136,12 @@ def local_day(at: datetime, site_tz: str) -> date:
 
 
 def visible(events: Iterable[Event], known_at: datetime | None) -> list[Event]:
-    """The events recorded by `known_at` (all of them without one), in seq order."""
-    return sorted((e for e in events if known_at is None or e.recorded_at is None or e.recorded_at <= known_at),
-                  key=lambda e: e.seq)
+    """The events visible by `known_at` (all of them without one), in seq order: `coalesce(known_at, recorded_at)
+    <= known_at` (CH3-R D-b). A planned event with neither time is visible."""
+    def shown(e: Event) -> bool:
+        seen = e.known_at if e.known_at is not None else e.recorded_at
+        return known_at is None or seen is None or seen <= known_at
+    return sorted((e for e in events if shown(e)), key=lambda e: e.seq)
 
 
 def segment_of_event(events: Sequence[Event], seq: int) -> int:
@@ -199,8 +205,8 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
     def head() -> Event | None:
         return evs[-1] if evs else None
 
-    def add(state: str, cause_kind: str, cause_id: str, day: date) -> None:
-        e = Event(len(evs) + 1, state, cause_kind, cause_id, day)
+    def add(state: str, cause_kind: str, cause_id: str, day: date, known: datetime | None = None) -> None:
+        e = Event(len(evs) + 1, state, cause_kind, cause_id, day, None, known)
         evs.append(e)
         plan.events.append(e)
         done.add((cause_kind, cause_id))
@@ -247,7 +253,7 @@ def plan_lifecycle(thread_id: str, events: Sequence[Event], occurrences: Sequenc
             plan.skipped.append({"thread_id": thread_id, "cause": c.cause, "cause_id": c.cause_id,
                                  "from_state": state, "reason": reason})
             continue
-        add(target, c.cause_kind, c.cause_id, c.effective_day)  # type: ignore[arg-type]
+        add(target, c.cause_kind, c.cause_id, c.effective_day, c.known_at)  # type: ignore[arg-type]
     maybe_close(None)
     return plan
 

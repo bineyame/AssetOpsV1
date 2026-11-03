@@ -148,11 +148,12 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
                            "origin_finding_id, linked_by) VALUES (:t, :s, 'MINI_TRIAL', :a, :th, :f, 'tick')"),
                       {"t": t, "s": s, "a": uuid4(), "th": tid, "f": f01})
 
-    # Downgrade refused while thread rows exist; the head is unchanged.
+    # Downgrade refused while thread rows exist; the head is unchanged. Above 0042, 0045 (CH3-R D-b) refuses first
+    # because the placed rows carry their recorded cause times.
     from alembic import command
 
     engine.dispose()
-    with pytest.raises(DBAPIError, match="Downgrade of 0042_chain_threads refused"):
+    with pytest.raises(DBAPIError, match="Downgrade of (0042_chain_threads|0045_thread_known_at) refused"):
         command.downgrade(_alembic(), PREVIOUS)
     assert head(engine) == pg_harness.alembic_head()
 
