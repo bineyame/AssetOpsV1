@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
+from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
@@ -35,6 +36,21 @@ from assetops_backend.site_outcomes.board import assemble, objectives_wire
 SCHEMA_VERSION = "site-outcome-board-1"
 SUMMARY_SCHEMA_VERSION = "estate-outcome-summary-1"
 LOG = logging.getLogger(__name__)
+
+#: QW-2: the outcome summary's batched estate reads for this request, keyed on the exact single-Site arguments. A
+#: port takes (and removes) its entry only on an exact key match; anything else reads live, as before.
+_PREFETCH: ContextVar[dict[tuple, Any] | None] = ContextVar("site_outcomes_prefetch", default=None)
+_MISS = object()
+
+
+def _prefetched(key: tuple) -> Any:
+    pre = _PREFETCH.get()
+    if pre is None:
+        return _MISS
+    hit = pre.pop(key, _MISS)
+    if hit is not _MISS:
+        perf.record("summary.prefetch_hit", 0.0)
+    return hit
 POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION, "status": STATUS_POLICY,
                    "warnings": WARNINGS_POLICY, "objectives": OBJECTIVES_POLICY,
                    "finding_index": FINDING_INDEX_POLICY}
@@ -192,6 +208,9 @@ class SiteOutcomeBoardService:
         def readiness(lo: datetime, hi: datetime) -> str | None:
             if widen:  # cold and EV: the covering UTC days (addendum 7); mini windows are already whole days
                 lo, hi = covering_days(lo, hi)
+            hit = _prefetched(("readiness", t, c, lo, hi, known_at))  # QW-2
+            if hit is not _MISS:
+                return hit
             return _need(s.estate, "estate").site_readiness(t, c, lo, hi, known_at)
 
         return {"work": work, "plans": plans, "readiness": readiness,
@@ -239,7 +258,9 @@ class SiteOutcomeBoardService:
                 t, sid, c, req, access_basis=s.access_basis))
 
         def estate(day_lo: datetime, day_hi: datetime, work_lo: datetime, work_hi: datetime) -> dict[str, Any]:
-            rows = _need(s.estate, "estate").site_work_rows(t, c, day_lo, day_hi, work_lo, work_hi, known_at)
+            rows = _prefetched(("work_rows", t, c, day_lo, day_hi, work_lo, work_hi, known_at))  # QW-2
+            if rows is _MISS:
+                rows = _need(s.estate, "estate").site_work_rows(t, c, day_lo, day_hi, work_lo, work_hi, known_at)
             if rows is None:
                 raise PortUnavailable("the Site is not in the estate scope")
             return rows
@@ -406,8 +427,11 @@ class SiteOutcomeBoardService:
         """OUT-W: the latest selected window of a cold or EV Site inside `[lo, hi)`, by the Evidence root's rule.
         Any failure (unconfigured estate, refusal, store error) is None: the window choice never fails a Site."""
         try:
-            return latest_window(_need(self.s.estate, "estate").site_selected_windows(
-                site.tenant_id, site.site_code, lo, hi, known_at))
+            windows = _prefetched(("windows", site.tenant_id, site.site_code, lo, hi, known_at))  # QW-2
+            if windows is _MISS:
+                windows = _need(self.s.estate, "estate").site_selected_windows(
+                    site.tenant_id, site.site_code, lo, hi, known_at)
+            return latest_window(windows)
         except PortUnavailable:  # no estate configured: the period, silently
             return None
         except Exception as error:  # noqa: BLE001 - the period, which reads Unknown where nothing covers it
@@ -421,6 +445,57 @@ class SiteOutcomeBoardService:
         """`GET /api/estate/outcome-summary` (§B.1): one board per authorized Site, serially (B-Q8), in the
         Portfolio Site order the caller passes. Mini reads the UTC day of `to` (B-Q7); cold and EV `from`/`to`
         unchanged. A Site whose board read fails is UNAVAILABLE with four UNKNOWN rows."""
+        token = _PREFETCH.set(self._prefetch(sites, lo, hi, known_at))  # QW-2: one estate snapshot for all Sites
+        try:
+            return self._summary(sites, lo, hi, known_at)
+        finally:
+            _PREFETCH.reset(token)
+
+    def _prefetch(self, sites: list[SiteRef], lo: datetime, hi: datetime,
+                  known_at: datetime | None) -> dict[tuple, Any]:
+        """QW-2: the summary's per-Site estate reads (the cold/EV window choice, every Site's readiness, the mini
+        Finding and Action rows) as `*_many` batches on ONE estate snapshot, keyed on the exact arguments each
+        single-Site port would pass. Any failure, or an estate without the batched methods, is {} and every port
+        reads live as before (its own failure handling and log lines unchanged)."""
+        estate = self.s.estate
+        tenants = {site.tenant_id for site in sites}
+        if not sites or len(tenants) != 1 or not all(hasattr(estate, name) for name in (
+                "read_snapshot", "site_selected_windows_many", "site_readiness_many", "site_work_rows_many")):
+            return {}
+        (t,) = tenants
+        day = mini_summary_day(hi)
+        start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+        end = start + timedelta(days=1)
+        minis = [x.site_code for x in sites if x.domain == MINI]
+        others = [x.site_code for x in sites if x.domain != MINI]
+
+        def work(snap: Any) -> dict[tuple, Any]:
+            pre: dict[tuple, Any] = {}
+            wins = estate.site_selected_windows_many(t, others, lo, hi, known_at, snap=snap) if others else {}
+            ready: dict[str, tuple[datetime, datetime]] = {code: (start, end) for code in minis}
+            for code in others:
+                pre[("windows", t, code, lo, hi, known_at)] = wins[code]
+                ev_win = latest_window(wins[code])
+                ready[code] = covering_days(*((lo, hi) if ev_win is None else ev_win))
+            for code, value in estate.site_readiness_many(t, ready, known_at, snap=snap).items():
+                pre[("readiness", t, code, *ready[code], known_at)] = value
+            work_lo = end - mini.WORK_WINDOW
+            rows = estate.site_work_rows_many(t, {code: (start, end, work_lo, end) for code in minis}, known_at,
+                                              snap=snap) if minis else {}
+            for code, value in rows.items():
+                pre[("work_rows", t, code, start, end, work_lo, end, known_at)] = value
+            return pre
+
+        try:
+            with perf.timed("summary.prefetch"):
+                return estate.read_snapshot(work)
+        except Exception as error:  # noqa: BLE001 - the batch is an optimization; the ports read live instead
+            LOG.warning("outcome summary: batched estate reads fell back to per-Site reads (%s)",
+                        type(error).__name__)
+            return {}
+
+    def _summary(self, sites: list[SiteRef], lo: datetime, hi: datetime,
+                 known_at: datetime | None) -> dict[str, Any]:
         out = []
         warnings: list[dict[str, Any]] = []  # C: each Site's board warnings, in Site order; a failed Site adds none
         # OUT-D U4 (review M2): Sites whose board loaded AND whose objectives were read, and of those the ones that

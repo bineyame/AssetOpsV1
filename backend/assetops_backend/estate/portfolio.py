@@ -13,15 +13,15 @@ never from the page (`.agent/W3-03-build-spec.md` closure 1 projections, closure
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote
 
 from assetops_backend import perf
 from assetops_backend.estate.coverage import (
     COLD, COVERED, DOMAIN_OF_SITE_TYPE, EV, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING)
 from assetops_backend.estate.evidence_money import (
-    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope,
-    site_home_href)
+    CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, _admit_any, _by_window,
+    select_evidence_scope, site_home_href)
 from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
 from assetops_backend.estate.financials import (
     APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
@@ -527,6 +527,37 @@ class EstatePortfolioService(EstateEvidenceService):
             _, a_rows = select_action_scope(snap, tenant_id, work_req, self._scope(snap, tenant_id, work_req, admit))
             return {"site_cov": f_sites[0][2], "findings": f_rows, "actions": a_rows}
 
+        return self._read(work)
+
+    def site_work_rows_many(self, tenant_id: Any, windows: Mapping[str, tuple[datetime, datetime, datetime, datetime]],
+                            known_at: datetime | None = None, *, snap: Any = None
+                            ) -> dict[str, dict[str, Any] | None]:
+        """QW-2: `site_work_rows` for several Sites, each on its own `(day_from, day_to, work_from, work_to)`, on ONE
+        snapshot (the caller's `snap` when given) with one scope per distinct window. Each value equals the
+        single-Site method's for that Site (the same rows in the same order); None outside the authorized set."""
+
+        def work(snap: Any) -> dict[str, dict[str, Any] | None]:
+            out: dict[str, dict[str, Any] | None] = {code: None for code in windows}
+            for (day_from, day_to, work_from, work_to), codes in _by_window(windows).items():
+                day = estate_request("findings", day_from, day_to, known_at)
+                work_req = estate_request("findings", work_from, work_to, known_at)
+                f_sites, f_rows = select_finding_scope(snap, tenant_id, day,
+                                                       self._scope(snap, tenant_id, day, _admit_any(codes)))
+                if not f_sites:
+                    continue
+                present = [site["site_code"] for site, _, _ in f_sites]
+                _, a_rows = select_action_scope(snap, tenant_id, work_req,
+                                                self._scope(snap, tenant_id, work_req, _admit_any(present)))
+                for site, _, cov in f_sites:
+                    sid = str(site["site_id"])
+                    out[site["site_code"]] = {"site_cov": cov, "findings": [r for r in f_rows if r["site_id"] == sid],
+                                              "actions": [r for r in a_rows if r["site_id"] == sid]}
+            return out
+
+        return work(snap) if snap is not None else self._read(work)
+
+    def read_snapshot(self, work: Callable[[Any], Any]) -> Any:
+        """QW-2: one estate snapshot for a caller's batched `*_many` reads (`snap=`), with the S12/S15 retry."""
         return self._read(work)
 
     def _portfolio(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:

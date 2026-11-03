@@ -17,7 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import datetime, timedelta
-from typing import Any, Callable
+from typing import Any, Callable, Iterable, Mapping
 from urllib.parse import quote, urlencode
 
 from assetops_backend.analytics import cold, dispatch_v3
@@ -511,6 +511,55 @@ class EstateEvidenceService(EstateIndexService):
 
         return self._read(work)
 
+    def site_readiness_many(self, tenant_id: Any, windows: Mapping[str, tuple[datetime, datetime]],
+                            known_at: datetime | None = None, *, snap: Any = None) -> dict[str, str | None]:
+        """QW-2: `site_readiness` for several Sites, each on its own `(from_, to)`, on ONE snapshot (the caller's
+        `snap` when given) with one scope per distinct window. Each value equals the single-Site method's for that
+        Site on the same snapshot; None for a Site outside the authorized imported set."""
+        from assetops_backend.estate.portfolio import evidence_cell_state
+
+        def work(snap: Any) -> dict[str, str | None]:
+            out: dict[str, str | None] = {code: None for code in windows}
+            for (from_, to), codes in _by_window(windows).items():
+                req = estate_request("evidence", from_, to, known_at)
+                scope = self._scope(snap, tenant_id, req, _admit_any(codes))
+                per_site, _ = select_evidence_scope(snap, tenant_id, req, scope)
+                for site, domain, cov, site_rows in per_site:
+                    out[site["site_code"]] = evidence_cell_state(domain, cov, site_rows, bool(snap.basis_historical))
+            return out
+
+        return work(snap) if snap is not None else self._read(work)
+
+    def site_selected_windows_many(self, tenant_id: Any, site_codes: Iterable[str], from_: datetime, to: datetime,
+                                   known_at: datetime | None = None, *, snap: Any = None
+                                   ) -> dict[str, list[dict[str, Any]] | None]:
+        """QW-2: `site_selected_windows` for several Sites over one `[from_, to)`, on ONE snapshot (the caller's
+        `snap` when given) and one scope. Each value equals the single-Site method's; None outside the set."""
+        codes = list(dict.fromkeys(site_codes))
+        req = estate_request("evidence", from_, to, known_at)
+
+        def work(snap: Any) -> dict[str, list[dict[str, Any]] | None]:
+            out: dict[str, list[dict[str, Any]] | None] = {code: None for code in codes}
+            scope = self._scope(snap, tenant_id, req, _admit_any(codes))
+            for site in scope["sites"]:
+                domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+                cutoff = (None if domain not in (COLD, EV)
+                          else snap.evidence_cutoff(tenant_id, site["site_id"], scope["k"]))
+                if cutoff is None:
+                    out[site["site_code"]] = []
+                    continue
+                wins = snap.selected_windows(tenant_id, site["site_id"], domain, req.from_, req.to, cutoff,
+                                             scope["k"])
+                keep = {(w["window_start"], w["window_end"], w["selected_at"], w["seq"], w["selection_id"])
+                        for w in wins
+                        if w["window_start"] < w["window_end"] and w["window_end"] - w["window_start"] <= MAX_WINDOW}
+                out[site["site_code"]] = [
+                    dict(zip(("window_start", "window_end", "selected_at", "seq", "selection_id"), k))
+                    for k in sorted(keep, key=lambda k: (k[0], k[1], k[2], k[3], str(k[4])))]
+            return out
+
+        return work(snap) if snap is not None else self._read(work)
+
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
         k = scope["k"]
@@ -555,3 +604,17 @@ class EstateEvidenceService(EstateIndexService):
                                                                           *last["_key"]),
                      "selection_token": token})
         return body
+
+
+def _admit_any(codes: Iterable[str]) -> Admit:
+    """QW-2: the one-scope admit for a set of Site codes (the single-Site methods admit one code)."""
+    wanted = set(codes)
+    return lambda code: code in wanted
+
+
+def _by_window(windows: Mapping[str, tuple]) -> dict[tuple, list[str]]:
+    """QW-2: Site codes grouped by their exact window, in first-seen order."""
+    groups: dict[tuple, list[str]] = {}
+    for code, window in windows.items():
+        groups.setdefault(tuple(window), []).append(code)
+    return groups

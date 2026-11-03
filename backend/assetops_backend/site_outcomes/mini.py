@@ -395,7 +395,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     Site lookup carries, used only to build the mini depth windows. Local dates use the depth body's own
     `site.timezone`; if depth is refused they are UTC with the suffix (addendum 2 item 6)."""
     c = site_code
-    reads = Reads()
+    reads = Reads(memo=True)  # QW-2: an identical read inside one board runs once
     start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
     end = start + timedelta(days=1)
     work_lo = end - WORK_WINDOW
