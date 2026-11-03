@@ -63,3 +63,25 @@ def _with_source(reader):
                datetime(2026, 1, 1, tzinfo=timezone.utc), uuid4())
     reader.sources = lambda *a, **k: [s]
     return reader
+
+
+def test_step_a_calls_build_range_for_each_site_from_first_evidence_to_today():
+    from datetime import datetime, timezone
+    from types import SimpleNamespace
+
+    first = datetime(2026, 10, 1, 5, 0, tzinfo=timezone.utc)
+    calls = []
+
+    class Inputs:
+        def site(self, tenant_id, code): return SimpleNamespace(site_id=uuid4(), timezone="UTC")
+        def first_evidence_time(self, tenant_id, site_id): return first
+
+    class Builder:
+        def build_range(self, tenant_id, site, from_day, to_day, *rest):
+            calls.append((from_day, to_day))
+            return [SimpleNamespace(written=True), SimpleNamespace(written=False)]
+
+    services = SimpleNamespace(inputs=Inputs(), builder=Builder(), dispose=lambda: None)
+    reader = FakeReader("assetops_scratch_test")
+    out = backfill._step_a(reader, reader.tenant, None, "postgresql://x/y", False, services)
+    assert calls and calls[0][0].isoformat() == "2026-10-01" and out["written"] == 1 and out["sites"][0]["considered"] == 2

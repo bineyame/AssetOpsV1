@@ -19,7 +19,7 @@ indexes and the tables in reverse order.
 from alembic import op
 
 revision = "0042_chain_threads"
-down_revision = "0041_walk1_objective_min_days"
+down_revision = "0043_chain_snapshots"
 branch_labels = None
 depends_on = None
 

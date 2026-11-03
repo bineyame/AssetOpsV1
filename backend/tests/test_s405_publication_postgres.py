@@ -9,6 +9,7 @@ lock-cost measurement. Requires ASSETOPS_TEST_DATABASE_URL (see backend/TESTING.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import json
 import os
@@ -496,7 +497,7 @@ class TestDatabaseImmutability:
                 command.downgrade(config, "0016_action_store")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0042_chain_threads")
+                    alembic_head())
                 assert c.execute(text("SELECT id FROM evidence_publication")).scalar_one() == reg.publication_id
         finally:
             command.upgrade(config, "head")

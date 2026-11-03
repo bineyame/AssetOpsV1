@@ -6,6 +6,7 @@ the stored value, and the downgrade refusing while any row carries a minimum, ot
 CHECK probes are direct SQL in the replica role (the CHECKs still apply; the FK and append-only triggers do not).
 """
 from __future__ import annotations
+from pg_harness import alembic_head
 
 from decimal import Decimal
 
@@ -27,9 +28,9 @@ if URL:
     from assetops_backend.objectives.model import SYSTEM_DECLARER, Declaration, ObjectiveRefused
     from assetops_backend.site_outcomes import mini, objective_facts
 
-HEAD = "0041_walk1_objective_min_days"
+HEAD = alembic_head()
+THIS = "0041_walk1_objective_min_days"
 PREVIOUS = "0040_walk1_productive_price"
-LATEST = "0042_chain_threads"  # CH-2: the sole head sits above the 0041 migration under test
 REFUSED = "Downgrade of 0041_walk1_objective_min_days refused"
 NOTE = "Declared for the demonstration; not a customer target"
 INSERT_MIN = INSERT.replace("payload_sha256, recorded_at)", "payload_sha256, recorded_at, min_checked_days)").replace(
@@ -56,8 +57,8 @@ def test_0041_column_and_checks(engine) -> None:  # noqa: F811
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [LATEST] and script.get_revision(HEAD).down_revision == PREVIOUS
-    assert head(engine) == LATEST
+    assert script.get_heads() == [HEAD] and script.get_revision(THIS).down_revision == PREVIOUS
+    assert head(engine) == HEAD
     with engine.connect() as c:
         column = c.execute(text(
             "SELECT format_type(a.atttypid, a.atttypmod), a.attnotnull FROM pg_attribute a WHERE a.attrelid = "
@@ -120,15 +121,15 @@ def test_0041_downgrade_refuses_with_a_minimum_then_drops_the_column(engine) -> 
     finally:
         engine.dispose()
         command.upgrade(config, "head")
-    assert head(engine) == LATEST
+    assert head(engine) == HEAD
     insert(engine, mg1(min_days=4))
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(config, PREVIOUS)
-    assert head(engine) == LATEST
+    assert head(engine) == HEAD
     empty(engine)
     engine.dispose()
     command.downgrade(config, PREVIOUS)  # with no minimum stored, the downgrade passes again
     engine.dispose()
     command.upgrade(config, "head")
-    assert head(engine) == LATEST
+    assert head(engine) == HEAD

@@ -7,6 +7,7 @@ otherwise drops only the index. Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import os
 from datetime import timedelta
@@ -25,7 +26,7 @@ if URL:
         ASSET_CODE, patched_v4, raw_copy, remove_test_blockers, rows, v4)
     from test_w203_cold_migration_postgres import constraint, head, scalar
 
-HEAD = "0042_chain_threads"  # W5-04a: 0035 sits above 0034; W5-03b: 0034 sits above 0033; W5-02a: 0033 sits above 0032 (W5-01b above 0030)
+HEAD = alembic_head()
 PREVIOUS = "0023_w2_cold_consequence"
 INDEX = "accepted_evidence_ev_measurement"
 REFUSED = "Downgrade of 0024_w2_ev_config refused"
@@ -59,13 +60,18 @@ class TestMigration0024:
         from alembic import command
 
         config = _alembic()
-        before = scalar(engine, "SELECT count(*) FROM pg_indexes WHERE tablename = 'accepted_evidence'")
+        def index_names() -> set[str]:
+            return {r["indexname"] for r in rows(engine, "SELECT indexname FROM pg_indexes WHERE tablename = 'accepted_evidence'")}
+
+        before = index_names()
         family = constraint(engine, "accepted_evidence_family")
         engine.dispose()
         try:
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and index_def(engine) is None
-            assert scalar(engine, "SELECT count(*) FROM pg_indexes WHERE tablename = 'accepted_evidence'") == before - 1
+            # 0043's index on accepted_evidence also sits above 0023, so the downgrade drops exactly these two
+            assert before - index_names() == {INDEX, "accepted_evidence_site_role_time"}
+            assert index_names() - before == set()
             assert constraint(engine, "accepted_evidence_family") == family
         finally:
             command.upgrade(config, "head")

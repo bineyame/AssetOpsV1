@@ -7,6 +7,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import hashlib
 import os
@@ -37,7 +38,7 @@ if URL:
     )
     from assetops_backend.sites.binding_roles import MINIGRID_ROLES_4
 
-HEAD = "0042_chain_threads"  # W5-04a: 0035 sits above 0034; W5-03b: 0034 sits above 0033; W5-02a: the current head (0033) sits above 0032 and 0030
+HEAD = alembic_head()
 MIGRATION = "0029_w4_mini_depth"
 PREVIOUS = "0027_w4_work_cases"
 REFUSED = "Downgrade of 0029_w4_mini_depth refused: mini-depth history exists"

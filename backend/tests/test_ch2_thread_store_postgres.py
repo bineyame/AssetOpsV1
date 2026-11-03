@@ -37,7 +37,7 @@ if URL:
     from assetops_backend.chain.threads import MemoryThreads, ThreadRegistry, key_of
 
 HEAD = "0042_chain_threads"
-PREVIOUS = "0041_walk1_objective_min_days"
+PREVIOUS = "0043_chain_snapshots"  # CH-1a merged first; 0042 sits on 0043
 TABLES = ("finding_thread", "finding_thread_occurrence", "finding_thread_event", "chain_action_thread")
 CLOCK_COLUMNS = {"joined_at", "recorded_at", "linked_at"}  # clock_timestamp() defaults; compared by count only
 
@@ -85,8 +85,8 @@ def test_0042_catalogue_and_head(engine) -> None:  # noqa: F811
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-    assert head(engine) == HEAD
+    assert script.get_revision(HEAD).down_revision == PREVIOUS and script.get_heads() == [pg_harness.alembic_head()]
+    assert head(engine) == pg_harness.alembic_head()
     with engine.connect() as c:
         tables = set(c.execute(text("SELECT tablename FROM pg_tables WHERE tablename = ANY(:t)"),
                                {"t": list(TABLES)}).scalars())
@@ -154,7 +154,7 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
     engine.dispose()
     with pytest.raises(DBAPIError, match="Downgrade of 0042_chain_threads refused"):
         command.downgrade(_alembic(), PREVIOUS)
-    assert head(engine) == HEAD
+    assert head(engine) == pg_harness.alembic_head()
 
 
 def test_concurrent_placements_of_one_key_make_one_thread(seeded, engine) -> None:  # noqa: F811

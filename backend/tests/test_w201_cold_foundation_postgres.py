@@ -6,6 +6,7 @@ phase 1.
 """
 
 from __future__ import annotations
+from pg_harness import alembic_head
 
 import json
 import os
@@ -453,7 +454,7 @@ class TestMigration0021:
                 return connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
 
         before = snapshot()
-        assert head() == "0042_chain_threads"
+        assert head() == alembic_head()
         config = _alembic()
         engine.dispose()
         try:
@@ -461,7 +462,7 @@ class TestMigration0021:
             assert head() == "0020_w2_source_event" and snapshot() == before
         finally:
             command.upgrade(config, "head")
-        assert head() == "0042_chain_threads" and snapshot() == before
+        assert head() == alembic_head() and snapshot() == before
         service = FoundationService(store, "demo", Clock(NOW))
         kobo_site = service.site(service.tenant(), "KOBO-001")
         assert service.read(kobo_site, service.tenant(), None, None).revision.content["components"]

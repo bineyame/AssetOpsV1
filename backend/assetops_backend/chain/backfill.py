@@ -16,7 +16,6 @@ The tick's `chain_threads` stage runs `run_threads` (steps b and c) for one Site
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import sys
 from typing import Any, Sequence
@@ -82,13 +81,47 @@ def dry_run(reader: Any, tenant_id: UUID, site_id: UUID | None, steps: Sequence[
     return out
 
 
-def _step_a(reader: Any, tenant_id: UUID, site_id: UUID | None) -> dict[str, Any]:
-    if importlib.util.find_spec("assetops_backend.chain.builder") is None:
-        return {"step": "a", "skipped": "CH-1a not merged"}
-    return {"step": "a", "skipped": "CH-1a builder present; its build_range is wired when CH-1a merges"}
+def _step_a(reader: Any, tenant_id: UUID, site_id: UUID | None, url: str | None, dry_run: bool,
+            services: Any = None) -> dict[str, Any]:
+    """Step (a): CH-1a `build_range` for each selected Site, from its first accepted evidence day to today (the
+    snapshots CLI's default range). A dry run writes nothing and builds no services; it names the Sites."""
+    sites = reader.site_ids(tenant_id)
+    if site_id is not None:
+        sites = [s for s in sites if s[0] == site_id]
+    if dry_run:
+        return {"step": "a", "dry_run": True, "sites": [code for _, code in sites],
+                "note": "would build_range from each Site's first evidence day to today"}
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    from assetops_backend.chain.composition import build_chain_services
+    owns = services is None
+    services = build_chain_services(url) if owns else services
+    if services is None:
+        return {"step": "a", "skipped": "no database URL"}
+    results: list[dict[str, Any]] = []
+    try:
+        for _, code in sites:
+            site = services.inputs.site(tenant_id, code)
+            if site is None:
+                results.append({"site_code": code, "skipped": "not found"})
+                continue
+            first = services.inputs.first_evidence_time(tenant_id, site.site_id)
+            if first is None:
+                results.append({"site_code": code, "written": 0, "considered": 0, "note": "no accepted evidence"})
+                continue
+            tz = ZoneInfo(site.timezone)
+            from_day, to_day = first.astimezone(tz).date(), datetime.now(tz).date()
+            out = services.builder.build_range(tenant_id, site, from_day, to_day)
+            results.append({"site_code": code, "from": from_day.isoformat(), "to": to_day.isoformat(),
+                            "considered": len(out), "written": sum(1 for w in out if w.written)})
+    finally:
+        if owns:
+            services.dispose()
+    return {"step": "a", "sites": results, "written": sum(r.get("written", 0) for r in results)}
 
 
-def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = None) -> int:
+def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = None,
+         chain_services: Any = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.chain.backfill")
     parser.add_argument("--tenant", default=DEVELOPMENT_TENANT_SLUG)
     parser.add_argument("--site")
@@ -125,7 +158,7 @@ def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = 
         site_id = found[0][0]
     results: list[dict[str, Any]] = []
     if "a" in steps:
-        results.append(_step_a(reader, tenant_id, site_id))
+        results.append(_step_a(reader, tenant_id, site_id, url, args.dry_run, chain_services))
     work = [s for s in steps if s in ("b", "c")]
     if work and args.dry_run:
         results += dry_run(reader, tenant_id, site_id, work)
