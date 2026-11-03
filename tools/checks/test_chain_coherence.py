@@ -37,6 +37,8 @@ FAILING = {
     "coh7_basis": ("COH-7a", None, "week", "window_basis"),
     "coh8_verified": ("COH-8", COLD, "week", A1),
     "coh9_counts": ("COH-9a", KOBO, "week", "00000000-0000-0000-0000-00000000c0b0"),
+    "coh10_thread_occurrence": ("COH-10", KOBO, "week", "f3000000-0000-0000-0000-000000000003"),
+    "coh11_action_unlinked": ("COH-11", COLD, "week", A1),
 }
 
 
@@ -308,3 +310,22 @@ def test_clone_url_is_printed_with_the_password_masked() -> None:
     assert chain_clone.PW in url
     shown = chain_clone.masked(url)
     assert chain_clone.PW not in shown and shown.startswith("postgresql+psycopg://assetops:***@")
+
+
+def test_coh10_unobserved_and_split_threads_and_pre_ch2_bundles(tmp_path: Path) -> None:
+    """CH-2: an expected thread no Portfolio row shows fails; one thread's Findings on two ids fail; a bundle with
+    no `thread` key (collected before CH-2) is not judged by COH-10/COH-11."""
+    bundle = cc.Bundle(BUNDLES / "coh10_thread_occurrence")
+    gone = [{"name": "absent", "site_code": KOBO, "findings": ["ffffffff-0000-0000-0000-000000000000"]}]
+    assert [f["subject"] for f in cc.coh10_thread_identity(bundle, gone)] == ["absent"]
+    split = [{"name": "both", "site_code": KOBO, "findings": [F1, "f3000000-0000-0000-0000-000000000003"]}]
+    details = [f["detail"] for f in cc.coh10_thread_identity(bundle, split)]
+    assert any("split across 2 thread ids" in d for d in details)
+    assert cc.coh10_thread_identity(cc.Bundle(BUNDLES / "clean"), gone) == []
+    assert cc.coh11_actions_linked(cc.Bundle(BUNDLES / "clean")) == []
+
+
+def test_expected_threads_file_names_the_l4_threads() -> None:
+    names = {t["name"]: t for t in cc.load_threads()}
+    assert len(names["kobo-generator"]["findings"]) == 3 and len(names["cold-start-failure"]["findings"]) == 2
+    assert names["kobo-headroom"]["opportunities"][-2:] == ["OPP-000003", "OPP-000004"]

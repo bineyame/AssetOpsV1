@@ -254,7 +254,7 @@ def fair_order(sites: list[SiteResult], cursor: tuple[UUID, UUID] | None) -> lis
 #: The values are read from the tick's own limits; a stage not named here logs `limit_ms`/`share` as null.
 STAGE_LIMIT_FIELDS: dict[str, str] = {
     "s3": "s3_seconds", "cold_assess": "domain_assess_seconds", "ev_assess": "domain_assess_seconds",
-    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds",
+    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds", "chain_threads": "chain_seconds",
     "consequence": "consequence_seconds", "cold_consequence": "domain_consequence_seconds",
     "ev_consequence": "domain_consequence_seconds"}
 

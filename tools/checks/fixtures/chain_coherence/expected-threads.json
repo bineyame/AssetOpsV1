@@ -1,0 +1,16 @@
+{
+ "schema": "chain-coherence-threads/1",
+ "basis": "CH-2 L4: python -m assetops_backend.chain.backfill --steps b,c --dry-run on assetops_polish_full_test (SELECT only); full ids from that run. Findings in occurrence order.",
+ "threads": [
+  {"name": "kobo-generator", "site_code": "KOBO-001", "mechanism": "GENERATOR_SUPPORT_CANDIDATE",
+   "findings": ["4d121cdb-b759-47a7-ae15-9eafaeebd814", "cbbc4916-4e35-4b98-9126-4e91c0bd407d",
+                "706d2f14-4187-4747-b3ff-e06da50d462f"]},
+  {"name": "cold-start-failure", "site_code": "COLD-LAB-001", "mechanism": "COLD_START_FAILURE",
+   "findings": ["f9ed0fec-474d-429f-89b7-a13e6f1907cb", "2505d188-971f-4010-ba8e-0b6e519e7d7c"]},
+  {"name": "ev-interruption", "site_code": "EV-LAB-001", "mechanism": "EV_INTERRUPTION",
+   "findings": ["274196f4-3b8d-443b-93b6-7cbeb06e6a0a"]},
+  {"name": "kobo-headroom", "site_code": "KOBO-001", "mechanism": "PRODUCTIVE_USE_HEADROOM",
+   "opportunities": ["OPP-000001", "OPP-000002", "OPP-000003", "OPP-000004"],
+   "note": "No CH-2 body carries an opportunity's thread (CH-4 adds the screens); the L4/L3 backfill output proves this placement, COH-10 skips it."}
+ ]
+}

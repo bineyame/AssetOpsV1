@@ -27,6 +27,8 @@ from typing import Any, Callable, Iterator
 HERE = Path(__file__).resolve().parent
 TOOLS = HERE.parent
 ROUTES_FILE = HERE / "fixtures" / "chain_coherence" / "screen_routes.json"
+#: CH-2 COH-10: the expected Finding threads per Site (full ids from the CH-2 L4 dry run).
+THREADS_FILE = HERE / "fixtures" / "chain_coherence" / "expected-threads.json"
 BUNDLE_SCHEMA = "chain-coherence-bundle/1"
 REPORT_SCHEMA = "chain-coherence-report/1"
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
@@ -673,10 +675,104 @@ def info_coh12(bundle: Bundle) -> list[dict]:
     return out
 
 
+def _threaded(bundle: Bundle) -> bool:
+    """CH-2: COH-10/COH-11 read the additive `thread` field; a bundle collected before CH-2 carries no such key
+    on any Portfolio row and is not judged by them."""
+    return any("thread" in r for w in bundle.estate_windows() for r in _rows(bundle.get(f"portfolio.{w}")))
+
+
+def load_threads(path: Path = THREADS_FILE) -> list[dict]:
+    return list(json.loads(Path(path).read_text(encoding="utf-8"))["threads"])
+
+
+def _board_refs(board: dict) -> Iterator[dict]:
+    for row in board.get("rows") or []:
+        for issue in row.get("issues") or []:
+            ref = issue.get("ref")
+            if issue.get("kind") == "FINDING" and isinstance(ref, dict) and ref.get("finding_id"):
+                yield ref
+
+
+def coh10_thread_identity(bundle: Bundle, threads: list[dict] | None = None) -> list[dict]:
+    """CH-2 COH-10: each expected thread's Findings sit on one thread as occurrences 1..n of n, on every Portfolio
+    row that shows them; each thread is observed at least once; a board ref's thread agrees with the Portfolio's
+    for the same Finding in an estate window containing the board day."""
+    if not _threaded(bundle):
+        return []
+    if threads is None:  # a fixture bundle names its own expectations; a collected bundle uses THREADS_FILE
+        threads = bundle.manifest["expected_threads"] if "expected_threads" in bundle.manifest else load_threads()
+    out: list[dict] = []
+    seen: dict[str, dict[str, dict]] = {}  # window -> finding_id -> thread
+    for w in bundle.estate_windows():
+        seen[w] = {str(r["finding_id"]).lower(): r.get("thread") for r in _rows(bundle.get(f"portfolio.{w}"))
+                   if r.get("finding_id")}
+    for t in threads:
+        fids = [f.lower() for f in t.get("findings") or []]
+        if not fids:
+            continue  # an opportunity-only thread: no CH-2 body carries it (CH-4)
+        ids, observed = set(), False
+        for w, rows in seen.items():
+            files = bundle.files(f"portfolio.{w}")
+            for n, f in enumerate(fids, start=1):
+                if f not in rows:
+                    continue
+                observed = True
+                th = rows[f]
+                if th is None:
+                    out.append(finding("COH-10", t["site_code"], w, f, f"Finding {f} of thread {t['name']} has no "
+                                       "thread on its Portfolio row", files))
+                    continue
+                ids.add(th.get("id"))
+                if (th.get("occurrence_no"), th.get("occurrences")) != (n, len(fids)):
+                    out.append(finding("COH-10", t["site_code"], w, f, f"Finding {f} is occurrence "
+                                       f"{th.get('occurrence_no')} of {th.get('occurrences')}; expected {n} of "
+                                       f"{len(fids)} on thread {t['name']}", files))
+        if not observed:
+            out.append(finding("COH-10", t["site_code"], None, t["name"], f"no Portfolio row shows a Finding of "
+                               f"thread {t['name']}", []))
+        if len(ids) > 1:
+            out.append(finding("COH-10", t["site_code"], None, t["name"], f"thread {t['name']} is split across "
+                               f"{len(ids)} thread ids", []))
+    for d in bundle.day_windows():
+        board = bundle.get(f"board.{d}")
+        if not board:
+            continue
+        for ref in _board_refs(board):
+            f = str(ref["finding_id"]).lower()
+            for w in bundle.estate_windows():
+                if not bundle.contains(w, d) or f not in seen.get(w, {}):
+                    continue
+                want, got = seen[w][f], ref.get("thread")
+                key = (lambda x: None if x is None else (x.get("id"), x.get("occurrence_no"), x.get("occurrences")))
+                if key(want) != key(got):
+                    out.append(finding("COH-10", board.get("site_code"), d, f, f"board thread {key(got)} != "
+                                       f"Portfolio ({w}) thread {key(want)}",
+                                       [*bundle.files(f"board.{d}"), *bundle.files(f"portfolio.{w}")]))
+    return out
+
+
+def coh11_actions_linked(bundle: Bundle) -> list[dict]:
+    """CH-2 COH-11 (ruling R1, replaces the design's NOT NULL step e): every Action whose origin Finding has a
+    Portfolio row (where COH-2 applies) finds that row on a thread."""
+    if not _threaded(bundle):
+        return []
+    out = []
+    for w in bundle.estate_windows():
+        portfolio = {str(r["finding_id"]): r for r in _rows(bundle.get(f"portfolio.{w}")) if r.get("finding_id")}
+        for a in _actions(bundle, w):
+            row = portfolio.get(str(a["origin"])) if a["origin"] else None
+            if row is not None and row.get("thread") is None:
+                out.append(finding("COH-11", row.get("site_code"), w, a["action_id"],
+                                   f"Action {a['action_id']} answers Finding {a['origin']}, whose Portfolio row has "
+                                   "no thread", [*bundle.files(f"portfolio.{w}"), *bundle.files(a["file"])]))
+    return out
+
+
 RULES: list[tuple[str, Callable[[Bundle], list[dict]]]] = [
     ("COH-0", coh0_missing_data), ("COH-1", coh1_links), ("COH-2", coh2_action_on_portfolio), ("COH-3", coh3_action_on_board),
     ("COH-4", coh4_findings_contain), ("COH-5", coh5_lens), ("COH-6", coh6_opportunity),
-    ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts)]
+    ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts),
+    ("COH-10", coh10_thread_identity), ("COH-11", coh11_actions_linked)]
 INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12)]
 
 

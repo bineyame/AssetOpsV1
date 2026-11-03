@@ -1,0 +1,153 @@
+{
+ "schema": "chain-coherence-bundle/1",
+ "S": "2026-10-31T00:00:00Z",
+ "code": "fixture",
+ "collected_at": "2026-11-03T00:00:00Z",
+ "source": "fixture",
+ "freshness": "fixture",
+ "known_at": null,
+ "windows": {
+  "week": {
+   "from": "2026-10-25T00:00:00Z",
+   "to": "2026-11-01T00:00:00Z"
+  },
+  "day:cold:failure:2026-10-31": {
+   "from": "2026-10-31T16:00:00Z",
+   "to": "2026-10-31T17:05:00Z",
+   "site_code": "COLD-LAB-001",
+   "estate": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   }
+  },
+  "day:kobo:trial-before:2026-10-31": {
+   "from": "2026-10-31T00:00:00Z",
+   "to": "2026-11-01T00:00:00Z",
+   "site_code": "KOBO-001",
+   "estate": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   }
+  }
+ },
+ "requests": [
+  {
+   "name": "summary.week",
+   "path": "/api/estate/outcome-summary",
+   "params": {},
+   "status": 200,
+   "file": "summary.week.json",
+   "window": "week",
+   "page": null
+  },
+  {
+   "name": "board_summary.week.COLD-LAB-001",
+   "path": "/api/sites/COLD-LAB-001/outcome-board",
+   "params": {},
+   "status": 200,
+   "file": "board_summary.week.COLD-LAB-001.json",
+   "window": "week",
+   "page": null
+  },
+  {
+   "name": "board_summary.week.KOBO-001",
+   "path": "/api/sites/KOBO-001/outcome-board",
+   "params": {},
+   "status": 200,
+   "file": "board_summary.week.KOBO-001.json",
+   "window": "week",
+   "page": null
+  },
+  {
+   "name": "portfolio.week",
+   "path": "/api/estate/portfolio",
+   "params": {},
+   "status": 200,
+   "file": "portfolio.week.p1.json",
+   "window": "week",
+   "page": 1
+  },
+  {
+   "name": "portfolio.week",
+   "path": "/api/estate/portfolio",
+   "params": {},
+   "status": 200,
+   "file": "portfolio.week.p2.json",
+   "window": "week",
+   "page": 2
+  },
+  {
+   "name": "findings_all.week",
+   "path": "/api/estate/findings",
+   "params": {},
+   "status": 200,
+   "file": "findings_all.week.p1.json",
+   "window": "week",
+   "page": 1
+  },
+  {
+   "name": "findings_opp.week",
+   "path": "/api/estate/findings",
+   "params": {},
+   "status": 200,
+   "file": "findings_opp.week.p1.json",
+   "window": "week",
+   "page": 1
+  },
+  {
+   "name": "actions.week",
+   "path": "/api/estate/actions",
+   "params": {},
+   "status": 200,
+   "file": "actions.week.p1.json",
+   "window": "week",
+   "page": 1
+  },
+  {
+   "name": "action_index.COLD-LAB-001.week",
+   "path": "/api/sites/COLD-LAB-001/domain-work/action-index",
+   "params": {},
+   "status": 200,
+   "file": "action_index.COLD-LAB-001.week.p1.json",
+   "window": "week",
+   "page": 1
+  },
+  {
+   "name": "board.day:cold:failure:2026-10-31",
+   "path": "/api/sites/COLD-LAB-001/outcome-board",
+   "params": {},
+   "status": 200,
+   "file": "board.day_cold_failure_2026-10-31.json",
+   "window": "day:cold:failure:2026-10-31",
+   "page": null
+  },
+  {
+   "name": "day_findings_all.day:cold:failure:2026-10-31",
+   "path": "/api/estate/findings",
+   "params": {},
+   "status": 200,
+   "file": "day_findings_all.day_cold_failure_2026-10-31.p1.json",
+   "window": "day:cold:failure:2026-10-31",
+   "page": 1
+  },
+  {
+   "name": "board.day:kobo:trial-before:2026-10-31",
+   "path": "/api/sites/KOBO-001/outcome-board",
+   "params": {},
+   "status": 200,
+   "file": "board.day_kobo_trial-before_2026-10-31.json",
+   "window": "day:kobo:trial-before:2026-10-31",
+   "page": null
+  },
+  {
+   "name": "day_findings_all.day:kobo:trial-before:2026-10-31",
+   "path": "/api/estate/findings",
+   "params": {},
+   "status": 200,
+   "file": "day_findings_all.day_kobo_trial-before_2026-10-31.p1.json",
+   "window": "day:kobo:trial-before:2026-10-31",
+   "page": 1
+  }
+ ],
+ "expected_threads": []
+}
