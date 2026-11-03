@@ -221,6 +221,31 @@ def test_portfolio_join_matches_on_thread_with_exact_fallback():
     assert plain[0]["_thread"] is None
 
 
+def test_portfolio_thread_state_uses_the_resolved_cutoff():
+    """CH3-R COH-13: the Portfolio reads thread state at the envelope's resolved `window.known_at` (the board's
+    cutoff), not at the request's absent one."""
+    from datetime import datetime, timezone
+
+    from assetops_backend.estate.portfolio import attach_threads
+
+    seen = {}
+
+    class Snap:
+        def threads(self, t, fids, aids, **kw):
+            seen.update(kw)
+            return {"findings": {}, "actions": {}}
+
+    class Req:
+        to = datetime(2026, 10, 31, 12, tzinfo=timezone.utc)
+        known_at = None
+
+    k = datetime(2026, 10, 31, 11, tzinfo=timezone.utc)
+    attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req(), k)
+    assert seen["known_at"] == k
+    attach_threads(Snap(), T, [{"finding_id": "f1"}], [], Req())  # no resolved cutoff given: the request's (None)
+    assert seen["known_at"] is None
+
+
 def test_board_lists_a_domain_action_in_hand_by_thread():
     from assetops_backend.site_outcomes import board
 

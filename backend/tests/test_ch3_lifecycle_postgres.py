@@ -32,8 +32,8 @@ if URL:
 class _Reader:
     """The real reader, with extra mini action events / outcomes appended to its lifecycle inputs."""
 
-    def __init__(self, real, events=(), outcomes=(), mini=True) -> None:
-        self.real, self.events, self.outcomes, self.mini = real, list(events), list(outcomes), mini
+    def __init__(self, real, events=(), outcomes=(), mini=True, lost=False) -> None:
+        self.real, self.events, self.outcomes, self.mini, self.lost = real, list(events), list(outcomes), mini, lost
 
     def __getattr__(self, name):
         return getattr(self.real, name)
@@ -42,6 +42,9 @@ class _Reader:
         out = self.real.lifecycle_inputs(tenant_id, site_id)
         out["action_events"] = [*(out["action_events"] if self.mini else []), *self.events]
         out["outcomes"] = [*out["outcomes"], *self.outcomes]
+        if self.lost:  # every occurrence's latest revision is NO_LONGER_SUPPORTED (the SUPPORT_LOST trigger)
+            out["finding_lifecycle"] = {k: {**v, "lifecycle": "NO_LONGER_SUPPORTED"}
+                                        for k, v in out["finding_lifecycle"].items()}
         return out
 
 
@@ -127,8 +130,40 @@ def test_domain_raise_is_in_hand_and_support_lost_waits_for_the_action(seeded, e
                              "CAST(l.action_id AS text) JOIN domain_action d ON d.id = l.action_id "
                              "WHERE l.action_id = :a"), {"a": domain_id}).all()
     assert dom == [("ACTION_IN_HAND", True)], report
-    # The thread has linked Actions, so no SUPPORT_LOST withdrawal is written (the guard holds).
-    assert not any(x["cause"] == "SUPPORT_LOST" and x["reason"] != "ACTION_ON_THREAD"
-                   for x in report["skipped_causes"])
+    # D-f, direction 1: every occurrence is NO_LONGER_SUPPORTED but the thread has a linked Action, so the
+    # SUPPORT_LOST cause is skipped (the thread is ACTION_IN_HAND) and no WITHDRAWN is written.
+    lost = run_lifecycle(_Reader(reader, mini=False, lost=True), writer, t, s)
+    assert any(x["cause"] == "SUPPORT_LOST" and x["from_state"] == "ACTION_IN_HAND"
+               for x in lost["skipped_causes"]), lost["skipped_causes"]
     with engine.connect() as c:
         assert c.execute(text("SELECT count(*) FROM finding_thread_event WHERE state = 'WITHDRAWN'")).scalar_one() == 0
+
+
+@pytest.fixture()
+def bare(store, engine):  # noqa: F811
+    """The CH-2 L2 seed without any Action: F01 and F02 on one thread, nothing accepted or raised."""
+    from test_s6_action_store_postgres import CASES, CaseRunner, run_case
+
+    runner = CaseRunner(store, engine)
+    run_case(runner, CASES["F01"])
+    run_case(runner, CASES["F02"])
+    from assetops_backend.chain.composition import build_thread_sources, build_thread_store
+
+    yield runner, build_thread_sources(URL), build_thread_store(URL)
+
+
+def test_support_lost_withdraws_a_thread_with_no_action(bare, engine) -> None:  # noqa: F811
+    """D-f, direction 2: SUPPORT_LOST on a thread with NO linked Action writes WITHDRAWN (and without the
+    cause, nothing is withdrawn)."""
+    runner, reader, writer = bare
+    t, s = runner.tenant, runner.site
+    run_threads(reader, writer, t, s, steps=("b", "c"))
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM chain_action_thread")).scalar_one() == 0
+    run_lifecycle(_Reader(reader, mini=False), writer, t, s)
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM finding_thread_event WHERE state = 'WITHDRAWN'")).scalar_one() == 0
+    report = run_lifecycle(_Reader(reader, mini=False, lost=True), writer, t, s)
+    with engine.connect() as c:
+        rows = c.execute(text("SELECT state, cause_kind FROM finding_thread_event WHERE state = 'WITHDRAWN'")).all()
+    assert rows == [("WITHDRAWN", "SUPPORT_LOST")], (rows, report)

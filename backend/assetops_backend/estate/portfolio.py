@@ -127,7 +127,7 @@ class ActionSelectionError(RuntimeError):
 
 
 def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_rows: list[dict[str, Any]],
-                   req: Any = None) -> None:
+                   req: Any = None, known_at: Any = None) -> None:
     """CH-2 (build sheet §5.1): each Finding row's thread (`_thread`: id, occurrence number, occurrence count) and
     each Action row's thread (`_thread_id`), from one snapshot query. A snapshot without the thread port, or a row
     with no thread, carries None, and `_action_for` then keeps the exact join alone."""
@@ -136,7 +136,10 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
     if port is not None and (f_rows or a_rows):
         # CH-3 §5, CH3-R (AG-27): the thread state on each Site's local day holding the window's last instant (as
         # the board reads it), as of the window's cutoff, when the request names one.
-        kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": req.known_at}
+        # CH3-R (COH-13): `known_at` is the envelope's resolved `window.known_at`, the same cutoff the board
+        # resolves (D-b: coalesce(cause_known_at, recorded_at) <= k); the request's own, when given, equals it.
+        kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1),
+                                     "known_at": req.known_at if known_at is None else known_at}
         found = port(tenant_id, [r["finding_id"] for r in f_rows], [a["action_id"] for a in a_rows], **kw)
     segments = found.get("action_segments") or {}
     for r in f_rows:
@@ -634,7 +637,7 @@ class EstatePortfolioService(EstateEvidenceService):
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
         lap("findings")
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
-        attach_threads(snap, tenant_id, f_rows, a_rows, req)
+        attach_threads(snap, tenant_id, f_rows, a_rows, req, scope["k"])
         lap("actions")
         e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
         lap("evidence")
