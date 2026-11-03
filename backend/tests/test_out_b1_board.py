@@ -76,7 +76,8 @@ def test_kobo_mock_grid_and_issue_order() -> None:
     assert [(i["kind"], i["role"], i["text"]) for i in rows[PROTECT]["issues"]] == [
         ("OPPORTUNITY", "CHECKED", "Productive-use headroom"),
         ("FINDING", "CHECKED", "Generator support review · checked here as a safeguard")]
-    assert rows[PROTECT]["issues"][1]["ref"] == {"finding_id": "f104", "finding_revision_id": "f104r"}
+    assert rows[PROTECT]["issues"][1]["ref"] == {"finding_id": "f104", "finding_revision_id": "f104r",
+                                                "thread": None}  # CH-2 §5.3: additive, null unthreaded
     assert [i["kind"] for i in rows[ASSURE]["issues"]] == ["EVIDENCE_GAP"]
     assert [i["role"] for i in rows[GROW]["issues"]] == ["MOVES"]
     for r in rows.values():
