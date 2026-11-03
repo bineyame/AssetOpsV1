@@ -120,3 +120,38 @@ details.ob[open]>.ob-sum::after{transform:rotate(-135deg)}
 .oc-mhead>span:first-child{display:none}
 .oc-affectwrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.oc-affectwrap .oc-affects{margin-top:0}
 .oc-affects.quiet{background:#fff;border:1px solid #dfe5ee;color:#5f6e83;font-weight:500}
+/* MA-1 addendum: day coverage line, "Why?" trace, Grow in three parts, problem history, opportunity row. */
+.ob-val{margin-right:6px}
+.ob-days{display:block;font-size:10.5px;font-weight:500;color:#617087;margin-top:3px;line-height:1.45}
+.why-btn{display:inline-flex;align-items:center;min-height:24px;padding:2px 9px;border:1px solid #c9d4e4;border-radius:12px;background:#f5f8fc;color:#1d4ed8;font:inherit;font-size:11px;font-weight:600;cursor:pointer;vertical-align:middle}
+.why-btn:hover{background:#e9f0fd}.why-btn:focus-visible{outline:2px solid #1d4ed8;outline-offset:1px}
+.why-pop .why-say{font-size:12px;font-weight:600;line-height:1.5;margin:0}
+.why-pop .why-from{margin:0;padding-left:16px;line-height:1.55}.why-pop .why-from li{margin:2px 0}
+.why-pop .why-p{margin:0;line-height:1.55}
+.why-pop.sheet{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;max-height:72vh;overflow:auto;border-radius:12px 12px 0 0;padding:16px 16px 20px;font-size:12px}
+.ob-grow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 12px}
+.ob-part{border:1px solid #e3e8f0;border-radius:6px;padding:9px 11px;background:#fafbfd;min-width:0}
+.ob-part b{display:block;font-size:12px;color:#17243b;line-height:1.45;margin-top:2px}
+.ob-plabel{font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;color:#4b5b74}
+.oc-pfcard{position:relative}
+.oc-cardlink{color:inherit}.oc-cardlink:hover{text-decoration:none}
+.oc-cardlink::after{content:"";position:absolute;inset:0;border-radius:7px}
+.oc-cardlink:focus-visible{outline:none}.oc-cardlink:focus-visible::after{outline:2px solid #1d4ed8;outline-offset:-2px}
+.oc-pfval{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.oc-pfval .value-number{margin-bottom:4px}
+.oc-pfcard .why-btn{position:relative;z-index:2}
+.oc-pfdays{margin:0 0 8px}
+.oc-pfgrow{margin:0 0 10px;font-size:10px;line-height:1.5;color:#4f5f76}.oc-pfgrow>div{margin-bottom:4px}
+.oc-pfgrow dt{font-size:9px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;color:#4b5b74}.oc-pfgrow dd{margin:0}
+.oc-pfgrow .oc-pfnote{color:#8e580c}
+.fix-head{background:#fff;border:1px solid var(--line);border-radius:7px;padding:11px 14px;margin-bottom:14px}
+.panel .fix-head{border:0;padding:0;margin:0}
+.fix-line{font-size:11px;color:#8e580c;margin:0 0 8px}.fix-line b{color:#17243b;margin-right:4px}
+.fix-tl{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;list-style:none;margin:0;padding:0}
+.fix-tl li{border-top:3px solid #d5dce7;padding-top:6px;min-width:0}
+.fix-tl li b{display:block;font-size:11px;color:#4f5f76}.fix-tl li small{display:block;font-size:10px;color:#7a889b}
+.fix-tl li.done{border-top-color:#31977f}.fix-tl li.done b{color:#17243b}
+.fix-tl li.current{border-top-color:#1d4ed8}.fix-tl li.current b{color:#1d4ed8}
+.oc-noact{font-size:11px;color:#617087}
+.opp-list{list-style:none;margin:0;padding:0}.opp-list li{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;padding:8px 0;border-top:1px solid #edf0f5}.opp-list li:first-child{border-top:0}
+.opp-list small{display:block;font-size:11px;color:#617087;margin-top:2px}.opp-list .opp-limit{color:#8e580c}
+@media(max-width:760px){.ob-grow{grid-template-columns:1fr}.fix-tl{grid-template-columns:1fr;gap:4px}.fix-tl li{border-top:0;border-left:3px solid #d5dce7;padding:2px 0 2px 9px}.fix-tl li.done{border-left-color:#31977f}.fix-tl li.current{border-left-color:#1d4ed8}}
