@@ -471,19 +471,23 @@ class SiteOutcomeBoardService:
 
         def work(snap: Any) -> dict[tuple, Any]:
             pre: dict[tuple, Any] = {}
+            lap = perf.Laps("summary.prefetch")
             wins = estate.site_selected_windows_many(t, others, lo, hi, known_at, snap=snap) if others else {}
             ready: dict[str, tuple[datetime, datetime]] = {code: (start, end) for code in minis}
             for code in others:
                 pre[("windows", t, code, lo, hi, known_at)] = wins[code]
                 ev_win = latest_window(wins[code])
                 ready[code] = covering_days(*((lo, hi) if ev_win is None else ev_win))
+            lap("windows")
             for code, value in estate.site_readiness_many(t, ready, known_at, snap=snap).items():
                 pre[("readiness", t, code, *ready[code], known_at)] = value
+            lap("readiness")
             work_lo = end - mini.WORK_WINDOW
             rows = estate.site_work_rows_many(t, {code: (start, end, work_lo, end) for code in minis}, known_at,
                                               snap=snap) if minis else {}
             for code, value in rows.items():
                 pre[("work_rows", t, code, start, end, work_lo, end, known_at)] = value
+            lap("work_rows")
             return pre
 
         try:
