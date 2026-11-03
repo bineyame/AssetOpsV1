@@ -134,8 +134,9 @@ def attach_threads(snap: Any, tenant_id: Any, f_rows: list[dict[str, Any]], a_ro
     port = getattr(snap, "threads", None)
     found: dict[str, Any] = {"findings": {}, "actions": {}}
     if port is not None and (f_rows or a_rows):
-        # CH-3 §5: the thread state on the window's last (UTC) day as of its cutoff, when the request names one.
-        kw = {} if req is None else {"day": (req.to - timedelta(microseconds=1)).date(), "known_at": req.known_at}
+        # CH-3 §5, CH3-R (AG-27): the thread state on each Site's local day holding the window's last instant (as
+        # the board reads it), as of the window's cutoff, when the request names one.
+        kw = {} if req is None else {"day_at": req.to - timedelta(microseconds=1), "known_at": req.known_at}
         found = port(tenant_id, [r["finding_id"] for r in f_rows], [a["action_id"] for a in a_rows], **kw)
     segments = found.get("action_segments") or {}
     for r in f_rows:
@@ -530,8 +531,9 @@ def thread_progress(f_rows: list[dict[str, Any]]) -> dict[str, int] | None:
 
 
 def recovered(snap: Any, tenant_id: Any, a_rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """CH-3 §5 (OD-3 / AG-24): the sum per currency of credited amounts (a priced, positive MODELLED_IMPROVEMENT
-    cost check on a VERIFIED outcome), or "No money credited · modelled, not saved"."""
+    """CH-3 §5 (OD-3 / AG-24), CH3-R: the sum per currency of credited amounts (a stored, priced, positive total on
+    a MODELLED_IMPROVEMENT cost check of a VERIFIED outcome), or "No money credited · modelled, not saved". The
+    per-kWh rate is never summed; no priced total is stored today, so this reads not credited."""
     port = getattr(snap, "cost_checks", None)
     ids = [str(a["_raw"]["_outcome_id"]) for a in a_rows if a["_raw"].get("_outcome_id") is not None]
     checks = port(tenant_id, ids) if port is not None and ids else {}

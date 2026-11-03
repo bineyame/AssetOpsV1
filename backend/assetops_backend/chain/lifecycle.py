@@ -264,10 +264,19 @@ def complete_days(rows: Iterable[Any], subject_ref: str, measures: Sequence[str]
             if all(m in per for m in measures) and all(g == "COMPLETE" for gs in per.values() for g in gs)}
 
 
+def fully_checked_days(rows: Iterable[Any], subject_ref: str, measures: Sequence[str],
+                       occurrence_starts: Iterable[date | None] = ()) -> set[date]:
+    """CH3-R: the one definition of a "fully checked day", for the close rule (CLEAN_DAYS) and for the board's
+    "{k} more fully checked days to close" count alike: every clean-day measure snapshot of the thread's subject is
+    COMPLETE that day, and no occurrence of the thread started that day."""
+    return complete_days(rows, subject_ref, measures) - {d for d in occurrence_starts if d is not None}
+
+
 def thread_view(events: Sequence[Event], occ: Occurrence, day: date | None, known_at: datetime | None,
                 complete: Iterable[date] = (), close_after: int = 7) -> dict[str, Any]:
     """The read-time view of one Finding's thread on a board day (build sheet §3, §5): its segment, the state and
-    effective day in that segment, the change day, and the fully checked days since the verified day."""
+    effective day in that segment, the change day, and the fully checked days since the verified day. `complete`
+    holds the thread's fully checked days (`fully_checked_days`), the same days the close rule counts."""
     evs = visible(events, known_at)
     seg = occurrence_segment(evs, occ)
     mine = [e for e in evs if segment_of_event(evs, e.seq) == seg]

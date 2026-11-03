@@ -45,11 +45,13 @@ def _day(at: datetime | None, tz: str | None) -> date | None:
 
 def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: datetime | None = None,
                   complete: Mapping[str, Iterable[date]] | None = None,
-                  close_after: int = 7) -> dict[str, Any]:
+                  close_after: int = 7, day_at: datetime | None = None) -> dict[str, Any]:
     """`LOOKUP` rows -> {"findings": {finding_id: {id, occurrence_no, occurrences, segment_no, state,
     state_effective_day}}, "actions": {action_id: thread_id}, "action_segments": {action_id: n},
     "lifecycle": {finding_id: the board view (`lifecycle.thread_view`)}, "subjects": {finding_id: (mechanism,
-    subject_ref)}}. `day` None reads the latest state; `complete` maps a Finding id to its COMPLETE days."""
+    subject_ref)}}. `day` None reads the latest state; `complete` maps a Finding id to its fully checked days.
+    `day_at` (an instant; CH3-R, AG-27) reads each Finding on its own Site's local day holding that instant, and
+    overrides `day` for a Finding whose Site zone is known (the Portfolio's window across Sites)."""
     occ_rows: list[tuple[Any, ...]] = []
     act_rows: list[tuple[Any, ...]] = []
     events: dict[str, list[lc.Event]] = {}
@@ -65,7 +67,8 @@ def thread_lookup(rows: Sequence[Any], *, day: date | None = None, known_at: dat
     subjects: dict[str, Any] = {}
     for fid, thread_id, num, cnt, start, tz, mechanism, subject in occ_rows:
         evs = events.get(thread_id, [])
-        view = lc.thread_view(evs, lc.Occurrence(fid, _day(start, tz)), day, known_at,
+        on = _day(day_at, tz) if day_at is not None and tz is not None else day
+        view = lc.thread_view(evs, lc.Occurrence(fid, _day(start, tz)), on, known_at,
                               (complete or {}).get(fid, ()), close_after)
         views[fid] = view
         subjects[fid] = (mechanism, subject)

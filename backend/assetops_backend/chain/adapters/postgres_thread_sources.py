@@ -163,7 +163,7 @@ class PostgresThreadSources:
         """CH-2 §5.2 / CH-3 §3, §5: one thread lookup per board, with each Finding's state on the board `day` as of
         `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043)."""
         from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
-        from assetops_backend.chain.lifecycle import complete_days
+        from assetops_backend.chain.lifecycle import fully_checked_days, local_day
         policy = load_thread_lifecycle()
         if not finding_ids and not action_ids:
             return thread_lookup([])
@@ -187,6 +187,18 @@ class PostgresThreadSources:
                         + ("" if known_at is None else " AND computed_at <= :k") +
                         " ORDER BY measure, local_day, subject_kind, subject_ref, revision DESC"),
                         {"t": tenant_id, "f": list(subjects), "m": measures, "k": known_at}).mappings()]
-                    complete = {fid: complete_days(snap, subject, policy.measures_for(mech))
+                    # CH3-R: one "fully checked day" rule with the close rule (no occurrence of the thread started)
+                    threads = {r[1].lower(): str(r[2]) for r in rows if r[0] == "F"}
+                    starts: dict[str, list[Any]] = {}
+                    for tid, start, tz in c.execute(text(
+                            "SELECT CAST(o.thread_id AS text), o.episode_start, s.timezone FROM "
+                            "finding_thread_occurrence o JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
+                            "WHERE o.tenant_id = :t AND CAST(o.thread_id AS text) = ANY(CAST(:th AS text[]))"
+                            + ("" if known_at is None else " AND o.joined_at <= :k")),
+                            {"t": tenant_id, "th": sorted(set(threads.values())), "k": known_at}).all():
+                        if start is not None and tz:
+                            starts.setdefault(tid, []).append(local_day(start, tz))
+                    complete = {fid: fully_checked_days(snap, subject, policy.measures_for(mech),
+                                                        starts.get(threads[fid], ()))
                                 for fid, (mech, subject) in subjects.items()}
         return thread_lookup(rows, day=day, known_at=known_at, complete=complete, close_after=policy.close_after())

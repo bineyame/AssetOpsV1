@@ -9,7 +9,6 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from assetops_backend.outcomes.credit import credited
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.catalogue import (
     CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI, OUTCOME_BY_KEY, SITE_OUTCOMES,
@@ -416,8 +415,6 @@ def cost_line(a: ActionFact) -> str | None:
     if cc.get("state") == "MODELLED_IMPROVEMENT":
         if a.verification_state != "VERIFIED":
             return COST_NOT_CREDITED
-        if credited(cc, a.verification_state) is None:  # CH-3 §5 (OD-3): only a priced, positive amount
-            return COST_NO_CHANGE if cc.get("currency") else COST_NOT_YET
         return COST_CHANGE.format(amount=per_kwh_amount(cc), currency=cc.get("currency") or "")
     if cc.get("state") == "MODELLED_NO_IMPROVEMENT":
         return COST_NO_CHANGE

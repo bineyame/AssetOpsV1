@@ -82,9 +82,8 @@ def thread_causes(thread: dict[str, Any], site_causes: Sequence[lc.Cause], input
 def thread_clean_days(thread: dict[str, Any], inputs: dict[str, Any], policy: lc.LifecyclePolicy) -> set[date]:
     tz = inputs["tz"]
     measures = policy.measures_for(thread["mechanism"])
-    days = lc.complete_days(inputs["snapshots"], thread["subject_ref"], measures)
-    started = {lc.local_day(start, tz) for _, start in thread["occurrences"] if start is not None}
-    return days - started
+    started = [lc.local_day(start, tz) for _, start in thread["occurrences"] if start is not None]
+    return lc.fully_checked_days(inputs["snapshots"], thread["subject_ref"], measures, started)
 
 
 def run_lifecycle(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None,

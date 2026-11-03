@@ -1,6 +1,6 @@
 """CH-3 §5 (OD-3 / AG-24): the money rule. A trial or Action is credited money only when its stored cost check is
-MODELLED_IMPROVEMENT with a priced, positive amount and its verification outcome is VERIFIED. Everything else is
-"modelled, not saved". Pure; read by the Site board and the Portfolio."""
+MODELLED_IMPROVEMENT with a stored, priced, positive total and its verification outcome is VERIFIED. Everything else
+is "modelled, not saved". Pure; read by the Portfolio."""
 
 from __future__ import annotations
 
@@ -21,10 +21,18 @@ def _amount(value: Any) -> Fraction | None:
 
 
 def credited(cost_check: Mapping[str, Any] | None, outcome: str | None) -> tuple[Fraction, str] | None:
-    """(amount, currency) when the rule credits money, else None. The amount is the stored nominal change."""
+    """(amount, currency) when the rule credits money, else None.
+
+    CH3-R (money unit): an amount is credited only from a stored, priced TOTAL (`priced_total`: amount, currency
+    and the basis it covers). A per-kWh rate (the cost check's `nominal`, `change_per_demand_kwh`) is never summed
+    or shown as money; it appears only as a rate with its unit, labelled modelled (the board's COST_CHANGE line).
+    No stored priced total exists today, so nothing is credited."""
     if cost_check is None or outcome != "VERIFIED" or cost_check.get("state") != "MODELLED_IMPROVEMENT":
         return None
-    amount, currency = _amount(cost_check.get("nominal")), cost_check.get("currency")
+    total = cost_check.get("priced_total")
+    if not isinstance(total, Mapping) or not total.get("basis"):
+        return None
+    amount, currency = _amount(total.get("amount")), total.get("currency")
     if amount is None or amount <= 0 or not currency:
         return None
     return amount, str(currency)
@@ -44,6 +52,6 @@ def recovered_value(items: list[tuple[Mapping[str, Any] | None, str | None]]) ->
 
 
 def _wire(value: Fraction) -> str:
-    """Three decimals, half-even (the board's per-kWh rounding)."""
+    """Three decimals, half-even."""
     q = (Decimal(value.numerator) / Decimal(value.denominator)).quantize(Decimal("0.001"), ROUND_HALF_EVEN)
     return str(q)
