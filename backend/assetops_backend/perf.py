@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import sys
 import time
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -19,6 +20,24 @@ LOG = logging.getLogger("assetops.perf")
 SERVER_TIMING_ENV = "ASSETOPS_SERVER_TIMING"
 #: The `Server-Timing` header carries the request total and at most this many named timers, largest first.
 HEADER_TIMERS = 12
+HANDLER_NAME = "assetops.perf.stderr"
+
+
+def enable_log(stream: Any = None) -> logging.Handler:
+    """CH-0 (CH0-R): give `assetops.perf` one INFO handler writing `assetops.perf {json}` lines to stderr, so a
+    process that configures no logging (the tick CLI, `host/lab_app.py` under serve) emits them. Idempotent: an
+    existing handler of this name is reused, never duplicated. `propagate` is off so a configured root logger
+    does not print each line a second time."""
+    for handler in LOG.handlers:
+        if handler.get_name() == HANDLER_NAME:
+            return handler
+    handler = logging.StreamHandler(stream if stream is not None else sys.stderr)
+    handler.set_name(HANDLER_NAME)
+    handler.setFormatter(logging.Formatter("%(name)s %(message)s"))
+    LOG.addHandler(handler)
+    LOG.setLevel(logging.INFO)
+    LOG.propagate = False
+    return handler
 
 
 class Recorder:

@@ -344,6 +344,40 @@ STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
     "cold_consequence": cold_consequence, "ev_consequence": ev_consequence}
 
 
+def _peak_rss_kb() -> int | None:
+    """CH-0 U3: this stage child's peak resident memory in kB (POSIX `ru_maxrss`; Windows `PeakWorkingSetSize`).
+    Any failure gives None; it never raises and never changes a stage result's other keys."""
+    try:
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+
+            class _Counters(ctypes.Structure):
+                _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD),
+                            ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                            ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+            counters = _Counters()
+            counters.cb = ctypes.sizeof(_Counters)
+            kernel32 = ctypes.WinDLL("kernel32")
+            kernel32.GetCurrentProcess.restype = wintypes.HANDLE
+            query = kernel32.K32GetProcessMemoryInfo
+            query.argtypes = [wintypes.HANDLE, ctypes.POINTER(_Counters), wintypes.DWORD]
+            query.restype = wintypes.BOOL
+            if not query(kernel32.GetCurrentProcess(), ctypes.byref(counters), counters.cb):
+                return None
+            return int(counters.PeakWorkingSetSize // 1024)
+        import resource
+
+        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return int(peak // 1024) if sys.platform == "darwin" else int(peak)  # macOS reports bytes, Linux kB
+    except Exception:  # noqa: BLE001 - memory reporting never fails a stage
+        return None
+
+
 def main(argv: list[str] | None = None) -> int:
     import os
 
@@ -354,6 +388,8 @@ def main(argv: list[str] | None = None) -> int:
         result = STAGES[stage](url, args)
     except Exception as error:  # noqa: BLE001 - every stage failure is typed and reported to the tick
         result = {"code": classify(error), "error": f"{type(error).__name__}: {error}"[:2000]}
+    if isinstance(result, dict):
+        result["peak_rss_kb"] = _peak_rss_kb()
     print("STAGE_RESULT " + json.dumps(result, default=str, sort_keys=True), flush=True)
     return 0
 
