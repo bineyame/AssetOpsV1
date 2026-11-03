@@ -8,7 +8,7 @@ USER_REVIEW_REQUIRED: no screen or wording change. The Architect needs to decide
 - **QW-1 delivered.** Every producer read a board makes is timed through `Reads.call`/`pages` (`timings[name] = [calls, ms]`, `time.perf_counter`). Also timed: each Site board inside the summary, the summary's scope and window-choice reads, every estate snapshot, and the Portfolio sections (scope, findings, actions, evidence, money, coverage, rows, summary, disclosure, cards). There is one JSON line per request on logger `assetops.perf`, for the board, summary and Portfolio routes. The `Server-Timing` header is sent only when `ASSETOPS_SERVER_TIMING=1`.
 - **QW-2 delivered as specified.**
   - The summary now makes one batched estate snapshot for all Sites (`site_selected_windows_many`, `site_readiness_many`, `site_work_rows_many` with `snap=`, through `read_snapshot`). Before, it made one to three per Site: 7 estate snapshots per summary before, 2 now (the route's Site list plus the batch). Every port takes its entry only on an exact match of its arguments (6/6 hits on the demo). Any batch failure falls back to the per-Site reads.
-  - The per-board memo is on in the mini, cold and EV composers.
+  - ~~The per-board memo~~ was removed in fix round 1 (see below).
 - **Result: QW-2 gives no measurable speed-up on this data.** The estate time is spent computing each Site's selection, not opening snapshots or scopes (`estate.imported_sites` totals 15 ms per summary). The memo has 0 hits, because no identical `Reads` call happens inside one board. The acceptance line "the outcome summary must be measurably faster" is **not met** (see Deviations). QW-1's timings show where the time really goes (R1).
 
 ## Timing (in-process, `assetops_polish_full_test`)
@@ -83,3 +83,19 @@ The Portfolio without `known_at` differs from request to request even on main (`
 - **R1, highest.** Add a request-scoped memo of the assessment-store window snapshot (`postgres_assessment_store._window` / `window_snapshot`, keyed on site, analytic, window and cutoff). Expected saving: about 2.3 s per summary, and a similar share of the Kobo board, which reads its board day 13 times. It changes REPEATABLE READ transaction boundaries, so it needs an Architect ruling.
 - **R2.** List the summary route's Sites with `_scope` only, instead of `estate.scope` (which computes Finding coverage for every Site just to read their codes). Expected saving: 0.9–1.2 s per summary, with an identical Site list. The trade-off: a coverage-inconsistency 409 would then surface per board instead of on the route.
 - **R3.** Profile the evidence selection, which takes 3.8 s of the Portfolio and 1.5 s of the summary's readiness; per-row `cited_provenance` is the likely cost. Look also at `mini_overview` and `finding_index` (P-3, about 5 s of the Kobo board): candidates for the day-snapshot work in CH-0.
+
+## Fix round 1: memo removed
+
+Architect ruling: merge QW-1 (timing) and QW-2's batched estate reads (`*_many` and the summary prefetch), but remove the per-board memo (0 hits, and it returned the same object, which a caller could mutate). R1–R3 move into CH-5a.
+
+Commit `3bf98c405`:
+- `Reads` in `site_outcomes/mini.py` loses `memo`, `memo_hits`, `_memo` and `_key`; `call` is back to timing only. `cold.py`, `ev.py` and `mini.compose` use `Reads()`. The memo helper had no other user; no `perf.memo.*` record remains.
+- `test_qw2_reuse.py`: the 3 memo tests are removed; the summary-batching tests are kept (QW-1 timing tests unchanged).
+
+Re-run on `3bf98c405`:
+- Unit: `test_qw1_perf.py` + `test_qw2_reuse.py` = 12 passed (6 s). Adjacent non-Postgres selection (`out_`/`outcome`/`qw`, excluding Postgres files and `test_w502_domain_intent_api.py`, which has a collection NameError on `COLD`, not touched by this change): 538 passed, 3 skipped, 1 failed (`test_run_store_loader ... without_libyaml`, environment-dependent, unrelated to the files changed).
+- Postgres (`toolsun-host-tests.ps1`): `test_qw2_many_postgres.py` 1 passed (118 s); `test_out_c4_ev_warnings_postgres` + `test_out_d5_objectives_postgres` 4 passed (289 s); `test_out_b4_board_postgres` + d5 `-k "kobo_estate_finding_rows or cold_w502 or ev_w504_positive or test_out_b4"` 6 passed, 2 deselected (175 s); `test_w303_portfolio_scope_snapshot_postgres -k "three_domains or foreign_tenant"` 2 passed, 8 deselected (187 s).
+- Byte identity (harness, in-process, read-only on `assetops_polish_full_test`, no serve or tick): 14 capture URLs plus `summary-oct` run against the plan2 tree (backend identical to base `73a558a1b`) and this tree. All byte-identical; the Portfolio without `known_at` differs only in `window.known_at` and `selection_token` (read time) and is equal once those are normalised, as before.
+- Guards run individually: architecture (needs `ASSETOPS_GUARD_PYTHON`) passed; agent workflow passed; estate guard self-tests 7 passed (287 s). No other guard reads the changed files.
+- Deferred: the 8 unrun Portfolio-snapshot Postgres tests (`test_w303_portfolio_scope_snapshot_postgres`, deselected above) are deferred to the end-game full suite E2 under plan decision OD-P4.
+- Residual risk "memo returns the same object" no longer applies.
