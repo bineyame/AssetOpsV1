@@ -93,3 +93,9 @@ def build_thread_store(database_url: str | None) -> PostgresThreadStore | None:
 def build_thread_sources(database_url: str | None) -> PostgresThreadSources | None:
     """The read-only source reader, or None when no database is configured (the board then reads no threads)."""
     return PostgresThreadSources(database_url) if database_url else None
+
+
+def thread_lifecycle_policy() -> Any:
+    """CH-3: the thread lifecycle policy (`config/chain/thread-lifecycle-v1.json`), for callers outside the adapters."""
+    from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+    return load_thread_lifecycle()

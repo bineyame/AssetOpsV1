@@ -98,8 +98,8 @@ def run_lifecycle(reader: Any, store: Any, tenant_id: UUID, site_id: UUID | None
                   policy: lc.LifecyclePolicy | None = None) -> dict[str, Any]:
     """Step (d) for one Site, or every Site of the tenant when `site_id` is None. Returns the step report."""
     if policy is None:
-        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
-        policy = load_thread_lifecycle()
+        from assetops_backend.chain.composition import thread_lifecycle_policy
+        policy = thread_lifecycle_policy()
     sites = [sid for sid, _ in reader.site_ids(tenant_id)] if site_id is None else [site_id]
     counts: dict[str, int] = {}
     skipped: list[dict[str, Any]] = []
