@@ -27,7 +27,7 @@ function portfolioRows(lens='All priorities'){
   `${link(r.finding,r.title,'strong')}<small>${r.id} · ${r.mechanism}</small>${affectsPill(r.id)}`,
   `<strong class="impact ${r.tone}">${r.impact}</strong><small>${r.basis}</small><small>${r.window}</small>`,
   badge(r.priority,r.priority==='High'?'amber':'blue'),`${r.confKey?conf(r.confKey,''):badge(r.confidence)}<small>${r.limit}</small>`,
-  `${r.action?link(r.action,`${r.actionId} · ${r.actionTitle}`,'strong'):`${link(r.finding,'Review recommendation','strong')} <span class="oc-noact">No action agreed yet</span>`}<small>${r.next}</small><span class="workflow-text">${r.state}</span>`
+  `${r.action?link(r.action,`${r.actionId} · ${r.actionTitle}`,'strong'):`${link(r.finding,'Review recommendation','strong')} <span class="oc-noact">· No action agreed yet</span>`}<small>${r.next}</small><span class="workflow-text">${r.state}</span>`
  ]));
 }
 function portfolioValue(label,value,detail,basis,target,tone,ico){return `<a class="value-card ${tone}" href="#/${target}"><div class="value-label">${icon(ico)}<span>${label}</span>${icon('arrow')}</div><div class="value-number">${value}</div><p>${detail}</p><div class="value-basis">${basis}</div></a>`;}
