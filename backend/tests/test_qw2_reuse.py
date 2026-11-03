@@ -1,7 +1,6 @@
 """QW-2 (design proposal §14b): reuse inside one request. No database.
 
-The per-board `Reads` memo calls a function once for identical arguments and never memoizes a failed call; the
-outcome summary's batched estate reads give a response equal to the per-Site reads, serve every Site's estate port
+The outcome summary's batched estate reads give a response equal to the per-Site reads, serve every Site's estate port
 on an exact argument match (zero single-Site calls), and fall back to the per-Site reads when a batch fails or the
 estate has no batched methods."""
 from __future__ import annotations
@@ -22,50 +21,6 @@ COLD = SiteRef(T, uuid4(), "COLD-LAB-001", "GreenHarvest", "COLDCHAIN", None)
 EV = SiteRef(T, uuid4(), "EV-LAB-001", "Charge", "EV_CHARGING", None)
 ODD = SiteRef(T, uuid4(), "ODD-1", "Odd", "UNKNOWN_TYPE", None)
 LO, HI = datetime(2026, 10, 25, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC)
-
-
-# ---------------------------------------------------------------- memo
-
-def test_memo_calls_once_for_identical_args_and_keeps_names_and_counts() -> None:
-    calls = []
-
-    def fn(a, b):
-        calls.append((a, b))
-        return {"v": a + b}
-
-    reads = Reads(memo=True)
-    first = reads.call("r", fn, 1, 2)
-    assert reads.call("r", fn, 1, 2) is first and calls == [(1, 2)]
-    assert reads.call("r", fn, 1, 3) == {"v": 4} and calls == [(1, 2), (1, 3)]
-    assert reads.call("other", fn, 1, 2) == {"v": 3} and len(calls) == 3  # another name is another read
-    assert reads.memo_hits == {"r": 1} and reads.timings["r"][0] == 2
-
-
-def test_memo_never_keeps_a_failed_call_or_unhashable_args() -> None:
-    calls = []
-
-    def flaky(x):
-        calls.append(x)
-        if len(calls) == 1:
-            raise RuntimeError("refused")
-        return x
-
-    reads = Reads(memo=True)
-    assert reads.call("f", flaky, 1) is None and reads.failed == ["f"]
-    assert reads.call("f", flaky, 1) == 1 and reads.call("f", flaky, 1) == 1
-    assert calls == [1, 1]
-    seen = []
-    assert reads.call("u", lambda ids: seen.append(ids) or len(ids), [1, 2]) == 2
-    assert reads.call("u", lambda ids: seen.append(ids) or len(ids), [1, 2]) == 2
-    assert len(seen) == 2
-
-
-def test_memo_is_off_by_default() -> None:
-    calls = []
-    reads = Reads()
-    reads.call("r", lambda x: calls.append(x), 1)
-    reads.call("r", lambda x: calls.append(x), 1)
-    assert calls == [1, 1]
 
 
 # ---------------------------------------------------------------- summary batching

@@ -116,7 +116,7 @@ def duration_text(seconds: Any) -> str | None:
 def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
             site_timezone: str | None) -> Composition:
     c = site_code
-    reads = Reads(memo=True)  # QW-2: an identical read inside one board runs once
+    reads = Reads()
     tz = site_zone(site_timezone)
     suffix = "" if tz is not None else UTC_SUFFIX
     work_lo = hi - WORK_WINDOW

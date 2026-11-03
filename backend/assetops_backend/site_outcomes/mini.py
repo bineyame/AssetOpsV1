@@ -219,35 +219,15 @@ class Reads:
     """The shared producer-read seam of the mini, cold and EV composers.
 
     QW-1: every call adds `timings[name] = [calls, ms]` (and the same to the request recorder, `perf.py`), on
-    success and on failure; the return value and the failure handling are unchanged. QW-2: with `memo=True`, a call
-    with the same name, the same function object and hashable arguments that equal an earlier successful call's
-    returns that call's result instead of reading again (a failed call is never memoized; unhashable arguments are
-    always read). One `Reads` belongs to one board, so the memo never outlives it."""
+    success and on failure; the return value and the failure handling are unchanged."""
 
-    def __init__(self, memo: bool = False) -> None:
+    def __init__(self) -> None:
         self.failed: list[str] = []
         self.statuses: dict[str, set[str]] = {}
         self.first: dict[str, dict[str, Any]] = {}  # IDX-GAPS U2: the first page body per paged read
         self.timings: dict[str, list[float]] = {}
-        self.memo_hits: dict[str, int] = {}
-        self._memo: dict[tuple[Any, ...], Any] | None = {} if memo else None
-
-    def _key(self, name: str, fn: Callable[..., Any], args: tuple[Any, ...]) -> tuple[Any, ...] | None:
-        if self._memo is None:
-            return None
-        key = (name, fn, args)  # the key holds `fn` itself, so a collected function's id is never reused
-        try:
-            hash(key)
-        except TypeError:
-            return None
-        return key
 
     def call(self, name: str, fn: Callable[..., Any], *args: Any) -> Any:
-        key = self._key(name, fn, args)
-        if key is not None and key in self._memo:  # type: ignore[operator]
-            self.memo_hits[name] = self.memo_hits.get(name, 0) + 1
-            perf.record(f"memo.{name}", 0.0)
-            return self._memo[key]  # type: ignore[index]
         started = time.perf_counter()
         try:
             out = fn(*args)
@@ -261,8 +241,6 @@ class Reads:
             entry[0] += 1
             entry[1] += ms
             perf.record(f"read.{name}", ms)
-        if key is not None:
-            self._memo[key] = out  # type: ignore[index]
         return out
 
     def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any,
@@ -395,7 +373,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     Site lookup carries, used only to build the mini depth windows. Local dates use the depth body's own
     `site.timezone`; if depth is refused they are UTC with the suffix (addendum 2 item 6)."""
     c = site_code
-    reads = Reads(memo=True)  # QW-2: an identical read inside one board runs once
+    reads = Reads()
     start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
     end = start + timedelta(days=1)
     work_lo = end - WORK_WINDOW

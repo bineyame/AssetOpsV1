@@ -101,7 +101,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     """`lo`/`hi` are the request window, passed unchanged (B-Q7). Findings are read over that window (the selected
     assessment, every lifecycle); work, domain Actions and plans over the 31-day work window ending at `hi`."""
     c = site_code
-    reads = Reads(memo=True)  # QW-2: an identical read inside one board runs once
+    reads = Reads()
     tz = site_zone(site_timezone)
     work_lo = hi - WORK_WINDOW
 
