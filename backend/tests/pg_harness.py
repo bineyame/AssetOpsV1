@@ -350,6 +350,9 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
     """
     from sqlalchemy import text
 
+    # CH-1b: the 0044 event ledger has no tenant or Site foreign key, so no root reaches it; it is emptied with
+    # every root set (its consumption and dirty-queue rows follow through the closure).
+    roots = tuple(roots) + tuple(t for t in EVENT_TABLES[:1] if t not in roots and _exists(engine, t))
     if os.environ.get(CLEANUP_ENV, "delete") == "truncate":
         with engine.begin() as connection:
             connection.execute(text(f"TRUNCATE {', '.join(roots)} CASCADE"))
@@ -359,6 +362,24 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
         connection.execute(text("SET LOCAL session_replication_role = replica"))
         for table in tables:
             connection.execute(text(f"DELETE FROM {_quote(table)}"))
+
+
+#: CH-1b (migration 0044): the event ledger tables, root first.
+EVENT_TABLES = ("event_outbox", "event_consumption", "snapshot_dirty")
+
+
+def _exists(engine, table: str) -> bool:
+    from sqlalchemy import text
+
+    with engine.connect() as connection:
+        return connection.execute(text("SELECT to_regclass(:t) IS NOT NULL"), {"t": table}).scalar_one()
+
+
+def clear_event_history(engine) -> None:
+    """Empty the 0044 event ledger so a downgrade below 0044 passes its "event history exists" refusal (every
+    producer table write since the upgrade left an event). A no-op below 0044."""
+    if _exists(engine, EVENT_TABLES[0]):
+        empty_tables(engine, EVENT_TABLES[:1])
 
 
 def dispose(*holders) -> None:

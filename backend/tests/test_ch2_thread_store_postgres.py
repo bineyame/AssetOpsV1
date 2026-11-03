@@ -151,6 +151,7 @@ def test_backfill_links_is_idempotent_append_only_and_order_free(seeded, engine)
     # Downgrade refused while thread rows exist; the head is unchanged.
     from alembic import command
 
+    pg_harness.clear_event_history(engine)  # CH-1b: 0044's own refusal comes first
     engine.dispose()
     with pytest.raises(DBAPIError, match="Downgrade of 0042_chain_threads refused"):
         command.downgrade(_alembic(), PREVIOUS)

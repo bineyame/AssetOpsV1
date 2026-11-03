@@ -181,3 +181,34 @@ Still to do:
    - event-driven threads and lifecycle;
    - the CH-0 `SITE_STAGES` update.
    Then the L3 clone proof, the packet `.agent/review-packet-CH-1b.md`, and the commit.
+
+## Phase 1b update (steps 1-4): resume at step 5 after CH-3 merges
+
+Commits: `f6c8803ee` (guards, register guard, backfill event, residual 2, L3 chains, L0 tests), the estate-test
+literal repair, the L2 outbox tests, then the downgrade-test harness change (see below).
+
+- Guard (`configuration-persistence.ps1`): `$eventWriter` with four declared statement shapes (`$eventShapes`:
+  consumption insert, dirty mark upsert, compare-and-delete on `marked_at`, `'backfill.site'` outbox insert); any
+  other statement in the store fails; any other module writing an event table fails (outbox: "written only by the
+  migration 0044 triggers"); each shape has anti-vacuity; the 0044 text check (producer INSERT present, exactly the
+  `(source, idempotency_key) DO NOTHING` arbiter, no DO UPDATE, both `_immutable` triggers). Placed before
+  `$trialComparisonWriter` in `$pgWriters`.
+- Estate self-tests (`tools/checks/test_estate_guard.py`): 4 new (snapshot writer = the CH-2 Low, event statements,
+  foreign event writes, 0044 arbiter); each mutation proven to fail. All 13 pass (new 4: 338 s; old 9: 500 s).
+  They must run from the PowerShell tool (Git Bash subprocess hits the execution policy).
+- `tools/checks/test_event_register.py` + check-all line: 11 tests, each rule has a failing mutation.
+- Open assumption 1: `cold_backup_chain` does NOT return `policy` (`_backup` returns the envelope + chains). Fixed:
+  chains are attributed by `measure_impls.chain_asset` (the one subject asset its step evidence is on), else the
+  single-subject rule. Open assumption 2: residual 2 now also matches `x.analytic_id = ANY(:an)` via
+  `postgres_chain_inputs.JOB_ANALYTICS` (dispatch / cold-excursion+cold-start-response / ev-session/1).
+- Backfill (a): `ChainServices.events` (default None); `_step_a` calls `record_backfill` per Site, key
+  `site|from|to`.
+- Tests: `test_ch1b_register.py` (`EVENT_FIXTURES`), `test_ch1b_drain.py` (15), `test_ch1b_outbox_postgres.py` (3).
+  NOT covered at L2: L2 subject-at-day-start, residual 1/2 SQL (only pure/L3 coverage) — add in step 5 if cheap.
+- Downgrade tests: `pg_harness.empty_tables` now always adds `event_outbox` as a root (it has no Site FK, so it
+  accumulated); `pg_harness.clear_event_history(engine)` before any downgrade below 0044. Applied to
+  `test_ch2_thread_store_postgres`. Remaining downgrade files (`grep -l "command.downgrade" backend/tests`) need
+  a run; add `clear_event_history` where they fail with "event history exists".
+- Coordinator note for step 5: CH-3 adds `0045_thread_known_at` (down 0042); after rebase re-point 0044's
+  `down_revision` to `0045_thread_known_at`. No 0044 producer is on a thread table, so the outbox logic is
+  unaffected. Use `tools/chain_clone.py settle <name>` in the L3 proof.
