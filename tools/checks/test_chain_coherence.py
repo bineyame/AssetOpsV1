@@ -40,6 +40,9 @@ FAILING = {
     "coh10_thread_occurrence": ("COH-10", KOBO, "week", "f3000000-0000-0000-0000-000000000003"),
     "coh11_action_unlinked": ("COH-11", COLD, "week", A1),
     "coh11_action_link_missing": ("COH-11", COLD, "week", A1),
+    "coh13_lifecycle_disagree": ("COH-13", COLD, DC, F1),
+    "coh14_verified_attention": ("COH-14", COLD, DC, "PROTECT_ASSET:X"),
+    "coh15_earlier_segment": ("COH-15", COLD, "week", A1),
 }
 
 
@@ -343,3 +346,43 @@ def test_coh11_names_an_action_with_no_link_of_its_own() -> None:
     """Review L2: the origin row is threaded and shows the Action, but the Action's own link is absent."""
     found = cc.coh11_actions_linked(cc.Bundle(BUNDLES / "coh11_action_link_missing"))
     assert [f["subject"] for f in found] == [A1] and "no thread link" in found[0]["detail"]
+
+
+def test_lifecycle_bundle_passes_and_compares_pairs() -> None:
+    """CH-3: a lifecycle-stamped bundle with agreeing reads passes; COH-13's compared set is non-empty."""
+    bundle = cc.Bundle(BUNDLES / "clean_lifecycle")
+    assert cc.check(bundle)["findings"] == [] and cc.lifecycle_pairs(bundle) == 2
+    assert cc.coh13_lifecycle_agreement(cc.Bundle(BUNDLES / "clean")) == []  # unstamped: pre-CH-3
+
+
+@pytest.mark.parametrize("hi, lo, ok", [
+    (("OPEN", "2026-10-28"), ("OPEN", "2026-10-28"), True),            # same state both days
+    (("ACTION_IN_HAND", "2026-11-02"), ("OPEN", "2026-10-28"), True),  # hi changed after lo's day
+    (("ACTION_IN_HAND", "2026-11-02"), ("ACTION_IN_HAND", "2026-11-02"), False),  # lo cannot see a later change
+    ((None, None), ("OPEN", "2026-10-28"), False),                    # no state at hi, but one at lo
+])
+def test_coh13_orders_reads_by_their_day(tmp_path: Path, hi: tuple, lo: tuple, ok: bool) -> None:
+    root = tmp_path / "b"
+    shutil.copytree(BUNDLES / "clean_lifecycle", root)
+    board, port = root / "board.day_cold_failure_2026-10-31.json", root / "portfolio.week.p2.json"
+    b, p = json.loads(board.read_text(encoding="utf-8")), json.loads(port.read_text(encoding="utf-8"))
+    for row in b["rows"]:
+        for i in row["issues"]:
+            i["ref"]["thread"].update(state=lo[0], state_effective_day=lo[1])        # board: 31 Oct (lo)
+    p["rows"][0]["thread"].update(state=hi[0], state_effective_day=hi[1], state_day="2026-11-03")
+    board.write_text(json.dumps(b), encoding="utf-8")
+    port.write_text(json.dumps(p), encoding="utf-8")
+    assert (cc.coh13_lifecycle_agreement(cc.Bundle(root)) == []) is ok
+
+
+def test_stamped_bundle_without_the_lifecycle_keys_fails(tmp_path: Path) -> None:
+    """CH-3: the `lifecycle` stamp decides; a dropped `state_day` or `action_segment_no` fails (COH-0 style)."""
+    root = tmp_path / "b"
+    shutil.copytree(BUNDLES / "clean_lifecycle", root)
+    port = root / "portfolio.week.p2.json"
+    p = json.loads(port.read_text(encoding="utf-8"))
+    del p["rows"][0]["thread"]["state_day"], p["rows"][0]["action_segment_no"]
+    port.write_text(json.dumps(p), encoding="utf-8")
+    bundle = cc.Bundle(root)
+    assert [f["subject"] for f in cc.coh13_lifecycle_agreement(bundle)] == ["state_day"]
+    assert [f["subject"] for f in cc.coh15_action_segment(bundle)] == ["action_segment_no"]

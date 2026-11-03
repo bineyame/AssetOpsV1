@@ -1,0 +1,78 @@
+{
+ "rows": [
+  {
+   "category": "PROTECT_ASSET",
+   "contributors": [],
+   "earlier": [],
+   "in_hand": [
+    {
+     "href": "/sites/COLD-LAB-001/actions/a1000000-0000-0000-0000-000000000001",
+     "kind": "ACTION"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f1000000-0000-0000-0000-000000000001",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1000000-0000-0000-0000-000000000001",
+      "thread": {
+       "id": "t1000000-0000-0000-0000-000000000001",
+       "occurrence_no": 1,
+       "occurrences": 1,
+       "segment_no": 2,
+       "state": "ACTION_IN_HAND",
+       "state_effective_day": "2026-10-29",
+       "state_day": "2026-10-31"
+      }
+     },
+     "text": "x",
+     "role": "MOVES"
+    }
+   ],
+   "not_measured_text": null,
+   "subline": "3 of 7 days checked",
+   "outcomes": [
+    {
+     "key": "X",
+     "state": "NEEDS_ATTENTION",
+     "reason": "PRIMARY_FINDING_OPEN"
+    }
+   ]
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "earlier": [],
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/COLD-LAB-001/findings/f1000000-0000-0000-0000-000000000001",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1000000-0000-0000-0000-000000000001",
+      "thread": {
+       "id": "t1000000-0000-0000-0000-000000000001",
+       "occurrence_no": 1,
+       "occurrences": 1,
+       "segment_no": 2,
+       "state": "ACTION_IN_HAND",
+       "state_effective_day": "2026-10-29",
+       "state_day": "2026-10-31"
+      }
+     },
+     "text": "x",
+     "role": "MOVES"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "X",
+     "state": "NEEDS_ATTENTION",
+     "reason": "PRIMARY_FINDING_OPEN"
+    }
+   ]
+  }
+ ],
+ "site_code": "COLD-LAB-001",
+ "warnings": []
+}

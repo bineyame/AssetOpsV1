@@ -223,6 +223,8 @@ export interface EstatePortfolioRow {
   } | null;
   /** CH-2: the matched Action's own thread id (additive). */
   action_thread_id?: string | null;
+  /** CH-3: the matched Action's thread segment (additive). */
+  action_segment_no?: number | null;
   episode_start: string | null;
   episode_end: string | null;
   lifecycle: EstateLifecycle;

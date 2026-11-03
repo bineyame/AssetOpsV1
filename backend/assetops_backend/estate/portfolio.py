@@ -224,6 +224,8 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "thread": None if r.get("_thread") is None else dict(r["_thread"]),
         # CH-2 L2: the matched Action's own thread (its chain_action_thread link), so COH-11 observes the link.
         "action_thread_id": None if action is None else action.get("_thread_id"),
+        # CH-3 (packet deviation, additive): the matched Action's thread segment, so COH-15 observes the rule.
+        "action_segment_no": None if action is None else action.get("_segment_no"),
         "action_id": None if action is None else action["action_id"],
         "action_title": None if action is None else action["action_title"],
         "action_state": None if action is None else action["application_state"],

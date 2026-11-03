@@ -191,6 +191,7 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
                 "collected_at": iso(datetime.now(timezone.utc)), "source": source,
                 "freshness": "not ticked" if source == "in-process" else "as served",
                 "known_at": known_at, "threads": True,  # CH-2: this tool revision expects the `thread` fields
+                "lifecycle": True,  # CH-3: and the thread `state_day` and the Portfolio `action_segment_no`
                 "windows": {**{k: {"from": lo, "to": hi} for k, (lo, hi) in windows.items()},
                             **{d["id"]: {"from": d["from"], "to": d["to"], "site_code": d["site_code"],
                                          "estate": {"from": d["estate"][0], "to": d["estate"][1]}}
@@ -798,11 +799,144 @@ def coh11_actions_linked(bundle: Bundle) -> list[dict]:
     return out
 
 
+# ---- CH-3 lifecycle rules ----------------------------------------------------------------------------------------
+
+VERIFIED_THREAD_STATES = ("RESOLVED_MONITORING", "CLOSED")
+
+
+def _lifecycle(bundle: Bundle) -> bool:
+    """CH-3: a bundle stamped `lifecycle` must carry `state_day` on every board and Portfolio thread and
+    `action_segment_no` on every Portfolio row; an unstamped bundle is not judged by COH-13 to COH-15."""
+    return bool(bundle.manifest.get("lifecycle"))
+
+
+def _missing_state_day(bundle: Bundle, rule: str) -> list[dict]:
+    """COH-0 style: a stamped bundle whose board or Portfolio thread lacks `state_day` fails rather than passing
+    vacuously."""
+    out = []
+    for w in bundle.estate_windows():
+        rows = _rows(bundle.get(f"portfolio.{w}"))
+        gone = [r for r in rows if isinstance(r.get("thread"), dict) and "state_day" not in r["thread"]]
+        if gone:
+            out.append(finding(rule, None, w, "state_day", f"{len(gone)} Portfolio threads carry no `state_day`",
+                               bundle.files(f"portfolio.{w}")))
+    for d in bundle.day_windows():
+        board = bundle.get(f"board.{d}")
+        gone = [r for r in _board_refs(board or {}) if isinstance(r.get("thread"), dict)
+                and "state_day" not in r["thread"]]
+        if gone:
+            out.append(finding(rule, (board or {}).get("site_code"), d, "state_day",
+                               f"{len(gone)} board threads carry no `state_day`", bundle.files(f"board.{d}")))
+    return out
+
+
+def _state_reads(bundle: Bundle) -> Iterator[tuple[str, str, str, dict, dict]]:
+    """Each (board day, estate window, Finding, board thread, Portfolio thread) pair of reads of one Finding's thread
+    that both carry a `state_day`."""
+    for d in bundle.day_windows():
+        board = bundle.get(f"board.{d}")
+        if not board:
+            continue
+        for ref in _board_refs(board):
+            b = ref.get("thread")
+            if not isinstance(b, dict) or not b.get("state_day"):
+                continue
+            f = str(ref["finding_id"]).lower()
+            for w in bundle.estate_windows():
+                for r in _rows(bundle.get(f"portfolio.{w}")):
+                    p = r.get("thread")
+                    if str(r.get("finding_id") or "").lower() == f and isinstance(p, dict) and p.get("state_day"):
+                        yield d, w, f, b, p
+
+
+def coh13_lifecycle_agreement(bundle: Bundle) -> list[dict]:
+    """CH-3 COH-13 (time-zone free): a board read and a Portfolio read of one Finding's thread agree. The two reads
+    are ordered by their `state_day` into lo and hi. With no state at hi, both are equal; when hi's state took effect
+    on or before lo's day, both read the same (state, effective day); otherwise lo's state took effect earlier (or
+    lo has none). `state_effective_day` and `state_day` are ISO dates, so they compare as text."""
+    if not _lifecycle(bundle):
+        return []
+    missing = _missing_state_day(bundle, "COH-13")
+    if missing:
+        return missing
+    out, seen = [], set()
+    for d, w, f, b, p in _state_reads(bundle):
+        lo, hi = sorted((b, p), key=lambda t: t["state_day"])
+        pair = (lambda t: (t.get("state"), t.get("state_effective_day")))
+        eff_hi, eff_lo = hi.get("state_effective_day"), lo.get("state_effective_day")
+        if eff_hi is None:
+            bad = pair(lo) != pair(hi)
+        elif eff_hi <= lo["state_day"]:
+            bad = pair(lo) != pair(hi)
+        else:
+            bad = eff_lo is not None and eff_lo >= eff_hi
+        if bad and (d, w, f) not in seen:  # a Finding listed on several rows of one board is one finding
+            seen.add((d, w, f))
+            out.append(finding("COH-13", (bundle.get(f"board.{d}") or {}).get("site_code"), d, f,
+                               f"board thread {pair(b)} on {b['state_day']} disagrees with Portfolio ({w}) thread "
+                               f"{pair(p)} on {p['state_day']}", [*bundle.files(f"board.{d}"),
+                                                                 *bundle.files(f"portfolio.{w}")]))
+    return out
+
+
+def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:
+    """CH-3 COH-14 (I-02): a board row outcome is not NEEDS_ATTENTION for an open primary Finding when every MOVES
+    Finding on the row sits on a RESOLVED_MONITORING or CLOSED thread."""
+    if not _lifecycle(bundle):
+        return []
+    out = []
+    for d in bundle.day_windows():
+        board = bundle.get(f"board.{d}")
+        if not board:
+            continue
+        for row in board.get("rows") or []:
+            moves = [i for i in row.get("issues") or [] if i.get("kind") == "FINDING" and i.get("role") == "MOVES"
+                     and isinstance(i.get("ref"), dict)]
+            if not moves or not all(isinstance(i["ref"].get("thread"), dict)
+                                    and i["ref"]["thread"].get("state") in VERIFIED_THREAD_STATES for i in moves):
+                continue
+            for o in row.get("outcomes") or []:
+                if o.get("state") == "NEEDS_ATTENTION" and o.get("reason") == "PRIMARY_FINDING_OPEN":
+                    out.append(finding("COH-14", board.get("site_code"), d, f"{row.get('category')}:{o.get('key')}",
+                                       f"outcome {o.get('key')} needs attention for an open primary Finding, but "
+                                       "every MOVES Finding on the row is on a verified thread",
+                                       bundle.files(f"board.{d}")))
+    return out
+
+
+def coh15_action_segment(bundle: Bundle) -> list[dict]:
+    """CH-3 COH-15: no Portfolio row shows, as its Action, one from an earlier segment of the Finding's own thread.
+    The board leg (an earlier-segment Action goes to Earlier, never in hand) carries no segment on the wire and is
+    covered by the board unit tests."""
+    if not _lifecycle(bundle):
+        return []
+    missing = _missing_thread_keys(bundle, "COH-15", "action_segment_no")
+    if missing:
+        return missing
+    out = []
+    for w in bundle.estate_windows():
+        for r in _rows(bundle.get(f"portfolio.{w}")):
+            th, seg = r.get("thread"), r.get("action_segment_no")
+            if (r.get("action_id") and isinstance(th, dict) and r.get("action_thread_id") == th.get("id")
+                    and seg is not None and th.get("segment_no") is not None and seg < th["segment_no"]):
+                out.append(finding("COH-15", r.get("site_code"), w, str(r["action_id"]),
+                                   f"Action {r['action_id']} is from segment {seg}, but Finding {r.get('finding_id')} "
+                                   f"is in segment {th['segment_no']} of the thread", bundle.files(f"portfolio.{w}")))
+    return out
+
+
+def lifecycle_pairs(bundle: Bundle) -> int:
+    """The number of board/Portfolio read pairs COH-13 compared (for the L3 report)."""
+    return sum(1 for _ in _state_reads(bundle))
+
+
 RULES: list[tuple[str, Callable[[Bundle], list[dict]]]] = [
     ("COH-0", coh0_missing_data), ("COH-1", coh1_links), ("COH-2", coh2_action_on_portfolio), ("COH-3", coh3_action_on_board),
     ("COH-4", coh4_findings_contain), ("COH-5", coh5_lens), ("COH-6", coh6_opportunity),
     ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts),
-    ("COH-10", coh10_thread_identity), ("COH-11", coh11_actions_linked)]
+    ("COH-10", coh10_thread_identity), ("COH-11", coh11_actions_linked),
+    ("COH-13", coh13_lifecycle_agreement), ("COH-14", coh14_verified_not_attention),
+    ("COH-15", coh15_action_segment)]
 INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12)]
 
 

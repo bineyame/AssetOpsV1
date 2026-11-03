@@ -1,0 +1,62 @@
+{
+ "coverage": {
+  "sites": [
+   {
+    "days": {
+     "checked": 3,
+     "requested": 7
+    },
+    "site_id": "00000000-0000-0000-0000-00000000c0b0"
+   },
+   {
+    "days": null,
+    "site_id": "00000000-0000-0000-0000-00000000c01d"
+   }
+  ]
+ },
+ "next_cursor": "page-2",
+ "opportunity": {
+  "destination": "/findings/opportunities",
+  "state": "SUPPORTED"
+ },
+ "progress": {
+  "rows": [
+   {
+    "action_id": "a1000000-0000-0000-0000-000000000001",
+    "origin_revision_selected": true
+   }
+  ]
+ },
+ "rows": [
+  {
+   "action_id": null,
+   "finding_id": "f3000000-0000-0000-0000-000000000003",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/f3000000-0000-0000-0000-000000000003"
+   },
+   "site_code": "KOBO-001",
+   "site_id": "00000000-0000-0000-0000-00000000c0b0",
+   "verification_outcome": null,
+   "thread": {
+    "id": "t3000000-0000-0000-0000-000000000003",
+    "occurrence_no": 1,
+    "occurrences": 1,
+    "segment_no": 1,
+    "state": "OPEN",
+    "state_effective_day": "2026-10-25",
+    "state_day": "2026-11-01"
+   },
+   "action_thread_id": null,
+   "action_segment_no": null
+  }
+ ],
+ "summary": {
+  "checked_days": [
+   {
+    "checked": 3,
+    "requested": 7,
+    "site_id": "00000000-0000-0000-0000-00000000c0b0"
+   }
+  ]
+ }
+}
