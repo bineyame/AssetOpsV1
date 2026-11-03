@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Any, Callable
 from urllib.parse import quote
 
+from assetops_backend import perf
 from assetops_backend.estate.coverage import (
     ACTIONS, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     UNKNOWN, not_applicable, site_coverage)
@@ -180,7 +181,8 @@ class EstateIndexService:
     def _read(self, work: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
         """S12/S15: an inconsistent selected lineage is retried once in a fresh snapshot, then 409."""
         try:
-            return self.store.read(work)
+            with perf.timed("estate.snapshot"):  # QW-1: one estate snapshot read, its work included
+                return self.store.read(work)
         except EstateSelectionInconsistent:
             try:
                 return self.store.read(work)
@@ -218,7 +220,8 @@ class EstateIndexService:
         # c2 r1 M1: the selection basis is page one's mode, carried by the cursor; a continuation never re-derives it.
         snap.basis_historical = (snap.historical if cursor is None
                                  else cursor["page_one_mode"] == "historical")
-        candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
+        with perf.timed("estate.imported_sites"):  # QW-1
+            candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
         sites = [s for s in candidates if admit(s["site_code"])]
         ids = [str(s["site_id"]) for s in sites]
         return {"k": k, "token_k": token_k, "historical": snap.historical, "sites": sites, "ids": ids,
