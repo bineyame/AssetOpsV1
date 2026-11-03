@@ -1,0 +1,13 @@
+{"schema": "operating-calendar", "version": 1, "calendar_version": "operating-calendar/1",
+ "sites": {
+   "KOBO-001":     {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL",
+                    "hours": [{"from": "00:00", "to": "24:00"}],
+                    "reason": "mini-grid: supplies power all day"},
+   "COLD-LAB-001": {"kind": "LAB_SESSION", "label": "Lab session hours", "days": "ALL",
+                    "hours": [{"from": "19:00", "to": "20:05"}],
+                    "reason": "lab site: scheduled test sessions", "source": "P7-PENDING"},
+   "EV-LAB-001":   {"kind": "LAB_SESSION", "label": "Lab session hours", "days": ["TUE"],
+                    "hours": [{"from": "08:00", "to": "09:00"}],
+                    "reason": "lab site: scheduled test sessions", "source": "P7-PENDING"}
+ },
+ "default": {"kind": "OPERATING", "label": "Declared operating hours", "days": "ALL", "hours": [{"from": "00:00", "to": "24:00"}]}}
