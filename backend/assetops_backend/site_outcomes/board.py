@@ -6,7 +6,7 @@ and rolls each row up. It writes no storage and formats no money (B-Q14)."""
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from assetops_backend.outcomes.display_code import display_code
@@ -131,6 +131,8 @@ class FindingFact:
     in_window: bool = True
     #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
     refreshed_from: tuple[str, ...] = ()
+    #: CH-2 §5.3: the Finding's thread `{id, occurrence_no, occurrences}`; None when it has no thread.
+    thread: Mapping[str, Any] | None = None
 
     @property
     def open(self) -> bool:
@@ -155,6 +157,7 @@ class ActionFact:
     # OUT-E E4: the verification summary's stored cost check and trial hours of the current outcome (last, defaulted)
     cost_check: Mapping[str, Any] | None = None   # {state, reason, nominal, upper, currency, recorded_at}
     trial_hours: Mapping[str, Any] | None = None  # {before_seconds, after_seconds}
+    thread_id: str | None = None                  # CH-2: the Action's `chain_action.thread_id`; None = not linked
 
 
 @dataclass(frozen=True)
@@ -631,6 +634,10 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         if a.origin_finding_id is None:
             continue
         origin = by_id.get(a.origin_finding_id)
+        if origin is None and a.is_domain and a.thread_id is not None:
+            # CH-2 §5.2 (I-09 display): a domain Action on the thread of a Finding shown on the board
+            origin = next((f for f in sorted(facts.findings, key=lambda f: (not f.in_window, f.finding_id))
+                           if f.thread is not None and f.thread.get("id") == a.thread_id), None)
         suffix = "" if origin is not None else unresolved_suffix(facts)
         r = roles[origin.finding_id] if origin is not None else None
         move_cats = r.move_cats if r is not None else ["PROTECT_ASSET"]
@@ -741,7 +748,17 @@ def _case_placement(case: CaseFact, by_id: dict[str, FindingFact], roles: dict[s
 
 def _finding_issue(f: FindingFact, role: str, text: str) -> dict[str, Any]:
     return {"kind": "FINDING", "role": role, "text": text, "href": f.href,
-            "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id}}
+            "ref": {"finding_id": f.finding_id, "finding_revision_id": f.revision_id,
+                    "thread": None if f.thread is None else dict(f.thread)}}
+
+
+def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> SiteFacts:
+    """CH-2: the composition's facts with each Finding's thread and each Action's thread id from one lookup
+    (`chain/lookup.py` shape: `{"findings": {id: {...}}, "actions": {id: thread_id}}`)."""
+    fs, acts = found.get("findings") or {}, found.get("actions") or {}
+    return replace(facts,
+                   findings=tuple(replace(f, thread=fs.get(f.finding_id.lower())) for f in facts.findings),
+                   actions=tuple(replace(a, thread_id=acts.get(a.action_id.lower())) for a in facts.actions))
 
 
 def _contributor(c: Contributor) -> dict[str, Any]:

@@ -29,6 +29,7 @@ if URL:
 
 HEAD = "0041_walk1_objective_min_days"
 PREVIOUS = "0040_walk1_productive_price"
+LATEST = "0042_chain_threads"  # CH-2: the sole head sits above the 0041 migration under test
 REFUSED = "Downgrade of 0041_walk1_objective_min_days refused"
 NOTE = "Declared for the demonstration; not a customer target"
 INSERT_MIN = INSERT.replace("payload_sha256, recorded_at)", "payload_sha256, recorded_at, min_checked_days)").replace(
@@ -55,8 +56,8 @@ def test_0041_column_and_checks(engine) -> None:  # noqa: F811
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-    assert head(engine) == HEAD
+    assert script.get_heads() == [LATEST] and script.get_revision(HEAD).down_revision == PREVIOUS
+    assert head(engine) == LATEST
     with engine.connect() as c:
         column = c.execute(text(
             "SELECT format_type(a.atttypid, a.atttypmod), a.attnotnull FROM pg_attribute a WHERE a.attrelid = "
@@ -119,15 +120,15 @@ def test_0041_downgrade_refuses_with_a_minimum_then_drops_the_column(engine) -> 
     finally:
         engine.dispose()
         command.upgrade(config, "head")
-    assert head(engine) == HEAD
+    assert head(engine) == LATEST
     insert(engine, mg1(min_days=4))
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(config, PREVIOUS)
-    assert head(engine) == HEAD
+    assert head(engine) == LATEST
     empty(engine)
     engine.dispose()
     command.downgrade(config, PREVIOUS)  # with no minimum stored, the downgrade passes again
     engine.dispose()
     command.upgrade(config, "head")
-    assert head(engine) == HEAD
+    assert head(engine) == LATEST

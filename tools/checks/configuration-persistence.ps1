@@ -184,6 +184,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # CH-2 (shared with CH-1a: whichever merges second adds to this entry): the Finding-thread chain.
+            # Database-only; rule 8 confines its PostgreSQL writer. Only its composition imports the adapters.
+            Name        = "chain"
+            Package     = "$backendRoot/chain"
+            Composition = "$backendRoot/chain/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -867,6 +877,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $trialComparisonTables = @('trial_cost_comparison_revision')
     $trialComparisonInsertsSeen = @{}
     foreach ($table in $trialComparisonTables) { $trialComparisonInsertsSeen[$table] = 0 }
+    # CH-2 (build sheet CH-2 §8; migration 0042): the thread store is the sole runtime writer of the four thread
+    # tables, INSERT-only (the 0042 triggers refuse UPDATE/DELETE; no upsert, TRUNCATE, MERGE, COPY or DDL), and it
+    # writes no other table. Each table keeps one owner INSERT (anti-vacuity below).
+    $threadWriter = "$backendRoot/chain/adapters/postgres_thread_store.py"
+    $threadTables = @('finding_thread', 'finding_thread_occurrence', 'finding_thread_event', 'chain_action_thread')
+    $threadInsertsSeen = @{}
+    foreach ($table in $threadTables) { $threadInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -875,7 +892,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $trialComparisonWriter)
+        $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $trialComparisonWriter, $threadWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -884,7 +901,9 @@ function Invoke-ConfigurationPersistenceCheck {
         # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
         "$backendRoot/mini_depth/read.py",
         # W5-02a ruling A5: the read-only Site Action index (K1b); the SQL-write refusal still applies to it.
-        "$backendRoot/work/adapters/postgres_domain_action_index.py")
+        "$backendRoot/work/adapters/postgres_domain_action_index.py",
+        # CH-2 §3: the read-only thread source reader; the SQL-write refusal still applies to it.
+        "$backendRoot/chain/adapters/postgres_thread_sources.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -930,12 +949,12 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
-        $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0 }
+        $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0; $threadWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
-        $trialComparisonWriter = $false }
+        $trialComparisonWriter = $false; $threadWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1011,6 +1030,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $trialComparisonWriter -and $line -match $actionForbidden) {
                 $failures.Add("The trial cost-check store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $threadWriter -and $line -match $actionForbidden) {
+                $failures.Add("The thread store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1245,6 +1268,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $trialComparisonInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $threadWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $threadTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The thread store only inserts into $($threadTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $threadTables -contains $target) {
+                    if ($module.Path -ne $threadWriter) {
+                        $failures.Add(("Only $threadWriter writes thread table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Thread table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $threadInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1499,6 +1538,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $trialComparisonTables) {
         if ($extractorRan -and $trialComparisonInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $trialComparisonWriter, so the cost-check insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($table in $threadTables) {
+        if ($extractorRan -and $threadInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $threadWriter, so the thread insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }

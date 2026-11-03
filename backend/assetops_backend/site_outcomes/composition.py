@@ -15,6 +15,7 @@ from uuid import UUID
 from assetops_backend.actions.lifecycle import selector
 from assetops_backend.actions.site_index import parse_request as parse_action_index
 from assetops_backend.actions.verification import VerificationService
+from assetops_backend.chain.composition import build_thread_sources
 from assetops_backend.analytics.finding_index import parse_request as parse_finding_index
 from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.finding_api import ACCESS_BASIS
@@ -56,6 +57,7 @@ def build_outcome_board_service(
     """Returns the service and its dispose callable (the global work read it opened, if any)."""
     global_work = build_global_work_read(database_url) if database_url else None
     objectives = build_objective_store(database_url)  # OUT-D U4: the declared-objective read (None without a DB)
+    threads = build_thread_sources(database_url)  # CH-2 §5.2: the board's one thread lookup (None without a DB)
     services = BoardServices(
         overview=None if site_overview is None else site_overview.read,
         overview_source=None if site_overview is None else overview_source(site_overview, s2_scope),
@@ -67,12 +69,15 @@ def build_outcome_board_service(
         select_preventive=select_preventive, estate=estate, parse_finding_index=parse_finding_index,
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
-        work_access_basis=ACCESS_BASIS, objectives=objectives, finding_reads=finding_reads)
+        work_access_basis=ACCESS_BASIS, objectives=objectives, finding_reads=finding_reads,
+        threads=threads)
 
     def dispose() -> None:
         if global_work is not None:
             global_work.dispose()
         if objectives is not None:
             objectives.dispose()
+        if threads is not None:
+            threads.dispose()
 
     return SiteOutcomeBoardService(services), dispose
