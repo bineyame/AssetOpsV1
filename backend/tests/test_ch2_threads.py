@@ -183,8 +183,12 @@ def test_link_action_pending_then_linked_then_idempotent():
 
 
 def test_lookup_rows_reduce_to_findings_and_actions():
-    out = thread_lookup([("F", "ABC", "t1", 2, 3), ("A", "X", "t1", None, None)])
-    assert out == {"findings": {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3}}, "actions": {"x": "t1"}}
+    # CH-3 widened the row (story start, zone, mechanism, subject, events) and added state and segment.
+    out = thread_lookup([("F", "ABC", "t1", 2, 3, None, None, "UTC", "M", "s", None),
+                         ("A", "X", "t1", None, None, None, None, "UTC", "abc", None, None)])
+    assert out["findings"] == {"abc": {"id": "t1", "occurrence_no": 2, "occurrences": 3, "segment_no": 1,
+                                       "state": None, "state_effective_day": None}}
+    assert out["actions"] == {"x": "t1"} and out["action_segments"] == {"x": 1}
 
 
 # --- the two read-path joins ----------------------------------------------------------------------------------

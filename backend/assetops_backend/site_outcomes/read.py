@@ -396,10 +396,19 @@ class SiteOutcomeBoardService:
               hi: datetime | None = None, known_at: datetime | None = None,
               pin: tuple[UUID, UUID | None] | None = None) -> dict[str, Any]:
         comp, window = self.compose(site, day=day, lo=lo, hi=hi, known_at=known_at, pin=pin)
+        # CH-3 §5: the thread state is read on the board's Site-local day as of the request's cutoff, else the
+        # read's resolved one (ruling Q3); mini boards take their overview day, cold and EV the window's last day.
+        cutoff = known_at if known_at is not None else mini.utc(window.get("known_at"))
+        if site.domain == MINI:
+            start = mini.utc(window.get("from"))
+            board_day = day if day is not None else (None if start is None else start.date())
+        else:
+            board_day = _last_local_day(window.get("to"), site.timezone)
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
-            facts = comp.facts
+            facts = replace(comp.facts, day=board_day, known_at=cutoff)
             comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
-                site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions])))
+                site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions],
+                day=board_day, known_at=cutoff)))
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:
             query["known_at"] = wire(known_at)
@@ -581,3 +590,15 @@ def _summary_row(row: dict[str, Any], short_values: dict[str, str]) -> dict[str,
 def _unknown_row(category: str) -> dict[str, Any]:
     return {"category": category, "state": UNKNOWN, "state_label": STATE_LABEL[UNKNOWN], "tone": STATE_TONE[UNKNOWN],
             "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None}
+
+
+def _last_local_day(to: Any, tz: str | None) -> date | None:
+    """The Site-local day holding the window's last instant (its exclusive end minus a microsecond)."""
+    end = mini.utc(to)
+    if end is None:
+        return None
+    last = end - timedelta(microseconds=1)
+    if tz:
+        from zoneinfo import ZoneInfo
+        return last.astimezone(ZoneInfo(tz)).date()
+    return last.date()

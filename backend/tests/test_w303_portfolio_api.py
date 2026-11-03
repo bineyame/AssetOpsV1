@@ -47,6 +47,10 @@ KEY_HEX = "5c" * 32  # test-only (r1b Q-1b-1); never a committed default for any
 KEY = bytes.fromhex(KEY_HEX)
 
 
+#: CH-3 §5 (OD-3): nothing credited.
+NOT_CREDITED_VALUE = {"state": "NOT_CREDITED", "text": "No money credited · modelled, not saved", "amounts": []}
+
+
 @pytest.fixture(autouse=True)
 def _cursor_key(monkeypatch):
     monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, KEY_HEX)
@@ -389,7 +393,7 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     assert one["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
                                       "site_id": None, "site_code": None, "gap_code": None, "destination": "/evidence"}
     assert one["progress"] == {"state": "NO_COMPARABLE_BASELINE", "completed_activity_count": None,
-                               "pending_trial_count": 0, "verified_resolution_count": 0, "recovered_value": None,
+                               "pending_trial_count": 0, "verified_resolution_count": 0, "recovered_value": NOT_CREDITED_VALUE,
                                "rows": []}
     assert one["summary"] == {"finding_count": 4, "priority_site_count": None, "opportunity_count": 0,
                               "evidence_gap_site_count": 0, "accepted_action_count": 0,

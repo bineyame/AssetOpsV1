@@ -405,7 +405,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
     findings = _findings(finding_rows or (), estate, c, start, end)
-    actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c)
+    actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c, site_timezone)
     findings = _lineage(reads, ports, findings, actions)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
@@ -663,7 +663,7 @@ def _lineage(reads: Reads, ports: MiniPorts, findings: tuple[FindingFact, ...],
 
 
 def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
-             c: str) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
+             c: str, site_timezone: str | None = None) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
     """Action index rows; the workflow label from the estate Action of the same id fed to `workflow_label`
     unchanged (addendum 2 item 2); verification from the summary; a Foundation change from the Action read."""
     by_id = {str(a["action_id"]): a for a in (estate or {}).get("actions") or ()}
@@ -692,8 +692,22 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             (r.get("links") or {}).get("selected_event") or f"/sites/{c}/actions/{aid}?event_id={event_id}",
             workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}",
             cost_check=None if summary is None else summary.get("cost_check"),
-            trial_hours=None if summary is None else summary.get("trial_hours")))
+            trial_hours=_trial_hours(summary, site_timezone)))
     return tuple(out), has_change, tuple(missing)
+
+
+def _trial_hours(summary: dict[str, Any] | None, site_timezone: str | None) -> dict[str, Any] | None:
+    """The summary's trial hours, with the Site zone the I-11 scope line reads its later window in (CH-3 §5)."""
+    hours = None if summary is None else summary.get("trial_hours")
+    if hours is None:
+        return None
+    lo, hi = utc(hours.get("later_start")), utc(hours.get("later_end"))
+    if lo is None or hi is None:
+        return dict(hours)
+    if site_timezone:
+        from zoneinfo import ZoneInfo
+        lo, hi = lo.astimezone(ZoneInfo(site_timezone)), hi.astimezone(ZoneInfo(site_timezone))
+    return {**hours, "later_local": {"start": f"{lo:%H:%M}", "end": f"{hi:%H:%M}", "day": lo.date()}}
 
 
 def case_fact(r: dict[str, Any], kind: str, c: str) -> CaseFact:

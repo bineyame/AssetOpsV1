@@ -210,7 +210,15 @@ export interface EstatePortfolioRow {
   title: string;
   mechanism: string | null;
   /** CH-2: the Finding's thread; null without one (additive; CH-5a renders recurrence). */
-  thread?: { id: string; occurrence_no: number; occurrences: number } | null;
+  thread?: {
+    id: string;
+    occurrence_no: number;
+    occurrences: number;
+    /** CH-3: the thread segment, state and state effective day (additive). */
+    segment_no?: number;
+    state?: string | null;
+    state_effective_day?: string | null;
+  } | null;
   /** CH-2: the matched Action's own thread id (additive). */
   action_thread_id?: string | null;
   episode_start: string | null;
@@ -367,7 +375,10 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     completed_activity_count: null;
     pending_trial_count: number | null;
     verified_resolution_count: number | null;
-    recovered_value: null;
+    /** CH-3 (OD-3): credited money per currency, or the not-credited text (was always null). */
+    recovered_value:
+      | null
+      | { state: "CREDITED" | "NOT_CREDITED"; text: string | null; amounts: { currency: string; amount: string }[] };
     rows: EstateProgressRow[];
   };
   footer: {

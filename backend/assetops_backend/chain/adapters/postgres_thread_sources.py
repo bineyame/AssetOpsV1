@@ -158,7 +158,13 @@ class PostgresThreadSources:
         rows = self._rows("SELECT id, public_no FROM mini_opportunity WHERE tenant_id = :t", {"t": tenant_id})
         return {str(r["id"]): f"OPP-{int(r['public_no']):06d}" for r in rows}
 
-    def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any]) -> dict[str, Any]:
+    def lookup(self, tenant_id: Any, finding_ids: Sequence[Any], action_ids: Sequence[Any], *,
+               day: Any = None, known_at: datetime | None = None) -> dict[str, Any]:
+        """CH-2 §5.2 / CH-3 §3, §5: one thread lookup per board, with each Finding's state on the board `day` as of
+        `known_at`, and the COMPLETE days of its clean-day measures (CH-1a snapshots; none below 0043)."""
+        from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
+        from assetops_backend.chain.lifecycle import complete_days
+        policy = load_thread_lifecycle()
         if not finding_ids and not action_ids:
             return thread_lookup([])
         with self._connect().connect() as c:
@@ -168,4 +174,19 @@ class PostgresThreadSources:
                     return thread_lookup([])  # a database below 0042 has no threads
                 rows = c.execute(text(LOOKUP), {"t": tenant_id, "f": [str(x).lower() for x in finding_ids],
                                                 "a": [str(x).lower() for x in action_ids]}).all()
-        return thread_lookup(rows)
+                subjects = {r[1].lower(): (r[8], r[9]) for r in rows if r[0] == "F"}
+                complete: dict[str, Any] = {}
+                measures = sorted({m for mech, _ in subjects.values() for m in policy.measures_for(mech)})
+                if subjects and measures and not c.execute(
+                        text("SELECT to_regclass('site_day_snapshot') IS NULL")).scalar_one():
+                    snap = [_Snap(dict(r)) for r in c.execute(text(
+                        "SELECT DISTINCT ON (measure, local_day, subject_kind, subject_ref) local_day, subject_kind, "
+                        "subject_ref, measure, grade FROM site_day_snapshot WHERE tenant_id = :t AND site_id IN "
+                        "(SELECT site_id FROM finding_thread_occurrence WHERE CAST(finding_id AS text) = "
+                        "ANY(CAST(:f AS text[]))) AND measure = ANY(CAST(:m AS text[]))"
+                        + ("" if known_at is None else " AND computed_at <= :k") +
+                        " ORDER BY measure, local_day, subject_kind, subject_ref, revision DESC"),
+                        {"t": tenant_id, "f": list(subjects), "m": measures, "k": known_at}).mappings()]
+                    complete = {fid: complete_days(snap, subject, policy.measures_for(mech))
+                                for fid, (mech, subject) in subjects.items()}
+        return thread_lookup(rows, day=day, known_at=known_at, complete=complete, close_after=policy.close_after())

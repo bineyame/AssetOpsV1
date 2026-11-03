@@ -31,6 +31,10 @@ export interface FindingThreadRef {
   id: string;
   occurrence_no: number;
   occurrences: number;
+  /** CH-3: the thread segment, and its state and state effective day on the board day (additive). */
+  segment_no?: number;
+  state?: string | null;
+  state_effective_day?: string | null;
 }
 
 /** A FINDING issue's ref; `thread` is null when the Finding has no thread. */
