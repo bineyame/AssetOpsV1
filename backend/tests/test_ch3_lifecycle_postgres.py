@@ -43,7 +43,8 @@ class _Reader:
         out["action_events"] = [*(out["action_events"] if self.mini else []), *self.events]
         out["outcomes"] = [*out["outcomes"], *self.outcomes]
         if self.lost:  # every occurrence's latest revision is NO_LONGER_SUPPORTED (the SUPPORT_LOST trigger)
-            out["finding_lifecycle"] = {k: {**v, "lifecycle": "NO_LONGER_SUPPORTED"}
+            # dated at the read instant, so the cause is after any head (not skipped as BEFORE_HEAD)
+            out["finding_lifecycle"] = {k: {**v, "lifecycle": "NO_LONGER_SUPPORTED", "created_at": out["now"]}
                                         for k, v in out["finding_lifecycle"].items()}
         return out
 
