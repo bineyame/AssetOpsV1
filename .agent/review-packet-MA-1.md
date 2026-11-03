@@ -116,3 +116,16 @@ Every other figure is an existing v70 value: $3.31–3.97 via `money()`, 18–20
 - Does the "Why?" wording and bottom sheet work?
 - Is the five-step fix timeline wording right?
 - Are the M1 days lines clear in plain words ("checked", "partly checked", "too little data, not counted")?
+
+## Fix round 1 (review REVISE: M1, L1-L4, L6)
+
+Evidence: `.agent/MA-1-captures-r1/` (check.json, check-script.mjs, m3-*.png). Deviation 5 above is superseded by this section.
+
+- **M1.** Open rule restored to v70: `x.st==='needs'` only (`outcomes.js:161`). The default-open rule is unchanged from v70. The M3 captures `m3-{mini,ev,portfolio}-{1440,390}.png` were retaken after clicking the Grow row open. A fresh page load shows Grow closed on mini and ev at both widths, with only the Needs attention row open.
+- **L1.** Kobo Estimated income reads "$7.50 over the 3 checked study days (3 × $2.50) at the assumed $0.25 per kWh", with "$2.50 per eligible one-hour window" as the subline. The Portfolio card reads "Kobo: $7.50 over 3 checked study days ($2.50 per window)". New illustrative value: **$7.50** = 3 × v70's $2.50 per eligible window, over F-109's 3 well-observed days.
+- **L2.** Escape, a second click on Why?, and the sheet Close button all return focus to the Why? button that opened the popover.
+- **L3.** Popover position and width are clamped with `document.documentElement.clientWidth`. No horizontal scroll with any popover open at 1440.
+- **L4.** The phone bottom sheet has a visible Close button (hidden on desktop). It closes the sheet and returns focus.
+- **L6.** "Opportunities to grow" also lists Depot "Chargers mostly idle" (v70 wording and data: under a fifth of daily capacity, 120 kWh in 10 complete sessions, $36.00), with "Early signal: no target set yet, and billed income is not recorded".
+- **Not changed.** L5 (Why? inside summary) is accepted per ruling Q6; note it for CH-5b. L7 (Portfolio Grow card height) is cosmetic.
+- **Checks.** `node build.mjs`; committed index.html equals a fresh build. mock-deviation-labels 14/14, mock-gaps 13/13. Added-line vocabulary scan: only plain lower-case "complete sessions". Headless Chrome on the 7 screens at 1440 and 390: no horizontal scroll at rest or with any of the 14 Why? popovers open; each opens by click, Enter and Space and closes by Escape with focus returning (second click also closes); the sheet Close works at 390. Failures: none.

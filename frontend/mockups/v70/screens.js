@@ -809,7 +809,7 @@ function findingsScreen(lens){const all=ALL_FINDINGS(),states=['All states',...n
  (lens==='Opportunities'?oppListPanel():'')+panel(lens==='All'?'Findings across the estate':`${lens} lens`,`<div id="findings-table">${findingRows(lens)}</div>`+warningList(x=>lens==='All'||x.lens===lens),'Lens is how a finding is read, not a second object · state is a filter')+
  notice('Priority, confidence and workflow state stay separate. Opening a finding moves you to Findings with its site in the breadcrumb.','blue');}
 /* MA-1 M5: opportunities as a plain list row; limited evidence is said in words. */
-function oppListPanel(){return panel('Opportunities to grow',`<ul class="opp-list"><li><div>${link('opportunity-finding','Daytime solar unused at Kobo','strong')}<small>Seen on 3 of 5 well-observed days · 18–20 kW at midday · F-109</small><small class="opp-limit">Limited evidence: the grain mill’s demand is not measured yet</small></div>${link('renewable','Inspect the solar room →')}</li></ul>`,'Each opportunity is one row · open it for the detail');}
+function oppListPanel(){return panel('Opportunities to grow',`<ul class="opp-list"><li><div>${link('opportunity-finding','Daytime solar unused at Kobo','strong')}<small>Seen on 3 of 5 well-observed days · 18–20 kW at midday · F-109</small><small class="opp-limit">Limited evidence: the grain mill’s demand is not measured yet</small></div>${link('renewable','Inspect the solar room →')}</li><li><div>${link('energy','Chargers mostly idle at Depot','strong')}<small>Chargers used under a fifth of daily capacity · 120 kWh in 10 complete sessions on 6 Oct · $36.00 gross tariff estimate</small><small class="opp-limit">Early signal: no target set yet, and billed income is not recorded</small></div>${link('energy','Inspect charger use →')}</li></ul>`,'Each opportunity is one row · open it for the detail');}
 /* Maintenance: Corrective | Preventive (owner outline) */
 function maintenanceCorrective(){return cards([metric('Open work','2','WR-019, WR-021'),metric('Verification overdue','1','WR-019 · witnessed start test missing','amber'),metric('Preventive due in 30 days','4','See Preventive','','maintenance-preventive'),metric('Repeat visits without a result','1','Backup generator · 3 visits, start still failing','amber','wr-overview')])+
  panel('Corrective work requests',table(['Work request','Asset / site','Owner','State','Verification','Warranty'],[['WR-011 · Starter battery replaced · 14 Aug','GEN-CR-01 · GreenHarvest','Maintenance lead',badge('Completed','blue'),badge('Not checked'),badge('Expired')],['WR-016 · Control relay reset · 18 Sep','GEN-CR-01 · GreenHarvest','Maintenance lead',badge('Completed','blue'),badge('Not checked'),badge('Expired')],[link('wr-overview','WR-019 · Starter and control inspection'),'GEN-CR-01 · GreenHarvest','Maintenance lead',badge('Completed','blue'),badge('Pending · witness test missing','amber'),badge('Expired')],['WR-021 · Connector 2 repair','CHG-002 · Depot','Charging operations lead',badge('Open · waiting for diagnostics','amber'),badge('Required','amber'),badge('Claimable','blue')]]),'Completed is activity evidence only; outcome is verified separately')+
@@ -1071,7 +1071,8 @@ document.addEventListener('click',e=>{
   `<p>v6.9 8.1 / 8.34 / 8.38. Counts come from retained workflow events and outcome records; Portfolio does not decide resolution.</p>`,true);
  if(el.dataset.claim)evidenceDrawer(el.dataset.claim);
  if(el.hasAttribute('data-interval')){stage.selected=Number(el.dataset.interval);render();evidenceDrawer('dispatch',stage.selected);}
- if(el.dataset.why){e.preventDefault();if(document.querySelector('.conf-pop')?.dataset.for==='why:'+el.dataset.why){document.querySelector('.conf-pop').remove();return;}openWhy(el);return;}
+ if(el.dataset.why){e.preventDefault();if(document.querySelector('.conf-pop')?.dataset.for==='why:'+el.dataset.why){document.querySelector('.conf-pop').remove();el.focus();return;}openWhy(el);return;}
+ if(el.hasAttribute('data-why-close')){document.querySelector('.conf-pop')?.remove();window.whyTrigger?.focus();return;}
  if(el.dataset.conf){if(document.querySelector('.conf-pop')?.dataset.for===el.dataset.conf){document.querySelector('.conf-pop').remove();return;}openConf(el);document.querySelector('.conf-pop').dataset.for=el.dataset.conf;return;}
  if(el.dataset.newAction){document.querySelector('.conf-pop')?.remove();newActionDrawer(el.dataset.newAction);return;}
  if(el.hasAttribute('data-create-example')){closeDrawer();toast('Example only: no action was created in this mock-up.');return;}
@@ -1119,7 +1120,7 @@ document.addEventListener('input',e=>{
  if(e.target.id==='fuel-price'&&$('#price-preview')){const p=Number(e.target.value);$('#price-preview').textContent=Number.isFinite(p)&&p>0?`Fuel-only estimate: $${(2.43*p).toFixed(2)}–${(2.97*p).toFixed(2)} before maintenance accrual`:'Enter a valid price.';}
 });
 document.addEventListener('keydown',e=>{
- if(e.key==='Escape'&&document.querySelector('.conf-pop')){document.querySelector('.conf-pop').remove();return;}
+ if(e.key==='Escape'&&document.querySelector('.conf-pop')){const wp=document.querySelector('.conf-pop');const back=wp.dataset.for?.startsWith('why:')?window.whyTrigger:null;wp.remove();back?.focus();return;}
  if(e.key==='Escape'&&stage.rangeOpen){stage.rangeOpen=false;render();$('[data-range-toggle]')?.focus();return;}
  const d=$('.drawer');if(!d)return;
  if(e.key==='Escape'){closeDrawer();return;}
