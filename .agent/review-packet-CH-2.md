@@ -132,3 +132,28 @@
 - **Second merger of 0042/0043:** re-point `down_revision`, update the 23 HEAD constants again, and merge the shared `chain` `$domains` entry.
 - **The tick stage writes on every Site tick.** It reads all of the Site's sources each time (no `after` watermark used yet). This is bounded by `chain_seconds = 60`; CH-1b replaces it with outbox events.
 - **The `vitest related` failure** (a `.py` import analysis) and the `test_out_c3_repeat_visits_postgres` failure are pre-existing on main.
+
+## Fix round 1 (Part A, review REVISE)
+
+Commit `318c416ae`. Part B (CH-1a integration) waits for the coordinator.
+
+- **M1 (done), Architect rule added.** `opportunity_source` now reads `mini_opportunity.first_day/last_day` (`_OPPORTUNITY_SOURCES`) and sets the episode to the Site-local start of `first_day` through the start of the day after `last_day` (the end of `last_day`, exclusive). The OPEN event `effective_day`, `opened_at` and the occurrence episode follow from it. Migration 0042 gains `finding_thread_occurrence.time_basis` (`story_time` | `recorded_at`, default `story_time`); `plan_place` writes `recorded_at` only when a source has no stored story time (it falls back to `created_at`). Test: `test_opportunity_episode_is_the_study_window_in_site_time_not_build_time` (fails on the old code). Clone `fx2`: the headroom thread's OPEN event `effective_day` is 2026-10-25 and `opened_at` 2026-10-24T21:00Z (first study window starts 25 Oct, Addis); the four occurrences carry the windows 25-29 .. 28 Oct-1 Nov, all `time_basis = story_time` (11 of 11 occurrences).
+- **Sweep of other `created_at` use:**
+
+| Item | Time source | Verdict |
+|---|---|---|
+| Finding thread `opened_at`, OPEN `effective_day`, occurrence episode | `finding_revision.episode_start/end` | Story time. `created_at` only if a revision has no `episode_start` (labelled `recorded_at`; none on the clone). |
+| OPP thread | study window `first_day/last_day` | Story time (M1). |
+| Source ordering (R2) | `created_at, revision id` | Ordering only, no stored story time, ruled. |
+| `finding_thread_occurrence.joined_at`, `chain_action_thread.linked_at` | `clock_timestamp()` | Build time by nature (audit of when the row was written), never shown as story time. |
+| Action link / thread events | Actions carry no thread event in CH-2; no time written | none. |
+| Domain Actions (Cold, EV) | no thread time is written for them | none. |
+
+  Nothing else in the slice stores a build time as a story time. Items to list for SWEEP-DS: only the `recorded_at` fallback (currently unused on the clone) and the R2 ordering.
+- **L2 (done).** The Portfolio row gains the additive `action_thread_id` (the matched Action's own `chain_action_thread` thread; frontend type optional). COH-11 now fails when the row selects an Action and `action_thread_id` is null or differs from the row's thread. Limit: an Action that no row selects (a later Action wins the row) is not observable in a body; the backfill SQL remains its proof. Fixture `coh11_action_link_missing`.
+- **L3 (done).** `collect` stamps `manifest.threads = true`; the stamp, not the key, gates COH-10/COH-11. A stamped bundle whose rows lack `thread` or `action_thread_id` fails (COH-0 style); fixture `coh_thread_key_missing`. Unstamped (pre-CH-2) bundles are still skipped. Kobo board-agreement leg: Kobo identity is proven on the Portfolio leg only (no Kobo day board carries a FINDING ref); COH-10 0 therefore covers Cold and EV on the board leg.
+- **L4 (done).** `test_ch2_backfill_cli.py`: refusal on both protected names before any read; `--dry-run` reads and never touches a tripping store; a, d, e skipped lines.
+- **L7 (done).** The append-only test also runs UPDATE on every table.
+- **Left as is.** L1: the thread join is correct. Caveat for CH-3: a new occurrence after a verified change would take ACT-001 through the same join and read "Change verified" instead of RECURRED; CH-3 must constrain the join by thread state or occurrence order. L5 (thread fields ignore `known_at`) is a CH-5a/ChainReader item. L6 (tick stage scans all sources; its failure backs off the whole Site) is a CH-1b item (anti-join placed sources).
+- **Non-vacuity (mutate, watch fail, restore):** old `opportunity_source` fails the M1 test; `PROTECTED_DATABASES = ()` fails both refusal tests; dropping the Action-link condition in COH-11 fails `coh11_action_link_missing` and its test; gating `_threaded` on the key again fails the missing-key test. The UPDATE probe and the dry-run store test were not mutated (the UPDATE is refused by the existing trigger; the store fake raises on any access).
+- **Checks.** Host: threads + backfill CLI + b1 + tick timing + coherence units, all passed (30 + 58 coherence, 126 earlier group); `test_ch2_thread_store_postgres` + `test_w303_portfolio_fixture_postgres` 5 passed (111 s); portfolio pure files 52 passed; estate guard self-tests (`thread or writer`) 3 passed; `check-architecture.ps1` and `check-agent-workflow.ps1` passed (guard Python set); clone `fx2`: migrate, backfill b 11 / c 3, rerun 0 / 0, collect 56 x 200, check without `--known-at`: COH-10 0, COH-11 0, self-check 36 pass 0 fail; clone dropped. Frontend: `tsc --noEmit` exit 0; the 15 importing files, 361 passed (node_modules junctioned from plan2).
