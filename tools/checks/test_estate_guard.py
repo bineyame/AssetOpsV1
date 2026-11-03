@@ -171,3 +171,35 @@ def test_trial_comparison_foreign_write_rejected() -> None:
             '_PROBE = text("INSERT INTO trial_cost_comparison_revision (id) VALUES (:i)")\n')
     found = failures(with_probe(TRIAL_FOREIGN, body))
     assert any(TRIAL_FOREIGN in line for line in found), found
+
+
+THREAD_WRITER = "backend/assetops_backend/chain/adapters/postgres_thread_store.py"
+THREAD_READER = "backend/assetops_backend/chain/adapters/postgres_thread_sources.py"
+THREAD_INSERT = "INSERT INTO finding_thread_event ("
+
+
+def test_thread_writer_insert_only_and_not_vacuous() -> None:
+    """CH-2 §8: the thread store keeps one owner INSERT per thread table and never updates."""
+    real = (ROOT / THREAD_WRITER).read_text(encoding="utf-8")
+    assert THREAD_INSERT in real and "from sqlalchemy" in real
+    found = failures(isolated_copy(lambda copy: _replace(copy, THREAD_WRITER, THREAD_INSERT,
+                                                         "INSERT INTO finding_thread_probe (")))
+    assert any("found no INSERT INTO finding_thread_event" in line for line in found), found
+
+    def update(copy: Path) -> None:
+        file = copy / THREAD_WRITER
+        file.write_text(file.read_text(encoding="utf-8") + '\n_PROBE = text("UPDATE finding_thread '
+                        'SET subject_ref = :s WHERE id = :i")\n', encoding="utf-8")
+    found = failures(isolated_copy(update))
+    assert any("thread store never updates" in line or "insert-only" in line for line in found), found
+
+
+def test_thread_sources_reader_write_rejected() -> None:
+    """CH-2 §8: the thread source reader is a `$pgReaders` module; a write in it is refused."""
+    def edit(copy: Path) -> None:
+        file = copy / THREAD_READER
+        file.write_text(file.read_text(encoding="utf-8") +
+                        '\n_PROBE_WRITE = text("INSERT INTO finding_thread (id) VALUES (:i)")\n', encoding="utf-8")
+    found = failures(isolated_copy(edit))
+    assert any(THREAD_READER in line for line in found), found
+    assert not any("Database driver imported outside" in line and THREAD_READER in line for line in found), found
