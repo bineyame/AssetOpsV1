@@ -65,6 +65,16 @@ _JOBS = (
     "AND status = ANY(:st) AND window_start < :hi AND window_end > :lo)")
 
 
+#: `mini_depth/read.py` `_JOBS`: a live job no later selection of its hour (visible at the cutoff) has cleared.
+_RENEWABLE_JOBS = (
+    "SELECT EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
+    "AND j.domain = 'mini_renewable' AND j.window_start < :hi AND j.window_end > :lo "
+    "AND j.status IN ('PENDING', 'LEASED') AND j.available_at <= :k AND NOT EXISTS (SELECT 1 "
+    "FROM mini_depth_selection x WHERE x.tenant_id = j.tenant_id AND x.site_id = j.site_id "
+    "AND x.domain = 'renewable' AND x.window_start = j.window_start AND x.window_end = j.window_end "
+    "AND x.selected_at > j.available_at AND x.selected_at <= :k))")
+
+
 def instant(value: Any) -> datetime | None:
     """A stored or serialised instant as an aware datetime (ISO ``Z`` accepted); None stays None."""
     if value is None or isinstance(value, datetime):
@@ -250,6 +260,13 @@ class PostgresChainInputs:
         return reads.within(work)
 
     # --- currentness -------------------------------------------------------------------------------------
+
+    def renewable_pending(self, ctx: DayCtx) -> bool:
+        """The mini-depth reader's own live-job rule for the noon hour (a job cleared by a later selection is
+        not pending)."""
+        r = self._one(_RENEWABLE_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "lo": ctx.period_start_utc,
+                                        "hi": ctx.period_end_utc, "k": self._known(ctx)})
+        return bool(r and r[0])
 
     def pending_jobs(self, ctx: DayCtx, domains: Sequence[str]) -> bool:
         r = self._one(_JOBS, {"t": ctx.tenant_id, "s": ctx.site_id, "d": list(domains), "st": list(_LIVE),

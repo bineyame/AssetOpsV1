@@ -151,7 +151,7 @@ class RenewableHeadroom:
         return [SITE]
 
     def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
-        pending = self.r.pending_jobs(ctx, ["mini_renewable"])
+        pending = self.r.renewable_pending(ctx)
         head = self.r.renewable_hour(ctx)
         if head is None:
             return InputSet((), [], pending, None)
