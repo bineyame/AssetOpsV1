@@ -1,0 +1,865 @@
+{
+ "schema": "chain-coherence-report/1",
+ "bundle": {
+  "schema": "chain-coherence-bundle/1",
+  "S": "2026-10-31T00:00:00Z",
+  "code": "c08f2e287",
+  "collected_at": "2026-11-03T17:58:00Z",
+  "source": "in-process",
+  "freshness": "not ticked",
+  "known_at": null,
+  "windows": {
+   "week": {
+    "from": "2026-10-25T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   },
+   "S": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z"
+   },
+   "month": {
+    "from": "2026-10-03T00:00:00Z",
+    "to": "2026-11-03T00:00:00Z"
+   },
+   "day:kobo:normal:2026-10-03": {
+    "from": "2026-10-03T00:00:00Z",
+    "to": "2026-10-04T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-03T00:00:00Z",
+     "to": "2026-10-04T00:00:00Z"
+    }
+   },
+   "day:kobo:overcast:2026-10-10": {
+    "from": "2026-10-10T00:00:00Z",
+    "to": "2026-10-11T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-10T00:00:00Z",
+     "to": "2026-10-11T00:00:00Z"
+    }
+   },
+   "day:kobo:overuse:2026-10-17": {
+    "from": "2026-10-17T00:00:00Z",
+    "to": "2026-10-18T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-17T00:00:00Z",
+     "to": "2026-10-18T00:00:00Z"
+    }
+   },
+   "day:ev:normal:2026-10-20": {
+    "from": "2026-10-20T08:00:00Z",
+    "to": "2026-10-20T09:00:00Z",
+    "site_code": "EV-LAB-001",
+    "estate": {
+     "from": "2026-10-20T00:00:00Z",
+     "to": "2026-10-21T00:00:00Z"
+    }
+   },
+   "day:kobo:overuse:2026-10-24": {
+    "from": "2026-10-24T00:00:00Z",
+    "to": "2026-10-25T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-24T00:00:00Z",
+     "to": "2026-10-25T00:00:00Z"
+    }
+   },
+   "day:cold:normal:2026-10-24": {
+    "from": "2026-10-24T16:00:00Z",
+    "to": "2026-10-24T17:05:00Z",
+    "site_code": "COLD-LAB-001",
+    "estate": {
+     "from": "2026-10-24T00:00:00Z",
+     "to": "2026-10-25T00:00:00Z"
+    }
+   },
+   "day:ev:fault:2026-10-27": {
+    "from": "2026-10-27T08:00:00Z",
+    "to": "2026-10-27T09:00:00Z",
+    "site_code": "EV-LAB-001",
+    "estate": {
+     "from": "2026-10-27T00:00:00Z",
+     "to": "2026-10-28T00:00:00Z"
+    }
+   },
+   "day:cold:degraded:2026-10-28": {
+    "from": "2026-10-28T16:00:00Z",
+    "to": "2026-10-28T17:05:00Z",
+    "site_code": "COLD-LAB-001",
+    "estate": {
+     "from": "2026-10-28T00:00:00Z",
+     "to": "2026-10-29T00:00:00Z"
+    }
+   },
+   "day:kobo:normal:2026-10-30": {
+    "from": "2026-10-30T00:00:00Z",
+    "to": "2026-10-31T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-30T00:00:00Z",
+     "to": "2026-10-31T00:00:00Z"
+    }
+   },
+   "day:kobo:late:2026-10-28": {
+    "from": "2026-10-28T00:00:00Z",
+    "to": "2026-10-29T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-28T00:00:00Z",
+     "to": "2026-10-29T00:00:00Z"
+    }
+   },
+   "day:kobo:trial-before:2026-10-31": {
+    "from": "2026-10-31T00:00:00Z",
+    "to": "2026-11-01T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-10-31T00:00:00Z",
+     "to": "2026-11-01T00:00:00Z"
+    }
+   },
+   "day:cold:failure:2026-10-31": {
+    "from": "2026-10-31T16:00:00Z",
+    "to": "2026-10-31T17:05:00Z",
+    "site_code": "COLD-LAB-001",
+    "estate": {
+     "from": "2026-10-31T00:00:00Z",
+     "to": "2026-11-01T00:00:00Z"
+    }
+   },
+   "day:kobo:trial-after:2026-11-01": {
+    "from": "2026-11-01T00:00:00Z",
+    "to": "2026-11-02T00:00:00Z",
+    "site_code": "KOBO-001",
+    "estate": {
+     "from": "2026-11-01T00:00:00Z",
+     "to": "2026-11-02T00:00:00Z"
+    }
+   }
+  },
+  "request_count": 56
+ },
+ "findings": [
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "summary.week $.warnings[0].evidence_refs[3].href: an API URL, not a screen",
+   "bodies": [
+    "summary.week.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board_summary.week.COLD-LAB-001 $.rows[2].issues[1].href: an API URL, not a screen",
+   "bodies": [
+    "board_summary.week.COLD-LAB-001.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "week",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "detail": "board_summary.week.EV-LAB-001 $.rows[2].options[0].href: an API URL, not a screen",
+   "bodies": [
+    "board_summary.week.EV-LAB-001.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "summary.S $.warnings[0].evidence_refs[3].href: an API URL, not a screen",
+   "bodies": [
+    "summary.S.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board_summary.S.COLD-LAB-001 $.rows[2].issues[1].href: an API URL, not a screen",
+   "bodies": [
+    "board_summary.S.COLD-LAB-001.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "summary.month $.warnings[0].evidence_refs[3].href: an API URL, not a screen",
+   "bodies": [
+    "summary.month.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board_summary.month.COLD-LAB-001 $.rows[2].issues[1].href: an API URL, not a screen",
+   "bodies": [
+    "board_summary.month.COLD-LAB-001.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "detail": "board_summary.month.EV-LAB-001 $.rows[2].options[0].href: an API URL, not a screen",
+   "bodies": [
+    "board_summary.month.EV-LAB-001.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "EV-LAB-001",
+   "window": "day:ev:fault:2026-10-27",
+   "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
+   "detail": "board.day:ev:fault:2026-10-27 $.rows[2].options[0].href: an API URL, not a screen",
+   "bodies": [
+    "board.day_ev_fault_2026-10-27.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:degraded:2026-10-28",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/f9ed0fec-474d-429f-89b7-a13e6f1907cb?from=2026-10-28T16:00:00.000000Z&to=2026-10-28T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board.day:cold:degraded:2026-10-28 $.rows[2].issues[0].href: an API URL, not a screen",
+   "bodies": [
+    "board.day_cold_degraded_2026-10-28.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board.day:cold:failure:2026-10-31 $.warnings[0].evidence_refs[3].href: an API URL, not a screen",
+   "bodies": [
+    "board.day_cold_failure_2026-10-31.json"
+   ]
+  },
+  {
+   "rule": "COH-1",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
+   "detail": "board.day:cold:failure:2026-10-31 $.rows[2].issues[1].href: an API URL, not a screen",
+   "bodies": [
+    "board.day_cold_failure_2026-10-31.json"
+   ]
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "ced674cb-8aa2-4ac3-bd56-d4350333fef1",
+   "detail": "Action ced674cb-8aa2-4ac3-bd56-d4350333fef1 answers Finding 2505d188-971f-4010-ba8e-0b6e519e7d7c, but its Portfolio row has no action_id",
+   "bodies": [
+    "action_index.COLD-LAB-001.month.p1.json",
+    "portfolio.month.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-2",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "b9f71cdd-519a-43d6-a55e-1bbb1614a522",
+   "detail": "Action b9f71cdd-519a-43d6-a55e-1bbb1614a522 answers Finding 274196f4-3b8d-443b-93b6-7cbeb06e6a0a, but its Portfolio row has no action_id",
+   "bodies": [
+    "action_index.EV-LAB-001.month.p1.json",
+    "portfolio.month.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "EV-LAB-001",
+   "window": "day:ev:fault:2026-10-27",
+   "subject": "274196f4-3b8d-443b-93b6-7cbeb06e6a0a:OPPORTUNITY",
+   "detail": "on the board under GROW_REVENUE, but its Findings row lens_flags ['RISK'] lack OPPORTUNITY",
+   "bodies": [
+    "board.day_ev_fault_2026-10-27.json",
+    "day_findings_all.day_ev_fault_2026-10-27.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:degraded:2026-10-28",
+   "subject": "f9ed0fec-474d-429f-89b7-a13e6f1907cb:COST",
+   "detail": "on the board under OPTIMIZE_COST, but its Findings row lens_flags ['RISK'] lack COST",
+   "bodies": [
+    "board.day_cold_degraded_2026-10-28.json",
+    "day_findings_all.day_cold_degraded_2026-10-28.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-5",
+   "site_code": "COLD-LAB-001",
+   "window": "day:cold:failure:2026-10-31",
+   "subject": "2505d188-971f-4010-ba8e-0b6e519e7d7c:COST",
+   "detail": "on the board under OPTIMIZE_COST, but its Findings row lens_flags ['RISK'] lack COST",
+   "bodies": [
+    "board.day_cold_failure_2026-10-31.json",
+    "day_findings_all.day_cold_failure_2026-10-31.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "findings:opportunities",
+   "detail": "board day:kobo:overuse:2026-10-17 shows an opportunity, but the Opportunities lens has no row for the Site",
+   "bodies": [
+    "board.day_kobo_overuse_2026-10-17.json",
+    "findings_opp.month.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "portfolio:opportunity",
+   "detail": "board day:kobo:overuse:2026-10-17 shows an opportunity, but the Portfolio opportunity is UNSUPPORTED",
+   "bodies": [
+    "board.day_kobo_overuse_2026-10-17.json",
+    "portfolio.month.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "findings:opportunities",
+   "detail": "board day:kobo:late:2026-10-28 shows an opportunity, but the Opportunities lens has no row for the Site",
+   "bodies": [
+    "board.day_kobo_late_2026-10-28.json",
+    "findings_opp.week.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "portfolio:opportunity",
+   "detail": "board day:kobo:late:2026-10-28 shows an opportunity, but the Portfolio opportunity is UNSUPPORTED",
+   "bodies": [
+    "board.day_kobo_late_2026-10-28.json",
+    "portfolio.week.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "findings:opportunities",
+   "detail": "board day:kobo:trial-before:2026-10-31 shows an opportunity, but the Opportunities lens has no row for the Site",
+   "bodies": [
+    "board.day_kobo_trial-before_2026-10-31.json",
+    "findings_opp.S.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-6",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "portfolio:opportunity",
+   "detail": "board day:kobo:trial-before:2026-10-31 shows an opportunity, but the Portfolio opportunity is UNSUPPORTED",
+   "bodies": [
+    "board.day_kobo_trial-before_2026-10-31.json",
+    "portfolio.S.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "week",
+   "subject": "window_basis",
+   "detail": "summary Sites use more than one window basis: ['DAY', 'LATEST_EVENT']",
+   "bodies": [
+    "summary.week.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "week",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-31T16:00:00Z, 2026-10-31T17:05:00Z) is not the requested [2026-10-25T00:00:00Z, 2026-11-01T00:00:00Z)",
+   "bodies": [
+    "summary.week.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "EV-LAB-001",
+   "window": "week",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-27T08:00:00Z, 2026-10-27T09:00:00Z) is not the requested [2026-10-25T00:00:00Z, 2026-11-01T00:00:00Z)",
+   "bodies": [
+    "summary.week.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-31T00:00:00Z, 2026-11-01T00:00:00Z) is not the requested [2026-10-25T00:00:00Z, 2026-11-01T00:00:00Z)",
+   "bodies": [
+    "summary.week.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "S",
+   "subject": "window_basis",
+   "detail": "summary Sites use more than one window basis: ['DAY', 'LATEST_EVENT', 'PERIOD']",
+   "bodies": [
+    "summary.S.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "S",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-31T16:00:00Z, 2026-10-31T17:05:00Z) is not the requested [2026-10-31T00:00:00Z, 2026-11-01T00:00:00Z)",
+   "bodies": [
+    "summary.S.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": null,
+   "window": "month",
+   "subject": "window_basis",
+   "detail": "summary Sites use more than one window basis: ['DAY', 'LATEST_EVENT']",
+   "bodies": [
+    "summary.month.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "COLD-LAB-001",
+   "window": "month",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-31T16:00:00Z, 2026-10-31T17:05:00Z) is not the requested [2026-10-03T00:00:00Z, 2026-11-03T00:00:00Z)",
+   "bodies": [
+    "summary.month.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "EV-LAB-001",
+   "window": "month",
+   "subject": "window",
+   "detail": "summary Site window [2026-10-27T08:00:00Z, 2026-10-27T09:00:00Z) is not the requested [2026-10-03T00:00:00Z, 2026-11-03T00:00:00Z)",
+   "bodies": [
+    "summary.month.json"
+   ]
+  },
+  {
+   "rule": "COH-7a",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "window",
+   "detail": "summary Site window [2026-11-02T00:00:00Z, 2026-11-03T00:00:00Z) is not the requested [2026-10-03T00:00:00Z, 2026-11-03T00:00:00Z)",
+   "bodies": [
+    "summary.month.json"
+   ]
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "week",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "detail": "Action 55bbd52c-9ef2-4005-a11d-e24012031131 is VERIFIED, but its progress row has origin_revision_selected False",
+   "bodies": [
+    "actions.week.p1.json",
+    "portfolio.week.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "S",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "detail": "Action 55bbd52c-9ef2-4005-a11d-e24012031131 is VERIFIED, but its progress row has origin_revision_selected False",
+   "bodies": [
+    "actions.S.p1.json",
+    "portfolio.S.p1.json"
+   ]
+  },
+  {
+   "rule": "COH-8",
+   "site_code": "KOBO-001",
+   "window": "month",
+   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
+   "detail": "Action 55bbd52c-9ef2-4005-a11d-e24012031131 is VERIFIED, but its progress row has origin_revision_selected False",
+   "bodies": [
+    "actions.month.p1.json",
+    "portfolio.month.p1.json"
+   ]
+  }
+ ],
+ "expected_unmatched": [],
+ "resolved": [],
+ "info": {
+  "COH-9b": [
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "board_summary.week.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "7 of 31 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "board_summary.week.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "1 of 3 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "board_summary.week.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "board_summary.S.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "7 of 31 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "board_summary.S.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "1 of 3 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "board_summary.S.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "board_summary.month.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of 3 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "board_summary.month.KOBO-001",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:normal:2026-10-03",
+    "body": "board.day:kobo:normal:2026-10-03",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "4 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overcast:2026-10-10",
+    "body": "board.day:kobo:overcast:2026-10-10",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "2 of 10 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overcast:2026-10-10",
+    "body": "board.day:kobo:overcast:2026-10-10",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "4 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overuse:2026-10-17",
+    "body": "board.day:kobo:overuse:2026-10-17",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "3 of 17 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overuse:2026-10-17",
+    "body": "board.day:kobo:overuse:2026-10-17",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "4 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overuse:2026-10-24",
+    "body": "board.day:kobo:overuse:2026-10-24",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "4 of 24 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:overuse:2026-10-24",
+    "body": "board.day:kobo:overuse:2026-10-24",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "4 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:normal:2026-10-30",
+    "body": "board.day:kobo:normal:2026-10-30",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "6 of 30 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:normal:2026-10-30",
+    "body": "board.day:kobo:normal:2026-10-30",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "0 of 2 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:normal:2026-10-30",
+    "body": "board.day:kobo:normal:2026-10-30",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "3 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:late:2026-10-28",
+    "body": "board.day:kobo:late:2026-10-28",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "5 of 28 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:late:2026-10-28",
+    "body": "board.day:kobo:late:2026-10-28",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "1 of 2 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:late:2026-10-28",
+    "body": "board.day:kobo:late:2026-10-28",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "3 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-before:2026-10-31",
+    "body": "board.day:kobo:trial-before:2026-10-31",
+    "category": "GROW_REVENUE",
+    "where": "contributors[1].text",
+    "phrase": "7 of 31 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-before:2026-10-31",
+    "body": "board.day:kobo:trial-before:2026-10-31",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "1 of 3 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-before:2026-10-31",
+    "body": "board.day:kobo:trial-before:2026-10-31",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of the last 5 days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-after:2026-11-01",
+    "body": "board.day:kobo:trial-after:2026-11-01",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "2 of 4 well-observed days"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-after:2026-11-01",
+    "body": "board.day:kobo:trial-after:2026-11-01",
+    "category": "GROW_REVENUE",
+    "where": "contributors[2].text",
+    "phrase": "1 of the last 5 days"
+   }
+  ],
+  "COH-12": [
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "portfolio.week",
+    "path": "$.rows[4].placement.reasons[0].text",
+    "source_mode": "REGISTERED_SIMULATION",
+    "text": "Change verified on example data; watch for it coming back"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "board_summary.week.KOBO-001",
+    "path": "$.rows[3].contributors[0].text",
+    "source_mode": null,
+    "text": "ACT-001 verified on example data"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "week",
+    "body": "board_summary.week.KOBO-001",
+    "path": "$.rows[2].earlier[0].result_label",
+    "source_mode": null,
+    "text": "Verified on example data \u00b7 Not available yet \u00b7 linked finding could not be loaded"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "portfolio.S",
+    "path": "$.rows[2].placement.reasons[0].text",
+    "source_mode": "REGISTERED_SIMULATION",
+    "text": "Change verified on example data; watch for it coming back"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "board_summary.S.KOBO-001",
+    "path": "$.rows[3].contributors[0].text",
+    "source_mode": null,
+    "text": "ACT-001 verified on example data"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "S",
+    "body": "board_summary.S.KOBO-001",
+    "path": "$.rows[2].earlier[0].result_label",
+    "source_mode": null,
+    "text": "Verified on example data \u00b7 Not available yet \u00b7 linked finding could not be loaded"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "portfolio.month",
+    "path": "$.rows[6].placement.reasons[0].text",
+    "source_mode": "REGISTERED_SIMULATION",
+    "text": "Change verified on example data; watch for it coming back"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "portfolio.month",
+    "path": "$.rows[5].placement.reasons[0].text",
+    "source_mode": "REGISTERED_SIMULATION",
+    "text": "Change verified on example data; watch for it coming back"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "portfolio.month",
+    "path": "$.rows[4].placement.reasons[0].text",
+    "source_mode": "REGISTERED_SIMULATION",
+    "text": "Change verified on example data; watch for it coming back"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "board_summary.month.KOBO-001",
+    "path": "$.rows[3].contributors[0].text",
+    "source_mode": null,
+    "text": "ACT-001 verified on example data"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "month",
+    "body": "board_summary.month.KOBO-001",
+    "path": "$.rows[2].earlier[0].result_label",
+    "source_mode": null,
+    "text": "Verified on example data \u00b7 Not available yet \u00b7 linked finding could not be loaded"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-before:2026-10-31",
+    "body": "board.day:kobo:trial-before:2026-10-31",
+    "path": "$.rows[3].contributors[0].text",
+    "source_mode": null,
+    "text": "ACT-001 verified on example data"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-before:2026-10-31",
+    "body": "board.day:kobo:trial-before:2026-10-31",
+    "path": "$.rows[2].earlier[0].result_label",
+    "source_mode": null,
+    "text": "Verified on example data \u00b7 Not available yet \u00b7 linked finding could not be loaded"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-after:2026-11-01",
+    "body": "board.day:kobo:trial-after:2026-11-01",
+    "path": "$.rows[3].contributors[0].text",
+    "source_mode": null,
+    "text": "ACT-001 verified on example data"
+   },
+   {
+    "site_code": "KOBO-001",
+    "window": "day:kobo:trial-after:2026-11-01",
+    "body": "board.day:kobo:trial-after:2026-11-01",
+    "path": "$.rows[2].earlier[0].result_label",
+    "source_mode": null,
+    "text": "Verified on example data \u00b7 Not available yet \u00b7 linked finding could not be loaded"
+   }
+  ]
+ },
+ "summary": {
+  "COH-1": 12,
+  "COH-2": 2,
+  "COH-5": 3,
+  "COH-6": 6,
+  "COH-7a": 10,
+  "COH-8": 3
+ },
+ "pass": true
+}

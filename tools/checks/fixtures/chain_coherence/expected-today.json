@@ -101,30 +101,6 @@
   },
   {
    "rule": "COH-2",
-   "site_code": "KOBO-001",
-   "window": "week",
-   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
-   "register": "I-03",
-   "owner": "CH-2"
-  },
-  {
-   "rule": "COH-2",
-   "site_code": "KOBO-001",
-   "window": "S",
-   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
-   "register": "I-03",
-   "owner": "CH-2"
-  },
-  {
-   "rule": "COH-2",
-   "site_code": "KOBO-001",
-   "window": "month",
-   "subject": "55bbd52c-9ef2-4005-a11d-e24012031131",
-   "register": "I-03",
-   "owner": "CH-2"
-  },
-  {
-   "rule": "COH-2",
    "site_code": "COLD-LAB-001",
    "window": "month",
    "subject": "ced674cb-8aa2-4ac3-bd56-d4350333fef1",
