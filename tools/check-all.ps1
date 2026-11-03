@@ -65,6 +65,7 @@ try {
     Invoke-Guard "Evidence width check (W1-UX-06)" $Node @("--test", "tools/checks/test_evidence_checks.mjs")
     Invoke-Guard "Mock deviation labels and client vocabulary" $Node @("--test", "tools/checks/test_mock_deviation_labels.mjs")
     Invoke-Guard "Screen ledger"                 $Python @("frontend/docs/architecture/check_v69_ledger.py")
+    Invoke-Guard "Chain coherence rules (fixtures)" $Python @("-m", "pytest", "tools/checks/test_chain_coherence.py", "-q", "-p", "no:cacheprovider")
 
     $failed = @($results | Where-Object { $_.Status -ne "PASS" })
     foreach ($result in $results) {

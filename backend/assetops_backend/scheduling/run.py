@@ -29,7 +29,7 @@ from assetops_backend.scheduling.composition import (
     build_schedule_store,
     build_upstream_currentness,
 )
-from assetops_backend.scheduling.tick import ScheduleTick, StageRunner, TickLimits
+from assetops_backend.scheduling.tick import ScheduleTick, StageRunner, TickLimits, enable_perf_log
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -77,6 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                         consequence_items_per_site=args.consequence_items)
     store = build_schedule_store(url, statement_timeout_ms=limits.statement_timeout_ms,
                                  lock_timeout_ms=limits.lock_timeout_ms)
+    enable_perf_log()  # CH-0: the tick's `assetops.perf` line goes to stderr; stdout keeps only the report
     report = ScheduleTick(store, StageRunner(url, limits), limits, environment=args.environment).tick()
     print(json.dumps(report.as_json()))
     if report.outcome in ("COMPLETED", "SKIPPED_CLAIMED", "RETRY_DUE"):

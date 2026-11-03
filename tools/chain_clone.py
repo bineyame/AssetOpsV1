@@ -1,0 +1,110 @@
+"""CH-0 U2 (build sheet §3.4): the L3 clone helper for the chain coherence check.
+
+    python tools/chain_clone.py create <name> [--migrate]   # assetops_chainclone_<name>_test FROM TEMPLATE the polish DB
+    python tools/chain_clone.py drop   <name>
+
+The source is the fixed constant `SOURCE_DB`; there is no option to change it. The target must match
+`TARGET_RE`. `create` refuses while the source has any other session (it never terminates one); `--migrate` upgrades
+the clone to this worktree's Alembic head the way `tools/demo_combined.py` `prepare` does. `drop` removes only a
+name matching the pattern. The tool never ticks, serves or writes anything else.
+"""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from demo_combined import PG_ADMIN, PG_PORT, PW  # noqa: E402 - the admin connection, as demo_combined makes it
+
+SOURCE_DB = "assetops_polish_full_test"
+TARGET_RE = re.compile(r"^assetops_chainclone_[a-z0-9]{1,20}_test$")
+SESSIONS_SQL = ("SELECT count(*) FROM pg_stat_activity WHERE datname = %s AND pid <> pg_backend_pid()")
+BUSY = "stop serve and any client of the polish DB first"
+
+
+class CloneRefused(SystemExit):
+    pass
+
+
+def target_db(name: str) -> str:
+    """The clone database for a short name; refuses any name that does not make an `assetops_chainclone_*_test`."""
+    db = f"assetops_chainclone_{name}_test"
+    if not TARGET_RE.fullmatch(db):
+        raise CloneRefused(f"refused: {db!r} does not match {TARGET_RE.pattern}")
+    return db
+
+
+def create_sql(name: str) -> str:
+    db = target_db(name)
+    return f'CREATE DATABASE "{db}" TEMPLATE "{SOURCE_DB}"'
+
+
+def drop_sql(name: str) -> str:
+    db = target_db(name)
+    return f'DROP DATABASE IF EXISTS "{db}" WITH (FORCE)'
+
+
+def clone_url(name: str, driver: str = "postgresql+psycopg") -> str:
+    return f"{driver}://assetops:{PW}@127.0.0.1:{PG_PORT}/{target_db(name)}"
+
+
+def _admin():
+    import psycopg
+
+    return psycopg.connect(PG_ADMIN, autocommit=True)
+
+
+def create(name: str, migrate: bool) -> str:
+    sql = create_sql(name)
+    with _admin() as c:
+        others = c.execute(SESSIONS_SQL, (SOURCE_DB,)).fetchone()[0]
+        if others:
+            raise CloneRefused(f"refused: {SOURCE_DB} has {others} other session(s); {BUSY}")
+        c.execute(sql)
+    print(f"created {target_db(name)} from {SOURCE_DB}")
+    if migrate:
+        sys.path.insert(0, str(REPO / "backend" / "tests"))
+        import pg_harness
+        from alembic import command
+
+        command.upgrade(pg_harness._alembic(clone_url(name)), "head")
+        print(f"migrated {target_db(name)} to head")
+    print(masked(clone_url(name)))  # the password is never printed (CH-0 review L2)
+    return clone_url(name)
+
+
+def masked(url: str) -> str:
+    """`url` with any password replaced by `***`."""
+    return re.sub(r"(://[^:/@]*:)[^@]*@", r"\1***@", url)
+
+
+def drop(name: str) -> None:
+    sql = drop_sql(name)
+    with _admin() as c:
+        c.execute(sql)
+    print(f"dropped {target_db(name)}")
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="python tools/chain_clone.py")
+    sub = parser.add_subparsers(dest="command", required=True)
+    c = sub.add_parser("create")
+    c.add_argument("name")
+    c.add_argument("--migrate", action="store_true")
+    d = sub.add_parser("drop")
+    d.add_argument("name")
+    args = parser.parse_args(argv)
+    if args.command == "create":
+        create(args.name, args.migrate)
+    else:
+        drop(args.name)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
