@@ -74,8 +74,13 @@ def create(name: str, migrate: bool) -> str:
 
         command.upgrade(pg_harness._alembic(clone_url(name)), "head")
         print(f"migrated {target_db(name)} to head")
-    print(clone_url(name))
+    print(masked(clone_url(name)))  # the password is never printed (CH-0 review L2)
     return clone_url(name)
+
+
+def masked(url: str) -> str:
+    """`url` with any password replaced by `***`."""
+    return re.sub(r"(://[^:/@]*:)[^@]*@", r"\1***@", url)
 
 
 def drop(name: str) -> None:

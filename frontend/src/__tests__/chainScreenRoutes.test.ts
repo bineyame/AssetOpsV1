@@ -27,9 +27,9 @@ function constant(name: string): string {
 
 function appRoutePatterns(): string[] {
   const found = new Set<string>();
-  const attributes = [...APP.matchAll(/\bpath=(\{[^}]*\}|"[^"]*")/g)].map((m) => m[1]);
+  const attributes = [...APP.matchAll(/\bpath=(\{[^}]*\}|"[^"]*"|'[^']*')/g)].map((m) => m[1]);
   for (const attribute of attributes) {
-    const literal = /^"(.*)"$/.exec(attribute);
+    const literal = /^["'](.*)["']$/.exec(attribute);
     const named = /^\{([A-Z][A-Z0-9_]*)\}$/.exec(attribute);
     if (literal) found.add(literal[1]);
     else if (named) found.add(constant(named[1]));

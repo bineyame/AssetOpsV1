@@ -15,16 +15,6 @@
    "rule": "COH-1",
    "site_code": "COLD-LAB-001",
    "window": "week",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16%3A00%3A00Z&to=2026-10-31T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "week",
    "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
@@ -33,29 +23,9 @@
    "rule": "COH-1",
    "site_code": "EV-LAB-001",
    "window": "week",
-   "subject": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08%3A00%3A00Z&to=2026-10-27T09%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "EV-LAB-001",
-   "window": "week",
    "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "week",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
   },
   {
    "rule": "COH-1",
@@ -69,39 +39,9 @@
    "rule": "COH-1",
    "site_code": "COLD-LAB-001",
    "window": "S",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16%3A00%3A00Z&to=2026-10-31T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "S",
    "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "EV-LAB-001",
-   "window": "S",
-   "subject": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "S",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
   },
   {
    "rule": "COH-1",
@@ -115,16 +55,6 @@
    "rule": "COH-1",
    "site_code": "COLD-LAB-001",
    "window": "month",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16%3A00%3A00Z&to=2026-10-31T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "month",
    "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
@@ -133,99 +63,9 @@
    "rule": "COH-1",
    "site_code": "EV-LAB-001",
    "window": "month",
-   "subject": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08%3A00%3A00Z&to=2026-10-27T09%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "EV-LAB-001",
-   "window": "month",
    "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "month",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-11-02T00%3A00%3A00Z&to=2026-11-03T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:normal:2026-10-03",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-03T00%3A00%3A00Z&to=2026-10-04T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:overcast:2026-10-10",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-10T00%3A00%3A00Z&to=2026-10-11T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:overuse:2026-10-17",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-17T00%3A00%3A00Z&to=2026-10-18T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "EV-LAB-001",
-   "window": "day:ev:normal:2026-10-20",
-   "subject": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-20T08%3A00%3A00Z&to=2026-10-20T09%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:overuse:2026-10-24",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "day:cold:normal:2026-10-24",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-24T16%3A00%3A00Z&to=2026-10-24T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "EV-LAB-001",
-   "window": "day:ev:fault:2026-10-27",
-   "subject": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08%3A00%3A00Z&to=2026-10-27T09%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
   },
   {
    "rule": "COH-1",
@@ -234,16 +74,6 @@
    "subject": "/api/sites/EV-LAB-001/ev/findings/274196f4-3b8d-443b-93b6-7cbeb06e6a0a?from=2026-10-27T08:00:00.000000Z&to=2026-10-27T09:00:00.000000Z&known_at=2026-10-27T09:00:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "day:cold:degraded:2026-10-28",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-28T16%3A00%3A00Z&to=2026-10-28T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
   },
   {
    "rule": "COH-1",
@@ -255,46 +85,6 @@
   },
   {
    "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:normal:2026-10-30",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:late:2026-10-28",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-28T00%3A00%3A00Z&to=2026-10-29T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:trial-before:2026-10-31",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-10-31T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "COLD-LAB-001",
-   "window": "day:cold:failure:2026-10-31",
-   "subject": "/api/sites/COLD-LAB-001/outcome-board?from=2026-10-31T16%3A00%3A00Z&to=2026-10-31T17%3A05%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
-  },
-  {
-   "rule": "COH-1",
    "site_code": "COLD-LAB-001",
    "window": "day:cold:failure:2026-10-31",
    "subject": "/api/sites/COLD-LAB-001/cold/findings/2505d188-971f-4010-ba8e-0b6e519e7d7c?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
@@ -308,16 +98,6 @@
    "subject": "/api/sites/COLD-LAB-001/cold/findings/43831160-9312-45dc-9ee6-7e88a75c2af0?from=2026-10-31T16:00:00.000000Z&to=2026-10-31T17:05:00.000000Z&known_at=2026-10-31T17:05:00.000000Z",
    "register": "I-08",
    "owner": "CH-5a"
-  },
-  {
-   "rule": "COH-1",
-   "site_code": "KOBO-001",
-   "window": "day:kobo:trial-after:2026-11-01",
-   "subject": "/api/sites/KOBO-001/outcome-board?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
-   "register": null,
-   "new": true,
-   "owner": null,
-   "note": "board links.self is the API URL of the board read itself; no register issue names it"
   },
   {
    "rule": "COH-2",

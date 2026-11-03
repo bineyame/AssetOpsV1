@@ -25,6 +25,9 @@ DC = "day:cold:failure:2026-10-31"
 
 #: bundle -> the one finding it must yield: (rule, site_code, window, subject)
 FAILING = {
+    "coh7b_state": ("COH-7b", COLD, "week", "PROTECT_ASSET"),
+    "coh4b_board_finding": ("COH-4", COLD, DC, F1),
+    "coh6_opportunity_missing_row": ("COH-6", KOBO, "week", "findings:opportunities"),
     "coh1_api_link": ("COH-1", COLD, DC, f"/api/sites/{COLD}/cold/findings/x"),
     "coh2_no_action": ("COH-2", COLD, "week", A1),
     "coh3_board_missing_action": ("COH-3", COLD, DC, A1),
@@ -50,7 +53,7 @@ def test_clean_bundle_passes_every_rule() -> None:
 
 
 def test_every_rule_has_a_failing_fixture() -> None:
-    assert {r for r, *_ in FAILING.values()} | {"COH-7", "COH-9"} >= {name for name, _ in cc.RULES}
+    assert {r for r, *_ in FAILING.values()} | {"COH-0", "COH-7", "COH-9"} >= {name for name, _ in cc.RULES}
 
 
 @pytest.mark.parametrize("bundle", sorted(FAILING))
@@ -120,17 +123,107 @@ def test_pagination_pages_are_concatenated() -> None:
     assert portfolio["opportunity"]["state"] == "SUPPORTED"  # other keys come from page 1
 
 
-def test_a_non_200_body_is_kept_but_never_read(tmp_path: Path) -> None:
+def _edited(tmp_path: Path, src: str, manifest_edit=None, **files) -> cc.Bundle:
     root = tmp_path / "b"
-    shutil.copytree(BUNDLES / "coh2_no_action", root)
-    manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
-    for r in manifest["requests"]:
-        if r["name"] == "portfolio.week" and r["page"] == 2:
-            r["status"] = 503
-    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
-    bundle = cc.Bundle(root)
+    shutil.copytree(BUNDLES / src, root)
+    if manifest_edit:
+        path = root / "manifest.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest_edit(manifest)
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+    for name, edit in files.items():
+        path = root / name
+        body = json.loads(path.read_text(encoding="utf-8"))
+        edit(body)
+        path.write_text(json.dumps(body), encoding="utf-8")
+    return cc.Bundle(root)
+
+
+def test_a_non_200_body_fails_the_bundle_as_coh0(tmp_path: Path) -> None:
+    def fail(m: dict) -> None:
+        for r in m["requests"]:
+            if r["name"] == "portfolio.week" and r["page"] == 2:
+                r["status"] = 503
+
+    bundle = _edited(tmp_path, "coh2_no_action", fail)
     assert bundle.get("portfolio.week") is None and bundle.bodies["portfolio.week"].status == 503
-    assert cc.check(bundle)["findings"] == []
+    report = cc.check(bundle)
+    assert keys(report) == [("COH-0", None, "week", "portfolio.week")] and report["pass"] is False
+
+
+def test_a_cut_off_paged_run_fails_the_bundle_as_coh0(tmp_path: Path) -> None:
+    def cut(m: dict) -> None:
+        for r in m["requests"]:
+            if r["name"] == "portfolio.week" and r["page"] == 2:
+                r["truncated"] = True
+
+    report = cc.check(_edited(tmp_path, "clean", cut))
+    assert keys(report) == [("COH-0", None, "week", "portfolio.week")] and report["pass"] is False
+
+
+class _Pages(cc.Getter):
+    def __init__(self, status: int = 200, forever: bool = False) -> None:
+        self.status, self.forever, self.calls = status, forever, []
+
+    def get(self, path: str, params: dict[str, str]) -> tuple[int, dict]:
+        self.calls.append((path, dict(params)))
+        return self.status, {"rows": [], "next_cursor": "more" if self.forever else None}
+
+
+def test_collector_marks_a_run_cut_off_at_max_pages(tmp_path: Path) -> None:
+    c = cc.Collector(_Pages(forever=True), tmp_path)
+    c.fetch("x", "/api/estate/findings", {}, "week", paged=True)
+    assert len(c.requests) == cc.MAX_PAGES and c.requests[-1]["truncated"] is True
+    assert not any(r.get("truncated") for r in c.requests[:-1])
+    ok = cc.Collector(_Pages(), tmp_path)
+    ok.fetch("y", "/api/estate/findings", {}, "week", paged=True)
+    assert not ok.requests[0].get("truncated")
+
+
+def test_known_at_reaches_the_board_requests_too(tmp_path: Path) -> None:
+    getter = _Pages()
+    c = cc.Collector(getter, tmp_path, "2026-10-31T00:00:00Z")
+    c.board("board.x", "KOBO-001", "w", "a", "b", None)
+    c.fetch("e", "/api/estate/outcome-summary", {}, "week")
+    assert all(p.get("known_at") == "2026-10-31T00:00:00Z" for _, p in getter.calls) and len(getter.calls) == 2
+
+
+COLD_BOARD = f"/api/sites/{COLD}/outcome-board"
+
+
+def _board_self(tmp_path: Path, value: str | None, nested: str | None = None, params: dict | None = None):
+    def links(body: dict) -> None:
+        if value is not None:
+            body["links"] = {"self": value}
+        if nested is not None:
+            body.setdefault("rows", [{}])[0]["links"] = {"self": nested}
+
+    def req(m: dict) -> None:
+        for r in m["requests"]:
+            if r["name"] == f"board.{DC}":
+                r["params"] = params or {}
+
+    bundle = _edited(tmp_path, "clean", req, **{"board.day_cold_failure_2026-10-31.json": links})
+    return cc.coh1_links(bundle)
+
+
+def test_a_root_self_link_equal_to_its_own_request_is_exempt(tmp_path: Path) -> None:
+    query = {"from": "2026-10-31T16:00:00Z", "to": "2026-10-31T17:05:00Z"}
+    own = f"{COLD_BOARD}?from=2026-10-31T16%3A00%3A00Z&to=2026-10-31T17%3A05%3A00Z"
+    assert _board_self(tmp_path, own, params=query) == []
+
+
+def test_a_root_self_link_that_is_not_its_own_request_is_a_contradiction(tmp_path: Path) -> None:
+    other = f"{COLD_BOARD}?from=2026-10-30T16%3A00%3A00Z"
+    found = _board_self(tmp_path, other, params={"from": "2026-10-31T16:00:00Z"})
+    assert [f["subject"] for f in found] == [other]
+    elsewhere = "/api/sites/KOBO-001/outcome-board"
+    assert [f["subject"] for f in _board_self(tmp_path / "e", elsewhere)] == [elsewhere]
+
+
+def test_a_nested_self_link_is_a_contradiction_even_when_equal(tmp_path: Path) -> None:
+    found = _board_self(tmp_path, COLD_BOARD, nested=COLD_BOARD)
+    assert [(f["subject"], "rows[0]" in f["detail"]) for f in found] == [(COLD_BOARD, True)]
 
 
 def test_example_data_strings_are_listed_as_info_only(tmp_path: Path) -> None:
@@ -190,3 +283,12 @@ def test_clone_tool_never_names_the_demo3_db_or_terminates_sessions() -> None:
     text = (HERE.parent / "chain_clone.py").read_text(encoding="utf-8")
     assert "demo3" not in text and "pg_terminate_backend" not in text
     assert "--source" not in text  # no option changes the source
+
+
+def test_clone_url_is_printed_with_the_password_masked() -> None:
+    import chain_clone
+
+    url = chain_clone.clone_url("abc")
+    assert chain_clone.PW in url
+    shown = chain_clone.masked(url)
+    assert chain_clone.PW not in shown and shown.startswith("postgresql+psycopg://assetops:***@")

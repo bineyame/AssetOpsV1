@@ -282,16 +282,13 @@ def log_tick_perf(report: TickReport, limits: TickLimits, started: float) -> Non
         pass
 
 
-PERF_HANDLER_NAME = "assetops.perf.stderr"
+PERF_HANDLER_NAME = perf.HANDLER_NAME
 
 
 def enable_perf_log(stream: Any = None) -> logging.Handler:
-    """CH-0 (QW review L1): give `assetops.perf` an INFO handler, so its lines are emitted by a process that
-    configures no logging (the `scheduling.run tick` CLI). Writes `assetops.perf {json}` lines to stderr, so the
-    report on stdout is unchanged. Idempotent: an existing handler of this name is reused."""
-    for handler in perf.LOG.handlers:
-        if handler.get_name() == PERF_HANDLER_NAME:
-            return handler
+    """The tick's helper for `perf.enable_log` (idempotent): the `scheduling.run tick` CLI writes the perf line to
+    stderr, so the report on stdout is unchanged."""
+    return perf.enable_log(stream)
     handler = logging.StreamHandler(stream if stream is not None else sys.stderr)
     handler.set_name(PERF_HANDLER_NAME)
     handler.setFormatter(logging.Formatter("%(name)s %(message)s"))

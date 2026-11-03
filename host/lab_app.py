@@ -35,6 +35,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 
+from assetops_backend import perf
 from assetops_backend.config import FeatureFlags, database_url, load_feature_flags
 from assetops_backend.main import create_app
 from assetops_backend.runs.registered_release import publisher_for
@@ -70,6 +71,7 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
     the stores exactly as it does against the product entry point and gets the
     real kernel behind them.
     """
+    perf.enable_log()  # CH0-R: QW-1's request lines and the tick line reach the serve log (idempotent)
     resolved = load_feature_flags() if flags is None else flags
     execution = None
     if resolved.simulator_lab_enabled:

@@ -11,6 +11,7 @@ import io
 import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from uuid import UUID
 
 import pytest
@@ -202,6 +203,33 @@ def test_the_tick_cli_emits_the_perf_line_on_stderr_and_keeps_stdout(monkeypatch
         for handler in [h for h in perf.LOG.handlers if h.get_name() == PERF_HANDLER_NAME]:
             perf.LOG.removeHandler(handler)
         perf.LOG.setLevel(level)
+
+
+def test_perf_enable_log_is_idempotent_and_never_prints_a_line_twice() -> None:
+    level, propagate = perf.LOG.level, perf.LOG.propagate
+    stream, root_stream = io.StringIO(), io.StringIO()
+    root_handler = logging.StreamHandler(root_stream)
+    logging.getLogger().addHandler(root_handler)  # a configured root logger, as uvicorn/pytest would have
+    try:
+        first = perf.enable_log(stream)
+        assert perf.enable_log(stream) is first and perf.enable_log() is first
+        assert sum(h.get_name() == perf.HANDLER_NAME for h in perf.LOG.handlers) == 1
+        assert perf.LOG.propagate is False and perf.LOG.level == logging.INFO
+        perf.LOG.info('{"a": 1}')
+        assert stream.getvalue() == 'assetops.perf {"a": 1}\n'  # exactly once
+        assert root_stream.getvalue() == ""  # and not again through the root logger
+        assert enable_perf_log(stream) is first  # the tick's helper reuses it
+    finally:
+        logging.getLogger().removeHandler(root_handler)
+        for handler in [h for h in perf.LOG.handlers if h.get_name() == perf.HANDLER_NAME]:
+            perf.LOG.removeHandler(handler)
+        perf.LOG.setLevel(level)
+        perf.LOG.propagate = propagate
+
+
+def test_lab_app_enables_the_perf_log_once_at_start() -> None:
+    source = (Path(__file__).resolve().parents[2] / "host" / "lab_app.py").read_text(encoding="utf-8")
+    assert source.count("perf.enable_log()") == 1
 
 
 def test_peak_rss_kb_is_an_int_or_none_and_never_raises(monkeypatch) -> None:

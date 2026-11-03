@@ -132,8 +132,7 @@ class Collector:
         return f"{safe}.p{page}.json" if page else f"{safe}.json"
 
     def fetch(self, name: str, path: str, params: dict[str, str], window: str, *, paged: bool = False) -> Any:
-        params = {**params, **({"known_at": self.known_at} if self.known_at and path.startswith("/api/estate")
-                               else {})}
+        params = {**params, **({"known_at": self.known_at} if self.known_at else {})}
         page, cursor, first = 1, None, None
         while True:
             p = {**params, **({"cursor": cursor} if cursor else {})}
@@ -144,6 +143,8 @@ class Collector:
                                   "window": window, "page": page if paged else None})
             first = body if first is None else first
             cursor = body.get("next_cursor") if (paged and status == 200 and isinstance(body, dict)) else None
+            if cursor and page >= MAX_PAGES:
+                self.requests[-1]["truncated"] = True  # cut off with a cursor still set: COH-0 fails the bundle
             if not cursor or page >= MAX_PAGES:
                 return first if status == 200 else None
             page += 1
@@ -207,6 +208,8 @@ class Body:
     status: int
     body: Any
     files: list[str]
+    params: dict[str, str] = field(default_factory=dict)  # the first request's query, for the self-link check
+    truncated: bool = False
 
 
 class Bundle:
@@ -223,9 +226,11 @@ class Bundle:
             have = self.bodies.get(req["name"])
             if have is None:
                 self.bodies[req["name"]] = Body(req["name"], req["path"], req["window"], req["status"], body,
-                                                [req["file"]])
+                                                [req["file"]], dict(req.get("params") or {}),
+                                                bool(req.get("truncated")))
                 continue
             have.files.append(req["file"])
+            have.truncated = have.truncated or bool(req.get("truncated"))
             if req["status"] != 200:
                 have.status = req["status"]
             elif isinstance(have.body, dict) and isinstance(body, dict):
@@ -358,6 +363,31 @@ LINK_KEYS = ("href", "destination", "overview_href")
 LABEL_SUFFIX = "_label"
 
 
+def coh0_missing_data(bundle: Bundle) -> list[dict]:
+    """A request that did not return 200, or a paged read cut off at MAX_PAGES, leaves every rule over it vacuous;
+    the bundle then fails rather than passing on missing data (CH-0 review M1)."""
+    out = []
+    for b in bundle.bodies.values():
+        if b.status != 200:
+            out.append(finding("COH-0", None, b.window, b.name, f"request {b.path} returned status {b.status}",
+                               b.files))
+        if b.truncated:
+            out.append(finding("COH-0", None, b.window, b.name,
+                               f"request {b.path} was cut off at {MAX_PAGES} pages with a cursor still set",
+                               b.files))
+    return out
+
+
+def is_own_self_link(b: Body, where: str, href: str) -> bool:
+    """CH0-R: the one exempt `/api` link is a body's root `links.self`, equal to that body's own request path and
+    query. A nested or non-equal self stays a COH-1 contradiction."""
+    if where != "$.links.self":
+        return False
+    url = urllib.parse.urlsplit(href)
+    return (url.path == b.path and urllib.parse.parse_qs(url.query, keep_blank_values=True)
+            == urllib.parse.parse_qs(urllib.parse.urlencode(b.params), keep_blank_values=True))
+
+
 def coh1_links(bundle: Bundle, routes: list[str] | None = None) -> list[dict]:
     routes = routes if routes is not None else load_routes()
     out, seen = [], set()
@@ -371,6 +401,8 @@ def coh1_links(bundle: Bundle, routes: list[str] | None = None) -> list[dict]:
             elif isinstance(value, str) and (key in LINK_KEYS or key.endswith("_href")):
                 hrefs = [(path, value)]
             for where, href in hrefs:
+                if is_own_self_link(b, where, href):
+                    continue
                 problem = link_problem(href, routes)
                 site = _site_of(anc, default_site)
                 if problem and (b.window, site, href) not in seen:
@@ -628,7 +660,7 @@ def info_coh12(bundle: Bundle) -> list[dict]:
 
 
 RULES: list[tuple[str, Callable[[Bundle], list[dict]]]] = [
-    ("COH-1", coh1_links), ("COH-2", coh2_action_on_portfolio), ("COH-3", coh3_action_on_board),
+    ("COH-0", coh0_missing_data), ("COH-1", coh1_links), ("COH-2", coh2_action_on_portfolio), ("COH-3", coh3_action_on_board),
     ("COH-4", coh4_findings_contain), ("COH-5", coh5_lens), ("COH-6", coh6_opportunity),
     ("COH-7", coh7_summary_basis), ("COH-8", coh8_verified), ("COH-9", coh9_day_counts)]
 INFO: list[tuple[str, Callable[[Bundle], list[dict]]]] = [("COH-9b", info_coh9b), ("COH-12", info_coh12)]
