@@ -218,3 +218,15 @@ Both trees read the same, so this is environmental. A is main `73a558a1b` (the b
   - a new test on an Action-free thread (`bare` fixture): the same cause writes exactly one WITHDRAWN (`SUPPORT_LOST`), and none is written before the cause is supplied.
 - **D-b sub-calls accepted** (CH3-R): INCONCLUSIVE expiry `cause_known_at = max(outcome recorded_at, expiry instant)`; CLEAN_DAYS close has a null `cause_known_at` and falls back to `recorded_at`.
 - D-e is closed by the COH-13 fix above.
+
+### Fix round 1 checks (final code)
+
+- Unit scope (the phase scope plus `tools/checks/test_estate_guard.py`): 251 passed (365 s).
+- Postgres: `test_ch3_lifecycle_postgres.py` 4 passed (26 s). The Portfolio files I touched (`test_w303_portfolio_{comparison,fixture,scope_snapshot}_postgres`, `test_ch2_thread_store_postgres`): 19 passed (855 s).
+- L3 on a fresh clone (migrate to head, backfill a,b,c,d, one settle tick, collect 56 x 200, check against `expected-today.json`): every rule 0 new; COH-5 6 of 6 expected; COH-13, COH-14, COH-15 0; self-check 39 pass, 0 fail. Clone dropped.
+- `check-architecture.ps1`: passed.
+- Non-vacuity (each after commit, reverted with `git checkout`):
+  - Portfolio ignoring the row `_cutoff`: `test_portfolio_thread_state_uses_the_resolved_cutoff` fails.
+  - COH-13 before the fix: 7 new on the clone (the proof of the check itself); after: 0.
+  - Allowing `ACTION_IN_HAND` + SUPPORT_LOST to WITHDRAWN and neutering the Action guard: the L2 test with an Action fails.
+  - Dating the SUPPORT_LOST cause after the head was needed: the first version of the "Action" direction passed under that mutation (the cause was skipped as BEFORE_HEAD); it now fails under it.
