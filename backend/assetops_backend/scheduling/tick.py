@@ -30,6 +30,7 @@ and the drain is independent, so one failed stage never freezes the Site's other
 from __future__ import annotations
 
 import json
+import logging
 import os
 import socket
 import subprocess
@@ -39,6 +40,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID, uuid4
 
+from assetops_backend import perf
 from assetops_backend.scheduling.ports import ScheduleStore
 from assetops_backend.scheduling.stages import (
     DOMAIN_JOB_LEASE_SECONDS,
@@ -175,7 +177,8 @@ class TickReport:
             "sites": [{"tenant_id": s.tenant_id, "site_id": s.site_id, "site_code": s.site_code,
                        "reason": s.reason, "result": s.result, "failure": s.failure,
                        "stages": {k: {x: v.get(x) for x in ("code", "error", "processed", "deferred", "selected",
-                                                            "failed", "backlog", "revision_ids", "elapsed_ms")
+                                                            "failed", "backlog", "revision_ids", "elapsed_ms",
+                                                            "peak_rss_kb")
                                       if x in v} for k, v in s.stages.items()}}
                       for s in self.selected]}, default=str))
 
@@ -243,6 +246,60 @@ def fair_order(sites: list[SiteResult], cursor: tuple[UUID, UUID] | None) -> lis
     return after + [s for s in sites if (s.tenant_id, s.site_id) <= cursor]
 
 
+#: CH-0 U3: each Site stage's wall-time bound, as the `TickLimits` field `_site` passes to `StageRunner.run`.
+#: The values are read from the tick's own limits; a stage not named here logs `limit_ms`/`share` as null.
+STAGE_LIMIT_FIELDS: dict[str, str] = {
+    "s3": "s3_seconds", "cold_assess": "domain_assess_seconds", "ev_assess": "domain_assess_seconds",
+    "mini": "mini_seconds", "opportunity": "opportunity_seconds", "s4": "s4_seconds",
+    "consequence": "consequence_seconds", "cold_consequence": "domain_consequence_seconds",
+    "ev_consequence": "domain_consequence_seconds"}
+
+
+def tick_perf_line(report: TickReport, limits: TickLimits, total_ms: float) -> dict[str, Any]:
+    """The one structured `assetops.perf` line of a tick: per Site stage, elapsed time, its share of the stage's
+    bound and the stage child's peak memory."""
+    sites = []
+    for site in report.selected:
+        stages: dict[str, dict[str, Any]] = {}
+        for name, result in site.stages.items():
+            elapsed = result.get("elapsed_ms")
+            limit_field = STAGE_LIMIT_FIELDS.get(name)
+            limit_ms = int(getattr(limits, limit_field) * 1000) if limit_field else None
+            share = (round(elapsed / limit_ms, 3) if isinstance(elapsed, (int, float)) and limit_ms else None)
+            stages[name] = {"elapsed_ms": elapsed, "limit_ms": limit_ms, "share": share,
+                            "peak_rss_kb": result.get("peak_rss_kb")}
+        sites.append({"site_code": site.site_code, "result": site.result, "stages": stages})
+    return {"route": "tick", "outcome": report.outcome, "total_ms": round(total_ms, 1), "sites": sites}
+
+
+def log_tick_perf(report: TickReport, limits: TickLimits, started: float) -> None:
+    """Log the tick's perf line when it selected Sites. Never raises, as `perf.finish` does not."""
+    try:
+        if report.selected:
+            perf.LOG.info(json.dumps(tick_perf_line(report, limits, (time.perf_counter() - started) * 1000),
+                                     default=str))
+    except Exception:  # noqa: BLE001 - timing never changes a tick
+        pass
+
+
+PERF_HANDLER_NAME = "assetops.perf.stderr"
+
+
+def enable_perf_log(stream: Any = None) -> logging.Handler:
+    """CH-0 (QW review L1): give `assetops.perf` an INFO handler, so its lines are emitted by a process that
+    configures no logging (the `scheduling.run tick` CLI). Writes `assetops.perf {json}` lines to stderr, so the
+    report on stdout is unchanged. Idempotent: an existing handler of this name is reused."""
+    for handler in perf.LOG.handlers:
+        if handler.get_name() == PERF_HANDLER_NAME:
+            return handler
+    handler = logging.StreamHandler(stream if stream is not None else sys.stderr)
+    handler.set_name(PERF_HANDLER_NAME)
+    handler.setFormatter(logging.Formatter("%(name)s %(message)s"))
+    perf.LOG.addHandler(handler)
+    perf.LOG.setLevel(logging.INFO)
+    return handler
+
+
 class ScheduleTick:
     def __init__(self, store: ScheduleStore, runner: StageRunner, limits: TickLimits, *,
                  environment: str = "default", owner: str | None = None) -> None:
@@ -266,6 +323,13 @@ class ScheduleTick:
             self.store.release_tick(self.environment, token)
             report.outcome = "RETRY_DUE"
             return report
+        perf_started = time.perf_counter()
+        try:
+            return self._claimed(report, token, claim)
+        finally:
+            log_tick_perf(report, self.limits, perf_started)
+
+    def _claimed(self, report: TickReport, token: UUID, claim: dict[str, Any]) -> TickReport:
         started = time.monotonic()
         try:
             discovered = self.runner.run("discover", {}, self.limits.discover_seconds)
