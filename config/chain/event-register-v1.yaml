@@ -1,0 +1,27 @@
+# CH-1b event register (design §5.2 A0, AG-7; build sheet CH-1b §2). Reviewed as code; read by
+# backend/assetops_backend/chain/adapters/file_chain_config.py and validated by chain/events.py.
+#
+# events: outbox event type@version -> the Site-local days and the measures it dirties (resolved in the consumer,
+#   never in SQL). `consumer` defaults to snapshots for an event with days, and to none for days: none.
+# inputs: measure -> what dirties it (mirrors chain/measures.py; CH-8 merges it into the catalogue).
+# OL-1 (plan §2.4): this register names measures only, never outcomes.
+register_version: 1
+events:
+  reading.accepted@1:     {days: span_local,   measures: by_role}
+  assessment.revised@1:   {days: windows_local, measures: by_analytic}
+  job.changed@1:          {days: window_local, measures: by_job_domain}
+  price.revised@1:        {days: valid_local,  measures: by_assumption_key}
+  foundation.revised@1:   {days: from_valid_local_to_today, measures: all_of_site}
+  objective.revised@1:    {days: none}
+  finding.revised@1:      {days: none, consumer: threads}
+  opportunity.revised@1:  {days: none, consumer: threads}
+  action.event@1:         {days: none, consumer: [threads, lifecycle]}
+  verification.outcome@1: {days: none, consumer: lifecycle}
+  backfill.site@1:        {days: none}
+inputs:
+  productive_kwh:     {roles: [feeder_demand], assumption_keys: [productive_use_price_per_kwh], foundation: true}
+  avoidable_gen_min:  {analytics: [dispatch], job_domains: [dispatch]}
+  noon_headroom_kw:   {mini_depth: [renewable], job_domains: [mini_renewable]}
+  chamber_temp_c:     {roles: [chamber_temperature], analytics: [cold-excursion], job_domains: [cold_chain]}
+  backup_start_chain: {roles: [grid_power_event, generator_state, transfer_result, backup_bus_state], analytics: [cold-start-response], job_domains: [cold_chain]}
+  charging_kwh:       {analytics: [ev-session/1], assumption_keys: [ev_gross_tariff_per_kwh], job_domains: [ev_charging]}
