@@ -126,3 +126,4 @@ The 8 unexpected findings are all Kobo day boards (`day:kobo:*`), the Kobo membe
 1. Read Kobo day boards by `from`/`to` (one UTC day, which the mini board accepts), so the request equals the self link. This changes the collected request.
 2. Widen the exemption so `date=D` equals `from=D&to=D+1`. This widens the ruling.
 Cold and EV boards already use `from`/`to` and are exempt.
+- Tick Postgres `test_s4_schedule_tick_postgres.py -m "not slow"` (`run-host-tests.ps1`, `assetops_test`): 6 passed, 1 deselected, 134 s. Architecture, agent-workflow and navigation-truthfulness guards (with `ASSETOPS_GUARD_PYTHON` set, no policy override): all exit 0.
