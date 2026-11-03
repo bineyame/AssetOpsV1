@@ -102,3 +102,27 @@ Info (never failing):
 - **HTTP `collect`** (`--base-url`) is written but untested against a live serve; no serve was available or allowed. The in-process path is proven.
 - **COH-6 deduplication.** The rule dedupes per estate window and Site, so the board day that triggers each finding is only the first one seen.
 - **Windows `peak_rss_kb`.** It uses `K32GetProcessMemoryInfo` and returns an int here. The POSIX path (`ru_maxrss`) is not exercised on this machine.
+
+## Fix round 1 (review REVISE + Architect ruling CH0-R)
+
+Commit `067299b6c` (on `9e444c6f8`).
+
+| Item | Change | Proof (mutate, fail, revert) |
+|---|---|---|
+| M1 | New rule `COH-0` (first in `RULES`): one failing finding per request name whose status is not 200, and per paged run cut off at `MAX_PAGES` with a cursor set (`Collector` writes `truncated: true` on the last request; `Bundle` reads it). Test at the old `:123` now expects `COH-0`; cut-off test and a `Collector` cut-off test added | `if b.status != 200` -> `if False`: the non-200 test fails. `if b.truncated` -> `if False`: the cut-off test fails |
+| L1 | Failing bundles `coh7b_state`, `coh4b_board_finding`, `coh6_opportunity_missing_row` (each exactly one finding) | COH-7b comparison disabled: `coh7b_state` fails |
+| L2 | `chain_clone.create` prints `masked(url)` (`user:***@`); test on `masked` | The print path itself is not unit-tested (needs a DB); the clone run below shows `assetops:***@` |
+| L3 | Route-sync regex accepts `path='...'`; unrecognised forms still throw | Vitest 2 passed. No new test: no single-quoted route exists in `App.tsx` to exercise it |
+| L4 | `--known-at` is added to every collected request, boards included | Restricting it to `/api/estate` again fails `test_known_at_reaches_the_board_requests_too` |
+| R1 | Only a body's root `links.self`, equal to the body's own request path and query (parsed, order-insensitive), is exempt (`is_own_self_link`). 22 self-link entries removed from `expected-today.json` (61 -> 39). Tests: equal root exempt; non-equal root, other-site root, nested equal self all stay COH-1 | Exempting any `*.self` fails the nested test; exempting nothing fails the root test (and nested) |
+| R3 | `perf.enable_log()` (idempotent, named handler, `propagate=False`); `tick.enable_perf_log` delegates to it; `host/lab_app.build_app` calls it once. Tests: idempotent, one emission, nothing through a root handler; `lab_app` source calls it once | `propagate=False` removed: the idempotency test fails (double emission). Handler reuse removed: it and the tick CLI test fail |
+
+### Checks
+- L1+L0: `pytest tools/checks/test_chain_coherence.py backend/tests/test_ch0_tick_timing.py`: 59 passed, 1.7 s. `npx tsc --noEmit`: exit 0. `chainScreenRoutes.test.ts`: 2 passed.
+- Fresh clone `fix1` (`chain_clone create`, no migrate needed: head matched), in-process `collect` (56 requests, all 200), `check --expect`, `drop`: COH-0 0, COH-1 20 (12 expected), COH-2 5, COH-5 3, COH-6 6, COH-7 10, COH-8 3, others 0. The report shows **0 resolved and 8 unexpected**, not 0 (see below).
+
+### Open for the Architect (ruling needed)
+The 8 unexpected findings are all Kobo day boards (`day:kobo:*`), the Kobo members of the 22 removed self-links. The collector reads Kobo boards with `?date=D`, while the body's `links.self` is `...?from=D&to=D+1`. Under the strict CH0-R rule (equal to the body's own request path and query) these are not exempt, so they stay COH-1. Two ways to close it, neither taken here:
+1. Read Kobo day boards by `from`/`to` (one UTC day, which the mini board accepts), so the request equals the self link. This changes the collected request.
+2. Widen the exemption so `date=D` equals `from=D&to=D+1`. This widens the ruling.
+Cold and EV boards already use `from`/`to` and are exempt.
