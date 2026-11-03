@@ -150,3 +150,27 @@ One builder (`B/chain/builder.py`) writes graded, insert-only `site_day_snapshot
 
 - None in this slice: no screen reads the snapshots until CH-5a.
 - The owner-facing effect of the grades (PARTIAL Kobo, LOW Cold and EV, until DD-1) is as §5c states.
+
+## Fix round 1 (review REVISE + rulings CH1a-R; commit `6e708c713` plus this packet commit)
+
+- **H1 fixed.** `test_w205a_ev_migration.py` now compares index NAMES: after the downgrade to 0023 the set difference is exactly `{accepted_evidence_ev_measurement, accepted_evidence_site_role_time}` and nothing new appears. File passes.
+- **M1 fixed (with the Architect's extension, sheet §4.1 `input_fp(ids, pending, ...)`).**
+  - `pending` is in the fingerprint (the grade is not).
+  - `selected_windows` now returns `(start, end, run_id)` (port, Postgres adapter, `latest_disjoint`). The fingerprint ids gain `run:<assessment run id>` for `chamber_temp_c`, `backup_start_chain` and `charging_kwh`, and `selection:<run id>` for `avoidable_gen_min`. `noon_headroom_kw` already names the `mini_depth_revision` id (`revision:`).
+  - New `backend/tests/test_ch1a_reassessment.py` (11 tests): per measure (5), a re-assessment over the same evidence ids appends revision 2 and an unchanged rebuild writes nothing; per measure (5), PENDING then completed with the same ids appends revision 2 with a non-PENDING grade; plus the Cold `basis` value.
+  - Non-vacuity: removing `pending` from the fingerprint fails the 5 PENDING tests; removing the run/selection/revision ids fails the 5 re-assessment tests. Both reverted (`git status` clean).
+- **L1.** Cold has 64 rows (2 measures x 33 days minus 2). 1 Oct has no subjects for either measure: the only Foundation revision starts 2026-10-01 00:00 UTC and the Addis day starts 2026-09-30 21:00 UTC, so no component is in force at the period start and the reader counts the day NO_DATA.
+- **L4.** `unknown_meter_seconds` removed from `ev_window` (D4: unknown seconds are excluded from both sets by construction).
+- **D6 (CH1a-R).** One helper, `pg_harness.alembic_head()`, reads the sole Alembic head from the scripts. All 24 files (23 tests plus `mini_depth_probe.py`) import it instead of the literal, so the next migration touches none of them. The 0041 test keeps its own `THIS` revision.
+- **D3 (chamber coverage).** The assessment's gap rule (`cold._gaps`: expected instants at the policy cadence, bridge up to 10 min) exists only inside an assessed window and needs the policy; applying it over the 24 h day would be new analytic code. So coverage stays on the **assessed-window basis** and the value carries `basis: "assessed_window"`. Clone finding: accepted `chamber_temperature` readings exist only in a one-hour slot per story day (24 Oct 13 readings, 28 Oct 7, 31 Oct 13, all 16:00-17:00 UTC), not for about 23 h. So the clone case is "readings only in the window", which is LOW either way; a 24 h reading-based count would not change today's grades. (24 Oct has readings but no selected assessment, so it is NO_DATA.)
+- **D2 (backup).** Window basis accepted; value carries `basis: "assessed_window"`.
+- **D1.** The corrected §5 row for Cold 28 Oct `chamber_temp_c` is **LOW 2100 s, peak 4.8** (confirmed again on the fresh clone).
+- **D7.** Budget is now <= 100 ms per measure-day. Measured on the fresh clone (build / rebuild): Kobo 69.3 / 62.1 ms, Cold 37.3 / 35.0 ms, EV 27.4 / 22.9 ms. Within budget (the reviewer's 114 ms was a noisier run; no optimisation).
+- **Fresh clone `assetops_chainclone_fx1a_test`** (from polish, migrated, built 2026-10-01..11-02): 97 / 64 / 33 rows; rebuild wrote 0. Value table as above, unchanged: Kobo 30 Oct 168.333 kWh / 42.08 USD, 31 Oct 0.000 / 0.00; noon 31 Oct COMPLETE 25-31; avoidable 31 Oct 200/30; EV 27 Oct LOW 15.000 kWh / 4.50 USD, 20 Oct 30.000 / 9.00, 26 Oct NOT_EXPECTED; Cold 28 Oct backup LOW 3900 `{starts 1, failed 1}`, chamber LOW 2100 peak 4.8; Cold 31 Oct chamber LOW 3900 peak 4.9. Grades: Kobo 8 COMPLETE (noon), 16 PARTIAL, 73 NO_DATA; Cold 6 LOW, 58 NO_DATA; EV 2 LOW, 2 NO_DATA, 29 NOT_EXPECTED. Coherence without `--known-at` against `expected-today.json`: 56 requests all 200, every rule 0 new, self-check 39 pass 0 fail. Clone dropped.
+- **Tests (host Postgres, `run-host-tests.ps1`, no skips):**
+  - All 25 changed files plus the new tests, in chunks: 60 passed (154 s), 80 (249 s), 69 (487 s), 45 (475 s), 35 (726 s: over the 600 s chunk cap for four files; completed, not killed). Total 289 passed, 0 failed.
+  - L0 `test_ch1a_grading` + `test_ch1a_reassessment`: 36 passed; L2 `test_ch1a_snapshot_postgres` inside the first chunk.
+  - Board / scoped set (`test_w301_estate_coverage`, `test_cov_partial_portfolio`, `test_w402_rules/projection/reads/inputs_postgres`, `test_walk1_productive_sales`, `test_out_b2_mini`, `test_s3_dispatch_read_postgres`, `test_out_b1_board`, `test_out_b4_board_postgres`): 149 passed (208 s).
+  - Architecture check passed; agent-workflow check passed; estate guard self-tests 7 passed (362 s).
+- **Not run:** full backend suite, vitest (not in this fix round's brief).
+- **Open for the Architect:** L2 (subject-less non-operating days count NO_DATA for ASSET measures) and L3 (Cold measures take Site-wide readings, not filtered by asset) remain latent v1 limits, for CH-1b.
