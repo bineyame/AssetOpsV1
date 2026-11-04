@@ -5,7 +5,8 @@ constructor-only `test_read_clock_override` replaces it in tests). Inside it:
 
 - the window is validated against the pinned `site.timezone` (closure 1 Q4/Q5/Q33, S8): service, fuel and backup
   take exactly one Site-local clock hour; renewable takes 1-5 consecutive complete Site-local days, each composed
-  from its individually selected local noon hour (first occurrence; a nonexistent noon refuses `INVALID_WINDOW`);
+  from its individually selected local hours (CH-9: its measured daylight and missing hours, `store.daylight_hours`;
+  a nonexistent local hour refuses `INVALID_WINDOW`);
 - each hour's head is the greatest `(selected_at, seq)` with `selected_at <= known_at` **and** the revision's
   `knowledge_cutoff <= known_at` (Q14), rechecked for tenant/Site/domain/window lineage and its stored basis;
 - per hour currentness (Q6/Q7, q6 ruling 5): a live (PENDING/LEASED/FAILED) overlapping job not cleared by a later
@@ -39,7 +40,6 @@ from assetops_backend.mini_depth.inputs import (
     MiniInputsRefused,
     load_hour_inputs,
     local_hour,
-    local_noon,
     zone,
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
@@ -509,23 +509,29 @@ class MiniDepthRead:
     # --- W4-03 closure 4 S9: the one selected-renewable basis reader -------------------------------------------
 
     def read_selected_renewable_basis(self, c: Connection, *, tenant_id: UUID, site_id: UUID, days: Sequence[date],
-                                      known: datetime, historical: bool) -> dict[str, Any]:
-        """The selected renewable noon-hour basis of `days` on the caller's connection and cutoff (W4-03 S9).
+                                      known: datetime, historical: bool,
+                                      windows: Sequence[tuple[date, rules.Window]] | None = None) -> dict[str, Any]:
+        """The selected renewable hour basis of `days` on the caller's connection and cutoff (W4-03 S9).
 
         Uses this reader's own head, overlapping-job, cutoff-digest and provenance logic (`_hour`, `mini_blocks`),
-        never a reimplementation. Per day: the selected `(selection_seq, mini_revision_id)`, the stored decision and
+        never a reimplementation. Per hour: the selected `(selection_seq, mini_revision_id)`, the stored decision and
         one-hour `opportunity_kwh` bound, the revision's input digest and accepted IDs, the hour currentness and live
-        job IDs. The three provenance blocks cover the complete day set. A nonexistent local noon is
-        `INVALID_WINDOW`. Nothing is written."""
+        job IDs. The three provenance blocks cover the complete hour set. Nothing is written.
+
+        CH-9 (CH9-R2 Q4/Q5): a day's hours are `store.daylight_hours(...).study_hours` at `known` (its measured
+        daylight and missing hours), one row each, ordered `(day, start)`. `windows` instead reads exactly the
+        named `(day, hour)` windows (a stored pin set: a `mini-opportunity/1` study or a scenario's pinned hours).
+        A nonexistent local hour is `INVALID_WINDOW`."""
         tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
                             {"t": tenant_id, "s": site_id}).scalar_one_or_none()
-        hours: list[_Hour] = []
-        for day in days:
+        if windows is None:
             try:
-                window = local_noon(day, tz_name or "")
+                windows = [(day, local_hour(day, h, tz_name or ""))
+                           for day in days for h in daylight_hours(c, tenant_id, site_id, day, known).study_hours]
             except MiniInputsRefused as error:
                 raise MiniReadRefused("INVALID_WINDOW") from error
-            hours.append(self._hour(c, tenant_id, site_id, "renewable", day, window, known, historical))
+        hours: list[_Hour] = [self._hour(c, tenant_id, site_id, "renewable", day, window, known, historical)
+                              for day, window in sorted(windows, key=lambda w: (w[0], w[1].start))]
         live = [h for h in hours if h.pending_ids is not None]
         blocks = mini_blocks(
             c, self._link_rows, tenant_id, site_id, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
@@ -534,7 +540,7 @@ class MiniDepthRead:
         rows = []
         for h in hours:
             hour = h.head.result.get("hour") or {} if h.head else {}
-            # The one stored row of a renewable noon hour carries its one-hour `opportunity_kwh` bound.
+            # The one stored row of a renewable hour carries its one-hour `opportunity_kwh` bound.
             stored_rows = (h.head.result.get("rows") or []) if h.head else []
             rows.append({
                 "local_day": h.day.isoformat(), "window_start": h.window.start, "window_end": h.window.end,

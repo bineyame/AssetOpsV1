@@ -87,13 +87,13 @@ def day_heads(store: Any, c: Any, tenant_id: UUID, site_id: UUID, tz_name: str |
     missing head, so the day is missing); the noon hour for a Site with no `pv_available_power` binding. A day
     with neither daylight nor missing hours keeps one missing head at noon, so the study keeps five days and that
     day reads missing (recorded in the CH-9 packet)."""
-    from assetops_backend.mini_depth.store import NOON_HOURS, daylight_hours
+    from assetops_backend.mini_depth.store import daylight_hours
 
     known = cutoff if cutoff is not None else c.execute(text("SELECT now()")).scalar_one()
     windows: dict[date, list[Any]] = {}
     for d in days:
         found = daylight_hours(c, tenant_id, site_id, d, known)
-        windows[d] = [local_hour(d, h, tz_name or "") for h in sorted({*found.hours, *found.missing}) or NOON_HOURS]
+        windows[d] = [local_hour(d, h, tz_name or "") for h in found.study_hours]
     starts = [w.start for ws in windows.values() for w in ws]
     rows = {r[0]: r for r in store.renewable_noon_heads(c, tenant_id, site_id, starts)}
     return [_head(d, w, rows.get(w.start)) for d in days for w in windows[d]]

@@ -90,7 +90,7 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     [rev] = revisions(engine)
     heads = pins(engine, t, s)
     assert (rev.revision_no, rev.producer_id, rev.model_version, rev.source_job_id) == (
-        1, "mini-opportunity/1", "mini-opportunity/1", done.job_id)
+        1, "mini-opportunity/2", "mini-opportunity/2", done.job_id)  # CH-9: the producer is /2
     assert (rev.first_day, rev.last_day) == (DAYS[0], DAYS[-1])
     assert rev.input_sha256 == projection.input_sha256(t, s, DAYS[0], DAYS[-1], heads) == done.projected.input_sha256
     # The five pins are the exact selected tuples, seq included.
@@ -123,7 +123,7 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     assert counts(engine) == before
     # u4b ruling 1: both persisted producer columns are unchanged after the unchanged rerun.
     [kept] = revisions(engine)
-    assert (kept.id, kept.producer_id, kept.model_version) == (rev.id, "mini-opportunity/1", "mini-opportunity/1")
+    assert (kept.id, kept.producer_id, kept.model_version) == (rev.id, "mini-opportunity/2", "mini-opportunity/2")
     # The unchanged study is not queued again by reconcile either.
     assert w.reconcile(CODE, *STUDY) == []
     # Resume: a duplicate job for the same study reuses the revision and appends no selection.

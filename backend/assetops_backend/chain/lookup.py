@@ -69,6 +69,7 @@ OPPORTUNITY_LOOKUP = (
     "'public_no', m.public_no, 'first_day', m.first_day, 'last_day', m.last_day, "
     "'status', r.result->>'status', 'eligible_days', r.result->'eligible_days', "
     "'assessed_days', r.result->'assessed_days', 'headroom_kw', r.result->'headroom_kw', "
+    "'window_hours', r.result->'window_hours', 'model_version', m.model_version, "
     "'limitation_codes', (SELECT jsonb_agg(l->'code') FROM jsonb_array_elements(r.result->'limitations') l), "
     "'decisions', (SELECT jsonb_agg(d->'decision') FROM jsonb_array_elements(r.result->'day_rows') d), "
     "'selected_at', h.selected_at, 'seq', h.seq, 'joined_at', oc.joined_at, 'source_known_at', oc.source_known_at) "

@@ -345,6 +345,12 @@ class DaylightHours:
     missing: tuple[int, ...] = ()
     measured: bool = True
 
+    @property
+    def study_hours(self) -> tuple[int, ...]:
+        """The hours a study or basis reads for the day: its daylight and missing hours; a day with neither (a
+        covered dark day) keeps one `NOON_HOURS` hour, which no worker fills, so the day reads missing."""
+        return tuple(sorted({*self.hours, *self.missing})) or NOON_HOURS
+
 
 def daylight_hours(c: Connection, tenant_id: UUID, site_id: UUID, day: date, knowledge_cutoff: datetime
                    ) -> DaylightHours:

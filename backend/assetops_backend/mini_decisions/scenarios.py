@@ -23,6 +23,7 @@ from decimal import Decimal
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
+from assetops_backend.analytics.assessment_ports import Window
 from assetops_backend.mini_decisions import scenario_rules as rules
 from assetops_backend.mini_decisions.model import GRANT_PREFIX, DecisionPrincipal, DecisionRefused, invalid
 from assetops_backend.mini_decisions.store import (
@@ -85,6 +86,16 @@ def authorize(actor: Mapping[str, Any], principal: DecisionPrincipal) -> dict[st
         raise DecisionRefused("DECISION_ATTESTATION_INVALID")
     return {"actor_kind": "SERVICE", "actor_id": actor["id"], "attestation": actor["attestation"],
             "authorization_basis": principal.grant}
+
+
+def _pinned_windows(pins: Sequence[Mapping[str, Any]], revisions: Mapping[str, Mapping[str, Any]]
+                    ) -> list[tuple[date, Window]]:
+    """CH-9: each pin's stored revision hour `(local_day, [window_start, +1 h))`, read exactly (never re-derived)."""
+    out = []
+    for p in pins:
+        start = revisions[str(p["mini_revision_id"]).lower()]["window_start"]
+        out.append((date.fromisoformat(p["local_day"]), Window(start, start + timedelta(hours=1))))
+    return out
 
 
 def parse_pins(value: Any) -> list[dict[str, Any]]:
@@ -332,7 +343,7 @@ class ScenarioService:
             try:
                 basis = self._reader.read_selected_renewable_basis(
                     c, tenant_id=tenant_id, site_id=site_id, days=[date.fromisoformat(p["local_day"]) for p in pins],
-                    known=self._store.db_now(c), historical=False)
+                    known=self._store.db_now(c), historical=False, windows=_pinned_windows(pins, found))
             except MiniReadRefused:
                 raise invalid() from None
             for pin, day in zip(pins, basis["days"]):
@@ -378,12 +389,15 @@ class ScenarioService:
         heads = self._store.scenario_heads(c, t, s, lo, hi, known)
         pinned_ids = sorted({p["mini_revision_id"] for h in heads for p in h["pinned_selection_hours"]})
         days = sorted({date.fromisoformat(p["local_day"]) for h in heads for p in h["pinned_selection_hours"]})
-        basis = self._reader.read_selected_renewable_basis(c, tenant_id=t, site_id=s, days=days, known=known,
-                                                           historical=historical)
-        by_day = {d["local_day"]: d for d in basis["days"]}
         revisions = renewable_revisions(c, t, s, pinned_ids)
         if set(revisions) != set(pinned_ids):
             raise MiniDecisionStoreUnavailable("A stored scenario pin no longer names a renewable revision.")
+        # CH-9: a scenario pins one stored hour per day; the basis reads exactly those pinned hours.
+        pinned = {(p["local_day"], p["mini_revision_id"]): p for h in heads for p in h["pinned_selection_hours"]}
+        basis = self._reader.read_selected_renewable_basis(
+            c, tenant_id=t, site_id=s, days=days, known=known, historical=historical,
+            windows=sorted(set(_pinned_windows(list(pinned.values()), revisions)), key=lambda w: (w[0], w[1].start)))
+        by_day = {(d["local_day"], d["window_start"]): d for d in basis["days"]}
         blocks = self._reader.provenance_blocks(
             c, tenant_id=t, site_id=s, selected_revision_ids=pinned_ids,
             selected_evidence_ids=[i for r in pinned_ids for i in revisions[r]["evidence_ids"]],
@@ -435,7 +449,7 @@ class ScenarioService:
         if stored.get("reason"):
             codes.append(stored["reason"])
         for pin in pins:
-            day = by_day[pin["local_day"]]
+            day = by_day[(pin["local_day"], revisions[str(pin["mini_revision_id"]).lower()]["window_start"])]
             if day.get("mini_revision_id") is None or day["mini_revision_id"] != pin["mini_revision_id"]:
                 codes.append("SELECTION_CHANGED")  # absent or different head; same revision, new seq is harmless
             elif day["state"] in GATE_CODES:

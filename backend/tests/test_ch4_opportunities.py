@@ -82,10 +82,11 @@ TID = "2fc15fab-6652-5dfd-b337-57f8a6877268"
 def _o(oid: str, num: int, start: datetime, end: datetime, *, public_no: int, first: str, last: str,
        status: str = "LIMITED", eligible: int = 2, assessed: int = 4, tz: str = ADDIS, known: datetime | None = None,
        selected: datetime | None = None, seq: int = 1, codes=("SOURCE_CLASS_MIXED",), decisions=None,
-       headroom=None, site_code: str = "KOBO-001") -> tuple:
+       headroom=None, site_code: str = "KOBO-001", window_hours=None, model: str = "mini-opportunity/2") -> tuple:
     study = {"site_id": str(S), "site_code": site_code, "site_name": "Kobo", "public_no": public_no,
              "first_day": first, "last_day": last, "status": status, "eligible_days": eligible,
              "assessed_days": assessed, "headroom_kw": headroom, "limitation_codes": list(codes),
+             "window_hours": window_hours, "model_version": model,
              "decisions": decisions or ["ELIGIBLE", "ELIGIBLE", "EXCLUDED", "EXCLUDED", None],
              "selected_at": (selected or datetime(2026, 11, 1, tzinfo=UTC)).isoformat(), "seq": seq,
              "joined_at": datetime(2026, 11, 3, tzinfo=UTC).isoformat(),
@@ -178,10 +179,18 @@ def test_state_and_filter_state_mapping():
     assert item["state"] == "WITHDRAWN" and item["filter_state"] == "no_longer_supported"
     assert item["state_label"] == "No longer seen"
     sup = [_o(O4, 1, _addis(2026, 10, 31), _addis(2026, 11, 2), public_no=4, first="2026-10-28", last="2026-11-01",
-              status="SUPPORTED", codes=(), headroom={"low": "25.0", "high": "31"}), ROWS[2]]
+              status="SUPPORTED", codes=(), headroom={"low": "25.0", "high": "31"}, window_hours=6), ROWS[2]]
     (s,) = opportunity_items(sup, *WEEK, None)
-    assert s["filter_state"] == "supported" and s["value_line"] == "25–31 kW at midday on every eligible day"
-    assert s["limit_line"] is None and s["evidence_label"] == "Supported"
+    # CH-9 §2 (owned copy change): the line names the study's stored `window_hours`.
+    assert s["filter_state"] == "supported" and s["value_line"] == "25–31 kW over 6 daylight hours on every eligible day"
+    assert s["limit_line"] is None and s["evidence_label"] == "Supported" and s["study"]["window_hours"] == 6
+    # A `mini-opportunity/1` result has no `window_hours`; it was sized over one hour.
+    old = [_o(O4, 1, _addis(2026, 10, 31), _addis(2026, 11, 2), public_no=4, first="2026-10-28", last="2026-11-01",
+              status="SUPPORTED", codes=(), headroom={"low": "25.0", "high": "31"}, model="mini-opportunity/1"),
+           ROWS[2]]
+    (s1,) = opportunity_items(old, *WEEK, None)
+    assert s1["study"]["window_hours"] == 1
+    assert s1["value_line"] == "25–31 kW over 1 daylight hours on every eligible day"
 
 
 # --- copy (§2.2) --------------------------------------------------------------------------------------------------
@@ -190,8 +199,9 @@ def test_copy_literals():
     assert v.seen_line(1, 1, date(2026, 10, 31), date(2026, 10, 31)) == "Seen on 1 of 1 well-observed days · 31 Oct"
     assert v.seen_line(2, 4, date(2026, 10, 28), date(2026, 11, 1)) == \
         "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov"
-    assert v.value_line("SUPPORTED", {"low": "25", "high": "25.0"}) == "25 kW at midday on every eligible day"
-    assert v.value_line("LIMITED", {"low": "1", "high": "2"}) is None
+    assert v.value_line("SUPPORTED", {"low": "25", "high": "25.0"}, 6) ==         "25 kW over 6 daylight hours on every eligible day"
+    assert v.value_line("LIMITED", {"low": "1", "high": "2"}, 6) is None
+    assert v.value_line("SUPPORTED", {"low": "1", "high": "2"}, None) is None
     assert v.limit_line("LIMITED", ["SOURCE_CLASS_UNKNOWN"], []) == v.LIMIT_MIXED
     assert v.limit_line("LIMITED", [], ["LIMITED", "CONFLICT", "ELIGIBLE", None, "EXCLUDED"]) == \
         "Limited evidence: 2 of the 5 study days lack a reading needed to size it"

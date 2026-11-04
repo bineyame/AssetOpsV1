@@ -28,8 +28,11 @@ from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, Program
 
 #: The one W4-03 job domain (closure 1); never leased by Dispatch or W4-02's four-domain worker.
 OPPORTUNITY_JOB_DOMAIN = "mini_opportunity"
-#: The exact opportunity producer model version (closure 1).
-OPPORTUNITY_MODEL_VERSION = "mini-opportunity/1"
+#: The exact opportunity producer model version (closure 1). CH-9 (CH9-R2 Q5): `/2` studies read each day's
+#: measured daylight hours; `/1` studies stay readable, and a `/2` root wins over a `/1` root of the same study.
+OPPORTUNITY_MODEL_VERSION = "mini-opportunity/2"
+LEGACY_OPPORTUNITY_MODEL_VERSION = "mini-opportunity/1"
+READABLE_OPPORTUNITY_MODEL_VERSIONS = (LEGACY_OPPORTUNITY_MODEL_VERSION, OPPORTUNITY_MODEL_VERSION)
 
 T = TypeVar("T")
 
@@ -379,7 +382,7 @@ class PostgresMiniDecisionStore:
 
     @staticmethod
     def opportunity_root(c: Connection, tenant_id: UUID, site_id: UUID, first_day: Any, last_day: Any) -> Any:
-        """The study's `mini-opportunity/1` root ID, or None."""
+        """The study's root ID at the producing model version (`OPPORTUNITY_MODEL_VERSION`), or None."""
         return c.execute(text(
             "SELECT id FROM mini_opportunity WHERE tenant_id = :t AND site_id = :s AND first_day = :f "
             "AND last_day = :l AND model_version = :v"),
@@ -406,14 +409,17 @@ class PostgresMiniDecisionStore:
     @staticmethod
     def opportunity_roots(c: Connection, tenant_id: UUID, site_id: UUID, *, known: Any, lo_day: Any = None,
                           hi_day: Any = None, opportunity_id: str | None = None) -> list[Mapping[str, Any]]:
-        """`mini-opportunity/1` roots visible at `known`: either the one named root, or every study whose
-        `[first_day, last_day + 1 day)` intersects the Site-local day range `[lo_day, hi_day)` (u5 ruling 6)."""
+        """Readable (`/1` or `/2`) roots visible at `known`: either the one named root, or every study whose
+        `[first_day, last_day + 1 day)` intersects the Site-local day range `[lo_day, hi_day)` (u5 ruling 6). CH-9:
+        one root per study, the greatest visible model version (`/2` wins over `/1`)."""
         where = "o.id = CAST(:o AS uuid)" if opportunity_id is not None else "o.first_day < :hi AND o.last_day >= :lo"
         return list(c.execute(text(
-            "SELECT o.id, o.public_no, o.first_day, o.last_day, o.model_version, o.created_at FROM mini_opportunity o "
-            f"WHERE o.tenant_id = :t AND o.site_id = :s AND o.model_version = :v AND o.created_at <= :k AND {where}"),
-            {"t": tenant_id, "s": site_id, "v": OPPORTUNITY_MODEL_VERSION, "k": known, "lo": lo_day, "hi": hi_day,
-             "o": opportunity_id}).mappings())
+            "SELECT DISTINCT ON (o.first_day, o.last_day) o.id, o.public_no, o.first_day, o.last_day, "
+            "o.model_version, o.created_at FROM mini_opportunity o "
+            "WHERE o.tenant_id = :t AND o.site_id = :s AND o.model_version = ANY(CAST(:v AS text[])) "
+            f"AND o.created_at <= :k AND {where} ORDER BY o.first_day, o.last_day, o.model_version DESC"),
+            {"t": tenant_id, "s": site_id, "v": list(READABLE_OPPORTUNITY_MODEL_VERSIONS), "k": known, "lo": lo_day,
+             "hi": hi_day, "o": opportunity_id}).mappings())
 
     @staticmethod
     def opportunity_selections(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_ids: list[Any],
