@@ -24,6 +24,7 @@ from uuid import uuid4
 
 import pytest
 
+from link_parity import checked
 from test_s4_finding_store_postgres import URL
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -209,10 +210,11 @@ def test_backfill_places_one_thread_and_both_adapters_agree(store, engine) -> No
     assert item["seen_line"] == "Seen on 3 of 5 well-observed days · 6 Oct–10 Oct"
     assert item["value_line"] == "16–19 kW at midday on every eligible day" and item["limit_line"] is None
     assert "OPPORTUNITY" in item["lens_flags"]
-    assert item["links"] == {"opportunity": f"/sites/{code}/opportunities/{oid}",
-                             "evidence": f"/sites/{code}/performance/renewable?from=2026-10-05T21:00:00Z"
-                                         "&to=2026-10-10T21:00:00Z",
-                             "site": f"/sites/{code}"}
+    # CH-5a2a D1: one builder, one encoding (`:` is `%3A`); every link equals href_for of its link_refs sibling
+    assert checked(item)["links"] == {"opportunity": f"/sites/{code}/opportunities/{oid}",
+                                      "evidence": f"/sites/{code}/performance/renewable?from=2026-10-05T21%3A00%3A00Z"
+                                                  "&to=2026-10-10T21%3A00%3A00Z",
+                                      "site": f"/sites/{code}"}
     assert item["ref"] == {"kind": "OPPORTUNITY", "site": code, "id": oid}
     assert item["thread_ref"] == {"kind": "THREAD", "site": code, "id": tid}
     # As known now (None) on the board path equals an explicit present cutoff.
@@ -272,7 +274,7 @@ def test_findings_and_portfolio_bodies_carry_the_item(store, engine, monkeypatch
     assert [i["study"]["status"] for i in early] == ["LIMITED"]
 
     portfolio = ok("portfolio", **WINDOW, limit=100)
-    assert portfolio["opportunity"] == {"state": "FOUND", "items": [item], "finding_id": None,
+    assert checked(portfolio["opportunity"]) == {"state": "FOUND", "items": [checked(item)], "finding_id": None,
                                         "scenario_amount": None, "headroom": {"low": "16", "high": "19"},
                                         "destination": "/findings/opportunities"}
     assert portfolio["summary"]["opportunity_count"] == 1
