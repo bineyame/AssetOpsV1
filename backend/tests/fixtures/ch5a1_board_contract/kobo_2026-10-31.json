@@ -1,0 +1,455 @@
+{
+ "_short_values": {
+  "GROW_REVENUE": "18–24.3 kW unused"
+ },
+ "_verified_results": 0,
+ "domain": "mini_grid",
+ "finding_gaps": {
+  "days": [
+   "2026-10-15",
+   "2026-10-16"
+  ],
+  "text": "Not available yet · 2 of 31 days are not assessed yet",
+  "withheld": false
+ },
+ "links": {
+  "self": "/api/sites/KOBO-001/outcome-board?from=2026-10-30T21%3A00%3A00Z&to=2026-10-31T21%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ "objectives": [],
+ "objectives_read": false,
+ "policy_versions": {
+  "catalogue": "outcome-catalogue/2",
+  "finding_index": "finding-index/2",
+  "objectives": "outcome-objectives/2",
+  "outcome_map": "outcome-map/1",
+  "status": "outcome-status/3",
+  "warnings": "early-warnings/1"
+ },
+ "read_state": "PARTIAL",
+ "rows": [
+  {
+   "category": "GROW_REVENUE",
+   "contributors": [
+    {
+     "confidence": null,
+     "href": null,
+     "key": "productive_sales",
+     "label": "Productive-use sales",
+     "text": "Not available yet · no productive users identified for this site"
+    },
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "key": "productive_use",
+     "label": "Productive use",
+     "text": "Spare solar on 1 of 1 well-observed day · 4 of the last 5 days not checked"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "cash_collected",
+     "label": "Cash collected",
+     "text": "Not available yet · no billing or payment records"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "site_earnings",
+     "label": "Site earnings",
+     "text": "Not available yet · needs site income, operating cost and capital records"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 1
+   },
+   "definition": "Capture more value from existing infrastructure and expand earning potential",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/KOBO-001/performance/renewable",
+    "label": "Renewable evidence"
+   },
+   "headline": "18–24.3 kW of daytime solar unused",
+   "headline_money": null,
+   "icon": "grow",
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "kind": "OPPORTUNITY",
+     "ref": null,
+     "role": "MOVES",
+     "text": "Productive-use headroom"
+    }
+   ],
+   "label": "Grow revenue",
+   "lead_outcome": {
+    "key": "MG-1",
+    "label": "Productive electricity sales"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/KOBO-001/financials/scenarios",
+     "text": "Productive-use what-if"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "MG-1",
+     "label": "Productive electricity sales",
+     "reason": "OPPORTUNITY_OPEN",
+     "state": "OPPORTUNITY"
+    },
+    {
+     "key": "MG-6",
+     "label": "Cash collected",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    },
+    {
+     "key": "MG-3",
+     "label": "Site profitability",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    }
+   ],
+   "potential": null,
+   "state": "OPPORTUNITY",
+   "state_label": "Opportunity",
+   "subline": "Sales to productive users are not metered, so revenue itself is not measured yet",
+   "tone": "green"
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "High",
+      "tone": "green"
+     },
+     "href": "/sites/KOBO-001/performance/dispatch",
+     "key": "generator_use",
+     "label": "Generator use",
+     "text": "45 min avoidable, 12 min unclear"
+    },
+    {
+     "confidence": {
+      "label": "Unknown",
+      "tone": "gray"
+     },
+     "href": "/sites/KOBO-001/performance/fuel",
+     "key": "fuel",
+     "label": "Fuel",
+     "text": "No complete fuel balance yet"
+    },
+    {
+     "confidence": {
+      "label": "Declared",
+      "tone": "neutral"
+     },
+     "href": "/sites/KOBO-001/financials/assumptions",
+     "key": "fuel_price",
+     "label": "Fuel price",
+     "text": "Declared at 1.45 USD per litre"
+    }
+   ],
+   "counts": {
+    "in_hand": 1,
+    "issues": 3
+   },
+   "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+   "earlier": [],
+   "earlier_empty_text": "No earlier work has been checked for this",
+   "evidence_link": {
+    "href": "/sites/KOBO-001/performance/dispatch",
+    "label": "Dispatch evidence"
+   },
+   "headline": "possible extra fuel cost on this day",
+   "headline_money": {
+    "amount_high": "3.97",
+    "amount_low": "3.31",
+    "currency": "USD"
+   },
+   "icon": "cost",
+   "in_hand": [
+    {
+     "href": "/sites/KOBO-001/actions/a1?event_id=e1",
+     "state_label": "Pending",
+     "text": "ACT-001"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/KOBO-001/findings/f1?revision_id=f1r",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1",
+      "finding_revision_id": "f1r",
+      "thread": null
+     },
+     "role": "MOVES",
+     "text": "Generator may have been on longer than needed"
+    },
+    {
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "kind": "OPPORTUNITY",
+     "ref": null,
+     "role": "CHECKED",
+     "text": "Productive-use headroom"
+    },
+    {
+     "href": null,
+     "kind": "EVIDENCE_GAP",
+     "ref": null,
+     "role": "CHECKED",
+     "text": "Battery output not reported limits this conclusion"
+    }
+   ],
+   "label": "Optimize cost and efficiency",
+   "lead_outcome": {
+    "key": "MG-2",
+    "label": "Supply cost per kWh"
+   },
+   "must_not_harm": {
+    "href": "/sites/KOBO-001/actions/a1/verification?event_id=e1",
+    "text": "Reliable service and battery and generator life are checked as safeguards when ACT-001 is verified; a gain that harms them does not count"
+   },
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/KOBO-001/findings/f1/recommendation",
+     "text": "Trial a lower generator stop setting"
+    },
+    {
+     "href": "/sites/KOBO-001/foundation/changes",
+     "text": "Proposed setting change"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "MG-2",
+     "label": "Supply cost per kWh",
+     "reason": "PRIMARY_FINDING_OPEN",
+     "state": "NEEDS_ATTENTION"
+    }
+   ],
+   "potential": null,
+   "state": "NEEDS_ATTENTION",
+   "state_label": "Needs attention",
+   "subline": "Generator stayed on 45 minutes longer than needed",
+   "tone": "amber"
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": "/sites/KOBO-001/health",
+     "key": "battery",
+     "label": "Battery",
+     "text": "No generator period at or near the reserve (2 assessed)"
+    },
+    {
+     "confidence": null,
+     "href": "/maintenance/preventive",
+     "key": "generator",
+     "label": "Generator",
+     "text": "Not available yet · this record could not be loaded"
+    },
+    {
+     "confidence": {
+      "label": "Unknown",
+      "tone": "gray"
+     },
+     "href": "/sites/KOBO-001/performance/service",
+     "key": "service_delivery",
+     "label": "Service delivery",
+     "text": "Delivered power measured; demand not measured"
+    },
+    {
+     "confidence": {
+      "label": "Unknown",
+      "tone": "gray"
+     },
+     "href": "/sites/KOBO-001/performance/backup",
+     "key": "backup_readiness",
+     "label": "Backup readiness",
+     "text": "No backup event in this window"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 2
+   },
+   "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/KOBO-001/health",
+    "label": "Battery evidence"
+   },
+   "headline": "Battery stayed clear of its reserve in 2 assessed generator periods",
+   "headline_money": null,
+   "icon": "protect",
+   "in_hand": [],
+   "issues": [
+    {
+     "href": "/sites/KOBO-001/performance/renewable?from=2026-10-26T21:00:00Z&to=2026-10-31T21:00:00Z",
+     "kind": "OPPORTUNITY",
+     "ref": null,
+     "role": "CHECKED",
+     "text": "Productive-use headroom"
+    },
+    {
+     "href": "/sites/KOBO-001/findings/f1?revision_id=f1r",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f1",
+      "finding_revision_id": "f1r",
+      "thread": null
+     },
+     "role": "CHECKED",
+     "text": "Generator may have been on longer than needed · checked here as a safeguard"
+    }
+   ],
+   "label": "Protect asset and capital",
+   "lead_outcome": {
+    "key": "MG-5",
+    "label": "Reliable service"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [],
+   "outcomes": [
+    {
+     "key": "MG-5",
+     "label": "Reliable service",
+     "reason": "OBJECTIVES_NOT_READ",
+     "state": "UNKNOWN"
+    },
+    {
+     "key": "MG-4",
+     "label": "Battery and generator life",
+     "reason": "OBJECTIVES_NOT_READ",
+     "state": "UNKNOWN"
+    }
+   ],
+   "potential": null,
+   "state": "UNKNOWN",
+   "state_label": "Unknown",
+   "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "tone": "gray"
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "Pending",
+      "tone": "neutral"
+     },
+     "href": "/sites/KOBO-001/actions/a1/verification?event_id=e1",
+     "key": "verified_results",
+     "label": "Verified results",
+     "text": "ACT-001 not yet verified"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "actual_against_plan",
+     "label": "Actual against plan",
+     "text": "Not available yet · declared objectives could not be loaded"
+    },
+    {
+     "confidence": {
+      "label": "Limited",
+      "tone": "amber"
+     },
+     "href": "/sites/KOBO-001/evidence",
+     "key": "readings",
+     "label": "Readings",
+     "text": "Example data · readiness Limited"
+    },
+    {
+     "confidence": {
+      "label": "High",
+      "tone": "green"
+     },
+     "href": "/sites/KOBO-001/evidence",
+     "key": "battery_reporting",
+     "label": "Battery reporting",
+     "text": "Battery output not reported"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 1
+   },
+   "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/KOBO-001/evidence",
+    "label": "Evidence overview"
+   },
+   "headline": "No verified result yet",
+   "headline_money": null,
+   "icon": "assure",
+   "in_hand": [],
+   "issues": [
+    {
+     "href": null,
+     "kind": "EVIDENCE_GAP",
+     "ref": null,
+     "role": "MOVES",
+     "text": "Battery output not reported limits this conclusion"
+    }
+   ],
+   "label": "Assure performance and returns",
+   "lead_outcome": {
+    "key": "MG-7",
+    "label": "Evidence quality"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/KOBO-001/work",
+     "text": "Restore battery reporting"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "MG-7",
+     "label": "Evidence quality",
+     "reason": "EVIDENCE_READINESS_LIMITED",
+     "state": "WATCH"
+    }
+   ],
+   "potential": null,
+   "state": "WATCH",
+   "state_label": "Watch",
+   "subline": "Battery output not reported",
+   "tone": "blue"
+  }
+ ],
+ "schema_version": "site-outcome-board-1",
+ "site_code": "KOBO-001",
+ "site_id": "00000000-0000-4000-8000-0000000000a1",
+ "site_name": "Kobo",
+ "warnings": [],
+ "window": {
+  "from": "2026-10-30T21:00:00Z",
+  "known_at": "2026-11-03T12:00:00Z",
+  "to": "2026-10-31T21:00:00Z"
+ }
+}

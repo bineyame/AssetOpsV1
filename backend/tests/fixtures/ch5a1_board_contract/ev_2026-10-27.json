@@ -1,0 +1,379 @@
+{
+ "_short_values": {},
+ "_verified_results": 0,
+ "domain": "ev_charging",
+ "finding_gaps": null,
+ "links": {
+  "self": "/api/sites/EV-LAB-001/outcome-board?from=2026-10-27T08%3A00%3A00Z&to=2026-10-27T16%3A00%3A00Z&known_at=2026-11-03T12%3A00%3A00Z"
+ },
+ "objectives": [],
+ "objectives_read": false,
+ "policy_versions": {
+  "catalogue": "outcome-catalogue/2",
+  "finding_index": "finding-index/2",
+  "objectives": "outcome-objectives/2",
+  "outcome_map": "outcome-map/1",
+  "status": "outcome-status/3",
+  "warnings": "early-warnings/1"
+ },
+ "read_state": "PARTIAL",
+ "rows": [
+  {
+   "category": "GROW_REVENUE",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "charging_delivered",
+     "label": "Charging delivered",
+     "text": "182.5 kWh with a complete meter record · 4 of 6 sessions completed"
+    },
+    {
+     "confidence": {
+      "label": "Declared",
+      "tone": "neutral"
+     },
+     "href": "/sites/EV-LAB-001/ev/financials",
+     "key": "charging_tariff",
+     "label": "Charging tariff",
+     "text": "Declared at 0.30 USD per kWh"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "charger_use",
+     "label": "Charger use",
+     "text": "Not available yet · connector capacity not read"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "energy_billed",
+     "label": "Energy billed against metered",
+     "text": "Not available yet · no settlement records"
+    }
+   ],
+   "counts": {
+    "in_hand": 1,
+    "issues": 1
+   },
+   "definition": "Capture more value from existing infrastructure and expand earning potential",
+   "earlier": [],
+   "earlier_empty_text": "No earlier work has been checked for this",
+   "evidence_link": {
+    "href": "/sites/EV-LAB-001/ev/financials",
+    "label": "Financial bridge"
+   },
+   "headline": "estimated charging income",
+   "headline_money": {
+    "amount_high": "54.75000000",
+    "amount_low": "54.75000000",
+    "currency": "USD"
+   },
+   "icon": "grow",
+   "in_hand": [
+    {
+     "href": "/sites/EV-LAB-001/actions/ea1",
+     "state_label": "Open",
+     "text": "DA-007 · Inspect connector C2"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/EV-LAB-001/ev/findings/f130",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f130",
+      "finding_revision_id": "f130r",
+      "thread": null
+     },
+     "role": "MOVES",
+     "text": "Charging interrupted"
+    }
+   ],
+   "label": "Grow revenue",
+   "lead_outcome": {
+    "key": "EV-3",
+    "label": "Charger use"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/EV-LAB-001/ev/financials/scenarios",
+     "text": "Charging what-ifs"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "EV-3",
+     "label": "Charger use",
+     "reason": "SECONDARY_FINDING_OPEN",
+     "state": "WATCH"
+    },
+    {
+     "key": "EV-6",
+     "label": "Energy billed against metered",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    }
+   ],
+   "potential": null,
+   "state": "WATCH",
+   "state_label": "Watch",
+   "subline": "182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh · not billed or collected",
+   "tone": "blue"
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "contributors": [],
+   "counts": {
+    "in_hand": 0,
+    "issues": 0
+   },
+   "definition": "Eliminate avoidable expenditure and get more output from operational resources",
+   "earlier": [],
+   "earlier_empty_text": null,
+   "evidence_link": null,
+   "headline": null,
+   "headline_money": null,
+   "icon": "cost",
+   "in_hand": [],
+   "issues": [],
+   "label": "Optimize cost and efficiency",
+   "lead_outcome": {
+    "key": "EV-2",
+    "label": "Energy cost per km"
+   },
+   "must_not_harm": null,
+   "not_measured_text": "Energy cost per km needs odometer readings; a tariff estimate exists in Financials",
+   "options": [],
+   "outcomes": [
+    {
+     "key": "EV-2",
+     "label": "Energy cost per km",
+     "reason": "NOT_MEASURED_IN_CATALOGUE",
+     "state": "NOT_MEASURED"
+    }
+   ],
+   "potential": null,
+   "state": "NOT_MEASURED",
+   "state_label": "Not measured yet",
+   "subline": null,
+   "tone": "none"
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "contributors": [
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "session_service",
+     "label": "Session service",
+     "text": "1 fault-aborted session, 1 outcome unknown"
+    },
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "connector_availability",
+     "label": "Connector availability",
+     "text": "Connector C2: 1 h 30 min out, 30 min unknown"
+    },
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "charger_condition",
+     "label": "Charger condition",
+     "text": "Fault recorded on C2"
+    },
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "site_power",
+     "label": "Site power",
+     "text": "Peak 76 kW of the 120 kW import limit"
+    },
+    {
+     "confidence": null,
+     "href": null,
+     "key": "warranty",
+     "label": "Warranty",
+     "text": "Not available yet · no warranty record"
+    }
+   ],
+   "counts": {
+    "in_hand": 1,
+    "issues": 1
+   },
+   "definition": "Preserve asset value, avoid premature replacement and reduce service disruption",
+   "earlier": [],
+   "earlier_empty_text": "No earlier work has been checked for this",
+   "evidence_link": {
+    "href": "/sites/EV-LAB-001/ev/evidence",
+    "label": "Depot evidence"
+   },
+   "headline": "1 interrupted · 1 unknown of 6 sessions",
+   "headline_money": null,
+   "icon": "protect",
+   "in_hand": [
+    {
+     "href": "/sites/EV-LAB-001/actions/ea1",
+     "state_label": "Open",
+     "text": "DA-007 · Inspect connector C2"
+    }
+   ],
+   "issues": [
+    {
+     "href": "/sites/EV-LAB-001/ev/findings/f130",
+     "kind": "FINDING",
+     "ref": {
+      "finding_id": "f130",
+      "finding_revision_id": "f130r",
+      "thread": null
+     },
+     "role": "MOVES",
+     "text": "Charging interrupted"
+    }
+   ],
+   "label": "Protect asset and capital",
+   "lead_outcome": {
+    "key": "EV-1",
+    "label": "Buses ready for service"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [
+    {
+     "href": "/sites/EV-LAB-001/actions/ea1",
+     "text": "Investigate Connector C2"
+    }
+   ],
+   "outcomes": [
+    {
+     "key": "EV-1",
+     "label": "Buses ready for service",
+     "reason": "PRIMARY_FINDING_OPEN",
+     "state": "NEEDS_ATTENTION"
+    },
+    {
+     "key": "EV-4",
+     "label": "Charger life",
+     "reason": "OBJECTIVES_NOT_READ",
+     "state": "UNKNOWN"
+    },
+    {
+     "key": "EV-5",
+     "label": "Room before expansion",
+     "reason": "OBJECTIVES_NOT_READ",
+     "state": "UNKNOWN"
+    }
+   ],
+   "potential": null,
+   "state": "NEEDS_ATTENTION",
+   "state_label": "Needs attention",
+   "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected is not known yet. Charger condition is not assessed",
+   "tone": "amber"
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "contributors": [
+    {
+     "confidence": null,
+     "href": null,
+     "key": "departures",
+     "label": "Departures against the timetable",
+     "text": "Not available yet · no bus roster connected"
+    },
+    {
+     "confidence": null,
+     "href": "/sites/EV-LAB-001/ev/financials",
+     "key": "energy_billed",
+     "label": "Energy billed against metered",
+     "text": "Not available yet · no settlement records · reconciles the revenue shown under Grow revenue"
+    },
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "session_records",
+     "label": "Session records",
+     "text": "1 session has no accepted end"
+    },
+    {
+     "confidence": {
+      "label": "Low",
+      "tone": "amber"
+     },
+     "href": null,
+     "key": "connector_status",
+     "label": "Connector status",
+     "text": "Missing 27 Oct 10:00–27 Oct 10:30"
+    }
+   ],
+   "counts": {
+    "in_hand": 0,
+    "issues": 0
+   },
+   "definition": "Establish with defensible evidence whether the infrastructure is delivering expected results",
+   "earlier": [],
+   "earlier_empty_text": "Not available yet · no completed work or checked change for this outcome",
+   "evidence_link": {
+    "href": "/sites/EV-LAB-001/ev/evidence",
+    "label": "Evidence overview"
+   },
+   "headline": "Evidence limited · no verified result yet",
+   "headline_money": null,
+   "icon": "assure",
+   "in_hand": [],
+   "issues": [],
+   "label": "Assure performance and returns",
+   "lead_outcome": {
+    "key": "EV-7",
+    "label": "Evidence quality"
+   },
+   "must_not_harm": null,
+   "not_measured_text": null,
+   "options": [],
+   "outcomes": [
+    {
+     "key": "EV-7",
+     "label": "Evidence quality",
+     "reason": "EVIDENCE_READINESS_NONE",
+     "state": "WATCH"
+    }
+   ],
+   "potential": null,
+   "state": "WATCH",
+   "state_label": "Watch",
+   "subline": "1 session end and 30 min of connector status are missing",
+   "tone": "blue"
+  }
+ ],
+ "schema_version": "site-outcome-board-1",
+ "site_code": "EV-LAB-001",
+ "site_id": "00000000-0000-4000-8000-0000000000e1",
+ "site_name": "Depot",
+ "warnings": [],
+ "window": {
+  "from": "2026-10-27T08:00:00Z",
+  "known_at": "2026-10-28T00:00:00Z",
+  "to": "2026-10-27T16:00:00Z"
+ }
+}

@@ -21,7 +21,7 @@ from assetops_backend.chain.measures import measures_for
 FULL, LIMITED, NONE, UNKNOWN = "FULL", "LIMITED", "NONE", "UNKNOWN"
 MINI_DOMAIN = "mini_grid"
 #: The chain measure Site type of each board domain (`chain/measures.py`).
-SITE_TYPE_OF_DOMAIN = {"mini_grid": "MINIGRID", "cold_chain": "COLDCHAIN", "ev_charging": "EV"}
+SITE_TYPE_OF_DOMAIN = {"mini_grid": "MINIGRID", "cold_chain": "COLDCHAIN", "ev_charging": "EV_CHARGING"}
 
 
 # ---- rules -------------------------------------------------------------------------------------------------------
