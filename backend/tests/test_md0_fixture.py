@@ -82,6 +82,10 @@ def test_late_fill_refuses_all_but_the_declared_fillable_gap() -> None:
     ("assetops_mechanism_test", True),
     ("assetops_mechanism_close_test", True),
     ("assetops_mechanism_tpl_test", True),
+    ("assetops_mechanism_tpl_0a1b2c3d_test", True),
+    ("assetops_mechanism_tplb_0a1b2c3d_test", True),
+    ("assetops_mechanism_tpl_0a1b2c3_test", False),
+    ("assetops_mechanism_tpl_0A1B2C3D_test", False),
     ("assetops_mechanism_c0a1b2c3d4e_test", True),
     ("assetops_mechanism_cxyz_test", False),
     ("assetops_mechanism_other_test", False),
@@ -115,6 +119,25 @@ def test_check_tag_refuses_missing_and_stale() -> None:
     with pytest.raises(md.MechanismRefused, match="TEMPLATE_STALE"):
         md.check_tag(tag, "b" * 64)
     assert md.check_tag(tag, "a" * 64) is tag
+
+
+def test_template_name_is_per_fingerprint() -> None:
+    """CH5a1-R3 M4: one template per input fingerprint, named for its first 8 hex digits."""
+    assert md.template_name("ab12cd34" + "0" * 56) == "assetops_mechanism_tpl_ab12cd34_test"
+    assert md.TEMPLATE_RE.fullmatch(md.template_name("f" * 64))
+    assert not md.TEMPLATE_RE.fullmatch(md.LEGACY_TEMPLATE_DB)
+    with pytest.raises(md.MechanismRefused, match="MECHANISM_DB_ONLY"):
+        md.template_name("not-a-fingerprint")
+
+
+def test_prune_keeps_the_two_newest_and_never_the_legacy_template() -> None:
+    """M4: after a publish, the new template and the newest other one stay; older ones and nothing else go."""
+    a, b, c, d = (f"assetops_mechanism_tpl_{x * 8}_test" for x in "abcd")
+    assert md.prune_list([a, b, c, d], a) == [c, d]
+    assert md.prune_list([b, a, c], a) == [c]  # the kept one need not be first (an older fingerprint rebuilt)
+    assert md.prune_list([a], a) == [] and md.prune_list([a, b], a) == []
+    assert md.prune_list([a, md.LEGACY_TEMPLATE_DB, b, c], a) == [c]
+    assert md.prune_list([a, b, c], a, keep=1) == [b, c]
 
 
 def test_input_fingerprint_moves_with_a_traced_module_or_a_data_file_only(tmp_path) -> None:

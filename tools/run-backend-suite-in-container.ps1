@@ -26,6 +26,9 @@
 # junit.xml, console.log, wall-time.txt and connections.csv to var/test-results/OPS-03/<run-id>/.
 # The pytest wall time is capped at -CapMinutes (2x the expected wall in backend/TESTING.md); a run past the
 # cap is recorded as a hang (timeout.txt), terminated, and exits 124. The URL and password are never printed.
+# FIX-MAIN-1: when the targets hold an MD-0 L2m test, the in-container step first reuses or builds the mechanism
+# input template for this checkout's fingerprint (tools/mechanism_dataset.py ensure; mechanism-template.log) and
+# exits 2 before pytest if that fails.
 param(
     [int]$CapMinutes = 0,  # 0 = derived: 2x the measured wall for the tier, scaled to the worker count (backend/TESTING.md Timing)
     [int]$Workers = 0,
