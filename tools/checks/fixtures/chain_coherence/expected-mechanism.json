@@ -1,0 +1,4 @@
+{"schema": "chain-coherence-expected/1",
+ "basis": "MD-0 L3m: assetops_mechanism_test built by tools/mechanism_dataset.py build (variant main, KOBO-001 only per Architect MD0-S2), collected in process, not ticked",
+ "rule": "Entries only for the declared gap day GAP-K7 or a R4 writer-without-clock fact, each naming the owning slice. Any other finding is a regression. The list may only shrink.",
+ "expectations": []}

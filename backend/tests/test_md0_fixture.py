@@ -1,5 +1,5 @@
-"""MD-0 L0 (build sheet §10.1): the mechanism fixture's schema rules, the Dn map, the EV calendar, the gap
-placement, the `late_fill` refusals and the `MECHANISM_DB_ONLY` name check. Pure: no database."""
+"""MD-0 L0 (build sheet §10.1): the mechanism fixture's schema rules, the Dn map, the Kobo-only scope (MD0-S2), the
+gap placement, the `late_fill` refusals and the `MECHANISM_DB_ONLY` name check. Pure: no database."""
 
 from __future__ import annotations
 
@@ -24,21 +24,20 @@ def test_dn_map() -> None:
     assert md.day(SPEC, 13).isoformat() == SPEC["story"]["S"][:10]
     assert [n for n in range(1, 15) if md.day(SPEC, n).weekday() == 1] == [2, 9]
     assert md.local_instant(SPEC, "kobo", 1, "00:00") == datetime(2026, 10, 18, 21, tzinfo=timezone.utc)
-    assert md.local_instant(SPEC, "cold", 3, "24:00") == datetime(2026, 10, 21, 21, tzinfo=timezone.utc)
-    assert md.local_instant(SPEC, "ev", 2, "08:00") == datetime(2026, 10, 20, 8, tzinfo=timezone.utc)
+    assert md.local_instant(SPEC, "kobo", 14, "24:00") == datetime(2026, 11, 1, 21, tzinfo=timezone.utc)
 
 
-def test_ev_days_are_the_declared_tuesdays() -> None:
-    for name in md.DAY_SETS:
-        assert SPEC["day_sets"][name]["ev"] == [2, 9]
+def test_kobo_only_with_one_recurrence_after_the_apply() -> None:
+    # MD0-S2: Cold and EV are removed (their normal data is proved on DD-1's real baseline).
+    assert set(SPEC["sites"]) == {"kobo"} and {g["id"] for g in SPEC["gaps"]} == {"GAP-K7"}
+    assert all(set(SPEC["day_sets"][n]) == {"kobo", "source"} for n in md.DAY_SETS)
+    effective = SPEC["sites"]["kobo"]["actions"][0]["effective"]["day"]
+    after = [e["day"] for e in SPEC["sites"]["kobo"]["events"] if e["day"] >= effective]
+    assert after == [14] and all(14 in SPEC["day_sets"][n]["kobo"] for n in md.DAY_SETS)
     bad = copy.deepcopy(SPEC)
-    bad["day_sets"]["full"]["ev"] = [2, 3]
-    with pytest.raises(ValueError, match="not a Tuesday"):
+    bad["sites"]["cold"] = {"site_code": "COLD-LAB-001", "time_zone": "Africa/Addis_Ababa"}
+    with pytest.raises(ValueError, match="KOBO-001 only"):
         md.validate(bad)
-    late = copy.deepcopy(SPEC)
-    late["sites"]["ev"]["sessions"]["first_local"] = "09:00"
-    with pytest.raises(ValueError, match="08:00-16:00"):
-        md.validate(late)
 
 
 def test_gaps_avoid_events_actions_and_studies() -> None:
@@ -54,7 +53,7 @@ def test_gaps_avoid_events_actions_and_studies() -> None:
 
 @pytest.mark.parametrize("mutate, message", [
     (lambda s: s["sites"]["kobo"]["events"][0].pop("source"), "no source"),
-    (lambda s: s["sites"]["cold"]["events"][0].__setitem__("grade", "COMPLETE"), "output key"),
+    (lambda s: s["sites"]["kobo"]["events"][1].__setitem__("grade", "COMPLETE"), "output key"),
     (lambda s: s["threads"][0].__setitem__("state", "OPEN"), "output key"),
     (lambda s: s.__setitem__("note", "objective MG-1"), "outcome id"),
     (lambda s: s.__setitem__("schema", "assetops.mechanism-dataset"), "schema"),
@@ -69,10 +68,14 @@ def test_schema_rules_refuse(mutate, message) -> None:
 def test_late_fill_refuses_all_but_the_declared_fillable_gap() -> None:
     assert md.fill_target(SPEC, "KOBO-001", 7)["id"] == "GAP-K7"
     assert md.fill_target(SPEC, "KOBO-001", 7, "overrun")["id"] == "GAP-K7"
-    for code, args in (("DUPLICATE_DAY", ("KOBO-001", 6)), ("DAY_HAS_EVIDENCE", ("COLD-LAB-001", 3)),
-                       ("DAY_HAS_EVIDENCE", ("EV-LAB-001", 2)), ("PREPARE_ONLY_KIND", ("KOBO-001", 7, "action"))):
+    for code, args in (("DUPLICATE_DAY", ("KOBO-001", 6)), ("DUPLICATE_DAY", ("COLD-LAB-001", 3)),
+                       ("PREPARE_ONLY_KIND", ("KOBO-001", 7, "action"))):
         with pytest.raises(md.MechanismRefused, match=code):
             md.fill_target(SPEC, *args)
+    held = copy.deepcopy(SPEC)
+    held["gaps"][0]["fill"] = False  # a declared gap that holds evidence (the removed GAP-C3/E2 shape)
+    with pytest.raises(md.MechanismRefused, match="DAY_HAS_EVIDENCE"):
+        md.fill_target(held, "KOBO-001", 7)
 
 
 @pytest.mark.parametrize("name, allowed", [

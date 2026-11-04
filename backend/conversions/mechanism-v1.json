@@ -5,10 +5,10 @@
   "statement": "Inputs only. Every value names its reviewed source or is tagged MD-0 new example content. Expected outputs live only in backend/tests/test_md0_mechanism_postgres.py and tools/checks/fixtures/chain_coherence/expected-mechanism.json.",
   "story": {"S": "2026-10-31T00:00:00Z", "day_zero": "2026-10-18", "days": {"D1": "2026-10-19", "D14": "2026-11-01"}},
   "day_sets": {
-    "full": {"kobo": [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14], "cold": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "ev": [2, 9],
-             "source": "build sheet MD-0 §2.2-2.4"},
-    "states": {"kobo": [1, 2, 3, 4, 5, 10, 11, 12, 13, 14], "cold": [3, 6, 7, 13], "ev": [2, 9],
-               "source": "MD0-PF Q2: the fewest delivered days that still reach every expected state (W1 D1-D5, W2 D10-D14, overruns D4/D11, ACT-K1 D11-D13; Cold PARTIAL D3, failures D6/D13, ACT-C1 D6-D7; EV D2/D9)"}
+    "full": {"kobo": [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14], 
+             "source": "build sheet MD-0 §2.2; MD0-S2 (Kobo only)"},
+    "states": {"kobo": [1, 2, 3, 4, 5, 10, 11, 12, 13, 14],
+               "source": "MD0-PF Q2: the fewest delivered days that still reach every expected state (W1 D1-D5, W2 D10-D14, overruns D4/D11, ACT-K1 D11-D12, recurrence D14; MD0-S2: Kobo only)"}
   },
   "delivery": {"max_envelopes_per_batch": 256, "decided_after_block_minutes": 5, "assess_after_day_minutes": 10,
                "source": "contracts/assetops_contracts/ingestion_batch_v2.py:203 (256-envelope limit); MD0-PF Q2 batching"},
@@ -36,10 +36,12 @@
         {"anchor": "K-OVR-D4", "kind": "overrun", "day": 4, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
          "source": "backend/conversions/s4-finding-cases-v1.json F01 block shape (stop before/after)"},
         {"anchor": "K-OVR-D11", "kind": "overrun", "day": 11, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
-         "source": "backend/conversions/s4-finding-cases-v1.json F01 block shape (stop before/after)"}
+         "source": "backend/conversions/s4-finding-cases-v1.json F01 block shape (stop before/after)"},
+        {"anchor": "K-OVR-D14", "kind": "overrun", "day": 14, "from_local": "08:00", "to_local": "09:00", "generator": "RUNNING", "pv": "40", "dis": "20", "soc": "80",
+         "source": "Architect MD0-S2: one Kobo recurrence day after ACT-K1's apply (the D-AW-3 record); F01 block shape"}
       ],
-      "noon": {"window_local": ["12:00", "13:00"], "spare_solar_days": [12, 13], "variant": "positive",
-               "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive (the only spare-solar variant; no busy variant exists, so other days keep the normal-day hour)"},
+      "noon": {"window_local": ["12:00", "13:00"], "spare_solar_days": [12, 13], "variant": "positive", "omit": ["backup_chain"],
+               "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive, its means and points re-dated to the local noon hour on KOBO-001's roles-4 bindings, without the MG-W402-001 backup chain (the only spare-solar variant; no busy variant exists, so other days keep the normal-day hour)"},
       "studies": [
         {"anchor": "K-W1", "from_day": 1, "to_day": 5, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"},
         {"anchor": "K-W2", "from_day": 10, "to_day": 14, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"}
@@ -55,58 +57,16 @@
         {"kind": "objective", "file": "backend/conversions/demo-objectives.json", "recorded": "build time",
          "source": "B/declare_objective.py (no clock seam; MD0-PF Q5, R4 -> DD-1)"}
       ]
-    },
-    "cold": {
-      "site_code": "COLD-LAB-001", "time_zone": "Africa/Addis_Ababa",
-      "configuration": {"path": "B/sites/cold_lab.py install_cold_lab", "source": "W2 cold lab install"},
-      "normal_day": {
-        "step_minutes": 5,
-        "channels": {"chamber-probe/temperature": "3.5", "grid_state": "PRESENT", "generator_state": "STOPPED", "backup_bus_state": "POWERED"},
-        "source": "T/fixtures/w2/cold-w203-vectors.json normal series (5-minute series, in-band chamber temperature)"
-      },
-      "events": [
-        {"anchor": "C-FAIL-D6", "kind": "failure", "day": 6, "at_local": "02:00", "restored_local": "02:40",
-         "source": "T/fixtures/w2/cold-w203-vectors.json backup-failed (grid LOST + START_REQUEST, START_RESULT FAILED at +5 min)"},
-        {"anchor": "C-FAIL-D13", "kind": "failure", "day": 13, "at_local": "02:00", "restored_local": "02:40",
-         "source": "T/fixtures/w2/cold-w203-vectors.json backup-failed"}
-      ],
-      "actions": [
-        {"anchor": "ACT-C1", "for_event": "C-FAIL-D6", "create": {"day": 6, "local": "06:00"}, "intent": {"day": 6, "local": "06:05"},
-         "case": {"day": 6, "local": "09:00"}, "maintenance_record": {"day": 7, "local": "09:55"}, "complete": {"day": 7, "local": "10:00"},
-         "source": "build sheet §2.3; maintenance record MD0-PF Q6: MD-0 new example content"}
-      ]
-    },
-    "ev": {
-      "site_code": "EV-LAB-001", "time_zone": "Etc/UTC",
-      "configuration": {"path": "B/sites/ev_lab.py install_ev_lab", "source": "W2 EV lab install (republish_corrected_bindings not used by the demo)"},
-      "sessions": {"connector": "c1", "per_day": 8, "first_local": "08:00", "length_minutes": 60, "vector": "complete",
-                   "source": "T/test_w205b_ev_replay_postgres.py CASES complete"},
-      "events": [
-        {"anchor": "E-INT-D9", "kind": "interruption", "day": 9, "session": 3, "vector": "interrupted",
-         "source": "T/test_w205b_ev_replay_postgres.py CASES interrupted"}
-      ],
-      "actions": [
-        {"anchor": "ACT-E1", "for_event": "E-INT-D9", "create": {"day": 9, "local": "11:30"}, "intent": {"day": 9, "local": "11:30"},
-         "source": "build sheet §2.4"}
-      ],
-      "publications": [
-        {"kind": "tariff", "file": "backend/conversions/demo-ev-tariff-publications.json", "recorded": {"day": 0, "local": "12:00"},
-         "source": "tools/demo_combined_ev.py publish_tariff"}
-      ]
     }
   },
   "gaps": [
-    {"id": "GAP-K7", "site": "kobo", "day": 7, "kind": "nothing_delivered", "fill": true, "fill_kinds": ["normal", "overrun"], "source": "build sheet §2.2"},
-    {"id": "GAP-C3", "site": "cold", "day": 3, "kind": "half_day", "deliver_local": ["00:00", "12:00"], "fill": false, "source": "build sheet §2.3"},
-    {"id": "GAP-E2", "site": "ev", "day": 2, "kind": "assessment_not_run", "fill": false, "source": "build sheet §2.4"}
+    {"id": "GAP-K7", "site": "kobo", "day": 7, "kind": "nothing_delivered", "fill": true, "fill_kinds": ["normal", "overrun"], "source": "build sheet §2.2"}
   ],
   "threads": [
-    {"name": "kobo-generator", "site": "kobo", "mechanism": "GENERATOR_SUPPORT_CANDIDATE", "events": ["K-OVR-D4", "K-OVR-D11"]},
-    {"name": "kobo-headroom", "site": "kobo", "mechanism": "PRODUCTIVE_USE_HEADROOM", "studies": ["K-W2"]},
-    {"name": "cold-start-failure", "site": "cold", "mechanism": "COLD_START_FAILURE", "events": ["C-FAIL-D6", "C-FAIL-D13"]},
-    {"name": "ev-interruption", "site": "ev", "mechanism": "EV_INTERRUPTION", "events": ["E-INT-D9"]}
+    {"name": "kobo-generator", "site": "kobo", "mechanism": "GENERATOR_SUPPORT_CANDIDATE", "events": ["K-OVR-D4", "K-OVR-D11", "K-OVR-D14"]},
+    {"name": "kobo-headroom", "site": "kobo", "mechanism": "PRODUCTIVE_USE_HEADROOM", "studies": ["K-W2"]}
   ],
   "late_fill": {"gap": "GAP-K7", "decision_clock": "real", "source": "build sheet §4 (FILL-1)"},
-  "variants": {"main": {"sites": ["kobo", "cold", "ev"]},
+  "variants": {"main": {"sites": ["kobo"], "removed": {"sites": ["cold", "ev"], "gaps": ["GAP-C3", "GAP-E2"], "source": "Architect MD0-S2: Kobo-first MD-0; Cold and EV normal data move to DD-1's real baseline"}},
                "close": {"deferred_to": "MD-0b", "source": "MD0-PF Q3: the pre-ruled split; verification and the close variant move to MD-0b"}}
 }
