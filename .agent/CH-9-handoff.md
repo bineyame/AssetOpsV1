@@ -1,4 +1,54 @@
-# CH-9 handoff (PARTIAL: u1 landed, resume at u1-tail then u2)
+# CH-9 handoff (PARTIAL: u1 + u1-tail landed, u2 partly; resume at "Resume order for builder 4")
+
+## Status 2026-11-05 (builder 3; stopped at the context cap, no process or DB job left running by me)
+Commits on `7e8bb70ad`: `bc08b81d8` (u1-tail), `badd2fbb9` (u2 partial). Not merged with main yet.
+
+### Landed by builder 3
+- **u1-tail (`bc08b81d8`).** `mini_depth/rules.py`: `DAY_PRECEDENCE`, pure `day_decision()` (CONFLICT > LIMITED >
+  ELIGIBLE(any) > EXCLUDED), `summarize_renewable` counts DAYS by day decision (kW spans over ELIGIBLE hours of
+  ELIGIBLE days; one hour/day reads as before). `mini_depth/read.py` `compose_renewable`: a day with any unselected
+  hour is a missing day; `requested_days` = distinct days. Without this the renewable page counted hours as days.
+- **Owned test change (packet):** `test_w402_reads_postgres.py` `_dark_hours()` seeds one hourly
+  `pv_available_power` mean for every other operating hour (24 h default calendar) of each authored day, 0 kW
+  (covered, not daylight), so measured daylight = the authored noon hour via the measured path (not the no-PV
+  fallback). No assertion changed. `tools/w402_mini_depth_cases.py build_batches(..., extra=())` sequences the
+  extras with the variant. New test `test_ch9_measured_day_reads_every_daylight_hour_as_one_day` (2 daylight hours
+  on day 1 -> 2 windows, 6 rows, cards count days). **File run: 7 passed (505 s).**
+- **u2 partial (`badd2fbb9`).** `mini_decisions/projection.py`: `day_heads(..., cutoff=None)` gives one
+  `DayHead` per expected study hour (`daylight_hours` daylight + missing; noon when no binding; a day with neither
+  keeps one missing noon head -> missing day, **record in packet**); `_head()`; `selected_hours` one pin per hour
+  ordered `(day, start)`; `day_row` is now the per-hour copier; new `_fold_day` (missing hour -> missing day;
+  ELIGIBLE day `opportunity_kwh` = sum of ELIGIBLE hours, `window_hours` = their count, 0 for non-eligible, None
+  missing; constraints union in CONSTRAINT_CODES order; adds `hours[]`); `frozen_result` adds result
+  `window_hours` = min over eligible days, headroom = `headroom_on_every_eligible_day` over every ELIGIBLE hour of
+  ELIGIBLE days. `worker._changed` passes `self._scan_at(c)` as cutoff (`_project` uses DB now).
+  `test_w403_opportunity_result.py`: exact-shape test updated (owned: adds `window_hours`/`hours`, values same) and
+  new L0 `test_ch9_day_folds_its_daylight_hours` (= the **CH9-R2:Q1 per-hour L0 proof**: busy hour -> day ELIGIBLE,
+  window_hours 3->2, hour EXCLUDED CHARGE_OBLIGATION_ACTIVE). L0: 56 passed (w403 result, ch4 opportunities,
+  w402 reads).
+
+## Resume order for builder 4
+1. **Version bump** `OPPORTUNITY_MODEL_VERSION` -> `mini-opportunity/2` (`mini_decisions/store.py:32`). Ripple to
+   decide/implement: reads filter `model_version = :v` (`store.py:364,386,415` `opportunity_roots`): "/1 stays
+   readable, branched on model_version" -> roots read must accept both and prefer /2 for the same study (frontend
+   `MiniOpportunity.tsx:28,417` picks exactly one study); `test_w403_*_postgres.py` and
+   `test_ch4_opportunity_postgres.py` literal "/1" (seeded /1 rows are legitimate /1 history; worker test
+   `test_w403_opportunity_worker_postgres.py:93,126` expects the produced version -> /2).
+2. `read.py read_selected_renewable_basis` (~:515, `local_noon`) and its consumers `mini_decisions/opportunities.py
+   :317-345` (pins zipped with basis rows; now several pins per day) and `scenarios.py:333,381` (`by_day`).
+   Remove `window_hours: 1` at `chain/opportunities.py:120`, `mini_decisions/opportunities.py:395` (read result
+   `window_hours`, default 1 for a /1 result).
+3. Measure `daylight_headroom_kw` (sheet u2 list), event register, then the "no noon literal" test over the five
+   readers (reconcile, hour_windows, read_selected_renewable_basis, day_heads, measure). Note `projection.py` still
+   says "noon" in `day_row` integrity messages (:150-156) and docstrings; reword so the test can be strict.
+4. u3 (`critical_served`, `site_outcomes/mini.py:561`), u4 L2 test only (Known Deviation), u5, MD-0 Q1 fixture
+   (`mechanism-v1.json` `busy_noon` 06:00-18:00, label `CH9-R2:Q1`; L0 proof already landed), then MD-0 status /
+   rebuild `--budget 540` in parts / L3m states (+close if ensure selects it), guards, packet, `git log main` check.
+5. Postgres files to re-run after 1-2: `test_w403_opportunity_worker_postgres.py`,
+   `test_w403_opportunity_read_postgres.py`, `test_ch4_opportunity_postgres.py`, `test_md0_mechanism_postgres.py`
+   (one or two per call; ~3.5-8 min each). A lane-1 `chain_coherence.py collect` on `assetops_mechanism_test` was
+   running (PIDs 12956/22516, not mine) at 2026-11-05; check before any MD-0 job.
+
 
 ## Status 2026-11-05 (builder 2)
 - Commit `a116d2931` (on `3211e1c8e`): u1 core. Stopped at the context cap; no DB job or process left running by me.
