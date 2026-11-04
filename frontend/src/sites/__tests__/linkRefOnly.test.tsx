@@ -3,7 +3,7 @@
  * (or `links`) text but no `link_ref` (or `link_refs`) renders no link at all.
  */
 import { render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
 
 import { boardBody, fakeOutcomeBoard, outcomeWarning } from "../../test/outcomeBoardFixture";

@@ -14,7 +14,7 @@ import type {
   OutcomeLinkItem,
   OutcomeMoney,
 } from "./outcomeBoardClient";
-import { linkFor, type Ref } from "../shell/operatorSiteRoutes";
+import { useLinkFor, type Ref } from "./chainRef";
 import "./outcomes.css";
 
 /**
@@ -93,7 +93,7 @@ export function countsText(issues: number, inHand: number, checkedDaysOnly: bool
 
 /** CH5a2-R4(c): a link renders only from its `link_ref`; a body without one renders no link. */
 function To({ link, children }: { link: Ref | null | undefined; children: ReactNode }) {
-  const href = linkFor(link);
+  const href = useLinkFor()(link);
   return href ? <Link to={href}>{children}</Link> : <>{children}</>;
 }
 

@@ -72,7 +72,9 @@ import {
   SITE_FOUNDATION_CHANGES_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
   SITE_FOUNDATION_VIEW_ROUTE_PATH,
+  linkFor,
 } from "./shell/operatorSiteRoutes";
+import { RefLinkProvider } from "./sites/chainRef";
 import type { RunSetupClient } from "./shell/runSetupClient";
 import type { ColdScenarioChoiceClient } from "./shell/coldScenarioChoiceClient";
 import type { EvScenarioChoiceClient } from "./shell/evScenarioChoiceClient";
@@ -325,6 +327,7 @@ export function App({
   );
 
   return (
+    <RefLinkProvider value={linkFor}>
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
@@ -562,5 +565,6 @@ export function App({
       ))}
       <Route path="*" element={<RouteNotAvailableFrame />} />
     </Routes>
+    </RefLinkProvider>
   );
 }

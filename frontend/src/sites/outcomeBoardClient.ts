@@ -1,4 +1,4 @@
-import type { Ref } from "../shell/operatorSiteRoutes";
+import type { Ref } from "./chainRef";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 
 /**

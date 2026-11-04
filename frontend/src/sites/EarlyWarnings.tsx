@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { DataTable } from "../ui";
 import { ExplainerDialog, ISSUE_KIND } from "./OutcomeBoard";
 import type { OutcomeBoardClient, OutcomeBoardQuery, OutcomeBoardRead, OutcomeWarning } from "./outcomeBoardClient";
-import { linkFor, type Ref } from "../shell/operatorSiteRoutes";
+import { useLinkFor, type Ref } from "./chainRef";
 import "./outcomes.css";
 
 /**
@@ -25,7 +25,7 @@ export function warningCategoryLabel(warning: OutcomeWarning): string | null {
 
 /** CH5a2-R4(c): a warning links only from its `link_ref`; one without it renders no link. */
 function To({ link, children }: { link: Ref | null | undefined; children: ReactNode }) {
-  const href = linkFor(link);
+  const href = useLinkFor()(link);
   return href ? <Link to={href}>{children}</Link> : <>{children}</>;
 }
 

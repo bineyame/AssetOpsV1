@@ -1,3 +1,4 @@
+import type { FindingChildView, Ref, RefSiteView, RefEstateView, RefWindow } from "../sites/chainRef";
 /**
  * Where the operator shell puts its site surfaces.
  *
@@ -285,8 +286,7 @@ export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "
  * W4-03 unit 6b adds `alternatives`: the authored alternatives of the exact
  * selected revision, on MINIGRID Sites only (u6 ruling 3).
  */
-export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation", "alternatives"] as const;
-export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
+export { FINDING_CHILD_VIEWS, type FindingChildView } from "../sites/chainRef";
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 
 export function siteFindingViewHref(
@@ -514,33 +514,10 @@ export function siteAssetHref(siteId: string, assetId: string): string {
  * mirroring `backend/assetops_backend/chain/refs.py`. `routeFor` is the only client builder of a rendered link;
  * `__fixtures__/route-refs.json` (read by a vitest and a pytest) pins it to the server's `href_for`.
  */
-export interface RefWindow {
-  from: string;
-  to: string;
-  known_at?: string;
-}
-export const REF_SITE_VIEWS = [
-  "home", "foundation", "foundation_changes", "findings", "financials", "financial_assumptions", "financial_scenarios",
-  "ev", "ev_evidence", "ev_analysis", "ev_financials", "ev_assumptions", "ev_scenarios",
-  "work", "work_incidents", "work_maintenance", "health", "assets",
-] as const;
-export type RefSiteView = (typeof REF_SITE_VIEWS)[number];
-export const REF_ESTATE_VIEWS = [
-  "portfolio", "findings", "findings_cost", "findings_risks", "findings_opportunities", "actions", "evidence",
-  "financials", "incidents", "maintenance", "maintenance_preventive", "operational_records",
-] as const;
-export type RefEstateView = (typeof REF_ESTATE_VIEWS)[number];
-export type RefActionView = "verification" | "plan" | "history";
-
-export type Ref =
-  | { kind: "THREAD"; site: string; id: string }
-  | { kind: "FINDING"; site: string; id: string; revision?: string; view?: FindingChildView; window?: RefWindow }
-  | { kind: "ACTION"; site: string; id: string; view?: RefActionView; event_id?: string; recorded_at?: string }
-  | { kind: "OPPORTUNITY"; site: string; id: string; known_at?: string }
-  | { kind: "CASE"; site: string; id: string }
-  | { kind: "EVIDENCE"; site: string; capability?: string; window?: RefWindow }
-  | { kind: "SITE"; site: string; view?: RefSiteView; window?: RefWindow }
-  | { kind: "ESTATE"; view: RefEstateView };
+export {
+  REF_ESTATE_VIEWS, REF_SITE_VIEWS,
+  type Ref, type RefActionView, type RefEstateView, type RefSiteView, type RefWindow,
+} from "../sites/chainRef";
 
 function withWindow(path: string, window: RefWindow | undefined): string {
   if (!window) return path;
