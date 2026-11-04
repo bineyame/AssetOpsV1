@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -154,9 +155,14 @@ def _value_nodes(spec: dict):
         yield f"gaps.{g['id']}", g
     yield "late_fill", spec["late_fill"]
     for site, s in spec["sites"].items():
-        for key in ("configuration", "reading_rules", "shapes", "noon", "sessions"):
+        for key in ("configuration", "reading_rules", "shapes", "noon", "sessions", "derived_channels"):
             if key in s:
                 yield f"{site}.{key}", s[key]
+        for name, rule in s.get("derived_channels", {}).items():
+            if isinstance(rule, dict):
+                yield f"{site}.derived_channels.{name}", rule
+        if "busy_noon" in s.get("noon", {}):
+            yield f"{site}.noon.busy_noon", s["noon"]["busy_noon"]
         nd = s.get("normal_day")
         if nd is not None:
             for i, b in enumerate(nd.get("blocks") or [nd]):
@@ -375,16 +381,61 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
             return cases.Planned(device, signal, t + step, "MEAN", value, "kW", t)
         return (device, signal, t, value)
 
+    derived = derived_rules(k)
+    noon = k["noon"]
+    busy = noon.get("busy_noon")
+    busy_lo, busy_hi = (local_instant(spec, "kobo", n, x) for x in noon["window_local"])
+    busy_today = busy is not None and n not in noon[busy["except_days"]]
+
     rows = []
     for block in k["normal_day"]["blocks"]:
         t, hi = local_instant(spec, "kobo", n, block["from_local"]), local_instant(spec, "kobo", n, block["to_local"])
         while t < hi:
             values = event if span and span[0] <= t <= span[1] else block
             rows.append(reading(*sig["generator"], t, values["generator"]))
-            rows += [reading(f, rules["feeder_signal"], t, rules["feeder_kw"]) for f in rules["feeders"]]
+            feeders = {f: rules["feeder_kw"] for f in rules["feeders"]}
+            rows += [reading(f, rules["feeder_signal"], t, v) for f, v in feeders.items()]
             rows += [reading(*sig[key], t, values[key]) for key in ("pv", "dis", "soc")]
+            # MD0-S5 M2 (A): the renewable-hour channels, by the fixture's rules (never literals); the busy noon's
+            # charge request is the block's own `dis` value (MD-0 new example content).
+            charge = values[busy["charge_request"]] if busy_today and busy_lo <= t < busy_hi else None
+            rows += [reading(*channel, t, value) for channel, value in derived(values, feeders, charge)]
             t += step
     return rows
+
+
+#: MD0-S5 M2 (A): the only rules a `derived_channels` entry may name (a renamed or new rule is refused, not guessed).
+DERIVED_RULES = {"pv_power": "min(pv, feeders + charge_request)", "charge_request": "zero",
+                 "critical_requested": "feeder:clinic-meter", "critical_delivered": "feeder:clinic-meter"}
+
+
+def _kw(value: Decimal) -> str:
+    text_ = format(value.normalize(), "f")
+    return text_ if text_ != "-0" else "0"
+
+
+def derived_rules(k: dict):
+    """The fixture's `derived_channels` as one function (values, feeders, busy charge or None) -> [(channel, kW)].
+    Evaluates exactly the declared rule strings; any other rule is `MechanismRefused`."""
+    spec_rules = {name: r for name, r in k.get("derived_channels", {}).items() if isinstance(r, dict)}
+    for name, r in spec_rules.items():
+        if DERIVED_RULES.get(name) != r["rule"]:
+            raise MechanismRefused(f"UNKNOWN_DERIVED_RULE: {name} {r['rule']!r}")
+
+    def evaluate(values: dict, feeders: dict[str, str], busy_charge: str | None) -> list[tuple[tuple, str]]:
+        out = []
+        charge = Decimal(busy_charge) if busy_charge is not None else Decimal(0)  # rule "zero" outside the busy noon
+        load = sum((Decimal(v) for v in feeders.values()), Decimal(0))
+        for name, r in spec_rules.items():
+            if name == "pv_power":
+                value = min(Decimal(values["pv"]), load + charge)
+            elif name == "charge_request":
+                value = charge
+            else:
+                value = Decimal(feeders[r["rule"].split(":", 1)[1]])
+            out.append((tuple(r["channel"]), _kw(value)))
+        return out
+    return evaluate
 
 
 def row_shape(row) -> tuple[str, str, str, int | None]:
@@ -820,48 +871,91 @@ def seed_database(store, engine, variant: str = "main", day_set: str = "full") -
 
 TEMPLATE_DB = "assetops_mechanism_tpl_test"
 TEMPLATE_DAY_SET = "states"
-TAG_SCHEMA = "assetops-mechanism-template/1"
+TAG_SCHEMA = "assetops-mechanism-template/2"  # /2: MD0-S5 M1 traced module list
 REPO = Path(__file__).resolve().parents[2]
-#: The input writers (MD0-S3 Q1): evidence ledger and publication, the Site configuration and controls, s6
-#: (Actions), work and domain intent, objectives, the schema, the fixture and documents, and the seed modules.
-#: MD0-S4 R2: the template also holds the per-day assessment, Finding, depth and study outputs, so their writers
-#: (analytics: assessment worker, dispatch_v3, Finding episode/service/store; mini_depth; mini_decisions, the
-#: opportunity worker) are inputs too. `chain` stays out: it is the derive step, run with the branch's code.
-INPUT_WRITER_TREES = ("backend/assetops_backend/evidence", "backend/assetops_backend/sites",
-                      "backend/assetops_backend/actions", "backend/assetops_backend/work",
-                      "backend/assetops_backend/analytics", "backend/assetops_backend/mini_depth",
-                      "backend/assetops_backend/mini_decisions",
-                      "backend/assetops_backend/objectives", "backend/migrations", "backend/conversions",
-                      "contracts/assetops_contracts")
-INPUT_WRITER_FILES = ("backend/assetops_backend/publish_source.py", "backend/assetops_backend/publish_assumption.py",
-                      "backend/assetops_backend/declare_objective.py", "backend/assetops_backend/action_api.py",
-                      "backend/assetops_backend/domain_work_api.py", "backend/tests/mechanism_dataset.py",
-                      "backend/tests/s6_action_records.py", "backend/tests/test_s2_evidence_ledger_postgres.py",
-                      "backend/tests/test_s4_finding_store_postgres.py",
-                      "backend/tests/test_s6_action_store_postgres.py",
-                      "backend/tests/test_s6_action_apply_postgres.py", "tools/demo_combined_kobo.py",
-                      "tools/demo_story_days.py", "tools/w402_mini_depth_cases.py")
+#: MD0-S5 M1: the template's inputs are import-traced, not a hand list. Every repo file loaded as a module during the
+#: input build (`sys.modules`, filtered to the repo after each step), except the derive step's `chain` package, plus
+#: the data folders the build reads as files. The module list is stored in the tag and `check_tag` re-hashes it with
+#: the folders; a new import can only arrive by editing a file already in the list, so the scheme is closed.
+#: `fixtures/` in the ruling is `backend/tests/fixtures` (the repo has no top-level `fixtures/`; it holds
+#: `s1/kobo-001.yaml`, the Site import source).
+INPUT_DATA_TREES = ("backend/conversions", "backend/migrations", "backend/tests/fixtures", "config/site-templates",
+                    "contracts")
+DERIVE_TREE = "backend/assetops_backend/chain/"
 
 
-def input_writer_files(root: Path = REPO) -> list[Path]:
-    files = []
-    for tree in INPUT_WRITER_TREES:
-        files.extend(p for p in (root / tree).rglob("*") if p.is_file() and "__pycache__" not in p.parts
-                     and not p.name.endswith((".pyc", ".sqlite3")))
-    files.extend(root / f for f in INPUT_WRITER_FILES if (root / f).is_file())
-    return sorted(set(files))
+def _rel(path: Path, root: Path) -> str:
+    return str(path.relative_to(root)).replace("\\", "/")
 
 
-def input_fingerprint(root: Path = REPO) -> str:
-    """SHA-256 over the input writers' paths and LF-normalised bytes (the setup_cache rule)."""
+def data_files(root: Path = REPO) -> list[str]:
+    out = []
+    for tree in INPUT_DATA_TREES:
+        out.extend(_rel(p, root) for p in (root / tree).rglob("*") if p.is_file() and "__pycache__" not in p.parts
+                   and not p.name.endswith((".pyc", ".sqlite3")))
+    return sorted(out)
+
+
+def loaded_repo_files(root: Path = REPO) -> list[str]:
+    """The repo files loaded as modules in this process (`sys.modules`), `chain/**` excluded."""
+    import sys
+
+    base, out = root.resolve(), set()
+    for module in list(sys.modules.values()):
+        f = getattr(module, "__file__", None)
+        if not f or not f.endswith(".py"):
+            continue
+        try:
+            rel = _rel(Path(f).resolve(), base)
+        except ValueError:
+            continue
+        if not rel.startswith(DERIVE_TREE) and "/.venv/" not in f"/{rel}":
+            out.add(rel)
+    return sorted(out)
+
+
+def file_hashes(files, root: Path = REPO) -> dict[str, str]:
+    """rel path -> SHA-256 of its LF-normalised bytes (`missing` when the file is gone: a stale input)."""
+    import hashlib
+
+    out = {}
+    for rel in sorted(set(files)):
+        path = root / rel
+        out[rel] = hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest() if path.is_file() \
+            else "missing"
+    return out
+
+
+def fingerprint_of(hashes: dict[str, str]) -> str:
     import hashlib
 
     digest = hashlib.sha256()
-    for path in input_writer_files(root):
-        digest.update(str(path.relative_to(root)).replace("\\", "/").encode())
-        digest.update(b"\0")
-        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
+    for rel in sorted(hashes):
+        digest.update(f"{rel}\0{hashes[rel]}\n".encode())
     return digest.hexdigest()
+
+
+def input_hashes(modules, root: Path = REPO) -> dict[str, str]:
+    """The traced modules plus every file under the data folders, hashed now."""
+    return file_hashes([*modules, *data_files(root)], root)
+
+
+def input_fingerprint(modules=(), root: Path = REPO) -> str:
+    """SHA-256 over the traced modules' and the data folders' paths and LF-normalised bytes."""
+    return fingerprint_of(input_hashes(modules, root))
+
+
+def inputs_changed(saved: dict[str, str], root: Path = REPO) -> list[str]:
+    """MD0-S5 L2: the inputs recorded so far (at build start and after each step) that differ now, plus data files
+    added or removed since. Empty when a resume may go on."""
+    now = file_hashes([*saved, *data_files(root)], root)
+    return sorted(rel for rel in now if saved.get(rel) != now[rel])
+
+
+def record_inputs(saved: dict[str, str], root: Path = REPO) -> dict[str, str]:
+    """`saved` plus every repo module loaded since, hashed now (they were just loaded from these bytes)."""
+    new = [m for m in loaded_repo_files(root) if m not in saved]
+    return {**saved, **file_hashes(new, root)}
 
 
 def input_steps(spec: dict, day_set: str) -> list[str]:
@@ -890,9 +984,12 @@ def _guarded(name: str) -> str:
     return '"' + name + '"'
 
 
-def make_tag(state: dict, day_set: str, fingerprint: str | None = None) -> dict:
-    return {"schema": TAG_SCHEMA, "fingerprint": fingerprint or input_fingerprint(), "day_set": day_set,
-            "state": state}
+def make_tag(state: dict, day_set: str, modules=(), fingerprint: str | None = None) -> dict:
+    """The tag: the fingerprint and the traced module list `check_tag` re-hashes (MD0-S5 M1)."""
+    data = set(data_files())
+    modules = sorted(m for m in modules if m not in data)
+    return {"schema": TAG_SCHEMA, "fingerprint": fingerprint or input_fingerprint(modules), "modules": modules,
+            "day_set": day_set, "state": state}
 
 
 def tag_template(admin, tag: dict, name: str = TEMPLATE_DB) -> None:
@@ -927,7 +1024,7 @@ def check_tag(tag: dict | None, fingerprint: str | None = None) -> dict:
     if tag is None:
         raise MechanismRefused("TEMPLATE_MISSING: build it with "
                                "`python tools/mechanism_dataset.py build --variant states --budget 540`")
-    want = fingerprint or input_fingerprint()
+    want = fingerprint or input_fingerprint(tag.get("modules") or ())
     if tag.get("fingerprint") != want:
         raise MechanismRefused(f"TEMPLATE_STALE: template inputs {str(tag.get('fingerprint'))[:12]} != this "
                                f"checkout {want[:12]}; rebuild with `python tools/mechanism_dataset.py build "

@@ -50,8 +50,11 @@ def test_every_generated_channel_has_the_producer_shape(n, kind) -> None:
     shapes = {md.row_shape(r) for r in rows}
     assert shapes, "no rows generated"
     for device, signal, measurement, seconds in shapes:
-        assert (device, signal) in PRODUCER, f"{device}/{signal} is not a producer channel"
-        assert measurement == PRODUCER[(device, signal)], (device, signal, measurement)
+        # MD0-S5 M2 (A): the renewable-hour channels the dispatch mapping does not carry are the producer's
+        # 300 s interval means on the roles-4 Site (polish KOBO-001, review-MD-0 M2), so they are means here too.
+        want = PRODUCER.get((device, signal)) or ("INTERVAL_MEAN" if (device, signal) in W4_ONLY else None)
+        assert want is not None, f"{device}/{signal} is not a producer channel"
+        assert measurement == want, (device, signal, measurement)
         if measurement == "INTERVAL_MEAN":
             assert seconds == PRODUCER_INTERVAL.total_seconds(), (device, signal, seconds)
     # non-vacuous: both kinds occur

@@ -149,6 +149,18 @@ def build(variant: str, budget: float, resume: bool) -> int:
     import pg_harness
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
+    # MD0-S5 L2: the inputs are fingerprinted at build start and re-checked on every resume and before the tag; a
+    # changed input refuses the resume (the template would mix rows written by two versions of its writers).
+    if "inputs" not in saved:
+        if resume:
+            raise Refused("refused: TEMPLATE_INPUTS_CHANGED: this build's seed state has no start fingerprint; "
+                          f"start a fresh build: python tools/mechanism_dataset.py build --variant {variant}")
+        saved["inputs"] = md.record_inputs(md.input_hashes([]))
+        state_path.write_text(json.dumps(saved, indent=1, default=str), encoding="utf-8")
+    elif changed := md.inputs_changed(saved["inputs"]):
+        raise Refused(f"refused: TEMPLATE_INPUTS_CHANGED since the build started: {changed[:5]} "
+                      f"({len(changed)}); start a fresh build: python tools/mechanism_dataset.py build "
+                      f"--variant {variant}")
     spec = md.load()
     steps = md.input_steps(spec, day_set) if variant == "states" else md.seed_steps(spec, day_set)
     todo = [s for s in steps if s not in saved["done"]]
@@ -162,6 +174,7 @@ def build(variant: str, budget: float, resume: bool) -> int:
                 return EXIT_RESUME
             state = md.seed_part(store, engine, day_set, [step], saved["state"], work / "tmp")
             saved["state"], saved["done"] = state, saved["done"] + [step]
+            saved["inputs"] = md.record_inputs(saved["inputs"])  # MD0-S5 M1: the modules this step loaded
             saved["timings"][step] = state["timings"][step]
             longest = max(longest, state["timings"][step])
             state_path.write_text(json.dumps(saved, indent=1, default=str), encoding="utf-8")
@@ -181,7 +194,10 @@ def build(variant: str, budget: float, resume: bool) -> int:
     if variant == "states":
         admin = md.admin_engine(url)
         try:
-            tag = md.make_tag(saved["state"], day_set)
+            if changed := md.inputs_changed(saved["inputs"]):
+                raise Refused(f"refused: TEMPLATE_INPUTS_CHANGED during the build: {changed[:5]}; not tagged")
+            tag = md.make_tag(saved["state"], day_set, modules=list(saved["inputs"]),
+                              fingerprint=md.fingerprint_of(saved["inputs"]))
             md.tag_template(admin, tag, name)
         finally:
             admin.dispose()
@@ -234,7 +250,7 @@ def status() -> int:
         tag = md.read_tag(admin)
     finally:
         admin.dispose()
-    current = md.input_fingerprint()
+    current = md.input_fingerprint(tag.get("modules") or ()) if tag else None
     usable = tag is not None and tag["fingerprint"] == current
     print(json.dumps({"template": md.TEMPLATE_DB, "tagged": tag is not None,
                       "template_fingerprint": tag and tag["fingerprint"], "checkout_fingerprint": current,

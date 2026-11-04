@@ -117,31 +117,77 @@ def test_check_tag_refuses_missing_and_stale() -> None:
     assert md.check_tag(tag, "a" * 64) is tag
 
 
-def test_input_fingerprint_moves_with_an_input_writer_only(tmp_path) -> None:
-    """Every input-writer tree and file is hashed; a file outside them (a chain module: the derive step) is not."""
-    writers = [*md.INPUT_WRITER_FILES, *(f"{t}/x.py" for t in md.INPUT_WRITER_TREES)]
-    for rel in [*writers, "backend/assetops_backend/chain/y.py"]:
+def test_input_fingerprint_moves_with_a_traced_module_or_a_data_file_only(tmp_path) -> None:
+    """MD0-S5 M1: the traced modules and every file under the data folders are hashed; a module outside the list
+    (a read-only module the seed never loads) and the derive step's `chain` package are not."""
+    modules = ["backend/tests/mechanism_dataset.py", "backend/tests/test_s1_bindings_postgres.py",
+               "tools/demo_combined.py", "backend/assetops_backend/financials/x.py"]
+    data = [f"{t}/x.json" for t in md.INPUT_DATA_TREES] + ["backend/tests/fixtures/s1/kobo-001.yaml"]
+    for rel in [*modules, *data, "backend/assetops_backend/chain/y.py", "backend/assetops_backend/api_only.py"]:
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / rel).write_bytes(b"v1\n")
-    base = md.input_fingerprint(tmp_path)
-    (tmp_path / "backend/assetops_backend/chain/y.py").write_bytes(b"v2\n")
-    assert md.input_fingerprint(tmp_path) == base
-    for rel in writers:
+    base = md.input_fingerprint(modules, tmp_path)
+    for rel in ("backend/assetops_backend/chain/y.py", "backend/assetops_backend/api_only.py"):
+        (tmp_path / rel).write_bytes(b"v2\n")
+        assert md.input_fingerprint(modules, tmp_path) == base, rel
+    for rel in [*modules, *data]:
         (tmp_path / rel).write_bytes(b"changed\n")
-        assert md.input_fingerprint(tmp_path) != base, rel
+        assert md.input_fingerprint(modules, tmp_path) != base, rel
         (tmp_path / rel).write_bytes(b"v1\n")
-    (tmp_path / "backend/migrations/x.py").write_bytes(b"v1\r\n")  # CRLF == LF
-    assert md.input_fingerprint(tmp_path) == base
+    (tmp_path / "backend/migrations/x.json").write_bytes(b"v1\r\n")  # CRLF == LF
+    assert md.input_fingerprint(modules, tmp_path) == base
+    (tmp_path / "config/site-templates/new.yaml").write_bytes(b"v1\n")  # an added data file moves it too
+    assert md.input_fingerprint(modules, tmp_path) != base
+    (tmp_path / "tools/demo_combined.py").unlink()  # a listed module that is gone is stale, not skipped
+    assert md.file_hashes(["tools/demo_combined.py"], tmp_path) == {"tools/demo_combined.py": "missing"}
 
 
-# --- MD0-S4 R1/R2: producer shapes and the template's writers ----------------------------------------------------
+def test_the_real_kobo_import_source_moves_the_template_fingerprint() -> None:
+    """M1's named miss: `backend/tests/fixtures/s1/kobo-001.yaml` (the reserve 30 the Findings pin) is an input."""
+    assert "backend/tests/fixtures/s1/kobo-001.yaml" in md.data_files()
+    hashes = md.input_hashes([])
+    moved = {**hashes, "backend/tests/fixtures/s1/kobo-001.yaml": "0" * 64}
+    assert md.fingerprint_of(moved) != md.fingerprint_of(hashes)
 
 
-def test_fingerprint_covers_the_per_day_output_writers_but_not_the_derive_step() -> None:
-    trees = set(md.INPUT_WRITER_TREES)
-    for tree in ("analytics", "mini_depth", "mini_decisions"):
-        assert f"backend/assetops_backend/{tree}" in trees, tree
-    assert not any(t.startswith("backend/assetops_backend/chain") for t in trees)
+def test_traced_modules_come_from_sys_modules_without_the_derive_step(monkeypatch) -> None:
+    import sys
+    import types
+
+    for name, rel in (("md0_probe_chain", "backend/assetops_backend/chain/probe.py"),
+                      ("md0_probe_writer", "backend/assetops_backend/financials/probe.py")):
+        module = types.ModuleType(name)
+        module.__file__ = str(md.REPO / rel)
+        monkeypatch.setitem(sys.modules, name, module)
+    traced = md.loaded_repo_files()
+    assert "backend/assetops_backend/financials/probe.py" in traced
+    assert not any(t.startswith(md.DERIVE_TREE) for t in traced)
+    assert "backend/tests/mechanism_dataset.py" in traced  # this module itself: non-vacuous
+
+
+def test_a_resume_is_refused_when_an_input_changed_since_the_build_started(tmp_path) -> None:
+    """MD0-S5 L2: the start fingerprint is kept per file; any change (or an added data file) is named."""
+    for rel in ("backend/tests/mechanism_dataset.py", "backend/conversions/a.json"):
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(b"v1\n")
+    saved = md.input_hashes(["backend/tests/mechanism_dataset.py"], tmp_path)
+    assert md.inputs_changed(saved, tmp_path) == []
+    (tmp_path / "backend/tests/mechanism_dataset.py").write_bytes(b"v2\n")
+    assert md.inputs_changed(saved, tmp_path) == ["backend/tests/mechanism_dataset.py"]
+    (tmp_path / "backend/tests/mechanism_dataset.py").write_bytes(b"v1\n")
+    (tmp_path / "backend/conversions/b.json").write_bytes(b"v1\n")
+    assert md.inputs_changed(saved, tmp_path) == ["backend/conversions/b.json"]
+
+
+def test_the_tag_carries_its_module_list_and_check_rehashes_it() -> None:
+    tag = md.make_tag({"site": {}}, "states", modules=["backend/tests/mechanism_dataset.py"])
+    assert tag["modules"] == ["backend/tests/mechanism_dataset.py"]
+    assert md.check_tag(tag) is tag
+    with pytest.raises(md.MechanismRefused, match="TEMPLATE_STALE"):
+        md.check_tag({**tag, "modules": ["backend/tests/test_md0_fixture.py"]})
+
+
+# --- MD0-S4 R1/R2 and MD0-S5 M2: producer shapes ------------------------------------------------------------------
 
 
 def test_power_rows_are_interval_means_ending_at_their_source_time_and_tile_the_day() -> None:
@@ -168,3 +214,45 @@ def test_the_act_day_cut_puts_an_interval_ending_at_the_cut_before_it() -> None:
     after = [r for r in rows if not md._before(r, cut)]
     assert len(before) + len(after) == len(rows)
     assert all(md._row_start(r) < cut for r in before) and all(md._row_start(r) >= cut for r in after)
+
+
+# --- MD0-S5 M2 (A): the renewable-hour channels all day and the busy noon -----------------------------------------
+
+RENEWABLE = {("pv-inverter-controller", "ac-power"), ("battery-pcs-controller", "charge-requested-power"),
+             ("clinic-meter", "requested-power"), ("clinic-meter", "delivered-power")}
+
+
+def _noon_values(n: int, kind: str) -> dict:
+    lo, hi = (md.local_instant(SPEC, "kobo", n, x) for x in SPEC["sites"]["kobo"]["noon"]["window_local"])
+    out: dict = {}
+    for r in md.kobo_rows(SPEC, n, kind):
+        if not isinstance(r, tuple) and (r.device, r.signal) in RENEWABLE:
+            out.setdefault((r.device, r.signal, lo <= r.interval_start < hi), set()).add(r.value)
+    return out
+
+
+@pytest.mark.parametrize("n,kind", [(1, "normal"), (4, "overrun"), (7, "overrun"), (7, "normal"), (14, "overrun")])
+def test_the_busy_noon_requests_the_blocks_dis_on_every_day_but_the_spare_solar_days(n, kind) -> None:
+    v = _noon_values(n, kind)
+    assert v[("battery-pcs-controller", "charge-requested-power", True)] == {"20"}  # the block's dis
+    assert v[("battery-pcs-controller", "charge-requested-power", False)] == {"0"}
+    assert v[("pv-inverter-controller", "ac-power", True)] == {"40"}  # min(40, 30 + 20)
+    assert v[("pv-inverter-controller", "ac-power", False)] == {"0", "30"}  # night 0, day min(40, 30)
+    for signal in ("requested-power", "delivered-power"):
+        assert v[("clinic-meter", signal, True)] == v[("clinic-meter", signal, False)] == {"10"}
+
+
+def test_the_spare_solar_days_keep_a_zero_charge_request_before_the_w4_remap() -> None:
+    v = _noon_values(12, "normal")
+    assert v[("battery-pcs-controller", "charge-requested-power", True)] == {"0"}
+
+
+def test_a_derived_channel_rule_is_evaluated_as_declared_or_refused() -> None:
+    spec = copy.deepcopy(SPEC)
+    spec["sites"]["kobo"]["derived_channels"]["pv_power"]["rule"] = "40"
+    with pytest.raises(md.MechanismRefused, match="UNKNOWN_DERIVED_RULE"):
+        md.kobo_rows(spec, 1)
+    spec = copy.deepcopy(SPEC)
+    del spec["sites"]["kobo"]["derived_channels"]["charge_request"]["source"]
+    with pytest.raises(ValueError, match="no source"):
+        md.validate(spec)

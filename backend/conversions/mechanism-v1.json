@@ -24,8 +24,21 @@
                         "signals": {"generator": ["generator-controller", "status"], "pv": ["pv-inverter-controller", "available-power"],
                                     "dis": ["battery-pcs-controller", "discharge-capability"], "soc": ["battery-pcs-controller", "state-of-charge"]},
                         "source": "backend/conversions/s4-finding-cases-v1.json reading_rules"},
+      "derived_channels": {
+        "pv_power": {"channel": ["pv-inverter-controller", "ac-power"], "rule": "min(pv, feeders + charge_request)",
+                     "source": "producer identity: PV output is the available PV power capped by what the Site takes (the feeder loads plus the battery charge request); MD0-S5 M2 (A)"},
+        "charge_request": {"channel": ["battery-pcs-controller", "charge-requested-power"], "rule": "zero",
+                           "source": "producer identity: no charge is requested at a constant state of charge (the blocks hold soc 80 all day); MD0-S5 M2 (A)"},
+        "critical_requested": {"channel": ["clinic-meter", "requested-power"], "rule": "feeder:clinic-meter",
+                               "source": "producer identity: the clinic (critical load) requests what its feeder carries; MD0-S5 M2 (A)"},
+        "critical_delivered": {"channel": ["clinic-meter", "delivered-power"], "rule": "feeder:clinic-meter",
+                               "source": "producer identity: the clinic is fully served (delivered = its feeder value); MD0-S5 M2 (A)"},
+        "source": "build sheet MD-0 §18 MD0-S5 M2 (A): the renewable-hour channels all day, 300 s interval means, derived from the block values (B/mini_depth/rules.py assess_renewable_hour reads pv_power, the charge request and the critical requested/delivered power)"
+      },
       "shapes": {"interval_mean": [["pv-inverter-controller", "available-power"], ["battery-pcs-controller", "discharge-capability"],
-                                   ["residential-meter", "active-power"], ["clinic-meter", "active-power"], ["mill-meter", "active-power"]],
+                                   ["residential-meter", "active-power"], ["clinic-meter", "active-power"], ["mill-meter", "active-power"],
+                                   ["pv-inverter-controller", "ac-power"], ["battery-pcs-controller", "charge-requested-power"],
+                                   ["clinic-meter", "requested-power"], ["clinic-meter", "delivered-power"]],
                  "interval_minutes": 5,
                  "rule": "A power channel is an INTERVAL_MEAN over [t, t + step) with interval_end = source time = t + step and the block value at t; generator status and state-of-charge stay STATE_AT_INSTANT points at t.",
                  "source": "the producer: simulator/assetops_simulator/gateway/mappings.py:109-126 (measurement per channel), gateway/publish.py:199-203 (interval_start = span start, interval_end = source time); polish KOBO-001 power roles measured 300 s ending at source time (build sheet MD-0 §17 F2; MD0-S4 R1)"},
@@ -45,7 +58,10 @@
          "source": "Architect MD0-S2: one Kobo recurrence day after ACT-K1's apply (the D-AW-3 record); F01 block shape"}
       ],
       "noon": {"window_local": ["12:00", "13:00"], "spare_solar_days": [12, 13], "variant": "positive", "omit": ["backup_chain"],
-               "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive, its means and points re-dated to the local noon hour on KOBO-001's roles-4 bindings, without the MG-W402-001 backup chain (the only spare-solar variant; no busy variant exists, so other days keep the normal-day hour)"},
+               "busy_noon": {"charge_request": "dis", "except_days": "spare_solar_days",
+                             "rule": "inside window_local on every delivered day except the spare-solar days (overrun, recurrence and late-fill days included), the charge request takes the block's dis value",
+                             "source": "MD-0 new example content: battery recharging at noon (MD0-S5 M2 (A); B/mini_depth/rules.py CHARGE_OBLIGATION_ACTIVE excludes on any positive request)"},
+               "source": "backend/conversions/w4-mini-depth-cases-v1.json variant positive, its means and points re-dated to the local noon hour on KOBO-001's roles-4 bindings, without the MG-W402-001 backup chain (the only spare-solar variant; the other delivered days carry the busy noon below)"},
       "studies": [
         {"anchor": "K-W1", "from_day": 1, "to_day": 5, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"},
         {"anchor": "K-W2", "from_day": 10, "to_day": 14, "source": "B/mini_decisions/projection.py STUDY_DAYS = 5"}

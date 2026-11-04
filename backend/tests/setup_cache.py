@@ -79,16 +79,10 @@ FUNCTION_OPS = [
     ("test_w402_reads_postgres", "_ingest"),
     ("test_w402_reads_postgres", "_reconcile"),
     ("test_ch4_opportunity_postgres", "seed_opportunities"),
-    ("mechanism_dataset", "seed_database"),  # MD-0 (R5): owns and disposes its stores, returns a plain manifest
 ]
-# MD-0: files an op imports from outside the trees below. `mechanism_dataset` imports these tool and test modules
-# and reads its fixture and the price/objective/config documents from backend/conversions.
-FINGERPRINT_FILES = ["tools/demo_combined_kobo.py", "tools/demo_story_days.py", "tools/w402_mini_depth_cases.py",
-                     "backend/tests/test_s2_evidence_ledger_postgres.py", "backend/tests/test_s4_finding_store_postgres.py",
-                     "backend/tests/test_s6_action_store_postgres.py", "backend/tests/test_s6_action_apply_postgres.py"]
 FINGERPRINT_TREES = ["backend/assetops_backend", "backend/migrations", "host", "gateway/assetops_gateway",
                      "gateway/tests", "simulator/assetops_simulator", "contracts/assetops_contracts", "config",
-                     "contract-fixtures", "backend/tests/fixtures", "backend/conversions"]
+                     "contract-fixtures", "backend/tests/fixtures"]
 
 
 class NotCached(Exception):
@@ -127,7 +121,6 @@ def code_fingerprint() -> str:
         files.extend(tests / f"{m}.py" for m in modules)
     files.extend(tests / f"{m}.py" for m, _ in FUNCTION_OPS)
     files.extend([tests / "test_s1_bindings_postgres.py", tests / "conftest.py"])
-    files.extend(REPO / f for f in FINGERPRINT_FILES)
     for path in sorted(set(files)):
         digest.update(str(path.relative_to(REPO)).replace("\\", "/").encode())
         digest.update(b"\0")

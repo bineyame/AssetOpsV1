@@ -98,6 +98,57 @@ def _state_on(thread: dict, n: int) -> str | None:
     return on[-1] if on else None
 
 
+#: MD0-S5 M2 invariant: the dispatch Findings before the renewable-hour channels were added (SELECT on
+#: `assetops_mechanism_test`, derived from the template at 510acfa7c): anchor -> (episode start, episode end,
+#: lifecycle, claim level, candidate/necessary/indeterminate minutes, end reason, recurrence, limitations,
+#: transitions). The late D7 overrun has the same F01 shape; its baseline is D4's content at 2026-10-25 05:30Z.
+DISPATCH_BASELINE = {
+    "K-OVR-D4": ("2026-10-22T05:30Z", "06:00", "SUPPORTED", "CANDIDATE_AVOIDABLE", "30.0000", "0.0000", "0.0000",
+                 "OFF_OBSERVED", "NOT_ESTABLISHED", "[]", "OPENED,BASIS_REFRESHED,BASIS_REFRESHED"),
+    "K-OVR-D11": ("2026-10-29T05:30Z", "06:00", "SUPPORTED", "CANDIDATE_AVOIDABLE", "30.0000", "0.0000", "0.0000",
+                  "OFF_OBSERVED", "NOT_ESTABLISHED", "[]", "OPENED,BASIS_REFRESHED,BASIS_REFRESHED,BASIS_REFRESHED"),
+    "K-OVR-D14": ("2026-11-01T05:30Z", "06:00", "SUPPORTED", "CANDIDATE_AVOIDABLE", "30.0000", "0.0000", "0.0000",
+                  "OFF_OBSERVED", "LINKED", "[]", "OPENED"),
+}
+LATE_D7_CONTENT = ("2026-10-25T05:30Z", "06:00", "SUPPORTED", "CANDIDATE_AVOIDABLE", "30.0000", "0.0000", "0.0000",
+                   "OFF_OBSERVED", "[]")
+CORE = ("productive_kwh@load-mill", "avoidable_gen_min@generator")
+
+
+def dispatch_content(engine, finding_id) -> tuple:
+    """A Finding's latest-revision content (the DISPATCH_BASELINE columns), no ids or clocks."""
+    with engine.connect() as c:
+        return tuple(c.execute(text(
+            "SELECT to_char(f.anchor_start AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI\"Z\"'), "
+            "to_char(r.episode_end AT TIME ZONE 'UTC', 'HH24:MI'), r.lifecycle, r.claim_level, "
+            "r.candidate_minutes::text, r.necessary_minutes::text, r.indeterminate_minutes::text, "
+            "r.claim->>'end_reason', coalesce(r.claim->'recurrence'->>'status', r.claim->'recurrence'->>'reason'), "
+            "r.limitations::text, (SELECT string_agg(x.transition, ',' ORDER BY x.revision_no) FROM finding_revision x "
+            "WHERE x.finding_id = f.id) FROM finding f JOIN LATERAL (SELECT * FROM finding_revision y "
+            "WHERE y.finding_id = f.id ORDER BY y.revision_no DESC LIMIT 1) r ON true WHERE f.id = :f"),
+            {"f": str(finding_id)}).one())
+
+
+def renewable_hours(engine, site_id) -> dict[str, tuple[str, list]]:
+    """local day -> (decision, constraint codes) of the selected renewable-hour revision (mini-depth)."""
+    with engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT DISTINCT ON (s.window_start) r.result->'rows'->0 FROM mini_depth_selection s "
+            "JOIN mini_depth_revision r ON r.id = s.revision_id WHERE s.site_id = :s AND s.domain = 'renewable' "
+            "ORDER BY s.window_start, s.seq DESC"), {"s": site_id}).scalars().all()
+    return {r["day"]: (r["decision"], sorted(r["constraints"])) for r in rows if r}
+
+
+def study_eligible_days(engine, site_id) -> dict[str, int]:
+    """first selected local day -> eligible days of each opportunity's latest revision."""
+    with engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT DISTINCT ON (opportunity_id) selected_hours->0->>'local_day', result->>'eligible_days' "
+            "FROM mini_opportunity_revision WHERE site_id = :s ORDER BY opportunity_id, revision_no DESC"),
+            {"s": site_id}).all()
+    return {d: int(n) for d, n in rows}
+
+
 def _story_order(thread: dict) -> list[str]:
     return [str(f) for _, f, _, _ in sorted(thread["occurrences"], key=lambda r: r[3]) if f is not None]
 
@@ -121,11 +172,33 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     # stays NO_DATA/PENDING before any fill. noon_headroom_kw grades as the renewable hour supports: recorded.
     core = {d: {k: v for k, v in x.items() if _core(k)} for d, x in other.items()}
     assert not any(core.values()), core
+    # MD0-S5 L1: both core measures are present (not only "not other than COMPLETE") on every delivered day.
+    missing = {_iso(n): [k for k in CORE if g[_iso(n)].get(k) != "COMPLETE"] for n in days}
+    assert not any(missing.values()), missing
+    # MD0-S5 M2 (A): noon_headroom_kw is COMPLETE on every delivered day (the renewable-hour channels all day).
+    assert not other, other
+    assert all(g[_iso(n)].get("noon_headroom_kw") == "COMPLETE" for n in days), {_iso(n): g[_iso(n)] for n in days}
     assert gap and set(gap.values()) <= {"NO_DATA", "PENDING"}, gap
-    if set(gap.values()) != {"NO_DATA"}:
-        notes.append(f"MD-0-F1 GAP-K7 grades {gap}")
-    if other:
-        notes.append(f"MD-0-F2b noon_headroom_kw on days without the renewable-hour inputs: {other}")
+    undelivered = {_iso(n): g.get(_iso(n), {}) for n in range(1, 15) if n not in days}
+    record("grades_undelivered", undelivered)
+    if any(v == "PENDING" for x in undelivered.values() for v in x.values()):
+        notes.append(f"MD-0-F1 (owner CH-5a1 R5 readiness_of) PENDING on undelivered days after D6: {undelivered}")
+
+    # MD0-S5 M2 (A): EXCLUDED on the busy noons, ELIGIBLE on the spare-solar days D12/D13; codes recorded as found.
+    spare = set(SPEC["sites"]["kobo"]["noon"]["spare_solar_days"])
+    hours = renewable_hours(engine, m["site_id"])
+    record("renewable_hours", hours)
+    assert {_iso(n): hours[_iso(n)][0] for n in days} == \
+        {_iso(n): "ELIGIBLE" if n in spare else "EXCLUDED" for n in days}, hours
+    assert all("CHARGE_OBLIGATION_ACTIVE" in hours[_iso(n)][1] for n in days if n not in spare), hours
+    record("renewable_other_codes", {_iso(n): [c for c in hours[_iso(n)][1] if c != "CHARGE_OBLIGATION_ACTIVE"]
+                                     for n in days if hours[_iso(n)][1] not in ([], ["CHARGE_OBLIGATION_ACTIVE"])})
+    eligible = study_eligible_days(engine, m["site_id"])
+    record("study_eligible_days", eligible)
+    assert eligible.get(_iso(1)) == 0 and eligible.get(_iso(10)) == 2, eligible
+
+    # MD0-S5 M2 invariant: the dispatch Findings are unchanged by the new channels.
+    assert {a: dispatch_content(engine, f) for a, f in m["findings"].items()} == DISPATCH_BASELINE
 
     # 3. Threads: one generator thread with occurrences in story order D4, D11, D14 (the recurrence after apply).
     th = threads(engine, m["site_id"])
@@ -149,13 +222,12 @@ def test_kobo_grades_threads_actions_and_story_time(mech) -> None:
     record("d_aw_3", {"skipped": m["lifecycle"]["skipped"], "skipped_causes": m["lifecycle"]["skipped_causes"],
                       "counts": m["lifecycle"]["counts"], "threads": m["lifecycle"]["threads"]})
 
-    # Headroom (§2.6 b): W1 is never placed (skipped_ineligible 1); W2 places one OPEN thread.
+    # Headroom (§2.6 b): W1 (0 eligible days) is never placed (skipped_ineligible 1); W2 places one OPEN thread.
     b = next(s for s in m["steps"]["bc"] if s["step"] == "b")
     record("step_b", b)
     head = th.get(HEADROOM)
-    if head is None or b["skipped_ineligible"] != 1 or _state_on(head, 14) != "OPEN":
-        notes.append(f"MD-0-F3 headroom: thread {head}, step b {b}, studies {m['studies']}, "
-                     f"noon channels not bound {m['noon_dropped']}")
+    assert head is not None and b["skipped_ineligible"] == 1 and _state_on(head, 14) == "OPEN", \
+        (head, b, m["studies"], m["noon_dropped"])
     if notes:
         pytest.xfail("; ".join(notes))
 
@@ -189,19 +261,21 @@ def test_late_fill_normal_fills_the_gap_and_changes_no_finding(mech) -> None:
     # MD0-S4 R1.5 (hard): NO_DATA/PENDING before the fill; productive_kwh and avoidable_gen_min COMPLETE after it.
     assert {g for _, g in kept} <= {"NO_DATA", "PENDING"}, kept
     assert all(v == "COMPLETE" for k, v in out["snapshots"].items() if _core(k)), out["snapshots"]
-    assert any(_core(k) for k in out["snapshots"]), out["snapshots"]
-    notes = []
+    # MD0-S5 L1: both core measures are present after the fill; M2 (A): so is a COMPLETE noon_headroom_kw.
+    assert all(out["snapshots"].get(k) == "COMPLETE" for k in CORE), out["snapshots"]
+    assert set(out["snapshots"].values()) == {"COMPLETE"}, out["snapshots"]
+    hours = renewable_hours(engine, m["site_id"])
+    record("late_fill_normal_d7_hour", hours.get(_iso(7)))
+    assert hours[_iso(7)][0] == "EXCLUDED" and "CHARGE_OBLIGATION_ACTIVE" in hours[_iso(7)][1], hours.get(_iso(7))
     if {g for _, g in kept} != {"NO_DATA"}:
-        notes.append(f"MD-0-F1 D7 before the fill {sorted(set(map(tuple, kept)))}")
-    if set(out["snapshots"].values()) != {"COMPLETE"}:
-        notes.append(f"MD-0-F4 D7 after the fill {out['snapshots']}")
-    if notes:
-        pytest.xfail("; ".join(notes))
+        pytest.xfail(f"MD-0-F1 (owner CH-5a1 R5 readiness_of) PENDING on undelivered days after D6: D7 before the "
+                     f"fill {sorted(set(map(tuple, kept)))}")
 
 
 def test_late_fill_overrun_joins_the_thread_in_story_order(mech) -> None:
     """§10.2 test 6: occurrence_no is append order; the packet records it as the product gives it (R7)."""
     engine, m = mech
+    before = threads(engine, m["site_id"])
     out = md.late_fill(md._url(engine), "KOBO-001", 7, "overrun")
     assert out["day"] == _iso(7) and out["readings"] > 0, out
     gen = threads(engine, m["site_id"])[GENERATOR]
@@ -210,6 +284,14 @@ def test_late_fill_overrun_joins_the_thread_in_story_order(mech) -> None:
     # MD0-S4 R1.5 (hard; was MD-0-F5): the late D7 overrun opens exactly one Finding.
     assert len(out["events"]) == 1, (out["events"], out["readings"], _story_order(gen))
     assert _story_order(gen) == [f["K-OVR-D4"], out["events"][0], f["K-OVR-D11"], f["K-OVR-D14"]]
+    # MD0-S5 L3: the late occurrence changes no thread state (OPEN, ACTION_IN_HAND, CHANGE_APPLIED).
+    after = threads(engine, m["site_id"])
+    assert {k: [s for _, s, _ in v["events"]] for k, v in after.items()} == \
+        {k: [s for _, s, _ in v["events"]] for k, v in before.items()}
+    # MD0-S5 M2 invariant: the late D7 Finding has the F01 content (D4's, re-dated).
+    late = dispatch_content(engine, out["events"][0])
+    record("late_d7_finding", late)
+    assert late[:8] + (late[9],) == LATE_D7_CONTENT, late  # its recurrence and transitions are recorded
 
 
 def test_late_fill_refuses_any_other_day(engine) -> None:  # noqa: F811
