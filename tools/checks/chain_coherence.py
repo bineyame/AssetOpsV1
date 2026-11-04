@@ -879,12 +879,17 @@ def coh13_lifecycle_agreement(bundle: Bundle) -> list[dict]:
     return out
 
 
-def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:
-    """CH-3 COH-14 (I-02): a board row outcome is not NEEDS_ATTENTION for an open primary Finding when every MOVES
-    Finding on the row sits on a RESOLVED_MONITORING or CLOSED thread."""
+#: CH3-R M3 (fix round 2): the start of the thread-level line of a verified thread (the board's THREAD_MONITORING and
+#: THREAD_CLOSED; `test_chain_coherence` pins the copy against `site_outcomes/board.py`).
+VERIFIED_LINE_PREFIX = "Fix verified"
+
+
+def coh14_rows(bundle: Bundle) -> Iterator[tuple[str, dict, dict]]:
+    """The (window, board, row) COH-14 judges: a row whose MOVES Findings all sit on a RESOLVED_MONITORING or CLOSED
+    thread, and (fix round 2, CH3-R M3) a row with no MOVES Finding that carries a verified thread's thread-level
+    line (its Finding left the overview day, so the line, not an issue ref, says the thread is verified)."""
     if not _lifecycle(bundle):
-        return []
-    out = []
+        return
     for d in bundle.day_windows():
         board = bundle.get(f"board.{d}")
         if not board:
@@ -892,15 +897,26 @@ def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:
         for row in board.get("rows") or []:
             moves = [i for i in row.get("issues") or [] if i.get("kind") == "FINDING" and i.get("role") == "MOVES"
                      and isinstance(i.get("ref"), dict)]
-            if not moves or not all(isinstance(i["ref"].get("thread"), dict)
-                                    and i["ref"]["thread"].get("state") in VERIFIED_THREAD_STATES for i in moves):
-                continue
-            for o in row.get("outcomes") or []:
-                if o.get("state") == "NEEDS_ATTENTION" and o.get("reason") == "PRIMARY_FINDING_OPEN":
-                    out.append(finding("COH-14", board.get("site_code"), d, f"{row.get('category')}:{o.get('key')}",
-                                       f"outcome {o.get('key')} needs attention for an open primary Finding, but "
-                                       "every MOVES Finding on the row is on a verified thread",
-                                       bundle.files(f"board.{d}")))
+            if moves:
+                if all(isinstance(i["ref"].get("thread"), dict)
+                       and i["ref"]["thread"].get("state") in VERIFIED_THREAD_STATES for i in moves):
+                    yield d, board, row
+            elif any(part.startswith(VERIFIED_LINE_PREFIX) for part in str(row.get("subline") or "").split(" · ")):
+                yield d, board, row
+
+
+def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:
+    """CH-3 COH-14 (I-02): a board row outcome is not NEEDS_ATTENTION for an open primary Finding when every MOVES
+    Finding on the row sits on a RESOLVED_MONITORING or CLOSED thread, or (CH3-R M3) when the row carries a verified
+    thread's thread-level line and no MOVES Finding (`coh14_rows`)."""
+    out = []
+    for d, board, row in coh14_rows(bundle):
+        for o in row.get("outcomes") or []:
+            if o.get("state") == "NEEDS_ATTENTION" and o.get("reason") == "PRIMARY_FINDING_OPEN":
+                out.append(finding("COH-14", board.get("site_code"), d, f"{row.get('category')}:{o.get('key')}",
+                                   f"outcome {o.get('key')} needs attention for an open primary Finding, but "
+                                   "the row's thread is verified (every MOVES Finding, or its thread-level line)",
+                                   bundle.files(f"board.{d}")))
     return out
 
 

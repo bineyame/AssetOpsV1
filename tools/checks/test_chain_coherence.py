@@ -464,3 +464,42 @@ def test_settle_refuses_a_non_clone_name_before_any_step(name: str, tmp_path: Pa
     with pytest.raises(chain_clone.CloneRefused):
         chain_clone.settle(name, tmp_path, lambda *a: ran.append(a) or 0)
     assert ran == [] and not any(tmp_path.iterdir())
+
+
+def test_coh14_verified_line_prefix_is_the_boards_thread_lines() -> None:
+    from assetops_backend.site_outcomes import board
+    assert board.THREAD_MONITORING.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert board.THREAD_CLOSED.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert not board.THREAD_RECURRED.startswith(cc.VERIFIED_LINE_PREFIX)
+    assert not board.THREAD_BEFORE.startswith(cc.VERIFIED_LINE_PREFIX)
+
+
+def _thread_level(verdict: str):
+    """The clean bundle's cold PROTECT_ASSET row as a board day after the Finding left the day: no MOVES Finding, the
+    verified thread-level line in the subline, and the given verdict on its primary outcome."""
+    def edit(body: dict) -> None:
+        row = next(r for r in body["rows"] if r["category"] == "PROTECT_ASSET")
+        row["issues"] = [i for i in row["issues"] if not (i.get("kind") == "FINDING" and i.get("role") == "MOVES")]
+        row["subline"] = "Fix verified, monitoring (ACT-001) · 7 more fully checked days to close"
+        for o in row["outcomes"]:
+            o["state"], o["reason"] = (verdict, "PRIMARY_FINDING_OPEN" if verdict == "NEEDS_ATTENTION" else None)
+    return edit
+
+
+def test_coh14_judges_a_row_by_its_thread_level_verified_line(tmp_path: Path) -> None:
+    """Fix round 2 (CH3-R M3): a row with no MOVES Finding but a verified thread's line is in COH-14's compared set;
+    NEEDS_ATTENTION for an open primary Finding there fails, ON_TRACK passes."""
+    name = "board.day_cold_failure_2026-10-31.json"
+    bad = _edited(tmp_path / "bad", "clean_lifecycle", **{name: _thread_level("NEEDS_ATTENTION")})
+    assert len(list(cc.coh14_rows(bad))) == 1
+    assert [k for k in keys(cc.check(bad)) if k[0] == "COH-14"] == [("COH-14", COLD, DC, "PROTECT_ASSET:" + k)
+                                                                    for k in _protect_keys(bad)]
+    good = _edited(tmp_path / "good", "clean_lifecycle", **{name: _thread_level("ON_TRACK")})
+    assert len(list(cc.coh14_rows(good))) == 1
+    assert [k for k in keys(cc.check(good)) if k[0] == "COH-14"] == []
+
+
+def _protect_keys(bundle: cc.Bundle) -> list[str]:
+    board = bundle.get(f"board.{DC}")
+    row = next(r for r in board["rows"] if r["category"] == "PROTECT_ASSET")
+    return [o["key"] for o in row["outcomes"]]
