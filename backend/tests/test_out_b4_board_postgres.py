@@ -315,7 +315,32 @@ def _build_kobo(url: str, work: Path, case: str) -> tuple[dict, list]:
     finally:
         engine.dispose()
     _record(f"kobo_{case}_imported_at", imported)
+    _settle_chain(url, "KOBO-001")
     return json.loads((work / f"case-{case}.json").read_text(encoding="utf-8")), imported
+
+
+def _settle_chain(url: str, code: str) -> None:
+    """CH-5a1: the board reads the chain (thread occurrences, snapshots, R8). Backfill steps a-d, then consume this
+    Site's outbox (the tick's `chain_threads` stage) so R8 is settled - the CH-2/CH-3 L2 settle path."""
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.pool import NullPool
+
+    from assetops_backend.chain.backfill import main as backfill
+    from assetops_backend.scheduling import stages
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("DATABASE_URL", url)
+        assert backfill(["--site", code, "--steps", "a,b,c,d"]) == 0
+        engine = create_engine(url, poolclass=NullPool)
+        try:
+            with engine.connect() as connection:
+                t, s = connection.execute(text("SELECT tenant_id, id FROM site WHERE site_code = :c"),
+                                          {"c": code}).one()
+        finally:
+            engine.dispose()
+        consumed = stages.chain_threads(url, {"tenant_id": str(t), "site_id": str(s)})
+    assert consumed["code"] == "OK" and consumed["deferred"] == 0, consumed
+    _record(f"chain_settled_{code}", consumed["consumed"])
 
 
 def _pin_kobo(monkeypatch, spec: dict) -> None:
@@ -409,10 +434,9 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
         assert "UNKNOWN" in measured.values(), measured
     _record("kobo_guardrail_read_states", {"a": [a["read_state"], failed_a], "b": [b["read_state"], failed_b]})
     if all(at >= DAY_A_TO for at in imported):  # addendum 5 #2 (ii): import-time artefact
-        # R8 (E2): this fixture never runs the chain consumer, so its Finding events stay unconsumed and the Findings
-        # are not settled (`chain_findings` PARTIAL, no port error); the overview-era index read CURRENT here.
-        assert failed_a == ["estate", "chain_findings"], failed_a
-        assert not [e for e in LAST_ERRORS["kobo_guardrail_day_a"] if e.startswith("chain_findings")]
+        # R8 (E2): the fixture settles the chain (`_settle_chain`), so the Findings are settled; only the estate
+        # import-time artefact remains, as before CH-5a1.
+        assert failed_a == ["estate"], failed_a
         assert a["read_state"] == "PARTIAL"
 
     # E2: the overview route's freshness is recorded beside the board's settled snapshot day (no overview read)
