@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterator
+from zoneinfo import ZoneInfo
 
 HERE = Path(__file__).resolve().parent
 TOOLS = HERE.parent
@@ -32,6 +33,9 @@ THREADS_FILE = HERE / "fixtures" / "chain_coherence" / "expected-threads.json"
 BUNDLE_SCHEMA = "chain-coherence-bundle/1"
 REPORT_SCHEMA = "chain-coherence-report/1"
 SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001"}
+#: CH-5a1 (R6, CH5a1-R Q8; closes MD0-R R10): the Sites whose board day is their Site-local day. EV keeps its
+#: `[start, end)` (`Etc/UTC`, `[d 08:00Z, d 16:00Z)`).
+LOCAL_DAY_TZ = {"kobo": "Africa/Addis_Ababa", "cold": "Africa/Addis_Ababa"}
 DOMAIN_SITES = ("COLD-LAB-001", "EV-LAB-001")
 ESTATE_WINDOWS = ("week", "S", "month")
 HTTP_TIMEOUT_SECONDS = 30
@@ -65,22 +69,24 @@ def estate_windows(story: dict) -> dict[str, tuple[str, str]]:
 
 
 def day_windows(days: list[dict]) -> list[dict[str, Any]]:
-    """Board windows: a Kobo built day is its UTC day (the board reads `?date=`); a Cold or EV day is its
-    `[start, end)`, as `demo_combined_finish.Ctx.window` reads it. `estate` is the enclosing UTC-midnight window the
-    estate routes accept (they refuse a non-midnight bound)."""
+    """Board windows (CH-5a1 R6): a Kobo or Cold built day is its Site-local day (`LOCAL_DAY_TZ`; Kobo's board reads
+    `?date=`, Cold's the local-day `from`/`to`); an EV day is its `[start, end)`, as `demo_combined_finish.Ctx.window`
+    reads it. `estate` is the enclosing UTC-midnight window the estate routes accept (they refuse a non-midnight
+    bound)."""
     out = []
     for d in days:
         if d.get("assess") != "build" or not d.get("start") or d.get("site") not in SITE_CODE:
             continue
         start, end = at(d["start"]), at(d["end"])
-        if d["site"] == "kobo":
-            lo = _midnight(start)
-            hi = lo + timedelta(days=1)
+        zone = LOCAL_DAY_TZ.get(d["site"])
+        if zone:
+            local = _midnight(start.astimezone(ZoneInfo(zone)))
+            lo, hi = local.astimezone(timezone.utc), (local + timedelta(days=1)).astimezone(timezone.utc)
         else:
             lo, hi = start, end
         e_lo, e_hi = _midnight(lo), _midnight(hi - timedelta(microseconds=1)) + timedelta(days=1)
         out.append({"id": f"day:{d['site']}:{d['kind']}:{d['day']}", "site_code": SITE_CODE[d["site"]],
-                    "from": iso(lo), "to": iso(hi), "date": lo.date().isoformat() if d["site"] == "kobo" else None,
+                    "from": iso(lo), "to": iso(hi), "date": local.date().isoformat() if d["site"] == "kobo" else None,
                     "estate": (iso(e_lo), iso(e_hi))})
     return out
 
@@ -382,16 +388,17 @@ def coh0_missing_data(bundle: Bundle) -> list[dict]:
     return out
 
 
-def _board_query(path: str, query: dict[str, list[str]]) -> dict[str, list[str]]:
-    """CH0-R addendum: on the outcome-board route only, `date=D` is the same read as `from=DT00:00:00Z` and
-    `to=(D+1)T00:00:00Z` (the screen calls Kobo's board with `date`; the body names the range)."""
+def _board_query(path: str, query: dict[str, list[str]], window: Any = None) -> dict[str, list[str]]:
+    """CH0-R addendum, CH-5a1 R6: on the outcome-board route only, `date=D` is the same read as the body's own
+    `window.from`/`window.to` (D's Site-local day; the screen calls Kobo's board with `date`, the body names the
+    range). Without a body window there is no equivalence (never UTC midnights)."""
     if path.endswith("/outcome-board") and set(query) == {"date"} and len(query["date"]) == 1:
         try:
-            day = datetime.strptime(query["date"][0], "%Y-%m-%d")
+            datetime.strptime(query["date"][0], "%Y-%m-%d")
         except ValueError:
             return query
-        return {"from": [day.strftime("%Y-%m-%dT00:00:00Z")],
-                "to": [(day + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")]}
+        if isinstance(window, dict) and window.get("from") and window.get("to"):
+            return {"from": [str(window["from"])], "to": [str(window["to"])]}
     return query
 
 
@@ -403,7 +410,8 @@ def is_own_self_link(b: Body, where: str, href: str) -> bool:
     url = urllib.parse.urlsplit(href)
     own = urllib.parse.parse_qs(urllib.parse.urlencode(b.params), keep_blank_values=True)
     theirs = urllib.parse.parse_qs(url.query, keep_blank_values=True)
-    return url.path == b.path and _board_query(b.path, own) == _board_query(url.path, theirs)
+    window = b.body.get("window") if isinstance(b.body, dict) else None
+    return url.path == b.path and _board_query(b.path, own, window) == _board_query(url.path, theirs, window)
 
 
 def coh1_links(bundle: Bundle, routes: list[str] | None = None) -> list[dict]:
