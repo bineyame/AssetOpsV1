@@ -144,17 +144,20 @@ class PostgresThreadSources:
         return self._rows(_UNLINKED, {"t": tenant_id, "s": None if site_id is None else str(site_id)})
 
     def sources_by_revision(self, tenant_id: UUID, site_id: UUID, finding_revision_ids: Sequence[Any],
-                            opportunity_revision_ids: Sequence[Any]) -> list[Source]:
-        """CH-1b: only the named Finding and opportunity revisions of this Site, in `(created_at, id)` order."""
+                            opportunity_revision_ids: Sequence[Any]) -> list[Source | None]:
+        """CH-1b: only the named Finding and opportunity revisions of this Site, in `(created_at, id)` order, then
+        one None per named opportunity revision that is not a Source (CH4-R R1), as `sources` returns them; the
+        stage skips and counts them (`skipped_ineligible`)."""
         p = {"t": tenant_id, "s": str(site_id), "after": None}
-        out: list[Source] = []
+        out: list[Source | None] = []
         if finding_revision_ids:
             out += [finding_source(r) for r in self._rows(
                 _FINDING_SOURCES_BY_ID, {**p, "ids": [str(i) for i in finding_revision_ids]})]
         if opportunity_revision_ids:
             out += [opportunity_source(r) for r in self._rows(
                 _OPPORTUNITY_SOURCES_BY_ID, {**p, "ids": [str(i) for i in opportunity_revision_ids]})]
-        return sorted(out, key=lambda s: (s.created_at, str(s.revision_id)))
+        placed = sorted((s for s in out if s is not None), key=lambda s: (s.created_at, str(s.revision_id)))
+        return [*placed, *([None] * (len(out) - len(placed)))]
 
     def unlinked_actions_for(self, tenant_id: UUID, site_id: UUID, action_ids: Sequence[Any],
                              finding_ids: Sequence[Any]) -> list[dict[str, Any]]:

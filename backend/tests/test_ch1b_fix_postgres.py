@@ -323,3 +323,28 @@ def test_m2_threads_place_only_named_revisions_and_link_an_action_recorded_befor
     assert second["steps"][1]["counts"].get("LINKED") == 2 and _linked(engine) == 2, second
     rerun = stages.chain_threads(URL, ids)
     assert rerun["consumed"]["threads"]["consumed"] == 0 and rerun["processed"] == 0, rerun
+
+
+def test_threads_stage_consumes_an_ineligible_opportunity_event_as_skipped(store, engine) -> None:  # noqa: F811
+    """CH-4 merge (review M3, ruling CH1b-R2 4): study A's revision is below the eligible-day minimum, so its
+    `opportunity.revised` event places nothing and is consumed, reported as `skipped_ineligible`, never a failure."""
+    import test_ch4_opportunity_postgres as ch4
+    from assetops_backend.scheduling import stages
+
+    seed = ch4.seed_opportunities(store, engine)
+    t, s = seed["t"], seed["s"]
+    evs = [e for e in _thread_events(engine, s) if e.type == "opportunity.revised"]
+    only_a = [e for e in evs if e.subject["ids"] == [str(seed["a_r1"])]]
+    assert len(evs) == 3 and len(only_a) == 1, evs  # A r1, B r1, B r2, one event per statement
+    ids = {"tenant_id": str(t), "site_id": str(s), "limit": 500}
+    first = stages.chain_threads(URL, ids)
+    assert first["code"] == "OK" and first["deferred"] == 0, first
+    assert first["consumed"]["threads"]["by_type"] == {"opportunity.revised@1": 3}, first
+    assert first["steps"][0]["skipped_ineligible"] == 1, first
+    with engine.connect() as c:
+        occurrences = c.execute(text("SELECT count(*) FROM finding_thread_occurrence WHERE site_id = :s"), {"s": s}).scalar_one()
+        consumed = c.execute(text("SELECT count(*) FROM event_consumption WHERE consumer = 'threads' "
+                                  "AND event_id = :e"), {"e": only_a[0].event_id}).scalar_one()
+    assert occurrences == 1 and consumed == 1  # study B only; A's event is consumed
+    rerun = stages.chain_threads(URL, ids)
+    assert rerun["consumed"]["threads"]["consumed"] == 0 and rerun["processed"] == 0, rerun

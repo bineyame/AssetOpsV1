@@ -231,11 +231,16 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
         registry = ThreadRegistry(store, "tick")
         placed: dict[str, int] = {}
         linked: dict[str, int] = {}
+        skipped = [0]
 
         def on_event(ev: Any) -> None:
             ids = [str(i) for i in ev.subject.get("ids", [])]
-            sources = reader.sources_by_revision(t, s, ids if ev.type == "finding.revised" else [],
-                                                 ids if ev.type == "opportunity.revised" else [])
+            named = reader.sources_by_revision(t, s, ids if ev.type == "finding.revised" else [],
+                                               ids if ev.type == "opportunity.revised" else [])
+            # CH4-R R1: an opportunity revision below the eligible-day minimum is no Source; it is skipped and
+            # counted, and its event is still consumed (never a failure that would back the Site off).
+            sources = [x for x in named if x is not None]
+            skipped[0] += len(named) - len(sources)
             for k, v in registry.place_all(sources).counts.items():
                 placed[k] = placed.get(k, 0) + v
             action_ids = ev.subject.get("action_ids", []) if ev.type == "action.event" else []
@@ -258,7 +263,7 @@ def chain_threads(url: str, args: dict[str, Any]) -> dict[str, Any]:
                        for c in ("threads", "lifecycle"))
     finally:
         _dispose(events, reader, store)
-    steps = [{"step": "b", "counts": dict(sorted(placed.items())),
+    steps = [{"step": "b", "counts": dict(sorted(placed.items())), "skipped_ineligible": skipped[0],
               "written": sum(v for k, v in placed.items() if k not in ("ALREADY_PLACED", "MERGED_INTO"))},
              {"step": "c", "counts": dict(sorted(linked.items())), "written": linked.get("LINKED", 0)}, lifecycle]
     return {"code": "OK", "processed": sum(int(x["written"]) for x in steps), "deferred": deferred, "steps": steps,
