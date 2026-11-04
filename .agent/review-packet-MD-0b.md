@@ -120,3 +120,34 @@ unchanged (3 opportunities, eligible 0/2/2, compared with the MD-0 legacy templa
 
 The verify timing rule in the fixture source text against `verification.py` freeze/`_assess`; that the evaluator is
 untouched (no product file in the diff: `git diff ff499d54d --stat -- backend/assetops_backend` is empty); A1-A3.
+
+## Fix round 1 (ruling MD0b-R, build sheet MD-0 section 19; commit `a09b0b207`)
+
+- **Owned entries** (`expected-mechanism.json`): COH-8 `MD0b-R:A1` owner CH-5a2a (week and month, `subject "*"`, count 1
+  each: main shows 2, close 1 in month; close week is reported RESOLVED); COH-6 x4 `MD0b-R:A2` owner CH-6a (close,
+  exact subjects). Rule text now allows "an Architect-ruled finding naming its MD0b-R (or later) item and owner".
+  Spare-solar days kept. **Deviation:** COH-8's subject is the server-generated Action id, which changes on every template
+  rebuild, so exact keys would break each build. `chain_coherence.check` therefore accepts `subject: "*"` with a `count`
+  (bounded, same rule/site/window only; a finding past the count is unexpected). Test:
+  `test_wildcard_subject_expectation_is_bounded_by_count`.
+- **Close template on demand.** `ensure [--close auto|yes|no]` (env `ASSETOPS_MECHANISM_CLOSE`; `run-backend-suite-in-container.ps1 -Close`).
+  `auto` builds close when the slice diff touches `chain/lifecycle*.py`, `chain/threads.py`, `postgres_thread_store.py`,
+  `config/chain/thread-lifecycle-v1.json`, either `mechanism_dataset.py`, or `variants.close` changed (compared with the
+  merge-base fixture), when the diff cannot be read (prints so), or when a matching close template already exists
+  (reuse is free). Otherwise it prints `{"ensure": "close not selected", ...}`; the container runner then deselects the
+  close L2m node and prints `CLOSE L2m NOT RUN`. The host `.ps1` writes `slice-paths.txt` and `base-mechanism-v1.json`
+  into the run folder (the container has no usable git). E1/E4 and the post-merge job pass `-Close yes` / `--close yes`.
+  Tests: `backend/tests/test_md0b_ensure.py` (19). The runner `.sh`/`.ps1` path was not executed here (no suite run).
+- **Known deviation 5 closed:** with a finite budget a part never runs `drain_mini` after other steps, and the drain's own
+  time is its estimate; the ordinary-step estimate excludes it. Observed: main parts 499 s, 250 s, 324 s; close 493 s,
+  412 s, 450 s (all under 540). Not covered by a unit test (proved by the real build).
+- **Per-step seed timings** (s, build prints `step_seconds` on publish). Main (total 1,041.3): begin 0.2, D1 53.0, D2 59.8,
+  D3 63.4, D4 67.8, D5 70.0, D10 67.2, D11 100.8, D12 77.1, D13 101.2, D14 64.3, **drain_mini 307.9**, studies 8.6
+  (D6-D9 are not steps on main). Close (1,316.8): begin 0.3, D1 53.7, D2 63.4, D3 49.2, D4 72.0, D5 57.3, D6 58.3,
+  D7 59.2, D8 59.5, D9 56.7, D10 65.1, D11 66.2, D12 72.8, D13 73.4, D14 67.8, **drain_mini 441.9**, studies 0.0.
+  Day steps about 50-100 s each (about 700 s main, 940 s close); the drain is 30-34% of each seed.
+- **Templates rebuilt once** (fingerprint `c3470a30`): `assetops_mechanism_tpl_c3470a30_test`, `..._tplc_c3470a30_test`.
+- **Checks:** L0/L1 and chain coherence tests (`test_md0_fixture`, `test_md0b_ensure`, `test_chain_coherence`): 168 passed.
+  L2m `test_md0_mechanism_postgres.py`: 7 passed, 0 skipped, 457 s pytest (460 s wall). L3m `check --threads`:
+  **main 0 unexpected** (COH-8 2/2 expected; derive 59.4 s, clone 1.4 s, total 184 s); **close 0 unexpected**
+  (COH-6 4/4, COH-8 1/1; total 266 s). Guards A and W pass.
