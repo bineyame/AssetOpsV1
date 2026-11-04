@@ -64,9 +64,10 @@ def build_outcome_board_service(
         return jsonable_encoder(verification.summary(t, s, code, UUID(action_id)))  # type: ignore[union-attr]
 
     # CH-5a1 §A2: the board's chain reads; the consequence read is the overview's own instance (pre-flight P6).
-    upstream = getattr(site_overview, "upstream", None)
+    # `site_overview` is the `SiteOverviewRoute`; its `read` is the `SiteOverviewRead` holding `consequences` (L3: the
+    # route itself has no `upstream`, which left the money port unbound and every MG-7 source unresolved).
     chain_reader, chain_dispose = build_chain_reader(
-        database_url, consequences=getattr(upstream, "consequence_read", None),
+        database_url, consequences=getattr(getattr(site_overview, "read", None), "consequences", None),
         verification=None if verification is None else verify)
     services = BoardServices(
         overview=None if site_overview is None else site_overview.read,
