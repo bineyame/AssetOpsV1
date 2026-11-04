@@ -18,13 +18,17 @@
       "configuration": {"path": "tools/demo_combined_kobo.py configure_at", "install_at": "2026-10-12T00:00:00Z",
                         "source": "demo Kobo configuration (S3 roles-2, S6 roles-3, supply uses, roles-4)"},
       "controls": [
-        {"do": "reserve", "value": 20, "effective_from": "2026-10-03T00:00:00Z", "source": "backend/conversions/s4-finding-cases-v1.json setup"},
-        {"do": "runtime", "value": 0, "effective_from": "2026-10-03T00:00:00Z", "source": "backend/conversions/s4-finding-cases-v1.json setup"}
+        {"do": "runtime", "value": 0, "effective_from": "2026-10-03T00:00:00Z", "source": "backend/conversions/s4-finding-cases-v1.json setup (the reserve-20 control is removed, MD0-S4 R4: the demo configuration's reserve 30 is in force)"}
       ],
-      "reading_rules": {"step_minutes": 5, "feeders": ["residential-meter", "clinic-meter", "mill-meter"], "feeder_kw": "10",
+      "reading_rules": {"step_minutes": 5, "feeders": ["residential-meter", "clinic-meter", "mill-meter"], "feeder_signal": "active-power", "feeder_kw": "10",
                         "signals": {"generator": ["generator-controller", "status"], "pv": ["pv-inverter-controller", "available-power"],
                                     "dis": ["battery-pcs-controller", "discharge-capability"], "soc": ["battery-pcs-controller", "state-of-charge"]},
                         "source": "backend/conversions/s4-finding-cases-v1.json reading_rules"},
+      "shapes": {"interval_mean": [["pv-inverter-controller", "available-power"], ["battery-pcs-controller", "discharge-capability"],
+                                   ["residential-meter", "active-power"], ["clinic-meter", "active-power"], ["mill-meter", "active-power"]],
+                 "interval_minutes": 5,
+                 "rule": "A power channel is an INTERVAL_MEAN over [t, t + step) with interval_end = source time = t + step and the block value at t; generator status and state-of-charge stay STATE_AT_INSTANT points at t.",
+                 "source": "the producer: simulator/assetops_simulator/gateway/mappings.py:109-126 (measurement per channel), gateway/publish.py:199-203 (interval_start = span start, interval_end = source time); polish KOBO-001 power roles measured 300 s ending at source time (build sheet MD-0 §17 F2; MD0-S4 R1)"},
       "normal_day": {
         "blocks": [
           {"from_local": "00:00", "to_local": "06:00", "generator": "STOPPED", "pv": "0", "dis": "20", "soc": "80", "source": "MD-0 new example content (night: no solar)"},

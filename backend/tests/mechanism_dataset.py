@@ -56,6 +56,27 @@ def _db_now(engine) -> datetime:
         return c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
 
+def _db_now_url(url: str) -> datetime:
+    from sqlalchemy import create_engine
+
+    engine = create_engine(url)
+    try:
+        return _db_now(engine)
+    finally:
+        engine.dispose()
+
+
+def dispatch_jobs(engine, site_id, lo: datetime, hi: datetime) -> dict[str, int]:
+    """Dispatch recompute jobs overlapping [lo, hi) by status (the F5 assertions' read; SELECT only)."""
+    from sqlalchemy import text
+
+    with engine.connect() as c:
+        rows = c.execute(text("SELECT status, count(*) FROM recompute_job WHERE site_id = :s AND domain = 'dispatch' "
+                              "AND window_start < :hi AND window_end > :lo GROUP BY status"),
+                         {"s": site_id, "lo": lo, "hi": hi}).all()
+    return {r[0]: r[1] for r in rows}
+
+
 def require_mechanism_db(engine) -> str:
     """Reads `current_database()` and raises `MechanismRefused("MECHANISM_DB_ONLY")` unless it is allowed."""
     from sqlalchemy import text
@@ -133,7 +154,7 @@ def _value_nodes(spec: dict):
         yield f"gaps.{g['id']}", g
     yield "late_fill", spec["late_fill"]
     for site, s in spec["sites"].items():
-        for key in ("configuration", "reading_rules", "noon", "sessions"):
+        for key in ("configuration", "reading_rules", "shapes", "noon", "sessions"):
             if key in s:
                 yield f"{site}.{key}", s[key]
         nd = s.get("normal_day")
@@ -263,8 +284,7 @@ class Deliverer:
                 assert code == 0, f"authored publication refused ({code})"
                 path.unlink()
                 decided = _row_time(chunk[-1]) + after
-                if real_clock:  # §4: the real decision clock; workers must then run at or after it
-                    decided = datetime.now(timezone.utc)
+                if real_clock:  # §4: the real decision clock (the DB's, set at commit); workers run after it
                     ledger = PostgresEvidenceLedger(self.url)
                     service = BatchIngestionService(ledger)
                 else:
@@ -275,6 +295,11 @@ class Deliverer:
                 finally:
                     pg_harness.dispose(ledger)
                 assert answer.status == 200 and answer.receipt.status == "COMPLETED", answer
+                if real_clock:
+                    # MD0-S4 R1.4 (F5): the ledger stamps `decided_at` and the job's `available_at` with the DB's
+                    # clock_timestamp() at commit, so the worker and matcher clocks are the DB's now AFTER the
+                    # submit (never the host's clock, which may lag the container's).
+                    decided = _db_now_url(self.url)
                 self.batches += 1
                 self.readings += len(chunk)
                 self.latest = decided if self.latest is None else max(self.latest, decided)
@@ -332,16 +357,53 @@ def kobo_rows(spec: dict, n: int, kind: str = "normal") -> list[tuple]:
         event = json.loads(shapes.pop())
     span = None if event is None else (local_instant(spec, "kobo", n, event["from_local"]),
                                        local_instant(spec, "kobo", n, event["to_local"]))
+    import w402_mini_depth_cases as cases
+
+    # MD0-S4 R1: the producer's shapes (`shapes`): a power channel is a 5-min INTERVAL_MEAN [t, t + step) whose
+    # source time is its end, written as a w402 `Planned` MEAN (the one interval envelope path); state and SoC are
+    # points at t (the tuple shape, `kit.envelope`).
+    means = {tuple(x) for x in k["shapes"]["interval_mean"]}
+    if timedelta(minutes=k["shapes"]["interval_minutes"]) != step:
+        raise MechanismRefused("SHAPE_STEP_MISMATCH")
+
+    def reading(device: str, signal: str, t: datetime, value: str):
+        if (device, signal) in means:
+            return cases.Planned(device, signal, t + step, "MEAN", value, "kW", t)
+        return (device, signal, t, value)
+
     rows = []
     for block in k["normal_day"]["blocks"]:
         t, hi = local_instant(spec, "kobo", n, block["from_local"]), local_instant(spec, "kobo", n, block["to_local"])
         while t < hi:
             values = event if span and span[0] <= t <= span[1] else block
-            rows.append((*sig["generator"], t, values["generator"]))
-            rows += [(f, None, t, rules["feeder_kw"]) for f in rules["feeders"]]
-            rows += [(*sig[key], t, values[key]) for key in ("pv", "dis", "soc")]
+            rows.append(reading(*sig["generator"], t, values["generator"]))
+            rows += [reading(f, rules["feeder_signal"], t, rules["feeder_kw"]) for f in rules["feeders"]]
+            rows += [reading(*sig[key], t, values[key]) for key in ("pv", "dis", "soc")]
             t += step
     return rows
+
+
+def row_shape(row) -> tuple[str, str, str, int | None]:
+    """(device, signal, measurement, interval seconds) of one generated row: the L1 shape-parity test's view."""
+    if isinstance(row, tuple):
+        return row[0], row[1], "STATE_AT_INSTANT", None
+    if row.kind != "MEAN":
+        return row.device, row.signal, "STATE_AT_INSTANT", None
+    return row.device, row.signal, "INTERVAL_MEAN", int((row.source_time - row.interval_start).total_seconds())
+
+
+def _row_start(row) -> datetime:
+    """The instant a row describes from: a point's time, an interval mean's start."""
+    if isinstance(row, tuple):
+        return row[2]
+    return row.interval_start if row.interval_start is not None else row.source_time
+
+
+def _before(row, cut: datetime) -> bool:
+    """True when the row describes only time before `cut` (an interval ending at `cut` is before it)."""
+    if isinstance(row, tuple) or row.interval_start is None:
+        return _row_time(row) < cut
+    return _row_time(row) <= cut
 
 
 class KoboSite:
@@ -426,7 +488,7 @@ class KoboSite:
             return self.match()
         raise AssertionError(f"no MD-0 step {step['do']!r}")
 
-    def assess(self, at: datetime) -> None:
+    def assess(self, at: datetime) -> list:
         import pg_harness
         from assetops_backend.analytics import dispatch_v3
         from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
@@ -435,10 +497,12 @@ class KoboSite:
         self.now = max(self.now, at)
         jobs = PostgresAssessmentStore(self.url)
         try:
-            for outcome in DispatchAssessmentWorker(jobs, model=dispatch_v3, clock=_Clock(self.now)).run_pending():
-                assert outcome.status == "DONE", outcome.error
+            outcomes = DispatchAssessmentWorker(jobs, model=dispatch_v3, clock=_Clock(self.now)).run_pending()
         finally:
             pg_harness.dispose(jobs)
+        for outcome in outcomes:
+            assert outcome.status == "DONE", outcome.error
+        return outcomes
 
     def match(self):
         import pg_harness
@@ -466,8 +530,8 @@ class KoboSite:
         covered = {(p.device, p.signal) for p in planned}
 
         def replaced(r) -> bool:
-            b = self.kit.binding(r[0], r[1])
-            return lo <= r[2] < hi and (b["device_id"], b["signal_id"]) in covered
+            b = self.kit.binding(_row_device(r), r[1] if isinstance(r, tuple) else r.signal)
+            return lo <= _row_start(r) < hi and (b["device_id"], b["signal_id"]) in covered
         return [r for r in rows if not replaced(r)] + planned
 
     def deliver_day(self, n: int, kind: str | None = None, *, real_clock: bool = False,
@@ -476,10 +540,10 @@ class KoboSite:
         rows = self.day_rows(n, kind)
         if before_local is not None:
             cut = local_instant(self.spec, "kobo", n, before_local)
-            rows = [r for r in rows if _row_time(r) < cut]
+            rows = [r for r in rows if _before(r, cut)]
         if from_local is not None:
             cut = local_instant(self.spec, "kobo", n, from_local)
-            rows = [r for r in rows if _row_time(r) >= cut]
+            rows = [r for r in rows if not _before(r, cut)]
         self.deliverer.deliver(rows, real_clock=real_clock)
         return len(rows)
 
@@ -492,14 +556,29 @@ class KoboSite:
         end = local_instant(self.spec, "kobo", n, until_local)
         at = max(end + timedelta(minutes=self.spec["delivery"]["assess_after_day_minutes"]),
                  self.deliverer.latest or end)
-        self.assess(at)
+        done = [o.job_id for o in self.assess(at) if o.status == "DONE"]
+        # MD0-S4 R1.4 (F5): at least one DONE dispatch outcome for the delivered day (an empty list is a failure,
+        # never a vacuous pass: a job not yet due is never leased, so the day would go unassessed silently).
+        if not self._done_on(done, local_instant(self.spec, "kobo", n, "00:00"), end):
+            raise AssertionError(f"D{n}: no DONE dispatch outcome for the delivered day (outcomes {done})")
         if depth:
             lo, hi = (local_instant(self.spec, "kobo", n, x)
                       for x in self.spec["sites"]["kobo"]["noon"]["window_local"])
             depth_store = PostgresMiniDepthStore(self.engine)
             outcomes = MiniDepthWorker(None, depth_store).reconcile(self.spec["sites"]["kobo"]["site_code"], lo, hi)
-            assert all(o.status == "DONE" for o in outcomes), outcomes
+            assert outcomes and all(o.status == "DONE" for o in outcomes), outcomes
         self.match()
+
+    def _done_on(self, job_ids: list, lo: datetime, hi: datetime) -> bool:
+        from sqlalchemy import text
+
+        if not job_ids:
+            return False
+        with self.engine.connect() as c:
+            return bool(c.execute(text(
+                "SELECT count(*) FROM recompute_job WHERE id = ANY(CAST(:ids AS uuid[])) AND domain = 'dispatch' "
+                "AND status = 'DONE' AND window_start < :hi AND window_end > :lo"),
+                {"ids": [str(j) for j in job_ids], "lo": lo, "hi": hi}).scalar_one())
 
     def studies(self) -> list:
         """Step 7: `MiniOpportunityWorker.reconcile` + `run_pending` per declared study window (never a direct
@@ -736,8 +815,13 @@ TAG_SCHEMA = "assetops-mechanism-template/1"
 REPO = Path(__file__).resolve().parents[2]
 #: The input writers (MD0-S3 Q1): evidence ledger and publication, the Site configuration and controls, s6
 #: (Actions), work and domain intent, objectives, the schema, the fixture and documents, and the seed modules.
+#: MD0-S4 R2: the template also holds the per-day assessment, Finding, depth and study outputs, so their writers
+#: (analytics: assessment worker, dispatch_v3, Finding episode/service/store; mini_depth; mini_decisions, the
+#: opportunity worker) are inputs too. `chain` stays out: it is the derive step, run with the branch's code.
 INPUT_WRITER_TREES = ("backend/assetops_backend/evidence", "backend/assetops_backend/sites",
                       "backend/assetops_backend/actions", "backend/assetops_backend/work",
+                      "backend/assetops_backend/analytics", "backend/assetops_backend/mini_depth",
+                      "backend/assetops_backend/mini_decisions",
                       "backend/assetops_backend/objectives", "backend/migrations", "backend/conversions",
                       "contracts/assetops_contracts")
 INPUT_WRITER_FILES = ("backend/assetops_backend/publish_source.py", "backend/assetops_backend/publish_assumption.py",
@@ -936,6 +1020,11 @@ def late_fill(url: str, site_code: str, n: int, kind: str = "normal", now=None) 
                 readings = site.deliver_day(n, kind, real_clock=True)
                 before = {f["id"] for f in site.reload()["findings"]}
                 site.settle_day(n)
+                # MD0-S4 R1.4 (F5): nothing of the filled day may be left waiting for a lease.
+                lo, hi = local_instant(spec, "kobo", n, "00:00"), local_instant(spec, "kobo", n, "24:00")
+                left = {s: c for s, c in dispatch_jobs(engine, site.site, lo, hi).items() if s in ("PENDING", "LEASED")}
+                if left:
+                    raise AssertionError(f"D{n}: dispatch jobs left after the late fill: {left}")
                 after = {f["id"] for f in site.reload()["findings"]}
                 derive(site.url, site.tenant, site.site)
                 tenant, site_id = site.tenant, site.site

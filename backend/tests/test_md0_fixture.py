@@ -118,13 +118,13 @@ def test_check_tag_refuses_missing_and_stale() -> None:
 
 
 def test_input_fingerprint_moves_with_an_input_writer_only(tmp_path) -> None:
-    """Every input-writer tree and file is hashed; a file outside them (an analytics module) is not."""
+    """Every input-writer tree and file is hashed; a file outside them (a chain module: the derive step) is not."""
     writers = [*md.INPUT_WRITER_FILES, *(f"{t}/x.py" for t in md.INPUT_WRITER_TREES)]
-    for rel in [*writers, "backend/assetops_backend/analytics/y.py"]:
+    for rel in [*writers, "backend/assetops_backend/chain/y.py"]:
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / rel).write_bytes(b"v1\n")
     base = md.input_fingerprint(tmp_path)
-    (tmp_path / "backend/assetops_backend/analytics/y.py").write_bytes(b"v2\n")
+    (tmp_path / "backend/assetops_backend/chain/y.py").write_bytes(b"v2\n")
     assert md.input_fingerprint(tmp_path) == base
     for rel in writers:
         (tmp_path / rel).write_bytes(b"changed\n")
@@ -132,3 +132,39 @@ def test_input_fingerprint_moves_with_an_input_writer_only(tmp_path) -> None:
         (tmp_path / rel).write_bytes(b"v1\n")
     (tmp_path / "backend/migrations/x.py").write_bytes(b"v1\r\n")  # CRLF == LF
     assert md.input_fingerprint(tmp_path) == base
+
+
+# --- MD0-S4 R1/R2: producer shapes and the template's writers ----------------------------------------------------
+
+
+def test_fingerprint_covers_the_per_day_output_writers_but_not_the_derive_step() -> None:
+    trees = set(md.INPUT_WRITER_TREES)
+    for tree in ("analytics", "mini_depth", "mini_decisions"):
+        assert f"backend/assetops_backend/{tree}" in trees, tree
+    assert not any(t.startswith("backend/assetops_backend/chain") for t in trees)
+
+
+def test_power_rows_are_interval_means_ending_at_their_source_time_and_tile_the_day() -> None:
+    step = md.timedelta(minutes=SPEC["sites"]["kobo"]["reading_rules"]["step_minutes"])
+    rows = md.kobo_rows(SPEC, 1)
+    means = [r for r in rows if not isinstance(r, tuple)]
+    points = [r for r in rows if isinstance(r, tuple)]
+    assert means and points
+    assert {(r[0], r[1]) for r in points} == {("generator-controller", "status"),
+                                               ("battery-pcs-controller", "state-of-charge")}
+    lo, hi = md.local_instant(SPEC, "kobo", 1, "00:00"), md.local_instant(SPEC, "kobo", 1, "24:00")
+    for channel in {tuple(x) for x in SPEC["sites"]["kobo"]["shapes"]["interval_mean"]}:
+        mine = sorted((r for r in means if (r.device, r.signal) == channel), key=lambda r: r.interval_start)
+        assert all(r.kind == "MEAN" and r.source_time - r.interval_start == step for r in mine), channel
+        # contiguous [00:00, 24:00) local: the coverage basis every chain measure counts
+        assert mine[0].interval_start == lo and mine[-1].source_time == hi, channel
+        assert all(a.source_time == b.interval_start for a, b in zip(mine, mine[1:])), channel
+
+
+def test_the_act_day_cut_puts_an_interval_ending_at_the_cut_before_it() -> None:
+    rows = md.kobo_rows(SPEC, 11, "overrun")
+    cut = md.local_instant(SPEC, "kobo", 11, "13:00")
+    before = [r for r in rows if md._before(r, cut)]
+    after = [r for r in rows if not md._before(r, cut)]
+    assert len(before) + len(after) == len(rows)
+    assert all(md._row_start(r) < cut for r in before) and all(md._row_start(r) >= cut for r in after)
