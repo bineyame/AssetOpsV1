@@ -16,7 +16,6 @@ from assetops_backend.actions.lifecycle import selector
 from assetops_backend.actions.site_index import parse_request as parse_action_index
 from assetops_backend.actions.verification import VerificationService
 from assetops_backend.chain.composition import build_chain_reader, build_thread_sources
-from assetops_backend.analytics.finding_index import parse_request as parse_finding_index
 from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.finding_api import ACCESS_BASIS
 from assetops_backend.objectives.composition import build_objective_store
@@ -49,7 +48,7 @@ def overview_source(route: Any, s2_scope: Callable[[str], Any] | None) -> Gate:
 def build_outcome_board_service(
         database_url: str | None, *, site_overview: Any = None, s2_scope: Callable[[str], Any] | None = None,
         mini_depth: Any = None, dispatch: Any = None, performance_gate: Gate | None = None,
-        finding_index: Any = None, finding_index_gate: Gate | None = None, assumptions: Any = None,
+        finding_index_gate: Gate | None = None, assumptions: Any = None,
         actions: Any = None, action_index: Any = None, cold_site: Any = None, cold_reads: Any = None,
         ev_site: Any = None, ev_reads: Any = None, ev_depth: Any = None, domain_actions: Any = None,
         work_index: Any = None, estate: Any = None) -> tuple[SiteOutcomeBoardService, Callable[[], None]]:
@@ -72,12 +71,12 @@ def build_outcome_board_service(
     services = BoardServices(
         overview=None if site_overview is None else site_overview.read,
         overview_source=None if site_overview is None else overview_source(site_overview, s2_scope),
-        mini_depth=mini_depth, dispatch=dispatch, finding_index=finding_index, performance_gate=performance_gate,
+        mini_depth=mini_depth, dispatch=dispatch, performance_gate=performance_gate,
         finding_index_gate=finding_index_gate, assumptions=assumptions, action_index=action_index,
         actions=actions, verification=verification,
         cold_site=cold_site, cold_reads=cold_reads, ev_site=ev_site, ev_reads=ev_reads, ev_depth=ev_depth,
         domain_actions=domain_actions, work_index=work_index, global_work=global_work,
-        select_preventive=select_preventive, estate=estate, parse_finding_index=parse_finding_index,
+        select_preventive=select_preventive, estate=estate,
         parse_action_index=parse_action_index, parse_work_list=parse_list_request,
         parse_domain_index=parse_index_request, action_selector=selector, access_basis=ACCESS_BASIS,
         work_access_basis=ACCESS_BASIS, objectives=objectives,

@@ -1,7 +1,7 @@
 """ChainReader (CH-5a1, build sheet Part A §A2-§A3): the board's chain reads, one indexed query each, memoised
 per request in the read scope (`assetops_backend.read_scope`, CH5a-R R1).
 
-Pure: the rules here (`site_cutoff`, `readiness_of`, `day_settled`, `day_gaps`, `board_day`, `summary_day`,
+Pure: the rules here (`site_cutoff`, `readiness_of`, `day_settled`, `day_gaps`, `board_day`, `window_day`,
 `assessment_state`) and the `ChainReader` that composes its ports. It imports no store, driver or other domain's
 adapter; the SQL lives in `chain/adapters/postgres_chain_read.py` and the composition hands the ports in.
 """
@@ -107,9 +107,33 @@ def board_day(d: date, tz: str | None) -> tuple[datetime, datetime]:
     return lo, hi
 
 
-def summary_day(to: datetime, tz: str | None) -> date:
-    """R6 (the CH3-R `day_at` rule): the summary's mini day is the Site-local day of `to - 1 µs`."""
-    return (to - timedelta(microseconds=1)).astimezone(_zone(tz)).date()
+def _utc_midnight(t: datetime) -> bool:
+    u = t.astimezone(timezone.utc)
+    return (u.hour, u.minute, u.second, u.microsecond) == (0, 0, 0, 0)
+
+
+def window_day(lo: datetime | None, hi: datetime | None, tz: str | None) -> date | None:
+    """CH5a2-R R7 (owner-approved "fix the summary now as recommended"): the ONE day rule of a window, shared by the
+    board route, the board's thread day and the summary card (and imported by COH-7a):
+
+    1. a pair that is exactly one Site-local day selects that local date;
+    2. a UTC-midnight one-day pair selects its UTC calendar date (the date the user picked), read as the Site's
+       local day of that date;
+    3. any other window selects the calendar date of `to - 1 µs` in the frame where `to` is a midnight: UTC when
+       `to` is a UTC midnight, otherwise Site-local.
+
+    None when there is no `to`."""
+    if hi is None:
+        return None
+    z = _zone(tz)
+    if lo is not None:
+        local = lo.astimezone(z).date()
+        if (lo, hi) == board_day(local, tz):
+            return local
+        if _utc_midnight(lo) and hi - lo == timedelta(days=1):
+            return lo.astimezone(timezone.utc).date()
+    frame = timezone.utc if _utc_midnight(hi) else z
+    return (hi - timedelta(microseconds=1)).astimezone(frame).date()
 
 
 def local_days(lo: datetime, hi: datetime, tz: str | None) -> tuple[date, ...]:

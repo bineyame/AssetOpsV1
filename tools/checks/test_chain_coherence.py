@@ -587,13 +587,17 @@ def _summary_variant(tmp_path: Path, site_code: str, domain: str, window: dict) 
     return cc.Bundle(dst)
 
 
-#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `summary_day` = local (Addis) day of 31 Oct 23:59:59Z = 1 Nov.
-KOBO_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
+#: The clean week requests [25 Oct 00Z, 1 Nov 00Z): `window_day` rule 3 (CH5a2-R R7) = the UTC date of
+#: 31 Oct 23:59:59Z = 31 Oct, read as Kobo's (Addis) local day [30 Oct 21Z, 31 Oct 21Z).
+KOBO_CARD_DAY = {"from": "2026-10-30T21:00:00Z", "to": "2026-10-31T21:00:00Z"}
+#: The CH-5a1 card day (the Site-local day of `to - 1 µs`, the next local day east of UTC) is no longer expected.
+KOBO_OLD_CARD_DAY = {"from": "2026-10-31T21:00:00Z", "to": "2026-11-01T21:00:00Z"}
 WEEK = {"from": "2026-10-25T00:00:00Z", "to": "2026-11-01T00:00:00Z"}
 
 
 @pytest.mark.parametrize("site,domain,window,fails", [
-    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (summary_day) is expected
+    (KOBO, "mini_grid", KOBO_CARD_DAY, False),  # the mini card's one Site-local day (window_day) is expected
+    (KOBO, "mini_grid", KOBO_OLD_CARD_DAY, True),  # R7: the day after the picked date is not
     (KOBO, "mini_grid", WEEK, True),            # a mini card on the requested window is not its card day
     (COLD, "cold_chain", WEEK, False),          # every other Site: the requested window
     (COLD, "cold_chain", KOBO_CARD_DAY, True),  # ... and only it

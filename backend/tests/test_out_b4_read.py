@@ -9,7 +9,7 @@ from uuid import uuid4
 
 from assetops_backend.outcomes.catalogue import CATEGORIES
 from assetops_backend.site_outcomes import read
-from assetops_backend.chain.read import summary_day
+from assetops_backend.chain.read import window_day
 from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
 
 UTC = timezone.utc
@@ -19,14 +19,60 @@ COLD = SiteRef(T, uuid4(), "COLD-LAB-001", "GreenHarvest", "COLDCHAIN", None)
 ODD = SiteRef(T, uuid4(), "ODD-1", "Odd", "UNKNOWN_TYPE", None)
 
 
-def test_summary_day_is_the_site_local_day_of_to() -> None:
-    """E4 (R6): `mini_summary_day` (the UTC day of `to - 1 µs`) is replaced by `summary_day` in the Site zone."""
-    assert summary_day(datetime(2026, 10, 8, tzinfo=UTC), "Etc/UTC") == date(2026, 10, 7)
-    assert summary_day(datetime(2026, 10, 8, 5, tzinfo=UTC), None) == date(2026, 10, 8)
-    addis = "Africa/Addis_Ababa"  # UTC+3: 7 Oct 21:00Z is local midnight 8 Oct
-    assert summary_day(datetime(2026, 10, 7, 21, tzinfo=UTC), addis) == date(2026, 10, 7)
-    assert summary_day(datetime(2026, 10, 7, 21, 0, 0, 1, tzinfo=UTC), addis) == date(2026, 10, 8)
-    assert summary_day(datetime(2026, 10, 8, tzinfo=UTC), addis) == date(2026, 10, 8)
+ADDIS = "Africa/Addis_Ababa"  # UTC+3: 30 Oct 21:00Z is local midnight 31 Oct
+
+
+def test_window_day_rule_1_one_site_local_day_is_that_local_date() -> None:
+    """CH5a2-R R7 rule 1: a pair that is exactly one Site-local day selects that local date."""
+    assert window_day(datetime(2026, 10, 30, 21, tzinfo=UTC), datetime(2026, 10, 31, 21, tzinfo=UTC), ADDIS)         == date(2026, 10, 31)
+    assert window_day(datetime(2026, 10, 31, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC), "Etc/UTC")         == date(2026, 10, 31)
+
+
+def test_window_day_rule_2_utc_midnight_one_day_pair_is_the_picked_date() -> None:
+    """Rule 2: a UTC-midnight one-day pair is the calendar date the user picked, east of UTC too (the CH-5a1
+    `summary_day` gave Addis 1 Nov here: the defect the owner approved fixing)."""
+    lo, hi = datetime(2026, 10, 31, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC)
+    assert window_day(lo, hi, ADDIS) == date(2026, 10, 31)
+    assert window_day(lo, hi, "America/New_York") == date(2026, 10, 31)
+    assert window_day(lo, hi, None) == date(2026, 10, 31)
+
+
+def test_window_day_rule_3_other_windows_read_to_in_its_midnight_frame() -> None:
+    """Rule 3: any other window is the date of `to - 1 µs` in the frame where `to` is a midnight: UTC when `to` is a
+    UTC midnight, otherwise Site-local. No `to` is None."""
+    week = datetime(2026, 10, 25, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC)
+    assert window_day(*week, ADDIS) == date(2026, 10, 31)                 # UTC frame (local would be 1 Nov)
+    local_week = datetime(2026, 10, 24, 21, tzinfo=UTC), datetime(2026, 10, 31, 21, tzinfo=UTC)
+    assert window_day(*local_week, ADDIS) == date(2026, 10, 31)           # Site-local frame
+    assert window_day(None, datetime(2026, 10, 8, 5, tzinfo=UTC), ADDIS) == date(2026, 10, 8)
+    assert window_day(None, datetime(2026, 10, 8, tzinfo=UTC), ADDIS) == date(2026, 10, 7)
+    assert window_day(datetime(2026, 10, 1, tzinfo=UTC), None, ADDIS) is None
+
+
+def test_31_oct_summary_card_is_the_31_oct_kobo_board(monkeypatch) -> None:
+    """R7: the summary card of the picked day 31 Oct reads the same Kobo board the board route gives for that pair
+    (the Site page the card links into), so the card and the Site page cannot disagree."""
+    from assetops_backend.outcome_api import _mini_day_params
+    from assetops_backend.site_overview.route import selected_day
+
+    kobo = SiteRef(T, S, "KOBO-001", "Kobo", "MINIGRID", ADDIS)
+    days: list = []
+    real = SiteOutcomeBoardService.board
+
+    def board(self, site, **kw):
+        days.append(kw.get("day"))
+        return real(self, site, **kw)
+
+    monkeypatch.setattr(SiteOutcomeBoardService, "board", board)
+    pair = {"from": "2026-10-31T00:00:00Z", "to": "2026-11-01T00:00:00Z"}
+    route_day = selected_day(_mini_day_params(pair, ADDIS))
+    out = SiteOutcomeBoardService(BoardServices()).summary(
+        [kobo], datetime(2026, 10, 31, tzinfo=UTC), datetime(2026, 11, 1, tzinfo=UTC))
+    assert route_day == date(2026, 10, 31) and days == [route_day]
+    route_board = real(SiteOutcomeBoardService(BoardServices()), kobo, day=route_day)
+    card = out["sites"][0]["window"]
+    assert {k: card[k] for k in ("from", "to")} == {k: route_board["window"][k] for k in ("from", "to")} == {
+        "from": "2026-10-30T21:00:00Z", "to": "2026-10-31T21:00:00Z"}
 
 
 def test_unconfigured_services_make_a_partial_board_not_a_refusal() -> None:

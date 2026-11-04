@@ -591,18 +591,18 @@ def _coh7a_window(site: dict, requested: dict) -> tuple[str, str]:
     """CH5a1-R2 (COH-7a, Architect 6; supersedes MD0-S4 R3): the expected window of one summary Site card.
 
     A mini Site's summary card is ONE Site-local day by design: `[local 00:00, next local 00:00)` of
-    `chain.read.summary_day(to, tz)` (the CH3-R `day_at` rule, local day of `to - 1 us`). Both rules are imported
-    from the backend, never re-derived here. Every other Site's window must equal the requested window.
+    `chain.read.window_day(from, to, tz)` (CH5a2-R R7, owner-approved: the board route's day rule, so a UTC-midnight
+    one-day pair is the picked calendar date). Both rules are imported from the backend, never re-derived here. Every other Site's window must equal the requested window.
     Merge note: MD-0's branch also edits this file; keep this helper and its one call when resolving."""
     if site.get("domain") != "mini_grid":
         return requested["from"], requested["to"]
     backend = str(TOOLS.parent / "backend")
     if backend not in sys.path:
         sys.path.insert(0, backend)
-    from assetops_backend.chain.read import board_day, summary_day
+    from assetops_backend.chain.read import board_day, window_day
 
     tz = {SITE_CODE[k]: z for k, z in LOCAL_DAY_TZ.items()}.get(site.get("site_code"))
-    lo, hi = board_day(summary_day(at(requested["to"]), tz), tz)
+    lo, hi = board_day(window_day(at(requested["from"]), at(requested["to"]), tz), tz)
     return iso(lo), iso(hi)
 
 

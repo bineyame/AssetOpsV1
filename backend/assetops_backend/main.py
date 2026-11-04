@@ -616,7 +616,7 @@ def create_app(
     outcome_board, outcome_board_dispose = build_outcome_board_service(
         database_url(), site_overview=site_overview if site_overview_read is not None else None,
         s2_scope=imported_reads.scope, mini_depth=mini_reads, dispatch=performance_reads,
-        performance_gate=performance_gate, finding_index=finding_index, finding_index_gate=finding_index_gate,
+        performance_gate=performance_gate, finding_index_gate=finding_index_gate,
         assumptions=assumption_reads, actions=actions, action_index=action_index, cold_site=cold_site_reads,
         cold_reads=cold_reads, ev_site=ev_site_reads, ev_reads=ev_reads, ev_depth=ev_depth_reads,
         domain_actions=domain_action_reads, work_index=work_lists, estate=estate_portfolio)

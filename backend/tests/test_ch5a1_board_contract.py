@@ -230,7 +230,7 @@ def services(port: Port, never: list[str]) -> BoardServices:
             return {"rows": copy.deepcopy(rows), "next_cursor": None}
 
     return BoardServices(
-        overview=Never("mini_overview", never), finding_index=Never("finding_index", never),
+        overview=Never("mini_overview", never),
         overview_source=open_gate, mini_depth=Depth(), dispatch=Dispatch(), performance_gate=open_gate,
         finding_index_gate=open_gate, assumptions=Assumptions(), action_index=ActionIndex(),
         parse_action_index=lambda *a: a, estate=Estate(), cold_site=ColdSite(), cold_reads=ColdReads(),

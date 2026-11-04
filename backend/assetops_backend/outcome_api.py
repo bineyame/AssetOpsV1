@@ -22,13 +22,12 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
 from uuid import UUID
-from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf
-from assetops_backend.chain.read import board_day
+from assetops_backend.chain.read import board_day, window_day
 from assetops_backend.cold_assessment_api import Disclosure, allow_disclosure
 from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, parse_request as parse_estate
 from assetops_backend.estate_api import Authenticate, development_authenticate
@@ -61,17 +60,20 @@ def _instant(params: Any, key: str) -> datetime | None:
 
 
 def _mini_day_params(params: Any, tz: str | None) -> Any:
-    """R6: a `from`/`to` pair that is exactly one Site-local day (the board's own `window` and self link, and the
-    summary's Site window) selects that local date, as `date=` does. Any other pair goes to `selected_day` unchanged,
-    so a one-UTC-day pair and every 422 code keep their meaning."""
+    """R6, CH5a2-R R7: the day of a `from`/`to` pair is `chain.read.window_day`, the one rule the summary card also
+    reads. A pair that is exactly one Site-local day selects that local date, as `date=` does. A UTC-midnight pair
+    goes to `selected_day` unchanged (it selects its UTC calendar date, `window_day` rule 2, and keeps every 422
+    code); the board accepts no other window (`NOT_ONE_UTC_DAY`)."""
     start, end = params.get("from"), params.get("to")
     if start is None or end is None or not (_INSTANT.fullmatch(start) and _INSTANT.fullmatch(end)):
         return params
     lo = datetime.fromisoformat(start.replace("Z", "+00:00"))
     hi = datetime.fromisoformat(end.replace("Z", "+00:00"))
-    local = lo.astimezone(ZoneInfo(tz)).date() if tz else lo.date()
-    if (lo, hi) != board_day(local, tz) or (lo.hour, lo.minute, lo.second) == (0, 0, 0):
-        return params  # not a Site-local day, or already a UTC day (`selected_day` reads it)
+    if (lo.hour, lo.minute, lo.second) == (0, 0, 0):
+        return params  # a UTC day (or a refusal): `selected_day` reads it
+    local = window_day(lo, hi, tz)
+    if local is None or (lo, hi) != board_day(local, tz):
+        return params  # not a Site-local day: `selected_day` refuses it
     text = params.get("date")
     if text is not None and text != local.isoformat():
         raise _refuse(422, "CONFLICTING_WINDOW", "date conflicts with from/to")

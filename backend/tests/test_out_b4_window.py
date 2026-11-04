@@ -11,7 +11,7 @@ import pytest
 from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import EstateRefusal
-from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef, covering_days
+from assetops_backend.site_outcomes.read import BoardServices, SiteOutcomeBoardService, SiteRef
 
 UTC = timezone.utc
 T = uuid4()
@@ -31,12 +31,6 @@ class Estate(EstatePortfolioService):
 
     def _read(self, work):
         return "READ"
-
-
-def test_covering_days_floor_and_ceil_and_midnight_unchanged() -> None:
-    assert covering_days(at(2026, 10, 29, 16), at(2026, 10, 29, 17, 5)) == (at(2026, 10, 29), at(2026, 10, 30))
-    assert covering_days(at(2026, 10, 6), at(2026, 10, 7)) == (at(2026, 10, 6), at(2026, 10, 7))
-    assert covering_days(at(2026, 10, 6, 8), at(2026, 10, 7)) == (at(2026, 10, 6), at(2026, 10, 7))
 
 
 @pytest.mark.parametrize("lo,hi", [(at(2026, 10, 6, 8), at(2026, 10, 7)), (at(2026, 10, 6), at(2026, 10, 7, 9)),

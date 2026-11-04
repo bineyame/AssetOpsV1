@@ -143,8 +143,9 @@ def test_mini_site_unchanged(boards):
     est = Estate([(at(8), at(9))])
     out = summary(est, [KOBO])
     assert est.calls == []
-    # E4 (R6): the summary's mini day is the Site-local day of `to - 1 µs`: 7 Oct 00:00Z is 03:00 local on 7 Oct
-    assert boards[0]["day"] == date(2026, 10, 7) and boards[0]["lo"] is None and boards[0]["hi"] is None
+    # CH5a2-R R7 (owner-approved; replaces E4's local day of `to - 1 µs`, which gave 7 Oct here): the UTC-midnight
+    # one-day pair [6 Oct 00Z, 7 Oct 00Z) is the picked date 6 Oct, as the board route reads it (`window_day` rule 2)
+    assert boards[0]["day"] == date(2026, 10, 6) and boards[0]["lo"] is None and boards[0]["hi"] is None
     assert out["sites"][0]["window_basis"] == "DAY" and out["sites"][0]["overview_href"] == "/sites/KOBO-001"
 
 
