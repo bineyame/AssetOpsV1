@@ -1843,7 +1843,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
             siteId={CODE}
             client={findingIndex}
             scope={{ domain: "all", from: S_FROM, to: S_TO }}
-            links={{ scope: () => "/x", finding: () => "/y" }}
+            links={{ scope: () => "/x", finding: () => "/y", opportunities: "/findings/opportunities" }}
             onScope={() => undefined}
             fallback={null}
             opportunityHelper={helper}

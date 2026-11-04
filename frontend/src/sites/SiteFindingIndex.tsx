@@ -28,7 +28,6 @@
 import { createContext, useContext, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
 import { Link } from "react-router-dom";
-import { FINDINGS_OPPORTUNITIES_PATH } from "../shell/operatorSiteRoutes";
 
 import {
   DataTable,
@@ -95,16 +94,20 @@ const OPPORTUNITY_HELPER_LINK = "renewable page";
 /** A Site-scoped lens address; none exists yet, so every current call leaves these out (Q18 / Q49, D5). */
 export type SiteLensHrefs = Partial<Record<"Cost" | "Risks" | "Opportunities", string>>;
 
-function OpportunityHelper({ shown, renewable }: { shown: boolean; renewable?: string }) {
+function OpportunityHelper({ shown, findings, renewable }: { shown: boolean; findings?: string; renewable?: string }) {
   if (!shown) return null;
   const f = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_FINDINGS);
   const r = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_LINK);
   return (
     <p className="finding-sections__helper" data-opportunity-index-helper>
       {OPPORTUNITY_INDEX_HELPER.slice(0, f)}
-      <Link to={FINDINGS_OPPORTUNITIES_PATH} data-opportunity-index-findings>
-        {OPPORTUNITY_HELPER_FINDINGS}
-      </Link>
+      {findings === undefined ? (
+        OPPORTUNITY_HELPER_FINDINGS
+      ) : (
+        <Link to={findings} data-opportunity-index-findings>
+          {OPPORTUNITY_HELPER_FINDINGS}
+        </Link>
+      )}
       {OPPORTUNITY_INDEX_HELPER.slice(f + OPPORTUNITY_HELPER_FINDINGS.length, renewable === undefined ? undefined : r)}
       {renewable === undefined ? null : (
         <>
@@ -156,6 +159,8 @@ export interface FindingIndexLinks {
   dispatch?: (day: string, intervalRevisionId: string | null) => string;
   /** post-W6 W1-b Q20 / R197: the Site's mounted Performance Renewable view (the opportunity helper's link). */
   renewable?: string;
+  /** CH-4 (§4.3): the estate Findings › Opportunities list (the helper's Findings link), passed in by the shell. */
+  opportunities?: string;
 }
 
 /**
@@ -1037,7 +1042,7 @@ export function SiteFindingIndex({
         value={
           <div className="site-findings-controls" data-site-findings-controls>
             {/* The opportunity helper stays in the panel beside the window form; since Q20 its line carries a link. */}
-            <OpportunityHelper shown={opportunityHelper} renewable={links.renewable} />
+            <OpportunityHelper shown={opportunityHelper} findings={links.opportunities} renewable={links.renewable} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>
         }
