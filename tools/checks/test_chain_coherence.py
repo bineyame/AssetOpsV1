@@ -104,6 +104,28 @@ def test_wildcard_subject_expectation_is_bounded_by_count() -> None:
     assert report["pass"] is False and report["resolved"] == [other]  # another window does not cover it
 
 
+def test_variants_gate_expected_entries() -> None:
+    """MD0b-N1: a `variants` entry applies only to a run of a listed variant; one without applies to all."""
+    bundle = cc.Bundle(BUNDLES / "coh2_no_action")
+    rule, site, window, subject = FAILING["coh2_no_action"]
+    entry = {"rule": rule, "site_code": site, "window": window, "subject": subject}
+    gated = {**entry, "variants": ["close"]}
+    states = cc.check(bundle, [gated], variant="states")
+    assert states["pass"] is False and states["expected_unmatched"]  # a states-run finding is unexpected
+    assert cc.check(bundle, [gated], variant="close")["pass"] is True  # a close run absorbs it
+    assert cc.check(bundle, [gated])["pass"] is False  # no variant given: a gated entry does not apply
+    for v in ("states", "close", None):
+        assert cc.check(bundle, [entry], variant=v)["pass"] is True  # no `variants`: applies to all
+    assert cc.main(["check", "--bundle", str(BUNDLES / "coh2_no_action"), "--variant", "close", "--expect", str(_write(entry, gated))]) == 0
+
+
+def _write(entry: dict, gated: dict) -> Path:
+    import tempfile
+    path = Path(tempfile.mkdtemp()) / "e.json"
+    path.write_text(json.dumps([gated]), encoding="utf-8")
+    return path
+
+
 def test_resolved_wildcard_is_printed_loudly_and_new_count_agrees(capsys) -> None:
     bundle = cc.Bundle(BUNDLES / "coh2_no_action")
     rule, site, window, _ = FAILING["coh2_no_action"]

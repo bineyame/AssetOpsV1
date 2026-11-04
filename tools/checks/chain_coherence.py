@@ -1098,9 +1098,16 @@ def _key(f: dict) -> tuple:
     return (f["rule"], f.get("site_code"), f.get("window"), f.get("subject"))
 
 
-def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None) -> dict[str, Any]:
-    """`threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
+def applicable(expect: list[dict] | None, variant: str | None) -> list[dict]:
+    """MD0b-N1: an entry with `variants` applies only to a run of one of those variants; one without applies to all."""
+    return [e for e in (expect or []) if "variants" not in e or variant in e["variants"]]
+
+
+def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None,
+          variant: str | None = None) -> dict[str, Any]:
+    """`variant` filters the expected entries by their optional `variants` list. `threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
     THREADS_FILE."""
+    expect = applicable(expect, variant)
     findings: list[dict] = []
     for _, rule in RULES:
         findings += rule(bundle, threads) if rule is coh10_thread_identity and threads is not None else rule(bundle)
@@ -1174,6 +1181,7 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--bundle", required=True, type=Path)
     k.add_argument("--expect", type=Path)
     k.add_argument("--report", type=Path)
+    k.add_argument("--variant", help="mechanism variant of this run (states, close); gates expected entries' `variants`")
     k.add_argument("--threads", type=Path, help=f"COH-10 expected threads (default {THREADS_FILE.name})")
     args = parser.parse_args(argv)
     if args.command == "collect":
@@ -1194,7 +1202,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"collected {len(m['requests'])} requests into {args.out}: statuses {statuses}")
         return 0
     expect = load_expect(args.expect) if args.expect else None
-    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None)
+    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None, args.variant)
+    expect = applicable(expect, args.variant)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=1), encoding="utf-8")
