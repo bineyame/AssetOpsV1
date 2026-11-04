@@ -1,8 +1,8 @@
 # Review packet: CH-5a1 (ChainReader and the board read path)
 
-Branch `task/CH-5a1-chain-reader`. **CH5a1-R2 fix round** (sheet §A13) on 110d0057a: ff033ade1 (R-1), d088b16f1 (COH-7a), e542064b2 (ledger); this packet commit follows. Not merged.
+Branch `task/CH-5a1-chain-reader`. **CH5a1-R2 fix round** (sheet §A13) on 110d0057a: ff033ade1 (R-1), d088b16f1 (COH-7a), e542064b2 (ledger), packet f6dfc60e4. **MD-0 round** (sheet §A13 / MD-0 §7, §16-§18): e40018c53 (merge main c036f8a49), c9638be3f (D-2d-1), 99e956dec (L2m), 33841fd57 (e4 importer); this packet commit follows. Not merged.
 Authority: build sheet Part A (`AssetOpsV1-plan2/.agent/build-sheet-CH-5a.md`, incl. §A12 CH5a1-R and §A13 CH5a1-R2). Evidence: `.agent/CH-5a1-phase-{1,2,2b,2c,2d}-handoff.md`, `.agent/CH-5a1-phase-3-results.md`, and the R2 section below.
-**Status: OPEN BEFORE MERGE only on MD-0 and the full suite** (last section). R-1, COH-7a, the extra E1 entry and the ledger are applied. USER_REVIEW: the build sheet sets no USER_REVIEW_REQUIRED flag; the coordinator decides.
+**Status: ready for review**, with three Architect items from the MD-0 round (MD-0 section: F1, COH-5 x6 on L3m, the template fingerprint). R-1, COH-7a, the extra E1 entry and the ledger are applied. USER_REVIEW: the build sheet sets no USER_REVIEW_REQUIRED flag; the coordinator decides.
 
 ## Outcome delivered
 - One request has one `ReadScope` (`read_scope.py`, opened by `perf.route`). It holds a ledger and a deep-frozen memo over `_window`, `claim_limit_snapshot_on` and every ChainReader port.
@@ -20,7 +20,7 @@ Authority: build sheet Part A (`AssetOpsV1-plan2/.agent/build-sheet-CH-5a.md`, i
 | A0 zero calls of `mini_overview`/`finding_index`/`estate.site_readiness*` | met | L1 ledger test; L2 board route under TestClient (none of `DELETED`) |
 | A0 ledger max 1 per key (board, summary, Portfolio) | met | R2: `Reads(site)` keys every composer read `(site_code, *args)`, so `objectives` is `(KOBO-001,)`, `(COLD-LAB-001,)`, `(EV-LAB-001,)`; `productive_readings` is memoised (same arguments on day 1 of a month). L1 `test_ch5a1_summary_ledger.py` asserts max 1 on the summary; clone: summary week 54 keys, `repeated []` (key list below) |
 | A0 board text unchanged except E1-E5 (L3 clone) | met | R2 clone: A2 vs R2 24/56 requests, 592 paths, all E1-E5; the R-1 paths are gone |
-| A0 same on MD-0 (L3m) | blocked-on-MD-0 | |
+| A0 same on MD-0 (L3m) | met-with-finding | MD-0 A2 vs B: 17/40 requests, 664 paths, all E1/E2/E4 (+ E2-derived); COH-5 x6 new on B (MD-0 section, item M3) |
 | A0 measured timings reported | met | perf table below |
 | A0 boundary: no detector/matcher/money/verification/lifecycle/copy change | met-with-deviation | copy unchanged; `GAPS_WITHHELD` deleted with its COPY entry (Q4, 2c); behaviour changes D-Q2/Q8/R8 below |
 | A6 A/B on L3 clone, both sides on B's `days.json` | met | 56 requests per side, A = main a07452c63 |
@@ -28,8 +28,8 @@ Authority: build sheet Part A (`AssetOpsV1-plan2/.agent/build-sheet-CH-5a.md`, i
 | A6 E2 / E3 / E4 / E5 | met | E5 met for every Site after R-1 (Cold/EV threads unchanged from A) |
 | A6 E3b | met | empty; (finding_id, revision_id) sets equal on every day board and the Portfolio |
 | A6 no other difference | met | R2 clone (below) |
-| A6 A side at the MD-0 merge; L3m + `--variant close` | blocked-on-MD-0 | A was main a07452c63 |
-| A7 probe, 5 cold/5 warm, bytes, top-10 ledger | met (clone) / blocked-on-MD-0 (L3m) | `tools/chain_perf_probe.py` |
+| A6 A side at the MD-0 merge; L3m + `--variant close` | met (close: n/a) | A = main c036f8a49 on a fresh polish clone and on L3m; `--variant close` is MD-0b and refused by the tool |
+| A7 probe, 5 cold/5 warm, bytes, top-10 ledger | met (clone and L3m) | `tools/chain_perf_probe.py`; L3m table in the MD-0 section |
 | A7 budgets reported, not relaxed | met | every cold/warm time and the Portfolio payload miss |
 | A11 frozen memo values | met | L0 `test_ch5a1_scope.py` |
 | A11 no re-derived join/window/day count/card rule outside `chain/` | met-with-deviation | `mini.estate_bounds` keeps the UTC estate day outside `chain/` until CH-5a2 B3 (D-UTC) |
@@ -98,6 +98,91 @@ Authority: build sheet Part A (`AssetOpsV1-plan2/.agent/build-sheet-CH-5a.md`, i
   - coherence COH-7a fixture (4): mini rule removed → 2 failed;
   - L1 `test_ch5a1_summary_ledger.py`: Site prefix removed → `3 == 1`; memo removed → `2 == 1`.
 
+## MD-0 round (main c036f8a49 merged; MD-0 §7, §16-§18)
+- **Merge (e40018c53).**
+  - `chain_coherence.py` auto-merged. `_coh7a_window` and its call are kept beside MD-0's in-process collect and `check --threads`.
+  - `test_chain_coherence.py` conflicted. Both blocks are kept (95 passed).
+  - `expected-today.json` drops the two `COH-7a KOBO-001` week/month entries that this slice resolves, per the file's rule ("later slices delete the entries they resolve"). Main did not edit this file.
+- **D-2d-1 (c9638be3f).** `backend/tests/mechanism_dataset.py` `build_work` writes each Kobo entry from `local_instant(n, "00:00")` to `local_instant(n, "24:00")`.
+  - Test: L0 `test_md0_fixture.py::test_build_work_writes_kobo_days_as_site_local_days`. It failed on the pre-change file, then passed (41 passed).
+- **Template: stale, so rebuilt.**
+  - `status` gave `usable: false` (b23a1ca0 vs ee2b4136).
+  - The branch edits 15 files in the tag's traced module list: `mechanism_dataset.py`, `main.py`, `outcome_api.py`, `perf.py`, `estate/{index,portfolio}.py`, `estate/adapters/postgres_estate_read.py`, `analytics/finding_index.py`, `analytics/adapters/postgres_assessment_store.py` and `site_outcomes/{board,cold,composition,ev,mini,read}.py`.
+  - Rebuilt with `build --variant states --budget 540` in two parts: 491 s (exit 3, resume), then 153 s. The new tag is 5e589e86, `usable: true`.
+  - The shared template now carries this branch's fingerprint (item M4).
+- **L3m.**
+  - `derive` took 61 s (clone 1.1 s, derive 58.4 s).
+  - An unticked collect gave 40 x 200 and 0 findings, but every Kobo row was UNKNOWN. I then settled the DB with `chain_clone.py settle mechanism` (tick COMPLETED, 30 s), the path MD-0 §6 provides.
+  - Settled check, B (`check --threads var/mechanism/expected-threads.json --expect expected-mechanism.json`): **COH-7a 0** (MD-0's L3m had 2), COH-10/11 0, every other rule 0, and **6 new COH-5** (item M3).
+  - Settled check, A (main on the same DB): COH-7a x2 (week and month), and nothing else.
+- **E1 on MD-0** (chip `readings`, rows pooled per day):
+  - Every delivered day, normal and overrun, reads High (FULL), on the board and in L2m.
+  - **GAP-K7 (D7) reads Unknown, not the expected NONE** (item M1).
+  - The summary month card (local 3 Nov, no rows) reads Low (NO_DATA), as on the polish clone.
+  - MD-0 has 3 studies. The headroom opportunity OPP-000003 shows on the D13/D14 boards on both sides; its state_day moves to the local day (E4).
+- **L2m (99e956dec)**, `test_ch5a1_mechanism_postgres.py`: a template clone plus derive (`test_md0_mechanism_postgres.mech`), then `_settle_chain`.
+  - Asserted: R8 settled; `readiness_of` FULL on every delivered day (hard); the thread occurrences carry exactly the manifest's Findings.
+  - D7 UNKNOWN is recorded as `xfail("MD-0-F1 ...")` after the hard assertions (MD-0 R7 pattern).
+  - Result: 1 xfailed, 61 s.
+  - Proof: changing `readiness_of` FULL → LIMITED fails the hard assertion (`{1: 'LIMITED', ...} != {}`); restored.
+- **A/B on L3m.** A2 = main c036f8a49. Both sides used B's collector and `days.json`, in read-only transactions. 17 of 40 requests differ, 664 paths.
+  - Differing: Kobo day boards 11/11, summary-linked boards 3/3, summaries 3/3. Findings index, Portfolio and actions: 0.
+  - E2: A reads `PRODUCER_NOT_SETTLED` everywhere. B shows settled rows, the objective verdicts MET/MISSED/NOT_JUDGED/TOO_EARLY, and the D4/D11/D14 dispatch Findings on the board (thread occurrence 3 on D14, CHANGE_APPLIED).
+  - E2-derived:
+    - ACT-001 "in hand" moves from PROTECT_ASSET to OPTIMIZE_COST, because its origin Finding is now on the board (`board.py:736-737`; the fallback is PROTECT_ASSET);
+    - the "Battery stayed clear of its reserve ..." headlines;
+    - `earlier_empty_text`.
+  - E1: chips read High.
+  - E4: local windows, state_day +1, and the Grain mill kWh is summed over the local day (238 ↔ 240).
+- **A/B on a fresh polish clone** (`assetops_chainclone_ch5a1r3_test`; create 3 s, backfill a-d 12 s, settle 59 s, collect B 64 s and A 93 s; then dropped). 18 of 56 requests differ, 676 paths. Every difference is E1, E2 or E4.
+  - Kobo day boards: 8/8.
+  - EV boards: 2/2 (E1: Limited → Low; `EVIDENCE_READINESS_LIMITED` → `_NONE`).
+  - Kobo/EV summary-linked boards: 5/9. Summaries: 3/3.
+  - **No difference** on Cold, the Portfolio (0/3), the Findings index (0/19) or actions (0/9). R-1's Portfolio paths are gone against this main.
+  - Coherence, B: 2 new (the known COH-5 Kobo 17/24 Oct COST lens), 7 resolved.
+  - Coherence, A (main): 3 new COH-7a (Kobo S/week/month on UTC windows), judged by this branch's rule and the trimmed `expected-today.json`.
+- **Perf on L3m** (probe, 5 cold / 5 warm, ms):
+
+| URL | cold med | warm med | bytes | max_per_key |
+|---|---|---|---|---|
+| Kobo board 31 Oct | 3,914 | 2,903 | 10,780 | 1 |
+| summary, week | 4,234 | 2,917 | 2,728 | 1 |
+| Portfolio, week | 3,919 | 3,607 | 20,908 | 1 |
+
+  - Kobo D13 warm ledger (§A3 ports, ms): `assessment._window` 1,025, `mini_depth` 896, `estate` 673, `dispatch` 576, `productive_readings` 229, `source` 81, `chain_findings` 61, `work_index` 54, `action_facts` 17, `productive_price` 15.
+  - Summary: `chain.money_head` 848. Portfolio: `_window` 2,074, `claim_limit_snapshot_on` 912.
+  - On normal data the payloads meet the 60 KB and 100 KB budgets. The time budgets are missed, as on the clone; none is relaxed.
+- **P8** (L3m, settled).
+  - Rows: `event_outbox` 33,815 (Kobo: 32,550 `reading.accepted`, 8 `finding.revised`, 3 `opportunity.revised`); `event_consumption` 13 for `threads`.
+  - The R8 statement takes 2-6 ms per call, with k None and with k = 31 Oct 21Z.
+  - EXPLAIN (ANALYZE, BUFFERS):
+    - Nested Loop Anti Join;
+    - Index Scan on `event_outbox_site_type_order` (11 rows, or 7 with the k filter);
+    - Index Only Scan on `event_consumption_pkey`;
+    - 21 shared hits; execution 0.27 / 0.14 ms.
+  - The cost scales with a Site's Finding events, not its readings. At this volume no commit-safe cursor is needed (CH1b-R2 item 2 stays with DD-1).
+
+### Architect items from the MD-0 round
+- **M1 (MD-0-F1, owner CH-5a1 R5): the cause is found; no code changed.**
+  - Cause: D7-D9 each carry a live `mini_renewable` job for the noon hour. It was enqueued on 29 Oct at 11:00 (the D11 delivery) and never reconciled, because nothing was delivered on those days.
+  - So `noon_headroom_kw` is PENDING there (`renewable_pending`, `postgres_chain_inputs.py:82-88`). D6, by contrast, is NO_DATA on every measure.
+  - R5 as written ("any PENDING → UNKNOWN") therefore gives UNKNOWN.
+  - Conflict: MD0-S4 R1.5 accepts "GAP-K7 stays NO_DATA/PENDING before the fill", but the E1 line expects "GAP-K7 reads NONE".
+  - Changing R5 would change semantics, so I made no change.
+  - Ruling needed, either:
+    - accept UNKNOWN for GAP-K7 before the fill; or
+    - have the MD-0 harness reconcile the queued noon jobs of undelivered days (MD-0b / DD-1).
+- **M2: COH-7a on MD-0 is 0** (A has the 2), as §A13 requires. Nothing was added to `expected-mechanism.json`.
+- **M3: COH-5 x6 on L3m B.**
+  - What: the D4/D11/D14 dispatch Findings appear under OPTIMIZE_COST and PROTECT_ASSET, but their Findings index rows carry `lens_flags []`.
+  - Main is the same: A's index rows for these Findings are also `[]`. B exposes the gap because the board now shows the settled Findings (E2).
+  - It is the same class as the polish clone's Kobo COH-5 entries (owner CH-5a), and COH-5 = 0 on L3m is CH-5a2's acceptance (MD-0 §7: COH-1/5/8 = 0).
+  - Not added to `expected-mechanism.json`: that file only shrinks, and these are neither GAP-K7 nor R4 facts.
+  - Ruling needed: carry it to CH-5a2 as its L3m COH-5 target.
+- **M4: the shared template fingerprint.**
+  - The template now carries this branch's fingerprint, so `status` on main reads stale until CH-5a1 merges.
+  - Ruling needed: rebuild on main after the CH-5a1 merge, or accept it as stale until then.
+
 ## Checks
 R2 (code at e542064b2, `tools\run-host-tests.ps1`, `assetops_test` on 127.0.0.1):
 - 18 scoped files in one run: 348 passed, 0 failed, 0 skipped (69 s). The files: `test_ch5a1_{r1_visibility,summary_ledger,reader,scope,board_contract,reader_postgres}`, `test_ch2_threads`, `test_ch3_{rows,lifecycle,lifecycle_postgres}`, `test_ch4_opportunities`, `test_out_{b2_mini,b3_cold_ev,b4_route,c2_board}`, `test_qw1_perf`, `test_w303_portfolio_api`, `tools/checks/test_chain_coherence.py`.
@@ -119,7 +204,22 @@ Phase 3 (revision 33f06bcba, each file alone):
 - 0 failures in these reruns. Estate guard self-tests 15/15 passed, in 3 chunks, 759 s, at 2d. No guard file has changed since then (`git log 073e96f2f..HEAD` on `tools/checks/*.ps1` and `test_estate_guard.py` is empty).
 - The other scoped files and their counts are in the 2b/2c tables. Phase 3 focused: 224 passed. Each of the three phase-3 fix tests failed on revert.
 - Frontend: 13 importer files, 407 passed (2c). `npx vitest related` fails at startup ("Failed to parse source for import analysis ... .py"), so the explicit importer list was run instead.
-- **Not run:** the full real-Postgres backend suite. It is due on the final revision after the rulings and MD-0.
+**Full real-Postgres backend suite (MD-0 round)**
+- Command: `tools\run-backend-suite-in-container.ps1 -Tier all -Workers 2`, on 99e956dec, server `postgres-test`, cache on. Run `20261104-163109-be9c25`.
+- Wall: 4,125 s (68.7 min). That exceeds the guide's 40 min estimate but is inside the runner's own cap. Memory at start: 4,738 MB free.
+- JUnit: tests 5169, failures 8, errors 29, **skipped 0** (zero-skip check met).
+- Every failure was rerun on **main c036f8a49**, in a detached worktree, with the same runner and `-Targets` (run `20261104-174416-fc7884`, 720 s): 7 failed, 30 passed, 28 errors.
+
+| failing on the branch | on main | cause |
+|---|---|---|
+| `test_demo_combined_postgres` x25 (module set-up: `SystemExit: SELF-CHECK FAILED`) | same 25 errors | pre-existing |
+| `test_md0_mechanism_postgres` x3, `test_ch5a1_mechanism_postgres` x1 (`TEMPLATE_MISSING`) | MD-0's 3: same | environment: the container's `postgres-test` server has no `assetops_mechanism_tpl_test`. The template lives on the dev server (55432), where L2m passes (1 xfailed). Not run on main: `test_ch5a1_mechanism_postgres` (new on this branch) |
+| `test_w301_estate_golden_postgres` x6 (`$.opportunities: actual [] != expected '<absent>'`) | same 6 | pre-existing (main's `estate/index.py:346` emits `opportunities`; the goldens predate it) |
+| `test_runs_api::...test_the_shipped_scenario_blocks_only_on_the_values_this_site_lacks` (`var/sites/mg-001.yaml` missing in the container copy) | same | pre-existing / environment |
+| `test_out_e4_readback_postgres::test_kobo_verified_protect_entry_and_assure_read_back` (`ImportError: _assert_lineage_must_not_harm`) | **passes** | **branch-caused**: phase 2b deleted the lineage helpers, and this importer was missing from the 2b list. Fixed in 33841fd57 (settle the chain as b4 does, record Must-not-harm). Rerun in the container: 1 passed (run `20261104-175742-a48f88`) |
+
+- After 33841fd57: `check-architecture.ps1` passed (132 s); `check-agent-workflow.ps1` passed. `tools/checks/test_chain_coherence.py` 95 passed; `test_md0_fixture.py` 41 passed. `test_ch5a1_mechanism_postgres.py` on the host (dev server): 1 xfailed (MD-0-F1).
+- The full suite was not rerun after 33841fd57, which changes one test file only. The rerun covers that file.
 
 ## Importers (§A9 item 4)
 These are the phase-2 handoff list, plus `test_out_b4_main_binding`, `test_ch2_threads` (2b), `test_idx_gaps_postgres`, `test_out_c3_repeat_visits_postgres`, `test_ch5a1_board_contract` (2c), `test_ch5a1_reader_postgres` and `tools/checks/test_chain_coherence.py` (2d).
@@ -131,6 +231,7 @@ These are the phase-2 handoff list, plus `test_out_b4_main_binding`, `test_ch2_t
 4. 0c9cfe98e: the mini route accepts its own Site-local window.
 5. 9cbe253c9: Portfolio rows emit `public_thread`.
 6. c74ffbb22: the board money port binds `site_overview.read.consequences`.
+7. 33841fd57 (test only): `test_out_e4_readback_postgres` still imported the deleted lineage helpers; found by the full suite.
 
 ## Known deviations
 - **D-UTC:** the estate read stays on UTC-day bounds while the board day is local, until CH-5a2 B3.
@@ -139,7 +240,7 @@ These are the phase-2 handoff list, plus `test_out_b4_main_binding`, `test_ch2_t
 - **R8 alone:** Finding settledness no longer follows gap days; an unsettled chain shows no Findings.
 - **D1:** `lead_finding` pinned rule uses `day.settled` as `discovery_complete`.
 - **D2:** `priced` per §A3 only. D4: `covering_days` unused in production, kept for its tests.
-- **D-2d-1:** `mechanism_dataset.build_work` local-day bounds are pending MD-0.
+- **D-2d-1:** closed by c9638be3f (Kobo `days.json` entries are Site-local days).
 - **D-2d-2:** "later selection" = snapshot latest-row selection.
 - **D-2d-3:** L2 seeds per module, not `setup_cache`.
 - **The four 2c defaults are accepted** (2d handoff): the c3 spy is an R5 consequence; idx_gaps p5 NO_DATA; EV readiness listed per day; the 2b deviations stand.
@@ -166,9 +267,9 @@ These are the phase-2 handoff list, plus `test_out_b4_main_binding`, `test_ch2_t
 OL-1: met. ChainReader names measures and mechanisms only, and outcomes stay `outcome_map.finding_signal_key`.
 
 ## OPEN BEFORE MERGE
-1. **MD-0 not merged.** Pending on it: L2m/L3m (MD-0's L3m rerun after this merge must show COH-7a 0), the A-side rerun at the MD-0 merge, D-2d-1, and the P8 full-outbox measurement. `tools/checks/chain_coherence.py` conflicts with MD-0's branch; the second merge keeps `_coh7a_window` and its call.
-2. **Full real-Postgres backend suite** (with the JUnit zero-skip check) on the final revision after 1.
-3. R-1, COH-7a, the extra E1 entry and the ledger are closed by CH5a1-R2. Performance stays a finding (R2-P1, R2-P2); the plan change is the owner's.
+1. MD-0 is merged, and its L2m/L3m, A-side, D-2d-1 and P8 items are done (MD-0 section). Architect rulings are needed on M1 (GAP-K7 reads Unknown), M3 (COH-5 x6, to go to CH-5a2) and M4 (the template fingerprint).
+2. The full real-Postgres backend suite ran on 99e956dec (Checks). Every remaining failure also fails on main, or comes from the environment. The one branch-caused failure is fixed (33841fd57).
+3. Performance stays a finding (R2-P1, R2-P2 and the L3m table). The plan change is the owner's decision.
 
 ## User-review focus
 - R-1's two time axes (transaction `visible_at` and the story-time state cutoff) at the three ports.
