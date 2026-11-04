@@ -1147,7 +1147,8 @@ def late_fill(url: str, site_code: str, n: int, kind: str = "normal", now=None) 
 
 
 def build_work(url: str, out: Path, manifest: dict, variant: str = "main") -> None:
-    """§6: story.json, days.json (R10: Kobo entries are UTC days, CH-5a1 changes them with `day_windows`),
+    """§6: story.json, days.json (R10, closed by CH-5a1 D-2d-1: Kobo entries are Site-local days in UTC, as
+    `chain_coherence.day_windows` reads them),
     keys.json (fresh random keys for `demo_combined.KEY_NAMES`) and expected-threads.json (R9: Finding ids by
     declared anchor, grouping from the fixture's `threads`, never read from thread output)."""
     import secrets
@@ -1166,9 +1167,9 @@ def build_work(url: str, out: Path, manifest: dict, variant: str = "main") -> No
         kind = "gap" if gap else kobo_day_kind(spec, n)
         if not gap and n not in manifest["days"]:
             continue  # not delivered in this day set: no expected Site-day
-        start = datetime.combine(d, datetime.min.time(), tzinfo=timezone.utc)
-        days.append({"site": "kobo", "kind": kind, "day": d.isoformat(), "start": _z(start),
-                     "end": _z(start + timedelta(days=1)), "assess": "build"})
+        days.append({"site": "kobo", "kind": kind, "day": d.isoformat(),
+                     "start": _z(local_instant(spec, "kobo", n, "00:00")),
+                     "end": _z(local_instant(spec, "kobo", n, "24:00")), "assess": "build"})
     threads = [{"name": t["name"], "site_code": k["site_code"], "mechanism": t["mechanism"],
                 "findings": [manifest["findings"][a] for a in t["events"] if a in manifest["findings"]]}
                for t in spec["threads"] if t.get("events")]
