@@ -38,7 +38,7 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "daylight_headroom_kw", "avoidable_gen_min")}, ("snapshots",)),
+         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min")}, ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),
     "opportunity.revised@1": ({"ids": ["p1"]}, "MINIGRID", "UTC", set(), ("threads",)),

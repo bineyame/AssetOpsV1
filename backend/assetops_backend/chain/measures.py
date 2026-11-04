@@ -49,6 +49,11 @@ MEASURES: dict[str, MeasureSpec] = {
     "daylight_headroom_kw": MeasureSpec(
         "daylight_headroom_kw", "MINIGRID", "SITE", "MEASURED", PERIOD_OPERATING_HOURS, 1.0,
         "mini.daylight_headroom@1"),
+    # CH-9 §9 R9 (CH9-R2 Q7): critical demand served over the whole declared day, from the stored hourly
+    # `mini_service` heads; an operating hour with no head is uncovered. MG-5 reads it.
+    "critical_served": MeasureSpec(
+        "critical_served", "MINIGRID", "SITE", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
+        "mini.critical_served@1"),
     "avoidable_gen_min": MeasureSpec(
         "avoidable_gen_min", "MINIGRID", "ASSET", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
         "mini.dispatch_minutes@1"),

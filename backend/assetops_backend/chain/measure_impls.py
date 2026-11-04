@@ -223,6 +223,54 @@ class RenewableHeadroom:
         return None
 
 
+class CriticalServed:
+    """CH-9 §9 R9 (CH9-R2 Q7): `critical_served` over the Site's declared operating hours.
+
+    Sums the stored, selected hourly `mini_service` heads at the cutoff (no new reading query): served =
+    `critical_delivered_kw` x 1 h, unserved = `unserved_kwh`, demand = served + unserved. An hour counts toward
+    coverage only through its pinned critical-delivered series' own coverage (`critical_delivered_coverage`, minus
+    its gaps) and only when both figures are stated; an operating hour with no service head is uncovered."""
+
+    key = "mini.critical_served@1"
+
+    def __init__(self, reader: ChainInputReader) -> None:
+        self.r = reader
+
+    def subjects(self, ctx: DayCtx) -> list[str]:
+        return [SITE]
+
+    def inputs(self, ctx: DayCtx, subject_ref: str) -> InputSet:
+        pending = self.r.pending_jobs(ctx, ["mini_service"])
+        covered: list[Span] = []
+        ids: list[str] = []
+        counted = []
+        for h in self.r.service_hours(ctx):
+            head = h["head"]
+            if head is None:
+                continue
+            result = head["result"] or {}
+            cards = result.get("cards") or {}
+            crit = result.get("critical_delivered_coverage")
+            served, unserved = _dec(cards.get("critical_delivered_kw")), _dec(cards.get("unserved_kwh"))
+            if crit is None or served is None or unserved is None:
+                continue
+            covered += minus([(h["from"], h["to"])], _gaps(crit.get("gaps"), "from", "to"))
+            ids += [str(x).lower() for x in head["evidence_ids"]] + [f"revision:{head['revision_id']}"]
+            counted.append((served, unserved))
+        if not counted:
+            return InputSet((), [], pending, None)
+        return InputSet(tuple(sorted(set(ids))), covered, pending, counted)
+
+    def measure(self, ctx: DayCtx, subject_ref: str, inputs: InputSet) -> dict | None:
+        counted = inputs.payload or []
+        served = sum((s for s, _ in counted), Decimal(0))
+        unserved = sum((u for _, u in counted), Decimal(0))
+        return {"served_kwh": _text(served), "demand_kwh": _text(served + unserved), "unserved_kwh": _text(unserved)}
+
+    def money(self, ctx: DayCtx, subject_ref: str, value: dict) -> dict | None:
+        return None
+
+
 class DispatchMinutes:
     key = "mini.dispatch_minutes@1"
 
@@ -397,6 +445,6 @@ class ChargingEnergy(_Cached):
 
 
 def build_measure_set(reader: ChainInputReader) -> dict[str, Any]:
-    adapters = (ProductiveEnergy(reader), RenewableHeadroom(reader), DispatchMinutes(reader),
+    adapters = (ProductiveEnergy(reader), RenewableHeadroom(reader), CriticalServed(reader), DispatchMinutes(reader),
                 ChamberTemperature(reader), BackupStartChain(reader), ChargingEnergy(reader))
     return {a.key: a for a in adapters}

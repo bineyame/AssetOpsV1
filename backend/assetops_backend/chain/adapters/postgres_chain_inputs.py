@@ -79,6 +79,18 @@ JOB_ANALYTICS: dict[str, tuple[str, ...]] = {
 
 
 #: `mini_depth/read.py` `_JOBS`: a live job no later selection of its hour (visible at the cutoff) has cleared.
+#: CH-9: the latest selected `mini_service` head of every hour starting inside `[lo, hi)` at the cutoff.
+_SERVICE_HEADS = (
+    "SELECT DISTINCT ON (s.window_start) s.window_start, s.window_end, r.id, r.result, "
+    "COALESCE((SELECT array_agg(v.evidence_id::text ORDER BY v.evidence_id::text) "
+    "FROM mini_depth_revision_evidence v WHERE v.tenant_id = r.tenant_id AND v.site_id = r.site_id "
+    "AND v.revision_id = r.id), '{}') "
+    "FROM mini_depth_selection s JOIN mini_depth_revision r "
+    "ON r.tenant_id = s.tenant_id AND r.site_id = s.site_id AND r.id = s.revision_id "
+    "WHERE s.tenant_id = :t AND s.site_id = :s AND s.domain = 'service' AND s.window_start >= :lo "
+    "AND s.window_start < :hi AND s.selected_at <= :k AND r.knowledge_cutoff <= :k "
+    "ORDER BY s.window_start, s.selected_at DESC, s.seq DESC")
+
 _RENEWABLE_JOBS = (
     "SELECT EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
     "AND j.domain = 'mini_renewable' AND j.window_start < :hi AND j.window_end > :lo "
@@ -237,6 +249,25 @@ class PostgresChainInputs:
                 hours.append({"from": w.start, "to": w.end, "head": head})
         return {"measured": found.measured, "hours": hours,
                 "missing": [(spans[h].start, spans[h].end) for h in found.missing]}
+
+    def service_hours(self, ctx: DayCtx) -> list[dict[str, Any]]:
+        """CH-9 (CH9-R2 Q7): the stored, selected `mini_service` revision of each period hour (no recomputation)."""
+        k = self._known(ctx)
+        out = []
+        at, hi = ctx.period_start_utc, ctx.period_end_utc
+        with self._engine.connect() as c:
+            heads = {r[0]: r for r in c.execute(text(_SERVICE_HEADS), {"t": ctx.tenant_id, "s": ctx.site_id,
+                                                                       "lo": at, "hi": hi, "k": k}).all()}
+        while at is not None and hi is not None and at < hi:
+            end = at + timedelta(hours=1)
+            r = heads.get(at)
+            head = None
+            if r is not None and r[1] == end:
+                result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
+                head = {"revision_id": str(r[2]).lower(), "result": result, "evidence_ids": [str(x) for x in r[4]]}
+            out.append({"from": at, "to": end, "head": head})
+            at = end
+        return out
 
     def dispatch_days(self, ctx: DayCtx) -> list[dict[str, Any]]:
         """The S3 dispatch window of every UTC day overlapping the local period (ruling Q3d)."""
