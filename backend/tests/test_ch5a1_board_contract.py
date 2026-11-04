@@ -266,6 +266,9 @@ def test_board_equals_its_golden(name: str) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8", newline="\n")
     assert body == json.loads(path.read_text(encoding="utf-8"))
+    for row in body["rows"]:  # CH-5a2 B4: the subline ends with the structured lines' texts, joined as before
+        texts = [t["text"] for t in row["thread_lines"]]
+        assert not texts or (row["subline"] or "").endswith(" · ".join(texts)), row["category"]
 
 
 @pytest.mark.parametrize("name", sorted(CASES))

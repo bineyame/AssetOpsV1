@@ -600,32 +600,53 @@ def _thread_action(f: FindingFact, facts: SiteFacts, earlier: bool) -> ActionFac
 
 
 def thread_line(f: FindingFact, facts: SiteFacts, state_label_on: Any = None) -> str | None:
-    """CH-3 §5: the one thread line that applies to a Finding on the board day, else None."""
+    """CH-3 §5: the one thread line that applies to a Finding on the board day, else None (the text of
+    `thread_line_item`)."""
+    judge = None if state_label_on is None else (lambda day: (None, state_label_on(day)))
+    item = thread_line_item(f, facts, judge)
+    return None if item is None else item["text"]
+
+
+def thread_line_item(f: FindingFact, facts: SiteFacts, judge: Any = None) -> dict[str, Any] | None:
+    """CH-5a2 B4: the structured ThreadLine of a Finding on the board day, else None. `judge(day)` gives the row's
+    `(state, state_label)` on a day after the change; `text` is the CH-3 literal, rendered exactly as before."""
     view, d = f.lifecycle_view, facts.day
     if view is None or f.thread is None or d is None:
         return None
     state, e = f.thread.get("state"), view.get("change_day")
+    tid = str(f.thread.get("id"))
+
+    def item(kind: str, text: str, a: ActionFact | None, effective: Any, after: Any = None,
+             remaining: int | None = None, clean: int | None = None) -> dict[str, Any]:
+        return {"kind": kind, "thread_id": tid, "action_code": None if a is None else a.code,
+                "effective_day": None if effective is None else effective.isoformat(), "after": after,
+                "remaining_days": remaining, "clean_days": clean, "ref": refs.thread_ref(facts.site_code, tid),
+                "text": text}
+
     if e is not None and d < e:
         line = THREAD_BEFORE.format(e=_short_day(e))
         first = view.get("first_complete_after_change")
-        label = None if first is None or state_label_on is None else state_label_on(first)
-        if first is not None and label is not None:
-            return line + THREAD_AFTER_JUDGED.format(state_label=label, day=_short_day(first))
-        return line + THREAD_AFTER_NOT_JUDGED.format(e=_short_day(e))
+        judged = None if first is None or judge is None else judge(first)
+        a = _thread_action(f, facts, earlier=False)
+        if first is not None and judged is not None and judged[1] is not None:
+            return item("BEFORE_CHANGE", line + THREAD_AFTER_JUDGED.format(state_label=judged[1], day=_short_day(first)),
+                        a, e, {"state": judged[0], "day": first.isoformat()})
+        return item("BEFORE_CHANGE", line + THREAD_AFTER_NOT_JUDGED.format(e=_short_day(e)), a, e)
     if state == "RECURRED":
         a = _thread_action(f, facts, earlier=True)
         day = view.get("recurred_day")
         if a is None or day is None:
             return None
-        return THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code))
+        return item("RECURRED", THREAD_RECURRED.format(day=_short_day(day), code=display_code(a.code)), a, day)
     if f.thread.get("verified"):
         a = _thread_action(f, facts, earlier=False)
         if a is None:
             return None
         n = int(view.get("close_after") or 0)
         if state == "CLOSED":
-            return THREAD_CLOSED.format(code=display_code(a.code), n=n)
-        return THREAD_MONITORING.format(code=display_code(a.code), k=max(0, n - int(view.get("checked_days") or 0)))
+            return item("CLOSED", THREAD_CLOSED.format(code=display_code(a.code), n=n), a, e, clean=n)
+        k = max(0, n - int(view.get("checked_days") or 0))
+        return item("MONITORING", THREAD_MONITORING.format(code=display_code(a.code), k=k), a, e, remaining=k)
     return None
 
 
@@ -687,7 +708,7 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         "category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
         "icon": CATEGORY_ICON[cat], "state": row_state, "state_label": STATE_LABEL[row_state],
         "tone": STATE_TONE[row_state], "lead_outcome": {"key": lead.key, "label": lead.label},
-        "headline": None, "headline_money": None, "subline": None, "not_measured_text": None,
+        "headline": None, "headline_money": None, "subline": None, "thread_lines": [], "not_measured_text": None,
         "counts": {"issues": 0, "in_hand": 0}, "must_not_harm": None,
         "contributors": [], "issues": [], "options": [], "in_hand": [], "earlier": [], "earlier_empty_text": None,
         "evidence_link": None if link is None else {"label": link[0], **_link(link[1](code))},
@@ -824,8 +845,9 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
     ordered = (*domain_lines[:at], *objective_lines, *domain_lines[at:])
 
     # CH-3 §5: the thread line of each in-window Finding whose primary MOVES outcome is in this row.
-    def state_label_on(f: FindingFact, day: Any) -> str | None:
-        """Ruling Q2: this row's state label with the Finding's thread state on `day` and the board's verdicts."""
+    def state_on(f: FindingFact, day: Any) -> tuple[str, str] | None:
+        """Ruling Q2: this row's (state, state label) with the Finding's thread state on `day` and the board's
+        verdicts (CH-5a2 B4: the state code is the ThreadLine `after.state`)."""
         view = f.lifecycle_view or {}
         st = _state_on(view, day)
         alt = [replace(s, open=f.open and st not in view.get("verified_states", ()),
@@ -834,20 +856,25 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         alt_states = [(o.key, outcome_state(o, settled=bool(facts.settled.get(o.key, False)), signals=alt,
                                             readiness=facts.readiness, objective=verdicts.get(o.key),
                                             objectives_ok=facts.objectives_ok)[0]) for o in outcomes]
-        return STATE_LABEL[roll_up(alt_states)[0]].lower() if alt_states else None
+        if not alt_states:
+            return None
+        rolled = roll_up(alt_states)[0]
+        return rolled, STATE_LABEL[rolled].lower()
 
-    thread_lines: list[str] = []
+    # CH-5a2 B4: structured lines; the subline joins their texts exactly as before (one per distinct text).
+    thread_lines: list[dict[str, Any]] = []
     for f in thread_line_findings(facts):
         moves = roles[f.finding_id].moves
         if moves and OUTCOME_BY_KEY[moves[0]].category == cat:
-            line = thread_line(f, facts, lambda day, f=f: state_label_on(f, day))
-            if line and line not in thread_lines:
+            line = thread_line_item(f, facts, lambda day, f=f: state_on(f, day))
+            if line and all(line["text"] != x["text"] for x in thread_lines):
                 thread_lines.append(line)
-    subline = " · ".join(x for x in (facts.subline.get(cat), *thread_lines) if x) or None
+    subline = " · ".join(x for x in (facts.subline.get(cat), *(t["text"] for t in thread_lines)) if x) or None
 
     row.update({
         "potential": potential,
         "headline": headline, "headline_money": facts.headline_money.get(cat), "subline": subline,
+        "thread_lines": thread_lines,
         "counts": {"issues": len(issues), "in_hand": len(in_hand)}, "must_not_harm": must_not_harm,
         "contributors": [_contributor(c) for c in ordered],
         "issues": issues,

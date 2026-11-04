@@ -69,6 +69,7 @@
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
    "subline": null,
+   "thread_lines": [],
    "tone": "none"
   },
   {
@@ -131,6 +132,7 @@
      "href": null,
      "kind": "FINDING",
      "link_ref": null,
+     "primary": false,
      "ref": {
       "finding_id": "f118",
       "finding_revision_id": "f118r",
@@ -160,6 +162,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": null,
+   "thread_lines": [],
    "tone": "gray"
   },
   {
@@ -265,6 +268,7 @@
      "href": null,
      "kind": "FINDING",
      "link_ref": null,
+     "primary": true,
      "ref": {
       "finding_id": "f118",
       "finding_revision_id": "f118r",
@@ -277,6 +281,7 @@
      "href": null,
      "kind": "FINDING",
      "link_ref": null,
+     "primary": true,
      "ref": {
       "finding_id": "f119",
       "finding_revision_id": "f119r",
@@ -338,6 +343,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Backup did not start by itself; cooling stopped until it was started by hand. Compressor and backup condition are not assessed",
+   "thread_lines": [],
    "tone": "amber"
   },
   {
@@ -429,6 +435,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "Loading and door records are not connected, so stock impact cannot be judged",
+   "thread_lines": [],
    "tone": "blue"
   }
  ],

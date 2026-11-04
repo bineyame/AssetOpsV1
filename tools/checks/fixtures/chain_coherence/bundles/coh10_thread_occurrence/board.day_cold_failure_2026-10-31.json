@@ -22,7 +22,8 @@
        "occurrences": 1
       }
      },
-     "text": "x"
+     "text": "x",
+     "primary": true
     }
    ],
    "not_measured_text": null,
@@ -44,7 +45,8 @@
        "occurrences": 1
       }
      },
-     "text": "x"
+     "text": "x",
+     "primary": true
     }
    ]
   }

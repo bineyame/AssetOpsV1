@@ -105,6 +105,7 @@
      "href": null,
      "kind": "FINDING",
      "link_ref": null,
+     "primary": false,
      "ref": {
       "finding_id": "f130",
       "finding_revision_id": "f130r",
@@ -150,6 +151,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "182.5 kWh with a complete meter record, at the declared tariff of 0.30 USD per kWh · not billed or collected",
+   "thread_lines": [],
    "tone": "blue"
   },
   {
@@ -188,6 +190,7 @@
    "state": "NOT_MEASURED",
    "state_label": "Not measured yet",
    "subline": null,
+   "thread_lines": [],
    "tone": "none"
   },
   {
@@ -283,6 +286,7 @@
      "href": null,
      "kind": "FINDING",
      "link_ref": null,
+     "primary": true,
      "ref": {
       "finding_id": "f130",
       "finding_revision_id": "f130r",
@@ -335,6 +339,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Connector C2 was out of service for 1 h 30 min; which departures were affected is not known yet. Charger condition is not assessed",
+   "thread_lines": [],
    "tone": "amber"
   },
   {
@@ -424,6 +429,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "1 session end and 30 min of connector status are missing",
+   "thread_lines": [],
    "tone": "blue"
   }
  ],

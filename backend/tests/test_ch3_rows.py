@@ -268,3 +268,29 @@ def test_attach_threads_reads_actions_in_every_cutoff_group():
     portfolio.attach_threads(snap, "t", f_rows, a_rows, req, k, {"MG": None, "COLD": cold_k})
     assert all(aids == ("A1",) for _, aids, _ in calls) and len(calls) == 2
     assert a_rows[0]["_segment_no"] == 2 and a_rows[0]["_segment_at"] == {k: 2, cold_k: 1}
+
+
+# CH-5a2 B4: the structured ThreadLine; its text is the CH-3 literal thread_line renders.
+def test_thread_line_items_are_structured_and_their_text_is_the_line():
+    ref = {"kind": "THREAD", "site": "KOBO", "id": "t1"}
+    judged = _finding("CHANGE_APPLIED", _view(first_complete_after_change=date(2026, 11, 3)))
+    facts = _facts(judged, [_action()], date(2026, 10, 31))
+    item = board.thread_line_item(judged, facts, lambda d: ("ON_TRACK", "on track"))
+    assert item == {"kind": "BEFORE_CHANGE", "thread_id": "t1", "action_code": "ACT-000001",
+                    "effective_day": "2026-11-01", "after": {"state": "ON_TRACK", "day": "2026-11-03"},
+                    "remaining_days": None, "clean_days": None, "ref": ref,
+                    "text": "Before the change on 1 Nov · after the change: on track from 3 Nov"}
+    assert board.thread_line_item(judged, facts)["after"] is None  # not judged: no after
+    assert board.thread_line_item(judged, facts)["text"] == board.thread_line(judged, facts)
+    mon = _finding("RESOLVED_MONITORING", _view(checked_days=2))
+    m = board.thread_line_item(mon, _facts(mon, [_action()]))
+    assert (m["kind"], m["remaining_days"], m["clean_days"], m["text"]) == (
+        "MONITORING", 5, None, board.thread_line(mon, _facts(mon, [_action()])))
+    closed = _finding("CLOSED", _view(closed_day=date(2026, 11, 9)))
+    c = board.thread_line_item(closed, _facts(closed, [_action()], date(2026, 11, 10)))
+    assert (c["kind"], c["clean_days"], c["remaining_days"]) == ("CLOSED", 7, None)
+    rec = _finding("RECURRED", _view(segment_no=2, segment_current=2, recurred_day=date(2026, 11, 3)), seg=2)
+    r = board.thread_line_item(rec, _facts(rec, [_action(seg=1)], date(2026, 11, 4)))
+    assert (r["kind"], r["effective_day"], r["action_code"], r["ref"]) == ("RECURRED", "2026-11-03", "ACT-000001", ref)
+    none = _finding("OPEN", _view(change_day=None))
+    assert board.thread_line_item(none, _facts(none, [_action()])) is None

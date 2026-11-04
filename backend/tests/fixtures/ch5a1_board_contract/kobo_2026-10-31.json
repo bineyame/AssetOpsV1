@@ -154,6 +154,7 @@
    "state": "OPPORTUNITY",
    "state_label": "Opportunity",
    "subline": "Sales to productive users are not metered, so revenue itself is not measured yet",
+   "thread_lines": [],
    "tone": "green"
   },
   {
@@ -251,6 +252,7 @@
       "revision": "f1r",
       "site": "KOBO-001"
      },
+     "primary": true,
      "ref": {
       "finding_id": "f1",
       "finding_revision_id": "f1r",
@@ -334,6 +336,7 @@
    "state": "NEEDS_ATTENTION",
    "state_label": "Needs attention",
    "subline": "Generator stayed on 45 minutes longer than needed",
+   "thread_lines": [],
    "tone": "amber"
   },
   {
@@ -442,6 +445,7 @@
       "revision": "f1r",
       "site": "KOBO-001"
      },
+     "primary": false,
      "ref": {
       "finding_id": "f1",
       "finding_revision_id": "f1r",
@@ -477,6 +481,7 @@
    "state": "UNKNOWN",
    "state_label": "Unknown",
    "subline": "Battery and generator condition is not assessed; these are early warnings only. Power was delivered, but what customers needed is not measured",
+   "thread_lines": [],
    "tone": "gray"
   },
   {
@@ -595,6 +600,7 @@
    "state": "WATCH",
    "state_label": "Watch",
    "subline": "Battery output not reported",
+   "thread_lines": [],
    "tone": "blue"
   }
  ],

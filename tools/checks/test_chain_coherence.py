@@ -665,3 +665,22 @@ def test_settle_also_accepts_the_mechanism_dbs_only() -> None:
     for name in ("mechanism_x", "assetops_mechanism", "polish_full"):
         with pytest.raises(chain_clone.CloneRefused):
             chain_clone.settle_db(name)
+
+
+def test_coh5_reads_only_primary_issues(tmp_path: Path) -> None:
+    """CH-5a2 B5: a secondary (non-primary) appearance of a Finding on a board row is not a lens claim."""
+    def secondary(body: dict) -> None:
+        for row in body["rows"]:
+            for issue in row.get("issues") or []:
+                if issue.get("kind") == "FINDING":
+                    issue["primary"] = False
+    bundle = _edited(tmp_path, "coh5_lens", **{"board.day_cold_failure_2026-10-31.json": secondary})
+    assert cc.coh5_lens(bundle) == []
+    assert cc.coh5_lens(cc.Bundle(BUNDLES / "coh5_lens")) != []
+
+
+def test_coh14_reads_structured_thread_lines(tmp_path: Path) -> None:
+    """CH-5a2 B4: COH-14 reads `thread_lines` kinds where present, and the copy only on an older body."""
+    assert cc._verified_line({"thread_lines": [{"kind": "MONITORING"}], "subline": None}) is True
+    assert cc._verified_line({"thread_lines": [{"kind": "BEFORE_CHANGE"}], "subline": "Fix verified, x"}) is False
+    assert cc._verified_line({"subline": "a · Fix verified and closed (ACT-1)"}) is True

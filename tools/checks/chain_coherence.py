@@ -1000,8 +1000,16 @@ def coh14_rows(bundle: Bundle) -> Iterator[tuple[str, dict, dict]]:
                 if all(isinstance(i["ref"].get("thread"), dict)
                        and i["ref"]["thread"].get("state") in VERIFIED_THREAD_STATES for i in moves):
                     yield d, board, row
-            elif any(part.startswith(VERIFIED_LINE_PREFIX) for part in str(row.get("subline") or "").split(" · ")):
+            elif _verified_line(row):
                 yield d, board, row
+
+
+def _verified_line(row: dict) -> bool:
+    """CH-5a2 B4: a verified thread's line, from the structured `thread_lines` where present (kind MONITORING or
+    CLOSED), else from the copy (an older board body)."""
+    if isinstance(row.get("thread_lines"), list):
+        return any(isinstance(t, dict) and t.get("kind") in ("MONITORING", "CLOSED") for t in row["thread_lines"])
+    return any(part.startswith(VERIFIED_LINE_PREFIX) for part in str(row.get("subline") or "").split(" · "))
 
 
 def coh14_verified_not_attention(bundle: Bundle) -> list[dict]:

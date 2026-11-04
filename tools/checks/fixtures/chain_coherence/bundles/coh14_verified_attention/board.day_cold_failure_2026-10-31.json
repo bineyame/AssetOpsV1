@@ -27,7 +27,8 @@
       }
      },
      "text": "x",
-     "role": "MOVES"
+     "role": "MOVES",
+     "primary": true
     }
    ],
    "not_measured_text": null,
@@ -61,7 +62,8 @@
       }
      },
      "text": "x",
-     "role": "MOVES"
+     "role": "MOVES",
+     "primary": true
     }
    ],
    "outcomes": [
