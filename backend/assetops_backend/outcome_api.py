@@ -156,7 +156,7 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             if service is None or estate is None:
                 raise EstateStoreUnavailable("No product database is configured.")
             with perf.timed("summary.scope"):
-                scope = estate.scope(tenant(), parsed, lambda code: admitted(request, code) is None)
+                scope = estate.site_list(tenant(), parsed, lambda code: admitted(request, code) is None)  # R2
             sites = []
             for item in scope["sites"]:
                 site = registry.imported(item["site_code"])

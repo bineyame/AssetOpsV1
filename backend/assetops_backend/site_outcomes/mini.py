@@ -20,7 +20,9 @@ from zoneinfo import ZoneInfo
 from assetops_backend import perf, read_scope
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
 from assetops_backend.analytics.finding_episode import MECHANISM as FINDING_MECHANISM
+from assetops_backend.analytics.finding_index import selected_revision_link
 from assetops_backend.analytics.plain import ALTERNATIVE_LABELS
+from assetops_backend.chain.read import assessment_state, board_day, lead_finding, local_days
 from assetops_backend.estate.placement import place
 from assetops_backend.estate.portfolio import action_for, workflow_label
 from assetops_backend.mini_depth.inputs import MiniInputsRefused, Window, local_day_of, local_hour, local_noon, zone
@@ -30,7 +32,7 @@ from assetops_backend.outcomes.warnings import evaluate
 from assetops_backend.site_outcomes.board import (
     DECLARED, MAINTENANCE_REQUEST, INCIDENT, PLAN_RECORD, ActionFact, CaseFact, Contributor, FindingFact, Option,
     PlanFact, SignalFact, SiteFacts, finding_moved_outcomes, objective_verdict, per_kwh_amount, readiness_confidence,
-    refresh_chain, unresolved_links)
+    unresolved_links)
 from assetops_backend.outcomes.objectives import (
     BEHIND_PACE, MISSED, ON_PACE, TOO_EARLY, ObjectiveFact, Reading, judge_month)
 from assetops_backend.site_outcomes import objective_facts
@@ -179,22 +181,25 @@ COPY = (MG1_ACTUAL, MG5_UNMEASURED, MG2_LONGER.format(m="12"), MG2_UNCLEAR.forma
 
 @dataclass(frozen=True)
 class MiniPorts:
-    """Existing services, bound by B4 to the request's tenant, Site, access basis, gate and pin."""
-    overview: Callable[[date], dict[str, Any]]                                   # site_overview/read.py:114
+    """Existing services, bound by B4 to the request's tenant, Site, access basis, gate and pin. CH-5a1: the overview,
+    the Finding index and the estate readiness are not read; their inputs come from the ChainReader (`chain/read.py`)."""
+    source: Callable[[], tuple[bool, str]]                                       # R4: the overview's source gate
     depth: Callable[[str, datetime, datetime], dict[str, Any]]                   # mini_depth/read.py:338
     dispatch: Callable[[date], dict[str, Any]]                                   # analytics/dispatch_read.py:123
     assumption: Callable[[datetime], dict[str, Any]]                             # diesel_price_per_litre series
-    finding_index: Callable[[datetime, datetime, str | None], dict[str, Any]]    # analytics/finding_index.py:262
+    #: CH-5a1 §A3: `ChainRequest.day` over (every day of the work window, the board day).
+    chain_day: Callable[[tuple[date, ...], tuple[date, ...]], Any]
+    chain_findings: Callable[[datetime, datetime], Any]                          # `ChainRequest.findings`
+    findings_settled: Callable[[], bool]                                         # R8
     estate: Callable[[datetime, datetime, datetime, datetime], dict[str, Any]]   # day lo/hi, work lo/hi (add. 5 #2)
     action_index: Callable[[datetime, datetime, str | None], dict[str, Any]]     # actions/site_index.py:160
-    verification: Callable[[str], dict[str, Any]]                                # actions/verification.py:966
-    action: Callable[[str, str], dict[str, Any] | None]                          # actions/service.py:653
+    action_facts: Callable[[list[str]], Any]                                     # `ChainRequest.action_facts` (C6)
+    #: `ChainRequest.money_head(finding_id, revision_id, is_latest, source_open, settled)` (CH5a1-R Q5).
+    money: Callable[[str, str, bool, bool, bool], Any]
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
-    readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
-    #: LINK-LINEAGE: (Finding ID, shown revision ID) -> every history row (analytics/finding_read.py:570), or None.
-    finding_history: Callable[[str, str], list[dict[str, Any]] | None] = lambda f, r: None
+    pin: tuple[Any, Any] | None = None                                           # the route's pinned Finding
     #: WALK1-3 §4.3: the LOAD components declared `supply-use = PRODUCTIVE` in the Foundation in force at an instant
     #: ({"asset_code", "asset_id", "name"}), their accepted `feeder_demand` readings in `[lo, hi)`, and the
     #: `productive_use_price_per_kwh` series at an instant (the diesel `assumption` read with the productive key).
@@ -266,33 +271,20 @@ class Reads:
 
 # ---------------------------------------------------------------- Finding index (IDX-GAPS U2)
 
-def index_settled(body: dict[str, Any], day: date) -> bool:
-    """The board's Finding source is settled on a CURRENT index, or on a PARTIAL one whose gaps do not name the
-    board day itself; every other status (and a body without one) leaves it unsettled."""
-    status = body.get("status")
-    if status == "CURRENT":
-        return True
-    if status == "PARTIAL":
-        return all(g.get("day") != day.isoformat() for g in body.get("gaps") or ())
-    return False
-
-
-def finding_gap_line(body: dict[str, Any] | None, requested: int) -> dict[str, Any] | None:
-    """The note under the board rows naming the requested days whose index state is not CURRENT, or None."""
-    if body is None:
+def finding_gap_line(day_facts: Any, requested: int) -> dict[str, Any] | None:
+    """R8 / CH5a1-R Q9: the note under the board rows naming the requested days whose day grade is PENDING or
+    NO_DATA (a missing row is NO_DATA), or None. "No checked readings" when no gap day holds a PENDING row.
+    The index's PARTIAL-mode withholding is not reproduced (CH5a1-R Q4), so `withheld` is always False."""
+    if day_facts is None or not day_facts.gaps:
         return None
-    wanted = set((body.get("discovery") or {}).get("requested_days") or ())
-    states = {g["day"]: g["state"] for g in body.get("gaps") or () if g["day"] in wanted and g["state"] != "CURRENT"}
-    g = len(states)
-    if g == 0:
-        return None
-    if all(s == "UNASSESSED" for s in states.values()):
+    g = len(day_facts.gaps)
+    pending = any("PENDING" in subjects.values() for d in day_facts.gaps
+                  for subjects in (day_facts.grades.get(d) or {}).values())
+    if not pending:
         text = GAPS_NO_READINGS.format(g=g, n=requested, verb="has" if g == 1 else "have")
     else:
         text = GAPS_NOT_ASSESSED.format(g=g, n=requested, verb="is" if g == 1 else "are")
-    if body.get("withheld"):
-        text += GAPS_WITHHELD
-    return {"text": text, "days": sorted(states), "withheld": bool(body.get("withheld"))}
+    return {"text": text, "days": sorted(d.isoformat() for d in day_facts.gaps), "withheld": False}
 
 
 # ---------------------------------------------------------------- formatting
@@ -371,30 +363,32 @@ def not_available(key: str, label: str, href: str | None = None) -> Contributor:
 # ---------------------------------------------------------------- composer
 
 def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str | None) -> MiniComposition:
-    """`day` is the overview's UTC day (`selected_day` or `db_today()`); `site_timezone` is the zone the route's
-    Site lookup carries, used only to build the mini depth windows. Local dates use the depth body's own
-    `site.timezone`; if depth is refused they are UTC with the suffix (addendum 2 item 6)."""
+    """`day` is the Site-local board day (R6: `selected_day` or `db_today()` read as the Site-local date; the window
+    is `[local 00:00 D, local 00:00 D+1)` as UTC instants); `site_timezone` is the zone the route's Site lookup
+    carries. Local dates use the depth body's own `site.timezone`; if depth is refused they are UTC with the suffix
+    (addendum 2 item 6). CH-5a1: no overview, Finding index or estate readiness read (§A4)."""
     c = site_code
     reads = Reads()
-    start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
-    end = start + timedelta(days=1)
+    start, end = board_day(day, site_timezone)
     work_lo = end - WORK_WINDOW
 
-    overview = reads.call("mini_overview", ports.overview, day)
+    gate = reads.call("source", ports.source)
+    source_open = bool(gate and gate[0])
     depth = _depth(reads, ports, start, site_timezone)
     depth_ok = all(depth.get(d) is not None for d in DEPTH_DOMAINS)
     zone_name = next((b["site"].get("timezone") for b in depth.values()
                       if b is not None and (b.get("site") or {}).get("timezone")), None)
     tz = site_zone(zone_name) if depth_ok else None
     dispatch = reads.call("dispatch", ports.dispatch, day)
-    readiness = reads.call("evidence_readiness", ports.readiness, start, end)
+    # R5 / R8 / Q9: one snapshot read over every Site-local day of the work window; readiness on the board day.
+    day_facts = reads.call("chain_day", ports.chain_day, local_days(work_lo, end, site_timezone), (day,))
+    readiness = None if day_facts is None else day_facts.readiness
     estate = reads.call("estate", ports.estate, start, end, work_lo, end)  # Findings: the day; Actions: 31 days
-    finding_rows = reads.pages("finding_index", ports.finding_index, work_lo, end)
-    first = reads.first.get("finding_index")
-    findings_ok = (finding_rows is not None and first is not None and index_settled(first, day)
-                   and not (reads.statuses.get("finding_index", set()) & set(UNSETTLED_INDEX_STATUS)))
-    if not findings_ok and "finding_index" not in reads.failed:
-        reads.failed.append("finding_index")  # a non-current index body: PARTIAL, so text and notice agree
+    heads = reads.call("chain_findings", ports.chain_findings, work_lo, end)
+    settled_findings = reads.call("findings_settled", ports.findings_settled)
+    findings_ok = heads is not None and bool(settled_findings)
+    if not findings_ok and "chain_findings" not in reads.failed:
+        reads.failed.append("chain_findings")  # unsettled Findings (R8): PARTIAL, so text and notice agree
     action_rows = reads.pages("action_index", ports.action_index, work_lo, end)
     price = reads.call("assumptions", ports.assumption, start)
     plans = reads.call("plans", ports.plans, work_lo, end)
@@ -405,15 +399,23 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     sales = _productive_sales(reads, ports, c, start, end)
     month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
-    findings = _findings(finding_rows or (), estate, c, start, end, work_lo)
+    findings = _findings(heads or (), estate, c, start, end, work_lo)
     actions, has_change, missing_estate = _actions(reads, ports, action_rows or (), estate, c, site_timezone)
-    findings = _lineage(reads, ports, findings, actions)
     plan_facts = tuple(plan_fact(p, tz) for p in plans or ())
 
-    body = overview or {}
-    freshness = (body.get("freshness") or {}).get("state")
-    assessment = body.get("assessment") or {}
-    base = overview is not None and freshness == "CURRENT" and assessment.get("state") != "CLOSED"
+    # CH5a1-R Q2: `base` = the source gate, the settled board day and a dispatch read (CLOSED was the gate).
+    read_ok = gate is not None and day_facts is not None   # the reads that replace the overview read
+    settled_day = bool(day_facts is not None and day_facts.settled)
+    base = source_open and settled_day and dispatch is not None
+    assessment = {} if dispatch is None else {
+        "state": assessment_state(dispatch.get("status")), "limitations": dispatch.get("limitations") or (),
+        "claim_level": (dispatch.get("window_assessment") or {}).get("claim_level"),
+        "dispatch_intervals": dispatch.get("intervals") or ()}
+    lead_money = None if heads is None else lead_finding(heads, start, end, source_open=source_open,
+                                                         pin=ports.pin, settled=settled_day)
+    money_head = None if lead_money is None else reads.call(
+        "money_head", ports.money, *lead_money, source_open, settled_day)
+    body = {"money": {"source_provenance": None if money_head is None else money_head.source_provenance}}
     no_run = no_run_day(base, assessment, readiness)
     settled = {"MG-1": base and depth_ok, "MG-6": base, "MG-3": base, "MG-2": base and dispatch is not None,
                "MG-5": base and depth_ok, "MG-4": base and dispatch is not None,
@@ -421,7 +423,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     for key in finding_moved_outcomes(MINI):  # addendum 3 M1: the Finding source is a status producer
         settled[key] = settled.get(key, False) and findings_ok
 
-    limitations = [str(x) for x in assessment.get("limitations") or ()] if overview is not None else []
+    limitations = [str(x) for x in assessment.get("limitations") or ()]
     renewable = (depth.get("renewable") or {}).get("cards") or {}
     eligible, assessed = renewable.get("eligible_days"), renewable.get("assessed_days")
     lead = next((f for f in sorted(findings, key=lambda f: (f.title, f.finding_id)) if f.open and f.in_window), None)
@@ -439,8 +441,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                      renewable_href(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc),
-        ASSURE: _assure(c, actions, body, overview is not None, readiness, rc, limitations,
-                        "action_read" in reads.failed or action_rows is None, no_run),
+        ASSURE: _assure(c, actions, body, read_ok, readiness, rc, limitations,
+                        "action_facts" in reads.failed or action_rows is None, no_run),
     }
     options = {GROW: (Option(OPTION_WHAT_IF, f"/sites/{c}/financials/scenarios"),),
                COST: tuple(o for o in (
@@ -451,14 +453,15 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
 
     headroom = renewable.get("headroom_kw") or {}
     lo_kw, hi_kw = num(headroom.get("low")), num(headroom.get("high"))
-    money = body.get("money") or {}
-    priced = money.get("state") == "PRICED" and (money.get("eligibility") or {}).get("state") == "ELIGIBLE"
+    money = {} if money_head is None else {"amount_low": money_head.amount_low,
+                                           "amount_high": money_head.amount_high, "currency": money_head.currency}
+    priced = money_head is not None and money_head.priced
     zero = priced and _is_zero(money.get("amount_high"))  # §1.1: amount_low is pinned to 0 by the schema
     avoidable, _ = _dispatch_minutes(dispatch)
     verified = sum(1 for a in actions if a.verification_state == "VERIFIED")
     headline = {GROW: f"{lo_kw}–{hi_kw} kW of daytime solar unused" if lo_kw and hi_kw else None,
                 COST: (COST_ZERO if zero else COST_MONEY if priced else COST_NO_MONEY)
-                if overview is not None else None,
+                if read_ok else None,
                 PROTECT: PROTECT_HEADLINE,
                 ASSURE: f"{verified} {plural(verified, 'verified result', 'verified results')}"
                 if verified else NO_VERIFIED}
@@ -494,7 +497,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                       signals_extra=signals, headline=headline, headline_money=headline_money, subline=subline,
                       settled=settled, date_suffix="" if tz is not None else UTC_SUFFIX,
                       findings_settled=findings_ok, objectives=objectives,
-                      finding_gaps=finding_gap_line(first, FINDING_WINDOW_DAYS), readings=readings,
+                      finding_gaps=finding_gap_line(day_facts, FINDING_WINDOW_DAYS), readings=readings,
                       objectives_ok=objective_rows is not None,
                       objective_after={GROW: "productive_sales"},
                       work_window=(work_lo, end))  # WALK1-3b §A2.3: (a), then (b), then (c)
@@ -621,57 +624,42 @@ _dispatch_minutes = dispatch_minutes
 
 def _findings(rows: Any, estate: dict[str, Any] | None, c: str, start: datetime,
               end: datetime, work_lo: datetime | None = None) -> tuple[FindingFact, ...]:
-    """Every index head over the work window, closed ones included (M1b). `in_window` = the episode intersects
-    the overview day. Confidence: `place(...)` over the estate row of the same revision (addendum 2 item 3)."""
+    """Every Finding head over the work window (`ChainRequest.findings`, the index's head rule), closed ones included
+    (M1b). `in_window` = the episode intersects the board day. Confidence: `place(...)` over the estate row of the
+    same revision (addendum 2 item 3)."""
     estate_rows = {str(r["finding_revision_id"]): r for r in (estate or {}).get("findings") or ()}
     estate_actions = list((estate or {}).get("actions") or ())
     site_cov = (estate or {}).get("site_cov") or {}
     out = []
     for r in rows:
-        episode = r.get("episode") or {}
-        lo, hi = utc(episode.get("start")), utc(episode.get("end"))
+        lo, hi = utc(r.episode_start), utc(r.episode_end)
         in_window = lo is not None and lo < end and (hi is None or hi > start)
         confidence = None
-        er = estate_rows.get(str(r["finding_revision_id"])) if estate is not None else None
+        er = estate_rows.get(str(r.revision_id)) if estate is not None else None
         if er is not None:
             try:
                 confidence = place(er, action_for(er, estate_actions), site_cov, None).confidence
             except Exception:  # noqa: BLE001 - an unselectable Action leaves the chip null, never the board
                 confidence = None
-        title = FINDING_TITLE.get(str(r.get("lifecycle")), FINDING_TITLE_FALLBACK)
-        out.append(FindingFact(str(r["finding_id"]), str(r["finding_revision_id"]), title, FINDING_MECHANISM,
-                               r["lifecycle"], (r.get("links") or {}).get("selected_revision"),
+        title = FINDING_TITLE.get(str(r.lifecycle), FINDING_TITLE_FALLBACK)
+        out.append(FindingFact(str(r.finding_id), str(r.revision_id), title, FINDING_MECHANISM, r.lifecycle,
+                               selected_revision_link(c, str(r.finding_id), str(r.revision_id)),
                                confidence_label=confidence, in_window=in_window,
                                in_work_window=work_lo is not None and lo is not None and lo < end
                                and (hi is None or hi > work_lo)))
     return tuple(out)
 
 
-def _lineage(reads: Reads, ports: MiniPorts, findings: tuple[FindingFact, ...],
-             actions: tuple[ActionFact, ...]) -> tuple[FindingFact, ...]:
-    """LINK-LINEAGE (D-2026-10-31-board-action-refresh-lineage): per Finding, the origin revisions of mini Actions
-    that a basis-only refresh chain links to the shown revision. One history read per Finding, only when some
-    Action points at an earlier revision; a failed read links nothing."""
-    out = []
-    for f in findings:
-        origins = {a.origin_revision_id for a in actions if not a.is_domain and a.origin_finding_id == f.finding_id
-                   and a.origin_revision_id and a.origin_revision_id != f.revision_id}
-        if origins:
-            rows = reads.call("finding_history", ports.finding_history, f.finding_id, f.revision_id)
-            # a malformed history row is a failed read (PARTIAL, no link), never a failed board
-            kept = reads.call("finding_history", lambda r=rows, s=f.revision_id: tuple(
-                sorted(o for o in origins if refresh_chain(r, o, s))))
-            f = replace(f, refreshed_from=kept or ())
-        out.append(f)
-    return tuple(out)
-
-
 def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] | None,
              c: str, site_timezone: str | None = None) -> tuple[tuple[ActionFact, ...], bool, tuple[str, ...]]:
     """Action index rows; the workflow label from the estate Action of the same id fed to `workflow_label`
-    unchanged (addendum 2 item 2); verification from the summary; a Foundation change from the Action read."""
+    unchanged (addendum 2 item 2); verification and the Foundation change from `action_facts` (CH-5a1 C6: one
+    verification summary per Action, one change query for all)."""
     by_id = {str(a["action_id"]): a for a in (estate or {}).get("actions") or ()}
     out, has_change, missing = [], False, []
+    rows = list(rows)
+    facts = reads.call("action_facts", ports.action_facts, [str(r["action_id"]) for r in rows]) if rows else ()
+    by_fact = {f.action_id.lower(): f for f in facts or ()}
     for r in rows:
         aid = str(r["action_id"])
         event_id = str((r.get("selected_event") or {}).get("id") or "")
@@ -685,9 +673,10 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
                 reads.failed.append("estate")
         is_open = label not in CLOSED_LABELS if label != NOT_LOADED else resolution.get("state") not in (
             "RESOLVED", "RESOLUTION_WITHDRAWN")
-        summary = reads.call("action_read", ports.verification, aid)
-        detail = reads.call("action_read", ports.action, aid, event_id)
-        has_change = has_change or bool(detail and detail.get("change"))
+        fact = by_fact.get(aid.lower())
+        summary = None if fact is None else {"state": fact.verification_state, "cost_check": fact.cost_check,
+                                             "trial_hours": read_scope.thaw(fact.trial_hours)}
+        has_change = has_change or bool(fact and fact.has_change)
         origin = r.get("origin") or {}
         out.append(ActionFact(
             aid, r.get("action_code"), "", None if origin.get("finding_id") is None else str(origin["finding_id"]),
@@ -695,7 +684,7 @@ def _actions(reads: Reads, ports: MiniPorts, rows: Any, estate: dict[str, Any] |
             state.get("application") == "APPLIED", is_open, None if summary is None else summary.get("state"),
             (r.get("links") or {}).get("selected_event") or f"/sites/{c}/actions/{aid}?event_id={event_id}",
             workflow_label=label, verification_href=f"/sites/{c}/actions/{aid}/verification?event_id={event_id}",
-            cost_check=None if summary is None else summary.get("cost_check"),
+            cost_check=None if summary is None else read_scope.thaw(summary.get("cost_check")),
             trial_hours=_trial_hours(summary, site_timezone)))
     return tuple(out), has_change, tuple(missing)
 

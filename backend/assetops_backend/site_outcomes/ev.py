@@ -88,7 +88,7 @@ class EvPorts:
     domain_actions: Callable[[datetime, datetime, str | None], dict[str, Any]]   # work/domain_action_index.py
     work: Callable[[str, datetime, datetime, str | None], dict[str, Any]]        # work/site_index.py:309
     plans: Callable[[datetime, datetime], list[dict[str, Any]]]                  # preventive DRAFT, this Site
-    readiness: Callable[[datetime, datetime], str | None]                        # EstateEvidenceService (B4)
+    readiness: Callable[[datetime, datetime], str | None]                        # readiness_of (CH-5a1)
     objectives: Callable[[], list[dict[str, Any]]] = lambda: []                  # OUT-D objective store (current)
 
 
@@ -126,7 +126,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     health = reads.call("ev_depth", ports.health, lo, hi)
     availability = reads.call("ev_availability", ports.availability, lo, hi)
     action_rows = reads.pages("domain_action_index", ports.domain_actions, work_lo, hi)
-    readiness = reads.call("evidence_readiness", ports.readiness, lo, hi)
+    readiness = reads.call("readiness_of", ports.readiness, lo, hi)  # CH-5a1 R5 (local days)
     plans = reads.call("plans", ports.plans, work_lo, hi)
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)

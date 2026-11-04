@@ -100,6 +100,16 @@ class IndexRequest:
     cursor: dict[str, Any] | None
 
 
+def finding_base(code: str, finding_id: str) -> str:
+    """The Finding page path of the index rows (CH5a1-R C4: one construction, shared with the board)."""
+    return f"/sites/{code}/findings/{finding_id}"
+
+
+def selected_revision_link(code: str, finding_id: str, revision_id: str) -> str:
+    """`links.selected_revision` of an index row; the board builds the same link from ids (CH5a1-R C4)."""
+    return f"{finding_base(code, finding_id)}?revision_id={revision_id}"
+
+
 def _utc(value: str | None, field: str) -> datetime:
     if not value:
         raise InvalidIndexRequest("INVALID_WINDOW", f"`{field}` is required as a UTC instant.", field=field)
@@ -409,7 +419,7 @@ class FindingIndexService:
             fid, rid = str(r["finding_id"]), str(r["finding_revision_id"])
             cites = [a for a in lineage["assessments"] if str(a["finding_revision_id"]) == rid]
             run_ids = list(dict.fromkeys(str(a["analytic_run_id"]) for a in cites))
-            base = f"/sites/{code}/findings/{fid}"
+            base = finding_base(code, fid)
             out.append({
                 "key": {"tenant_id": str(t), "site_id": str(s), "finding_id": fid},
                 "finding_id": fid, "canonical_finding_id": fid, "finding_revision_id": rid,
@@ -440,7 +450,7 @@ class FindingIndexService:
                     "recurred_by": [str(h["finding_id"]) for h in heads if str(h["recurs_after_finding_id"]) == fid],
                     "split_from": None if r["split_from_finding_id"] is None else str(r["split_from_finding_id"]),
                     "split_parts": [str(h["finding_id"]) for h in heads if str(h["split_from_finding_id"]) == fid]},
-                "links": {"selected_revision": f"{base}?revision_id={rid}", "canonical": base,
+                "links": {"selected_revision": selected_revision_link(code, fid, rid), "canonical": base,
                           "api_history": f"/api{base}/history?revision_id={rid}",
                           "api_selected_revision": f"/api{base}?revision_id={rid}"},
                 "amount": dict(AMOUNT_UNAVAILABLE),

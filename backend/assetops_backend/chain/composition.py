@@ -110,3 +110,34 @@ def thread_lifecycle_policy() -> Any:
     """CH-3: the thread lifecycle policy (`config/chain/thread-lifecycle-v1.json`), for callers outside the adapters."""
     from assetops_backend.chain.adapters.file_chain_config import load_thread_lifecycle
     return load_thread_lifecycle()
+
+
+def build_chain_reader(database_url: str | None, *, consequences: Any = None,
+                       verification: Callable[..., Any] | None = None) -> Any:
+    """CH-5a1 §A2: the board's ChainReader, or None without a database. `consequences` is the overview's own
+    consequence read (`site_overview.upstream.consequence_read`, pre-flight P6); the reader never disposes it.
+    Returns `(reader, dispose)`, `dispose` releasing only the engines this function opened."""
+    if not database_url:
+        return None, (lambda: None)
+    from fastapi.encoders import jsonable_encoder
+    from uuid import UUID
+
+    from assetops_backend.chain.adapters.postgres_chain_read import PostgresChainRead
+    from assetops_backend.chain.read import ChainReader
+    from assetops_backend.site_overview.read import stored_source
+
+    store = PostgresSnapshotStore(database_url)
+    port = PostgresChainRead(database_url, snapshots=SnapshotReader(store))
+
+    money = None
+    if consequences is not None:
+        def money(t: Any, s: Any, fid: str, rid: str, is_latest: bool, source_open: bool) -> Any:
+            body = consequences.read(t, s, UUID(fid), UUID(rid), finding_revision_is_latest=is_latest,
+                                     source_open=source_open, limit=1) or {}
+            return {"body": jsonable_encoder(body), "source": jsonable_encoder(stored_source(body, t, s, rid))}
+
+    def dispose() -> None:
+        port.dispose()
+        store.dispose()
+
+    return ChainReader(port, verification=verification, money=money), dispose

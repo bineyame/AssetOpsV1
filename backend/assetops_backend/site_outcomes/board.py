@@ -140,8 +140,6 @@ class FindingFact:
     in_window: bool = True
     #: CH3-R M3: the episode intersects the board's 31-day work window (mini; the thread-level line reads it).
     in_work_window: bool = False
-    #: LINK-LINEAGE: origin revision IDs for which the composer proved `refresh_chain` true for this shown revision.
-    refreshed_from: tuple[str, ...] = ()
     #: CH-2 §5.3: the Finding's thread `{id, occurrence_no, occurrences}`; None when it has no thread.
     #: CH-3 adds `segment_no`, `state` and `state_effective_day` on the board day as of its `known_at`.
     thread: Mapping[str, Any] | None = None
@@ -525,35 +523,6 @@ def objectives_wire(facts: SiteFacts) -> list[dict[str, Any]]:
             for f in facts.objectives]
 
 
-BASIS_REFRESHED = "BASIS_REFRESHED"
-
-
-def refresh_chain(revisions: Sequence[Mapping] | None, origin_id: str, shown_id: str) -> bool:
-    """True iff every revision after the origin up to and including the shown one is BASIS_REFRESHED with the
-    origin's lifecycle and episode bounds. `revisions` = history rows in revision_no order (every page).
-    D-2026-10-31-board-action-refresh-lineage; revisions after the shown one are never read."""
-    if not revisions:
-        return False
-    by_id = {str(r.get("id")): r for r in revisions}
-    o, s = by_id.get(str(origin_id)), by_id.get(str(shown_id))
-    if o is None or s is None:
-        return False
-    o_no, s_no = int(o["revision_no"]), int(s["revision_no"])
-    if o_no >= s_no:
-        return False
-    between = sorted((r for r in revisions if o_no < int(r["revision_no"]) <= s_no),
-                     key=lambda r: int(r["revision_no"]))
-    if [int(r["revision_no"]) for r in between] != list(range(o_no + 1, s_no + 1)):
-        return False
-    o_ep = o.get("episode") or {}
-    for r in between:
-        ep = r.get("episode") or {}
-        if (r.get("transition") != BASIS_REFRESHED or r.get("lifecycle") != o.get("lifecycle")
-                or ep.get("start") != o_ep.get("start") or ep.get("end") != o_ep.get("end")):
-            return False
-    return True
-
-
 def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     """The four board rows in canonical category order (§B.1 row shape)."""
     domain, code = facts.domain, facts.site_code
@@ -562,9 +531,14 @@ def assemble(facts: SiteFacts) -> list[dict[str, Any]]:
     mini_actions = [a for a in facts.actions if not a.is_domain]
 
     def linked_actions(f: FindingFact) -> list[ActionFact]:
-        """Exact revision, or a basis-only refresh chain (D-2026-10-31-board-action-refresh-lineage)."""
-        return [a for a in mini_actions if a.origin_finding_id == f.finding_id
-                and (a.origin_revision_id == f.revision_id or a.origin_revision_id in f.refreshed_from)]
+        """CH-5a1 §A4: an Action belongs to a Finding through its thread and segment (CH-2/CH-3); without a thread
+        (no thread port, or a database below 0042) the exact origin revision is kept."""
+        if f.thread is None:
+            return [a for a in mini_actions if a.origin_finding_id == f.finding_id
+                    and a.origin_revision_id == f.revision_id]
+        tid, seg = f.thread.get("id"), f.thread.get("segment_no")
+        return [a for a in mini_actions if a.thread_id is not None and str(a.thread_id) == str(tid)
+                and seg is not None and a.segment_no == seg]
 
     # status signals
     signals: list[Signal] = []

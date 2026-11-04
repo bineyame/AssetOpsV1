@@ -130,6 +130,31 @@ def assessment_state(dispatch_status: str | None) -> str | None:
     return UNKNOWN if dispatch_status == "UNASSESSED" else dispatch_status
 
 
+def lead_finding(heads: Sequence["FindingHead"], lo: datetime, hi: datetime, *, source_open: bool,
+                 pin: tuple[str, str | None] | None = None, settled: bool = True) -> tuple[str, str, bool] | None:
+    """CH5a1-R Q5: the overview `_money` choice over the `findings()` rows, as `(finding_id, revision_id,
+    is_latest)`: the pinned Finding while the basis is incomplete or the source closed, else the discovered head
+    (greatest episode start in `[lo, hi)`, then the smallest Finding id), else None."""
+    def hits(h: FindingHead) -> bool:
+        return h.episode_start < hi and (h.episode_end is None or h.episode_end > lo)
+
+    by_id = {h.finding_id.lower(): h for h in heads}
+    pinned = None
+    if pin is not None:
+        head = by_id.get(str(pin[0]).lower())
+        if head is not None and hits(head):
+            rid = head.revision_id if pin[1] is None else str(pin[1])
+            pinned = (head.finding_id, rid, rid.lower() == head.revision_id.lower())
+    if pinned is not None and not (settled and source_open):
+        return pinned
+    candidates = [h for h in heads if hits(h)]
+    if source_open and candidates:
+        latest = max(h.episode_start for h in candidates)
+        h = min((c for c in candidates if c.episode_start == latest), key=lambda c: c.finding_id)
+        return h.finding_id, h.revision_id, True
+    return None
+
+
 # ---- facts -------------------------------------------------------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -197,8 +222,11 @@ class ChainRequest:
     tenant_id: UUID
     k: datetime | None
 
-    def day(self, site_id: UUID, site_type: str, days: Sequence[date]) -> DayFacts:
-        """One snapshot read per (Site, day range); `days` ends on the board day."""
+    def day(self, site_id: UUID, site_type: str, days: Sequence[date],
+            readiness_days: Sequence[date] | None = None) -> DayFacts:
+        """One snapshot read per (Site, day range); `days` ends on the board day. `readiness` is R5 over
+        `readiness_days` (default: every day of `days`), so the mini board reads its gap days and its one board
+        day's readiness from the same rows."""
         days = tuple(sorted(days))
         measures = tuple(m.measure for m in measures_for(site_type))
         rows = read_scope.memo("chain.day", self.reader.ports.snapshots, self.tenant_id, site_id, days[0],
@@ -206,8 +234,9 @@ class ChainRequest:
         grades: dict[date, dict[str, dict[str, str]]] = {}
         for r in rows:
             grades.setdefault(r.local_day, {}).setdefault(r.measure, {})[r.subject_ref] = r.grade
-        return DayFacts(days, grades, day_settled(rows, days[-1], measures), readiness_of(rows, days, measures),
-                        day_gaps(rows, days, measures))
+        ready = days if readiness_days is None else tuple(sorted(readiness_days))
+        return DayFacts(days, read_scope.freeze(grades), day_settled(rows, days[-1], measures),
+                        readiness_of(rows, ready, measures), day_gaps(rows, days, measures))
 
     def findings(self, site_id: UUID, domain: str, analytic_id: str, lo: datetime,
                  hi: datetime) -> tuple[FindingHead, ...]:
@@ -230,7 +259,7 @@ class ChainRequest:
             body = read_scope.memo("action_read", self.reader.verification, self.tenant_id, site_id, site_code, aid)
             body = body or {}
             out.append(ActionFacts(aid, body.get("state"), body.get("cost_check"), body.get("trial_hours"),
-                                   bool(changes.get(aid))))
+                                   bool(changes.get(aid.lower()))))
         return tuple(out)
 
     def money_head(self, site_id: UUID, finding_id: str, revision_id: str, *, is_latest: bool,
@@ -242,14 +271,16 @@ class ChainRequest:
                                revision_id, is_latest, source_open)
         if body is None:
             return None
-        money = body.get("money") if isinstance(body, Mapping) and "money" in body else body
-        elig = (money or {}).get("money_eligibility") or {}
-        cur = (money or {}).get("currentness") or {}
-        low, high = (money or {}).get("amount_low"), (money or {}).get("amount_high")
+        # The composition's money port returns {"body": the consequence read (jsonable), "source": the stored
+        # source provenance (`site_overview/read.py` `stored_source`)}.
+        b = body.get("body") or {}
+        elig = b.get("money_eligibility") or {}
+        cur = b.get("currentness") or {}
+        display = (b.get("consequence") or {}).get("display") or {}
+        low, high = display.get("amount_low"), display.get("amount_high")
         priced = (elig.get("state") == "ELIGIBLE" and bool(cur.get("current_amount_shown"))
                   and low is not None and high is not None and settled)
-        return MoneyHead(priced, low, high, (money or {}).get("currency"), (money or {}).get("source_provenance"),
-                         money)
+        return MoneyHead(priced, low, high, display.get("currency"), body.get("source"), b)
 
 
 class ChainReader:

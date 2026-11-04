@@ -23,7 +23,9 @@ from uuid import UUID
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend import perf
+from assetops_backend.analytics.finding_index import DOMAINS as FINDING_INDEX_DOMAINS
 from assetops_backend.analytics.finding_index import POLICY_VERSION as FINDING_INDEX_POLICY
+from assetops_backend.chain.read import SITE_TYPE_OF_DOMAIN, board_day, local_days, site_cutoff, summary_day
 from assetops_backend.outcomes.catalogue import (
     CATALOGUE_VERSION, CATEGORIES, CATEGORY_DEFINITION, CATEGORY_ICON, CATEGORY_LABEL, COLD, EV, MINI)
 from assetops_backend.outcomes.objectives import POLICY as OBJECTIVES_POLICY
@@ -57,6 +59,8 @@ POLICY_VERSIONS = {"catalogue": CATALOGUE_VERSION, "outcome_map": POLICY_VERSION
 #: Stored Site type -> board domain (`mini_depth/read.py:50`, `sites/cold_foundation.py:31`, `sites/ev_foundation.py:36`).
 DOMAIN_OF_SITE_TYPE = {"MINIGRID": MINI, "COLDCHAIN": COLD, "EV_CHARGING": EV}
 FINDING_INDEX_DOMAIN = "mini-grid-dispatch"
+#: CH5a1-R Q6: the index's (Finding domain, analytic) scope, read by `ChainRequest.findings`.
+FINDING_SCOPE = FINDING_INDEX_DOMAINS[FINDING_INDEX_DOMAIN]
 DIESEL_PRICE_KEY = "diesel_price_per_litre"
 PRODUCTIVE_PRICE_KEY = "productive_use_price_per_kwh"  # WALK1-3 §4.1 (financials/assumptions.py)
 ASSESSMENT_PAGE = 50  # the cold/EV Finding list default page (`cold_assessment_api.py` DEFAULT_LIMIT)
@@ -110,6 +114,7 @@ class BoardServices:
     objectives: Any = None            # PostgresObjectiveStore.current (OUT-D U3)
     finding_reads: Any = None         # FindingReadService (analytics/finding_read.py:570), LINK-LINEAGE history
     threads: Any = None               # CH-2: PostgresThreadSources.lookup (chain/adapters/postgres_thread_sources.py)
+    chain_reader: Any = None          # CH-5a1: ChainReader (chain/read.py), one `request` per board read
     # shared
     work_index: Any = None            # site work lists (work/site_index.py:309)
     global_work: Any = None           # PostgresGlobalWorkRead (snapshot) for select_preventive
@@ -155,13 +160,6 @@ def covering_days(lo: datetime, hi: datetime) -> tuple[datetime, datetime]:
     return floor, (ceil if ceil == hi else ceil + timedelta(days=1))
 
 
-def mini_summary_day(to: datetime) -> date:
-    """B-Q7: the UTC day of the Portfolio `to`, the previous day when `to` is midnight."""
-    to = to.astimezone(timezone.utc)
-    midnight = (to.hour, to.minute, to.second, to.microsecond) == (0, 0, 0, 0)
-    return (to - timedelta(days=1)).date() if midnight else to.date()
-
-
 WINDOW_BASIS_DAY, WINDOW_BASIS_EVENT, WINDOW_BASIS_PERIOD = "DAY", "LATEST_EVENT", "PERIOD"
 
 
@@ -188,7 +186,7 @@ class SiteOutcomeBoardService:
 
     # ------------------------------------------------------------------ ports
 
-    def _shared(self, site: SiteRef, known_at: datetime | None, widen: bool = False) -> dict[str, Callable[..., Any]]:
+    def _shared(self, site: SiteRef, known_at: datetime | None) -> dict[str, Callable[..., Any]]:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
         known = [] if known_at is None else [wire(known_at)]
 
@@ -207,12 +205,9 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.global_work, "global_work").snapshot(read))
 
         def readiness(lo: datetime, hi: datetime) -> str | None:
-            if widen:  # cold and EV: the covering UTC days (addendum 7); mini windows are already whole days
-                lo, hi = covering_days(lo, hi)
-            hit = _prefetched(("readiness", t, c, lo, hi, known_at))  # QW-2
-            if hit is not _MISS:
-                return hit
-            return _need(s.estate, "estate").site_readiness(t, c, lo, hi, known_at)
+            """CH-5a1 R5 (CH5a1-R Q8): `readiness_of` pooled over every Site-local day `[lo, hi)` intersects."""
+            req = _need(s.chain_reader, "chain reader").request(t, known_at)
+            return req.day(sid, SITE_TYPE_OF_DOMAIN[site.domain], local_days(lo, hi, site.timezone)).readiness
 
         return {"work": work, "plans": plans, "readiness": readiness,
                 "objectives": lambda: _need(s.objectives, "objectives").current(t, sid, known_at)}
@@ -233,11 +228,28 @@ class SiteOutcomeBoardService:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
         shared = self._shared(site, known_at)
 
-        def overview(day: date) -> dict[str, Any]:
+        def chain() -> Any:
+            return _need(s.chain_reader, "chain reader").request(t, known_at)
+
+        def source() -> tuple[bool, str]:  # R4: the overview's source gate, without the overview read
             permitted, reason = _need(s.overview_source, "overview source")(c, t, sid)
-            return jsonable_encoder(_need(s.overview, "mini_overview").read(
-                c, t, sid, day, access_basis=s.access_basis, source_open=bool(permitted), source_reason=reason,
-                pinned=pin))
+            return bool(permitted), reason
+
+        def chain_day(days: tuple[date, ...], board_days: tuple[date, ...]) -> Any:
+            return chain().day(sid, SITE_TYPE_OF_DOMAIN[MINI], days, board_days)
+
+        def chain_findings(lo: datetime, hi: datetime) -> Any:
+            _open(s.finding_index_gate, site, "finding index gate")
+            return chain().findings(sid, *FINDING_SCOPE, lo, hi)
+
+        def findings_settled() -> bool:
+            return chain().findings_settled(sid)
+
+        def action_facts(action_ids: list[str]) -> Any:
+            return chain().action_facts(sid, c, action_ids)
+
+        def money(fid: str, rid: str, is_latest: bool, source_open: bool, settled: bool) -> Any:
+            return chain().money_head(sid, fid, rid, is_latest=is_latest, source_open=source_open, settled=settled)
 
         def depth(domain: str, lo: datetime, hi: datetime) -> dict[str, Any]:
             return jsonable_encoder(_need(s.mini_depth, "mini_depth").read(
@@ -251,13 +263,6 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.assumptions, "assumptions").series(
                 t, sid, DIESEL_PRICE_KEY, valid_at=at, recorded_at=known_at))  # addendum 4 #4: None = current
 
-        def finding_index(lo: datetime, hi: datetime, cursor: str | None) -> dict[str, Any]:
-            _open(s.finding_index_gate, site, "finding index gate")
-            req = _need(s.parse_finding_index, "finding index parser")(
-                FINDING_INDEX_DOMAIN, wire(lo), wire(hi), None, cursor)
-            return jsonable_encoder(_need(s.finding_index, "finding_index").read(
-                t, sid, c, req, access_basis=s.access_basis))
-
         def estate(day_lo: datetime, day_hi: datetime, work_lo: datetime, work_hi: datetime) -> dict[str, Any]:
             rows = _prefetched(("work_rows", t, c, day_lo, day_hi, work_lo, work_hi, known_at))  # QW-2
             if rows is _MISS:
@@ -270,26 +275,6 @@ class SiteOutcomeBoardService:
             req = _need(s.parse_action_index, "action index parser")(wire(lo), wire(hi), None, cursor)
             return jsonable_encoder(_need(s.action_index, "action_index").read(
                 t, sid, c, req, access_basis=s.access_basis))
-
-        def verification(action_id: str) -> dict[str, Any]:
-            return jsonable_encoder(_need(s.verification, "verification").summary(t, sid, c, UUID(action_id)))
-
-        def action(action_id: str, event_id: str) -> dict[str, Any] | None:
-            pick = _need(s.action_selector, "action selector")(UUID(event_id) if event_id else None, None)
-            body = _need(s.actions, "action_read").action(t, sid, c, UUID(action_id), pick)
-            return None if body is None else jsonable_encoder(body)
-
-        def finding_history(finding_id: str, revision_id: str) -> list[dict[str, Any]] | None:
-            _open(s.finding_index_gate, site, "finding index gate")
-            svc, rows, after = _need(s.finding_reads, "finding_history"), [], 0
-            while True:
-                body = svc.history(t, sid, UUID(finding_id), UUID(revision_id), after_revision_no=after, limit=500)
-                if body is None:
-                    return None
-                rows += jsonable_encoder(body["revisions"])
-                after = body["page"]["next_after_revision_no"]
-                if after is None:
-                    return rows
 
         # WALK1-3 §4.3: the productive users, their measured use and the declared productive-use price. The SQL
         # lives in the read-only mini-depth reader (`mini_depth/read.py`); the price is the diesel series read.
@@ -305,16 +290,16 @@ class SiteOutcomeBoardService:
             return jsonable_encoder(_need(s.assumptions, "assumptions").series(
                 t, sid, PRODUCTIVE_PRICE_KEY, valid_at=at, recorded_at=known_at))
 
-        return mini.MiniPorts(overview=overview, depth=depth, dispatch=dispatch, assumption=assumption,
-                              finding_index=finding_index, estate=estate, action_index=action_index,
-                              verification=verification, action=action, work=shared["work"],
-                              plans=shared["plans"], readiness=shared["readiness"], objectives=shared["objectives"],
-                              finding_history=finding_history, productive_users=productive_users,
+        return mini.MiniPorts(source=source, depth=depth, dispatch=dispatch, assumption=assumption,
+                              chain_day=chain_day, chain_findings=chain_findings, findings_settled=findings_settled,
+                              estate=estate, action_index=action_index, action_facts=action_facts, money=money,
+                              work=shared["work"], plans=shared["plans"], objectives=shared["objectives"],
+                              pin=pin, productive_users=productive_users,
                               productive_readings=productive_readings, productive_price=productive_price)
 
     def cold_ports(self, site: SiteRef, known_at: datetime | None = None) -> cold.ColdPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
-        shared = self._shared(site, known_at, widen=True)
+        shared = self._shared(site, known_at)
 
         def overview(lo: datetime | None, hi: datetime | None) -> dict[str, Any]:
             return jsonable_encoder(_need(s.cold_site, "cold_overview").overview(t, sid, c, lo, hi, known_at))
@@ -329,7 +314,7 @@ class SiteOutcomeBoardService:
 
     def ev_ports(self, site: SiteRef, known_at: datetime | None = None) -> ev.EvPorts:
         s, t, sid, c = self.s, site.tenant_id, site.site_id, site.site_code
-        shared = self._shared(site, known_at, widen=True)
+        shared = self._shared(site, known_at)
 
         def overview(lo: datetime | None, hi: datetime | None) -> dict[str, Any]:
             return jsonable_encoder(_need(s.ev_site, "ev_overview").overview(t, sid, c, lo, hi, known_at))
@@ -358,8 +343,8 @@ class SiteOutcomeBoardService:
     def compose(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
                 hi: datetime | None = None, known_at: datetime | None = None,
                 pin: tuple[UUID, UUID | None] | None = None) -> tuple[mini.MiniComposition, dict[str, Any]]:
-        """The domain composition and its window `{from, to}`. Mini takes the overview's UTC `day` (the route
-        resolves `selected_day` / `db_today()`); cold and EV take `lo`/`hi` unchanged (B-Q7). With no window, cold
+        """The domain composition and its window `{from, to}`. Mini takes the Site-local board `day` (R6; the
+        route resolves `selected_day` / `db_today()`); cold and EV take `lo`/`hi` unchanged (B-Q7). With no window, cold
         and EV first read their overview with none, as their pages do, and use the window it resolved."""
         domain = site.domain
         if domain == MINI:
@@ -369,7 +354,7 @@ class SiteOutcomeBoardService:
                                 site_timezone=site.timezone)
             # Review L1: the mini read resolves no cutoff of its own (its producers read "as known now"), so its
             # cutoff is the request's, else None = as known now; passed explicitly, by the same helper as cold/EV.
-            return comp, {**comp.window, "known_at": board_cutoff(known_at, None)}
+            return comp, {**comp.window, "known_at": board_cutoff(domain, known_at, None)}
         if domain not in (COLD, EV):
             raise ValueError(f"no outcome board for Site type {site.site_type!r}")
         ports = self.cold_ports(site, known_at) if domain == COLD else self.ev_ports(site, known_at)
@@ -391,7 +376,7 @@ class SiteOutcomeBoardService:
         comp = composer(replace(ports, overview=overview), site_code=site.site_code, lo=lo, hi=hi,
                         site_timezone=site.timezone)
         # addendum 4 #5: the cutoff used is the request's; without one, the overview body's resolved cutoff
-        return comp, {"from": lo, "to": hi, "known_at": board_cutoff(known_at, resolved.get("known_at"))}
+        return comp, {"from": lo, "to": hi, "known_at": board_cutoff(domain, known_at, resolved.get("known_at"))}
 
     def board(self, site: SiteRef, *, day: date | None = None, lo: datetime | None = None,
               hi: datetime | None = None, known_at: datetime | None = None,
@@ -402,11 +387,9 @@ class SiteOutcomeBoardService:
         # Visibility is bitemporal on each event's cause time (CH3-R D-b, 0045), so a backfilled event whose cause
         # was recorded by the story cutoff shows, and one whose cause was recorded at build time stays hidden.
         cutoff = window.get("known_at")  # `board_cutoff`, resolved by `compose` for every domain (review L1)
-        if site.domain == MINI:
-            start = mini.utc(window.get("from"))
-            board_day = day if day is not None else (None if start is None else start.date())
-        else:
-            board_day = _last_local_day(window.get("to"), site.timezone)
+        # R6: every board's day is the Site-local day holding the window's last instant (mini: the board day D).
+        start = mini.utc(window.get("from"))
+        board_day = _last_local_day(window.get("to"), site.timezone)
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
             facts = replace(comp.facts, day=board_day, known_at=cutoff)
             extra: dict[str, Any] = {}
@@ -484,33 +467,25 @@ class SiteOutcomeBoardService:
         estate = self.s.estate
         tenants = {site.tenant_id for site in sites}
         if not sites or len(tenants) != 1 or not all(hasattr(estate, name) for name in (
-                "read_snapshot", "site_selected_windows_many", "site_readiness_many", "site_work_rows_many")):
+                "read_snapshot", "site_selected_windows_many", "site_work_rows_many")):
             return {}
         (t,) = tenants
-        day = mini_summary_day(hi)
-        start = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
-        end = start + timedelta(days=1)
-        minis = [x.site_code for x in sites if x.domain == MINI]
+        # R6: each mini Site's board day is its Site-local day of `to - 1 µs`; CH-5a1 R5: no readiness prefetch
+        # (readiness is `readiness_of` over the chain snapshots, never the estate evidence selection).
+        days = {x.site_code: board_day(summary_day(hi, x.timezone), x.timezone) for x in sites if x.domain == MINI}
         others = [x.site_code for x in sites if x.domain in (COLD, EV)]  # a Site with no board reads nothing
 
         def work(snap: Any) -> dict[tuple, Any]:
             pre: dict[tuple, Any] = {}
             lap = perf.Laps("summary.prefetch")
             wins = estate.site_selected_windows_many(t, others, lo, hi, known_at, snap=snap) if others else {}
-            ready: dict[str, tuple[datetime, datetime]] = {code: (start, end) for code in minis}
             for code in others:
                 pre[("windows", t, code, lo, hi, known_at)] = wins[code]
-                ev_win = latest_window(wins[code])
-                ready[code] = covering_days(*((lo, hi) if ev_win is None else ev_win))
             lap("windows")
-            for code, value in estate.site_readiness_many(t, ready, known_at, snap=snap).items():
-                pre[("readiness", t, code, *ready[code], known_at)] = value
-            lap("readiness")
-            work_lo = end - mini.WORK_WINDOW
-            rows = estate.site_work_rows_many(t, {code: (start, end, work_lo, end) for code in minis}, known_at,
-                                              snap=snap) if minis else {}
+            spans = {code: (start, end, end - mini.WORK_WINDOW, end) for code, (start, end) in days.items()}
+            rows = estate.site_work_rows_many(t, spans, known_at, snap=snap) if spans else {}
             for code, value in rows.items():
-                pre[("work_rows", t, code, start, end, work_lo, end, known_at)] = value
+                pre[("work_rows", t, code, *spans[code], known_at)] = value
             lap("work_rows")
             return pre
 
@@ -534,7 +509,7 @@ class SiteOutcomeBoardService:
             # OUT-W (P-C1 option A): a cold or EV Site is judged on its latest assessed event inside the period;
             # with none, or when the window choice fails, on the period itself. Mini reads its UTC day (B-Q7).
             if site.domain == MINI:
-                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, mini_summary_day(hi), None, None
+                basis, b_day, b_lo, b_hi = WINDOW_BASIS_DAY, summary_day(hi, site.timezone), None, None
             else:
                 with perf.timed("summary.event_window"):
                     ev_win = self._event_window(site, lo, hi, known_at)
@@ -602,10 +577,11 @@ def _unknown_row(category: str) -> dict[str, Any]:
             "lead_outcome": None, "headline": None, "short_value": None, "headline_money": None}
 
 
-def board_cutoff(known_at: datetime | None, resolved: Any) -> datetime | None:
-    """addendum 4 #5, CH3-R: the one cutoff rule of a board read: the request's cutoff, else the read's resolved one
-    (the cold/EV overview body's `window.known_at`; a mini read resolves none, so None = as known now)."""
-    return known_at if known_at is not None else mini.utc(resolved)
+def board_cutoff(domain: str | None, known_at: datetime | None, resolved: Any) -> datetime | None:
+    """addendum 4 #5, CH3-R, CH-5a1 R7: the one cutoff rule of a board read, `chain/read.py` `site_cutoff`: mini ->
+    the request's cutoff (None = as known now); cold/EV -> the read's resolved cutoff (the overview body's
+    `window.known_at`) bounded by the request's, else the request's."""
+    return site_cutoff(domain, known_at, mini.utc(resolved), known_at)
 
 
 def _last_local_day(to: Any, tz: str | None) -> date | None:

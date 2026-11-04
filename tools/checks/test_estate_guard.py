@@ -205,6 +205,23 @@ def test_thread_sources_reader_write_rejected() -> None:
     assert not any("Database driver imported outside" in line and THREAD_READER in line for line in found), found
 
 
+CHAIN_READER = "backend/assetops_backend/chain/adapters/postgres_chain_read.py"
+
+
+def test_chain_reader_write_rejected() -> None:
+    """CH-5a1 §A2 (P4): the ChainReader adapter is a `$pgReaders` module; a write in it is refused."""
+    real = (ROOT / CHAIN_READER).read_text(encoding="utf-8")
+    assert "from sqlalchemy" in real and "SELECT" in real
+
+    def edit(copy: Path) -> None:
+        file = copy / CHAIN_READER
+        file.write_text(file.read_text(encoding="utf-8") +
+                        '\n_PROBE_WRITE = text("INSERT INTO finding_thread (id) VALUES (:i)")\n', encoding="utf-8")
+    found = failures(isolated_copy(edit))
+    assert any(CHAIN_READER in line for line in found), found
+    assert not any("Database driver imported outside" in line and CHAIN_READER in line for line in found), found
+
+
 SNAPSHOT_WRITER = "backend/assetops_backend/chain/adapters/postgres_snapshot_store.py"
 SNAPSHOT_INSERT = "INSERT INTO site_day_snapshot ("
 
