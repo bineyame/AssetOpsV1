@@ -1223,7 +1223,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -1313,7 +1315,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -1486,7 +1490,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -1656,7 +1662,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -2011,7 +2019,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "NO_LONGER_SUPPORTED",
                 "links": {
                   "finding": {
@@ -2260,7 +2270,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -2350,7 +2362,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -2690,7 +2704,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "NO_LONGER_SUPPORTED",
                 "links": {
                   "finding": {
@@ -2890,7 +2906,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -2980,7 +2998,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -3350,7 +3370,9 @@
                 "finding_id": "00000001-0000-4000-8000-0000000004cf",
                 "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": "00000001-0000-4000-8000-0000000004d1",
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004cf?revision_id=00000001-0000-4000-8000-0000000004d1",
@@ -3515,7 +3537,9 @@
                 "finding_id": "00000001-0000-4000-8000-0000000004ce",
                 "finding_label": "Generator may have been on longer than needed",
                 "finding_revision_id": "00000001-0000-4000-8000-0000000004d0",
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": "/sites/KOBO-001/findings/00000001-0000-4000-8000-0000000004ce?revision_id=00000001-0000-4000-8000-0000000004d0",
@@ -3930,7 +3954,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
@@ -4020,7 +4046,9 @@
                 "finding_revision_id": {
                   "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
                 },
-                "lens_flags": [],
+                "lens_flags": [
+                  "COST"
+                ],
                 "lifecycle": "SUPPORTED",
                 "links": {
                   "finding": {
