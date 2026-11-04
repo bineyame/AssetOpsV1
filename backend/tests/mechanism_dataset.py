@@ -295,6 +295,10 @@ class Deliverer:
                 finally:
                     pg_harness.dispose(ledger)
                 assert answer.status == 200 and answer.receipt.status == "COMPLETED", answer
+                # MD0-S4 (F5 found by the DONE assertion): a COMPLETED receipt may reject every envelope (D7's late
+                # batches were all OUTSIDE_FOUNDATION_PERIOD); every generated reading must be accepted.
+                counts = answer.receipt.counts
+                assert counts.accepted == len(chunk) == counts.total, (device, counts)
                 if real_clock:
                     # MD0-S4 R1.4 (F5): the ledger stamps `decided_at` and the job's `available_at` with the DB's
                     # clock_timestamp() at commit, so the worker and matcher clocks are the DB's now AFTER the
@@ -411,9 +415,12 @@ class KoboSite:
     -> supply uses -> roles-4), with the s4 reserve/runtime controls, at story time. Owns its stores (R5). Also the
     S6 harness runner surface (`tick`, `step`, `reload`, `tenant`, `site`, `engine`) for ACT-K1."""
 
-    def __init__(self, spec: dict, store, engine, work: Path, resume: dict | None = None) -> None:
+    def __init__(self, spec: dict, store, engine, work: Path, resume: dict | None = None,
+                 binding_at: datetime | None = None) -> None:
         """`resume` is a `state()` from an earlier process (the L3m tool builds in parts of at most 600 s): the
-        Site is then found, not installed, and the delivery sequences and clocks carry on."""
+        Site is then found, not installed, and the delivery sequences and clocks carry on. `binding_at` (the late
+        fill) seals against the binding set, and so the Foundation, in force at that instant, as a gateway that
+        buffered the day would have: a later Foundation's period does not cover the day (OUTSIDE_FOUNDATION_PERIOD)."""
         from types import SimpleNamespace
 
         from sqlalchemy import text
@@ -433,9 +440,11 @@ class KoboSite:
         with engine.connect() as c:
             # The current (unsuperseded) set with the latest valid_from: roles-4. valid_from and recorded_at tie
             # with superseded roles-3 rows at install + 27 min, so `superseded_at IS NULL` decides.
+            covering = "" if binding_at is None else "AND valid_from <= :at AND (valid_to IS NULL OR valid_to > :at) "
             set_id = c.execute(text("SELECT id FROM signal_binding_set_revision WHERE site_id = :s "
-                                    "AND superseded_at IS NULL ORDER BY valid_from DESC, version DESC LIMIT 1"),
-                               {"s": self.result.site.id}).scalar_one()
+                                    "AND superseded_at IS NULL " + covering +
+                                    "ORDER BY valid_from DESC, version DESC LIMIT 1"),
+                               {"s": self.result.site.id, "at": binding_at}).scalar_one()
         self.kit = Kit(engine, set_id)
         self.tenant, self.site = self.kit.principal.tenant_id, self.kit.principal.site_id
         self.findings = PostgresFindingStore(self.url)
@@ -1014,7 +1023,8 @@ def late_fill(url: str, site_code: str, n: int, kind: str = "normal", now=None) 
         resume = {"seq": {}, "batches": 0, "readings": 0, "now": real.isoformat(), "latest": None,
                   "noon_dropped": []}
         with tempfile.TemporaryDirectory(prefix="mechanism-late-") as work:
-            site = KoboSite(spec, store, engine, Path(work), resume=resume)
+            site = KoboSite(spec, store, engine, Path(work), resume=resume,
+                            binding_at=local_instant(spec, "kobo", n, "00:00"))
             try:
                 site.deliverer.epoch = LATE_EPOCH
                 readings = site.deliver_day(n, kind, real_clock=True)
