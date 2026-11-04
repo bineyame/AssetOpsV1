@@ -428,7 +428,7 @@ function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window:
         </div>
       </div>
       <p className="chart-note" data-portfolio-opportunity-note>
-        {first === undefined ? (unread ? OPPORTUNITY_UNREAD_DETAIL : OPPORTUNITY_NOTE) : `${first.seen_line}${first.limit_line ? ` · ${first.limit_line}` : ""}`}
+        {first === undefined ? (unread ? "" : OPPORTUNITY_NOTE) : `${first.seen_line}${first.limit_line ? ` · ${first.limit_line}` : ""}`}
       </p>
       <div className="panel-bottom">
         {first === undefined ? (

@@ -280,3 +280,20 @@ def test_findings_and_portfolio_bodies_carry_the_item(store, engine, monkeypatch
     card = next(c for c in portfolio["value_cards"] if c["key"] == "PRODUCTIVE_USE")
     assert (card["state"], card["destination"], card["detail"], card["tone"]) == (
         "FOUND", "/findings/opportunities", item["short_label"], "green")
+
+
+def test_failing_opportunity_query_leaves_portfolio_rendering_with_unknown(store, engine, monkeypatch) -> None:  # noqa: F811
+    """CH-4 fix round 2 (L2): a SQL error in the opportunity read is rolled back to its SAVEPOINT, so the Portfolio's
+    later reads still run and the opportunity state is UNKNOWN (not an unavailable page)."""
+    seed = seed_opportunities(store, engine)
+    _backfill(seed)
+    monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, "c4" * 32)
+    monkeypatch.setattr("assetops_backend.estate.adapters.postgres_estate_read.OPPORTUNITY_LOOKUP",
+                        "SELECT * FROM table_that_does_not_exist")
+    service = EstatePortfolioService(evidence_read(engine))
+    app = FastAPI()
+    app.include_router(build_estate_portfolio_router(service, lambda: seed["t"], access=lambda request, code: None))
+    response = TestClient(app).get("/api/estate/portfolio?" + urlencode({**WINDOW, "limit": 100}))
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["opportunity"]["state"] == "UNKNOWN" and body["summary"]["opportunity_count"] is None

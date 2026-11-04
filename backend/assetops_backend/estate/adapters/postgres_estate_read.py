@@ -344,11 +344,16 @@ class EstateSnapshot:
                             k: datetime | None) -> list[dict[str, Any]]:
         """CH-4 §3/§4: the opportunity items of the given Sites seen in `[from_, to)` as of `k`, from one
         `OPPORTUNITY_LOOKUP` (the board thread port runs the same text). Below 0042 there are none."""
-        if not site_ids or self._c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
+        if not site_ids:
             return []
         from assetops_backend.chain.composition import thread_lifecycle_policy
-        rows = self._c.execute(text(OPPORTUNITY_LOOKUP), {
-            "t": t, "s": [str(x).lower() for x in site_ids], "k": k}).all()
+        # CH-4 fix round 2 (L2): a SAVEPOINT, so a failing query rolls back to here and leaves the snapshot
+        # transaction usable for the reads that follow (the caller reports the failure as not read).
+        with self._c.begin_nested():
+            if self._c.execute(text("SELECT to_regclass('chain_action_thread') IS NULL")).scalar_one():
+                return []
+            rows = self._c.execute(text(OPPORTUNITY_LOOKUP), {
+                "t": t, "s": [str(x).lower() for x in site_ids], "k": k}).all()
         return opportunity_items(rows, from_, to, k, thread_lifecycle_policy().close_after)
 
     def cost_checks(self, t: UUID, outcome_ids: list[Any]) -> dict[str, dict[str, Any]]:

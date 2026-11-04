@@ -238,3 +238,14 @@ The texts are from the bundle bodies. The rendered texts are composed by the com
 ## User review
 
 The sheet routes MD-CH4-1 to the owner as a report. Nothing else needs owner sign-off before the review. Do not merge before the Reviewer's verdict.
+
+## Fix round 2
+
+- **M1:** `test_w301_estate_index_postgres.py` lines 227, 239, 484, 499 now exclude `opportunity_count` from the
+  all-null summary assertion (as `test_w301_estate_api.py:129`). File rerun: 3 targeted (43 s) + 17 rest (222 s) = 20/20.
+- **L1:** `EstatePortfolio.tsx` chart-note is empty on a failed read; the sentence shows once (panel detail).
+- **L2:** done. `PostgresEstateSnapshot.opportunity_threads` runs its queries inside `self._c.begin_nested()`
+  (SAVEPOINT). New test `test_failing_opportunity_query_leaves_portfolio_rendering_with_unknown` (broken lookup SQL ->
+  Portfolio 200, opportunity state UNKNOWN, count null). `test_ch4_opportunity_postgres.py`: 3 passed.
+- Checks: vitest (estate, s404 index, miniDecisions) 205/205; `tsc` clean; scoped non-Postgres 231 passed, 1 skipped;
+  guards A and W pass.
