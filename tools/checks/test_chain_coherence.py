@@ -90,12 +90,34 @@ def test_wildcard_subject_expectation_is_bounded_by_count() -> None:
     """MD0b-R: subject "*" covers `count` findings of its (rule, site, window), no more, and no other window."""
     bundle = cc.Bundle(BUNDLES / "coh2_no_action")
     rule, site, window, _ = FAILING["coh2_no_action"]
-    wild = {"rule": rule, "site_code": site, "window": window, "subject": "*", "count": 1, "register": "MD0b-R:A1"}
-    assert cc.check(bundle, [wild])["pass"] is True
+    detail = cc.check(bundle, [])["findings"][0]["detail"]
+    wild = {"rule": rule, "site_code": site, "window": window, "subject": "*", "count": 1, "register": "MD0b-R:A1",
+            "detail_contains": detail[:20]}
+    assert cc.check(bundle, [wild])["pass"] is True  # matching detail: absorbed up to the count
+    different = {**wild, "detail_contains": "a different kind of problem"}
+    report = cc.check(bundle, [different])  # a finding of another kind stays unexpected
+    assert report["pass"] is False and report["resolved"] == [different]
+    assert cc.check(bundle, [{k: v for k, v in wild.items() if k != "detail_contains"}])["pass"] is False
     assert cc.check(bundle, [{**wild, "count": 0}])["pass"] is False  # beyond the count: unexpected
     other = {**wild, "window": "no-such-window"}
     report = cc.check(bundle, [other])
     assert report["pass"] is False and report["resolved"] == [other]  # another window does not cover it
+
+
+def test_resolved_wildcard_is_printed_loudly_and_new_count_agrees(capsys) -> None:
+    bundle = cc.Bundle(BUNDLES / "coh2_no_action")
+    rule, site, window, _ = FAILING["coh2_no_action"]
+    detail = cc.check(bundle, [])["findings"][0]["detail"]
+    wild = {"rule": rule, "site_code": site, "window": window, "subject": "*", "count": 1,
+            "detail_contains": detail[:20]}
+    gone = {"rule": "COH-5", "site_code": COLD, "window": DC, "subject": "*", "count": 1, "detail_contains": "x"}
+    report = cc.check(bundle, [wild, gone])
+    cc.print_report(report, [wild, gone])
+    out = capsys.readouterr().out
+    assert "RESOLVED-WILDCARD" in out and "COH-5" in out.split("RESOLVED-WILDCARD")[1]
+    over = cc.check(bundle, [{**wild, "count": 0}])  # beyond the count: the per-rule line says new, as `pass` does
+    cc.print_report(over, [{**wild, "count": 0}])
+    assert f"{rule}: 1 finding(s), 0 expected, 1 new" in capsys.readouterr().out
 
 
 def test_check_cli_exit_codes(tmp_path: Path, capsys) -> None:

@@ -364,9 +364,11 @@ def test_close_variant_resolves_closes_after_seven_clean_days_and_recurs(mech_cl
     action = close["sites"]["kobo"]["actions"][0]
     record("close_resolved_day", str(resolved))
     # the product's effective day of the VERIFIED cause: on or after the change's day, by the evaluation's day
-    assert md.day(SPEC, action["effective"]["day"]) <= resolved <= md.day(SPEC, action["verify"]["evaluate"]["day"]),         gen["events"]
+    # §2.6 e / DS-R1: VERIFIED is dated on the change's effective day (D3), so RESOLVED is D3 and CLOSED is D10 exactly.
+    assert resolved == md.day(SPEC, 3), gen["events"]
+    assert md.day(SPEC, action["effective"]["day"]) == resolved, gen["events"]
     # 7 fully checked days after the verified day (none of D5..D11 has an occurrence): CLOSED on the 7th.
-    assert by_state.get("CLOSED") == resolved + timedelta(days=7), gen["events"]
+    assert by_state.get("CLOSED") == md.day(SPEC, 10) == resolved + timedelta(days=7), gen["events"]
     assert by_state.get("RECURRED") == md.day(SPEC, 13), gen["events"]
     assert [s for _, s, _ in gen["events"]][-3:] == ["RESOLVED_MONITORING", "CLOSED", "RECURRED"], gen["events"]
     assert _state_on(gen, 12) == "CLOSED" and _state_on(gen, 14) == "RECURRED", gen["events"]

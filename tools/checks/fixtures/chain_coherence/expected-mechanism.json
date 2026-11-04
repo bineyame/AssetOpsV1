@@ -1,7 +1,7 @@
 {
  "schema": "chain-coherence-expected/1",
  "basis": "MD-0 L3m: assetops_mechanism_test built by tools/mechanism_dataset.py build (variant main, KOBO-001 only per Architect MD0-S2), collected in process, not ticked",
- "rule": "Entries only for the declared gap day GAP-K7, a R4 writer-without-clock fact, or an Architect-ruled finding naming its MD0b-R (or later) item and owner; each names the owning slice. Any other finding is a regression. The list may only shrink. A subject of \"*\" covers up to `count` findings of that rule, site and window whose subject is a server-generated id.",
+ "rule": "Entries only for the declared gap day GAP-K7, a R4 writer-without-clock fact, or an Architect-ruled finding naming its MD0b-R (or later) item and owner; each names the owning slice. Any other finding is a regression. The list may only shrink. A subject of \"*\" covers up to `count` findings of that rule, site and window whose subject is a server-generated id and whose detail contains `detail_contains`.",
  "expectations": [
   {
    "rule": "COH-8",
@@ -9,6 +9,7 @@
    "window": "week",
    "subject": "*",
    "count": 1,
+   "detail_contains": "is VERIFIED, but its progress row has origin_revision_selected False",
    "register": "MD0b-R:A1",
    "owner": "CH-5a2a",
    "note": "main: x2 (week+month), close: x1 (month). VERIFIED Action whose origin Finding revision was refreshed; CH-5a2a B6 makes origin_selected same thread and segment, any revision. CH-5a2a deletes these."
@@ -19,6 +20,7 @@
    "window": "month",
    "subject": "*",
    "count": 1,
+   "detail_contains": "is VERIFIED, but its progress row has origin_revision_selected False",
    "register": "MD0b-R:A1",
    "owner": "CH-5a2a",
    "note": "main: x2 (week+month), close: x1 (month). VERIFIED Action whose origin Finding revision was refreshed; CH-5a2a B6 makes origin_selected same thread and segment, any revision. CH-5a2a deletes these."

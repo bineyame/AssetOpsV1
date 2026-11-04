@@ -1096,6 +1096,8 @@ def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] 
     # MD0b-R: an entry with subject "*" covers up to `count` findings of its (rule, site, window) whose subject is a
     # server-generated id that changes on every template rebuild; a finding beyond the count is unexpected.
     wild = {_key(e)[:3]: e for e in (expect or []) if e.get("subject") == "*"}
+    # M1: a wildcard also needs `detail_contains`, matched against the finding's detail, so a different kind of finding
+    # (a missing progress row, a Portfolio row that lost VERIFIED) stays unexpected.
     used: dict[tuple, int] = {}
     unexpected = []
     found = set()
@@ -1104,7 +1106,8 @@ def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] 
         if _key(f) in expected:
             continue
         w = wild.get(_key(f)[:3])
-        if w is not None and used.get(_key(f)[:3], 0) < int(w.get("count", 1)):
+        if (w is not None and w.get("detail_contains") and w["detail_contains"] in f["detail"]
+                and used.get(_key(f)[:3], 0) < int(w.get("count", 1))):
             used[_key(f)[:3]] = used.get(_key(f)[:3], 0) + 1
             continue
         unexpected.append(f)
@@ -1127,17 +1130,17 @@ def load_expect(path: Path) -> list[dict]:
 
 
 def print_report(report: dict[str, Any], expect: list[dict] | None) -> None:
-    expected = {_key(e) for e in (expect or [])}
-    wild = {_key(e)[:3] for e in (expect or []) if e.get("subject") == "*"}
+    unmatched = [id(f) for f in report["expected_unmatched"]]
     for rule, _ in RULES:  # COH-7 covers COH-7a/COH-7b, COH-9 covers COH-9a
         hits = [f for f in report["findings"] if f["rule"] == rule
                 or (f["rule"].startswith(rule) and f["rule"][len(rule):].isalpha())]
-        new = sum(1 for f in hits if _key(f) not in expected and _key(f)[:3] not in wild)
+        new = sum(1 for f in hits if id(f) in unmatched)  # L5: agrees with the check's own result
         print(f"{rule}: {len(hits)} finding(s), {len(hits) - new} expected, {new} new")
     for f in report["expected_unmatched"]:
         print(f"  NEW {f['rule']} {f['site_code']} {f['window']} {f['subject']}: {f['detail']}")
     for e in report["resolved"]:
-        print(f"  RESOLVED {e['rule']} {e.get('site_code')} {e.get('window')} {e.get('subject')}")
+        tag = "RESOLVED-WILDCARD (DELETE THIS ENTRY)" if e.get("subject") == "*" else "RESOLVED"
+        print(f"  {tag} {e['rule']} {e.get('site_code')} {e.get('window')} {e.get('subject')}")
     for name, rows in report["info"].items():
         print(f"{name} (info): {len(rows)} item(s)")
     unexpected = len(report["expected_unmatched"])

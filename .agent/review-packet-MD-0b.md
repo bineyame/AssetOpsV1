@@ -151,3 +151,22 @@ untouched (no product file in the diff: `git diff ff499d54d --stat -- backend/as
   L2m `test_md0_mechanism_postgres.py`: 7 passed, 0 skipped, 457 s pytest (460 s wall). L3m `check --threads`:
   **main 0 unexpected** (COH-8 2/2 expected; derive 59.4 s, clone 1.4 s, total 184 s); **close 0 unexpected**
   (COH-6 4/4, COH-8 1/1; total 266 s). Guards A and W pass.
+
+## Fix round 2 (review M1, L1, L5)
+
+- **M1.** A `subject: "*"` expectation now also needs `detail_contains`, matched against the finding's detail
+  (`tools/checks/chain_coherence.py`, `check`). Both MD0b-R:A1 COH-8 entries carry
+  `"is VERIFIED, but its progress row has origin_revision_selected False"`, so a missing progress row or a Portfolio row
+  that lost VERIFIED stays unexpected. A wildcard without `detail_contains` matches nothing. A wildcard that absorbed
+  nothing prints `RESOLVED-WILDCARD (DELETE THIS ENTRY)`. Tests: matching absorbed up to count, different detail
+  unexpected, beyond count unexpected, resolved print (`test_chain_coherence.py`).
+- **L1.** The close test pins RESOLVED_MONITORING == D3 and CLOSED == D10 exactly.
+- **L5.** `print_report` per-rule "new" is derived from `report["expected_unmatched"]`.
+- **Checks.** `test_md0_fixture`, `test_md0b_ensure`, `test_chain_coherence`: 169 passed. L3m `check --threads` on the
+  `c3470a30` templates (not rebuilt): states 2 pass, 0 fail (0 unexpected; the two COH-8 findings absorbed; 4 COH-6
+  resolved); close 5 pass, 0 fail, 0 unexpected (the week COH-8 wildcard prints RESOLVED-WILDCARD, as intended: close has
+  only the month finding). Guards A and W passed. The close L2m (L1 pin) was not rerun this round.
+- **Residual, not fixed.** L2 (runner `git show | Set-Content` mangles non-ASCII, over-builds close, safe direction),
+  L3 (`generator_power` leads other channels by one interval; adds 1.25 kWh to baseline `generator_kwh`, outside the
+  verdict), L4 (nothing yet tells E1/E4 and post-merge to pass `-Close yes`). Also: CH-5a2a merge deletes the COH-8
+  entries and needs L3m rerun for COH-7a.
