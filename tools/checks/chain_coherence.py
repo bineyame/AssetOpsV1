@@ -128,6 +128,8 @@ class Collector:
     out: Path
     known_at: str | None = None
     requests: list[dict[str, Any]] = field(default_factory=list)
+    #: MD-0 (MD0-S2): the domain Sites the story has; a Kobo-only work folder requests no Cold/EV action index.
+    domain_sites: tuple[str, ...] = DOMAIN_SITES
 
     def _file(self, name: str, page: int | None) -> str:
         safe = re.sub(r"[^A-Za-z0-9_.-]", "_", name)
@@ -165,7 +167,7 @@ class Collector:
         self.fetch(f"findings_opp.{window}", "/api/estate/findings",
                    {**w, "lens": "opportunities", "state": "all"}, window, paged=True)
         self.fetch(f"actions.{window}", "/api/estate/actions", w, window, paged=True)
-        for code in DOMAIN_SITES:
+        for code in self.domain_sites:
             self.fetch(f"action_index.{code}.{window}", f"/api/sites/{code}/domain-work/action-index", w, window,
                        paged=True)
         summary = self.fetch(f"summary.{window}", "/api/estate/outcome-summary", w, window)
@@ -180,6 +182,8 @@ def collect(getter: Getter, story: dict, days: list[dict], out: Path, source: st
             known_at: str | None = None) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     c = Collector(getter, out, known_at)
+    if story.get("sites"):
+        c.domain_sites = tuple(SITE_CODE[s] for s in story["sites"] if SITE_CODE.get(s) in DOMAIN_SITES)
     windows = estate_windows(story)
     for wid, (lo, hi) in windows.items():
         c.estate(wid, lo, hi)
@@ -1054,10 +1058,12 @@ def _key(f: dict) -> tuple:
     return (f["rule"], f.get("site_code"), f.get("window"), f.get("subject"))
 
 
-def check(bundle: Bundle, expect: list[dict] | None = None) -> dict[str, Any]:
+def check(bundle: Bundle, expect: list[dict] | None = None, threads: list[dict] | None = None) -> dict[str, Any]:
+    """`threads` (MD-0 R9, `check --threads`) replaces COH-10's expected threads; None keeps the bundle's own or
+    THREADS_FILE."""
     findings: list[dict] = []
     for _, rule in RULES:
-        findings += rule(bundle)
+        findings += rule(bundle, threads) if rule is coh10_thread_identity and threads is not None else rule(bundle)
     expected = {_key(e): e for e in (expect or [])}
     found = {_key(f) for f in findings}
     unexpected = [f for f in findings if _key(f) not in expected]
@@ -1109,25 +1115,27 @@ def main(argv: list[str] | None = None) -> int:
     k.add_argument("--bundle", required=True, type=Path)
     k.add_argument("--expect", type=Path)
     k.add_argument("--report", type=Path)
+    k.add_argument("--threads", type=Path, help=f"COH-10 expected threads (default {THREADS_FILE.name})")
     args = parser.parse_args(argv)
     if args.command == "collect":
+        read = lambda name: json.loads((args.work / name).read_text(encoding="utf-8"))  # noqa: E731
         if args.database_url:
+            # MD-0 R8: collect reads only story.json and days.json (as the HTTP branch), so a work folder with no
+            # demo work documents (the mechanism DB's) collects in process too.
             sys.path.insert(0, str(TOOLS))
-            from demo_combined_finish import app_client, load
+            from demo_combined_finish import app_client
 
-            ctx = load(args.work, app_client(args.database_url, args.work))
-            m = collect(InProcess(ctx.client), ctx.story, ctx.days, args.out, "in-process", args.known_at)
+            getter, source = InProcess(app_client(args.database_url, args.work)), "in-process"
         else:
-            read = lambda name: json.loads((args.work / name).read_text(encoding="utf-8"))  # noqa: E731
-            m = collect(Http(args.base_url), read("story.json"), read("days.json")["days"], args.out, "http",
-                        args.known_at)
+            getter, source = Http(args.base_url), "http"
+        m = collect(getter, read("story.json"), read("days.json")["days"], args.out, source, args.known_at)
         statuses: dict[int, int] = {}
         for r in m["requests"]:
             statuses[r["status"]] = statuses.get(r["status"], 0) + 1
         print(f"collected {len(m['requests'])} requests into {args.out}: statuses {statuses}")
         return 0
     expect = load_expect(args.expect) if args.expect else None
-    report = check(Bundle(args.bundle), expect)
+    report = check(Bundle(args.bundle), expect, load_threads(args.threads) if args.threads else None)
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, indent=1), encoding="utf-8")

@@ -31,6 +31,8 @@ from demo_combined import KEY_NAMES, PG_ADMIN, PG_PORT, PW, TICK  # noqa: E402 -
 
 SOURCE_DB = "assetops_polish_full_test"
 TARGET_RE = re.compile(r"^assetops_chainclone_[a-z0-9]{1,20}_test$")
+#: MD-0 (P7): `settle` alone also accepts the two mechanism DBs (`tools/mechanism_dataset.py`), by these names.
+MECHANISM_RE = re.compile(r"^assetops_mechanism(_close)?_test$")
 SESSIONS_SQL = ("SELECT count(*) FROM pg_stat_activity WHERE datname = %s AND pid <> pg_backend_pid()")
 BUSY = "stop serve and any client of the polish DB first"
 
@@ -45,6 +47,16 @@ def target_db(name: str) -> str:
     if not TARGET_RE.fullmatch(db):
         raise CloneRefused(f"refused: {db!r} does not match {TARGET_RE.pattern}")
     return db
+
+
+def settle_db(name: str) -> str:
+    """The database `settle` ticks: a chain clone, or (MD-0 P7) `mechanism` / `mechanism_close`. create and drop
+    keep `target_db`, so they never touch a mechanism DB."""
+    if name in ("mechanism", "mechanism_close"):
+        db = f"assetops_{name}_test"
+        assert MECHANISM_RE.fullmatch(db)
+        return db
+    return target_db(name)
 
 
 def create_sql(name: str) -> str:
@@ -105,7 +117,7 @@ def settle_env(name: str) -> dict[str, str]:
     """The serve's tick environment, pointed at the clone only (`clone_url` refuses a non-clone name)."""
     import os
 
-    url = clone_url(name)
+    url = f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{settle_db(name)}"
     out = dict(os.environ)
     out["PYTHONPATH"] = os.pathsep.join(str(REPO / p) for p in _PATHS)
     out["DATABASE_URL"] = out["ASSETOPS_TEST_DATABASE_URL"] = url
@@ -126,7 +138,7 @@ def _run_child(label: str, argv: tuple[str, ...], env: dict[str, str], name: str
     started = time.monotonic()
     proc = subprocess.Popen([sys.executable, *argv], cwd=str(REPO), env=env, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, text=True, encoding="utf-8", errors="replace")
-    print(f"{label}: PID {proc.pid} on {target_db(name)}", flush=True)
+    print(f"{label}: PID {proc.pid} on {settle_db(name)}", flush=True)
     try:
         out, _ = proc.communicate(timeout=SETTLE_CAP_SECONDS)
     except subprocess.TimeoutExpired:
@@ -138,8 +150,9 @@ def _run_child(label: str, argv: tuple[str, ...], env: dict[str, str], name: str
 
 
 def created_record(name: str, var: Path = VAR) -> Path:
-    """`var/chainclone_<name>/created.json` (the name is checked first)."""
-    target_db(name)
+    """`var/chainclone_<name>/created.json` (the name is checked first; `settle_db` also admits the mechanism
+    names, so `drop` of a chain clone and `settle` of a mechanism DB share the record rule)."""
+    settle_db(name)
     return var / f"chainclone_{name}" / "created.json"
 
 
