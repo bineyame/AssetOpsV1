@@ -1843,7 +1843,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
             siteId={CODE}
             client={findingIndex}
             scope={{ domain: "all", from: S_FROM, to: S_TO }}
-            links={{ scope: () => "/x", finding: () => "/y" }}
+            links={{ scope: () => "/x", finding: () => "/y", opportunities: "/findings/opportunities" }}
             onScope={() => undefined}
             fallback={null}
             opportunityHelper={helper}
@@ -1856,8 +1856,11 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       expect(chipEl?.querySelector("a")).toBeNull();
       const note = document.querySelector("[data-opportunity-index-helper]");
       if (helper) {
-        expect(note?.textContent).toBe("Opportunity index unavailable; open the renewable evaluation for this site's five-day study.");
-        noControl(note);
+        // CH-4 (§4.3): with no renewable address the helper links only to Findings › Opportunities.
+        expect(note?.textContent).toBe("Opportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.");
+        expect(Array.from(note!.querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+          ["Findings › Opportunities", "/findings/opportunities"],
+        ]);
       } else {
         expect(note).toBeNull();
       }

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { formatDayRange, formatDayTime } from "../ui/time";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
+import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import {
   createEstateClient,
@@ -11,6 +11,7 @@ import {
   type EstateLens,
   type EstateOutcomeSummaryBody,
   type EstatePortfolioBody,
+  portfolioOpportunity,
   type EstatePortfolioQuery,
   type EstatePortfolioRow,
   type EstateQuery,
@@ -65,7 +66,7 @@ import "./estatePortfolio.css";
 import { CategoryTags } from "../sites/outcomeCategories";
 import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
-import { amountOf, anyWithheld, CategoryCards, NONE_SHOWN_YET, openOpportunitySuffix, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
+import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 
 /**
  * W3-03 run 2: the estate Portfolio page (v69 `portfolio`). Every value comes from the one `/api/estate/portfolio`
@@ -96,29 +97,19 @@ function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
 const countText = (value: number | null, missing: string) => (value === null ? missing : String(value));
 /** WALK1-1 (WN-2, R670): on a partly checked estate a zero count is a claim on the checked days only. */
 export const NONE_ON_CHECKED_DAYS = "None found on the days checked";
-function PulseCount({ value, missing, label, checkedDays, withheld = false, suffix = null, data }: { value: number | null; missing: string; label: string; checkedDays: boolean; withheld?: boolean; suffix?: string | null; data?: string }) {
+function PulseCount({ value, missing, label, checkedDays, data }: { value: number | null; missing: string; label: string; checkedDays: boolean; data?: string }) {
   const attrs = data === undefined ? {} : { [data]: "" };
-  if (value === 0 && withheld) {
-    return (
-      <span {...attrs}>
-        {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_SHOWN_YET}</strong>
-        {suffix}
-      </span>
-    );
-  }
   if (value === 0 && checkedDays) {
     // MOCK DEVIATION (R670): the label leads so the qualified "none" reads as a sentence; v70 shows "{n} {label}".
     return (
       <span {...attrs}>
         {label[0].toUpperCase() + label.slice(1)}: <strong>{NONE_ON_CHECKED_DAYS}</strong>
-        {suffix}
       </span>
     );
   }
   return (
     <span {...attrs}>
       <strong>{countText(value, missing)}</strong> {label}
-      {suffix}
     </span>
   );
 }
@@ -382,9 +373,25 @@ function EvidenceAside({ body, window }: { body: EstatePortfolioBody; window: Wi
   );
 }
 
-function OpportunityPanel() {
+/** CH-4: the opportunity panel's fixed words (mock `portfolio.js:53` literals; MD-CH4-4 for the right side). */
+export const OPPORTUNITY_NONE = "No opportunity found in this period";
+export const OPPORTUNITY_UNREAD = "Opportunities could not be read";
+export const OPPORTUNITY_UNREAD_DETAIL = "Nothing can be said about opportunities until they can be read";
+export const OPPORTUNITY_NONE_DETAIL = "Nothing seen on the days checked";
+export const OPPORTUNITY_SIZE_UNKNOWN_PANEL = "Size not worked out yet";
+export const OPPORTUNITY_NO_WHAT_IF = "No what-if yet";
+export const OPPORTUNITY_NO_WHAT_IF_DETAIL = "No what-if value worked out yet";
+export const OPPORTUNITY_FINDINGS_LINK = "Findings › Opportunities →";
+
+function OpportunityPanel({ body, window }: { body: EstatePortfolioBody; window: Window }) {
+  const opportunity = portfolioOpportunity(body);
+  const unread = opportunity.state === "UNKNOWN";
+  const first = opportunity.state === "FOUND" ? opportunity.items[0] : undefined;
+  const more = opportunity.items.length - 1;
+  const findingsHref = estateHref(opportunity.destination, window);
+  const headroom = first?.study.headroom_kw ?? null;
   return (
-    <section className="panel opportunity-panel" aria-labelledby="portfolio-opportunity-heading" data-portfolio-panel="opportunity">
+    <section className="panel opportunity-panel" aria-labelledby="portfolio-opportunity-heading" data-portfolio-panel="opportunity" data-portfolio-opportunity-state={unread ? "UNKNOWN" : first === undefined ? "NONE" : "FOUND"}>
       <div className="panel-head">
         <div>
           <div className="eyebrow">GROW USEFUL DEMAND</div>
@@ -393,24 +400,46 @@ function OpportunityPanel() {
         <span className="badge badge--neutral">What-if</span>
       </div>
       <div className="opportunity-story">
-        <div>
-          <span className="opportunity-quantity">No reviewed what-if yet</span>
-          <p>Eligible productive demand not known yet</p>
+        <div data-portfolio-opportunity-quantity>
+          {first === undefined ? (
+            <>
+              <span className="opportunity-quantity">{unread ? OPPORTUNITY_UNREAD : OPPORTUNITY_NONE}</span>
+              <p>{unread ? OPPORTUNITY_UNREAD_DETAIL : OPPORTUNITY_NONE_DETAIL}</p>
+            </>
+          ) : (
+            <>
+              <span className="opportunity-quantity">
+                {headroom === null ? (
+                  OPPORTUNITY_SIZE_UNKNOWN_PANEL
+                ) : (
+                  <>
+                    {`${headroom.low}–${headroom.high}`} <small>kW at midday</small>
+                  </>
+                )}
+              </span>
+              <p>{first.title}</p>
+            </>
+          )}
         </div>
         <span className="story-arrow">→</span>
         <div>
-          <span className="opportunity-quantity">No eligible headroom or demand basis</span>
-          <p>No what-if value worked out yet</p>
+          <span className="opportunity-quantity">{OPPORTUNITY_NO_WHAT_IF}</span>
+          <p>{OPPORTUNITY_NO_WHAT_IF_DETAIL}</p>
         </div>
       </div>
-      <p className="chart-note">{OPPORTUNITY_NOTE}</p>
+      <p className="chart-note" data-portfolio-opportunity-note>
+        {first === undefined ? (unread ? "" : OPPORTUNITY_NOTE) : `${first.seen_line}${first.limit_line ? ` · ${first.limit_line}` : ""}`}
+      </p>
       <div className="panel-bottom">
-        <MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.review-finding">
-          <span aria-label="Review opportunity Finding, Not available yet">Review opportunity Finding · Not available yet</span>
-        </MissingClaim>
-        <MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.inspect-headroom">
-          <span aria-label="Inspect physical headroom, Not available yet">Inspect physical headroom · Not available yet</span>
-        </MissingClaim>
+        {first === undefined ? (
+          <Link to={findingsHref}>{OPPORTUNITY_FINDINGS_LINK}</Link>
+        ) : (
+          <>
+            <Link to={first.links.opportunity}>Review opportunity Finding →</Link>
+            <Link to={first.links.evidence}>Inspect physical headroom →</Link>
+            {more > 0 ? <Link to={findingsHref}>{`${more} more under Findings › Opportunities →`}</Link> : null}
+          </>
+        )}
       </div>
     </section>
   );
@@ -705,17 +734,11 @@ function Loaded({
         <span>
           <strong>{countText(s.priority_site_count, "Not assessed")}</strong> priority sites
         </span>
-        {/* WALK1-6 D5 (R698, MOCK DEVIATION): the strip counts reviewed opportunity findings; a board's open
-            opportunity signal is named beside it so the two never read as a contradiction. */}
-        <PulseCount
-          value={s.opportunity_count}
-          missing="Unknown"
-          label={s.opportunity_count === 1 ? "opportunity finding" : "opportunity findings"}
-          checkedDays={checkedDays}
-          withheld={anyWithheld(body)}
-          suffix={openOpportunitySuffix(summary?.status === "loaded" ? summary.value : null)}
-          data="data-portfolio-pulse-opportunity"
-        />
+        {/* CH-4: one count from the opportunity read, each item named by its short label (mock `portfolio.js:45`). */}
+        <span data-portfolio-pulse-opportunity>
+          <strong>{countText(s.opportunity_count ?? null, "Unknown")}</strong> {s.opportunity_count === 1 ? "opportunity" : "opportunities"}
+          {(s.opportunity_labels ?? []).length > 0 ? `: ${(s.opportunity_labels ?? []).join(" · ")}` : ""}
+        </span>
         <PulseCount value={s.evidence_gap_site_count} missing="Unknown" label="site evidence gaps" checkedDays={checkedDays} />
         <span>
           <strong>{countText(s.accepted_action_count, "Unknown")}</strong> accepted actions
@@ -741,7 +764,7 @@ function Loaded({
         </aside>
       </div>
       <div className="portfolio-bottom">
-        <OpportunityPanel />
+        <OpportunityPanel body={body} window={window} />
         <ProgressPanel body={body} />
       </div>
       <ContextFooter body={body} />

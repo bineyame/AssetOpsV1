@@ -112,7 +112,8 @@ def test_empty_is_zero_only_after_complete_read() -> None:
         assert findings["coverage"] == {"state": "COMPLETE", "sites": []} and findings["status"] == "CURRENT"
         assert findings["rows"] == [] and findings["total_count"] == 0
         assert findings["summary"] == {"high_priority": None, "low_confidence": None, "awaiting_verification": 0,
-                                       "basis_count": 0, "supported_findings": 0}
+                                       "basis_count": 0, "supported_findings": 0, "opportunity_count": 0}
+        assert findings["opportunities"] == []  # CH-4 §2.3: additive, empty with no opportunity thread
         actions = c.get("/api/estate/actions?" + urlencode(DAY)).json()
         assert actions["summary"] == {"open_actions": 0, "due_overdue": None, "verification_window": 0,
                                       "verified_in_30_days": 0, "basis_count": 0}
@@ -124,7 +125,9 @@ def test_empty_is_zero_only_after_complete_read() -> None:
         finding_index=lambda *a: {"heads": [], "match_pass": None, "deferred_windows": []})
     body = client(FakeStore(missing)).get("/api/estate/findings?" + urlencode(DAY)).json()
     assert body["coverage"]["state"] == "UNKNOWN" and body["status"] == "UNKNOWN"
-    assert body["total_count"] is None and all(v is None for v in body["summary"].values())
+    # CH-4 D2: the opportunity count is the item count whatever the Finding coverage (here 0 items, still a number).
+    assert body["total_count"] is None and all(v is None for k, v in body["summary"].items() if k != "opportunity_count")
+    assert body["summary"]["opportunity_count"] == 0
     assert body["coverage"]["sites"] == [{"site_id": str(S), "state": "UNKNOWN", "committed_watermark": None,
                                           "selection_id": None, "match_state": "MISSING", "job_state": "NONE",
                                           "source_freshness": "UNKNOWN", "days": {  # COV-PARTIAL: additive key
@@ -132,6 +135,33 @@ def test_empty_is_zero_only_after_complete_read() -> None:
                                               "gaps": [{"day": "2026-10-06", "state": "UNASSESSED",
                                                         "reason": "NO_ASSESSED_SELECTION"}],
                                               "withheld": False, "text": None}}]
+
+
+def _missing_coverage_site(**reads) -> FakeSnapshot:
+    site = {"site_id": S, "site_code": "KOBO-001", "site_name": "Kobo", "site_type": "MINIGRID"}
+    return FakeSnapshot([site], evidence_cutoff=lambda *a: None, dispatch_days=lambda *a: [
+        {"day": "2026-10-06", "available": True, "selection": None, "jobs": [], "status": None}],
+        finding_index=lambda *a: {"heads": [], "match_pass": None, "deferred_windows": []}, **reads)
+
+
+def test_ch4_d2_opportunity_count_is_the_item_count_even_when_finding_coverage_is_incomplete() -> None:
+    item = {"thread_id": "t1", "filter_state": "unconfirmed", "short_label": "Kobo daytime solar"}
+    snap = _missing_coverage_site(opportunity_threads=lambda *a: [item])
+    body = client(FakeStore(snap)).get("/api/estate/findings?" + urlencode(DAY)).json()
+    assert body["coverage"]["state"] == "UNKNOWN" and body["total_count"] is None
+    assert body["summary"]["opportunity_count"] == 1 and body["opportunities"] == [item]
+    other = client(FakeStore(_missing_coverage_site(opportunity_threads=lambda *a: [item]))).get(
+        "/api/estate/findings?" + urlencode({**DAY, "lens": "cost"})).json()
+    assert other["summary"]["opportunity_count"] == 1 and other["opportunities"] == []  # count is lens-independent
+
+
+def test_ch4_m1_a_failed_opportunity_read_is_null_count_and_null_items_never_an_empty_list() -> None:
+    def boom(*a):
+        raise RuntimeError("read failed")
+
+    body = client(FakeStore(_missing_coverage_site(opportunity_threads=boom))).get(
+        "/api/estate/findings?" + urlencode(DAY)).json()
+    assert body["summary"]["opportunity_count"] is None and body["opportunities"] is None
 
 
 def test_selection_token_v2_endpoint_cursor_compatibility() -> None:

@@ -24,7 +24,7 @@ from assetops_backend.mini_decisions.scenario_rules import decimal_text, physica
 from assetops_backend.mini_decisions.store import OPPORTUNITY_MODEL_VERSION
 from assetops_backend.mini_depth.inputs import local_noon, zone
 from assetops_backend.mini_depth.read import iso
-from assetops_backend.mini_depth.rules import RENEWABLE_CONSTRAINTS
+from assetops_backend.mini_depth.rules import RENEWABLE_CONSTRAINTS, Bound, headroom_on_every_eligible_day
 
 STUDY_DAYS = 5
 
@@ -178,9 +178,10 @@ def frozen_result(days: Sequence[DayHead], classification: str | None) -> dict[s
     eligible = [r for r in rows if r["decision"] == "ELIGIBLE"]
     headroom = None
     if status == "SUPPORTED" and eligible:
-        lows = [Decimal(r["opportunity_kwh"]["low"]) for r in eligible]
-        highs = [Decimal(r["opportunity_kwh"]["high"]) for r in eligible]
-        headroom = {"low": decimal_text(min(lows)), "high": decimal_text(min(highs))}
+        every = headroom_on_every_eligible_day([Bound(Decimal(r["opportunity_kwh"]["low"]),
+                                                      Decimal(r["opportunity_kwh"]["high"])) for r in eligible])
+        assert every is not None
+        headroom = {"low": decimal_text(every.low), "high": decimal_text(every.high)}
     found: dict[str, set[str]] = {}
     for r in rows:
         for code in r["constraints"]:

@@ -159,22 +159,6 @@ export function growEstimates(summary: EstateOutcomeSummaryBody | null): { site:
   }
   return out;
 }
-/**
- * WALK1-6 D5 (R698): the Sites whose Grow row shows an open opportunity on the board (state OPPORTUNITY, or a
- * `short_value`, sent when `potential` is set, Addendum 6 M1). The strip names them beside its findings count.
- */
-export function openOpportunitySiteCount(summary: EstateOutcomeSummaryBody | null): number {
-  let k = 0;
-  for (const site of summary?.sites ?? []) {
-    const row = site.rows.find((r) => r.category === "GROW_REVENUE");
-    if (row !== undefined && (row.state === "OPPORTUNITY" || (row.short_value ?? null) !== null)) k += 1;
-  }
-  return k;
-}
-export function openOpportunitySuffix(summary: EstateOutcomeSummaryBody | null): string | null {
-  const k = openOpportunitySiteCount(summary);
-  return k === 0 ? null : ` · ${k} ${k === 1 ? "site" : "sites"} with an open opportunity on its board`;
-}
 export const GROW_ESTIMATE_BASIS = "Declared price × measured kWh · not billed or collected";
 
 function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: EstateOutcomeSummaryBody | null): CardContent {

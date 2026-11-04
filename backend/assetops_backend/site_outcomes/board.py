@@ -218,6 +218,7 @@ class SignalFact:
     open: bool
     text: str
     href: str | None = None
+    ref: Mapping[str, Any] | None = None   # CH-4 §2.3: the OPPORTUNITY issue's study and thread
 
     @property
     def kind(self) -> str:
@@ -739,7 +740,8 @@ def _row(facts: SiteFacts, cat: str, signals: list[Signal], roles: dict[str, _Ro
         for s in open_signals:
             r = sig_roles[s.signal_key]
             if cat in (r.move_cats if role == "MOVES" else r.checked_cats):
-                issues.append({"kind": s.kind, "role": role, "text": s.text, "href": s.href, "ref": None})
+                issues.append({"kind": s.kind, "role": role, "text": s.text, "href": s.href,
+                               "ref": None if s.ref is None else dict(s.ref)})
     for f in open_findings:
         if f in checked_here:
             issues.append(_finding_issue(f, "CHECKED", f.title + SAFEGUARD_SUFFIX))
@@ -916,6 +918,16 @@ def with_threads(facts: SiteFacts, found: Mapping[str, Mapping[str, Any]]) -> Si
     (`chain/lookup.py` shape: `{"findings": {id: {...}}, "actions": {id: thread_id}}`)."""
     fs, acts = found.get("findings") or {}, found.get("actions") or {}
     views, segs = found.get("lifecycle") or {}, found.get("action_segments") or {}
+    opps = found.get("opportunities") or []
+    if opps:  # CH-4 §4.4: the headroom signal links to the opportunity seen in the board's five days (R7: `open` kept)
+        item = opps[0]
+        thread = {"id": item["thread_id"], "occurrence_no": None, "occurrences": item["occurrences"],
+                  "segment_no": None, "state": item["state"], "state_effective_day": item["state_effective_day"],
+                  "state_day": item["state_day"]}
+        ref = {"opportunity_id": item["study"]["opportunity_id"], "code": item["study"]["code"], "thread": thread}
+        facts = replace(facts, signals_extra=tuple(
+            replace(s, href=item["links"]["opportunity"], ref=ref)
+            if s.signal_key == "SIGNAL:PRODUCTIVE_USE_HEADROOM" else s for s in facts.signals_extra))
     return replace(facts,
                    findings=tuple(replace(f, thread=fs.get(f.finding_id.lower()),
                                           lifecycle_view=views.get(f.finding_id.lower())) for f in facts.findings),

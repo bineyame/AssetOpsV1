@@ -23,6 +23,9 @@ POLICY_VERSION = "thread-lifecycle/1"
 EVIDENCE_CLASS = "MEASURED"  # design §4.3: every type placed today is measured
 OPP_MECHANISM = "PRODUCTIVE_USE_HEADROOM"
 OPP_FINDING_TYPE = "PRODUCTIVE_USE_HEADROOM@1"
+#: CH4-R R1 (DS-R1): a study is a Source only with at least this many eligible days
+#: -> catalogue `finding_types.PRODUCTIVE_USE_HEADROOM@1.rule` (CH-8).
+OPP_MIN_ELIGIBLE_DAYS = 1
 
 #: Subject mapping (build sheet §3, R4). A further domain needs one row here, nothing else.
 SUBJECT_COLUMN = {"mini_grid": "generator_asset_id", "cold_chain": "subject_asset_id",
@@ -93,18 +96,33 @@ def finding_source(row: dict[str, Any]) -> Source:
                   row["created_at"], UUID(str(row["revision_id"])))
 
 
-def opportunity_source(row: dict[str, Any]) -> Source:
-    """An opportunity revision row -> its Source on the Site's headroom thread (ruling R3).
+def _eligible_days(day_rows: Any) -> list[date]:
+    """The `ELIGIBLE` Site-local days of a stored `day_rows` array (ISO strings or dates), sorted."""
+    out = []
+    for r in day_rows or ():
+        if isinstance(r, dict) and r.get("decision") == "ELIGIBLE" and r.get("local_day") is not None:
+            d = r["local_day"]
+            out.append(d if isinstance(d, date) else date.fromisoformat(str(d)))
+    return sorted(out)
 
-    DS-R1 item 4: the episode is the stored study window, the Site-local start of `first_day` through the end of
-    `last_day` (the start of the next local day, exclusive), so `opened_at` and `effective_day` are story time, not
-    build time. A row without the window (no stored story time) falls back to `created_at` as before."""
+
+def opportunity_source(row: dict[str, Any]) -> Source | None:
+    """An opportunity revision row -> its Source on the Site's headroom thread (ruling R3), or None when the
+    revision is not a Source (CH4-R R1, DS-R1: below `OPP_MIN_ELIGIBLE_DAYS` eligible days).
+
+    CH4-R R2 (refines CH2-R M1): the episode is the eligible days, stored story time: the Site-local start of the
+    first `ELIGIBLE` `day_rows[].local_day` through the start of the day after the last one (exclusive), so
+    `opened_at` and `effective_day` are never build time and never a day before anything was seen. The study window
+    stays on the opportunity (`first_day`/`last_day`). A row without eligible day rows falls back to `created_at`."""
+    eligible = row.get("eligible_days")
+    if eligible is None or int(eligible) < OPP_MIN_ELIGIBLE_DAYS:
+        return None
     start = end = None
-    first, last = row.get("first_day"), row.get("last_day")
-    if first is not None and last is not None:
+    days = _eligible_days(row.get("day_rows"))
+    if days:
         tz = ZoneInfo(row["site_tz"])
-        start = datetime.combine(first, time.min, tzinfo=tz)
-        end = datetime.combine(last + timedelta(days=1), time.min, tzinfo=tz)
+        start = datetime.combine(days[0], time.min, tzinfo=tz)
+        end = datetime.combine(days[-1] + timedelta(days=1), time.min, tzinfo=tz)
     return Source(UUID(str(row["tenant_id"])), UUID(str(row["site_id"])), row["site_tz"], None,
                   UUID(str(row["opportunity_id"])), OPP_MECHANISM, "SITE", "SITE", OPP_FINDING_TYPE, None, None,
                   start, end, row["created_at"], UUID(str(row["revision_id"])))

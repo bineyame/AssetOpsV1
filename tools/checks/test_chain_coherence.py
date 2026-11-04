@@ -28,7 +28,7 @@ DC = "day:cold:failure:2026-10-31"
 FAILING = {
     "coh7b_state": ("COH-7b", COLD, "week", "PROTECT_ASSET"),
     "coh4b_board_finding": ("COH-4", COLD, DC, F1),
-    "coh6_opportunity_missing_row": ("COH-6", KOBO, "week", "findings:opportunities"),
+    "coh6_opportunity_missing": ("COH-6", KOBO, "week", "findings:opportunities"),
     "coh1_api_link": ("COH-1", COLD, DC, f"/api/sites/{COLD}/cold/findings/x"),
     "coh2_no_action": ("COH-2", COLD, "week", A1),
     "coh3_board_missing_action": ("COH-3", COLD, DC, A1),
@@ -44,6 +44,7 @@ FAILING = {
     "coh13_lifecycle_disagree": ("COH-13", COLD, DC, F1),
     "coh14_verified_attention": ("COH-14", COLD, DC, "PROTECT_ASSET:X"),
     "coh15_earlier_segment": ("COH-15", COLD, "week", A1),
+    "coh16_opportunity_disagree": ("COH-16", KOBO, "week", "07000000-0000-0000-0000-000000000004"),
 }
 
 
@@ -127,7 +128,7 @@ def test_pagination_pages_are_concatenated() -> None:
     assert bundle.files("portfolio.week") == ["portfolio.week.p1.json", "portfolio.week.p2.json"]
     portfolio = bundle.get("portfolio.week")
     assert [r["finding_id"][:2] for r in portfolio["rows"]] == ["f3", "f1"]
-    assert portfolio["opportunity"]["state"] == "SUPPORTED"  # other keys come from page 1
+    assert portfolio["opportunity"]["state"] == "FOUND"  # other keys come from page 1
 
 
 def _edited(tmp_path: Path, src: str, manifest_edit=None, **files) -> cc.Bundle:
@@ -333,7 +334,7 @@ def test_coh10_unobserved_and_split_threads_and_pre_ch2_bundles(tmp_path: Path) 
 def test_expected_threads_file_names_the_l4_threads() -> None:
     names = {t["name"]: t for t in cc.load_threads()}
     assert len(names["kobo-generator"]["findings"]) == 3 and len(names["cold-start-failure"]["findings"]) == 2
-    assert names["kobo-headroom"]["opportunities"][-2:] == ["OPP-000003", "OPP-000004"]
+    assert names["kobo-headroom"]["opportunities"] == ["OPP-000003", "OPP-000004"]  # CH-4 R1
 
 
 def test_stamped_bundle_without_the_thread_keys_fails_coh10_and_coh11() -> None:
@@ -504,3 +505,36 @@ def _protect_keys(bundle: cc.Bundle) -> list[str]:
     board = bundle.get(f"board.{DC}")
     row = next(r for r in board["rows"] if r["category"] == "PROTECT_ASSET")
     return [o["key"] for o in row["outcomes"]]
+
+
+def test_clean_opportunity_bundle_passes_and_judges_the_headroom_thread(tmp_path: Path) -> None:
+    """CH-4: the stamped opportunity bundle passes COH-6, COH-10 (opportunity leg) and COH-16; the leg is not vacuous
+    (a board ref on another thread id splits the thread, a wrong occurrence count fails, no item at all fails)."""
+    report = cc.check(cc.Bundle(BUNDLES / "clean_opportunity"))
+    assert report["findings"] == [] and report["pass"] is True
+    board = "board.day_kobo_trial-before_2026-10-31.json"
+
+    def other_thread(body: dict) -> None:
+        body["rows"][0]["issues"][0]["ref"]["thread"]["id"] = "07000000-0000-0000-0000-0000000000ff"
+
+    split = _edited(tmp_path / "split", "clean_opportunity", **{board: other_thread})
+    assert any("split across 2 thread ids" in f["detail"] for f in cc.coh10_thread_identity(split))
+
+    def one_occurrence(body: dict) -> None:
+        body["opportunities"][0]["occurrences"] = 1
+
+    count = _edited(tmp_path / "count", "clean_opportunity", **{"findings_opp.week.p1.json": one_occurrence})
+    assert any("shows 1 occurrences" in f["detail"] for f in cc.coh10_thread_identity(count))
+
+    def none(body: dict) -> None:
+        body["opportunity"] = {**body["opportunity"], "state": "NONE", "items": []}
+
+    def empty(body: dict) -> None:
+        body["opportunities"] = []
+
+    gone = _edited(tmp_path / "gone", "clean_opportunity", **{"portfolio.week.p1.json": none,
+                                                              "findings_opp.week.p1.json": empty, board: lambda b: [
+                                                                  i.update(ref=None) for i in b["rows"][0]["issues"]]})
+    assert [f["subject"] for f in cc.coh10_thread_identity(gone)] == ["kobo-headroom"]
+    # An unstamped (pre-CH-4) bundle is not judged by COH-16 or the leg.
+    assert cc.coh16_opportunity_agreement(cc.Bundle(BUNDLES / "clean")) == []

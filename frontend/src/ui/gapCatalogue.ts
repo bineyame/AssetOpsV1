@@ -39,7 +39,6 @@ export const UI_GAP_CATALOGUE = {
   "G-asset-battery-exposure": { status: "open", placements: ["asset.exposure.history"] },
   "G-asset-capacity-test": { status: "open", placements: ["asset.next.capacity-test"] },
   "G-asset-remaining-life": { status: "open", placements: ["asset.boundary.remaining-life"] },
-  "G-portfolio-opportunity": { status: "open", placements: ["portfolio.opportunity.review-finding", "portfolio.opportunity.inspect-headroom"] },
   "G-portfolio-grow-revenue": { status: "open", placements: ["portfolio.outcomes.grow-value"] },
 } as const satisfies Record<
   string,

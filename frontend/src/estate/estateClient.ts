@@ -103,6 +103,45 @@ export interface EstateFindingRow {
   categories?: OutcomeCategories;
 }
 
+/** CH-4 (§2.1): one opportunity thread, the same shape on Findings and Portfolio; all copy is server-rendered. */
+export interface EstateOpportunity {
+  thread_id: string;
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  mechanism: string;
+  domain: string;
+  title: string;
+  short_label: string;
+  state: string;
+  state_label: string;
+  state_effective_day: string | null;
+  state_day: string;
+  occurrences: number;
+  study: {
+    opportunity_id: string;
+    code: string;
+    first_day: string;
+    last_day: string;
+    status: "SUPPORTED" | "LIMITED" | "UNKNOWN";
+    eligible_days: number;
+    assessed_days: number;
+    headroom_kw: { low: string; high: string } | null;
+    window_hours: number;
+  };
+  evidence: "SUPPORTED" | "LIMITED" | "UNKNOWN";
+  evidence_label: string;
+  seen_line: string;
+  value_line: string | null;
+  limit_line: string | null;
+  lens_flags: ("COST" | "RISK" | "OPPORTUNITY")[];
+  categories?: OutcomeCategories;
+  filter_state: EstateStateFilter;
+  links: { opportunity: string; evidence: string; site: string };
+  ref: { kind: "OPPORTUNITY"; site: string; id: string };
+  thread_ref: { kind: "THREAD"; site: string; id: string };
+}
+
 export interface EstateFindingsBody extends EstateEnvelope {
   lens: EstateLens;
   state_filter: EstateStateFilter;
@@ -113,9 +152,13 @@ export interface EstateFindingsBody extends EstateEnvelope {
     basis_count: number | null;
     supported_findings: number | null;
     as_of?: string;
+    /** CH-4: opportunity items before the state filter; absent on an older body. */
+    opportunity_count?: number | null;
   };
   order: string;
   rows: EstateFindingRow[];
+  /** CH-4: the opportunity items (lens all and opportunities); absent on an older body (read as []). */
+  opportunities?: EstateOpportunity[] | null;
 }
 
 export interface EstateActionRow {
@@ -261,7 +304,9 @@ export type EstateValueCardState =
   | "COUNT"
   | "UNKNOWN"
   | "UNSUPPORTED"
-  | "NOT_ESTABLISHED";
+  | "NOT_ESTABLISHED"
+  | "FOUND"
+  | "NONE";
 
 export interface EstateValueCard {
   key: EstateValueCardKey;
@@ -274,7 +319,7 @@ export interface EstateValueCard {
   destination: string | null;
   detail: string | null;
   basis_text: string;
-  tone: "amber" | "blue" | "neutral" | "red";
+  tone: "amber" | "blue" | "neutral" | "red" | "green";
 }
 
 export type EstateObjectiveKey = "SERVICE_PRODUCT" | "BACKUP" | "ASSET_CONDITION" | "COST_CONTROL" | "EVIDENCE";
@@ -347,6 +392,38 @@ export interface EstatePortfolioExclusion {
   reason_codes: string[];
 }
 
+export interface EstatePortfolioOpportunity {
+  state: "FOUND" | "NONE" | "UNKNOWN";
+  items: EstateOpportunity[];
+  finding_id: null;
+  scenario_amount: null;
+  headroom: { low: string; high: string } | null;
+  destination: string;
+}
+
+const OPPORTUNITY_DESTINATION = "/findings/opportunities";
+
+/** CH-4: a Findings body's opportunity items; an older body without the field reads []. */
+export function findingOpportunities(body: EstateFindingsBody): EstateOpportunity[] {
+  return Array.isArray(body.opportunities) ? body.opportunities : [];
+}
+
+/** CH-4 M1: true when the server could not read the opportunities (`opportunities: null`); never an empty lens. */
+export function findingOpportunitiesUnread(body: EstateFindingsBody): boolean {
+  return body.opportunities === null;
+}
+
+/** CH-4: a Portfolio body's opportunity block; an older or malformed body reads NONE with no items. */
+export function portfolioOpportunity(body: EstatePortfolioBody): EstatePortfolioOpportunity {
+  const raw = (body as { opportunity?: unknown }).opportunity;
+  const o = isObject(raw) ? raw : {};
+  const items = Array.isArray(o.items) ? (o.items as EstateOpportunity[]) : [];
+  const state = o.state === "FOUND" && items.length > 0 ? "FOUND" : o.state === "UNKNOWN" ? "UNKNOWN" : "NONE";
+  const headroom = isObject(o.headroom) ? (o.headroom as { low: string; high: string }) : null;
+  const destination = typeof o.destination === "string" ? o.destination : OPPORTUNITY_DESTINATION;
+  return { state, items: state === "FOUND" ? items : [], finding_id: null, scenario_amount: null, headroom, destination };
+}
+
 export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "coverage"> {
   status: EstatePortfolioStatus;
   coverage: EstatePortfolioCoverage;
@@ -369,11 +446,15 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     count_basis?: EstateCountBasis | null;
     /** WALK1-1: each partly checked Site's checked and requested day counts; absent on an older body (read as []). */
     checked_days?: EstateCheckedDays[];
+    /** CH-4: each opportunity item's short label; absent on an older body, null when the read failed. */
+    opportunity_labels?: string[] | null;
   };
   value_cards: EstateValueCard[];
   objectives: EstateObjective[];
   evidence_prompt: EstateEvidencePrompt;
-  opportunity: { state: "UNSUPPORTED"; finding_id: null; scenario_amount: null; headroom: null; destination: null };
+  /** CH-4: from the opportunity items. UNKNOWN when the read failed (shown as "could not be read", counts "Unknown"); an older
+   * body's UNSUPPORTED reads as NONE through `portfolioOpportunity`. */
+  opportunity: EstatePortfolioOpportunity;
   progress: {
     state: "NO_COMPARABLE_BASELINE";
     completed_activity_count: null;

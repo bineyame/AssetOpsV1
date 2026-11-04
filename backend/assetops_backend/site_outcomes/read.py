@@ -409,9 +409,16 @@ class SiteOutcomeBoardService:
             board_day = _last_local_day(window.get("to"), site.timezone)
         if self.s.threads is not None:  # CH-2 §5.2: one thread lookup per board; no thread port = no threads
             facts = replace(comp.facts, day=board_day, known_at=cutoff)
+            extra: dict[str, Any] = {}
+            if site.domain == MINI and start is not None:  # CH-4 §4.4: the renewable five days of the board
+                try:
+                    extra = {"site_id": site.site_id,
+                             "opportunity_window": mini.renewable_bounds(start, site.timezone)}
+                except mini.MiniInputsRefused:
+                    extra = {}
             comp = replace(comp, facts=with_threads(facts, self.s.threads.lookup(
                 site.tenant_id, [f.finding_id for f in facts.findings], [a.action_id for a in facts.actions],
-                day=board_day, known_at=cutoff)))
+                day=board_day, known_at=cutoff, **extra)))
         query = {"from": wire(window["from"]), "to": wire(window["to"])}
         if known_at is not None:
             query["known_at"] = wire(known_at)

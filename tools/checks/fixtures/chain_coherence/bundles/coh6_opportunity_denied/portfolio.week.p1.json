@@ -17,7 +17,11 @@
  "next_cursor": "page-2",
  "opportunity": {
   "destination": "/findings/opportunities",
-  "state": "UNSUPPORTED"
+  "finding_id": null,
+  "headroom": null,
+  "items": [],
+  "scenario_amount": null,
+  "state": "NONE"
  },
  "progress": {
   "rows": [

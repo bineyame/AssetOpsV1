@@ -82,34 +82,41 @@ const PanelWarnings = createContext<ReactNode>(null);
  * cannot change or discard the window selection.
  */
 /**
- * W4-03 closure 4 S11: the mini Site's helper in the panel controls. post-W6 W1-b Q20 / R197: "open the renewable
- * evaluation" links to the Site's mounted Performance Renewable view; the index has no Opportunity ID, so no
- * Opportunity address is made up.
+ * W4-03 closure 4 S11: the mini Site's helper in the panel controls. CH-4 (§4.3, DS-R1): Findings › Opportunities
+ * now lists the Site's opportunities, so the helper points there; "renewable page" links to the Site's mounted
+ * Performance Renewable view, as before.
  */
 export const OPPORTUNITY_INDEX_HELPER =
-  "Opportunity index unavailable; open the renewable evaluation for this site's five-day study.";
-const OPPORTUNITY_HELPER_LINK = "open the renewable evaluation";
+  "Opportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.";
+const OPPORTUNITY_HELPER_FINDINGS = "Findings › Opportunities";
+const OPPORTUNITY_HELPER_LINK = "renewable page";
 
 /** A Site-scoped lens address; none exists yet, so every current call leaves these out (Q18 / Q49, D5). */
 export type SiteLensHrefs = Partial<Record<"Cost" | "Risks" | "Opportunities", string>>;
 
-function OpportunityHelper({ shown, renewable }: { shown: boolean; renewable?: string }) {
+function OpportunityHelper({ shown, findings, renewable }: { shown: boolean; findings?: string; renewable?: string }) {
   if (!shown) return null;
-  if (renewable === undefined) {
-    return (
-      <p className="finding-sections__helper" data-opportunity-index-helper>
-        {OPPORTUNITY_INDEX_HELPER}
-      </p>
-    );
-  }
-  const at = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_LINK);
+  const f = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_FINDINGS);
+  const r = OPPORTUNITY_INDEX_HELPER.indexOf(OPPORTUNITY_HELPER_LINK);
   return (
     <p className="finding-sections__helper" data-opportunity-index-helper>
-      {OPPORTUNITY_INDEX_HELPER.slice(0, at)}
-      <Link to={renewable} data-opportunity-index-renewable>
-        {OPPORTUNITY_HELPER_LINK}
-      </Link>
-      {OPPORTUNITY_INDEX_HELPER.slice(at + OPPORTUNITY_HELPER_LINK.length)}
+      {OPPORTUNITY_INDEX_HELPER.slice(0, f)}
+      {findings === undefined ? (
+        OPPORTUNITY_HELPER_FINDINGS
+      ) : (
+        <Link to={findings} data-opportunity-index-findings>
+          {OPPORTUNITY_HELPER_FINDINGS}
+        </Link>
+      )}
+      {OPPORTUNITY_INDEX_HELPER.slice(f + OPPORTUNITY_HELPER_FINDINGS.length, renewable === undefined ? undefined : r)}
+      {renewable === undefined ? null : (
+        <>
+          <Link to={renewable} data-opportunity-index-renewable>
+            {OPPORTUNITY_HELPER_LINK}
+          </Link>
+          {OPPORTUNITY_INDEX_HELPER.slice(r + OPPORTUNITY_HELPER_LINK.length)}
+        </>
+      )}
     </p>
   );
 }
@@ -152,6 +159,8 @@ export interface FindingIndexLinks {
   dispatch?: (day: string, intervalRevisionId: string | null) => string;
   /** post-W6 W1-b Q20 / R197: the Site's mounted Performance Renewable view (the opportunity helper's link). */
   renewable?: string;
+  /** CH-4 (§4.3): the estate Findings › Opportunities list (the helper's Findings link), passed in by the shell. */
+  opportunities?: string;
 }
 
 /**
@@ -1033,7 +1042,7 @@ export function SiteFindingIndex({
         value={
           <div className="site-findings-controls" data-site-findings-controls>
             {/* The opportunity helper stays in the panel beside the window form; since Q20 its line carries a link. */}
-            <OpportunityHelper shown={opportunityHelper} renewable={links.renewable} />
+            <OpportunityHelper shown={opportunityHelper} findings={links.opportunities} renewable={links.renewable} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>
         }
