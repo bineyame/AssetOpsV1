@@ -223,16 +223,22 @@ class Reads:
     QW-1: every call adds `timings[name] = [calls, ms]` (and the same to the request recorder, `perf.py`), on
     success and on failure; the return value and the failure handling are unchanged."""
 
-    def __init__(self) -> None:
+    def __init__(self, site: str | None = None) -> None:
+        self.site = site  # CH5a1-R2: the Site code every ledger key starts with (one Reads per Site board)
         self.failed: list[str] = []
         self.statuses: dict[str, set[str]] = {}
         self.first: dict[str, dict[str, Any]] = {}  # IDX-GAPS U2: the first page body per paged read
         self.timings: dict[str, list[float]] = {}
 
-    def call(self, name: str, fn: Callable[..., Any], *args: Any) -> Any:
+    def call(self, name: str, fn: Callable[..., Any], *args: Any, memo: bool = False) -> Any:
+        """CH5a1-R2 (ledger): the request-ledger key is `(site, *args)`, because the ports are per-Site
+        closures (the summary's `objectives ()` read once per Site was 3 on one key). `memo` runs the read
+        through the request memo (R1) on the same key, so a second call with the same arguments executes
+        nothing and returns a mutable copy."""
+        key = args if self.site is None else (self.site, *args)
         started = time.perf_counter()
         try:
-            out = fn(*args)
+            out = (read_scope.thaw(read_scope.memo(name, fn, *args, key=key)) if memo else fn(*args))
         except Exception:  # noqa: BLE001 - B.3: a refused or failed producer read never refuses the board
             if name not in self.failed:
                 self.failed.append(name)
@@ -243,7 +249,8 @@ class Reads:
             entry[0] += 1
             entry[1] += ms
             perf.record(f"read.{name}", ms)
-            read_scope.record(name, args, ms)
+            if not memo:  # a memoised read is counted by `read_scope.memo`, once per executed key
+                read_scope.record(name, key, ms)
         return out
 
     def pages(self, name: str, fn: Callable[..., dict[str, Any]], *args: Any,
@@ -374,7 +381,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     carries. Local dates use the depth body's own `site.timezone`; if depth is refused they are UTC with the suffix
     (addendum 2 item 6). CH-5a1: no overview, Finding index or estate readiness read (§A4)."""
     c = site_code
-    reads = Reads()
+    reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     start, end = board_day(day, site_timezone)
     work_lo = end - WORK_WINDOW
 
@@ -401,7 +408,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, end)
     visits = maintenance_cases(reads, ports.work, c, end)  # C: 60 days by occurrence (R571)
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
-    objective_rows = reads.call("objectives", ports.objectives)
+    objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     sales = _productive_sales(reads, ports, c, start, end)
     month = _productive_month(reads, ports, sales.get("users"), start, site_timezone)
 
@@ -611,7 +618,7 @@ def _productive_month(reads: Reads, ports: MiniPorts, users: list[dict[str, Any]
     except MiniInputsRefused:
         return None
     raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
-                     bounds[0], bounds[-1])
+                     bounds[0], bounds[-1], memo=True)  # CH5a1-R2: on day 1 of a month = the day read
     if raw is None:
         return None
     names = {u.get("asset_id"): str(u.get("name")) for u in users}
@@ -751,7 +758,7 @@ def _measured_sales(reads: Reads, ports: MiniPorts, c: str, start: datetime, end
     price_href = f"/sites/{c}/financials/assumptions"
     names = ", ".join(str(u.get("name")) for u in users)
     raw = reads.call("productive_readings", ports.productive_readings, [u.get("asset_id") for u in users],
-                     start, end)
+                     start, end, memo=True)  # CH5a1-R2: the month read shares it on day 1
     series = reads.call("productive_price", ports.productive_price, start)
     sel = (series or {}).get("selection") or {}
     p = sel.get("price") or {}

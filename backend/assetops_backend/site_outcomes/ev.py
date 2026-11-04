@@ -116,7 +116,7 @@ def duration_text(seconds: Any) -> str | None:
 def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
             site_timezone: str | None) -> Composition:
     c = site_code
-    reads = Reads()
+    reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     suffix = "" if tz is not None else UTC_SUFFIX
     work_lo = hi - WORK_WINDOW
@@ -130,7 +130,7 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     plans = reads.call("plans", ports.plans, work_lo, hi)
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
-    objective_rows = reads.call("objectives", ports.objectives)
+    objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
     actions = tuple(domain_action(r, c) for r in action_rows or () if r.get("title") is not None)  # B-Q21
 

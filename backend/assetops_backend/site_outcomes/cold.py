@@ -101,7 +101,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     """`lo`/`hi` are the request window, passed unchanged (B-Q7). Findings are read over that window (the selected
     assessment, every lifecycle); work, domain Actions and plans over the 31-day work window ending at `hi`."""
     c = site_code
-    reads = Reads()
+    reads = Reads(c)  # CH5a1-R2: the ledger keys every read by its Site
     tz = site_zone(site_timezone)
     work_lo = hi - WORK_WINDOW
 
@@ -114,7 +114,7 @@ def compose(ports: ColdPorts, *, site_code: str, lo: datetime, hi: datetime,
     incidents = reads.pages("work_index", ports.work, "incidents", work_lo, hi)
     visits = maintenance_cases(reads, ports.work, c, hi)  # C: 60 days by occurrence (R571)
     work_failed = incidents is None or visits is None
-    objective_rows = reads.call("objectives", ports.objectives)
+    objective_rows = reads.call("objectives", ports.objectives)  # CH5a1-R2: keyed (site_code,) by `Reads`
     cases: list[CaseFact] = [case_fact(r, INCIDENT, c) for r in incidents or ()] + list(visits or ())
 
     findings = tuple(_finding(r, lo, hi) for r in finding_rows or ())
